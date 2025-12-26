@@ -69,7 +69,7 @@ export function HeroSection() {
                   placeholder="Search by project, neighborhood, or developer..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-12 h-14 text-base bg-muted/50 border-0 focus-visible:ring-2 focus-visible:ring-primary"
+                  className="pl-12 h-14 text-base bg-background border-2 border-border focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
