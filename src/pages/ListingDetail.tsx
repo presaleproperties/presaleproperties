@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { 
   ArrowLeft, 
@@ -11,17 +11,20 @@ import {
   Car,
   Package,
   Compass,
-  Layers
+  Layers,
+  AlertTriangle
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ImageGallery } from "@/components/listings/ImageGallery";
 import { LeadCaptureForm } from "@/components/listings/LeadCaptureForm";
 import { AgentContactCard } from "@/components/listings/AgentContactCard";
+import { useAuth } from "@/hooks/useAuth";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -78,21 +81,37 @@ interface AgentInfo {
 
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const { isAdmin, user } = useAuth();
+  const isPreview = searchParams.get("preview") === "true";
 
   const { data: listing, isLoading, error } = useQuery({
-    queryKey: ["listing", id],
+    queryKey: ["listing", id, isAdmin],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Build the query
+      let query = supabase
         .from("listings")
         .select(`
           *,
           listing_photos (id, url, sort_order)
         `)
-        .eq("id", id)
-        .eq("status", "published")
-        .maybeSingle();
+        .eq("id", id);
+
+      // If not admin, only show published listings
+      // Admins and listing owners can view any status
+      if (!isAdmin && !user) {
+        query = query.eq("status", "published");
+      }
+
+      const { data, error } = await query.maybeSingle();
 
       if (error) throw error;
+      
+      // For non-admins and non-owners, only allow viewing published listings
+      if (data && !isAdmin && data.agent_id !== user?.id && data.status !== "published") {
+        return null;
+      }
+      
       return data;
     },
     enabled: !!id,
@@ -181,10 +200,24 @@ export default function ListingDetail() {
       <Header />
       
       <main className="container py-6 md:py-8">
+        {/* Preview Banner for non-published listings */}
+        {listing.status !== "published" && (
+          <Alert className="mb-6 border-amber-500/50 bg-amber-500/10">
+            <AlertTriangle className="h-4 w-4 text-amber-500" />
+            <AlertDescription className="text-amber-700">
+              <strong>Preview Mode:</strong> This listing is not yet published (Status: {listing.status.replace(/_/g, " ")}).
+              Only you and admins can see this page.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Back Button */}
-        <Link to="/assignments" className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors">
+        <Link 
+          to={isAdmin && listing.status !== "published" ? "/admin/listings" : "/assignments"} 
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+        >
           <ArrowLeft className="h-4 w-4" />
-          Back to Assignments
+          {isAdmin && listing.status !== "published" ? "Back to Listing Approval" : "Back to Assignments"}
         </Link>
 
         <div className="grid lg:grid-cols-3 gap-8">
