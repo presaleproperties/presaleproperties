@@ -48,7 +48,10 @@ export function HeroSection() {
             Find Your Next <span className="text-primary">Assignment</span> Here
           </h1>
           
-          <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto animate-fade-in" style={{ animationDelay: "0.2s" }}>
+          <p 
+            className="text-lg md:text-xl text-white max-w-2xl mx-auto animate-fade-in drop-shadow-md" 
+            style={{ animationDelay: "0.2s" }}
+          >
             Discover presale condo assignments in Metro Vancouver. Browse listings, 
             connect with verified agents, and find your perfect investment.
           </p>
