@@ -94,16 +94,13 @@ export function ListingCard({
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           
           {/* Badges - Top Left */}
-          <div className="absolute top-3 left-3 flex gap-2">
-            <Badge className="bg-success text-success-foreground shadow-sm">
-              Available
-            </Badge>
-            {isFeatured && (
+          {isFeatured && (
+            <div className="absolute top-3 left-3">
               <Badge className="bg-primary text-primary-foreground shadow-gold">
                 Featured
               </Badge>
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Save Button - Top Right */}
           <div className="absolute top-3 right-3">
