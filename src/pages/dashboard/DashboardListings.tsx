@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 import { Tables } from "@/integrations/supabase/types";
 import { 
   Plus, 
@@ -16,8 +17,19 @@ import {
   Bath,
   Edit,
   Eye,
-  Loader2
+  Loader2,
+  Send,
+  Pause,
+  Play,
+  RefreshCw,
+  MoreHorizontal
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 type Listing = Tables<"listings">;
 
@@ -33,9 +45,11 @@ const statusLabels: Record<string, { label: string; variant: "default" | "second
 
 export default function DashboardListings() {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+  const [actionLoading, setActionLoading] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -62,6 +76,134 @@ export default function DashboardListings() {
     }
   };
 
+  const handleSubmitForApproval = async (listing: Listing) => {
+    if (!user) return;
+    setActionLoading(listing.id);
+
+    try {
+      // For now, skip payment and go directly to pending_approval
+      // When payment is implemented, this would first go to pending_payment
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "pending_approval" })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Submitted for Approval",
+        description: "Your listing is now pending admin review.",
+      });
+
+      fetchListings();
+    } catch (error) {
+      console.error("Error submitting listing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to submit listing. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handlePauseListing = async (listing: Listing) => {
+    setActionLoading(listing.id);
+
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "paused" })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Listing Paused",
+        description: "Your listing is now hidden from the marketplace.",
+      });
+
+      fetchListings();
+    } catch (error) {
+      console.error("Error pausing listing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to pause listing. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleResumeListing = async (listing: Listing) => {
+    setActionLoading(listing.id);
+
+    try {
+      const { error } = await supabase
+        .from("listings")
+        .update({ status: "published" })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Listing Resumed",
+        description: "Your listing is now visible on the marketplace.",
+      });
+
+      fetchListings();
+    } catch (error) {
+      console.error("Error resuming listing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to resume listing. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRenewListing = async (listing: Listing) => {
+    setActionLoading(listing.id);
+
+    try {
+      // For now, renew directly without payment
+      // When payment is implemented, this would go to pending_payment first
+      const newExpiresAt = new Date();
+      newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
+
+      const { error } = await supabase
+        .from("listings")
+        .update({ 
+          status: "published",
+          expires_at: newExpiresAt.toISOString(),
+          published_at: new Date().toISOString()
+        })
+        .eq("id", listing.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Listing Renewed",
+        description: "Your listing has been renewed for another 365 days.",
+      });
+
+      fetchListings();
+    } catch (error) {
+      console.error("Error renewing listing:", error);
+      toast({
+        title: "Error",
+        description: "Failed to renew listing. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
   const filteredListings = listings.filter((listing) => {
     if (activeTab === "all") return true;
     if (activeTab === "active") return listing.status === "published";
@@ -76,6 +218,81 @@ export default function DashboardListings() {
       currency: "CAD",
       maximumFractionDigits: 0,
     }).format(price);
+  };
+
+  const renderListingActions = (listing: Listing) => {
+    const isLoading = actionLoading === listing.id;
+
+    return (
+      <div className="flex gap-2">
+        <Link to={`/dashboard/listings/${listing.id}/edit`}>
+          <Button variant="outline" size="sm" disabled={isLoading}>
+            <Edit className="h-4 w-4" />
+          </Button>
+        </Link>
+        
+        {listing.status === "published" && (
+          <Link to={`/assignments/${listing.id}`} target="_blank">
+            <Button variant="outline" size="sm">
+              <Eye className="h-4 w-4" />
+            </Button>
+          </Link>
+        )}
+
+        {/* Submit for Approval - Draft only */}
+        {listing.status === "draft" && (
+          <Button 
+            size="sm" 
+            onClick={() => handleSubmitForApproval(listing)}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                <Send className="h-4 w-4 mr-1" />
+                Submit
+              </>
+            )}
+          </Button>
+        )}
+
+        {/* Actions Menu for Published/Paused/Expired */}
+        {(listing.status === "published" || listing.status === "paused" || listing.status === "expired") && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={isLoading}>
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MoreHorizontal className="h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {listing.status === "published" && (
+                <DropdownMenuItem onClick={() => handlePauseListing(listing)}>
+                  <Pause className="h-4 w-4 mr-2" />
+                  Pause Listing
+                </DropdownMenuItem>
+              )}
+              {listing.status === "paused" && (
+                <DropdownMenuItem onClick={() => handleResumeListing(listing)}>
+                  <Play className="h-4 w-4 mr-2" />
+                  Resume Listing
+                </DropdownMenuItem>
+              )}
+              {listing.status === "expired" && (
+                <DropdownMenuItem onClick={() => handleRenewListing(listing)}>
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Renew Listing
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
+    );
   };
 
   return (
@@ -165,6 +382,11 @@ export default function DashboardListings() {
                               {listing.baths} bath
                             </span>
                           </div>
+                          {listing.rejection_reason && listing.status === "rejected" && (
+                            <p className="text-sm text-destructive mt-2">
+                              Rejection reason: {listing.rejection_reason}
+                            </p>
+                          )}
                         </div>
                         
                         <div className="text-right">
@@ -173,20 +395,7 @@ export default function DashboardListings() {
                           </p>
                         </div>
                         
-                        <div className="flex gap-2">
-                          <Link to={`/dashboard/listings/${listing.id}/edit`}>
-                            <Button variant="outline" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                          </Link>
-                          {listing.status === "published" && (
-                            <Link to={`/assignments/${listing.id}`} target="_blank">
-                              <Button variant="outline" size="sm">
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </Link>
-                          )}
-                        </div>
+                        {renderListingActions(listing)}
                       </div>
                     </CardContent>
                   </Card>

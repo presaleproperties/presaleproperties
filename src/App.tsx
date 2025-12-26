@@ -16,6 +16,7 @@ import DashboardOverview from "./pages/dashboard/DashboardOverview";
 import DashboardListings from "./pages/dashboard/DashboardListings";
 import DashboardLeads from "./pages/dashboard/DashboardLeads";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
+import DashboardBilling from "./pages/dashboard/DashboardBilling";
 import ListingForm from "./pages/dashboard/ListingForm";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminAgents from "./pages/admin/AdminAgents";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
             <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
+            <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
             
             {/* Admin Routes */}

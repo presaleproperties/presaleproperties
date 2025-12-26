@@ -11,7 +11,8 @@ import {
   LogOut,
   Menu,
   X,
-  Home
+  Home,
+  CreditCard
 } from "lucide-react";
 import { useState } from "react";
 
@@ -23,6 +24,7 @@ const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
   { label: "My Listings", href: "/dashboard/listings", icon: Building2 },
   { label: "Leads", href: "/dashboard/leads", icon: Users },
+  { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { label: "Profile", href: "/dashboard/profile", icon: User },
 ];
 

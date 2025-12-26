@@ -44,16 +44,23 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle }: LeadCaptur
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from("leads").insert({
+      const { data: leadData, error } = await supabase.from("leads").insert({
         listing_id: listingId,
         agent_id: agentId,
         name: data.name,
         email: data.email,
         phone: data.phone || null,
         message: data.message || null,
-      });
+      }).select("id").single();
 
       if (error) throw error;
+
+      // Try to send email notification (non-blocking)
+      if (leadData?.id) {
+        supabase.functions.invoke("send-lead-notification", {
+          body: { leadId: leadData.id }
+        }).catch(err => console.log("Email notification skipped:", err));
+      }
 
       setIsSubmitted(true);
       reset();
