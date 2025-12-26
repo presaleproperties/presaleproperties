@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   User, 
   Shield, 
-  Building2,
+  Camera,
   Loader2,
   CheckCircle,
   AlertCircle,
@@ -48,7 +49,10 @@ export default function DashboardProfile() {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [agentProfile, setAgentProfile] = useState<AgentProfile | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const profileForm = useForm<ProfileFormData>({
     resolver: zodResolver(profileSchema),
@@ -80,7 +84,7 @@ export default function DashboardProfile() {
       // Fetch profile
       const { data: profile } = await supabase
         .from("profiles")
-        .select("full_name, phone")
+        .select("full_name, phone, avatar_url")
         .eq("user_id", user.id)
         .single();
 
@@ -89,6 +93,7 @@ export default function DashboardProfile() {
           full_name: profile.full_name || "",
           phone: profile.phone || "",
         });
+        setAvatarUrl(profile.avatar_url);
       }
 
       // Fetch agent profile
@@ -174,6 +179,75 @@ export default function DashboardProfile() {
     }
   };
 
+  const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file (JPG, PNG, etc.)",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please upload an image smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setUploadingPhoto(true);
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const filePath = `${user.id}/avatar.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from("avatars")
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from("avatars")
+        .getPublicUrl(filePath);
+
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from("profiles")
+        .update({ avatar_url: publicUrl })
+        .eq("user_id", user.id);
+
+      if (updateError) throw updateError;
+
+      setAvatarUrl(publicUrl);
+      toast({
+        title: "Photo updated",
+        description: "Your profile photo has been updated.",
+      });
+    } catch (error) {
+      console.error("Upload error:", error);
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload photo. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingPhoto(false);
+    }
+  };
+
   const getVerificationIcon = () => {
     switch (agentProfile?.verification_status) {
       case "verified":
@@ -242,6 +316,62 @@ export default function DashboardProfile() {
               </p>
             </CardContent>
           )}
+        </Card>
+
+        {/* Profile Photo */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Camera className="h-4 w-4" />
+              Profile Photo
+            </CardTitle>
+            <CardDescription>
+              This photo will appear on your listings
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center gap-6">
+              <div className="relative">
+                <Avatar className="h-24 w-24">
+                  <AvatarImage src={avatarUrl || undefined} alt="Profile photo" />
+                  <AvatarFallback className="text-xl bg-muted">
+                    {profileForm.watch("full_name")?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "AG"}
+                  </AvatarFallback>
+                </Avatar>
+                {uploadingPhoto && (
+                  <div className="absolute inset-0 flex items-center justify-center bg-background/80 rounded-full">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2">
+                <input
+                  type="file"
+                  accept="image/*"
+                  ref={fileInputRef}
+                  onChange={handlePhotoUpload}
+                  className="hidden"
+                />
+                <Button 
+                  variant="outline" 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingPhoto}
+                >
+                  {uploadingPhoto ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    "Upload Photo"
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground">
+                  JPG, PNG up to 5MB
+                </p>
+              </div>
+            </div>
+          </CardContent>
         </Card>
 
         {/* Personal Information */}
