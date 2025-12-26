@@ -1,7 +1,14 @@
+import { useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Link } from "react-router-dom";
 import { 
   Search, 
@@ -11,7 +18,8 @@ import {
   Upload,
   CheckCircle,
   Users,
-  ArrowRight
+  ArrowRight,
+  HelpCircle
 } from "lucide-react";
 
 const buyerSteps = [
@@ -60,7 +68,50 @@ const sellerSteps = [
   }
 ];
 
+const faqs = [
+  {
+    question: "Is AssignmentHub free to use for buyers?",
+    answer: "Yes, browsing listings and contacting agents is completely free for buyers. There are no fees or subscriptions required. You can browse, search, and inquire on any listing at no cost."
+  },
+  {
+    question: "How are agents verified?",
+    answer: "All agents must provide their real estate license number and brokerage information during registration. Our team verifies each agent's credentials with the appropriate regulatory body before they can list properties on our platform."
+  },
+  {
+    question: "How much does it cost to list an assignment?",
+    answer: "We charge a flat fee per listing for 365 days of visibility. This includes unlimited inquiries and the ability to update your listing at any time. Contact us or register as an agent to see current pricing."
+  },
+  {
+    question: "Are all listings reviewed before publishing?",
+    answer: "Yes, every listing is reviewed by our admin team to ensure accuracy, completeness, and compliance with platform guidelines before going live. This typically takes 1-2 business days."
+  },
+  {
+    question: "What documents do I need to complete an assignment purchase?",
+    answer: "Typically you'll need the original purchase agreement, assignment agreement, developer consent (if required), and financing pre-approval. Your agent will guide you through the specific requirements for each property."
+  },
+  {
+    question: "Can developers restrict assignment sales?",
+    answer: "Yes, some developers have restrictions on assignment sales, including blackout periods or assignment fees. Each listing on our platform includes information about any known restrictions, but buyers should always verify with the developer."
+  },
+  {
+    question: "How long does an assignment transaction take?",
+    answer: "Assignment transactions typically take 2-4 weeks from accepted offer to completion, depending on developer requirements and financing timelines. This is faster than traditional resale purchases."
+  },
+  {
+    question: "What is the difference between assignment price and original purchase price?",
+    answer: "The original purchase price is what the seller paid the developer. The assignment price is what the new buyer pays, which may be higher or lower depending on market conditions. The difference represents the seller's gain or loss."
+  }
+];
+
 export default function HowItWorks() {
+  useEffect(() => {
+    document.title = "How It Works | AssignmentHub Vancouver - Assignment Sale Guide";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", "Learn how assignment sales work in Vancouver. Step-by-step guides for buyers and agents, FAQs, and everything you need to know about pre-construction assignments.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -208,45 +259,32 @@ export default function HowItWorks() {
         <section className="py-16 bg-muted/30 border-t border-border">
           <div className="container">
             <div className="text-center mb-12">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-4">
+                <HelpCircle className="h-6 w-6 text-primary" />
+              </div>
               <h2 className="text-3xl font-bold">Frequently Asked Questions</h2>
+              <p className="text-muted-foreground mt-2">
+                Everything you need to know about assignment sales
+              </p>
             </div>
             
-            <div className="max-w-3xl mx-auto space-y-6">
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="font-semibold mb-2">Is AssignmentHub free to use for buyers?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Yes, browsing listings and contacting agents is completely free for buyers. There are no fees or subscriptions required.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="font-semibold mb-2">How are agents verified?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    All agents must provide their real estate license number and brokerage information. Our team verifies each agent before they can list properties.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="font-semibold mb-2">How much does it cost to list an assignment?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Listing fees vary based on the listing package selected. Contact us for current pricing or register as an agent to see available options.
-                  </p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardContent className="pt-6">
-                  <h3 className="font-semibold mb-2">Are all listings reviewed before publishing?</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Yes, every listing is reviewed by our admin team to ensure accuracy, completeness, and compliance with platform guidelines before going live.
-                  </p>
-                </CardContent>
-              </Card>
+            <div className="max-w-3xl mx-auto">
+              <Accordion type="single" collapsible className="space-y-4">
+                {faqs.map((faq, index) => (
+                  <AccordionItem 
+                    key={index} 
+                    value={`faq-${index}`}
+                    className="bg-card border border-border rounded-lg px-6"
+                  >
+                    <AccordionTrigger className="text-left font-semibold hover:no-underline">
+                      {faq.question}
+                    </AccordionTrigger>
+                    <AccordionContent className="text-muted-foreground">
+                      {faq.answer}
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
             </div>
           </div>
         </section>
