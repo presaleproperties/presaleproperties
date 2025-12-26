@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
@@ -78,48 +78,37 @@ export function HeroSection() {
             connect with verified agents, and find your perfect investment.
           </p>
 
-          {/* Floating Search Card */}
+          {/* Floating Search Card - REW.ca style */}
           <div 
-            className="bg-background/95 backdrop-blur-sm rounded-xl shadow-2xl p-6 max-w-2xl mx-auto animate-fade-in border border-border/50"
+            className="bg-white rounded-lg shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
             style={{ animationDelay: "0.3s" }}
           >
-            <form onSubmit={handleSearch} className="space-y-4">
+            <form onSubmit={handleSearch}>
               <div className="relative" ref={searchContainerRef}>
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                 <Input
                   type="text"
-                  placeholder="Search by project, neighborhood, or developer..."
+                  placeholder="City, Neighbourhood, Project, Developer"
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setShowSuggestions(true);
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  className="pl-12 h-14 text-base bg-background border-2 border-border focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
+                  className="h-14 md:h-16 text-base md:text-lg pl-5 pr-14 border-0 bg-white text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 rounded-lg"
                   autoComplete="off"
                 />
+                <button 
+                  type="submit"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Search className="h-6 w-6" />
+                </button>
                 <SearchSuggestions
                   query={searchQuery}
                   onSelect={handleSuggestionSelect}
                   isVisible={showSuggestions}
                   onClose={() => setShowSuggestions(false)}
                 />
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Button type="submit" size="lg" className="flex-1 h-12 text-base font-semibold shadow-gold">
-                  <Search className="mr-2 h-5 w-5" />
-                  Search Assignments
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="lg" 
-                  className="h-12"
-                  onClick={() => navigate("/assignments")}
-                >
-                  <MapPin className="mr-2 h-5 w-5" />
-                  Browse All
-                </Button>
               </div>
             </form>
           </div>
