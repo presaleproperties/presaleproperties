@@ -1,5 +1,4 @@
 import { Building, Phone, Mail } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface AgentContactCardProps {
@@ -17,13 +16,11 @@ interface AgentContactCardProps {
 export function AgentContactCard({ agent }: AgentContactCardProps) {
   if (!agent) {
     return (
-      <Card className="shadow-card">
-        <CardContent className="pt-6">
-          <p className="text-sm text-muted-foreground">
-            Assignment listed by a licensed real estate agent. Use the form above to request more details.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="rounded-xl border border-border bg-card p-5 shadow-card">
+        <p className="text-sm text-muted-foreground text-center">
+          Assignment listed by a licensed real estate agent.
+        </p>
+      </div>
     );
   }
 
@@ -38,59 +35,68 @@ export function AgentContactCard({ agent }: AgentContactCardProps) {
     : "AG";
 
   return (
-    <Card className="shadow-card overflow-hidden">
-      <CardContent className="p-0">
-        {/* Header */}
-        <div className="bg-muted/50 px-5 py-3 border-b border-border">
-          <p className="text-sm text-muted-foreground">
-            Assignment listed and marketed by
-          </p>
-          <p className="font-semibold text-foreground">{agentName}</p>
-        </div>
+    <div className="rounded-xl border border-border bg-gradient-to-br from-card to-muted/30 shadow-card overflow-hidden">
+      {/* Gold accent bar */}
+      <div className="h-1.5 bg-gradient-to-r from-primary to-primary/60" />
+      
+      <div className="p-5">
+        {/* Header text */}
+        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-4">
+          Assignment listed and marketed by
+        </p>
 
-        {/* Agent Info */}
-        <div className="p-5 space-y-4">
-          {/* Avatar & Brokerage */}
-          <div className="flex items-center gap-4">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              <AvatarImage src={agent.avatar_url || undefined} alt={agentName} />
-              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
-                {initials}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Building className="h-4 w-4 flex-shrink-0" />
-                <span className="text-sm font-medium">{agent.brokerage_name}</span>
-              </div>
+        {/* Agent info row */}
+        <div className="flex items-center gap-4 mb-5">
+          <Avatar className="h-16 w-16 ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+            <AvatarImage src={agent.avatar_url || undefined} alt={agentName} />
+            <AvatarFallback className="bg-primary text-primary-foreground font-semibold text-lg">
+              {initials}
+            </AvatarFallback>
+          </Avatar>
+          <div className="flex-1 min-w-0">
+            <h3 className="font-semibold text-lg text-foreground truncate">
+              {agentName}
+            </h3>
+            <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
+              <Building className="h-3.5 w-3.5 flex-shrink-0" />
+              <span className="text-sm truncate">{agent.brokerage_name}</span>
             </div>
           </div>
-
-          {/* Contact Info */}
-          <div className="space-y-3 pt-2">
-            {agent.phone && (
-              <a
-                href={`tel:${agent.phone}`}
-                className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-              >
-                <div className="p-2 bg-primary/10 rounded-full">
-                  <Phone className="h-4 w-4 text-primary" />
-                </div>
-                <span className="font-medium text-foreground">{agent.phone}</span>
-              </a>
-            )}
-            <a
-              href={`mailto:${agent.email}`}
-              className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
-            >
-              <div className="p-2 bg-primary/10 rounded-full">
-                <Mail className="h-4 w-4 text-primary" />
-              </div>
-              <span className="font-medium text-foreground break-all">{agent.email}</span>
-            </a>
-          </div>
         </div>
-      </CardContent>
-    </Card>
+
+        {/* Divider */}
+        <div className="h-px bg-border mb-4" />
+
+        {/* Contact buttons */}
+        <div className="space-y-2">
+          {agent.phone && (
+            <a
+              href={`tel:${agent.phone}`}
+              className="flex items-center gap-3 w-full p-3 rounded-lg border border-border bg-background hover:bg-muted hover:border-primary/30 transition-all group"
+            >
+              <div className="p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                <Phone className="h-4 w-4 text-primary" />
+              </div>
+              <div className="text-left">
+                <p className="text-xs text-muted-foreground">Phone</p>
+                <p className="font-medium text-foreground">{agent.phone}</p>
+              </div>
+            </a>
+          )}
+          <a
+            href={`mailto:${agent.email}`}
+            className="flex items-center gap-3 w-full p-3 rounded-lg border border-border bg-background hover:bg-muted hover:border-primary/30 transition-all group"
+          >
+            <div className="p-2 rounded-full bg-primary/10 group-hover:bg-primary/20 transition-colors">
+              <Mail className="h-4 w-4 text-primary" />
+            </div>
+            <div className="text-left min-w-0 flex-1">
+              <p className="text-xs text-muted-foreground">Email</p>
+              <p className="font-medium text-foreground truncate">{agent.email}</p>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
   );
 }
