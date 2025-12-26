@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +24,8 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { supabase } from "@/integrations/supabase/client";
+
+const ITEMS_PER_PAGE = 12;
 
 const CITIES = ["Vancouver", "Burnaby", "Richmond", "Surrey", "Coquitlam", "North Vancouver", "West Vancouver"];
 const BEDS_OPTIONS = [
@@ -69,9 +71,39 @@ export default function Assignments() {
     sort: searchParams.get("sort") || "newest",
   };
 
-  const { data: listings, isLoading } = useQuery({
-    queryKey: ["assignments", filters, searchQuery],
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const { data, isLoading } = useQuery({
+    queryKey: ["assignments", filters, currentPage],
     queryFn: async () => {
+      // First, get total count
+      let countQuery = supabase
+        .from("listings")
+        .select("*", { count: "exact", head: true })
+        .eq("status", "published");
+
+      // Apply filters to count query
+      if (filters.city !== "any") {
+        countQuery = countQuery.eq("city", filters.city);
+      }
+      if (filters.beds !== "any") {
+        if (filters.beds === "3") {
+          countQuery = countQuery.gte("beds", 3);
+        } else {
+          countQuery = countQuery.eq("beds", parseInt(filters.beds));
+        }
+      }
+      if (filters.propertyType !== "any") {
+        countQuery = countQuery.eq("property_type", filters.propertyType as "condo" | "townhouse" | "other");
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        countQuery = countQuery.gte("assignment_price", min).lte("assignment_price", max);
+      }
+
+      const { count } = await countQuery;
+
+      // Then get paginated data
       let query = supabase
         .from("listings")
         .select(`
@@ -117,11 +149,21 @@ export default function Assignments() {
           query = query.order("published_at", { ascending: false });
       }
 
+      // Apply pagination
+      const from = (currentPage - 1) * ITEMS_PER_PAGE;
+      const to = from + ITEMS_PER_PAGE - 1;
+      query = query.range(from, to);
+
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      
+      return { listings: data, totalCount: count || 0 };
     },
   });
+
+  const listings = data?.listings;
+  const totalCount = data?.totalCount || 0;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
   // Filter by search query client-side
   const filteredListings = useMemo(() => {
@@ -143,7 +185,20 @@ export default function Assignments() {
     } else {
       newParams.set(key, value);
     }
+    // Reset to page 1 when filters change
+    newParams.delete("page");
     setSearchParams(newParams);
+  };
+
+  const goToPage = (page: number) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (page === 1) {
+      newParams.delete("page");
+    } else {
+      newParams.set("page", page.toString());
+    }
+    setSearchParams(newParams);
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const clearAllFilters = () => {
@@ -229,6 +284,73 @@ export default function Assignments() {
       )}
     </div>
   );
+
+  const PaginationControls = () => {
+    if (totalPages <= 1) return null;
+
+    const getPageNumbers = () => {
+      const pages: (number | "...")[] = [];
+      
+      if (totalPages <= 7) {
+        for (let i = 1; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        
+        if (currentPage > 3) pages.push("...");
+        
+        const start = Math.max(2, currentPage - 1);
+        const end = Math.min(totalPages - 1, currentPage + 1);
+        
+        for (let i = start; i <= end; i++) pages.push(i);
+        
+        if (currentPage < totalPages - 2) pages.push("...");
+        
+        pages.push(totalPages);
+      }
+      
+      return pages;
+    };
+
+    return (
+      <div className="flex items-center justify-center gap-2 mt-8">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goToPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </Button>
+
+        <div className="flex items-center gap-1">
+          {getPageNumbers().map((page, i) => (
+            page === "..." ? (
+              <span key={`ellipsis-${i}`} className="px-2 text-muted-foreground">...</span>
+            ) : (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={() => goToPage(page)}
+                className="min-w-[36px]"
+              >
+                {page}
+              </Button>
+            )
+          ))}
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => goToPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </Button>
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -356,7 +478,7 @@ export default function Assignments() {
             ) : filteredListings && filteredListings.length > 0 ? (
               <>
                 <p className="text-sm text-muted-foreground mb-4">
-                  {filteredListings.length} assignment{filteredListings.length !== 1 ? "s" : ""} found
+                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} assignment{totalCount !== 1 ? "s" : ""}
                 </p>
                 <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
                   {filteredListings.map((listing) => (
@@ -381,6 +503,7 @@ export default function Assignments() {
                     />
                   ))}
                 </div>
+                <PaginationControls />
               </>
             ) : (
               <div className="text-center py-16 bg-muted/30 rounded-xl">
