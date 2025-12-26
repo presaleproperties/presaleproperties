@@ -1,22 +1,49 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { SearchSuggestions } from "./SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
 const topCities = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Richmond"];
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    setShowSuggestions(false);
     if (searchQuery.trim()) {
       navigate(`/assignments?q=${encodeURIComponent(searchQuery)}`);
     } else {
       navigate("/assignments");
+    }
+  };
+
+  const handleSuggestionSelect = (value: string, type: "project" | "neighborhood") => {
+    setSearchQuery(value);
+    setShowSuggestions(false);
+    // Navigate with the appropriate filter
+    if (type === "project") {
+      navigate(`/assignments?q=${encodeURIComponent(value)}`);
+    } else {
+      navigate(`/assignments?q=${encodeURIComponent(value)}`);
     }
   };
 
@@ -62,14 +89,25 @@ export function HeroSection() {
             style={{ animationDelay: "0.3s" }}
           >
             <form onSubmit={handleSearch} className="space-y-4">
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <div className="relative" ref={searchContainerRef}>
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
                 <Input
                   type="text"
                   placeholder="Search by project, neighborhood, or developer..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
                   className="pl-12 h-14 text-base bg-background border-2 border-border focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-primary"
+                  autoComplete="off"
+                />
+                <SearchSuggestions
+                  query={searchQuery}
+                  onSelect={handleSuggestionSelect}
+                  isVisible={showSuggestions}
+                  onClose={() => setShowSuggestions(false)}
                 />
               </div>
               <div className="flex flex-col sm:flex-row gap-3">
