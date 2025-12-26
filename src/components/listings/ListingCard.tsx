@@ -3,7 +3,7 @@ import { MapPin, Bed, Bath, Maximize, Camera } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-
+import { SaveButton } from "./SaveButton";
 interface AgentInfo {
   name?: string;
   brokerage?: string;
@@ -103,6 +103,11 @@ export function ListingCard({
                 Featured
               </Badge>
             )}
+          </div>
+
+          {/* Save Button - Top Right */}
+          <div className="absolute top-3 right-3">
+            <SaveButton listingId={id} />
           </div>
 
           {/* Photo Count - Bottom Right */}
