@@ -74,6 +74,35 @@ export type Database = {
         }
         Relationships: []
       }
+      expiration_notifications: {
+        Row: {
+          id: string
+          listing_id: string
+          notification_type: string
+          sent_at: string
+        }
+        Insert: {
+          id?: string
+          listing_id: string
+          notification_type: string
+          sent_at?: string
+        }
+        Update: {
+          id?: string
+          listing_id?: string
+          notification_type?: string
+          sent_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expiration_notifications_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           agent_id: string
