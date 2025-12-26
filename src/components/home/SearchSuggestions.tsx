@@ -1,21 +1,25 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, MapPin } from "lucide-react";
+import { Building2, MapPin, MapPinned, HardHat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
+type SuggestionType = "project" | "neighborhood" | "city" | "developer";
+
 interface SearchSuggestionsProps {
   query: string;
-  onSelect: (value: string, type: "project" | "neighborhood") => void;
+  onSelect: (value: string, type: SuggestionType) => void;
   isVisible: boolean;
   onClose: () => void;
 }
 
 interface Suggestion {
   value: string;
-  type: "project" | "neighborhood";
+  type: SuggestionType;
   count: number;
 }
+
+export type { SuggestionType };
 
 export function SearchSuggestions({ query, onSelect, isVisible, onClose }: SearchSuggestionsProps) {
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -28,44 +32,60 @@ export function SearchSuggestions({ query, onSelect, isVisible, onClose }: Searc
 
       const { data: listings, error } = await supabase
         .from("listings")
-        .select("project_name, neighborhood, city")
+        .select("project_name, neighborhood, city, developer_name")
         .eq("status", "published");
 
       if (error) throw error;
 
-      // Extract unique projects and neighborhoods with counts
+      const lowerQuery = query.toLowerCase();
       const projectCounts = new Map<string, number>();
       const neighborhoodCounts = new Map<string, number>();
+      const cityCounts = new Map<string, number>();
+      const developerCounts = new Map<string, number>();
 
       listings?.forEach((listing) => {
-        if (listing.project_name.toLowerCase().includes(query.toLowerCase())) {
+        if (listing.project_name.toLowerCase().includes(lowerQuery)) {
           projectCounts.set(
             listing.project_name,
             (projectCounts.get(listing.project_name) || 0) + 1
           );
         }
-        if (listing.neighborhood?.toLowerCase().includes(query.toLowerCase())) {
+        if (listing.neighborhood?.toLowerCase().includes(lowerQuery)) {
           neighborhoodCounts.set(
             listing.neighborhood,
             (neighborhoodCounts.get(listing.neighborhood) || 0) + 1
+          );
+        }
+        if (listing.city.toLowerCase().includes(lowerQuery)) {
+          cityCounts.set(
+            listing.city,
+            (cityCounts.get(listing.city) || 0) + 1
+          );
+        }
+        if (listing.developer_name?.toLowerCase().includes(lowerQuery)) {
+          developerCounts.set(
+            listing.developer_name,
+            (developerCounts.get(listing.developer_name) || 0) + 1
           );
         }
       });
 
       const results: Suggestion[] = [];
 
-      // Add projects
       projectCounts.forEach((count, value) => {
         results.push({ value, type: "project", count });
       });
-
-      // Add neighborhoods
       neighborhoodCounts.forEach((count, value) => {
         results.push({ value, type: "neighborhood", count });
       });
+      cityCounts.forEach((count, value) => {
+        results.push({ value, type: "city", count });
+      });
+      developerCounts.forEach((count, value) => {
+        results.push({ value, type: "developer", count });
+      });
 
-      // Sort by count and limit to 6
-      return results.sort((a, b) => b.count - a.count).slice(0, 6);
+      return results.sort((a, b) => b.count - a.count).slice(0, 8);
     },
     enabled: query.length >= 2 && isVisible,
   });
@@ -124,15 +144,18 @@ export function SearchSuggestions({ query, onSelect, isVisible, onClose }: Searc
           onClick={() => onSelect(suggestion.value, suggestion.type)}
           onMouseEnter={() => setActiveIndex(index)}
         >
-          {suggestion.type === "project" ? (
-            <Building2 className="h-4 w-4 text-primary shrink-0" />
-          ) : (
-            <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
-          )}
+          {suggestion.type === "project" && <Building2 className="h-4 w-4 text-primary shrink-0" />}
+          {suggestion.type === "neighborhood" && <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />}
+          {suggestion.type === "city" && <MapPinned className="h-4 w-4 text-blue-500 shrink-0" />}
+          {suggestion.type === "developer" && <HardHat className="h-4 w-4 text-amber-500 shrink-0" />}
           <div className="flex-1 min-w-0">
             <p className="font-medium text-foreground truncate">{suggestion.value}</p>
             <p className="text-xs text-muted-foreground">
-              {suggestion.type === "project" ? "Project" : "Neighborhood"} · {suggestion.count} listing{suggestion.count !== 1 ? "s" : ""}
+              {suggestion.type === "project" && "Project"}
+              {suggestion.type === "neighborhood" && "Neighborhood"}
+              {suggestion.type === "city" && "City"}
+              {suggestion.type === "developer" && "Developer"}
+              {" "}· {suggestion.count} listing{suggestion.count !== 1 ? "s" : ""}
             </p>
           </div>
         </button>

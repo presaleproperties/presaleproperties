@@ -36,15 +36,10 @@ export function HeroSection() {
     }
   };
 
-  const handleSuggestionSelect = (value: string, type: "project" | "neighborhood") => {
+  const handleSuggestionSelect = (value: string, type: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
-    // Navigate with the appropriate filter
-    if (type === "project") {
-      navigate(`/assignments?q=${encodeURIComponent(value)}`);
-    } else {
-      navigate(`/assignments?q=${encodeURIComponent(value)}`);
-    }
+    navigate(`/assignments?q=${encodeURIComponent(value)}`);
   };
 
   const handleCityClick = (city: string) => {
