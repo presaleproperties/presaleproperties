@@ -2,6 +2,13 @@ import { Link } from "react-router-dom";
 import { MapPin, Bed, Bath, Maximize } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface AgentInfo {
+  name?: string;
+  brokerage?: string;
+  avatarUrl?: string;
+}
 
 interface ListingCardProps {
   id: string;
@@ -20,6 +27,7 @@ interface ListingCardProps {
   completionMonth?: number;
   isFeatured?: boolean;
   imageUrl?: string;
+  agent?: AgentInfo;
 }
 
 const formatPrice = (price: number) => {
@@ -58,6 +66,7 @@ export function ListingCard({
   completionMonth,
   isFeatured,
   imageUrl,
+  agent,
 }: ListingCardProps) {
   const completionDate = completionYear
     ? `${completionMonth ? `${completionMonth}/` : ""}${completionYear}`
@@ -138,6 +147,28 @@ export function ListingCard({
               {city}
             </span>
           </div>
+
+          {/* Agent Info */}
+          {agent && (
+            <div className="flex items-center gap-2 pt-3 border-t border-border">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={agent.avatarUrl} alt={agent.name || "Agent"} />
+                <AvatarFallback className="text-xs bg-muted">
+                  {agent.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "AG"}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-medium text-foreground truncate">
+                  {agent.name || "Agent"}
+                </p>
+                {agent.brokerage && (
+                  <p className="text-xs text-muted-foreground truncate">
+                    {agent.brokerage}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>
