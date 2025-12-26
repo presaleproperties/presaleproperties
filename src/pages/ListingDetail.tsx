@@ -21,6 +21,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ImageGallery } from "@/components/listings/ImageGallery";
 import { LeadCaptureForm } from "@/components/listings/LeadCaptureForm";
+import { AgentContactCard } from "@/components/listings/AgentContactCard";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -65,6 +66,16 @@ const getCompletionDate = (year?: number | null, month?: number | null) => {
   return year.toString();
 };
 
+interface AgentInfo {
+  full_name: string | null;
+  email: string;
+  phone: string | null;
+  avatar_url: string | null;
+  brokerage_name: string;
+  license_number: string;
+  is_verified: boolean;
+}
+
 export default function ListingDetail() {
   const { id } = useParams<{ id: string }>();
 
@@ -85,6 +96,41 @@ export default function ListingDetail() {
       return data;
     },
     enabled: !!id,
+  });
+
+  // Fetch agent info separately
+  const { data: agentInfo } = useQuery({
+    queryKey: ["agent", listing?.agent_id],
+    queryFn: async () => {
+      if (!listing?.agent_id) return null;
+
+      // Get profile info
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name, email, phone, avatar_url")
+        .eq("user_id", listing.agent_id)
+        .maybeSingle();
+
+      // Get agent profile info
+      const { data: agentProfile } = await supabase
+        .from("agent_profiles")
+        .select("brokerage_name, license_number, verification_status")
+        .eq("user_id", listing.agent_id)
+        .maybeSingle();
+
+      if (!profile || !agentProfile) return null;
+
+      return {
+        full_name: profile.full_name,
+        email: profile.email,
+        phone: profile.phone,
+        avatar_url: profile.avatar_url,
+        brokerage_name: agentProfile.brokerage_name,
+        license_number: agentProfile.license_number,
+        is_verified: agentProfile.verification_status === "verified",
+      } as AgentInfo;
+    },
+    enabled: !!listing?.agent_id,
   });
 
   if (isLoading) {
@@ -325,14 +371,15 @@ export default function ListingDetail() {
             )}
           </div>
 
-          {/* Right Column - Lead Form */}
+          {/* Right Column - Lead Form & Agent Info */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6">
+            <div className="sticky top-6 space-y-6">
               <LeadCaptureForm 
                 listingId={listing.id} 
                 agentId={listing.agent_id}
                 listingTitle={listing.title}
               />
+              <AgentContactCard agent={agentInfo || null} />
             </div>
           </div>
         </div>
