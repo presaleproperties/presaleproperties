@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,10 @@ import {
   CheckCircle,
   ArrowRight,
   Mail,
-  Phone
+  Phone,
+  BadgeCheck,
+  FileSearch,
+  Lock
 } from "lucide-react";
 
 const values = [
@@ -28,7 +32,7 @@ const values = [
   {
     icon: Building2,
     title: "Local Expertise",
-    description: "Focused exclusively on Vancouver's pre-construction market, we understand the unique dynamics of assignment sales in this region."
+    description: "Focused exclusively on Metro Vancouver's pre-construction market, we understand the unique dynamics of assignment sales in this region."
   },
   {
     icon: Target,
@@ -44,7 +48,33 @@ const stats = [
   { value: "98%", label: "Satisfaction Rate" }
 ];
 
+const trustFeatures = [
+  {
+    icon: BadgeCheck,
+    title: "Licensed Agents Only",
+    description: "Every agent is verified with a valid BC real estate license"
+  },
+  {
+    icon: FileSearch,
+    title: "Admin-Reviewed Listings",
+    description: "Our team reviews every listing before it goes live"
+  },
+  {
+    icon: Lock,
+    title: "Secure & Private",
+    description: "Your information is protected and never shared without consent"
+  }
+];
+
 export default function About() {
+  useEffect(() => {
+    document.title = "About Us | AssignmentHub Vancouver - Trusted Assignment Marketplace";
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute("content", "Learn about AssignmentHub Vancouver, the trusted marketplace for pre-construction condo assignments. Verified agents, admin-reviewed listings, and complete transparency.");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -72,6 +102,25 @@ export default function About() {
                 <div key={index} className="text-center">
                   <div className="text-3xl md:text-4xl font-bold text-primary mb-1">{stat.value}</div>
                   <div className="text-sm text-muted-foreground">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Trust Signals */}
+        <section className="py-12 bg-primary/5">
+          <div className="container">
+            <div className="grid md:grid-cols-3 gap-8">
+              {trustFeatures.map((feature, index) => (
+                <div key={index} className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                    <feature.icon className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">{feature.title}</h3>
+                    <p className="text-sm text-muted-foreground">{feature.description}</p>
+                  </div>
                 </div>
               ))}
             </div>
