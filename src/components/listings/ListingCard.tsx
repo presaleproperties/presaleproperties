@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, Camera } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -27,6 +27,7 @@ interface ListingCardProps {
   completionMonth?: number;
   isFeatured?: boolean;
   imageUrl?: string;
+  photoCount?: number;
   agent?: AgentInfo;
 }
 
@@ -66,6 +67,7 @@ export function ListingCard({
   completionMonth,
   isFeatured,
   imageUrl,
+  photoCount = 0,
   agent,
 }: ListingCardProps) {
   const completionDate = completionYear
@@ -74,13 +76,13 @@ export function ListingCard({
 
   return (
     <Link to={`/assignments/${id}`}>
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-card-hover transition-all duration-300">
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 ease-out">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {imageUrl ? (
             <img
               src={imageUrl}
               alt={title}
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
@@ -88,6 +90,10 @@ export function ListingCard({
             </div>
           )}
           
+          {/* Overlay on hover */}
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+          
+          {/* Badges - Top Left */}
           <div className="absolute top-3 left-3 flex gap-2">
             <Badge className="bg-success text-success-foreground shadow-sm">
               Available
@@ -98,6 +104,14 @@ export function ListingCard({
               </Badge>
             )}
           </div>
+
+          {/* Photo Count - Bottom Right */}
+          {photoCount > 0 && (
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+              <Camera className="h-3.5 w-3.5" />
+              <span>{photoCount}</span>
+            </div>
+          )}
         </div>
 
         <CardContent className="p-4 space-y-3">
@@ -109,7 +123,7 @@ export function ListingCard({
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
+            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200">
               {projectName}
             </h3>
             <p className="text-sm text-muted-foreground line-clamp-1">{title}</p>
@@ -134,7 +148,7 @@ export function ListingCard({
 
           <div className="flex items-end justify-between pt-2 border-t border-border">
             <div>
-              <p className="text-lg font-bold text-foreground">
+              <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
                 {formatPrice(assignmentPrice)}
               </p>
               {completionDate && (
@@ -151,7 +165,7 @@ export function ListingCard({
           {/* Agent Info */}
           {agent && (
             <div className="flex items-center gap-2 pt-3 border-t border-border">
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-8 w-8 ring-2 ring-transparent group-hover:ring-primary/20 transition-all duration-200">
                 <AvatarImage src={agent.avatarUrl} alt={agent.name || "Agent"} />
                 <AvatarFallback className="text-xs bg-muted">
                   {agent.name?.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase() || "AG"}

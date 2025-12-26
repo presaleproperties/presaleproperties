@@ -92,6 +92,7 @@ export function LatestListings() {
                 completionMonth={listing.completion_month || undefined}
                 isFeatured={listing.is_featured || false}
                 imageUrl={listing.listing_photos?.[0]?.url}
+                photoCount={listing.listing_photos?.length || 0}
                 agent={{
                   name: listing.agentProfile?.full_name || undefined,
                   avatarUrl: listing.agentProfile?.avatar_url || undefined,
