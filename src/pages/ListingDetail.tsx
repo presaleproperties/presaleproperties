@@ -1,5 +1,6 @@
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { Helmet } from "react-helmet-async";
 import { 
   ArrowLeft, 
   Bed, 
@@ -195,8 +196,19 @@ export default function ListingDetail() {
 
   const photos = listing.listing_photos?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
 
+  const pageTitle = listing ? `${listing.project_name} - ${formatUnitType(listing.unit_type)} | AssignmentHub Vancouver` : "Listing | AssignmentHub Vancouver";
+  const pageDescription = listing 
+    ? `${formatUnitType(listing.unit_type)} assignment at ${listing.project_name} in ${listing.neighborhood || listing.city}. ${formatPrice(Number(listing.assignment_price))}. ${listing.beds} bed, ${listing.baths} bath${listing.interior_sqft ? `, ${listing.interior_sqft} sqft` : ''}.`
+    : "View presale condo assignment details on AssignmentHub Vancouver.";
+
   return (
     <div className="min-h-screen bg-background">
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDescription} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDescription} />
+      </Helmet>
       <Header />
       
       <main className="container py-6 md:py-8">
