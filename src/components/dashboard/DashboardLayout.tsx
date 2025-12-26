@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   Home,
-  CreditCard
+  CreditCard,
+  Shield
 } from "lucide-react";
 import { useState } from "react";
 
@@ -31,7 +32,7 @@ const navItems = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { signOut, user } = useAuth();
+  const { signOut, user, isAdmin } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -68,6 +69,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
           
           <div className="flex items-center gap-3">
+            {isAdmin && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm" className="text-orange-600 border-orange-600 hover:bg-orange-50">
+                  <Shield className="h-4 w-4 mr-2" />
+                  <span className="hidden sm:inline">Admin Panel</span>
+                </Button>
+              </Link>
+            )}
             <Link to="/">
               <Button variant="ghost" size="sm">
                 <Home className="h-4 w-4 mr-2" />
