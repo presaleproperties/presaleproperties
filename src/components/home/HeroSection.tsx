@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 const topCities = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Richmond"];
-const depositFilters = ["5%", "10%", "15%", "20%+"];
+
 
 export function HeroSection() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -80,31 +80,6 @@ export function HeroSection() {
               </Button>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <span className="text-sm font-medium text-foreground flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Deposit
-              </span>
-              {depositFilters.map((deposit) => (
-                <Button
-                  key={deposit}
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => navigate(`/assignments?deposit=${encodeURIComponent(deposit)}`)}
-                  className="rounded-full hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  {deposit}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate("/assignments")}
-                className="rounded-full border-primary text-primary hover:bg-primary hover:text-primary-foreground"
-              >
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
       </div>
