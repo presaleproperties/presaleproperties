@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ type Listing = Tables<"listings"> & {
 };
 
 export default function AdminListings() {
+  const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedListing, setSelectedListing] = useState<Listing | null>(null);
@@ -235,7 +237,11 @@ export default function AdminListings() {
                         <XCircle className="h-4 w-4 mr-2" />
                         Reject
                       </Button>
-                      <Button variant="ghost" size="sm">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => navigate(`/assignments/${listing.id}`)}
+                      >
                         <Eye className="h-4 w-4 mr-2" />
                         Preview
                       </Button>
