@@ -25,6 +25,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ImageGallery } from "@/components/listings/ImageGallery";
 import { LeadCaptureForm } from "@/components/listings/LeadCaptureForm";
 import { AgentContactCard } from "@/components/listings/AgentContactCard";
+import { ShareButtons } from "@/components/listings/ShareButtons";
 import { useAuth } from "@/hooks/useAuth";
 
 const formatPrice = (price: number) => {
@@ -240,13 +241,16 @@ export default function ListingDetail() {
 
             {/* Title & Price */}
             <div>
-              <div className="flex flex-wrap items-center gap-2 mb-2">
-                {listing.is_featured && (
-                  <Badge className="bg-primary text-primary-foreground">Featured</Badge>
-                )}
-                <Badge variant="secondary">
-                  {formatConstructionStatus(listing.construction_status)}
-                </Badge>
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+                <div className="flex flex-wrap items-center gap-2">
+                  {listing.is_featured && (
+                    <Badge className="bg-primary text-primary-foreground">Featured</Badge>
+                  )}
+                  <Badge variant="secondary">
+                    {formatConstructionStatus(listing.construction_status)}
+                  </Badge>
+                </div>
+                <ShareButtons title={`${listing.project_name} - ${formatUnitType(listing.unit_type)}`} />
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                 {listing.title}
