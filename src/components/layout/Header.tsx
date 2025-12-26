@@ -39,12 +39,12 @@ export function Header() {
               Agent Login
             </Button>
           </Link>
-          <a href="mailto:info@assignmenthub.ca">
+          <Link to="/contact">
             <Button size="sm" className="shadow-gold">
               <Phone className="h-4 w-4 mr-2" />
               <span className="hidden sm:inline">Contact Us</span>
             </Button>
-          </a>
+          </Link>
         </div>
       </div>
     </header>
