@@ -1,1 +1,7 @@
 project_id = "thvlisplwqhtjpzpedhq"
+
+[functions.send-lead-notification]
+verify_jwt = false
+
+[functions.check-expiring-listings]
+verify_jwt = false
