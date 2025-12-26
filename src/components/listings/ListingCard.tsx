@@ -156,11 +156,6 @@ export function ListingCard({
               <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
                 {formatPrice(assignmentPrice)}
               </p>
-              {completionDate && (
-                <p className="text-xs text-muted-foreground">
-                  Est. {completionDate}
-                </p>
-              )}
             </div>
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
               {city}
