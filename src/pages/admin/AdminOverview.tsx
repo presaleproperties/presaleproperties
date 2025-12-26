@@ -114,59 +114,67 @@ export default function AdminOverview() {
 
         {/* Stats Grid */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pending Agents
-              </CardTitle>
-              <Clock className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingAgents}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.verifiedAgents} verified
-              </p>
-            </CardContent>
-          </Card>
+          <Link to="/admin/agents">
+            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Pending Agents
+                </CardTitle>
+                <Clock className="h-4 w-4 text-amber-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.pendingAgents}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.verifiedAgents} verified
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pending Listings
-              </CardTitle>
-              <FileCheck className="h-4 w-4 text-amber-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.pendingListings}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats.publishedListings} published
-              </p>
-            </CardContent>
-          </Card>
+          <Link to="/admin/listings">
+            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Pending Listings
+                </CardTitle>
+                <FileCheck className="h-4 w-4 text-amber-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.pendingListings}</div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {stats.publishedListings} published
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Leads
-              </CardTitle>
-              <Users className="h-4 w-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalLeads}</div>
-            </CardContent>
-          </Card>
+          <Link to="/admin/all-listings">
+            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Leads
+                </CardTitle>
+                <Users className="h-4 w-4 text-primary" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalLeads}</div>
+              </CardContent>
+            </Card>
+          </Link>
 
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Payments
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-green-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.totalPayments}</div>
-            </CardContent>
-          </Card>
+          <Link to="/admin/payments">
+            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Total Payments
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-green-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalPayments}</div>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
 
         {/* Quick Actions */}
