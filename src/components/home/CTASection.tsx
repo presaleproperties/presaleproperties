@@ -18,7 +18,7 @@ export function CTASection() {
             <Link to="/register">
               <Button
                 size="lg"
-                className="w-full sm:w-auto bg-primary text-primary-foreground hover:bg-primary/90 shadow-gold"
+                className="w-full sm:w-auto"
               >
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -28,7 +28,7 @@ export function CTASection() {
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto border-background/30 text-background hover:bg-background/10"
+                className="w-full sm:w-auto border-background text-background hover:bg-background hover:text-foreground"
               >
                 Learn How It Works
               </Button>
