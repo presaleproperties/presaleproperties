@@ -1,7 +1,6 @@
-import { User, Building, Phone, Mail, ShieldCheck } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Building, Phone, Mail } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 
 interface AgentContactCardProps {
   agent: {
@@ -19,21 +18,16 @@ export function AgentContactCard({ agent }: AgentContactCardProps) {
   if (!agent) {
     return (
       <Card className="shadow-card">
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <User className="h-5 w-5" />
-            Listing Agent
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground text-sm">
-            Agent information not available. Use the form above to request more details.
+        <CardContent className="pt-6">
+          <p className="text-sm text-muted-foreground">
+            Assignment listed by a licensed real estate agent. Use the form above to request more details.
           </p>
         </CardContent>
       </Card>
     );
   }
 
+  const agentName = agent.full_name || "Real Estate Agent";
   const initials = agent.full_name
     ? agent.full_name
         .split(" ")
@@ -44,67 +38,57 @@ export function AgentContactCard({ agent }: AgentContactCardProps) {
     : "AG";
 
   return (
-    <Card className="shadow-card">
-      <CardHeader>
-        <CardTitle className="text-lg flex items-center gap-2">
-          <User className="h-5 w-5" />
-          Listing Agent
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {/* Agent Avatar & Name */}
-        <div className="flex items-center gap-4">
-          <Avatar className="h-14 w-14">
-            <AvatarImage src={agent.avatar_url || undefined} alt={agent.full_name || "Agent"} />
-            <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-              {initials}
-            </AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="flex items-center gap-2">
-              <p className="font-semibold text-foreground">
-                {agent.full_name || "Real Estate Agent"}
-              </p>
-              {agent.is_verified && (
-                <Badge variant="secondary" className="text-xs gap-1">
-                  <ShieldCheck className="h-3 w-3" />
-                  Verified
-                </Badge>
-              )}
+    <Card className="shadow-card overflow-hidden">
+      <CardContent className="p-0">
+        {/* Header */}
+        <div className="bg-muted/50 px-5 py-3 border-b border-border">
+          <p className="text-sm text-muted-foreground">
+            Assignment listed and marketed by
+          </p>
+          <p className="font-semibold text-foreground">{agentName}</p>
+        </div>
+
+        {/* Agent Info */}
+        <div className="p-5 space-y-4">
+          {/* Avatar & Brokerage */}
+          <div className="flex items-center gap-4">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              <AvatarImage src={agent.avatar_url || undefined} alt={agentName} />
+              <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+                {initials}
+              </AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Building className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm font-medium">{agent.brokerage_name}</span>
+              </div>
             </div>
-            <p className="text-sm text-muted-foreground">
-              License: {agent.license_number}
-            </p>
           </div>
-        </div>
 
-        {/* Brokerage */}
-        <div className="flex items-start gap-3 pt-2 border-t border-border">
-          <Building className="h-4 w-4 text-muted-foreground mt-0.5" />
-          <div>
-            <p className="text-sm text-muted-foreground">Brokerage</p>
-            <p className="font-medium text-foreground">{agent.brokerage_name}</p>
-          </div>
-        </div>
-
-        {/* Contact Info */}
-        <div className="space-y-3">
-          {agent.phone && (
+          {/* Contact Info */}
+          <div className="space-y-3 pt-2">
+            {agent.phone && (
+              <a
+                href={`tel:${agent.phone}`}
+                className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
+              >
+                <div className="p-2 bg-primary/10 rounded-full">
+                  <Phone className="h-4 w-4 text-primary" />
+                </div>
+                <span className="font-medium text-foreground">{agent.phone}</span>
+              </a>
+            )}
             <a
-              href={`tel:${agent.phone}`}
-              className="flex items-center gap-3 text-foreground hover:text-primary transition-colors"
+              href={`mailto:${agent.email}`}
+              className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors"
             >
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span>{agent.phone}</span>
+              <div className="p-2 bg-primary/10 rounded-full">
+                <Mail className="h-4 w-4 text-primary" />
+              </div>
+              <span className="font-medium text-foreground break-all">{agent.email}</span>
             </a>
-          )}
-          <a
-            href={`mailto:${agent.email}`}
-            className="flex items-center gap-3 text-foreground hover:text-primary transition-colors break-all"
-          >
-            <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span>{agent.email}</span>
-          </a>
+          </div>
         </div>
       </CardContent>
     </Card>
