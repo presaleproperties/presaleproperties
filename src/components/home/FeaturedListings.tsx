@@ -10,7 +10,7 @@ export function FeaturedListings() {
   const { data: listings, isLoading } = useQuery({
     queryKey: ["featured-listings"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: listingsData, error } = await supabase
         .from("listings")
         .select(`
           *,
@@ -22,7 +22,23 @@ export function FeaturedListings() {
         .limit(6);
 
       if (error) throw error;
-      return data;
+      
+      // Fetch agent profiles
+      const agentIds = [...new Set(listingsData?.map(l => l.agent_id) || [])];
+      
+      const [profilesResult, agentProfilesResult] = await Promise.all([
+        supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", agentIds),
+        supabase.from("agent_profiles").select("user_id, brokerage_name").in("user_id", agentIds)
+      ]);
+      
+      const profilesMap = new Map(profilesResult.data?.map(p => [p.user_id, p]) || []);
+      const agentProfilesMap = new Map(agentProfilesResult.data?.map(a => [a.user_id, a]) || []);
+      
+      return listingsData?.map(listing => ({
+        ...listing,
+        agentProfile: profilesMap.get(listing.agent_id),
+        agentInfo: agentProfilesMap.get(listing.agent_id),
+      }));
     },
   });
 
@@ -77,6 +93,11 @@ export function FeaturedListings() {
                 completionMonth={listing.completion_month || undefined}
                 isFeatured={listing.is_featured || false}
                 imageUrl={listing.listing_photos?.[0]?.url}
+                agent={{
+                  name: listing.agentProfile?.full_name || undefined,
+                  avatarUrl: listing.agentProfile?.avatar_url || undefined,
+                  brokerage: listing.agentInfo?.brokerage_name || undefined,
+                }}
               />
             ))}
           </div>
