@@ -14,7 +14,7 @@ export function HeroSection() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      navigate(`/assignments?search=${encodeURIComponent(searchQuery)}`);
+      navigate(`/assignments?q=${encodeURIComponent(searchQuery)}`);
     } else {
       navigate("/assignments");
     }
