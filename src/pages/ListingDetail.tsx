@@ -120,36 +120,29 @@ export default function ListingDetail() {
     enabled: !!id,
   });
 
-  // Fetch agent info separately
+  // Fetch agent info from the secure public view (excludes sensitive fields like license_number)
   const { data: agentInfo } = useQuery({
     queryKey: ["agent", listing?.agent_id],
     queryFn: async () => {
       if (!listing?.agent_id) return null;
 
-      // Get profile info
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name, email, phone, avatar_url")
+      // Use the public_agent_profiles view which excludes sensitive fields
+      const { data: agentData } = await supabase
+        .from("public_agent_profiles")
+        .select("full_name, email, phone, avatar_url, brokerage_name, verification_status")
         .eq("user_id", listing.agent_id)
         .maybeSingle();
 
-      // Get agent profile info
-      const { data: agentProfile } = await supabase
-        .from("agent_profiles")
-        .select("brokerage_name, license_number, verification_status")
-        .eq("user_id", listing.agent_id)
-        .maybeSingle();
-
-      if (!profile || !agentProfile) return null;
+      if (!agentData) return null;
 
       return {
-        full_name: profile.full_name,
-        email: profile.email,
-        phone: profile.phone,
-        avatar_url: profile.avatar_url,
-        brokerage_name: agentProfile.brokerage_name,
-        license_number: agentProfile.license_number,
-        is_verified: agentProfile.verification_status === "verified",
+        full_name: agentData.full_name,
+        email: agentData.email,
+        phone: agentData.phone,
+        avatar_url: agentData.avatar_url,
+        brokerage_name: agentData.brokerage_name,
+        license_number: "", // Not exposed publicly for security
+        is_verified: agentData.verification_status === "verified",
       } as AgentInfo;
     },
     enabled: !!listing?.agent_id,
