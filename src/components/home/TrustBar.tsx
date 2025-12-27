@@ -21,16 +21,16 @@ const trustItems = [
 
 export function TrustBar() {
   return (
-    <section className="py-4 bg-muted/50 border-b border-border">
+    <section className="py-4 bg-muted/50 border-b border-border overflow-hidden">
       <div className="container">
-        <div className="flex flex-wrap items-center justify-center gap-6 md:gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
           {trustItems.map((item) => (
             <div
               key={item.label}
-              className="flex items-center gap-2 text-sm text-muted-foreground"
+              className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground justify-center md:justify-start"
             >
-              <item.icon className="h-4 w-4 text-primary" />
-              <span>{item.label}</span>
+              <item.icon className="h-4 w-4 text-primary shrink-0" />
+              <span className="truncate">{item.label}</span>
             </div>
           ))}
         </div>
