@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +25,9 @@ import {
   Plus,
   X,
   Upload,
-  Sparkles
+  Sparkles,
+  FolderOpen,
+  Image
 } from "lucide-react";
 
 type ProjectFormData = {
@@ -100,6 +102,8 @@ export default function AdminProjectForm() {
   const [newAmenity, setNewAmenity] = useState("");
   const [uploading, setUploading] = useState(false);
   const [showUploadAssistant, setShowUploadAssistant] = useState(false);
+  const [driveUrl, setDriveUrl] = useState("");
+  const [isImportingDrive, setIsImportingDrive] = useState(false);
   const { toast } = useToast();
 
   const isEdit = !!id;
@@ -394,6 +398,96 @@ export default function AdminProjectForm() {
       ...prev,
       gallery_images: prev.gallery_images.filter((_, i) => i !== index),
     }));
+  };
+
+  const handleImportFromDrive = async () => {
+    if (!driveUrl.trim()) return;
+
+    if (!driveUrl.includes('/folders/')) {
+      toast({
+        title: "Not a Folder URL",
+        description: "Please enter a Google Drive folder share link",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImportingDrive(true);
+
+    try {
+      // Fetch folder contents
+      const { data, error: fnError } = await supabase.functions.invoke('fetch-drive-folder', {
+        body: { folderUrl: driveUrl }
+      });
+
+      if (fnError) throw new Error(fnError.message);
+      if (!data?.success) throw new Error(data?.error || 'Failed to fetch folder');
+
+      const imageUrls = (data.images as string[]) || [];
+
+      if (imageUrls.length === 0) {
+        throw new Error('No images found in the folder');
+      }
+
+      // Upload images to storage
+      const uploadedUrls: string[] = [];
+      
+      for (let i = 0; i < imageUrls.length; i++) {
+        try {
+          // Fetch the image
+          const imgResponse = await fetch(imageUrls[i]);
+          if (!imgResponse.ok) continue;
+          
+          const blob = await imgResponse.blob();
+          const fileName = `projects/${Date.now()}-${i}.jpg`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from("listing-photos")
+            .upload(fileName, blob, { contentType: blob.type || "image/jpeg" });
+          
+          if (uploadError) {
+            console.warn("Upload error:", uploadError);
+            continue;
+          }
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from("listing-photos")
+            .getPublicUrl(fileName);
+          
+          uploadedUrls.push(publicUrl);
+        } catch (imgErr) {
+          console.warn("Could not process image:", imgErr);
+        }
+      }
+
+      if (uploadedUrls.length === 0) {
+        throw new Error('Could not import any images. Make sure the folder is publicly shared.');
+      }
+
+      // Add to gallery (set first as featured if none exists)
+      setFormData(prev => ({
+        ...prev,
+        featured_image: prev.featured_image || uploadedUrls[0],
+        gallery_images: [...prev.gallery_images, ...(prev.featured_image ? uploadedUrls : uploadedUrls.slice(1))],
+      }));
+
+      setDriveUrl("");
+
+      toast({
+        title: "Images Imported",
+        description: `Added ${uploadedUrls.length} images from Google Drive`,
+      });
+
+    } catch (err: any) {
+      console.error('Drive import error:', err);
+      toast({
+        title: "Import Failed",
+        description: err.message || "Could not import images. Make sure the folder is publicly shared.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImportingDrive(false);
+    }
   };
 
   if (loading) {
@@ -934,31 +1028,70 @@ export default function AdminProjectForm() {
             <Card>
               <CardHeader>
                 <CardTitle>Gallery Images</CardTitle>
+                <CardDescription>
+                  {formData.gallery_images.length} images
+                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-2">
-                  {formData.gallery_images.map((img, i) => (
-                    <div key={i} className="relative aspect-square">
-                      <img
-                        src={img}
-                        alt={`Gallery ${i + 1}`}
-                        className="w-full h-full object-cover rounded-lg"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="icon"
-                        className="absolute top-1 right-1 h-6 w-6"
-                        onClick={() => removeGalleryImage(i)}
-                      >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </div>
-                  ))}
+                {/* Google Drive Import */}
+                <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                    <FolderOpen className="h-4 w-4" />
+                    Import from Google Drive
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      value={driveUrl}
+                      onChange={(e) => setDriveUrl(e.target.value)}
+                      placeholder="Paste folder link..."
+                      disabled={isImportingDrive}
+                      className="text-xs"
+                    />
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={handleImportFromDrive}
+                      disabled={isImportingDrive || !driveUrl.includes('/folders/')}
+                    >
+                      {isImportingDrive ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Image className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
                 </div>
+
+                {/* Existing Images */}
+                {formData.gallery_images.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {formData.gallery_images.map((img, i) => (
+                      <div key={i} className="relative aspect-square">
+                        <img
+                          src={img}
+                          alt={`Gallery ${i + 1}`}
+                          className="w-full h-full object-cover rounded-lg"
+                        />
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          className="absolute top-1 right-1 h-6 w-6"
+                          onClick={() => removeGalleryImage(i)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Manual Upload */}
                 <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
-                  <Plus className="h-6 w-6 text-muted-foreground mb-1" />
-                  <span className="text-sm text-muted-foreground">Add images</span>
+                  <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                  <span className="text-sm text-muted-foreground">
+                    {uploading ? "Uploading..." : "Drop or click to upload"}
+                  </span>
                   <input
                     type="file"
                     accept="image/*"
