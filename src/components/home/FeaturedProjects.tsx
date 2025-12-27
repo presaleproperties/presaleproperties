@@ -85,23 +85,25 @@ export function FeaturedProjects() {
               <Link
                 key={project.id}
                 to={`/presale-projects/${project.slug}`}
-                className="group bg-card rounded-xl overflow-hidden border hover:shadow-lg transition-all duration-300"
+                className="group bg-card rounded-xl overflow-hidden border border-border hover:border-primary/30 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:-translate-y-1 transition-all duration-300 ease-out"
               >
                 <div className="relative h-48 overflow-hidden">
                   {project.featured_image ? (
                     <img
                       src={project.featured_image}
                       alt={project.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                     />
                   ) : (
                     <div className="w-full h-full bg-muted flex items-center justify-center">
                       <Building2 className="h-12 w-12 text-muted-foreground" />
                     </div>
                   )}
+                  {/* Overlay on hover */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   <Badge
                     variant="outline"
-                    className={`absolute top-3 left-3 ${getStatusColor(project.status)}`}
+                    className={`absolute top-3 left-3 ${getStatusColor(project.status)} backdrop-blur-sm`}
                   >
                     {formatStatus(project.status)}
                   </Badge>
