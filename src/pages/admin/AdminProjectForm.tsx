@@ -186,30 +186,38 @@ export default function AdminProjectForm() {
   const generateSeoTitle = (data: Partial<ProjectFormData>) => {
     const name = data.name || "";
     const typeLabel = getProjectTypeLabel(data.project_type || "condo");
-    const price = data.starting_price ? `from $${parseInt(data.starting_price).toLocaleString()}` : "";
+    const price = data.starting_price ? `Starting from $${parseInt(data.starting_price).toLocaleString()}` : "";
     
     if (name && price) {
-      return `${name} | ${typeLabel} ${price}`;
+      return `${name} - ${typeLabel} ${price}`;
     } else if (name) {
-      return `${name} | ${typeLabel}`;
+      return `${name} - ${typeLabel}`;
     }
     return "";
   };
 
   const generateSeoDescription = (data: Partial<ProjectFormData>) => {
-    const tagline = data.short_description || "";
     const typeLabel = getProjectTypeLabel(data.project_type || "condo");
     const city = data.city || "";
     const neighborhood = data.neighborhood || "";
+    const unitMix = data.unit_mix || "";
     
-    if (tagline && city && neighborhood) {
-      return `${tagline} ${typeLabel} in ${neighborhood}, ${city}.`;
-    } else if (tagline && city) {
-      return `${tagline} ${typeLabel} in ${city}.`;
-    } else if (tagline) {
-      return tagline;
+    if (city && neighborhood && unitMix) {
+      return `Discover new ${typeLabel.toLowerCase()} in ${neighborhood}, ${city}. ${unitMix} available.`;
+    } else if (city && neighborhood) {
+      return `Discover new ${typeLabel.toLowerCase()} in ${neighborhood}, ${city}.`;
+    } else if (city) {
+      return `New ${typeLabel.toLowerCase()} development in ${city}.`;
     }
     return "";
+  };
+
+  const updateSeoFields = (updates: Partial<ProjectFormData>) => {
+    const mergedData = { ...formData, ...updates };
+    return {
+      seo_title: generateSeoTitle(mergedData),
+      seo_description: generateSeoDescription(mergedData),
+    };
   };
 
   const getSeasonFromMonth = (month: number) => {
@@ -273,10 +281,21 @@ export default function AdminProjectForm() {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const name = e.target.value;
+    const updates = { name };
     setFormData(prev => ({
       ...prev,
       name,
       slug: prev.slug || generateSlug(name),
+      ...updateSeoFields(updates),
+    }));
+  };
+
+  const handleSeoRelevantFieldChange = (field: keyof ProjectFormData, value: string) => {
+    const updates = { [field]: value } as Partial<ProjectFormData>;
+    setFormData(prev => ({
+      ...prev,
+      [field]: value,
+      ...updateSeoFields(updates),
     }));
   };
 
@@ -668,7 +687,7 @@ export default function AdminProjectForm() {
                     <Input
                       id="city"
                       value={formData.city}
-                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      onChange={(e) => handleSeoRelevantFieldChange("city", e.target.value)}
                       placeholder="e.g., Vancouver"
                       required
                     />
@@ -678,7 +697,7 @@ export default function AdminProjectForm() {
                     <Input
                       id="neighborhood"
                       value={formData.neighborhood}
-                      onChange={(e) => setFormData(prev => ({ ...prev, neighborhood: e.target.value }))}
+                      onChange={(e) => handleSeoRelevantFieldChange("neighborhood", e.target.value)}
                       placeholder="e.g., Downtown"
                       required
                     />
@@ -714,7 +733,7 @@ export default function AdminProjectForm() {
                     <Label htmlFor="project_type">Project Type</Label>
                     <Select
                       value={formData.project_type}
-                      onValueChange={(v) => setFormData(prev => ({ ...prev, project_type: v as any }))}
+                      onValueChange={(v) => handleSeoRelevantFieldChange("project_type", v)}
                     >
                       <SelectTrigger>
                         <SelectValue />
@@ -751,7 +770,7 @@ export default function AdminProjectForm() {
                     <Input
                       id="unit_mix"
                       value={formData.unit_mix}
-                      onChange={(e) => setFormData(prev => ({ ...prev, unit_mix: e.target.value }))}
+                      onChange={(e) => handleSeoRelevantFieldChange("unit_mix", e.target.value)}
                       placeholder="e.g., 1-3 bedrooms"
                     />
                   </div>
@@ -763,7 +782,7 @@ export default function AdminProjectForm() {
                       id="starting_price"
                       type="number"
                       value={formData.starting_price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, starting_price: e.target.value }))}
+                      onChange={(e) => handleSeoRelevantFieldChange("starting_price", e.target.value)}
                       placeholder="e.g., 599000"
                     />
                   </div>
