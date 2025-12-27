@@ -245,31 +245,51 @@ export function GalleryWithLightbox({
           )}
         </button>
 
-        {/* Thumbnails - larger on mobile */}
+        {/* Thumbnails - horizontal scroll on mobile, grid on desktop */}
         {images.length > 1 && (
-          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-6">
-            {images.slice(0, 5).map((img, i) => (
-              <button
-                key={i}
-                onClick={() => onSelectIndex(i)}
-                className={`aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 shadow-sm ${
-                  selectedIndex === i
-                    ? "border-primary ring-2 ring-primary/20"
-                    : "border-transparent hover:border-muted-foreground/50"
-                }`}
-              >
-                <img src={img} alt="" className="w-full h-full object-cover" />
-              </button>
-            ))}
-            {images.length > 5 && (
-              <button
-                onClick={() => openLightbox(5)}
-                className="aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-muted-foreground/50 bg-muted/80 flex items-center justify-center text-sm font-semibold text-muted-foreground hover:scale-105 transition-all shadow-sm"
-              >
-                +{images.length - 5}
-              </button>
-            )}
-          </div>
+          <>
+            {/* Mobile: Single row horizontal scroll */}
+            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide sm:hidden -mx-1 px-1">
+              {images.map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => onSelectIndex(i)}
+                  className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedIndex === i
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-transparent"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+
+            {/* Desktop: Grid layout */}
+            <div className="hidden sm:grid grid-cols-5 md:grid-cols-4 lg:grid-cols-6 gap-2">
+              {images.slice(0, 5).map((img, i) => (
+                <button
+                  key={i}
+                  onClick={() => onSelectIndex(i)}
+                  className={`aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 shadow-sm ${
+                    selectedIndex === i
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-transparent hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <img src={img} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+              {images.length > 5 && (
+                <button
+                  onClick={() => openLightbox(5)}
+                  className="aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-muted-foreground/50 bg-muted/80 flex items-center justify-center text-sm font-semibold text-muted-foreground hover:scale-105 transition-all shadow-sm"
+                >
+                  +{images.length - 5}
+                </button>
+              )}
+            </div>
+          </>
         )}
       </div>
 
