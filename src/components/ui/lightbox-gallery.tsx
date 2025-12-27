@@ -134,13 +134,16 @@ export function LightboxGallery({
             </Button>
           )}
 
-          {/* Main image */}
+          {/* Main image - High quality */}
           <div className="w-full h-full flex items-center justify-center p-4 md:p-12">
             <img
               src={images[currentIndex]}
               alt={`${alt} ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain select-none"
               draggable={false}
+              loading="eager"
+              decoding="sync"
+              fetchPriority="high"
             />
           </div>
 
@@ -232,6 +235,9 @@ export function GalleryWithLightbox({
             src={images[selectedIndex]}
             alt={alt}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            loading="eager"
+            decoding="async"
+            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
             <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-3">
