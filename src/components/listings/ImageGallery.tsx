@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, X, Expand } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 interface Photo {
   id: string;
@@ -123,7 +124,10 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
 
       {/* Lightbox */}
       <Dialog open={isLightboxOpen} onOpenChange={setIsLightboxOpen}>
-        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none">
+        <DialogContent className="max-w-[95vw] max-h-[95vh] p-0 bg-black/95 border-none" aria-describedby={undefined}>
+          <VisuallyHidden>
+            <DialogTitle>Image Gallery - {title}</DialogTitle>
+          </VisuallyHidden>
           <div className="relative w-full h-[90vh] flex items-center justify-center">
             <Button
               variant="ghost"
