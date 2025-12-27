@@ -62,12 +62,28 @@ serve(async (req) => {
 
     const html = await response.text();
     
-    // Extract file IDs from the page HTML
-    const fileIdPattern = /\["([a-zA-Z0-9_-]{25,})"/g;
-    const potentialIds = new Set<string>();
+    // Extract file IDs and names from the page HTML
+    // Look for file entries with their names to identify PDFs
+    const fileIdPattern = /\["([a-zA-Z0-9_-]{25,45})","([^"]+)"/g;
+    const fileEntries: { id: string; name: string }[] = [];
     let match;
     
     while ((match = fileIdPattern.exec(html)) !== null) {
+      const id = match[1];
+      const name = match[2];
+      if (id.length >= 25 && id.length <= 45 && /^[a-zA-Z0-9_-]+$/.test(id)) {
+        // Check if name looks like a file (has extension)
+        if (name && (name.includes('.') || name.length < 100)) {
+          fileEntries.push({ id, name });
+        }
+      }
+    }
+
+    // Also look for standalone IDs
+    const standaloneIdPattern = /\["([a-zA-Z0-9_-]{25,45})"/g;
+    const potentialIds = new Set<string>();
+    
+    while ((match = standaloneIdPattern.exec(html)) !== null) {
       const id = match[1];
       if (id.length >= 25 && id.length <= 45 && /^[a-zA-Z0-9_-]+$/.test(id)) {
         potentialIds.add(id);
@@ -79,10 +95,17 @@ serve(async (req) => {
     while ((match = dataIdPattern.exec(html)) !== null) {
       potentialIds.add(match[1]);
     }
+    
+    // Look for PDF mentions in the HTML
+    const pdfMentionPattern = /([a-zA-Z0-9_-]{25,45})[^"]*\.pdf/gi;
+    const pdfIds = new Set<string>();
+    while ((match = pdfMentionPattern.exec(html)) !== null) {
+      pdfIds.add(match[1]);
+    }
 
-    console.log('Found potential file IDs:', potentialIds.size);
+    console.log('Found file entries:', fileEntries.length, 'potential IDs:', potentialIds.size, 'PDF mentions:', pdfIds.size);
 
-    if (potentialIds.size === 0) {
+    if (potentialIds.size === 0 && fileEntries.length === 0) {
       return new Response(
         JSON.stringify({ 
           error: 'No files found in folder. Make sure folder contains files and is publicly shared.',
@@ -95,43 +118,91 @@ serve(async (req) => {
     // Categorize files by type
     const imageUrls: string[] = [];
     const pdfUrls: string[] = [];
-    const ids = Array.from(potentialIds).slice(0, 50);
     
-    for (const fileId of ids) {
-      if (fileId === folderId) continue;
+    // First, process file entries with names (more reliable)
+    for (const entry of fileEntries) {
+      if (entry.id === folderId) continue;
       
-      // Use lh3.googleusercontent.com format for reliable image loading
+      const lowerName = entry.name.toLowerCase();
+      
+      if (lowerName.endsWith('.pdf') || pdfIds.has(entry.id)) {
+        const pdfUrl = `https://drive.google.com/uc?export=download&id=${entry.id}`;
+        if (!pdfUrls.includes(pdfUrl)) {
+          pdfUrls.push(pdfUrl);
+          console.log('PDF found by name:', entry.name, entry.id);
+        }
+      } else if (
+        lowerName.endsWith('.jpg') || 
+        lowerName.endsWith('.jpeg') || 
+        lowerName.endsWith('.png') || 
+        lowerName.endsWith('.gif') || 
+        lowerName.endsWith('.webp')
+      ) {
+        const directImageUrl = `https://lh3.googleusercontent.com/d/${entry.id}`;
+        if (!imageUrls.includes(directImageUrl)) {
+          imageUrls.push(directImageUrl);
+          console.log('Image found by name:', entry.name, entry.id);
+        }
+      }
+      
+      if (pdfUrls.length >= 10 && imageUrls.length >= 30) break;
+    }
+    
+    // Then check remaining IDs by making requests
+    const remainingIds = Array.from(potentialIds)
+      .filter(id => id !== folderId)
+      .filter(id => !fileEntries.some(e => e.id === id))
+      .slice(0, 30);
+    
+    for (const fileId of remainingIds) {
+      if (imageUrls.length >= 30 && pdfUrls.length >= 10) break;
+      
+      // Check if this ID was mentioned with PDF
+      if (pdfIds.has(fileId)) {
+        const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+        if (!pdfUrls.includes(pdfUrl)) {
+          pdfUrls.push(pdfUrl);
+          console.log('PDF found by mention:', fileId);
+        }
+        continue;
+      }
+      
       const directImageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
-      const exportUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
       
       try {
-        const checkResponse = await fetch(exportUrl, { 
+        // Try to get content type from download URL
+        const checkResponse = await fetch(downloadUrl, { 
           method: 'HEAD',
-          redirect: 'follow'
+          redirect: 'manual' // Don't follow redirects to see the real response
         });
         
         const contentType = checkResponse.headers.get('content-type') || '';
+        const contentDisposition = checkResponse.headers.get('content-disposition') || '';
         
-        if (contentType.includes('image')) {
-          // Use the lh3 URL format which works better for direct embedding
-          imageUrls.push(directImageUrl);
-          console.log('Valid image found:', fileId);
-        } else if (contentType.includes('pdf') || contentType.includes('application/pdf')) {
-          // For PDFs, use the download URL format
-          const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-          pdfUrls.push(pdfUrl);
-          console.log('Valid PDF found:', fileId);
+        // Check if it's a PDF based on headers or content-disposition
+        if (
+          contentType.includes('pdf') || 
+          contentDisposition.toLowerCase().includes('.pdf')
+        ) {
+          if (!pdfUrls.includes(downloadUrl)) {
+            pdfUrls.push(downloadUrl);
+            console.log('PDF found by content-type:', fileId);
+          }
+        } else if (contentType.includes('image')) {
+          if (!imageUrls.includes(directImageUrl)) {
+            imageUrls.push(directImageUrl);
+            console.log('Image found by content-type:', fileId);
+          }
         } else if (includeAll && checkResponse.ok) {
-          // If includeAll, try to determine type by testing
-          imageUrls.push(directImageUrl);
+          // Default to image if includeAll is set
+          if (!imageUrls.includes(directImageUrl)) {
+            imageUrls.push(directImageUrl);
+          }
         }
       } catch (e) {
         console.log('Skipping file:', fileId);
       }
-      
-      // Limit counts
-      if (imageUrls.length >= 30) break;
-      if (pdfUrls.length >= 10) break;
     }
 
     const totalFiles = imageUrls.length + pdfUrls.length;
