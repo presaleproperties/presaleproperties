@@ -31,6 +31,10 @@ import AdminAllListings from "./pages/admin/AdminAllListings";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import NotFound from "./pages/NotFound";
+import PresaleProjects from "./pages/PresaleProjects";
+import PresaleProjectDetail from "./pages/PresaleProjectDetail";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 
 const queryClient = new QueryClient();
 
@@ -43,6 +47,10 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/presale-projects" element={<PresaleProjects />} />
+            <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
+            <Route path="/blog" element={<Blog />} />
+            <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/assignments" element={<Assignments />} />
             <Route path="/assignments/:id" element={<ListingDetail />} />
             <Route path="/how-it-works" element={<HowItWorks />} />
