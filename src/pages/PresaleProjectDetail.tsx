@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
@@ -6,9 +6,6 @@ import { Footer } from "@/components/layout/Footer";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import {
   Accordion,
   AccordionContent,
@@ -16,6 +13,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
+import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
+import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
+import { NearbyProjects } from "@/components/projects/NearbyProjects";
+import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -30,7 +31,8 @@ import {
   CheckCircle,
   Home,
   Layers,
-  Star
+  Star,
+  Share2
 } from "lucide-react";
 
 type Project = {
@@ -68,16 +70,10 @@ type Project = {
 export default function PresaleProjectDetail() {
   const { slug } = useParams();
   const { toast } = useToast();
+  const formRef = useRef<HTMLDivElement>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    message: "",
-  });
 
   useEffect(() => {
     if (slug) {
@@ -109,39 +105,8 @@ export default function PresaleProjectDetail() {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!project) return;
-
-    setSubmitting(true);
-    try {
-      const { error } = await supabase
-        .from("project_leads")
-        .insert({
-          project_id: project.id,
-          name: formData.name,
-          email: formData.email,
-          phone: formData.phone || null,
-          message: formData.message || null,
-        });
-
-      if (error) throw error;
-
-      toast({
-        title: "Plans request received!",
-        description: "Check your email for download links.",
-      });
-      setFormData({ name: "", email: "", phone: "", message: "" });
-    } catch (error) {
-      console.error("Error submitting lead:", error);
-      toast({
-        title: "Error",
-        description: "Failed to submit request. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
-    }
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   const formatPrice = (price: number) => {
@@ -155,11 +120,11 @@ export default function PresaleProjectDetail() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "coming_soon":
-        return <Badge className="bg-blue-500 hover:bg-blue-600 text-base px-4 py-1">Coming Soon</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600 text-sm px-3 py-1">Coming Soon</Badge>;
       case "active":
-        return <Badge className="bg-green-500 hover:bg-green-600 text-base px-4 py-1">Selling Now</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600 text-sm px-3 py-1">Now Selling</Badge>;
       case "sold_out":
-        return <Badge variant="secondary" className="text-base px-4 py-1">Sold Out</Badge>;
+        return <Badge variant="secondary" className="text-sm px-3 py-1">Sold Out</Badge>;
       default:
         return null;
     }
@@ -167,6 +132,22 @@ export default function PresaleProjectDetail() {
 
   const getMonthName = (month: number) => {
     return new Date(2000, month - 1).toLocaleString("default", { month: "long" });
+  };
+
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: project?.name,
+          url: window.location.href,
+        });
+      } catch (err) {
+        // User cancelled or error
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast({ title: "Link copied to clipboard" });
+    }
   };
 
   if (loading) {
@@ -217,140 +198,138 @@ export default function PresaleProjectDetail() {
 
       <Header />
 
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background pb-24 lg:pb-0">
         {/* Breadcrumb */}
         <div className="border-b">
-          <div className="container py-3">
+          <div className="container py-3 px-4 flex items-center justify-between">
             <Link to="/presale-projects" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">
               <ChevronLeft className="h-4 w-4" />
               Back to Projects
             </Link>
+            <div className="flex items-center gap-2">
+              <Button variant="ghost" size="sm" onClick={handleShare}>
+                <Share2 className="h-4 w-4 mr-1" />
+                Share
+              </Button>
+            </div>
           </div>
         </div>
 
         {/* Hero */}
-        <section className="bg-gradient-to-b from-muted/50 to-background">
+        <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-4 py-6 md:py-8">
-            <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
-              {/* Gallery */}
-              <GalleryWithLightbox
-                images={allImages}
-                selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
-                onSelectIndex={(index) => setSelectedImage(allImages[index])}
-                alt={project.name}
-              />
+            <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
+              {/* Gallery - Takes 3 columns */}
+              <div className="lg:col-span-3">
+                <GalleryWithLightbox
+                  images={allImages}
+                  selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
+                  onSelectIndex={(index) => setSelectedImage(allImages[index])}
+                  alt={project.name}
+                />
+              </div>
 
-              {/* Info */}
-              <div>
-                <div className="flex items-center gap-3 mb-4">
-                  {getStatusBadge(project.status)}
-                  {project.is_featured && (
-                    <Badge className="bg-yellow-500 hover:bg-yellow-600">
-                      <Star className="h-3 w-3 mr-1 fill-current" />
-                      Featured
-                    </Badge>
-                  )}
-                </div>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{project.name}</h1>
-                <div className="flex items-center gap-2 text-base md:text-lg text-muted-foreground mb-3 md:mb-4">
-                  <MapPin className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
-                  <span>{project.city}, {project.neighborhood}</span>
-                </div>
-                {project.address && (
-                  <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">{project.address}</p>
-                )}
-
-                {/* Quick Facts */}
-                <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-6">
-                  <div className="bg-muted/50 rounded-lg p-3 md:p-4">
-                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
-                      <Home className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                      Property Type
-                    </div>
-                    <div className="font-semibold text-sm md:text-base capitalize">{project.project_type}</div>
-                  </div>
-                  {project.completion_year && (
-                    <div className="bg-muted/50 rounded-lg p-3 md:p-4">
-                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
-                        <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                        Completion
-                      </div>
-                      <div className="font-semibold text-sm md:text-base">
-                        {project.completion_month && getMonthName(project.completion_month)} {project.completion_year}
-                      </div>
-                    </div>
-                  )}
-                  {project.developer_name && (
-                    <div className="bg-muted/50 rounded-lg p-3 md:p-4">
-                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
-                        <Building2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                        Developer
-                      </div>
-                      <div className="font-semibold text-sm md:text-base">{project.developer_name}</div>
-                    </div>
-                  )}
-                  {project.unit_mix && (
-                    <div className="bg-muted/50 rounded-lg p-3 md:p-4">
-                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
-                        <Layers className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                        Unit Mix
-                      </div>
-                      <div className="font-semibold text-sm md:text-base">{project.unit_mix}</div>
-                    </div>
-                  )}
-                </div>
-
-                {/* Pricing */}
-                {(project.starting_price || project.price_range) && (
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
-                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
-                      <DollarSign className="h-3.5 w-3.5 md:h-4 md:w-4" />
-                      Pricing
-                    </div>
-                    {project.starting_price && (
-                      <div className="text-xl md:text-2xl font-bold text-primary">
-                        From {formatPrice(project.starting_price)}
-                      </div>
-                    )}
-                    {project.price_range && (
-                      <div className="text-sm md:text-base text-muted-foreground">{project.price_range}</div>
-                    )}
-                  </div>
-                )}
-
-                {/* CTA Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button size="lg" className="flex-1" asChild>
-                    <a href="#contact-form">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Plans
-                    </a>
-                  </Button>
-                  <Button size="lg" variant="outline" className="flex-1" asChild>
-                    <a href="tel:+16722581100">
-                      <Phone className="h-4 w-4 mr-2" />
-                      Call Now
-                    </a>
-                  </Button>
-                </div>
+              {/* Sidebar - Takes 2 columns */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Nearby Projects Card */}
+                <NearbyProjects 
+                  currentProjectId={project.id}
+                  city={project.city}
+                  neighborhood={project.neighborhood}
+                />
               </div>
             </div>
           </div>
         </section>
 
-        {/* Details */}
-        <section className="py-8 md:py-12">
+        {/* Project Info Section */}
+        <section className="border-t">
+          <div className="container px-4 py-6">
+            {/* Status Badge Row */}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {getStatusBadge(project.status)}
+              {project.is_featured && (
+                <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white">
+                  <Star className="h-3 w-3 mr-1 fill-current" />
+                  Featured
+                </Badge>
+              )}
+            </div>
+
+            {/* Title and Location */}
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{project.name}</h1>
+            
+            {project.starting_price || project.price_range ? (
+              <div className="mb-3">
+                {project.starting_price ? (
+                  <span className="text-xl font-semibold text-primary">
+                    From {formatPrice(project.starting_price)}
+                  </span>
+                ) : (
+                  <span className="text-lg text-muted-foreground">{project.price_range}</span>
+                )}
+              </div>
+            ) : (
+              <div className="text-lg text-muted-foreground mb-3">Contact for pricing</div>
+            )}
+
+            <div className="flex items-center gap-2 text-muted-foreground mb-2">
+              <MapPin className="h-4 w-4 shrink-0" />
+              <span>{project.address || `${project.neighborhood}, ${project.city}`}</span>
+            </div>
+
+            {/* Action Buttons - Desktop inline, Mobile stacked */}
+            <div className="flex flex-wrap gap-3 mt-4 mb-2">
+              <Button size="lg" onClick={scrollToForm} className="font-semibold">
+                Register Now
+              </Button>
+              {project.status === "active" && (
+                <Badge variant="outline" className="text-sm px-4 py-2 h-auto">
+                  Move-in Ready
+                </Badge>
+              )}
+            </div>
+
+            {/* Highlights Grid - REW Style */}
+            <ProjectHighlights
+              projectType={project.project_type}
+              unitMix={project.unit_mix}
+              completionMonth={project.completion_month}
+              completionYear={project.completion_year}
+              startingPrice={project.starting_price}
+              priceRange={project.price_range}
+            />
+          </div>
+        </section>
+
+        {/* Details Grid */}
+        <section className="py-6 md:py-10">
           <div className="container px-4">
             <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-6 md:space-y-8">
+                {/* Amenities - Shown first like REW */}
+                {project.amenities && project.amenities.length > 0 && (
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {project.amenities.map((a, i) => (
+                        <div key={i} className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
+                          <span className="text-sm">{a}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Description */}
                 {project.full_description && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">About This Project</h2>
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Development Features</h2>
                     <div className="prose prose-sm max-w-none text-muted-foreground">
                       {project.full_description.split("\n").map((p, i) => (
-                        <p key={i} className="mb-2 last:mb-0">{p}</p>
+                        <p key={i} className="mb-3 last:mb-0">{p}</p>
                       ))}
                     </div>
                   </div>
@@ -358,8 +337,8 @@ export default function PresaleProjectDetail() {
 
                 {/* Highlights */}
                 {project.highlights && project.highlights.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Key Highlights</h2>
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Key Highlights</h2>
                     <ul className="grid sm:grid-cols-2 gap-3">
                       {project.highlights.map((h, i) => (
                         <li key={i} className="flex items-start gap-2">
@@ -371,24 +350,10 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Amenities */}
-                {project.amenities && project.amenities.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Amenities</h2>
-                    <div className="flex flex-wrap gap-2">
-                      {project.amenities.map((a, i) => (
-                        <Badge key={i} variant="secondary" className="px-3 py-1">
-                          {a}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.incentives) && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Deposit & Incentives</h2>
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Deposit & Incentives</h2>
                     <div className="space-y-4">
                       {project.deposit_structure && (
                         <div>
@@ -409,8 +374,8 @@ export default function PresaleProjectDetail() {
                 {/* Downloads */}
                 {((project.floorplan_files && project.floorplan_files.length > 0) || 
                   (project.brochure_files && project.brochure_files.length > 0)) && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Downloads</h2>
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Downloads</h2>
                     <div className="flex flex-wrap gap-3">
                       {project.floorplan_files?.map((file, i) => (
                         <Button key={i} variant="outline" size="sm" asChild>
@@ -432,10 +397,18 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
+                {/* Developer Info */}
+                {project.developer_name && (
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-2">Developer</h2>
+                    <p className="font-medium">{project.developer_name}</p>
+                  </div>
+                )}
+
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Frequently Asked Questions</h2>
+                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Frequently Asked Questions</h2>
                     <Accordion type="single" collapsible className="w-full">
                       {project.faq.map((item, i) => (
                         <AccordionItem key={i} value={`faq-${i}`}>
@@ -454,68 +427,35 @@ export default function PresaleProjectDetail() {
 
               {/* Sidebar - Contact Form */}
               <div>
-                <div id="contact-form" className="sticky top-24 bg-muted/30 rounded-xl p-4 md:p-6">
-                  <h2 className="text-base md:text-lg font-semibold text-foreground mb-1">Download Plans</h2>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Get instant access to floor plans, pricing sheets, and project details
-                  </p>
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name" className="text-sm">Name *</Label>
-                      <Input
-                        id="name"
-                        value={formData.name}
-                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                        required
-                        className="h-10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email" className="text-sm">Email *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                        required
-                        className="h-10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone" className="text-sm">Phone</Label>
-                      <Input
-                        id="phone"
-                        type="tel"
-                        value={formData.phone}
-                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        className="h-10"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="message" className="text-sm">Message</Label>
-                      <Textarea
-                        id="message"
-                        value={formData.message}
-                        onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                        placeholder="I'm interested in learning more..."
-                        rows={3}
-                      />
-                    </div>
-                    <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-                      {submitting ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Download className="h-4 w-4 mr-2" />
-                      )}
-                      Request Plans
+                <div ref={formRef} id="contact-form" className="sticky top-24">
+                  <ProjectLeadForm
+                    projectId={project.id}
+                    projectName={project.name}
+                    status={project.status}
+                  />
+                  
+                  {/* Quick Actions Below Form */}
+                  <div className="mt-4 flex flex-col gap-3">
+                    <Button variant="outline" size="lg" className="w-full" asChild>
+                      <a href="tel:+16722581100">
+                        <Phone className="h-4 w-4 mr-2" />
+                        Call Now
+                      </a>
                     </Button>
-                  </form>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </section>
       </main>
+
+      {/* Mobile Sticky CTA */}
+      <ProjectMobileCTA
+        projectName={project.name}
+        status={project.status}
+        onRegisterClick={scrollToForm}
+      />
 
       <Footer />
     </>
