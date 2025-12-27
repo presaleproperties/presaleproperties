@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Bell, Sparkles, Download, MessageCircle } from "lucide-react";
+import { Send, CheckCircle, Sparkles, Download, MessageCircle, Shield, Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,28 +133,29 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     }
   };
 
-  const defaultWhatsappNumber = "16045551234"; // Fallback number
+  const defaultWhatsappNumber = "16722581100";
   const whatsappMessage = encodeURIComponent(`Hi! I just submitted my info for ${projectName} and would love to learn more.`);
   const whatsappLink = `https://wa.me/${whatsappNumber || defaultWhatsappNumber}?text=${whatsappMessage}`;
 
   if (isSubmitted) {
     return (
-      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl p-6 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-          <CheckCircle className="h-8 w-8 text-primary" />
+      <div className="bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border border-green-500/20 rounded-2xl p-6 text-center">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/10 rounded-full mb-4">
+          <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">
-          All Set!
+        <h3 className="text-xl font-bold text-foreground mb-2">
+          You're All Set!
         </h3>
-        <p className="text-muted-foreground mb-4">
+        <p className="text-muted-foreground mb-5">
           Check your email for floor plans, pricing, and project details.
         </p>
         <Button
           asChild
-          className="w-full"
+          size="lg"
+          className="w-full h-14 text-base font-semibold rounded-xl bg-green-600 hover:bg-green-700"
         >
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="h-4 w-4 mr-2" />
+            <MessageCircle className="h-5 w-5 mr-2" />
             Chat with an Agent Now
           </a>
         </Button>
@@ -168,28 +169,31 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
         return {
           badge: "Coming Soon",
           badgeIcon: <Sparkles className="h-3 w-3" />,
-          title: "Get Early Access to Plans & Pricing",
-          description: "Register now to receive floor plans and pricing as soon as they're released.",
+          title: "Get Early Access",
+          subtitle: "Floor Plans & Pricing",
+          description: "Be the first to receive exclusive pricing and floor plans.",
           buttonText: "Get Early Access",
-          buttonIcon: <Download className="h-4 w-4 mr-2" />,
+          buttonIcon: <Download className="h-5 w-5" />,
         };
       case "active":
         return {
           badge: "Instant Access",
           badgeIcon: <Download className="h-3 w-3" />,
-          title: "Download Floor Plans & Pricing",
-          description: "Get instant access to all available floor plans, pricing sheets, and current incentives.",
+          title: "Get Floor Plans",
+          subtitle: "& Pricing Instantly",
+          description: "Access all floor plans, pricing, and current incentives.",
           buttonText: "Get Instant Access",
-          buttonIcon: <Download className="h-4 w-4 mr-2" />,
+          buttonIcon: <Download className="h-5 w-5" />,
         };
       default:
         return {
           badge: "Sold Out",
           badgeIcon: null,
-          title: "Get Notified of Similar Projects",
-          description: "Be the first to know about similar upcoming projects in this area.",
+          title: "Get Notified",
+          subtitle: "of Similar Projects",
+          description: "Be first to know about similar upcoming projects.",
           buttonText: "Notify Me",
-          buttonIcon: <Send className="h-4 w-4 mr-2" />,
+          buttonIcon: <Send className="h-5 w-5" />,
         };
     }
   };
@@ -197,21 +201,22 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
   const content = getFormContent();
 
   return (
-    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl overflow-hidden">
+    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-2xl overflow-hidden shadow-lg">
       {/* Header with urgency messaging */}
-      <div className="bg-primary/10 px-5 py-4 border-b border-primary/10">
+      <div className="bg-primary/10 px-5 py-5 border-b border-primary/10">
         <div className="flex items-center gap-2 mb-2">
           {content.badgeIcon && (
-            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/15 px-2.5 py-1 rounded-full">
               {content.badgeIcon}
               {content.badge}
             </span>
           )}
         </div>
-        <h3 className="text-xl font-bold text-foreground">
+        <h3 className="text-2xl font-bold text-foreground leading-tight">
           {content.title}
+          <span className="block text-primary">{content.subtitle}</span>
         </h3>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-muted-foreground mt-2">
           {content.description}
         </p>
       </div>
@@ -219,95 +224,127 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
       {/* Form */}
       <div className="p-5">
         <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="lead-name" className="text-sm font-medium">Full Name *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-name" className="text-sm font-semibold">Full Name</Label>
             <Input
               id="lead-name"
-              placeholder="Your full name"
+              placeholder="John Smith"
               {...register("name")}
-              className={`h-11 ${errors.name ? "border-destructive" : ""}`}
+              className={`h-12 text-base rounded-xl bg-background ${errors.name ? "border-destructive" : "border-input"}`}
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="lead-email" className="text-sm font-medium">Email *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-email" className="text-sm font-semibold">Email</Label>
             <Input
               id="lead-email"
               type="email"
-              placeholder="your@email.com"
+              placeholder="john@example.com"
               {...register("email")}
-              className={`h-11 ${errors.email ? "border-destructive" : ""}`}
+              className={`h-12 text-base rounded-xl bg-background ${errors.email ? "border-destructive" : "border-input"}`}
             />
             {errors.email && (
               <p className="text-xs text-destructive">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="lead-phone" className="text-sm font-medium">Phone *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-phone" className="text-sm font-semibold">Phone</Label>
             <Input
               id="lead-phone"
               type="tel"
+              inputMode="tel"
               placeholder="(604) 555-0123"
               {...register("phone")}
-              className={`h-11 ${errors.phone ? "border-destructive" : ""}`}
+              className={`h-12 text-base rounded-xl bg-background ${errors.phone ? "border-destructive" : "border-input"}`}
             />
             {errors.phone && (
               <p className="text-xs text-destructive">{errors.phone.message}</p>
             )}
           </div>
 
-          {/* Is Realtor Question */}
-          <div className="space-y-3">
-            <Label className="text-sm font-medium">Are you a realtor?</Label>
+          {/* Is Realtor Question - Pill buttons */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold">Are you a realtor?</Label>
             <RadioGroup 
               value={isRealtor} 
               onValueChange={(value) => setValue("is_realtor", value as "yes" | "no")}
-              className="flex gap-4"
+              className="flex gap-2"
             >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="is-realtor-no" />
-                <Label htmlFor="is-realtor-no" className="text-sm font-normal cursor-pointer">No</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id="is-realtor-yes" />
-                <Label htmlFor="is-realtor-yes" className="text-sm font-normal cursor-pointer">Yes</Label>
-              </div>
+              <Label 
+                htmlFor="is-realtor-no" 
+                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                  isRealtor === "no" 
+                    ? "border-primary bg-primary/10 text-primary" 
+                    : "border-border hover:border-muted-foreground/50"
+                }`}
+              >
+                <RadioGroupItem value="no" id="is-realtor-no" className="sr-only" />
+                No
+              </Label>
+              <Label 
+                htmlFor="is-realtor-yes" 
+                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                  isRealtor === "yes" 
+                    ? "border-primary bg-primary/10 text-primary" 
+                    : "border-border hover:border-muted-foreground/50"
+                }`}
+              >
+                <RadioGroupItem value="yes" id="is-realtor-yes" className="sr-only" />
+                Yes
+              </Label>
             </RadioGroup>
           </div>
 
           {/* Has Realtor Question - Only show if they're not a realtor */}
           {isRealtor === "no" && (
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Are you working with a realtor?</Label>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold">Working with a realtor?</Label>
               <RadioGroup 
                 value={hasRealtor} 
                 onValueChange={(value) => setValue("has_realtor", value as "yes" | "no")}
-                className="flex gap-4"
+                className="flex gap-2"
               >
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="no" id="realtor-no" />
-                  <Label htmlFor="realtor-no" className="text-sm font-normal cursor-pointer">No</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="yes" id="realtor-yes" />
-                  <Label htmlFor="realtor-yes" className="text-sm font-normal cursor-pointer">Yes</Label>
-                </div>
+                <Label 
+                  htmlFor="realtor-no" 
+                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                    hasRealtor === "no" 
+                      ? "border-primary bg-primary/10 text-primary" 
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <RadioGroupItem value="no" id="realtor-no" className="sr-only" />
+                  No
+                </Label>
+                <Label 
+                  htmlFor="realtor-yes" 
+                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                    hasRealtor === "yes" 
+                      ? "border-primary bg-primary/10 text-primary" 
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <RadioGroupItem value="yes" id="realtor-yes" className="sr-only" />
+                  Yes
+                </Label>
               </RadioGroup>
             </div>
           )}
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-semibold"
+            className="w-full h-14 text-base font-bold rounded-xl gap-2 shadow-lg"
             size="lg"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              "Submitting..."
+              <span className="flex items-center gap-2">
+                <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                Sending...
+              </span>
             ) : (
               <>
                 {content.buttonIcon}
@@ -316,9 +353,21 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
             )}
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center">
-            By submitting, you agree to receive updates about this project.
-          </p>
+          {/* Trust indicators */}
+          <div className="flex items-center justify-center gap-4 pt-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Shield className="h-3.5 w-3.5" />
+              Secure
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3.5 w-3.5" />
+              Instant
+            </span>
+            <span className="flex items-center gap-1">
+              <Users className="h-3.5 w-3.5" />
+              Free
+            </span>
+          </div>
         </form>
       </div>
     </div>
