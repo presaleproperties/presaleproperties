@@ -12,7 +12,8 @@ import {
   LogOut,
   Menu,
   X,
-  Shield
+  Shield,
+  Users2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -23,6 +24,7 @@ interface AdminLayoutProps {
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
   { href: "/admin/projects", label: "Projects", icon: Building2 },
+  { href: "/admin/leads", label: "Leads", icon: Users2 },
   { href: "/admin/blogs", label: "Blogs", icon: FileCheck },
   { href: "/admin/agents", label: "Agent Verification", icon: Users },
   { href: "/admin/listings", label: "Listing Approval", icon: FileCheck },
