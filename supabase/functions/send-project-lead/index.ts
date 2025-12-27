@@ -46,7 +46,9 @@ serve(async (req: Request): Promise<Response> => {
           city,
           neighborhood,
           developer_name,
-          status
+          status,
+          price_range,
+          project_type
         )
       `)
       .eq("id", leadId)
@@ -57,7 +59,7 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Lead not found");
     }
 
-    console.log("Lead details:", lead);
+    console.log("Lead details fetched successfully:", { leadId: lead.id, projectId: lead.project_id });
 
     // Send to Zapier webhook if configured
     const zapierWebhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
@@ -70,24 +72,30 @@ serve(async (req: Request): Promise<Response> => {
       const webhookPayload = {
         // Lead info
         lead_id: lead.id,
-        name: lead.name,
-        email: lead.email,
-        phone: lead.phone || "",
+        lead_name: lead.name,
+        lead_email: lead.email,
+        lead_phone: lead.phone || "",
         has_realtor: lead.message || "",
         submitted_at: lead.created_at,
         
         // Project info
+        project_id: lead.project_id,
         project_name: project?.name || "",
         project_city: project?.city || "",
         project_neighborhood: project?.neighborhood || "",
         project_developer: project?.developer_name || "",
         project_status: project?.status || "",
-        project_url: `https://presaleproperties.com/presale-projects/${project?.slug || ""}`,
+        project_type: project?.project_type || "",
+        project_price_range: project?.price_range || "",
+        project_url: project?.slug ? `https://presaleproperties.com/presale-projects/${project.slug}` : "",
         
         // Source
         source: "PresaleProperties.com",
         form_type: "Project Lead Form",
+        lead_type: "project",
       };
+
+      console.log("Webhook payload:", JSON.stringify(webhookPayload));
 
       try {
         const webhookResponse = await fetch(zapierWebhookUrl, {
@@ -97,12 +105,16 @@ serve(async (req: Request): Promise<Response> => {
         });
 
         console.log("Zapier webhook response status:", webhookResponse.status);
+        
+        if (!webhookResponse.ok) {
+          console.error("Zapier webhook failed:", await webhookResponse.text());
+        }
       } catch (webhookError) {
         console.error("Error sending to Zapier:", webhookError);
         // Don't throw - we still want to return success if lead was saved
       }
     } else {
-      console.log("No Zapier webhook configured, skipping CRM sync");
+      console.log("No Zapier webhook configured (ZAPIER_PROJECT_LEADS_WEBHOOK), skipping CRM sync");
     }
 
     return new Response(
