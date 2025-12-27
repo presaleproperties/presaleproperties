@@ -480,6 +480,7 @@ export default function ListingDetail() {
       {/* Sticky Mobile CTA */}
       <MobileCTABar 
         price={formatPrice(Number(listing.assignment_price))}
+        projectName={listing.project_name}
         onContactClick={scrollToForm}
         phoneNumber={agentInfo?.phone || undefined}
       />
