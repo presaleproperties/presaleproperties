@@ -1,4 +1,4 @@
-import { Phone, Send } from "lucide-react";
+import { Phone, Send, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ProjectMobileCTAProps {
@@ -8,16 +8,18 @@ interface ProjectMobileCTAProps {
 }
 
 export function ProjectMobileCTA({ projectName, status, onRegisterClick }: ProjectMobileCTAProps) {
-  const getButtonText = () => {
+  const getButtonContent = () => {
     switch (status) {
       case "coming_soon":
-        return "Register Now";
+        return { text: "Register Now", icon: <Send className="h-4 w-4 mr-2" /> };
       case "active":
-        return "Get Pricing";
+        return { text: "Download Plans", icon: <Download className="h-4 w-4 mr-2" /> };
       default:
-        return "Join Waitlist";
+        return { text: "Join Waitlist", icon: <Send className="h-4 w-4 mr-2" /> };
     }
   };
+
+  const buttonContent = getButtonContent();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-lg">
@@ -44,8 +46,8 @@ export function ProjectMobileCTA({ projectName, status, onRegisterClick }: Proje
             className="shrink-0 h-11 px-5 font-semibold"
             onClick={onRegisterClick}
           >
-            <Send className="h-4 w-4 mr-2" />
-            {getButtonText()}
+            {buttonContent.icon}
+            {buttonContent.text}
           </Button>
         </div>
       </div>
