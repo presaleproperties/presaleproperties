@@ -189,6 +189,30 @@ export default function AdminProjects() {
     }
   };
 
+  const toggleFeatured = async (project: Project) => {
+    try {
+      const { error } = await supabase
+        .from("presale_projects")
+        .update({ is_featured: !project.is_featured })
+        .eq("id", project.id);
+
+      if (error) throw error;
+
+      toast({
+        title: project.is_featured ? "Removed from Featured" : "Added to Featured",
+        description: `"${project.name}" is ${project.is_featured ? "no longer" : "now"} featured`,
+      });
+      fetchProjects();
+    } catch (error) {
+      console.error("Error updating project:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update project",
+        variant: "destructive",
+      });
+    }
+  };
+
   const cities = [...new Set(projects.map(p => p.city))].sort();
 
   const filteredProjects = projects.filter(project => {
@@ -343,6 +367,15 @@ export default function AdminProjects() {
                         ) : (
                           <Eye className="h-4 w-4" />
                         )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleFeatured(project)}
+                        title={project.is_featured ? "Remove from Featured" : "Add to Featured"}
+                        className={project.is_featured ? "text-yellow-500 hover:text-yellow-600" : ""}
+                      >
+                        <Star className={`h-4 w-4 ${project.is_featured ? "fill-current" : ""}`} />
                       </Button>
                       <Button
                         variant="ghost"
