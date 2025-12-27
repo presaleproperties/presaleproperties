@@ -41,21 +41,27 @@ export function FeaturedProjects() {
   };
 
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
+    <section className="py-20 md:py-28 bg-muted/20 relative">
+      {/* Top divider */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      
       <div className="container px-4">
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
+          <div className="space-y-3">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+              New Developments
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
               Featured Presale Projects
             </h2>
-            <p className="text-muted-foreground max-w-2xl">
+            <p className="text-muted-foreground text-lg max-w-xl">
               Explore hand-picked developments across Metro Vancouver
             </p>
           </div>
-          <Button variant="outline" asChild className="w-fit">
+          <Button variant="outline" size="lg" asChild className="w-fit group">
             <Link to="/presale-projects">
               View All Projects
-              <ArrowRight className="ml-2 h-4 w-4" />
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </Button>
         </div>

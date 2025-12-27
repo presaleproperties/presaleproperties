@@ -4,31 +4,39 @@ import { Button } from "@/components/ui/button";
 
 export function CTASection() {
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-foreground text-background">
-      <div className="container px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold">
-            Are You a Real Estate Agent?
-          </h2>
-          <p className="text-base sm:text-lg text-background/80 px-2">
-            List your presale assignments on Vancouver's fastest-growing marketplace. 
-            Reach qualified buyers and grow your business.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center pt-2">
+    <section className="py-20 md:py-28 bg-foreground text-background relative overflow-hidden">
+      {/* Decorative elements */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/5 via-transparent to-transparent" />
+      
+      <div className="container px-4 relative">
+        <div className="max-w-3xl mx-auto text-center space-y-8">
+          <div className="space-y-4">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+              For Real Estate Professionals
+            </span>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
+              Ready to List Your Assignments?
+            </h2>
+            <p className="text-lg sm:text-xl text-background/70 max-w-2xl mx-auto">
+              Join Vancouver's fastest-growing presale marketplace. Reach qualified buyers and grow your business.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Link to="/agents">
               <Button
                 size="lg"
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto text-base px-8"
               >
                 Get Started Free
-                <ArrowRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
             <Link to="/how-it-works">
               <Button
                 size="lg"
                 variant="outline"
-                className="w-full sm:w-auto border-background text-background hover:bg-background hover:text-foreground"
+                className="w-full sm:w-auto text-base px-8 border-background/30 text-background hover:bg-background hover:text-foreground"
               >
                 Learn How It Works
               </Button>

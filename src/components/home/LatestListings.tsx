@@ -42,21 +42,27 @@ export function LatestListings() {
   });
 
   return (
-    <section className="py-16 bg-muted/30">
-      <div className="container">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold text-foreground">
+    <section className="py-20 md:py-28 bg-muted/20 relative">
+      {/* Top divider */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      
+      <div className="container px-4">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
+          <div className="space-y-3">
+            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+              Just Added
+            </span>
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
               Latest Assignments
             </h2>
-            <p className="mt-2 text-muted-foreground">
+            <p className="text-muted-foreground text-lg">
               Recently added to the marketplace
             </p>
           </div>
           <Link to="/assignments" className="hidden sm:block shrink-0">
-            <Button variant="ghost" className="flex items-center gap-2">
+            <Button variant="ghost" size="lg" className="flex items-center gap-2 group">
               View All
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
           </Link>
         </div>
