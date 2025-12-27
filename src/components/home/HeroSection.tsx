@@ -30,20 +30,20 @@ export function HeroSection() {
     e.preventDefault();
     setShowSuggestions(false);
     if (searchQuery.trim()) {
-      navigate(`/assignments?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`/presale-projects?q=${encodeURIComponent(searchQuery)}`);
     } else {
-      navigate("/assignments");
+      navigate("/presale-projects");
     }
   };
 
   const handleSuggestionSelect = (value: string, type: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
-    navigate(`/assignments?q=${encodeURIComponent(value)}`);
+    navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
   };
 
   const handleCityClick = (city: string) => {
-    navigate(`/assignments?city=${encodeURIComponent(city)}`);
+    navigate(`/presale-projects?city=${encodeURIComponent(city)}`);
   };
 
   return (
@@ -62,19 +62,19 @@ export function HeroSection() {
         <div className="max-w-3xl mx-auto text-center space-y-5 sm:space-y-8">
           {/* Tagline */}
           <p className="text-primary font-medium tracking-wide animate-fade-in text-sm sm:text-base">
-            MLS for Presale Assignments
+            Metro Vancouver's Premier Presale Resource
           </p>
           
           {/* Main Heading */}
           <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-tight" style={{ animationDelay: "0.1s" }}>
-            Vancouver's Assignment Marketplace for <span className="text-primary">Presale Condos</span>
+            Discover New <span className="text-primary">Presale Condos</span> & Townhomes
           </h1>
           
           <p 
             className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl mx-auto animate-fade-in drop-shadow-md px-2" 
             style={{ animationDelay: "0.2s" }}
           >
-            Browse verified presale condo assignments from licensed agents across Metro Vancouver.
+            Explore the latest presale developments across Metro Vancouver. From condos to townhomes, find your next home before it's built.
           </p>
 
           {/* Floating Search Card */}
@@ -84,9 +84,9 @@ export function HeroSection() {
           >
             <form onSubmit={handleSearch}>
               <div className="relative" ref={searchContainerRef}>
-                <Input
-                  type="text"
-                  placeholder="City, Project, Developer..."
+                  <Input
+                    type="text"
+                    placeholder="Search projects, developers, cities..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -117,7 +117,7 @@ export function HeroSection() {
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
               <span className="text-xs sm:text-sm font-medium text-white/90 flex items-center gap-2 w-full sm:w-auto justify-center mb-1 sm:mb-0">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary"></span>
-                Top Cities
+                Explore by City
               </span>
               {topCities.map((city) => (
                 <Button
