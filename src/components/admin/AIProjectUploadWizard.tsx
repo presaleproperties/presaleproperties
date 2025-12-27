@@ -283,8 +283,16 @@ export function AIProjectUploadWizard() {
       if (!data?.success || !data?.data) throw new Error(data?.error || "No data extracted");
 
       console.log("AI extracted data:", data.data);
-      setExtractedData(data.data);
-      setFormData(data.data);
+      
+      // Limit highlights and amenities to 10 each
+      const limitedData = {
+        ...data.data,
+        highlights: data.data.highlights?.slice(0, 10),
+        amenities: data.data.amenities?.slice(0, 10),
+      };
+      
+      setExtractedData(limitedData);
+      setFormData(limitedData);
       setStep("review");
 
       toast({
