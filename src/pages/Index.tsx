@@ -5,12 +5,11 @@ import { TrustBar } from "@/components/home/TrustBar";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { FeaturedListings } from "@/components/home/FeaturedListings";
 import { LatestListings } from "@/components/home/LatestListings";
-import { TrustSection } from "@/components/home/TrustSection";
 import { CTASection } from "@/components/home/CTASection";
 
 const Index = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1">
         <HeroSection />
@@ -18,7 +17,6 @@ const Index = () => {
         <FeaturedProjects />
         <FeaturedListings />
         <LatestListings />
-        <TrustSection />
         <CTASection />
       </main>
       <Footer />
