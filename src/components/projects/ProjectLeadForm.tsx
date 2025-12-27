@@ -133,8 +133,9 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     }
   };
 
+  const defaultWhatsappNumber = "16045551234"; // Fallback number
   const whatsappMessage = encodeURIComponent(`Hi! I just submitted my info for ${projectName} and would love to learn more.`);
-  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
+  const whatsappLink = `https://wa.me/${whatsappNumber || defaultWhatsappNumber}?text=${whatsappMessage}`;
 
   if (isSubmitted) {
     return (
@@ -148,25 +149,15 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
         <p className="text-muted-foreground mb-4">
           Check your email for floor plans, pricing, and project details.
         </p>
-        {whatsappLink ? (
-          <Button
-            asChild
-            className="w-full"
-          >
-            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Chat with an Agent Now
-            </a>
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            onClick={() => setIsSubmitted(false)}
-            className="w-full"
-          >
-            Submit Another Request
-          </Button>
-        )}
+        <Button
+          asChild
+          className="w-full"
+        >
+          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Chat with an Agent Now
+          </a>
+        </Button>
       </div>
     );
   }
