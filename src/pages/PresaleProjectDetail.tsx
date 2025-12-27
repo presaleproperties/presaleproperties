@@ -487,9 +487,9 @@ export default function PresaleProjectDetail() {
               {/* Sidebar - Contact Form */}
               <div>
                 <div id="contact-form" className="sticky top-24 bg-muted/30 rounded-xl p-4 md:p-6">
-                  <h2 className="text-base md:text-lg font-semibold text-foreground mb-1">Get VIP Access</h2>
+                  <h2 className="text-base md:text-lg font-semibold text-foreground mb-1">Download Plans</h2>
                   <p className="text-sm text-muted-foreground mb-4">
-                    Receive floor plans, pricing, and exclusive updates
+                    Get instant access to floor plans, pricing sheets, and project details
                   </p>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -537,9 +537,9 @@ export default function PresaleProjectDetail() {
                       {submitting ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                       ) : (
-                        <Mail className="h-4 w-4 mr-2" />
+                        <Download className="h-4 w-4 mr-2" />
                       )}
-                      Send Request
+                      Request Plans
                     </Button>
                   </form>
                 </div>
