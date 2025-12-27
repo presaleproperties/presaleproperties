@@ -12,7 +12,7 @@ export function FeaturedProjects() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, short_description, featured_image, gallery_images")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, developer_name, address, featured_image, gallery_images")
         .eq("is_published", true)
         .eq("is_featured", true)
         .order("published_at", { ascending: false })
@@ -73,9 +73,10 @@ export function FeaturedProjects() {
                 city={project.city}
                 neighborhood={project.neighborhood}
                 projectType={project.project_type}
+                status={project.status}
                 completionYear={project.completion_year}
-                startingPrice={project.starting_price}
-                shortDescription={project.short_description}
+                developerName={project.developer_name}
+                address={project.address}
                 featuredImage={project.featured_image}
                 galleryImages={project.gallery_images}
               />

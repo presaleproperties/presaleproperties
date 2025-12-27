@@ -67,8 +67,8 @@ type Project = {
   status: "coming_soon" | "active" | "sold_out";
   project_type: "condo" | "townhome" | "mixed";
   completion_year: number | null;
-  starting_price: number | null;
-  short_description: string | null;
+  developer_name: string | null;
+  address: string | null;
   featured_image: string | null;
   gallery_images: string[] | null;
   is_featured: boolean;
@@ -120,7 +120,7 @@ export default function PresaleProjects() {
       // Then get paginated data
       let query = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, short_description, featured_image, gallery_images, is_featured")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, developer_name, address, featured_image, gallery_images, is_featured")
         .eq("is_published", true);
 
       // Apply filters
@@ -564,9 +564,10 @@ export default function PresaleProjects() {
                         city={project.city}
                         neighborhood={project.neighborhood}
                         projectType={project.project_type}
+                        status={project.status}
                         completionYear={project.completion_year}
-                        startingPrice={project.starting_price}
-                        shortDescription={project.short_description}
+                        developerName={project.developer_name}
+                        address={project.address}
                         featuredImage={project.featured_image}
                         galleryImages={project.gallery_images}
                       />
