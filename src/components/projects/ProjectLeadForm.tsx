@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Clock, Sparkles } from "lucide-react";
+import { Send, CheckCircle, Bell, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,14 +19,13 @@ const leadSchema = z.object({
 
 type LeadFormData = z.infer<typeof leadSchema>;
 
-interface LeadCaptureFormProps {
-  listingId: string;
-  agentId: string;
-  listingTitle: string;
-  isRestricted?: boolean;
+interface ProjectLeadFormProps {
+  projectId: string;
+  projectName: string;
+  status: "coming_soon" | "active" | "sold_out";
 }
 
-export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted = false }: LeadCaptureFormProps) {
+export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
@@ -44,29 +43,21 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
     setIsSubmitting(true);
 
     try {
-      const { data: leadData, error } = await supabase.from("leads").insert({
-        listing_id: listingId,
-        agent_id: agentId,
+      const { error } = await supabase.from("project_leads").insert({
+        project_id: projectId,
         name: data.name,
         email: data.email,
         phone: data.phone || null,
         message: data.message || null,
-      }).select("id").single();
+      });
 
       if (error) throw error;
-
-      // Try to send email notification (non-blocking)
-      if (leadData?.id) {
-        supabase.functions.invoke("send-lead-notification", {
-          body: { leadId: leadData.id }
-        }).catch(err => console.log("Email notification skipped:", err));
-      }
 
       setIsSubmitted(true);
       reset();
       toast({
-        title: "Request Sent!",
-        description: "The agent will be in touch with you shortly.",
+        title: "You're on the list!",
+        description: "We'll send you exclusive updates and early access.",
       });
     } catch (error) {
       console.error("Error submitting lead:", error);
@@ -82,45 +73,75 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
 
   if (isSubmitted) {
     return (
-      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl p-6 text-center shadow-lg">
+      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl p-6 text-center">
         <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
           <CheckCircle className="h-8 w-8 text-primary" />
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">
-          Request Sent!
+          You're on the VIP List!
         </h3>
         <p className="text-muted-foreground mb-4">
-          Thank you for your interest. The listing agent will contact you shortly.
+          We'll notify you with exclusive early access, pricing, and floor plans.
         </p>
         <Button
           variant="outline"
           onClick={() => setIsSubmitted(false)}
           className="w-full"
         >
-          Send Another Request
+          Register Another Email
         </Button>
       </div>
     );
   }
 
+  const getFormContent = () => {
+    switch (status) {
+      case "coming_soon":
+        return {
+          badge: "Early Access",
+          badgeIcon: <Sparkles className="h-3 w-3" />,
+          title: "Be the first to know.",
+          description: "Get on the waitlist to be the first to hear when this project is ready to start selling.",
+          buttonText: "Register Now",
+        };
+      case "active":
+        return {
+          badge: "Now Selling",
+          badgeIcon: <Bell className="h-3 w-3" />,
+          title: "Get Exclusive Pricing",
+          description: "Register to receive floor plans, pricing, and special incentives directly.",
+          buttonText: "Get Pricing & Plans",
+        };
+      default:
+        return {
+          badge: "Sold Out",
+          badgeIcon: null,
+          title: "Join the Waitlist",
+          description: "Get notified if any units become available or for similar upcoming projects.",
+          buttonText: "Join Waitlist",
+        };
+    }
+  };
+
+  const content = getFormContent();
+
   return (
-    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl overflow-hidden">
       {/* Header with urgency messaging */}
       <div className="bg-primary/10 px-5 py-4 border-b border-primary/10">
         <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-            <Sparkles className="h-3 w-3" />
-            {isRestricted ? "Exclusive Listing" : "High Interest"}
-          </span>
+          {content.badgeIcon && (
+            <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+              {content.badgeIcon}
+              {content.badge}
+            </span>
+          )}
         </div>
         <h3 className="text-xl font-bold text-foreground">
-          {isRestricted ? "Get Full Details" : "Interested in this assignment?"}
+          {content.title}
         </h3>
         <p className="text-sm text-muted-foreground mt-1">
-          {isRestricted 
-            ? "Some details are restricted. Submit your info to receive full assignment details."
-            : "Submit your info and the agent will reach out within 24 hours."
-          }
+          {content.description}
         </p>
       </div>
 
@@ -128,9 +149,9 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
       <div className="p-5">
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
+            <Label htmlFor="lead-name" className="text-sm font-medium">Full Name *</Label>
             <Input
-              id="name"
+              id="lead-name"
               placeholder="Your full name"
               {...register("name")}
               className={`h-11 ${errors.name ? "border-destructive" : ""}`}
@@ -141,9 +162,9 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
+            <Label htmlFor="lead-email" className="text-sm font-medium">Email *</Label>
             <Input
-              id="email"
+              id="lead-email"
               type="email"
               placeholder="your@email.com"
               {...register("email")}
@@ -155,27 +176,13 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium">Phone (optional)</Label>
+            <Label htmlFor="lead-phone" className="text-sm font-medium">Phone (optional)</Label>
             <Input
-              id="phone"
+              id="lead-phone"
               type="tel"
               placeholder="(604) 555-0123"
               {...register("phone")}
               className={`h-11 ${errors.phone ? "border-destructive" : ""}`}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="message" className="text-sm font-medium">Message (optional)</Label>
-            <Textarea
-              id="message"
-              placeholder={isRestricted 
-                ? "I'm interested in learning more about this restricted assignment..."
-                : "I'm interested in learning more about this assignment..."
-              }
-              rows={3}
-              {...register("message")}
-              className={errors.message ? "border-destructive" : ""}
             />
           </div>
 
@@ -186,19 +193,18 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              "Sending..."
+              "Registering..."
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                {isRestricted ? "Request Full Details" : "Send Request"}
+                {content.buttonText}
               </>
             )}
           </Button>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>Typical response time: under 24 hours</span>
-          </div>
+          <p className="text-xs text-muted-foreground text-center">
+            By registering, you agree to receive updates about this project.
+          </p>
         </form>
       </div>
     </div>
