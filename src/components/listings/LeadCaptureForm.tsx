@@ -55,22 +55,28 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
     setIsSubmitting(true);
 
     try {
-      const { data: leadData, error } = await supabase.from("leads").insert({
-        listing_id: listingId,
-        agent_id: agentId,
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        message: data.message || null,
-      }).select("id").single();
+      const { data: leadData, error } = await supabase
+        .from("leads")
+        .insert({
+          listing_id: listingId,
+          agent_id: agentId,
+          name: data.name,
+          email: data.email,
+          phone: data.phone,
+          message: data.message || null,
+        })
+        .select("id")
+        .maybeSingle();
 
       if (error) throw error;
 
       // Try to send email notification (non-blocking)
       if (leadData?.id) {
-        supabase.functions.invoke("send-lead-notification", {
-          body: { leadId: leadData.id }
-        }).catch(err => console.log("Email notification skipped:", err));
+        supabase.functions
+          .invoke("send-lead-notification", {
+            body: { leadId: leadData.id },
+          })
+          .catch((err) => console.log("Email notification skipped:", err));
       }
 
       setIsSubmitted(true);
@@ -79,11 +85,11 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
         title: "Request Sent!",
         description: "The agent will be in touch with you shortly.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting lead:", error);
       toast({
-        title: "Something went wrong",
-        description: "Please try again later.",
+        title: "Submission failed",
+        description: error?.message || "Please try again later.",
         variant: "destructive",
       });
     } finally {
