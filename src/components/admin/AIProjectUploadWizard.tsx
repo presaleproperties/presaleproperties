@@ -30,7 +30,9 @@ import {
   ArrowLeft,
   Save,
   Plus,
-  Trash2
+  Trash2,
+  FolderOpen,
+  Image
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -69,6 +71,7 @@ export function AIProjectUploadWizard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
   
   // State
   const [step, setStep] = useState<WizardStep>("upload");
@@ -76,13 +79,19 @@ export function AIProjectUploadWizard() {
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [extractedData, setExtractedData] = useState<ExtractedProjectData | null>(null);
   const [error, setError] = useState<string | null>(null);
   
   // Form data for review/edit
   const [formData, setFormData] = useState<ExtractedProjectData>({});
   const [isPublished, setIsPublished] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
+  
+  // Photo upload state
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [featuredImage, setFeaturedImage] = useState<string>("");
+  const [driveUrl, setDriveUrl] = useState("");
+  const [isImportingDrive, setIsImportingDrive] = useState(false);
+  const [isUploadingImages, setIsUploadingImages] = useState(false);
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
@@ -215,7 +224,6 @@ export function AIProjectUploadWizard() {
         amenities: data.data.amenities?.slice(0, 10),
       };
       
-      setExtractedData(limitedData);
       setFormData(limitedData);
       setStep("review");
 
@@ -243,6 +251,152 @@ export function AIProjectUploadWizard() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+  };
+
+  // Image upload handlers
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImages(true);
+    try {
+      const uploadedUrls: string[] = [];
+      
+      for (const file of Array.from(files)) {
+        const fileExt = file.name.split(".").pop();
+        const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from("listing-photos")
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from("listing-photos")
+          .getPublicUrl(fileName);
+
+        uploadedUrls.push(publicUrl);
+      }
+
+      // Set first as featured if none, rest as gallery
+      if (!featuredImage && uploadedUrls.length > 0) {
+        setFeaturedImage(uploadedUrls[0]);
+        setGalleryImages(prev => [...prev, ...uploadedUrls.slice(1)]);
+      } else {
+        setGalleryImages(prev => [...prev, ...uploadedUrls]);
+      }
+
+      toast({
+        title: "Upload Complete",
+        description: `${uploadedUrls.length} image(s) uploaded`,
+      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImages(false);
+      if (imageFileInputRef.current) {
+        imageFileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handleImportFromDrive = async () => {
+    if (!driveUrl.trim()) return;
+
+    if (!driveUrl.includes('/folders/')) {
+      toast({
+        title: "Not a Folder URL",
+        description: "Please enter a Google Drive folder share link",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImportingDrive(true);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('fetch-drive-folder', {
+        body: { folderUrl: driveUrl }
+      });
+
+      if (fnError) throw new Error(fnError.message);
+      if (!data?.success) throw new Error(data?.error || 'Failed to fetch folder');
+
+      const imageUrls = (data.images as string[]) || [];
+
+      if (imageUrls.length === 0) {
+        throw new Error('No images found in the folder');
+      }
+
+      // Upload images to storage
+      const uploadedUrls: string[] = [];
+      
+      for (let i = 0; i < imageUrls.length; i++) {
+        try {
+          const imgResponse = await fetch(imageUrls[i]);
+          if (!imgResponse.ok) continue;
+          
+          const blob = await imgResponse.blob();
+          const fileName = `projects/${Date.now()}-${i}.jpg`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from("listing-photos")
+            .upload(fileName, blob, { contentType: blob.type || "image/jpeg" });
+          
+          if (uploadError) {
+            console.warn("Upload error:", uploadError);
+            continue;
+          }
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from("listing-photos")
+            .getPublicUrl(fileName);
+          
+          uploadedUrls.push(publicUrl);
+        } catch (imgErr) {
+          console.warn("Could not process image:", imgErr);
+        }
+      }
+
+      if (uploadedUrls.length === 0) {
+        throw new Error('Could not import any images. Make sure the folder is publicly shared.');
+      }
+
+      // Set first as featured if none, rest as gallery
+      if (!featuredImage && uploadedUrls.length > 0) {
+        setFeaturedImage(uploadedUrls[0]);
+        setGalleryImages(prev => [...prev, ...uploadedUrls.slice(1)]);
+      } else {
+        setGalleryImages(prev => [...prev, ...uploadedUrls]);
+      }
+
+      setDriveUrl("");
+
+      toast({
+        title: "Images Imported",
+        description: `Added ${uploadedUrls.length} images from Google Drive`,
+      });
+
+    } catch (err: any) {
+      console.error('Drive import error:', err);
+      toast({
+        title: "Import Failed",
+        description: err.message || "Could not import images. Make sure the folder is publicly shared.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImportingDrive(false);
+    }
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setGalleryImages(prev => prev.filter((_, i) => i !== index));
   };
 
   const saveProject = async () => {
@@ -280,16 +434,16 @@ export function AIProjectUploadWizard() {
         highlights: formData.highlights || null,
         amenities: formData.amenities || null,
         faq: formData.faq || [],
+        featured_image: featuredImage || null,
+        gallery_images: galleryImages.length > 0 ? galleryImages : null,
         is_published: isPublished,
         is_featured: isFeatured,
         published_at: isPublished ? new Date().toISOString() : null,
       };
 
-      const { data: insertedProject, error } = await supabase
+      const { error } = await supabase
         .from("presale_projects")
-        .insert(projectData)
-        .select()
-        .single();
+        .insert(projectData);
 
       if (error) throw error;
 
@@ -297,12 +451,14 @@ export function AIProjectUploadWizard() {
       
       toast({
         title: "Project Created!",
-        description: `"${formData.name}" saved. Now add photos on the next page.`,
+        description: isPublished 
+          ? `"${formData.name}" is now live`
+          : `"${formData.name}" saved as draft`,
       });
 
-      // Navigate to edit page to add photos
+      // Navigate to projects list
       setTimeout(() => {
-        navigate(`/admin/projects/${insertedProject.id}`);
+        navigate("/admin/projects");
       }, 1500);
 
     } catch (err: any) {
@@ -521,7 +677,7 @@ export function AIProjectUploadWizard() {
             <div>
               <h2 className="text-xl font-bold">Review Extracted Data</h2>
               <p className="text-muted-foreground">
-                Edit any fields, then save. You'll add photos on the next page.
+                Edit fields and add photos before saving
               </p>
             </div>
             <Button
@@ -533,340 +689,459 @@ export function AIProjectUploadWizard() {
             </Button>
           </div>
 
-          {/* Core Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Core Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Project Name *</Label>
-                  <Input
-                    value={formData.name || ""}
-                    onChange={(e) => updateFormField("name", e.target.value)}
-                    placeholder="Project name"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Developer</Label>
-                  <Input
-                    value={formData.developer_name || ""}
-                    onChange={(e) => updateFormField("developer_name", e.target.value)}
-                    placeholder="Developer name"
-                  />
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>City *</Label>
-                  <Input
-                    value={formData.city || ""}
-                    onChange={(e) => updateFormField("city", e.target.value)}
-                    placeholder="City"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Neighborhood *</Label>
-                  <Input
-                    value={formData.neighborhood || ""}
-                    onChange={(e) => updateFormField("neighborhood", e.target.value)}
-                    placeholder="Neighborhood"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Address</Label>
-                  <Input
-                    value={formData.address || ""}
-                    onChange={(e) => updateFormField("address", e.target.value)}
-                    placeholder="Street address"
-                  />
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Project Type</Label>
-                  <Select
-                    value={formData.project_type || "condo"}
-                    onValueChange={(v) => updateFormField("project_type", v)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="condo">Condo</SelectItem>
-                      <SelectItem value="townhome">Townhome</SelectItem>
-                      <SelectItem value="mixed">Mixed</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Unit Mix</Label>
-                  <Input
-                    value={formData.unit_mix || ""}
-                    onChange={(e) => updateFormField("unit_mix", e.target.value)}
-                    placeholder="e.g., Studios to 3BR"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pricing */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Deposits</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Starting Price</Label>
-                  <Input
-                    type="number"
-                    value={formData.starting_price || ""}
-                    onChange={(e) => updateFormField("starting_price", e.target.value ? Number(e.target.value) : undefined)}
-                    placeholder="e.g., 499000"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Price Range</Label>
-                  <Input
-                    value={formData.price_range || ""}
-                    onChange={(e) => updateFormField("price_range", e.target.value)}
-                    placeholder="e.g., $499K - $899K"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Deposit Structure</Label>
-                <Textarea
-                  value={formData.deposit_structure || ""}
-                  onChange={(e) => updateFormField("deposit_structure", e.target.value)}
-                  placeholder="e.g., 5% on signing, 5% in 90 days..."
-                  rows={2}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label>Incentives</Label>
-                <Textarea
-                  value={formData.incentives || ""}
-                  onChange={(e) => updateFormField("incentives", e.target.value)}
-                  placeholder="Current promotions or incentives"
-                  rows={2}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Timeline */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Timeline</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label>Completion Month</Label>
-                  <Select
-                    value={formData.completion_month?.toString() || ""}
-                    onValueChange={(v) => updateFormField("completion_month", v ? Number(v) : undefined)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select month" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 12 }, (_, i) => (
-                        <SelectItem key={i + 1} value={(i + 1).toString()}>
-                          {new Date(2000, i).toLocaleString('default', { month: 'long' })}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Completion Year</Label>
-                  <Select
-                    value={formData.completion_year?.toString() || ""}
-                    onValueChange={(v) => updateFormField("completion_year", v ? Number(v) : undefined)}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 10 }, (_, i) => (
-                        <SelectItem key={i} value={(2025 + i).toString()}>
-                          {2025 + i}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label>Occupancy Estimate</Label>
-                  <Input
-                    value={formData.occupancy_estimate || ""}
-                    onChange={(e) => updateFormField("occupancy_estimate", e.target.value)}
-                    placeholder="e.g., Fall 2027"
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Descriptions */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Descriptions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label>Short Description</Label>
-                <Textarea
-                  value={formData.short_description || ""}
-                  onChange={(e) => updateFormField("short_description", e.target.value)}
-                  placeholder="Brief summary for cards and previews"
-                  rows={2}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Full Description</Label>
-                <Textarea
-                  value={formData.full_description || ""}
-                  onChange={(e) => updateFormField("full_description", e.target.value)}
-                  placeholder="Detailed project description"
-                  rows={4}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Highlights */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Highlights</CardTitle>
-              <Button size="sm" variant="outline" onClick={addHighlight}>
-                <Plus className="h-4 w-4 mr-1" /> Add
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {formData.highlights && formData.highlights.length > 0 ? (
-                <div className="space-y-2">
-                  {formData.highlights.map((highlight, index) => (
-                    <div key={index} className="flex gap-2">
+          <div className="grid lg:grid-cols-3 gap-6">
+            {/* Main Content - Left 2 columns */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Core Info */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Core Information</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Project Name *</Label>
                       <Input
-                        value={highlight}
-                        onChange={(e) => updateHighlight(index, e.target.value)}
-                        placeholder="Enter highlight"
+                        value={formData.name || ""}
+                        onChange={(e) => updateFormField("name", e.target.value)}
+                        placeholder="Project name"
                       />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        onClick={() => removeHighlight(index)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
                     </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No highlights yet. Click "Add" to add one.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Amenities */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle>Amenities</CardTitle>
-              <Button size="sm" variant="outline" onClick={addAmenity}>
-                <Plus className="h-4 w-4 mr-1" /> Add
-              </Button>
-            </CardHeader>
-            <CardContent>
-              {formData.amenities && formData.amenities.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {formData.amenities.map((amenity, index) => (
-                    <Badge key={index} variant="secondary" className="gap-1 pr-1">
+                    <div className="space-y-2">
+                      <Label>Developer</Label>
                       <Input
-                        value={amenity}
-                        onChange={(e) => updateAmenity(index, e.target.value)}
-                        className="h-6 w-32 border-0 bg-transparent p-0 text-xs"
-                        placeholder="Amenity"
+                        value={formData.developer_name || ""}
+                        onChange={(e) => updateFormField("developer_name", e.target.value)}
+                        placeholder="Developer name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>City *</Label>
+                      <Input
+                        value={formData.city || ""}
+                        onChange={(e) => updateFormField("city", e.target.value)}
+                        placeholder="City"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Neighborhood *</Label>
+                      <Input
+                        value={formData.neighborhood || ""}
+                        onChange={(e) => updateFormField("neighborhood", e.target.value)}
+                        placeholder="Neighborhood"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Address</Label>
+                      <Input
+                        value={formData.address || ""}
+                        onChange={(e) => updateFormField("address", e.target.value)}
+                        placeholder="Street address"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Project Type</Label>
+                      <Select
+                        value={formData.project_type || "condo"}
+                        onValueChange={(v) => updateFormField("project_type", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="condo">Condo</SelectItem>
+                          <SelectItem value="townhome">Townhome</SelectItem>
+                          <SelectItem value="mixed">Mixed</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Unit Mix</Label>
+                      <Input
+                        value={formData.unit_mix || ""}
+                        onChange={(e) => updateFormField("unit_mix", e.target.value)}
+                        placeholder="e.g., Studios to 3BR"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Pricing */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Pricing & Deposits</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Starting Price</Label>
+                      <Input
+                        type="number"
+                        value={formData.starting_price || ""}
+                        onChange={(e) => updateFormField("starting_price", e.target.value ? Number(e.target.value) : undefined)}
+                        placeholder="e.g., 499000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Price Range</Label>
+                      <Input
+                        value={formData.price_range || ""}
+                        onChange={(e) => updateFormField("price_range", e.target.value)}
+                        placeholder="e.g., $499K - $899K"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Deposit Structure</Label>
+                    <Textarea
+                      value={formData.deposit_structure || ""}
+                      onChange={(e) => updateFormField("deposit_structure", e.target.value)}
+                      placeholder="e.g., 5% on signing, 5% in 90 days..."
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Incentives</Label>
+                    <Textarea
+                      value={formData.incentives || ""}
+                      onChange={(e) => updateFormField("incentives", e.target.value)}
+                      placeholder="Current promotions or incentives"
+                      rows={2}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Timeline */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Timeline</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label>Completion Month</Label>
+                      <Select
+                        value={formData.completion_month?.toString() || ""}
+                        onValueChange={(v) => updateFormField("completion_month", v ? Number(v) : undefined)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select month" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <SelectItem key={i + 1} value={(i + 1).toString()}>
+                              {new Date(2000, i).toLocaleString('default', { month: 'long' })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Completion Year</Label>
+                      <Select
+                        value={formData.completion_year?.toString() || ""}
+                        onValueChange={(v) => updateFormField("completion_year", v ? Number(v) : undefined)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select year" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 10 }, (_, i) => (
+                            <SelectItem key={i} value={(2025 + i).toString()}>
+                              {2025 + i}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Occupancy Estimate</Label>
+                      <Input
+                        value={formData.occupancy_estimate || ""}
+                        onChange={(e) => updateFormField("occupancy_estimate", e.target.value)}
+                        placeholder="e.g., Fall 2027"
+                      />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Descriptions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Descriptions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>Short Description</Label>
+                    <Textarea
+                      value={formData.short_description || ""}
+                      onChange={(e) => updateFormField("short_description", e.target.value)}
+                      placeholder="Brief summary for cards and previews"
+                      rows={2}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Full Description</Label>
+                    <Textarea
+                      value={formData.full_description || ""}
+                      onChange={(e) => updateFormField("full_description", e.target.value)}
+                      placeholder="Detailed project description"
+                      rows={4}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Highlights */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Highlights</CardTitle>
+                  <Button size="sm" variant="outline" onClick={addHighlight}>
+                    <Plus className="h-4 w-4 mr-1" /> Add
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {formData.highlights && formData.highlights.length > 0 ? (
+                    <div className="space-y-2">
+                      {formData.highlights.map((highlight, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={highlight}
+                            onChange={(e) => updateHighlight(index, e.target.value)}
+                            placeholder="Enter highlight"
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={() => removeHighlight(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No highlights yet. Click "Add" to add one.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Amenities */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>Amenities</CardTitle>
+                  <Button size="sm" variant="outline" onClick={addAmenity}>
+                    <Plus className="h-4 w-4 mr-1" /> Add
+                  </Button>
+                </CardHeader>
+                <CardContent>
+                  {formData.amenities && formData.amenities.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.amenities.map((amenity, index) => (
+                        <Badge key={index} variant="secondary" className="gap-1 pr-1">
+                          <Input
+                            value={amenity}
+                            onChange={(e) => updateAmenity(index, e.target.value)}
+                            className="h-6 w-32 border-0 bg-transparent p-0 text-xs"
+                            placeholder="Amenity"
+                          />
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-4 w-4 p-0"
+                            onClick={() => removeAmenity(index)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </Badge>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No amenities yet. Click "Add" to add one.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Sidebar - Right column */}
+            <div className="space-y-6">
+              {/* Publishing Options */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Publishing</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Publish Immediately</Label>
+                      <p className="text-xs text-muted-foreground">Make visible on website</p>
+                    </div>
+                    <Switch
+                      checked={isPublished}
+                      onCheckedChange={setIsPublished}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Featured Project</Label>
+                      <p className="text-xs text-muted-foreground">Show on homepage</p>
+                    </div>
+                    <Switch
+                      checked={isFeatured}
+                      onCheckedChange={setIsFeatured}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Featured Image */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Featured Image</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {featuredImage ? (
+                    <div className="relative">
+                      <img
+                        src={featuredImage}
+                        alt="Featured"
+                        className="w-full aspect-video object-cover rounded-lg"
                       />
                       <Button
+                        type="button"
+                        variant="destructive"
                         size="icon"
-                        variant="ghost"
-                        className="h-4 w-4 p-0"
-                        onClick={() => removeAmenity(index)}
+                        className="absolute top-2 right-2 h-6 w-6"
+                        onClick={() => setFeaturedImage("")}
                       >
                         <X className="h-3 w-3" />
                       </Button>
-                    </Badge>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-sm text-muted-foreground text-center py-4">
-                  No amenities yet. Click "Add" to add one.
-                </p>
-              )}
-            </CardContent>
-          </Card>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      Upload images below - first one becomes featured
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
 
-          {/* Publishing Options */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Publishing Options</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Publish Immediately</Label>
-                  <p className="text-sm text-muted-foreground">Make visible on the website</p>
-                </div>
-                <Switch
-                  checked={isPublished}
-                  onCheckedChange={setIsPublished}
-                />
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <Label>Featured Project</Label>
-                  <p className="text-sm text-muted-foreground">Show on homepage</p>
-                </div>
-                <Switch
-                  checked={isFeatured}
-                  onCheckedChange={setIsFeatured}
-                />
-              </div>
-            </CardContent>
-          </Card>
+              {/* Gallery Images */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Gallery Images</CardTitle>
+                  <CardDescription>
+                    {galleryImages.length + (featuredImage ? 1 : 0)} images
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Google Drive Import */}
+                  <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg space-y-2">
+                    <div className="flex items-center gap-2 text-sm font-medium text-primary">
+                      <FolderOpen className="h-4 w-4" />
+                      Import from Google Drive
+                    </div>
+                    <div className="flex gap-2">
+                      <Input
+                        value={driveUrl}
+                        onChange={(e) => setDriveUrl(e.target.value)}
+                        placeholder="Paste folder link..."
+                        disabled={isImportingDrive}
+                        className="text-xs"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleImportFromDrive}
+                        disabled={isImportingDrive || !driveUrl.includes('/folders/')}
+                      >
+                        {isImportingDrive ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Image className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
 
-          {/* Save Button */}
-          <Button 
-            onClick={saveProject}
-            disabled={isSaving || !formData.name || !formData.city || !formData.neighborhood}
-            size="lg"
-            className="w-full"
-          >
-            {isSaving ? (
-              <>
-                <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                Saving...
-              </>
-            ) : (
-              <>
-                <Save className="h-5 w-5 mr-2" />
-                Save Project & Add Photos
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </>
-            )}
-          </Button>
+                  {/* Existing Images */}
+                  {galleryImages.length > 0 && (
+                    <div className="grid grid-cols-2 gap-2">
+                      {galleryImages.map((img, i) => (
+                        <div key={i} className="relative aspect-square">
+                          <img
+                            src={img}
+                            alt={`Gallery ${i + 1}`}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-5 w-5"
+                            onClick={() => removeGalleryImage(i)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Manual Upload */}
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
+                    <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                    <span className="text-sm text-muted-foreground">
+                      {isUploadingImages ? "Uploading..." : "Drop or click to upload"}
+                    </span>
+                    <input
+                      ref={imageFileInputRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      className="hidden"
+                      onChange={handleImageUpload}
+                      disabled={isUploadingImages}
+                    />
+                  </label>
+                </CardContent>
+              </Card>
+
+              {/* Save Button */}
+              <Button 
+                onClick={saveProject}
+                disabled={isSaving || !formData.name || !formData.city || !formData.neighborhood}
+                size="lg"
+                className="w-full"
+              >
+                {isSaving ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-5 w-5 mr-2" />
+                    Save Project
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
 
@@ -877,7 +1152,7 @@ export function AIProjectUploadWizard() {
             <CheckCircle2 className="h-16 w-16 mx-auto text-green-500 mb-6" />
             <h3 className="text-xl font-semibold mb-2">Project Created!</h3>
             <p className="text-muted-foreground mb-6">
-              Redirecting to add photos...
+              Redirecting to projects list...
             </p>
             <Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" />
           </CardContent>
