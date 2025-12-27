@@ -247,19 +247,17 @@ export default function PresaleProjectDetail() {
             Preview Mode — This project is not published yet
           </div>
         )}
-        {/* Breadcrumb */}
+        {/* Breadcrumb - Compact */}
         <div className="border-b">
-          <div className="container py-3 px-4 flex items-center justify-between">
-            <Link to="/presale-projects" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">
-              <ChevronLeft className="h-4 w-4" />
-              Back to Projects
+          <div className="container py-2 px-4 flex items-center justify-between">
+            <Link to="/presale-projects" className="text-xs text-muted-foreground hover:text-primary flex items-center gap-0.5">
+              <ChevronLeft className="h-3.5 w-3.5" />
+              Back
             </Link>
-            <div className="flex items-center gap-2">
-              <Button variant="ghost" size="sm" onClick={handleShare}>
-                <Share2 className="h-4 w-4 mr-1" />
-                Share
-              </Button>
-            </div>
+            <Button variant="ghost" size="sm" onClick={handleShare} className="h-7 px-2 text-xs">
+              <Share2 className="h-3.5 w-3.5 mr-1" />
+              Share
+            </Button>
           </div>
         </div>
 
