@@ -174,7 +174,54 @@ export default function AdminProjectForm() {
       .replace(/(^-|-$)/g, "");
   };
 
+  const getProjectTypeLabel = (type: string) => {
+    const labels: Record<string, string> = {
+      condo: "Condos",
+      townhome: "Townhomes",
+      mixed: "Homes",
+    };
+    return labels[type] || "Homes";
+  };
+
+  const generateSeoTitle = (data: Partial<ProjectFormData>) => {
+    const name = data.name || "";
+    const typeLabel = getProjectTypeLabel(data.project_type || "condo");
+    const price = data.starting_price ? `from $${parseInt(data.starting_price).toLocaleString()}` : "";
+    
+    if (name && price) {
+      return `${name} | ${typeLabel} ${price}`;
+    } else if (name) {
+      return `${name} | ${typeLabel}`;
+    }
+    return "";
+  };
+
+  const generateSeoDescription = (data: Partial<ProjectFormData>) => {
+    const tagline = data.short_description || "";
+    const typeLabel = getProjectTypeLabel(data.project_type || "condo");
+    const city = data.city || "";
+    const neighborhood = data.neighborhood || "";
+    
+    if (tagline && city && neighborhood) {
+      return `${tagline} ${typeLabel} in ${neighborhood}, ${city}.`;
+    } else if (tagline && city) {
+      return `${tagline} ${typeLabel} in ${city}.`;
+    } else if (tagline) {
+      return tagline;
+    }
+    return "";
+  };
+
   const handleBrochureDataExtracted = (data: any) => {
+    const mergedData = {
+      name: data.name || formData.name,
+      project_type: data.project_type || formData.project_type,
+      starting_price: data.starting_price?.toString() || formData.starting_price,
+      short_description: data.short_description || formData.short_description,
+      city: data.city || formData.city,
+      neighborhood: data.neighborhood || formData.neighborhood,
+    };
+
     setFormData(prev => ({
       ...prev,
       name: data.name || prev.name,
@@ -197,6 +244,8 @@ export default function AdminProjectForm() {
       highlights: data.highlights?.length > 0 ? data.highlights : prev.highlights,
       amenities: data.amenities?.length > 0 ? data.amenities : prev.amenities,
       faq: data.faq?.length > 0 ? data.faq : prev.faq,
+      seo_title: generateSeoTitle(mergedData),
+      seo_description: generateSeoDescription(mergedData),
     }));
   };
 
