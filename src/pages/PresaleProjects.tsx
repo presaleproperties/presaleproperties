@@ -25,6 +25,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
+import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
@@ -579,6 +580,7 @@ export default function PresaleProjects() {
           </div>
         </main>
 
+        <NewConstructionBenefits />
         <Footer />
       </PullToRefresh>
     </>
