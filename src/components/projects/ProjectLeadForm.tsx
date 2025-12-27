@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
-  phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal("")),
+  phone: z.string().trim().min(1, "Phone number is required").max(20, "Phone must be less than 20 characters"),
   has_realtor: z.enum(["yes", "no"]),
 });
 
@@ -210,7 +210,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lead-phone" className="text-sm font-medium">Phone (optional)</Label>
+            <Label htmlFor="lead-phone" className="text-sm font-medium">Phone *</Label>
             <Input
               id="lead-phone"
               type="tel"
@@ -218,6 +218,9 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
               {...register("phone")}
               className={`h-11 ${errors.phone ? "border-destructive" : ""}`}
             />
+            {errors.phone && (
+              <p className="text-xs text-destructive">{errors.phone.message}</p>
+            )}
           </div>
 
           {/* Realtor Question */}
