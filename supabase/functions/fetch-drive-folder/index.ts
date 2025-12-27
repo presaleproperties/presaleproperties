@@ -118,10 +118,12 @@ serve(async (req) => {
     // Categorize files by type
     const imageUrls: string[] = [];
     const pdfFileIds: string[] = [];
+    const processedIds = new Set<string>();
     
     // First, process file entries with names (more reliable)
     for (const entry of fileEntries) {
       if (entry.id === folderId) continue;
+      processedIds.add(entry.id);
       
       const lowerName = entry.name.toLowerCase();
       
@@ -147,16 +149,19 @@ serve(async (req) => {
       if (pdfFileIds.length >= 10 && imageUrls.length >= 30) break;
     }
     
-    // Then check remaining IDs by making requests
-    const remainingIds = Array.from(potentialIds)
+    // Collect all potential file IDs to check
+    const allIdsToCheck = Array.from(potentialIds)
       .filter(id => id !== folderId)
-      .filter(id => !fileEntries.some(e => e.id === id))
-      .slice(0, 30);
+      .filter(id => !processedIds.has(id))
+      .filter(id => !pdfIds.has(id));
     
-    for (const fileId of remainingIds) {
-      if (imageUrls.length >= 30 && pdfFileIds.length >= 10) break;
+    console.log('IDs to check for images:', allIdsToCheck.length);
+    
+    // Check each ID by making a HEAD request
+    for (const fileId of allIdsToCheck) {
+      if (imageUrls.length >= 50) break;
       
-      // Check if this ID was mentioned with PDF
+      // Skip known PDFs
       if (pdfIds.has(fileId)) {
         if (!pdfFileIds.includes(fileId)) {
           pdfFileIds.push(fileId);
@@ -172,11 +177,13 @@ serve(async (req) => {
         // Try to get content type from download URL
         const checkResponse = await fetch(downloadUrl, { 
           method: 'HEAD',
-          redirect: 'manual' // Don't follow redirects to see the real response
+          redirect: 'manual'
         });
         
         const contentType = checkResponse.headers.get('content-type') || '';
         const contentDisposition = checkResponse.headers.get('content-disposition') || '';
+        
+        console.log('Checking file:', fileId, 'type:', contentType, 'disp:', contentDisposition);
         
         // Check if it's a PDF based on headers or content-disposition
         if (
@@ -192,14 +199,33 @@ serve(async (req) => {
             imageUrls.push(directImageUrl);
             console.log('Image found by content-type:', fileId);
           }
-        } else if (includeAll && checkResponse.ok) {
-          // Default to image if includeAll is set
+        } else if (
+          contentDisposition.toLowerCase().includes('.jpg') ||
+          contentDisposition.toLowerCase().includes('.jpeg') ||
+          contentDisposition.toLowerCase().includes('.png') ||
+          contentDisposition.toLowerCase().includes('.gif') ||
+          contentDisposition.toLowerCase().includes('.webp')
+        ) {
+          // Check filename in content-disposition
           if (!imageUrls.includes(directImageUrl)) {
             imageUrls.push(directImageUrl);
+            console.log('Image found by filename:', fileId);
           }
         }
       } catch (e) {
-        console.log('Skipping file:', fileId);
+        console.log('Error checking file:', fileId, e);
+      }
+    }
+    
+    // If still no images found, try treating all unknown IDs as potential images
+    if (imageUrls.length === 0 && allIdsToCheck.length > 0) {
+      console.log('No images found by header, trying remaining IDs as images');
+      for (const fileId of allIdsToCheck.slice(0, 30)) {
+        if (pdfIds.has(fileId) || pdfFileIds.includes(fileId)) continue;
+        
+        const directImageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+        imageUrls.push(directImageUrl);
+        console.log('Adding potential image:', fileId);
       }
     }
 
