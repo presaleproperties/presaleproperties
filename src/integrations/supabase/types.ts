@@ -460,7 +460,22 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      public_agent_profiles: {
+        Row: {
+          avatar_url: string | null
+          brokerage_name: string | null
+          email: string | null
+          full_name: string | null
+          id: string | null
+          phone: string | null
+          user_id: string | null
+          verification_status:
+            | Database["public"]["Enums"]["agent_verification_status"]
+            | null
+          verified_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
