@@ -49,6 +49,14 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
 
   const hasRealtor = watch("has_realtor");
 
+  const onInvalid = () => {
+    toast({
+      title: "Please check the form",
+      description: "Name, email, and phone number are required.",
+      variant: "destructive",
+    });
+  };
+
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
 
@@ -184,7 +192,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
 
       {/* Form */}
       <div className="p-5">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="lead-name" className="text-sm font-medium">Full Name *</Label>
             <Input
