@@ -99,19 +99,44 @@ Return ONLY valid JSON with these fields. Do not include any markdown formatting
     let extractedData;
     try {
       // Remove any markdown code blocks if present
-      let jsonStr = content;
-      if (jsonStr.includes('```json')) {
-        jsonStr = jsonStr.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-      } else if (jsonStr.includes('```')) {
-        jsonStr = jsonStr.replace(/```\n?/g, '');
+      let jsonStr = content.trim();
+      
+      // Strip markdown code blocks
+      if (jsonStr.startsWith('```json')) {
+        jsonStr = jsonStr.slice(7);
+      } else if (jsonStr.startsWith('```')) {
+        jsonStr = jsonStr.slice(3);
       }
-      extractedData = JSON.parse(jsonStr.trim());
+      if (jsonStr.endsWith('```')) {
+        jsonStr = jsonStr.slice(0, -3);
+      }
+      jsonStr = jsonStr.trim();
+      
+      // Try to extract JSON object if there's extra content
+      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[0];
+      }
+      
+      extractedData = JSON.parse(jsonStr);
     } catch (parseError) {
       console.error('Failed to parse AI response as JSON:', parseError, content);
-      return new Response(
-        JSON.stringify({ error: 'Failed to parse extracted data', rawContent: content }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      
+      // Try one more approach: regex extract and basic cleanup
+      try {
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          extractedData = JSON.parse(jsonMatch[0]);
+        } else {
+          throw parseError;
+        }
+      } catch (secondError) {
+        console.error('Second parse attempt also failed');
+        return new Response(
+          JSON.stringify({ error: 'Failed to parse extracted data', rawContent: content }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
     }
 
     console.log('Successfully extracted project data');
