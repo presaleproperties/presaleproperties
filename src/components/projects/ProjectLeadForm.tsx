@@ -72,37 +72,40 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           project_id: projectId,
           name: data.name,
           email: data.email,
-          phone: data.phone || null,
+          phone: data.phone,
           message: realtorNote,
         })
         .select("id")
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
       // Send to CRM via edge function (fire and forget)
       if (insertedLead?.id) {
-        supabase.functions.invoke("send-project-lead", {
-          body: { leadId: insertedLead.id },
-        }).catch((err) => {
-          console.error("Error sending to CRM:", err);
-          // Don't show error to user - lead was still saved
-        });
+        supabase.functions
+          .invoke("send-project-lead", {
+            body: { leadId: insertedLead.id },
+          })
+          .catch((err) => {
+            console.error("Error sending to CRM:", err);
+            // Don't show error to user - lead was still saved
+          });
       }
 
       setIsSubmitted(true);
       reset();
       toast({
         title: status === "coming_soon" ? "You're on the list!" : "Plans sent!",
-        description: status === "coming_soon" 
-          ? "We'll send you exclusive updates and early access."
-          : "Check your email for floor plans and pricing.",
+        description:
+          status === "coming_soon"
+            ? "We'll send you exclusive updates and early access."
+            : "Check your email for floor plans and pricing.",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting lead:", error);
       toast({
-        title: "Something went wrong",
-        description: "Please try again later.",
+        title: "Submission failed",
+        description: error?.message || "Please try again later.",
         variant: "destructive",
       });
     } finally {
