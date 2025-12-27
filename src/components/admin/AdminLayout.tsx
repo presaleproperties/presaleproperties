@@ -22,6 +22,8 @@ interface AdminLayoutProps {
 
 const navItems = [
   { href: "/admin", label: "Overview", icon: LayoutDashboard },
+  { href: "/admin/projects", label: "Projects", icon: Building2 },
+  { href: "/admin/blogs", label: "Blogs", icon: FileCheck },
   { href: "/admin/agents", label: "Agent Verification", icon: Users },
   { href: "/admin/listings", label: "Listing Approval", icon: FileCheck },
   { href: "/admin/all-listings", label: "All Listings", icon: Building2 },
