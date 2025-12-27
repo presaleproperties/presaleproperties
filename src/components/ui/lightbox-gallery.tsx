@@ -247,15 +247,15 @@ export function GalleryWithLightbox({
 
         {/* Thumbnails - larger on mobile */}
         {images.length > 1 && (
-          <div className="grid grid-cols-5 gap-1.5 sm:gap-2 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6">
+          <div className="grid grid-cols-4 gap-2 sm:grid-cols-5 md:grid-cols-4 lg:grid-cols-6">
             {images.slice(0, 5).map((img, i) => (
               <button
                 key={i}
                 onClick={() => onSelectIndex(i)}
-                className={`aspect-[4/3] rounded-lg overflow-hidden border-2 transition-all hover:scale-105 ${
+                className={`aspect-square rounded-xl overflow-hidden border-2 transition-all hover:scale-105 shadow-sm ${
                   selectedIndex === i
                     ? "border-primary ring-2 ring-primary/20"
-                    : "border-transparent hover:border-muted-foreground"
+                    : "border-transparent hover:border-muted-foreground/50"
                 }`}
               >
                 <img src={img} alt="" className="w-full h-full object-cover" />
@@ -264,9 +264,9 @@ export function GalleryWithLightbox({
             {images.length > 5 && (
               <button
                 onClick={() => openLightbox(5)}
-                className="aspect-[4/3] rounded-lg overflow-hidden border-2 border-transparent hover:border-muted-foreground bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground hover:scale-105 transition-all"
+                className="aspect-square rounded-xl overflow-hidden border-2 border-transparent hover:border-muted-foreground/50 bg-muted/80 flex items-center justify-center text-sm font-semibold text-muted-foreground hover:scale-105 transition-all shadow-sm"
               >
-                +{images.length - 5} more
+                +{images.length - 5}
               </button>
             )}
           </div>
