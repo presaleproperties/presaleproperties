@@ -33,30 +33,11 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a real estate project data extraction assistant. Extract project information from the provided brochure or information sheet text and return it as structured JSON.
+    const systemPrompt = `You are a real estate project data extraction assistant. Extract project information from the provided brochure/information sheet text.
 
-Extract the following fields if present (leave empty string or empty array if not found):
-- name: Project name
-- developer_name: Developer/builder name
-- city: City location
-- neighborhood: Neighborhood/area name
-- address: Full address if available
-- project_type: One of "condo", "townhome", or "mixed"
-- unit_mix: Description of unit types (e.g., "1-3 bedroom units", "Studios to 3 bedrooms")
-- starting_price: Lowest starting price as a number (e.g., 629900 for $629,900)
-- price_range: Price range as text (e.g., "$629,900 - $1,200,000")
-- deposit_structure: Deposit requirements (e.g., "5% on signing, 5% in 90 days")
-- incentives: Any buyer incentives or promotions
-- completion_month: Expected completion month (1-12)
-- completion_year: Expected completion year (e.g., 2026)
-- occupancy_estimate: Occupancy timeline description
-- short_description: A compelling 1-2 sentence marketing summary (max 200 chars)
-- full_description: Detailed project description (2-4 paragraphs)
-- highlights: Array of key selling points/features (5-10 items)
-- amenities: Array of amenities (e.g., ["Gym", "Rooftop Deck", "Concierge"])
-- faq: Array of objects with question and answer fields for common questions
+Return the data by calling the provided tool. Do NOT return JSON in plain text.`;
 
-Return ONLY valid JSON with these fields. Do not include any markdown formatting or explanation.`;
+    const userPrompt = `Extract project data from this ${documentType || 'brochure'}:\n\n${documentText}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -68,14 +49,96 @@ Return ONLY valid JSON with these fields. Do not include any markdown formatting
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Extract project data from this ${documentType || 'brochure'}:\n\n${documentText}` }
+          { role: 'user', content: userPrompt }
         ],
+        tools: [
+          {
+            type: 'function',
+            function: {
+              name: 'extract_project',
+              description: 'Extract structured presale project data from brochure text.',
+              parameters: {
+                type: 'object',
+                additionalProperties: false,
+                properties: {
+                  name: { type: 'string' },
+                  developer_name: { type: 'string' },
+                  city: { type: 'string' },
+                  neighborhood: { type: 'string' },
+                  address: { type: 'string' },
+                  project_type: { type: 'string', enum: ['condo', 'townhome', 'mixed'] },
+                  unit_mix: { type: 'string' },
+                  starting_price: { type: ['number', 'null'] },
+                  price_range: { type: 'string' },
+                  deposit_structure: { type: 'string' },
+                  incentives: { type: 'string' },
+                  completion_month: { type: ['number', 'null'] },
+                  completion_year: { type: ['number', 'null'] },
+                  occupancy_estimate: { type: 'string' },
+                  short_description: { type: 'string' },
+                  full_description: { type: 'string' },
+                  highlights: { type: 'array', items: { type: 'string' } },
+                  amenities: { type: 'array', items: { type: 'string' } },
+                  faq: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      additionalProperties: false,
+                      properties: {
+                        question: { type: 'string' },
+                        answer: { type: 'string' },
+                      },
+                      required: ['question', 'answer'],
+                    },
+                  },
+                },
+                required: [
+                  'name',
+                  'developer_name',
+                  'city',
+                  'neighborhood',
+                  'address',
+                  'project_type',
+                  'unit_mix',
+                  'starting_price',
+                  'price_range',
+                  'deposit_structure',
+                  'incentives',
+                  'completion_month',
+                  'completion_year',
+                  'occupancy_estimate',
+                  'short_description',
+                  'full_description',
+                  'highlights',
+                  'amenities',
+                  'faq',
+                ],
+              },
+            },
+          },
+        ],
+        tool_choice: { type: 'function', function: { name: 'extract_project' } },
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI API error:', response.status, errorText);
+
+      // Surface common Lovable AI gateway errors
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please try again in a moment.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'AI usage credits required. Please add credits to continue.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
       return new Response(
         JSON.stringify({ error: 'Failed to process document with AI' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -83,60 +146,30 @@ Return ONLY valid JSON with these fields. Do not include any markdown formatting
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content;
+    const msg = data.choices?.[0]?.message;
 
-    if (!content) {
-      console.error('No content in AI response');
+    console.log('AI response received, extracting tool call');
+
+    const toolCall = msg?.tool_calls?.[0];
+    const argsStr = toolCall?.function?.arguments;
+
+    if (!argsStr) {
+      console.error('No tool call arguments in AI response', msg);
       return new Response(
-        JSON.stringify({ error: 'No response from AI' }),
+        JSON.stringify({ error: 'AI did not return structured data', rawContent: msg?.content ?? null }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('AI response received, parsing JSON');
-
-    // Try to parse the JSON from the response
-    let extractedData;
+    let extractedData: unknown;
     try {
-      // Remove any markdown code blocks if present
-      let jsonStr = content.trim();
-      
-      // Strip markdown code blocks
-      if (jsonStr.startsWith('```json')) {
-        jsonStr = jsonStr.slice(7);
-      } else if (jsonStr.startsWith('```')) {
-        jsonStr = jsonStr.slice(3);
-      }
-      if (jsonStr.endsWith('```')) {
-        jsonStr = jsonStr.slice(0, -3);
-      }
-      jsonStr = jsonStr.trim();
-      
-      // Try to extract JSON object if there's extra content
-      const jsonMatch = jsonStr.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        jsonStr = jsonMatch[0];
-      }
-      
-      extractedData = JSON.parse(jsonStr);
-    } catch (parseError) {
-      console.error('Failed to parse AI response as JSON:', parseError, content);
-      
-      // Try one more approach: regex extract and basic cleanup
-      try {
-        const jsonMatch = content.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          extractedData = JSON.parse(jsonMatch[0]);
-        } else {
-          throw parseError;
-        }
-      } catch (secondError) {
-        console.error('Second parse attempt also failed');
-        return new Response(
-          JSON.stringify({ error: 'Failed to parse extracted data', rawContent: content }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
+      extractedData = JSON.parse(argsStr);
+    } catch (e) {
+      console.error('Failed to parse tool arguments JSON:', e, argsStr);
+      return new Response(
+        JSON.stringify({ error: 'Failed to parse extracted data', rawContent: argsStr }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Successfully extracted project data');
