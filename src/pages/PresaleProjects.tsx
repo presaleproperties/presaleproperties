@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, MapPin, Calendar, Building2, ArrowRight } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,10 +21,10 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
@@ -70,6 +70,7 @@ type Project = {
   starting_price: number | null;
   short_description: string | null;
   featured_image: string | null;
+  gallery_images: string[] | null;
   is_featured: boolean;
 };
 
@@ -119,7 +120,7 @@ export default function PresaleProjects() {
       // Then get paginated data
       let query = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, short_description, featured_image, is_featured")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, short_description, featured_image, gallery_images, is_featured")
         .eq("is_published", true);
 
       // Apply filters
@@ -555,58 +556,20 @@ export default function PresaleProjects() {
                   </p>
                   <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                     {filteredProjects.map((project) => (
-                      <Link key={project.id} to={`/presale-projects/${project.slug}`}>
-                        <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
-                          <div className="relative aspect-[16/10] overflow-hidden">
-                            {project.featured_image ? (
-                              <img
-                                src={project.featured_image}
-                                alt={project.name}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-muted flex items-center justify-center">
-                                <Building2 className="h-12 w-12 text-muted-foreground" />
-                              </div>
-                            )}
-                          </div>
-                          <CardContent className="p-3 md:p-4">
-                            <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
-                              <h3 className="font-semibold text-base md:text-lg line-clamp-1 group-hover:text-primary transition-colors">
-                                {project.name}
-                              </h3>
-                            </div>
-                            <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-1.5 md:mb-2">
-                              <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-                              <span className="truncate">{project.city}, {project.neighborhood}</span>
-                            </div>
-                            <div className="flex items-center justify-between text-xs md:text-sm mb-2 md:mb-3">
-                              <span className="text-muted-foreground">{formatType(project.project_type)}</span>
-                              {project.completion_year && (
-                                <span className="flex items-center gap-1 text-muted-foreground">
-                                  <Calendar className="h-3 w-3" />
-                                  {project.completion_year}
-                                </span>
-                              )}
-                            </div>
-                            {project.short_description && (
-                              <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-2 md:mb-3 hidden sm:block">
-                                {project.short_description}
-                              </p>
-                            )}
-                            <div className="flex items-center justify-between">
-                              {project.starting_price ? (
-                                <span className="text-base md:text-lg font-bold text-primary">
-                                  From {formatPrice(project.starting_price)}
-                                </span>
-                              ) : (
-                                <span className="text-xs md:text-sm text-muted-foreground">Contact for pricing</span>
-                              )}
-                              <ArrowRight className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </Link>
+                      <PresaleProjectCard
+                        key={project.id}
+                        id={project.id}
+                        slug={project.slug}
+                        name={project.name}
+                        city={project.city}
+                        neighborhood={project.neighborhood}
+                        projectType={project.project_type}
+                        completionYear={project.completion_year}
+                        startingPrice={project.starting_price}
+                        shortDescription={project.short_description}
+                        featuredImage={project.featured_image}
+                        galleryImages={project.gallery_images}
+                      />
                     ))}
                   </div>
 
