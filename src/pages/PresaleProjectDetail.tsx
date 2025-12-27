@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -69,20 +69,62 @@ type Project = {
 
 export default function PresaleProjectDetail() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [isPreviewMode, setIsPreviewMode] = useState(false);
+
+  const previewToken = searchParams.get("preview");
 
   useEffect(() => {
     if (slug) {
       fetchProject();
     }
-  }, [slug]);
+  }, [slug, previewToken]);
 
   const fetchProject = async () => {
     try {
+      // If preview token is present, fetch without is_published filter
+      // and verify user is admin
+      if (previewToken) {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (user) {
+          // Check if user is admin
+          const { data: roleData } = await supabase
+            .from("user_roles")
+            .select("role")
+            .eq("user_id", user.id)
+            .eq("role", "admin")
+            .maybeSingle();
+
+          if (roleData) {
+            // Admin can preview unpublished projects
+            const { data, error } = await supabase
+              .from("presale_projects")
+              .select("*")
+              .eq("slug", slug)
+              .maybeSingle();
+
+            if (error) throw error;
+            if (data) {
+              setProject({
+                ...data,
+                faq: (Array.isArray(data.faq) ? data.faq : []) as { question: string; answer: string }[]
+              });
+              setSelectedImage(data.featured_image);
+              setIsPreviewMode(!data.is_published);
+              setLoading(false);
+              return;
+            }
+          }
+        }
+      }
+
+      // Default: fetch only published projects
       const { data, error } = await supabase
         .from("presale_projects")
         .select("*")
@@ -199,6 +241,12 @@ export default function PresaleProjectDetail() {
       <Header />
 
       <main className="min-h-screen bg-background pb-24 lg:pb-0">
+        {/* Preview Mode Banner */}
+        {isPreviewMode && (
+          <div className="bg-yellow-500 text-yellow-950 py-2 px-4 text-center text-sm font-medium">
+            Preview Mode — This project is not published yet
+          </div>
+        )}
         {/* Breadcrumb */}
         <div className="border-b">
           <div className="container py-3 px-4 flex items-center justify-between">
