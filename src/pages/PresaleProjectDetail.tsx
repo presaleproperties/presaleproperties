@@ -354,8 +354,8 @@ export default function PresaleProjectDetail() {
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button size="lg" className="flex-1" asChild>
                     <a href="#contact-form">
-                      <Mail className="h-4 w-4 mr-2" />
-                      Get VIP Access
+                      <Download className="h-4 w-4 mr-2" />
+                      Download Plans
                     </a>
                   </Button>
                   <Button size="lg" variant="outline" className="flex-1" asChild>
