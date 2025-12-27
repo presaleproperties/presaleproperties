@@ -45,7 +45,7 @@ export function FeaturedListings() {
   return (
     <section className="py-16 bg-background">
       <div className="container">
-        <div className="flex items-end justify-between mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold text-foreground">
               Featured Assignments
@@ -54,8 +54,8 @@ export function FeaturedListings() {
               Hand-picked opportunities from verified agents
             </p>
           </div>
-          <Link to="/assignments">
-            <Button variant="ghost" className="hidden sm:flex items-center gap-2">
+          <Link to="/assignments" className="hidden sm:block shrink-0">
+            <Button variant="ghost" className="flex items-center gap-2">
               View All
               <ArrowRight className="h-4 w-4" />
             </Button>
@@ -63,7 +63,7 @@ export function FeaturedListings() {
         </div>
 
         {isLoading ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="space-y-3">
                 <Skeleton className="aspect-[4/3] rounded-lg" />
@@ -73,7 +73,7 @@ export function FeaturedListings() {
             ))}
           </div>
         ) : listings && listings.length > 0 ? (
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
             {listings.map((listing) => (
               <ListingCard
                 key={listing.id}
