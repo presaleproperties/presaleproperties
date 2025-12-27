@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, ZoomIn, Expand } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 // Helper to get high-quality image URL from Supabase storage
 function getOptimizedImageUrl(url: string, options?: { width?: number; height?: number; quality?: number }): string {
@@ -282,47 +283,80 @@ export function GalleryWithLightbox({
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
-          <button
+          <div
             onClick={() => openLightbox(selectedIndex)}
-            className="relative w-full aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted cursor-zoom-in"
+            className="relative w-full aspect-[4/3] md:aspect-[4/3] rounded-xl overflow-hidden bg-muted cursor-pointer"
           >
             <img
               src={getOptimizedImageUrl(images[selectedIndex], { width: 1200, quality: 90 })}
               alt={alt}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
               loading="eager"
               decoding="async"
               fetchPriority="high"
             />
-            {images.length > 1 && (
-              <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full">
-                {selectedIndex + 1} / {images.length}
-              </div>
-            )}
-          </button>
+          </div>
 
-          {/* Navigation arrows - visible on tablet/desktop */}
+          {/* Navigation arrows - always visible on mobile, hover on desktop */}
           {images.length > 1 && (
             <>
-              <button
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectIndex((selectedIndex - 1 + images.length) % images.length);
                 }}
-                className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 h-10 w-10 items-center justify-center rounded-full bg-background/80 text-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
               >
-                <ChevronLeft className="h-6 w-6" />
-              </button>
-              <button
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectIndex((selectedIndex + 1) % images.length);
                 }}
-                className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 h-10 w-10 items-center justify-center rounded-full bg-background/80 text-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
               >
-                <ChevronRight className="h-6 w-6" />
-              </button>
+                <ChevronRight className="h-5 w-5" />
+              </Button>
             </>
+          )}
+
+          {/* Expand Button */}
+          <Button
+            variant="secondary"
+            size="icon"
+            className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md z-10"
+            onClick={() => openLightbox(selectedIndex)}
+          >
+            <Expand className="h-4 w-4" />
+          </Button>
+
+          {/* Photo Counter */}
+          {images.length > 1 && (
+            <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-white">
+              {selectedIndex + 1} / {images.length}
+            </div>
+          )}
+
+          {/* Dot Indicators for Mobile */}
+          {images.length > 1 && images.length <= 6 && (
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+              {images.map((_, idx) => (
+                <span
+                  key={idx}
+                  className={cn(
+                    "h-2 w-2 rounded-full transition-all",
+                    idx === selectedIndex 
+                      ? "bg-white w-4" 
+                      : "bg-white/50"
+                  )}
+                />
+              ))}
+            </div>
           )}
         </div>
 
