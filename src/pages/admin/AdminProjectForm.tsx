@@ -41,7 +41,6 @@ type ProjectFormData = {
   project_type: "condo" | "townhome" | "mixed";
   unit_mix: string;
   starting_price: string;
-  price_range: string;
   deposit_structure: string;
   incentives: string;
   completion_month: string;
@@ -72,7 +71,6 @@ const defaultFormData: ProjectFormData = {
   project_type: "condo",
   unit_mix: "",
   starting_price: "",
-  price_range: "",
   deposit_structure: "",
   incentives: "",
   completion_month: "",
@@ -135,7 +133,7 @@ export default function AdminProjectForm() {
         project_type: data.project_type || "condo",
         unit_mix: data.unit_mix || "",
         starting_price: data.starting_price?.toString() || "",
-        price_range: data.price_range || "",
+        
         deposit_structure: data.deposit_structure || "",
         incentives: data.incentives || "",
         completion_month: data.completion_month?.toString() || "",
@@ -263,7 +261,7 @@ export default function AdminProjectForm() {
       project_type: data.project_type || prev.project_type,
       unit_mix: data.unit_mix || prev.unit_mix,
       starting_price: data.starting_price?.toString() || prev.starting_price,
-      price_range: data.price_range || prev.price_range,
+      
       deposit_structure: data.deposit_structure || prev.deposit_structure,
       incentives: data.incentives || prev.incentives,
       completion_month: completionMonth,
@@ -324,7 +322,7 @@ export default function AdminProjectForm() {
         project_type: formData.project_type,
         unit_mix: formData.unit_mix || null,
         starting_price: formData.starting_price ? parseFloat(formData.starting_price) : null,
-        price_range: formData.price_range || null,
+        
         deposit_structure: formData.deposit_structure || null,
         incentives: formData.incentives || null,
         completion_month: formData.completion_month ? parseInt(formData.completion_month) : null,
