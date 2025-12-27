@@ -74,7 +74,7 @@ export function HeroSection() {
           
           {/* Main Heading */}
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-tight" style={{ animationDelay: "0.1s" }}>
-            Find Your Next Presale Here
+            Find Your Next <span className="text-primary">Presale</span> Here
           </h1>
 
           {/* Floating Search Card */}
