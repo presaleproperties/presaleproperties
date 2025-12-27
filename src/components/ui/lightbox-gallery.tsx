@@ -4,6 +4,25 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 
+// Helper to get high-quality image URL from Supabase storage
+function getOptimizedImageUrl(url: string, options?: { width?: number; height?: number; quality?: number }): string {
+  // Only transform Supabase storage URLs
+  if (!url || !url.includes('/storage/v1/object/public/')) {
+    return url;
+  }
+  
+  // Use render endpoint for transformations
+  const transformedUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
+  
+  const params = new URLSearchParams();
+  if (options?.width) params.set('width', options.width.toString());
+  if (options?.height) params.set('height', options.height.toString());
+  params.set('quality', (options?.quality || 100).toString());
+  
+  const separator = transformedUrl.includes('?') ? '&' : '?';
+  return `${transformedUrl}${separator}${params.toString()}`;
+}
+
 interface LightboxGalleryProps {
   images: string[];
   initialIndex?: number;
@@ -137,7 +156,7 @@ export function LightboxGallery({
           {/* Main image - High quality */}
           <div className="w-full h-full flex items-center justify-center p-4 md:p-12">
             <img
-              src={images[currentIndex]}
+              src={getOptimizedImageUrl(images[currentIndex], { width: 1920, quality: 100 })}
               alt={`${alt} ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain select-none"
               draggable={false}
@@ -173,7 +192,7 @@ export function LightboxGallery({
                   }`}
                 >
                   <img
-                    src={img}
+                    src={getOptimizedImageUrl(img, { width: 128, quality: 80 })}
                     alt=""
                     className="w-full h-full object-cover"
                   />
@@ -232,7 +251,7 @@ export function GalleryWithLightbox({
           className="relative w-full aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted group cursor-zoom-in"
         >
           <img
-            src={images[selectedIndex]}
+            src={getOptimizedImageUrl(images[selectedIndex], { width: 1200, quality: 90 })}
             alt={alt}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             loading="eager"
@@ -266,7 +285,7 @@ export function GalleryWithLightbox({
                       : "border-transparent"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={getOptimizedImageUrl(img, { width: 128, quality: 80 })} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
@@ -283,7 +302,7 @@ export function GalleryWithLightbox({
                       : "border-transparent hover:border-muted-foreground/50"
                   }`}
                 >
-                  <img src={img} alt="" className="w-full h-full object-cover" />
+                  <img src={getOptimizedImageUrl(img, { width: 200, quality: 80 })} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
               {images.length > 5 && (
