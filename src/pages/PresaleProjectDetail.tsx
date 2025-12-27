@@ -15,6 +15,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -26,7 +27,6 @@ import {
   ChevronLeft,
   Loader2,
   Phone,
-  Mail,
   CheckCircle,
   Home,
   Layers,
@@ -233,44 +233,12 @@ export default function PresaleProjectDetail() {
           <div className="container px-4 py-6 md:py-8">
             <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
               {/* Gallery */}
-              <div className="space-y-3">
-                <div className="aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted">
-                  {selectedImage ? (
-                    <img
-                      src={selectedImage}
-                      alt={project.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Building2 className="h-16 w-16 text-muted-foreground" />
-                    </div>
-                  )}
-                </div>
-                {allImages.length > 1 && (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6 gap-2">
-                    {allImages.slice(0, 6).map((img, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedImage(img)}
-                        className={`aspect-[4/3] rounded-lg overflow-hidden border-2 transition-colors ${
-                          selectedImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground"
-                        }`}
-                      >
-                        <img src={img} alt="" className="w-full h-full object-cover" />
-                      </button>
-                    ))}
-                    {allImages.length > 6 && (
-                      <button
-                        onClick={() => setSelectedImage(allImages[6])}
-                        className="aspect-[4/3] rounded-lg overflow-hidden border-2 border-transparent hover:border-muted-foreground bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground"
-                      >
-                        +{allImages.length - 6}
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+              <GalleryWithLightbox
+                images={allImages}
+                selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
+                onSelectIndex={(index) => setSelectedImage(allImages[index])}
+                alt={project.name}
+              />
 
               {/* Info */}
               <div>
