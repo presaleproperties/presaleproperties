@@ -207,7 +207,8 @@ export default function ForAgents() {
                 "A central, searchable assignment marketplace",
                 "Public exposure without breaking developer rules",
                 "Listings buyers can actually find",
-                "No more reposting in multiple groups",
+                "Direct buyer inquiries to your email",
+                "No middleman — you control the conversation",
                 "Higher-quality buyer inquiries",
                 "Admin-approved, professional environment",
                 "Pay once, listed for 365 days",
@@ -217,6 +218,29 @@ export default function ForAgents() {
                   <span className="text-lg">{benefit}</span>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Direct Lead Routing Feature */}
+        <section className="py-16 lg:py-24">
+          <div className="container max-w-3xl">
+            <div className="flex items-start gap-4 mb-6">
+              <Users className="h-10 w-10 text-primary flex-shrink-0 mt-1" />
+              <h2 className="text-3xl md:text-4xl font-bold">
+                All Leads Go Directly to You
+              </h2>
+            </div>
+            <div className="prose prose-lg text-muted-foreground ml-14">
+              <p>
+                When a buyer submits an inquiry on your assignment listing, the lead is sent directly to your email.
+              </p>
+              <p>
+                No platform middleman. No lead aggregation. No shared inquiries.
+              </p>
+              <p className="font-semibold text-foreground">
+                You own the relationship from first contact.
+              </p>
             </div>
           </div>
         </section>
