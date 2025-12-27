@@ -373,16 +373,35 @@ export default function Assignments() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container px-4 py-4 md:py-8">
-        {/* Page Header */}
-        <div className="mb-6 md:mb-8">
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 md:mb-2">
-            Assignment Listings
-          </h1>
-          <p className="text-sm md:text-base text-muted-foreground">
-            Browse pre-construction condo assignments across Metro Vancouver
-          </p>
+      {/* Hero Section - Clean & Minimal */}
+      <section className="bg-background border-b border-border py-8 md:py-12">
+        <div className="container px-4">
+          <div className="max-w-3xl">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
+              Assignment Listings
+            </h1>
+            <p className="text-sm md:text-base text-muted-foreground mb-4">
+              Browse pre-construction condo assignments across Metro Vancouver. 
+              Find your next investment or home before completion.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Showing{" "}
+              <span className="font-medium text-foreground">{totalCount}</span>
+              {" "}assignments available.{" "}
+              {activeFilterCount > 0 && (
+                <button 
+                  onClick={clearAllFilters}
+                  className="text-primary hover:underline"
+                >
+                  Clear all filters
+                </button>
+              )}
+            </p>
+          </div>
         </div>
+      </section>
+
+      <main className="container px-4 py-4 md:py-8">
 
         {/* Search & Sort Bar */}
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
