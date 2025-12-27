@@ -62,7 +62,7 @@ export function HeroSection() {
         <div className="max-w-3xl mx-auto text-center space-y-8">
           {/* Tagline */}
           <p className="text-primary font-medium tracking-wide animate-fade-in">
-            Metro Vancouver's Presale Assignment Marketplace
+            MLS for Presale Assignments
           </p>
           
           {/* Main Heading */}
