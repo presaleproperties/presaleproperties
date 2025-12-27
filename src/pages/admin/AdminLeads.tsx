@@ -61,7 +61,7 @@ export default function AdminLeads() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("project");
 
-  // Fetch project leads
+  // Fetch project leads (exclude newsletter signups)
   const { data: projectLeads, isLoading: projectLoading } = useQuery({
     queryKey: ["admin-project-leads"],
     queryFn: async () => {
@@ -81,6 +81,7 @@ export default function AdminLeads() {
             city
           )
         `)
+        .neq("name", "Newsletter Signup")
         .order("created_at", { ascending: false });
 
       if (error) throw error;
