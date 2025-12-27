@@ -116,26 +116,56 @@ export default function PresaleProjects() {
       
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-background to-background py-8 md:py-16">
-          <div className="container px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 md:mb-4">
-                Find Your Next Presale
+        <section className="relative bg-foreground text-background overflow-hidden">
+          {/* Background pattern */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-[0.03]" />
+          
+          <div className="container px-4 py-16 md:py-24 relative">
+            <div className="max-w-4xl mx-auto text-center">
+              <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-4">
+                Metro Vancouver's Premier Resource
+              </span>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 tracking-tight">
+                Discover New{" "}
+                <span className="text-primary">Presale Projects</span>
               </h1>
-              <p className="text-sm md:text-lg text-muted-foreground mb-6 md:mb-8 px-2">
-                Discover new projects, download floor plans, VIP pricing sheets, and get expert guidance — completely FREE.
+              <p className="text-base md:text-xl text-background/70 mb-8 md:mb-10 max-w-2xl mx-auto">
+                Explore floor plans, VIP pricing, and expert guidance for the newest condo and townhome developments — completely FREE.
               </p>
               
+              {/* Stats bar */}
+              <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-10 md:mb-12">
+                <div className="text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-primary">{projects.length}+</div>
+                  <div className="text-xs md:text-sm text-background/60 uppercase tracking-wide">Projects</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-primary">{cities.length}</div>
+                  <div className="text-xs md:text-sm text-background/60 uppercase tracking-wide">Cities</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl md:text-3xl font-bold text-primary">Free</div>
+                  <div className="text-xs md:text-sm text-background/60 uppercase tracking-wide">Access</div>
+                </div>
+              </div>
+              
               {/* Quick City Filters */}
-              <div className="flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
-                <span className="text-xs md:text-sm text-muted-foreground mr-1 md:mr-2 self-center hidden sm:inline">Top Cities:</span>
-                {["Surrey", "Langley", "Coquitlam", "Abbotsford", "Vancouver"].map(city => (
+              <div className="flex flex-wrap justify-center gap-2 md:gap-3">
+                <span className="text-xs md:text-sm text-background/50 mr-2 self-center hidden sm:inline">
+                  Explore by City:
+                </span>
+                {["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Langley"].map(city => (
                   <Button
                     key={city}
                     variant={cityFilter === city ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
-                    className="text-xs md:text-sm h-8 px-3"
+                    className={`text-xs md:text-sm h-9 px-4 transition-all duration-200 ${
+                      cityFilter === city 
+                        ? "" 
+                        : "border-background/20 text-background/80 hover:bg-background hover:text-foreground"
+                    }`}
                   >
                     {city}
                   </Button>
@@ -143,6 +173,9 @@ export default function PresaleProjects() {
               </div>
             </div>
           </div>
+          
+          {/* Bottom gradient fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </section>
 
         {/* Filters */}
