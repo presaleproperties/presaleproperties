@@ -54,15 +54,30 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
         ? "Has a realtor" 
         : "No realtor";
 
-      const { error } = await supabase.from("project_leads").insert({
-        project_id: projectId,
-        name: data.name,
-        email: data.email,
-        phone: data.phone || null,
-        message: realtorNote,
-      });
+      // Insert lead into database
+      const { data: insertedLead, error } = await supabase
+        .from("project_leads")
+        .insert({
+          project_id: projectId,
+          name: data.name,
+          email: data.email,
+          phone: data.phone || null,
+          message: realtorNote,
+        })
+        .select("id")
+        .single();
 
       if (error) throw error;
+
+      // Send to CRM via edge function (fire and forget)
+      if (insertedLead?.id) {
+        supabase.functions.invoke("send-project-lead", {
+          body: { leadId: insertedLead.id },
+        }).catch((err) => {
+          console.error("Error sending to CRM:", err);
+          // Don't show error to user - lead was still saved
+        });
+      }
 
       setIsSubmitted(true);
       reset();
