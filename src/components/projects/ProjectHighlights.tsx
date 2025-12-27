@@ -1,11 +1,12 @@
-import { Building2, Layers, Calendar, DollarSign, Gift } from "lucide-react";
+import { Building2, Layers, Calendar, DollarSign, Gift, MapPin } from "lucide-react";
 
 interface ProjectHighlightsProps {
   projectType: "condo" | "townhome" | "mixed";
   unitMix?: string | null;
   completionMonth?: number | null;
   completionYear?: number | null;
-  startingPrice?: number | null;
+  city?: string | null;
+  neighborhood?: string | null;
   depositStructure?: string | null;
   incentives?: string | null;
 }
@@ -15,7 +16,8 @@ export function ProjectHighlights({
   unitMix,
   completionMonth,
   completionYear,
-  startingPrice,
+  city,
+  neighborhood,
   depositStructure,
   incentives,
 }: ProjectHighlightsProps) {
@@ -23,12 +25,14 @@ export function ProjectHighlights({
     return new Date(2000, month - 1).toLocaleString("default", { month: "short" });
   };
 
-  const formatPrice = (price: number) => {
-    if (price >= 1000000) {
-      return `$${(price / 1000000).toFixed(1)}M`;
-    }
-    return `$${(price / 1000).toFixed(0)}K`;
+  const getLocation = () => {
+    if (neighborhood && city) return `${neighborhood}, ${city}`;
+    if (city) return city;
+    if (neighborhood) return neighborhood;
+    return null;
   };
+
+  const location = getLocation();
 
   const highlights = [
     {
@@ -46,10 +50,10 @@ export function ProjectHighlights({
       value: completionMonth ? `${getMonthName(completionMonth)} ${completionYear}` : completionYear.toString(),
       icon: <Calendar className="h-4 w-4" />,
     },
-    startingPrice && {
-      label: "Starting From",
-      value: formatPrice(startingPrice),
-      icon: <DollarSign className="h-4 w-4" />,
+    location && {
+      label: "Location",
+      value: location,
+      icon: <MapPin className="h-4 w-4" />,
     },
     depositStructure && {
       label: "Deposit",
