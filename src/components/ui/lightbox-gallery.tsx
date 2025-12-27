@@ -245,30 +245,56 @@ export function GalleryWithLightbox({
   return (
     <>
       <div className="space-y-3">
-        {/* Main image */}
-        <button
-          onClick={() => openLightbox(selectedIndex)}
-          className="relative w-full aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted group cursor-zoom-in"
-        >
-          <img
-            src={getOptimizedImageUrl(images[selectedIndex], { width: 1200, quality: 90 })}
-            alt={alt}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            loading="eager"
-            decoding="async"
-            fetchPriority="high"
-          />
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-            <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-3">
-              <ZoomIn className="h-6 w-6 text-white" />
+        {/* Main image with navigation arrows */}
+        <div className="relative group">
+          <button
+            onClick={() => openLightbox(selectedIndex)}
+            className="relative w-full aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted cursor-zoom-in"
+          >
+            <img
+              src={getOptimizedImageUrl(images[selectedIndex], { width: 1200, quality: 90 })}
+              alt={alt}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+              loading="eager"
+              decoding="async"
+              fetchPriority="high"
+            />
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-3">
+                <ZoomIn className="h-6 w-6 text-white" />
+              </div>
             </div>
-          </div>
+            {images.length > 1 && (
+              <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full">
+                {selectedIndex + 1} / {images.length}
+              </div>
+            )}
+          </button>
+
+          {/* Navigation arrows - visible on tablet/desktop */}
           {images.length > 1 && (
-            <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full">
-              {selectedIndex + 1} / {images.length}
-            </div>
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectIndex((selectedIndex - 1 + images.length) % images.length);
+                }}
+                className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 h-10 w-10 items-center justify-center rounded-full bg-background/80 text-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+              >
+                <ChevronLeft className="h-6 w-6" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelectIndex((selectedIndex + 1) % images.length);
+                }}
+                className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 h-10 w-10 items-center justify-center rounded-full bg-background/80 text-foreground shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-background"
+              >
+                <ChevronRight className="h-6 w-6" />
+              </button>
+            </>
           )}
-        </button>
+        </div>
 
         {/* Thumbnails - horizontal scroll on mobile, grid on desktop */}
         {images.length > 1 && (
