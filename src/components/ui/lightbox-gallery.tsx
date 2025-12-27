@@ -228,10 +228,40 @@ export function GalleryWithLightbox({
 }: GalleryTriggerProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+
+  const minSwipeDistance = 50;
 
   const openLightbox = (index: number) => {
     setLightboxIndex(index);
     setLightboxOpen(true);
+  };
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    setTouchEnd(null);
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStart || !touchEnd) return;
+    
+    const distance = touchStart - touchEnd;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+
+    if (isLeftSwipe) {
+      onSelectIndex((selectedIndex + 1) % images.length);
+    } else if (isRightSwipe) {
+      onSelectIndex((selectedIndex - 1 + images.length) % images.length);
+    }
+
+    setTouchStart(null);
+    setTouchEnd(null);
   };
 
   if (images.length === 0) {
@@ -245,8 +275,13 @@ export function GalleryWithLightbox({
   return (
     <>
       <div className="space-y-3">
-        {/* Main image with navigation arrows */}
-        <div className="relative group">
+        {/* Main image with navigation arrows and swipe support */}
+        <div 
+          className="relative group"
+          onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
+          onTouchEnd={onTouchEnd}
+        >
           <button
             onClick={() => openLightbox(selectedIndex)}
             className="relative w-full aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted cursor-zoom-in"
