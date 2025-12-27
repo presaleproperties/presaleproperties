@@ -52,22 +52,6 @@ export function ProjectMobileCTA({
     <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
       {/* Safe area padding for iPhone notch */}
       <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        {/* Price/Status Row */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs text-muted-foreground truncate">{projectName}</p>
-            {startingPrice ? (
-              <p className="text-base font-bold text-primary">
-                {formatPrice(startingPrice)}
-              </p>
-            ) : (
-              <p className="text-sm font-semibold text-foreground">
-                {status === "coming_soon" ? "Coming Soon" : status === "active" ? "Now Selling" : "Sold Out"}
-              </p>
-            )}
-          </div>
-        </div>
-        
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
           {/* Phone Button */}
