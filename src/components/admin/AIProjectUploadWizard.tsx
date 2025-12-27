@@ -35,7 +35,9 @@ import {
   Eye,
   Plus,
   Trash2,
-  Link
+  Link,
+  FolderOpen,
+  Wand2
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -84,6 +86,10 @@ export function AIProjectUploadWizard() {
   const imageFileInputRef = useRef<HTMLInputElement>(null);
   const [imageUrlInput, setImageUrlInput] = useState("");
   const [isAddingUrl, setIsAddingUrl] = useState(false);
+  const [driveUrl, setDriveUrl] = useState("");
+  const [isLoadingDrive, setIsLoadingDrive] = useState(false);
+  const [isSortingImages, setIsSortingImages] = useState(false);
+  const [isAddingDriveUrl, setIsAddingDriveUrl] = useState(false);
   
   // State
   const [step, setStep] = useState<WizardStep>("upload");
@@ -500,6 +506,109 @@ export function AIProjectUploadWizard() {
     setSelectedImages(prev => prev.filter(url => url !== imageUrl));
   };
 
+  const extractDriveFileId = (url: string): string | null => {
+    // Handle various Google Drive URL formats
+    const patterns = [
+      /\/d\/([a-zA-Z0-9_-]+)/,  // /d/FILE_ID
+      /id=([a-zA-Z0-9_-]+)/,    // id=FILE_ID
+      /\/folders\/([a-zA-Z0-9_-]+)/, // /folders/FOLDER_ID
+    ];
+    
+    for (const pattern of patterns) {
+      const match = url.match(pattern);
+      if (match) return match[1];
+    }
+    return null;
+  };
+
+  const handleAddDriveImages = async () => {
+    if (!driveUrl.trim()) return;
+
+    const fileId = extractDriveFileId(driveUrl);
+    if (!fileId) {
+      toast({
+        title: "Invalid Drive URL",
+        description: "Please enter a valid Google Drive share link",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingDrive(true);
+
+    try {
+      // For publicly shared images, construct direct URL
+      // This works for images shared with "Anyone with the link"
+      const directUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      
+      // Test if it's accessible
+      const testResponse = await fetch(directUrl, { method: 'HEAD', mode: 'no-cors' });
+      
+      // Add to images
+      setExtractedImages(prev => [...prev, directUrl]);
+      setSelectedImages(prev => [...prev, directUrl]);
+      setDriveUrl("");
+      setIsAddingDriveUrl(false);
+
+      toast({
+        title: "Image Added",
+        description: "Google Drive image added to gallery",
+      });
+    } catch (err) {
+      toast({
+        title: "Could not load image",
+        description: "Make sure the file is publicly shared",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDrive(false);
+    }
+  };
+
+  const handleAISortImages = async () => {
+    if (selectedImages.length < 2) {
+      toast({
+        title: "Not enough images",
+        description: "Add at least 2 images to sort",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSortingImages(true);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('sort-project-images', {
+        body: { 
+          imageUrls: selectedImages,
+          projectName: formData.name
+        }
+      });
+
+      if (fnError) throw new Error(fnError.message);
+      if (!data?.success) throw new Error(data?.error || 'Failed to sort images');
+
+      // Reorder selected images based on AI sorting
+      const sortedUrls = data.sortedImages.map((img: any) => img.url);
+      setSelectedImages(sortedUrls);
+
+      toast({
+        title: "Images Sorted",
+        description: `AI organized ${sortedUrls.length} images. Best hero image is now first.`,
+      });
+
+    } catch (err: any) {
+      console.error('AI sort error:', err);
+      toast({
+        title: "Sort Failed",
+        description: err.message || "Could not sort images with AI",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSortingImages(false);
+    }
+  };
+
   // Render based on current step
   return (
     <div className="space-y-6">
@@ -885,26 +994,69 @@ export function AIProjectUploadWizard() {
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
-                  ) : (
+                  ) : isAddingDriveUrl ? (
                     <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => imageFileInputRef.current?.click()}
-                      >
-                        <Upload className="h-4 w-4 mr-1" />
-                        Upload
+                      <Input
+                        value={driveUrl}
+                        onChange={(e) => setDriveUrl(e.target.value)}
+                        placeholder="Google Drive share link..."
+                        onKeyDown={(e) => e.key === "Enter" && handleAddDriveImages()}
+                        disabled={isLoadingDrive}
+                      />
+                      <Button size="icon" onClick={handleAddDriveImages} disabled={isLoadingDrive}>
+                        {isLoadingDrive ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="flex-1"
-                        onClick={() => setIsAddingUrl(true)}
-                      >
-                        <Link className="h-4 w-4 mr-1" />
-                        Add URL
+                      <Button size="icon" variant="ghost" onClick={() => { setIsAddingDriveUrl(false); setDriveUrl(""); }}>
+                        <X className="h-4 w-4" />
                       </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => imageFileInputRef.current?.click()}
+                        >
+                          <Upload className="h-4 w-4 mr-1" />
+                          Upload
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => setIsAddingUrl(true)}
+                        >
+                          <Link className="h-4 w-4 mr-1" />
+                          URL
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="flex-1"
+                          onClick={() => setIsAddingDriveUrl(true)}
+                        >
+                          <FolderOpen className="h-4 w-4 mr-1" />
+                          Drive
+                        </Button>
+                      </div>
+                      {selectedImages.length >= 2 && (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="w-full"
+                          onClick={handleAISortImages}
+                          disabled={isSortingImages}
+                        >
+                          {isSortingImages ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Wand2 className="h-4 w-4 mr-1" />
+                          )}
+                          AI Sort & Organize
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>
