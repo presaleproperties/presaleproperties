@@ -146,7 +146,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           All Set!
         </h3>
         <p className="text-muted-foreground mb-4">
-          We received your info and will be in touch soon with floor plans and pricing.
+          Check your email for floor plans, pricing, and project details.
         </p>
         {whatsappLink ? (
           <Button
