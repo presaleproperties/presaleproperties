@@ -34,7 +34,8 @@ import {
   Save,
   Eye,
   Plus,
-  Trash2
+  Trash2,
+  Link
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -80,6 +81,9 @@ export function AIProjectUploadWizard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageFileInputRef = useRef<HTMLInputElement>(null);
+  const [imageUrlInput, setImageUrlInput] = useState("");
+  const [isAddingUrl, setIsAddingUrl] = useState(false);
   
   // State
   const [step, setStep] = useState<WizardStep>("upload");
@@ -420,6 +424,72 @@ export function AIProjectUploadWizard() {
         ? prev.filter(url => url !== imageUrl)
         : [...prev, imageUrl]
     );
+  };
+
+  const handleAddImageUrl = () => {
+    if (!imageUrlInput.trim()) return;
+    
+    // Validate URL
+    try {
+      new URL(imageUrlInput);
+    } catch {
+      toast({
+        title: "Invalid URL",
+        description: "Please enter a valid image URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Add to both extracted and selected images
+    setExtractedImages(prev => [...prev, imageUrlInput]);
+    setSelectedImages(prev => [...prev, imageUrlInput]);
+    setImageUrlInput("");
+    setIsAddingUrl(false);
+    
+    toast({
+      title: "Image Added",
+      description: "Image URL added to gallery",
+    });
+  };
+
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    for (const file of Array.from(files)) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid File",
+          description: `${file.name} is not an image`,
+          variant: "destructive",
+        });
+        continue;
+      }
+
+      // Convert to data URL
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        setExtractedImages(prev => [...prev, dataUrl]);
+        setSelectedImages(prev => [...prev, dataUrl]);
+      };
+      reader.readAsDataURL(file);
+    }
+
+    toast({
+      title: "Images Added",
+      description: `Added ${files.length} image(s) to gallery`,
+    });
+
+    if (imageFileInputRef.current) {
+      imageFileInputRef.current.value = "";
+    }
+  };
+
+  const removeImage = (imageUrl: string) => {
+    setExtractedImages(prev => prev.filter(url => url !== imageUrl));
+    setSelectedImages(prev => prev.filter(url => url !== imageUrl));
   };
 
   // Render based on current step
@@ -780,13 +850,63 @@ export function AIProjectUploadWizard() {
                   Select images to include ({selectedImages.length} selected)
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[400px]">
+              <CardContent className="space-y-4">
+                {/* Add Image Options */}
+                <div className="space-y-2">
+                  <input
+                    ref={imageFileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageFileUpload}
+                    className="hidden"
+                  />
+                  
+                  {isAddingUrl ? (
+                    <div className="flex gap-2">
+                      <Input
+                        value={imageUrlInput}
+                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        placeholder="https://example.com/image.jpg"
+                        onKeyDown={(e) => e.key === "Enter" && handleAddImageUrl()}
+                      />
+                      <Button size="icon" onClick={handleAddImageUrl}>
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => { setIsAddingUrl(false); setImageUrlInput(""); }}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => imageFileInputRef.current?.click()}
+                      >
+                        <Upload className="h-4 w-4 mr-1" />
+                        Upload
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                        onClick={() => setIsAddingUrl(true)}
+                      >
+                        <Link className="h-4 w-4 mr-1" />
+                        Add URL
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                <ScrollArea className="h-[350px]">
                   <div className="grid grid-cols-2 gap-2">
                     {extractedImages.map((img, i) => (
                       <div 
                         key={i}
-                        className={`relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                        className={`group relative cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
                           selectedImages.includes(img) 
                             ? "border-primary ring-2 ring-primary/20" 
                             : "border-transparent hover:border-muted-foreground/25"
@@ -795,7 +915,7 @@ export function AIProjectUploadWizard() {
                       >
                         <img 
                           src={img} 
-                          alt={`Extracted ${i + 1}`}
+                          alt={`Image ${i + 1}`}
                           className="w-full aspect-square object-cover"
                         />
                         {selectedImages.includes(img) && (
@@ -808,6 +928,13 @@ export function AIProjectUploadWizard() {
                             Featured
                           </div>
                         )}
+                        <button
+                          type="button"
+                          className="absolute top-1 left-1 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => { e.stopPropagation(); removeImage(img); }}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
                       </div>
                     ))}
                   </div>
