@@ -142,14 +142,13 @@ export function HeroSection() {
                 >
                   <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
-                {activeTab === "projects" && (
-                  <SearchSuggestions
-                    query={searchQuery}
-                    onSelect={handleSuggestionSelect}
-                    isVisible={showSuggestions}
-                    onClose={() => setShowSuggestions(false)}
-                  />
-                )}
+                <SearchSuggestions
+                  query={searchQuery}
+                  onSelect={handleSuggestionSelect}
+                  isVisible={showSuggestions}
+                  onClose={() => setShowSuggestions(false)}
+                  searchMode={activeTab}
+                />
               </div>
             </form>
           </div>
