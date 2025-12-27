@@ -1,4 +1,4 @@
-import { Building2, Home, Layers, Calendar, DollarSign } from "lucide-react";
+import { Building2, Layers, Calendar, DollarSign, Gift } from "lucide-react";
 
 interface ProjectHighlightsProps {
   projectType: "condo" | "townhome" | "mixed";
@@ -6,7 +6,8 @@ interface ProjectHighlightsProps {
   completionMonth?: number | null;
   completionYear?: number | null;
   startingPrice?: number | null;
-  priceRange?: string | null;
+  depositStructure?: string | null;
+  incentives?: string | null;
 }
 
 export function ProjectHighlights({
@@ -15,7 +16,8 @@ export function ProjectHighlights({
   completionMonth,
   completionYear,
   startingPrice,
-  priceRange,
+  depositStructure,
+  incentives,
 }: ProjectHighlightsProps) {
   const getMonthName = (month: number) => {
     return new Date(2000, month - 1).toLocaleString("default", { month: "short" });
@@ -44,10 +46,20 @@ export function ProjectHighlights({
       value: completionMonth ? `${getMonthName(completionMonth)} ${completionYear}` : completionYear.toString(),
       icon: <Calendar className="h-4 w-4" />,
     },
-    (startingPrice || priceRange) && {
+    startingPrice && {
       label: "Starting From",
-      value: startingPrice ? formatPrice(startingPrice) : priceRange,
+      value: formatPrice(startingPrice),
       icon: <DollarSign className="h-4 w-4" />,
+    },
+    depositStructure && {
+      label: "Deposit",
+      value: depositStructure.length > 30 ? depositStructure.substring(0, 30) + "..." : depositStructure,
+      icon: <DollarSign className="h-4 w-4" />,
+    },
+    incentives && {
+      label: "Incentives",
+      value: incentives.length > 30 ? incentives.substring(0, 30) + "..." : incentives,
+      icon: <Gift className="h-4 w-4" />,
     },
   ].filter(Boolean) as { label: string; value: string; icon: React.ReactNode }[];
 
@@ -55,7 +67,7 @@ export function ProjectHighlights({
 
   return (
     <div className="border-y border-border/50 py-4 my-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
         {highlights.map((item, index) => (
           <div key={index} className="text-center md:text-left">
             <div className="flex items-center justify-center md:justify-start gap-1.5 text-xs text-muted-foreground mb-1">

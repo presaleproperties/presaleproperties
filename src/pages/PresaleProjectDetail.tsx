@@ -292,15 +292,11 @@ export default function PresaleProjectDetail() {
             {/* Title and Location */}
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{project.name}</h1>
             
-            {project.starting_price || project.price_range ? (
+            {project.starting_price ? (
               <div className="mb-3">
-                {project.starting_price ? (
-                  <span className="text-xl font-semibold text-primary">
-                    From {formatPrice(project.starting_price)}
-                  </span>
-                ) : (
-                  <span className="text-lg text-muted-foreground">{project.price_range}</span>
-                )}
+                <span className="text-xl font-semibold text-primary">
+                  From {formatPrice(project.starting_price)}
+                </span>
               </div>
             ) : (
               <div className="text-lg text-muted-foreground mb-3">Contact for pricing</div>
@@ -334,7 +330,8 @@ export default function PresaleProjectDetail() {
               completionMonth={project.completion_month}
               completionYear={project.completion_year}
               startingPrice={project.starting_price}
-              priceRange={project.price_range}
+              depositStructure={project.deposit_structure}
+              incentives={project.incentives}
             />
           </div>
         </section>
