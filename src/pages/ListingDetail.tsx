@@ -13,7 +13,8 @@ import {
   Package,
   Compass,
   Layers,
-  AlertTriangle
+  AlertTriangle,
+  Lock
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -190,11 +191,24 @@ export default function ListingDetail() {
   }
 
   const photos = listing.listing_photos?.sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
+  const isRestricted = (listing as any).visibility_mode === "restricted";
+  
+  // For restricted listings, use generic title
+  const displayTitle = isRestricted 
+    ? "Presale Condo Assignment – Vancouver" 
+    : listing.title;
+  
+  const displayProjectName = isRestricted 
+    ? `${formatUnitType(listing.unit_type)} Assignment` 
+    : listing.project_name;
 
-  const pageTitle = listing ? `${listing.project_name} - ${formatUnitType(listing.unit_type)} | AssignmentHub Vancouver` : "Listing | AssignmentHub Vancouver";
-  const pageDescription = listing 
-    ? `${formatUnitType(listing.unit_type)} assignment at ${listing.project_name} in ${listing.neighborhood || listing.city}. ${formatPrice(Number(listing.assignment_price))}. ${listing.beds} bed, ${listing.baths} bath${listing.interior_sqft ? `, ${listing.interior_sqft} sqft` : ''}.`
-    : "View presale condo assignment details on AssignmentHub Vancouver.";
+  const pageTitle = isRestricted 
+    ? `Presale Condo Assignment - ${formatUnitType(listing.unit_type)} | AssignmentHub Vancouver`
+    : `${listing.project_name} - ${formatUnitType(listing.unit_type)} | AssignmentHub Vancouver`;
+  
+  const pageDescription = isRestricted 
+    ? `${formatUnitType(listing.unit_type)} presale condo assignment in ${listing.city}. ${formatPrice(Number(listing.assignment_price))}. ${listing.beds} bed, ${listing.baths} bath${listing.interior_sqft ? `, ${listing.interior_sqft} sqft` : ''}.`
+    : `${formatUnitType(listing.unit_type)} assignment at ${listing.project_name} in ${listing.neighborhood || listing.city}. ${formatPrice(Number(listing.assignment_price))}. ${listing.beds} bed, ${listing.baths} bath${listing.interior_sqft ? `, ${listing.interior_sqft} sqft` : ''}.`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -218,6 +232,17 @@ export default function ListingDetail() {
           </Alert>
         )}
 
+        {/* Restricted Listing Notice */}
+        {isRestricted && (
+          <Alert className="mb-6 border-amber-500/50 bg-amber-500/10">
+            <Lock className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-700">
+              <strong>🔒 Restricted Assignment</strong> — Some details are not displayed due to developer marketing restrictions. 
+              Contact the agent to request full project and developer information.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Back Button */}
         <Link 
           to={isAdmin && listing.status !== "published" ? "/admin/listings" : "/assignments"} 
@@ -231,7 +256,7 @@ export default function ListingDetail() {
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-8">
             {/* Image Gallery */}
-            <ImageGallery photos={photos} title={listing.title} />
+            <ImageGallery photos={photos} title={displayTitle} />
 
             {/* Title & Price */}
             <div>
@@ -240,30 +265,46 @@ export default function ListingDetail() {
                   {listing.is_featured && (
                     <Badge className="bg-primary text-primary-foreground">Featured</Badge>
                   )}
+                  {isRestricted && (
+                    <Badge variant="secondary" className="bg-amber-500/90 text-white gap-1">
+                      <Lock className="h-3 w-3" />
+                      Restricted
+                    </Badge>
+                  )}
                   <Badge variant="secondary">
                     {formatConstructionStatus(listing.construction_status)}
                   </Badge>
                 </div>
                 <div className="flex items-center gap-3">
-                  <ShareButtons title={`${listing.project_name} - ${formatUnitType(listing.unit_type)}`} />
+                  <ShareButtons title={isRestricted ? "Presale Condo Assignment" : `${listing.project_name} - ${formatUnitType(listing.unit_type)}`} />
                   <SaveButton listingId={listing.id} variant="full" />
                 </div>
               </div>
               <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                {listing.title}
+                {displayTitle}
               </h1>
               <div className="flex items-center gap-2 text-muted-foreground mb-4">
                 <MapPin className="h-4 w-4" />
                 <span>
-                  {listing.project_name}
-                  {listing.neighborhood && ` · ${listing.neighborhood}`}
-                  {listing.city && ` · ${listing.city}`}
+                  {isRestricted ? (
+                    <>
+                      {listing.city}
+                      {listing.neighborhood && ` · ${listing.neighborhood}`}
+                    </>
+                  ) : (
+                    <>
+                      {listing.project_name}
+                      {listing.neighborhood && ` · ${listing.neighborhood}`}
+                      {listing.city && ` · ${listing.city}`}
+                    </>
+                  )}
                 </span>
               </div>
               <div className="text-3xl md:text-4xl font-bold text-primary">
                 {formatPrice(Number(listing.assignment_price))}
               </div>
-              {listing.original_price && (
+              {/* Hide original price for restricted listings */}
+              {!isRestricted && listing.original_price && (
                 <p className="text-sm text-muted-foreground mt-1">
                   Original Price: {formatPrice(Number(listing.original_price))}
                 </p>
@@ -377,8 +418,8 @@ export default function ListingDetail() {
               </div>
             </div>
 
-            {/* Financial Details */}
-            {(listing.deposit_paid || listing.assignment_fee) && (
+            {/* Financial Details - Hidden for restricted listings */}
+            {!isRestricted && (listing.deposit_paid || listing.assignment_fee) && (
               <div className="bg-muted/30 rounded-xl p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-4">Financial Details</h2>
                 <div className="grid grid-cols-2 gap-4">
@@ -408,8 +449,8 @@ export default function ListingDetail() {
               </div>
             )}
 
-            {/* Developer Info */}
-            {listing.developer_name && (
+            {/* Developer Info - Hidden for restricted listings */}
+            {!isRestricted && listing.developer_name && (
               <div className="bg-muted/30 rounded-xl p-6">
                 <h2 className="text-lg font-semibold text-foreground mb-2">Developer</h2>
                 <p className="font-medium">{listing.developer_name}</p>
@@ -423,7 +464,8 @@ export default function ListingDetail() {
               <LeadCaptureForm 
                 listingId={listing.id} 
                 agentId={listing.agent_id}
-                listingTitle={listing.title}
+                listingTitle={displayTitle}
+                isRestricted={isRestricted}
               />
               <AgentContactCard agent={agentInfo || null} />
             </div>

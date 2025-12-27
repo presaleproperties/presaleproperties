@@ -79,6 +79,11 @@ const MONTHS = [
   { value: 12, label: "December" },
 ];
 
+const VISIBILITY_MODES = [
+  { value: "public", label: "Public Listing", description: "All details visible to everyone" },
+  { value: "restricted", label: "Restricted Listing", description: "Developer-compliant mode - project/developer details hidden" },
+];
+
 const listingSchema = z.object({
   title: z.string().trim().min(5, "Title must be at least 5 characters").max(100),
   project_name: z.string().trim().min(2, "Project name is required").max(100),
@@ -105,6 +110,7 @@ const listingSchema = z.object({
   parking_count: z.coerce.number().min(0).max(5).optional(),
   has_storage: z.boolean(),
   description: z.string().trim().max(5000).optional(),
+  visibility_mode: z.enum(["public", "restricted"]),
 });
 
 type ListingFormData = z.infer<typeof listingSchema>;
@@ -158,6 +164,7 @@ export default function ListingForm() {
       parking_count: 0,
       has_storage: false,
       description: "",
+      visibility_mode: "public",
     },
   });
 
@@ -214,6 +221,7 @@ export default function ListingForm() {
         parking_count: listing.parking_count || 0,
         has_storage: listing.has_storage || false,
         description: listing.description || "",
+        visibility_mode: (listing as any).visibility_mode || "public",
       });
 
       // Fetch photos
@@ -351,6 +359,7 @@ export default function ListingForm() {
         parking_count: data.has_parking ? (data.parking_count || 1) : 0,
         has_storage: data.has_storage,
         description: data.description || null,
+        visibility_mode: data.visibility_mode,
       };
 
       let listingId = id;
@@ -450,6 +459,48 @@ export default function ListingForm() {
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Visibility Mode */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle>Listing Visibility</CardTitle>
+                <CardDescription>
+                  Choose how this listing will be displayed publicly
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="visibility_mode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Visibility Mode *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select visibility mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {VISIBILITY_MODES.map(mode => (
+                            <SelectItem key={mode.value} value={mode.value}>
+                              <div>
+                                <span className="font-medium">{mode.label}</span>
+                                <span className="text-muted-foreground ml-2 text-xs">— {mode.description}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-sm">
+                        If the developer restricts public marketing, select <strong>Restricted Listing</strong> to remain compliant. Project and developer details will be shared only after buyer inquiry.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
+
             {/* Basic Information */}
             <Card>
               <CardHeader>

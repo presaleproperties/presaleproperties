@@ -24,9 +24,10 @@ interface LeadCaptureFormProps {
   listingId: string;
   agentId: string;
   listingTitle: string;
+  isRestricted?: boolean;
 }
 
-export function LeadCaptureForm({ listingId, agentId, listingTitle }: LeadCaptureFormProps) {
+export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted = false }: LeadCaptureFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const { toast } = useToast();
@@ -105,12 +106,17 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle }: LeadCaptur
     );
   }
 
+  const formTitle = isRestricted ? "Request Full Assignment Details" : "Request More Info";
+  const formDescription = isRestricted 
+    ? "Some details are restricted due to developer marketing rules and will be shared by the agent after inquiry."
+    : "Interested in this assignment? Fill out the form and the agent will get back to you.";
+
   return (
     <Card className="shadow-card">
       <CardHeader>
-        <CardTitle className="text-lg">Request More Info</CardTitle>
+        <CardTitle className="text-lg">{formTitle}</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Interested in this assignment? Fill out the form and the agent will get back to you.
+          {formDescription}
         </p>
       </CardHeader>
       <CardContent>
@@ -160,7 +166,10 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle }: LeadCaptur
             <Label htmlFor="message">Message (optional)</Label>
             <Textarea
               id="message"
-              placeholder="I'm interested in learning more about this assignment..."
+              placeholder={isRestricted 
+                ? "I'm interested in learning more about this restricted assignment..."
+                : "I'm interested in learning more about this assignment..."
+              }
               rows={4}
               {...register("message")}
               className={errors.message ? "border-destructive" : ""}
@@ -180,7 +189,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle }: LeadCaptur
             ) : (
               <>
                 <Send className="h-4 w-4 mr-2" />
-                Send Request
+                {isRestricted ? "Request Full Details" : "Send Request"}
               </>
             )}
           </Button>
