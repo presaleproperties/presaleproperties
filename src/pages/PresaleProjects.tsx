@@ -1,8 +1,8 @@
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, MapPin, Calendar, Building2, Star, ArrowRight } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, MapPin, Calendar, Building2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -24,6 +24,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent } from "@/components/ui/card";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
@@ -73,6 +74,7 @@ type Project = {
 };
 
 export default function PresaleProjects() {
+  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -205,6 +207,10 @@ export default function PresaleProjects() {
     setSearchParams({});
     setSearchQuery("");
   };
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["presale-projects"] });
+  }, [queryClient]);
 
   const activeFilterCount = [
     filters.city !== "any",
@@ -398,7 +404,7 @@ export default function PresaleProjects() {
         <meta name="description" content="Discover new presale projects in Greater Vancouver. Browse condos, townhomes, and mixed developments with VIP pricing and floor plans." />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <Header />
 
         {/* Hero Section - Clean & Minimal */}
@@ -612,7 +618,7 @@ export default function PresaleProjects() {
         </main>
 
         <Footer />
-      </div>
+      </PullToRefresh>
     </>
   );
 }
