@@ -489,6 +489,7 @@ export default function PresaleProjectDetail() {
       <ProjectMobileCTA
         projectName={project.name}
         status={project.status}
+        startingPrice={project.starting_price}
         onRegisterClick={scrollToForm}
       />
 

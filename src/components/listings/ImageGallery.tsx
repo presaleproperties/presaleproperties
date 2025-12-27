@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight, X, Expand } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { cn } from "@/lib/utils";
 
 interface Photo {
   id: string;
@@ -18,6 +19,8 @@ interface ImageGalleryProps {
 export function ImageGallery({ photos, title }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
 
   const hasPhotos = photos.length > 0;
   const currentPhoto = hasPhotos ? photos[currentIndex] : null;
@@ -28,6 +31,32 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
 
   const goToNext = () => {
     setCurrentIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+
+    if (Math.abs(diff) > threshold && photos.length > 1) {
+      if (diff > 0) {
+        goToNext();
+      } else {
+        goToPrevious();
+      }
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
   };
 
   if (!hasPhotos) {
@@ -42,7 +71,12 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
     <>
       {/* Main Image */}
       <div className="relative group">
-        <div className="aspect-[4/3] md:aspect-[4/3] bg-muted rounded-xl overflow-hidden">
+        <div 
+          className="aspect-[4/3] md:aspect-[4/3] bg-muted rounded-xl overflow-hidden touch-pan-y"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
           <img
             src={currentPhoto?.url}
             alt={`${title} - Photo ${currentIndex + 1}`}
@@ -57,18 +91,18 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10"
+              className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 md:h-10 md:w-10 rounded-full shadow-md"
               onClick={goToPrevious}
             >
-              <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10"
+              className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 md:h-10 md:w-10 rounded-full shadow-md"
               onClick={goToNext}
             >
-              <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </>
         )}
@@ -77,7 +111,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
         <Button
           variant="secondary"
           size="icon"
-          className="absolute top-2 md:top-3 right-2 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10"
+          className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md"
           onClick={() => setIsLightboxOpen(true)}
         >
           <Expand className="h-4 w-4" />
@@ -85,24 +119,42 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
 
         {/* Photo Counter */}
         {photos.length > 1 && (
-          <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3 bg-background/80 backdrop-blur-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-medium">
+          <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-white">
             {currentIndex + 1} / {photos.length}
+          </div>
+        )}
+
+        {/* Dot Indicators for Mobile */}
+        {photos.length > 1 && photos.length <= 6 && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+            {photos.map((_, idx) => (
+              <span
+                key={idx}
+                className={cn(
+                  "h-2 w-2 rounded-full transition-all",
+                  idx === currentIndex 
+                    ? "bg-white w-4" 
+                    : "bg-white/50"
+                )}
+              />
+            ))}
           </div>
         )}
       </div>
 
-      {/* Thumbnail Strip - Grid on mobile, scroll on desktop */}
+      {/* Thumbnail Strip */}
       {photos.length > 1 && (
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:flex gap-2 md:overflow-x-auto md:pb-2">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:flex gap-2 mt-3 md:overflow-x-auto md:pb-2">
           {photos.slice(0, 8).map((photo, index) => (
             <button
               key={photo.id}
               onClick={() => setCurrentIndex(index)}
-              className={`aspect-square md:aspect-auto md:flex-shrink-0 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+              className={cn(
+                "aspect-square md:aspect-auto md:flex-shrink-0 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-all",
                 index === currentIndex
-                  ? "border-primary"
+                  ? "border-primary ring-2 ring-primary/20"
                   : "border-transparent hover:border-muted-foreground/30"
-              }`}
+              )}
             >
               <img
                 src={photo.url}
@@ -128,11 +180,16 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
           <VisuallyHidden>
             <DialogTitle>Image Gallery - {title}</DialogTitle>
           </VisuallyHidden>
-          <div className="relative w-full h-[90vh] flex items-center justify-center">
+          <div 
+            className="relative w-full h-[90vh] flex items-center justify-center"
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+          >
             <Button
               variant="ghost"
               size="icon"
-              className="absolute top-4 right-4 text-white hover:bg-white/20 z-10"
+              className="absolute top-4 right-4 text-white hover:bg-white/20 z-10 h-12 w-12"
               onClick={() => setIsLightboxOpen(false)}
             >
               <X className="h-6 w-6" />
@@ -149,7 +206,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
                   onClick={goToPrevious}
                 >
                   <ChevronLeft className="h-8 w-8" />
@@ -157,7 +214,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:bg-white/20 h-12 w-12"
                   onClick={goToNext}
                 >
                   <ChevronRight className="h-8 w-8" />
@@ -165,7 +222,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
               </>
             )}
 
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm">
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-white text-sm bg-black/50 px-3 py-1.5 rounded-full">
               {currentIndex + 1} / {photos.length}
             </div>
           </div>
