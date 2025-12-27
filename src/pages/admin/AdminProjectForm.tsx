@@ -775,26 +775,15 @@ export default function AdminProjectForm() {
                     />
                   </div>
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="starting_price">Starting Price</Label>
-                    <Input
-                      id="starting_price"
-                      type="number"
-                      value={formData.starting_price}
-                      onChange={(e) => handleSeoRelevantFieldChange("starting_price", e.target.value)}
-                      placeholder="e.g., 599000"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="price_range">Price Range</Label>
-                    <Input
-                      id="price_range"
-                      value={formData.price_range}
-                      onChange={(e) => setFormData(prev => ({ ...prev, price_range: e.target.value }))}
-                      placeholder="e.g., $599K - $1.2M"
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="starting_price">Starting Price</Label>
+                  <Input
+                    id="starting_price"
+                    type="number"
+                    value={formData.starting_price}
+                    onChange={(e) => handleSeoRelevantFieldChange("starting_price", e.target.value)}
+                    placeholder="e.g., 599000"
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="deposit_structure">Deposit Structure</Label>
