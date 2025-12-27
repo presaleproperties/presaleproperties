@@ -800,51 +800,61 @@ export default function AdminProjectForm() {
               </CardContent>
             </Card>
 
-            {/* Dates */}
+            {/* Occupancy Estimate */}
             <Card>
               <CardHeader>
-                <CardTitle>Timeline</CardTitle>
+                <CardTitle>Occupancy Estimate</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid sm:grid-cols-3 gap-4">
+                <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="completion_month">Completion Month</Label>
+                    <Label htmlFor="occupancy_season">Season</Label>
                     <Select
-                      value={formData.completion_month}
-                      onValueChange={(v) => setFormData(prev => ({ ...prev, completion_month: v }))}
+                      value={formData.occupancy_estimate.split(" ")[0] || ""}
+                      onValueChange={(season) => {
+                        const year = formData.occupancy_estimate.split(" ")[1] || "";
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          occupancy_estimate: year ? `${season} ${year}` : season 
+                        }));
+                      }}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select month" />
+                        <SelectValue placeholder="Select season" />
                       </SelectTrigger>
                       <SelectContent>
-                        {Array.from({ length: 12 }, (_, i) => (
-                          <SelectItem key={i + 1} value={(i + 1).toString()}>
-                            {new Date(2000, i).toLocaleString("default", { month: "long" })}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value="Spring">Spring</SelectItem>
+                        <SelectItem value="Summer">Summer</SelectItem>
+                        <SelectItem value="Fall">Fall</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="completion_year">Completion Year</Label>
-                    <Input
-                      id="completion_year"
-                      type="number"
-                      value={formData.completion_year}
-                      onChange={(e) => setFormData(prev => ({ ...prev, completion_year: e.target.value }))}
-                      placeholder="e.g., 2027"
-                      min={2024}
-                      max={2040}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="occupancy_estimate">Occupancy Estimate</Label>
-                    <Input
-                      id="occupancy_estimate"
-                      value={formData.occupancy_estimate}
-                      onChange={(e) => setFormData(prev => ({ ...prev, occupancy_estimate: e.target.value }))}
-                      placeholder="e.g., Q4 2027"
-                    />
+                    <Label htmlFor="occupancy_year">Year</Label>
+                    <Select
+                      value={formData.occupancy_estimate.split(" ")[1] || ""}
+                      onValueChange={(year) => {
+                        const season = formData.occupancy_estimate.split(" ")[0] || "";
+                        setFormData(prev => ({ 
+                          ...prev, 
+                          occupancy_estimate: season ? `${season} ${year}` : year 
+                        }));
+                      }}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select year" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 10 }, (_, i) => {
+                          const year = new Date().getFullYear() + i;
+                          return (
+                            <SelectItem key={year} value={year.toString()}>
+                              {year}
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </CardContent>
