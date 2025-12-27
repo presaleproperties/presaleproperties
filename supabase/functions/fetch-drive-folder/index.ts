@@ -100,10 +100,12 @@ serve(async (req) => {
     for (const fileId of ids) {
       if (fileId === folderId) continue;
       
-      const fileUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      // Use lh3.googleusercontent.com format for reliable image loading
+      const directImageUrl = `https://lh3.googleusercontent.com/d/${fileId}`;
+      const exportUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
       
       try {
-        const checkResponse = await fetch(fileUrl, { 
+        const checkResponse = await fetch(exportUrl, { 
           method: 'HEAD',
           redirect: 'follow'
         });
@@ -111,7 +113,8 @@ serve(async (req) => {
         const contentType = checkResponse.headers.get('content-type') || '';
         
         if (contentType.includes('image')) {
-          imageUrls.push(fileUrl);
+          // Use the lh3 URL format which works better for direct embedding
+          imageUrls.push(directImageUrl);
           console.log('Valid image found:', fileId);
         } else if (contentType.includes('pdf') || contentType.includes('application/pdf')) {
           // For PDFs, use the download URL format
@@ -120,7 +123,7 @@ serve(async (req) => {
           console.log('Valid PDF found:', fileId);
         } else if (includeAll && checkResponse.ok) {
           // If includeAll, try to determine type by testing
-          imageUrls.push(fileUrl);
+          imageUrls.push(directImageUrl);
         }
       } catch (e) {
         console.log('Skipping file:', fileId);

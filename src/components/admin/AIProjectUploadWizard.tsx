@@ -1354,7 +1354,18 @@ export function AIProjectUploadWizard() {
                             draggedImage === img ? "opacity-50 scale-95" : ""
                           } ${dragOverIndex === i && draggedImage !== img ? "border-primary ring-2 ring-primary/30" : "border-muted"}`}
                         >
-                          <img src={img} alt={`Order ${i + 1}`} className="w-full h-full object-cover" />
+                          <img 
+                            src={img} 
+                            alt={`Order ${i + 1}`} 
+                            className="w-full h-full object-cover bg-muted"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              if (img.includes('lh3.googleusercontent.com/d/')) {
+                                const fileId = img.split('/d/')[1];
+                                target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w200`;
+                              }
+                            }}
+                          />
                           {i === 0 && (
                             <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
                               <span className="text-[10px] font-bold text-primary-foreground bg-primary/90 px-1 rounded">Hero</span>
@@ -1386,7 +1397,15 @@ export function AIProjectUploadWizard() {
                         <img 
                           src={img} 
                           alt={`Image ${i + 1}`}
-                          className="w-full aspect-square object-cover"
+                          className="w-full aspect-square object-cover bg-muted"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            // If lh3 URL fails, try the uc?export format as fallback
+                            if (img.includes('lh3.googleusercontent.com/d/')) {
+                              const fileId = img.split('/d/')[1];
+                              target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+                            }
+                          }}
                         />
                         {selectedImages.includes(img) && (
                           <div className="absolute top-1 right-1 bg-primary text-primary-foreground rounded-full p-0.5">
