@@ -115,67 +115,29 @@ export default function PresaleProjects() {
       <Header />
       
       <main className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="relative bg-foreground text-background overflow-hidden">
-          {/* Background pattern */}
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,hsl(var(--foreground))_1px,transparent_1px),linear-gradient(to_bottom,hsl(var(--foreground))_1px,transparent_1px)] bg-[size:4rem_4rem] opacity-[0.03]" />
-          
-          <div className="container px-4 py-16 md:py-24 relative">
-            <div className="max-w-4xl mx-auto text-center">
-              <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-4">
-                Metro Vancouver's Premier Resource
-              </span>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 md:mb-6 tracking-tight">
-                Discover New{" "}
-                <span className="text-primary">Presale Projects</span>
+        {/* Hero Section - Clean & Minimal */}
+        <section className="bg-background border-b border-border py-8 md:py-12">
+          <div className="container px-4">
+            <div className="max-w-3xl">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
+                New & Pre Construction Homes
               </h1>
-              <p className="text-base md:text-xl text-background/70 mb-8 md:mb-10 max-w-2xl mx-auto">
-                Explore floor plans, VIP pricing, and expert guidance for the newest condo and townhome developments — completely FREE.
+              <p className="text-sm md:text-base text-muted-foreground mb-4">
+                Whether you're looking for a new condo, townhome, or development, we're here to guide you. 
+                Search {projects.length} developments in Greater Vancouver. View details, floor plans, and pricing.
               </p>
-              
-              {/* Stats bar */}
-              <div className="flex flex-wrap justify-center gap-6 md:gap-12 mb-10 md:mb-12">
-                <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">{projects.length}+</div>
-                  <div className="text-xs md:text-sm text-background/60 uppercase tracking-wide">Projects</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">{cities.length}</div>
-                  <div className="text-xs md:text-sm text-background/60 uppercase tracking-wide">Cities</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl md:text-3xl font-bold text-primary">Free</div>
-                  <div className="text-xs md:text-sm text-background/60 uppercase tracking-wide">Access</div>
-                </div>
-              </div>
-              
-              {/* Quick City Filters */}
-              <div className="flex flex-wrap justify-center gap-2 md:gap-3">
-                <span className="text-xs md:text-sm text-background/50 mr-2 self-center hidden sm:inline">
-                  Explore by City:
-                </span>
-                {["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Langley"].map(city => (
-                  <Button
-                    key={city}
-                    variant={cityFilter === city ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
-                    className={`text-xs md:text-sm h-9 px-4 transition-all duration-200 ${
-                      cityFilter === city 
-                        ? "" 
-                        : "border-background/20 text-background/80 hover:bg-background hover:text-foreground"
-                    }`}
-                  >
-                    {city}
-                  </Button>
-                ))}
-              </div>
+              <p className="text-sm text-muted-foreground">
+                View a list of{" "}
+                <button 
+                  onClick={() => { setCityFilter("all"); setStatusFilter("all"); setTypeFilter("all"); }}
+                  className="text-primary hover:underline"
+                >
+                  all developments
+                </button>
+                {" "}or filter by city below.
+              </p>
             </div>
           </div>
-          
-          {/* Bottom gradient fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
         </section>
 
         {/* Filters */}
