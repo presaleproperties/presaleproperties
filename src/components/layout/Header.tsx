@@ -8,9 +8,9 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   const navLinks = [
+    { to: "/presale-projects", label: "Presale Projects" },
     { to: "/assignments", label: "Assignments" },
-    { to: "/how-it-works", label: "How It Works" },
-    { to: "/about", label: "About" },
+    { to: "/blog", label: "Blog" },
     { to: "/agents", label: "For Agents", highlight: true },
   ];
 
