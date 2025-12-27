@@ -230,11 +230,11 @@ export default function PresaleProjectDetail() {
 
         {/* Hero */}
         <section className="bg-gradient-to-b from-muted/50 to-background">
-          <div className="container py-8">
-            <div className="grid lg:grid-cols-2 gap-8">
+          <div className="container px-4 py-6 md:py-8">
+            <div className="grid lg:grid-cols-2 gap-6 lg:gap-8">
               {/* Gallery */}
-              <div className="space-y-4">
-                <div className="aspect-[16/10] rounded-xl overflow-hidden bg-muted">
+              <div className="space-y-3">
+                <div className="aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted">
                   {selectedImage ? (
                     <img
                       src={selectedImage}
@@ -248,18 +248,26 @@ export default function PresaleProjectDetail() {
                   )}
                 </div>
                 {allImages.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto pb-2">
-                    {allImages.map((img, i) => (
+                  <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                    {allImages.slice(0, 6).map((img, i) => (
                       <button
                         key={i}
                         onClick={() => setSelectedImage(img)}
-                        className={`shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-colors ${
+                        className={`aspect-[4/3] rounded-lg overflow-hidden border-2 transition-colors ${
                           selectedImage === img ? "border-primary" : "border-transparent hover:border-muted-foreground"
                         }`}
                       >
                         <img src={img} alt="" className="w-full h-full object-cover" />
                       </button>
                     ))}
+                    {allImages.length > 6 && (
+                      <button
+                        onClick={() => setSelectedImage(allImages[6])}
+                        className="aspect-[4/3] rounded-lg overflow-hidden border-2 border-transparent hover:border-muted-foreground bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground"
+                      >
+                        +{allImages.length - 6}
+                      </button>
+                    )}
                   </div>
                 )}
               </div>
@@ -275,69 +283,69 @@ export default function PresaleProjectDetail() {
                     </Badge>
                   )}
                 </div>
-                <h1 className="text-3xl md:text-4xl font-bold mb-2">{project.name}</h1>
-                <div className="flex items-center gap-2 text-lg text-muted-foreground mb-4">
-                  <MapPin className="h-5 w-5" />
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-2">{project.name}</h1>
+                <div className="flex items-center gap-2 text-base md:text-lg text-muted-foreground mb-3 md:mb-4">
+                  <MapPin className="h-4 w-4 md:h-5 md:w-5 shrink-0" />
                   <span>{project.city}, {project.neighborhood}</span>
                 </div>
                 {project.address && (
-                  <p className="text-muted-foreground mb-4">{project.address}</p>
+                  <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">{project.address}</p>
                 )}
 
                 {/* Quick Facts */}
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div className="bg-muted/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                      <Home className="h-4 w-4" />
+                <div className="grid grid-cols-2 gap-2 md:gap-4 mb-4 md:mb-6">
+                  <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
+                      <Home className="h-3.5 w-3.5 md:h-4 md:w-4" />
                       Property Type
                     </div>
-                    <div className="font-semibold capitalize">{project.project_type}</div>
+                    <div className="font-semibold text-sm md:text-base capitalize">{project.project_type}</div>
                   </div>
                   {project.completion_year && (
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                        <Calendar className="h-4 w-4" />
+                    <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
+                        <Calendar className="h-3.5 w-3.5 md:h-4 md:w-4" />
                         Completion
                       </div>
-                      <div className="font-semibold">
+                      <div className="font-semibold text-sm md:text-base">
                         {project.completion_month && getMonthName(project.completion_month)} {project.completion_year}
                       </div>
                     </div>
                   )}
                   {project.developer_name && (
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                        <Building2 className="h-4 w-4" />
+                    <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
+                        <Building2 className="h-3.5 w-3.5 md:h-4 md:w-4" />
                         Developer
                       </div>
-                      <div className="font-semibold">{project.developer_name}</div>
+                      <div className="font-semibold text-sm md:text-base">{project.developer_name}</div>
                     </div>
                   )}
                   {project.unit_mix && (
-                    <div className="bg-muted/50 rounded-lg p-4">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                        <Layers className="h-4 w-4" />
+                    <div className="bg-muted/50 rounded-lg p-3 md:p-4">
+                      <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
+                        <Layers className="h-3.5 w-3.5 md:h-4 md:w-4" />
                         Unit Mix
                       </div>
-                      <div className="font-semibold">{project.unit_mix}</div>
+                      <div className="font-semibold text-sm md:text-base">{project.unit_mix}</div>
                     </div>
                   )}
                 </div>
 
                 {/* Pricing */}
                 {(project.starting_price || project.price_range) && (
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-6">
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                      <DollarSign className="h-4 w-4" />
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 md:p-4 mb-4 md:mb-6">
+                    <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-0.5 md:mb-1">
+                      <DollarSign className="h-3.5 w-3.5 md:h-4 md:w-4" />
                       Pricing
                     </div>
                     {project.starting_price && (
-                      <div className="text-2xl font-bold text-primary">
+                      <div className="text-xl md:text-2xl font-bold text-primary">
                         From {formatPrice(project.starting_price)}
                       </div>
                     )}
                     {project.price_range && (
-                      <div className="text-muted-foreground">{project.price_range}</div>
+                      <div className="text-sm md:text-base text-muted-foreground">{project.price_range}</div>
                     )}
                   </div>
                 )}
