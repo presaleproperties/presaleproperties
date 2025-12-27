@@ -1,7 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
-import { TrustBar } from "@/components/home/TrustBar";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { FeaturedListings } from "@/components/home/FeaturedListings";
 import { LatestListings } from "@/components/home/LatestListings";
@@ -13,7 +12,6 @@ const Index = () => {
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <TrustBar />
         <FeaturedProjects />
         <FeaturedListings />
         <LatestListings />
