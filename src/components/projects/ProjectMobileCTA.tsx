@@ -11,11 +11,11 @@ export function ProjectMobileCTA({ projectName, status, onRegisterClick }: Proje
   const getButtonContent = () => {
     switch (status) {
       case "coming_soon":
-        return { text: "Register Now", icon: <Send className="h-4 w-4 mr-2" /> };
+        return { text: "Get Early Access", icon: <Download className="h-4 w-4 mr-2" /> };
       case "active":
-        return { text: "Download Plans", icon: <Download className="h-4 w-4 mr-2" /> };
+        return { text: "Get Instant Access", icon: <Download className="h-4 w-4 mr-2" /> };
       default:
-        return { text: "Join Waitlist", icon: <Send className="h-4 w-4 mr-2" /> };
+        return { text: "Notify Me", icon: <Send className="h-4 w-4 mr-2" /> };
     }
   };
 
