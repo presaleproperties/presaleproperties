@@ -373,35 +373,35 @@ export default function Assignments() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      <main className="container py-6 md:py-8">
+      <main className="container px-4 py-4 md:py-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1 md:mb-2">
             Assignment Listings
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm md:text-base text-muted-foreground">
             Browse pre-construction condo assignments across Metro Vancouver
           </p>
         </div>
 
         {/* Search & Sort Bar */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by project, neighborhood, or developer..."
+              placeholder="Search by project, neighborhood..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 h-10"
             />
           </div>
           <div className="flex gap-2">
             {/* Mobile Filters */}
             <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" className="lg:hidden relative">
+                <Button variant="outline" className="lg:hidden relative h-10 px-3">
                   <SlidersHorizontal className="h-4 w-4 mr-2" />
-                  Filters
+                  <span className="text-sm">Filters</span>
                   {activeFilterCount > 0 && (
                     <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
                       {activeFilterCount}
@@ -409,7 +409,7 @@ export default function Assignments() {
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-80">
+              <SheetContent side="left" className="w-[300px] sm:w-80">
                 <SheetHeader>
                   <SheetTitle>Filters</SheetTitle>
                 </SheetHeader>
@@ -421,7 +421,7 @@ export default function Assignments() {
 
             {/* Sort */}
             <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[140px] sm:w-[180px] h-10 text-sm">
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -435,9 +435,9 @@ export default function Assignments() {
 
         {/* Active Filters Pills */}
         {activeFilterCount > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
+          <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
             {filters.city !== "any" && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1 text-xs">
                 {filters.city}
                 <button onClick={() => updateFilter("city", "any")}>
                   <X className="h-3 w-3" />
@@ -445,7 +445,7 @@ export default function Assignments() {
               </Badge>
             )}
             {filters.beds !== "any" && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1 text-xs">
                 {BEDS_OPTIONS.find((b) => b.value === filters.beds)?.label}
                 <button onClick={() => updateFilter("beds", "any")}>
                   <X className="h-3 w-3" />
@@ -453,7 +453,7 @@ export default function Assignments() {
               </Badge>
             )}
             {filters.propertyType !== "any" && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1 text-xs">
                 {PROPERTY_TYPES.find((p) => p.value === filters.propertyType)?.label}
                 <button onClick={() => updateFilter("type", "any")}>
                   <X className="h-3 w-3" />
@@ -461,7 +461,7 @@ export default function Assignments() {
               </Badge>
             )}
             {filters.priceRange !== "any" && (
-              <Badge variant="secondary" className="gap-1">
+              <Badge variant="secondary" className="gap-1 text-xs">
                 {PRICE_RANGES.find((p) => p.value === filters.priceRange)?.label}
                 <button onClick={() => updateFilter("price", "any")}>
                   <X className="h-3 w-3" />
@@ -471,10 +471,10 @@ export default function Assignments() {
           </div>
         )}
 
-        <div className="flex gap-8">
+        <div className="flex gap-6 lg:gap-8">
           {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
-            <div className="sticky top-6 bg-card border border-border rounded-xl p-5">
+          <aside className="hidden lg:block w-60 flex-shrink-0">
+            <div className="sticky top-6 bg-card border border-border rounded-xl p-4">
               <h2 className="font-semibold text-foreground mb-4">Filters</h2>
               <FilterControls />
             </div>
@@ -483,7 +483,7 @@ export default function Assignments() {
           {/* Listings Grid */}
           <div className="flex-1">
             {isLoading ? (
-              <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
                 {[...Array(6)].map((_, i) => (
                   <div key={i} className="space-y-3">
                     <Skeleton className="aspect-[4/3] rounded-lg" />
@@ -494,7 +494,7 @@ export default function Assignments() {
               </div>
             ) : filteredListings && filteredListings.length > 0 ? (
               <>
-                <p className="text-sm text-muted-foreground mb-4">
+                <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
                   Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} assignment{totalCount !== 1 ? "s" : ""}
                 </p>
                 <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">

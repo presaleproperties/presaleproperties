@@ -1,6 +1,7 @@
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
+import { useRef } from "react";
 import { 
   ArrowLeft, 
   Bed, 
@@ -28,6 +29,7 @@ import { LeadCaptureForm } from "@/components/listings/LeadCaptureForm";
 import { AgentContactCard } from "@/components/listings/AgentContactCard";
 import { ShareButtons } from "@/components/listings/ShareButtons";
 import { SaveButton } from "@/components/listings/SaveButton";
+import { MobileCTABar } from "@/components/listings/MobileCTABar";
 import { useAuth } from "@/hooks/useAuth";
 
 const formatPrice = (price: number) => {
@@ -88,6 +90,11 @@ export default function ListingDetail() {
   const [searchParams] = useSearchParams();
   const { isAdmin, user } = useAuth();
   const isPreview = searchParams.get("preview") === "true";
+  const formRef = useRef<HTMLDivElement>(null);
+
+  const scrollToForm = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const { data: listing, isLoading, error } = useQuery({
     queryKey: ["listing", id, isAdmin],
@@ -220,25 +227,23 @@ export default function ListingDetail() {
       </Helmet>
       <Header />
       
-      <main className="container py-6 md:py-8">
+      <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
         {/* Preview Banner for non-published listings */}
         {listing.status !== "published" && (
-          <Alert className="mb-6 border-amber-500/50 bg-amber-500/10">
+          <Alert className="mb-4 md:mb-6 border-amber-500/50 bg-amber-500/10">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
-            <AlertDescription className="text-amber-700">
+            <AlertDescription className="text-amber-700 text-sm">
               <strong>Preview Mode:</strong> This listing is not yet published (Status: {listing.status.replace(/_/g, " ")}).
-              Only you and admins can see this page.
             </AlertDescription>
           </Alert>
         )}
 
         {/* Restricted Listing Notice */}
         {isRestricted && (
-          <Alert className="mb-6 border-amber-500/50 bg-amber-500/10">
+          <Alert className="mb-4 md:mb-6 border-amber-500/50 bg-amber-500/10">
             <Lock className="h-4 w-4 text-amber-600" />
-            <AlertDescription className="text-amber-700">
-              <strong>🔒 Restricted Assignment</strong> — Some details are not displayed due to developer marketing restrictions. 
-              Contact the agent to request full project and developer information.
+            <AlertDescription className="text-amber-700 text-sm">
+              <strong>🔒 Restricted</strong> — Some details hidden. Contact the agent for full info.
             </AlertDescription>
           </Alert>
         )}
@@ -246,45 +251,45 @@ export default function ListingDetail() {
         {/* Back Button */}
         <Link 
           to={isAdmin && listing.status !== "published" ? "/admin/listings" : "/assignments"} 
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6 transition-colors"
         >
           <ArrowLeft className="h-4 w-4" />
-          {isAdmin && listing.status !== "published" ? "Back to Listing Approval" : "Back to Assignments"}
+          Back to Assignments
         </Link>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Images & Details */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Image Gallery */}
             <ImageGallery photos={photos} title={displayTitle} />
 
             {/* Title & Price */}
             <div>
-              <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
+              <div className="flex flex-wrap items-center gap-2 mb-2">
                 <div className="flex flex-wrap items-center gap-2">
                   {listing.is_featured && (
-                    <Badge className="bg-primary text-primary-foreground">Featured</Badge>
+                    <Badge className="bg-primary text-primary-foreground text-xs">Featured</Badge>
                   )}
                   {isRestricted && (
-                    <Badge variant="secondary" className="bg-amber-500/90 text-white gap-1">
+                    <Badge variant="secondary" className="bg-amber-500/90 text-white gap-1 text-xs">
                       <Lock className="h-3 w-3" />
                       Restricted
                     </Badge>
                   )}
-                  <Badge variant="secondary">
+                  <Badge variant="secondary" className="text-xs">
                     {formatConstructionStatus(listing.construction_status)}
                   </Badge>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 ml-auto">
                   <ShareButtons title={isRestricted ? "Presale Condo Assignment" : `${listing.project_name} - ${formatUnitType(listing.unit_type)}`} />
                   <SaveButton listingId={listing.id} variant="full" />
                 </div>
               </div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
                 {displayTitle}
               </h1>
-              <div className="flex items-center gap-2 text-muted-foreground mb-4">
-                <MapPin className="h-4 w-4" />
+              <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
+                <MapPin className="h-4 w-4 shrink-0" />
                 <span>
                   {isRestricted ? (
                     <>
@@ -300,119 +305,118 @@ export default function ListingDetail() {
                   )}
                 </span>
               </div>
-              <div className="text-3xl md:text-4xl font-bold text-primary">
+              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
                 {formatPrice(Number(listing.assignment_price))}
               </div>
-              {/* Hide original price for restricted listings */}
               {!isRestricted && listing.original_price && (
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-xs md:text-sm text-muted-foreground mt-1">
                   Original Price: {formatPrice(Number(listing.original_price))}
                 </p>
               )}
             </div>
 
             {/* Key Facts Grid */}
-            <div className="bg-muted/30 rounded-xl p-6">
-              <h2 className="text-lg font-semibold text-foreground mb-4">Property Details</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Bed className="h-5 w-5 text-primary" />
+            <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+              <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Property Details</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                    <Bed className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Bedrooms</p>
-                    <p className="font-semibold">{listing.beds === 0 ? "Studio" : listing.beds}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Bedrooms</p>
+                    <p className="font-semibold text-sm md:text-base">{listing.beds === 0 ? "Studio" : listing.beds}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Bath className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                    <Bath className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Bathrooms</p>
-                    <p className="font-semibold">{listing.baths}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Bathrooms</p>
+                    <p className="font-semibold text-sm md:text-base">{listing.baths}</p>
                   </div>
                 </div>
                 {listing.interior_sqft && (
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Maximize className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                      <Maximize className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Interior</p>
-                      <p className="font-semibold">{listing.interior_sqft} sqft</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Interior</p>
+                      <p className="font-semibold text-sm md:text-base">{listing.interior_sqft} sqft</p>
                     </div>
                   </div>
                 )}
                 {listing.exterior_sqft && (
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Maximize className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                      <Maximize className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Exterior</p>
-                      <p className="font-semibold">{listing.exterior_sqft} sqft</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Exterior</p>
+                      <p className="font-semibold text-sm md:text-base">{listing.exterior_sqft} sqft</p>
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Building2 className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                    <Building2 className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Type</p>
-                    <p className="font-semibold">{formatPropertyType(listing.property_type)}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Type</p>
+                    <p className="font-semibold text-sm md:text-base">{formatPropertyType(listing.property_type)}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Calendar className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                    <Calendar className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Completion</p>
-                    <p className="font-semibold">{getCompletionDate(listing.completion_year, listing.completion_month)}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Completion</p>
+                    <p className="font-semibold text-sm md:text-base">{getCompletionDate(listing.completion_year, listing.completion_month)}</p>
                   </div>
                 </div>
                 {listing.floor_level && (
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Layers className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                      <Layers className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Floor</p>
-                      <p className="font-semibold">{listing.floor_level}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Floor</p>
+                      <p className="font-semibold text-sm md:text-base">{listing.floor_level}</p>
                     </div>
                   </div>
                 )}
                 {listing.exposure && (
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-lg">
-                      <Compass className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                      <Compass className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                     </div>
                     <div>
-                      <p className="text-sm text-muted-foreground">Exposure</p>
-                      <p className="font-semibold">{listing.exposure}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Exposure</p>
+                      <p className="font-semibold text-sm md:text-base">{listing.exposure}</p>
                     </div>
                   </div>
                 )}
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Car className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                    <Car className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Parking</p>
-                    <p className="font-semibold">
+                    <p className="text-xs md:text-sm text-muted-foreground">Parking</p>
+                    <p className="font-semibold text-sm md:text-base">
                       {listing.has_parking ? `${listing.parking_count || 1} Stall${(listing.parking_count || 1) > 1 ? 's' : ''}` : 'None'}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Package className="h-5 w-5 text-primary" />
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="p-1.5 md:p-2 bg-primary/10 rounded-lg">
+                    <Package className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Storage</p>
-                    <p className="font-semibold">{listing.has_storage ? 'Included' : 'None'}</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">Storage</p>
+                    <p className="font-semibold text-sm md:text-base">{listing.has_storage ? 'Included' : 'None'}</p>
                   </div>
                 </div>
               </div>
@@ -420,19 +424,19 @@ export default function ListingDetail() {
 
             {/* Financial Details - Hidden for restricted listings */}
             {!isRestricted && (listing.deposit_paid || listing.assignment_fee) && (
-              <div className="bg-muted/30 rounded-xl p-6">
-                <h2 className="text-lg font-semibold text-foreground mb-4">Financial Details</h2>
-                <div className="grid grid-cols-2 gap-4">
+              <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Financial Details</h2>
+                <div className="grid grid-cols-2 gap-3 md:gap-4">
                   {listing.deposit_paid && (
                     <div>
-                      <p className="text-sm text-muted-foreground">Deposit Paid</p>
-                      <p className="font-semibold text-lg">{formatPrice(Number(listing.deposit_paid))}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Deposit Paid</p>
+                      <p className="font-semibold text-base md:text-lg">{formatPrice(Number(listing.deposit_paid))}</p>
                     </div>
                   )}
                   {listing.assignment_fee && (
                     <div>
-                      <p className="text-sm text-muted-foreground">Assignment Fee</p>
-                      <p className="font-semibold text-lg">{formatPrice(Number(listing.assignment_fee))}</p>
+                      <p className="text-xs md:text-sm text-muted-foreground">Assignment Fee</p>
+                      <p className="font-semibold text-base md:text-lg">{formatPrice(Number(listing.assignment_fee))}</p>
                     </div>
                   )}
                 </div>
@@ -460,7 +464,7 @@ export default function ListingDetail() {
 
           {/* Right Column - Lead Form & Agent Info */}
           <div className="lg:col-span-1">
-            <div className="sticky top-6 space-y-6">
+            <div ref={formRef} className="sticky top-6 space-y-6">
               <LeadCaptureForm 
                 listingId={listing.id} 
                 agentId={listing.agent_id}
@@ -472,6 +476,13 @@ export default function ListingDetail() {
           </div>
         </div>
       </main>
+
+      {/* Sticky Mobile CTA */}
+      <MobileCTABar 
+        price={formatPrice(Number(listing.assignment_price))}
+        onContactClick={scrollToForm}
+        phoneNumber={agentInfo?.phone || undefined}
+      />
 
       <Footer />
     </div>
