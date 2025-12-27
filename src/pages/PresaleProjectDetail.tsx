@@ -15,7 +15,7 @@ import {
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
-import { NearbyProjects } from "@/components/projects/NearbyProjects";
+
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -218,27 +218,12 @@ export default function PresaleProjectDetail() {
         {/* Hero */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-4 py-6 md:py-8">
-            <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
-              {/* Gallery - Takes 3 columns */}
-              <div className="lg:col-span-3">
-                <GalleryWithLightbox
-                  images={allImages}
-                  selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
-                  onSelectIndex={(index) => setSelectedImage(allImages[index])}
-                  alt={project.name}
-                />
-              </div>
-
-              {/* Sidebar - Takes 2 columns */}
-              <div className="lg:col-span-2 space-y-4">
-                {/* Nearby Projects Card */}
-                <NearbyProjects 
-                  currentProjectId={project.id}
-                  city={project.city}
-                  neighborhood={project.neighborhood}
-                />
-              </div>
-            </div>
+            <GalleryWithLightbox
+              images={allImages}
+              selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
+              onSelectIndex={(index) => setSelectedImage(allImages[index])}
+              alt={project.name}
+            />
           </div>
         </section>
 
