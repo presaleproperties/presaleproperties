@@ -97,6 +97,8 @@ export function AIProjectUploadWizard() {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [uploadDriveUrl, setUploadDriveUrl] = useState("");
+  const [isImportingProject, setIsImportingProject] = useState(false);
   
   // State
   const [step, setStep] = useState<WizardStep>("upload");
@@ -619,6 +621,101 @@ export function AIProjectUploadWizard() {
     }
   };
 
+  const handleImportProjectFromDrive = async () => {
+    if (!uploadDriveUrl.trim()) return;
+
+    if (!uploadDriveUrl.includes('/folders/')) {
+      toast({
+        title: "Not a Folder URL",
+        description: "Please enter a Google Drive folder share link",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsImportingProject(true);
+    setError(null);
+
+    try {
+      // Fetch folder contents (PDFs and images)
+      const { data, error: fnError } = await supabase.functions.invoke('fetch-drive-folder', {
+        body: { folderUrl: uploadDriveUrl, includeAll: true }
+      });
+
+      if (fnError) throw new Error(fnError.message);
+      if (!data?.success) throw new Error(data?.error || 'Failed to fetch folder');
+
+      const pdfUrls = data.pdfs as string[] || [];
+      const imageUrls = data.images as string[] || [];
+
+      console.log(`Found ${pdfUrls.length} PDFs and ${imageUrls.length} images`);
+
+      if (pdfUrls.length === 0 && imageUrls.length === 0) {
+        throw new Error('No PDFs or images found in the folder');
+      }
+
+      // Process PDFs - fetch and extract text
+      const newFiles: UploadedFile[] = [];
+      
+      for (let i = 0; i < pdfUrls.length; i++) {
+        const pdfUrl = pdfUrls[i];
+        try {
+          console.log(`Fetching PDF ${i + 1}/${pdfUrls.length}`);
+          const pdfResponse = await fetch(pdfUrl);
+          const pdfBlob = await pdfResponse.blob();
+          const pdfFile = new File([pdfBlob], `document-${i + 1}.pdf`, { type: 'application/pdf' });
+          
+          const { text, images } = await extractTextFromPDF(pdfFile);
+          
+          newFiles.push({
+            name: `Drive Document ${i + 1}`,
+            text,
+            images,
+          });
+          
+          console.log(`Extracted ${text.length} chars and ${images.length} images from PDF ${i + 1}`);
+        } catch (pdfErr) {
+          console.warn(`Could not process PDF ${i + 1}:`, pdfErr);
+        }
+      }
+
+      // Add the uploaded files
+      setUploadedFiles(prev => [...prev, ...newFiles]);
+      
+      // Store images for the review step
+      const allPdfImages = newFiles.flatMap(f => f.images.map(img => img.dataUrl));
+      setExtractedImages(prev => [...prev, ...allPdfImages, ...imageUrls]);
+      setSelectedImages(prev => [...prev, ...allPdfImages, ...imageUrls].slice(0, 20));
+
+      setUploadDriveUrl("");
+
+      const totalItems = newFiles.length + imageUrls.length;
+      toast({
+        title: "Project Imported",
+        description: `Added ${newFiles.length} documents and ${imageUrls.length} images from Google Drive`,
+      });
+
+      // If we have files, auto-proceed to processing
+      if (newFiles.length > 0) {
+        toast({
+          title: "Ready to Extract",
+          description: "Click 'Extract Data with AI' to analyze the documents",
+        });
+      }
+
+    } catch (err: any) {
+      console.error('Drive project import error:', err);
+      setError(err.message || 'Could not import project from Drive');
+      toast({
+        title: "Import Failed",
+        description: err.message || "Could not import project. Make sure the folder is publicly shared.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsImportingProject(false);
+    }
+  };
+
   const handleAISortImages = async () => {
     if (selectedImages.length < 2) {
       toast({
@@ -754,12 +851,59 @@ export function AIProjectUploadWizard() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Google Drive Import */}
+            <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-3">
+              <div className="flex items-center gap-2 text-primary">
+                <FolderOpen className="h-5 w-5" />
+                <span className="font-medium">Import from Google Drive</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Paste a shared folder link containing brochures, info sheets, and photos. We'll import everything at once.
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  value={uploadDriveUrl}
+                  onChange={(e) => setUploadDriveUrl(e.target.value)}
+                  placeholder="https://drive.google.com/drive/folders/..."
+                  disabled={isImportingProject}
+                  onKeyDown={(e) => e.key === "Enter" && handleImportProjectFromDrive()}
+                />
+                <Button 
+                  onClick={handleImportProjectFromDrive}
+                  disabled={isImportingProject || !uploadDriveUrl.includes('/folders/')}
+                >
+                  {isImportingProject ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      <FolderOpen className="h-4 w-4 mr-2" />
+                      Import
+                    </>
+                  )}
+                </Button>
+              </div>
+              {isImportingProject && (
+                <p className="text-xs text-muted-foreground animate-pulse">
+                  Fetching and processing files from Drive...
+                </p>
+              )}
+            </div>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">Or upload manually</span>
+              </div>
+            </div>
+
             {/* Drop zone */}
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-muted-foreground/25 rounded-xl p-12 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/30"
+              className="border-2 border-dashed border-muted-foreground/25 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/30"
             >
               <input
                 ref={fileInputRef}
@@ -771,14 +915,14 @@ export function AIProjectUploadWizard() {
               />
               {isUploading ? (
                 <div className="space-y-3">
-                  <Loader2 className="h-12 w-12 mx-auto text-primary animate-spin" />
+                  <Loader2 className="h-10 w-10 mx-auto text-primary animate-spin" />
                   <p className="font-medium">Processing PDFs...</p>
                 </div>
               ) : (
                 <>
-                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-lg font-medium">Drop PDF files here or click to browse</p>
-                  <p className="text-sm text-muted-foreground mt-2">
+                  <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                  <p className="font-medium">Drop PDF files here or click to browse</p>
+                  <p className="text-sm text-muted-foreground mt-1">
                     Upload brochure, pricing sheet, or any project documents
                   </p>
                 </>
