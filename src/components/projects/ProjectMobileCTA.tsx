@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Sparkles, Clock, TrendingUp } from "lucide-react";
+import { Phone, MessageCircle, Download, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,23 +43,11 @@ export function ProjectMobileCTA({
   const getButtonContent = () => {
     switch (status) {
       case "coming_soon":
-        return { 
-          text: "Get VIP Access", 
-          icon: <Sparkles className="h-4 w-4" />,
-          urgency: "Limited spots available"
-        };
+        return { text: "Get Early Access", icon: <Download className="h-4 w-4" /> };
       case "active":
-        return { 
-          text: "Get Pricing & Plans", 
-          icon: <TrendingUp className="h-4 w-4" />,
-          urgency: "Units selling fast"
-        };
+        return { text: "Get Floor Plans", icon: <Download className="h-4 w-4" /> };
       default:
-        return { 
-          text: "Join Waitlist", 
-          icon: <Clock className="h-4 w-4" />,
-          urgency: "Be first to know"
-        };
+        return { text: "Get Notified", icon: <Send className="h-4 w-4" /> };
     }
   };
 
@@ -68,29 +56,22 @@ export function ProjectMobileCTA({
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.12)]">
+    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
       {/* Safe area padding for iPhone notch */}
       <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-        {/* Compact header with price and urgency */}
-        <div className="flex items-center justify-between mb-2.5">
+        {/* Price/Status Row */}
+        <div className="flex items-center justify-between mb-3">
           <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground truncate">{projectName}</p>
             {startingPrice ? (
-              <p className="text-lg font-bold text-foreground">
+              <p className="text-base font-bold text-primary">
                 {formatPrice(startingPrice)}
               </p>
             ) : (
-              <p className="text-base font-semibold text-foreground">
+              <p className="text-sm font-semibold text-foreground">
                 {status === "coming_soon" ? "Coming Soon" : status === "active" ? "Now Selling" : "Sold Out"}
               </p>
             )}
-          </div>
-          {/* Urgency indicator */}
-          <div className="flex items-center gap-1.5 text-xs text-primary font-medium bg-primary/10 px-2 py-1 rounded-full">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-            </span>
-            {buttonContent.urgency}
           </div>
         </div>
         
@@ -100,7 +81,7 @@ export function ProjectMobileCTA({
           <Button 
             variant="outline" 
             size="icon"
-            className="shrink-0 h-12 w-12 rounded-xl border-border/50"
+            className="shrink-0 h-12 w-12 rounded-xl"
             asChild
           >
             <a href="tel:+16722581100" aria-label="Call agent">
@@ -122,10 +103,10 @@ export function ProjectMobileCTA({
             </Button>
           )}
 
-          {/* Primary CTA - Enhanced for conversion */}
+          {/* Primary CTA */}
           <Button 
             size="lg"
-            className="flex-1 h-12 rounded-xl font-semibold gap-2 shadow-md hover:shadow-lg transition-shadow"
+            className="flex-1 h-12 rounded-xl font-semibold gap-2"
             onClick={onRegisterClick}
           >
             {buttonContent.icon}
