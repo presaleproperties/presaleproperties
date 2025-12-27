@@ -9,13 +9,15 @@ import { useToast } from "@/hooks/use-toast";
 import { 
   Settings,
   Loader2,
-  Save
+  Save,
+  MessageCircle
 } from "lucide-react";
 
 interface AppSettings {
   listing_price: number;
   renewal_price: number;
   featured_price: number;
+  whatsapp_number: string;
 }
 
 export default function AdminSettings() {
@@ -23,6 +25,7 @@ export default function AdminSettings() {
     listing_price: 99,
     renewal_price: 49,
     featured_price: 29,
+    whatsapp_number: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -45,6 +48,7 @@ export default function AdminSettings() {
         if (item.key === "listing_price") settingsMap.listing_price = item.value as number;
         if (item.key === "renewal_price") settingsMap.renewal_price = item.value as number;
         if (item.key === "featured_price") settingsMap.featured_price = item.value as number;
+        if (item.key === "whatsapp_number") settingsMap.whatsapp_number = item.value as string;
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
@@ -62,6 +66,7 @@ export default function AdminSettings() {
         { key: "listing_price", value: settings.listing_price },
         { key: "renewal_price", value: settings.renewal_price },
         { key: "featured_price", value: settings.featured_price },
+        { key: "whatsapp_number", value: settings.whatsapp_number },
       ];
 
       for (const setting of settingsToSave) {
@@ -168,6 +173,46 @@ export default function AdminSettings() {
                   />
                   <p className="text-xs text-muted-foreground">
                     Additional price for featuring a listing
+                  </p>
+                </div>
+
+                <Button onClick={saveSettings} disabled={saving} className="w-full">
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save Settings
+                </Button>
+              </CardContent>
+            </Card>
+
+            {/* WhatsApp Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  WhatsApp Integration
+                </CardTitle>
+                <CardDescription>
+                  Configure the WhatsApp number for lead follow-up
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="whatsapp_number">WhatsApp Phone Number</Label>
+                  <Input
+                    id="whatsapp_number"
+                    type="tel"
+                    placeholder="16045551234"
+                    value={settings.whatsapp_number}
+                    onChange={(e) => setSettings(prev => ({ 
+                      ...prev, 
+                      whatsapp_number: e.target.value.replace(/\D/g, '')
+                    }))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Enter with country code, no spaces or dashes (e.g., 16045551234 for +1 604-555-1234)
                   </p>
                 </div>
 
