@@ -294,11 +294,6 @@ export function GalleryWithLightbox({
               decoding="async"
               fetchPriority="high"
             />
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center">
-              <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 rounded-full p-3">
-                <ZoomIn className="h-6 w-6 text-white" />
-              </div>
-            </div>
             {images.length > 1 && (
               <div className="absolute bottom-3 right-3 bg-black/60 text-white text-xs px-2.5 py-1 rounded-full">
                 {selectedIndex + 1} / {images.length}
