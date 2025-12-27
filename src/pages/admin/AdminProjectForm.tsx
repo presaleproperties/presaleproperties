@@ -212,6 +212,25 @@ export default function AdminProjectForm() {
     return "";
   };
 
+  const getSeasonFromMonth = (month: number) => {
+    if (month >= 3 && month <= 5) return "Spring";
+    if (month >= 6 && month <= 8) return "Summer";
+    if (month >= 9 && month <= 11) return "Fall";
+    return "Winter";
+  };
+
+  const generateOccupancyEstimate = (month: string | number | undefined, year: string | number | undefined) => {
+    const monthNum = typeof month === 'string' ? parseInt(month) : month;
+    const yearNum = typeof year === 'string' ? parseInt(year) : year;
+    
+    if (monthNum && yearNum) {
+      return `${getSeasonFromMonth(monthNum)} ${yearNum}`;
+    } else if (yearNum) {
+      return `${yearNum}`;
+    }
+    return "";
+  };
+
   const handleBrochureDataExtracted = (data: any) => {
     const mergedData = {
       name: data.name || formData.name,
@@ -221,6 +240,9 @@ export default function AdminProjectForm() {
       city: data.city || formData.city,
       neighborhood: data.neighborhood || formData.neighborhood,
     };
+
+    const completionMonth = data.completion_month?.toString() || formData.completion_month;
+    const completionYear = data.completion_year?.toString() || formData.completion_year;
 
     setFormData(prev => ({
       ...prev,
@@ -236,9 +258,9 @@ export default function AdminProjectForm() {
       price_range: data.price_range || prev.price_range,
       deposit_structure: data.deposit_structure || prev.deposit_structure,
       incentives: data.incentives || prev.incentives,
-      completion_month: data.completion_month?.toString() || prev.completion_month,
-      completion_year: data.completion_year?.toString() || prev.completion_year,
-      occupancy_estimate: data.occupancy_estimate || prev.occupancy_estimate,
+      completion_month: completionMonth,
+      completion_year: completionYear,
+      occupancy_estimate: generateOccupancyEstimate(completionMonth, completionYear),
       short_description: data.short_description || prev.short_description,
       full_description: data.full_description || prev.full_description,
       highlights: data.highlights?.length > 0 ? data.highlights : prev.highlights,
