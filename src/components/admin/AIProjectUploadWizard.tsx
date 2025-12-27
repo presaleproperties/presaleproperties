@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { LightboxGallery } from "@/components/ui/lightbox-gallery";
 import {
   Select,
   SelectContent,
@@ -38,7 +39,8 @@ import {
   Link,
   FolderOpen,
   Wand2,
-  GripVertical
+  GripVertical,
+  ZoomIn
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -93,6 +95,8 @@ export function AIProjectUploadWizard() {
   const [isAddingDriveUrl, setIsAddingDriveUrl] = useState(false);
   const [draggedImage, setDraggedImage] = useState<string | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
   
   // State
   const [step, setStep] = useState<WizardStep>("upload");
@@ -1257,6 +1261,17 @@ export function AIProjectUploadWizard() {
                         >
                           <Trash2 className="h-3 w-3" />
                         </button>
+                        <button
+                          type="button"
+                          className="absolute bottom-1 right-1 bg-background/80 text-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={(e) => { 
+                            e.stopPropagation(); 
+                            setLightboxIndex(i);
+                            setLightboxOpen(true);
+                          }}
+                        >
+                          <ZoomIn className="h-3 w-3" />
+                        </button>
                       </div>
                     ))}
                   </div>
@@ -1311,6 +1326,15 @@ export function AIProjectUploadWizard() {
                 Back to Upload
               </Button>
             </div>
+
+            {/* Lightbox for image preview */}
+            <LightboxGallery
+              images={extractedImages}
+              initialIndex={lightboxIndex}
+              open={lightboxOpen}
+              onOpenChange={setLightboxOpen}
+              alt="Project image"
+            />
           </div>
         </div>
       )}
