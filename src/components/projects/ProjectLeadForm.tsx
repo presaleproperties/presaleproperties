@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -32,7 +32,24 @@ interface ProjectLeadFormProps {
 export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("");
   const { toast } = useToast();
+
+  // Fetch WhatsApp number from settings
+  useEffect(() => {
+    const fetchWhatsappNumber = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "whatsapp_number")
+        .maybeSingle();
+      
+      if (data?.value) {
+        setWhatsappNumber(data.value as string);
+      }
+    };
+    fetchWhatsappNumber();
+  }, []);
 
   const {
     register,
@@ -116,9 +133,8 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     }
   };
 
-  const whatsappNumber = "16045551234"; // Replace with your actual WhatsApp number
   const whatsappMessage = encodeURIComponent(`Hi! I just submitted my info for ${projectName} and would love to learn more.`);
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
 
   if (isSubmitted) {
     return (
@@ -132,15 +148,25 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
         <p className="text-muted-foreground mb-4">
           We received your info and will be in touch soon with floor plans and pricing.
         </p>
-        <Button
-          asChild
-          className="w-full"
-        >
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Chat with an Agent Now
-          </a>
-        </Button>
+        {whatsappLink ? (
+          <Button
+            asChild
+            className="w-full"
+          >
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat with an Agent Now
+            </a>
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            onClick={() => setIsSubmitted(false)}
+            className="w-full"
+          >
+            Submit Another Request
+          </Button>
+        )}
       </div>
     );
   }
