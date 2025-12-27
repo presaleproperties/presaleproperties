@@ -17,6 +17,7 @@ const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
   phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Please enter a valid phone number"),
+  is_realtor: z.enum(["yes", "no"]),
   has_realtor: z.enum(["yes", "no"]),
 });
 
@@ -43,10 +44,12 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
     defaultValues: {
+      is_realtor: "no",
       has_realtor: "no",
     },
   });
 
+  const isRealtor = watch("is_realtor");
   const hasRealtor = watch("has_realtor");
 
   const onInvalid = () => {
@@ -61,9 +64,9 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     setIsSubmitting(true);
 
     try {
-      const realtorNote = data.has_realtor === "yes" 
-        ? "Has a realtor" 
-        : "No realtor";
+      const isRealtorNote = data.is_realtor === "yes" ? "Is a realtor" : "Not a realtor";
+      const hasRealtorNote = data.has_realtor === "yes" ? "Has a realtor" : "No realtor";
+      const notes = `${isRealtorNote} | ${hasRealtorNote}`;
 
       // Insert lead into database
       const { data: insertedLead, error } = await supabase
@@ -73,7 +76,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           name: data.name,
           email: data.email,
           phone: data.phone,
-          message: realtorNote,
+          message: notes,
         })
         .select("id")
         .maybeSingle();
@@ -237,24 +240,45 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
             )}
           </div>
 
-          {/* Realtor Question */}
+          {/* Is Realtor Question */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">Are you working with a realtor?</Label>
+            <Label className="text-sm font-medium">Are you a realtor?</Label>
             <RadioGroup 
-              value={hasRealtor} 
-              onValueChange={(value) => setValue("has_realtor", value as "yes" | "no")}
+              value={isRealtor} 
+              onValueChange={(value) => setValue("is_realtor", value as "yes" | "no")}
               className="flex gap-4"
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="no" id="realtor-no" />
-                <Label htmlFor="realtor-no" className="text-sm font-normal cursor-pointer">No</Label>
+                <RadioGroupItem value="no" id="is-realtor-no" />
+                <Label htmlFor="is-realtor-no" className="text-sm font-normal cursor-pointer">No</Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="yes" id="realtor-yes" />
-                <Label htmlFor="realtor-yes" className="text-sm font-normal cursor-pointer">Yes</Label>
+                <RadioGroupItem value="yes" id="is-realtor-yes" />
+                <Label htmlFor="is-realtor-yes" className="text-sm font-normal cursor-pointer">Yes</Label>
               </div>
             </RadioGroup>
           </div>
+
+          {/* Has Realtor Question - Only show if they're not a realtor */}
+          {isRealtor === "no" && (
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Are you working with a realtor?</Label>
+              <RadioGroup 
+                value={hasRealtor} 
+                onValueChange={(value) => setValue("has_realtor", value as "yes" | "no")}
+                className="flex gap-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="no" id="realtor-no" />
+                  <Label htmlFor="realtor-no" className="text-sm font-normal cursor-pointer">No</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="yes" id="realtor-yes" />
+                  <Label htmlFor="realtor-yes" className="text-sm font-normal cursor-pointer">Yes</Label>
+                </div>
+              </RadioGroup>
+            </div>
+          )}
 
           <Button
             type="submit"
