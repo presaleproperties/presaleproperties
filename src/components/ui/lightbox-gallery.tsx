@@ -226,7 +226,7 @@ export function GalleryWithLightbox({
         {/* Main image */}
         <button
           onClick={() => openLightbox(selectedIndex)}
-          className="relative w-full aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted group cursor-zoom-in"
+          className="relative w-full aspect-[3/4] sm:aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted group cursor-zoom-in"
         >
           <img
             src={images[selectedIndex]}
@@ -245,9 +245,9 @@ export function GalleryWithLightbox({
           )}
         </button>
 
-        {/* Thumbnails */}
+        {/* Thumbnails - larger on mobile */}
         {images.length > 1 && (
-          <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6 gap-2">
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-2 sm:grid-cols-6 md:grid-cols-4 lg:grid-cols-6">
             {images.slice(0, 5).map((img, i) => (
               <button
                 key={i}
