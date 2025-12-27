@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { 
   Home, 
   TrendingUp, 
@@ -70,6 +71,20 @@ const faqs = [
   }
 ];
 
+// Generate FAQ structured data for SEO
+const faqStructuredData = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": faqs.map(faq => ({
+    "@type": "Question",
+    "name": faq.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": faq.answer
+    }
+  }))
+};
+
 export function NewConstructionBenefits() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
   const [showAllBenefits, setShowAllBenefits] = useState(false);
@@ -77,7 +92,15 @@ export function NewConstructionBenefits() {
   const visibleBenefits = showAllBenefits ? benefits : benefits.slice(0, 3);
 
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
+    <>
+      {/* FAQ Structured Data for SEO */}
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(faqStructuredData)}
+        </script>
+      </Helmet>
+
+      <section className="py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
         {/* Benefits Section */}
         <div className="max-w-4xl mx-auto mb-16 md:mb-24">
@@ -172,5 +195,6 @@ export function NewConstructionBenefits() {
         </div>
       </div>
     </section>
+    </>
   );
 }
