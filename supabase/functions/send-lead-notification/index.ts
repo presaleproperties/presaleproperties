@@ -17,23 +17,12 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    if (!resendApiKey) {
-      console.log("RESEND_API_KEY not configured, skipping email notification");
-      return new Response(
-        JSON.stringify({ success: true, message: "Email notifications not configured" }),
-        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
-      );
-    }
-
-    // Dynamic import of Resend
-    const { Resend } = await import("https://esm.sh/resend@2.0.0");
-    const resend = new Resend(resendApiKey);
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const { leadId }: LeadNotificationRequest = await req.json();
+    console.log("Processing listing lead:", leadId);
 
     if (!leadId) {
       return new Response(
@@ -42,13 +31,26 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    // Fetch lead with listing and agent details
+    // Fetch lead with listing details
     const { data: lead, error: leadError } = await supabase
       .from("leads")
       .select(`
         *,
-        listing:listings(title, project_name, city),
-        agent_profile:agent_profiles!leads_agent_id_fkey(user_id)
+        listing:listings(
+          id,
+          title,
+          project_name,
+          city,
+          neighborhood,
+          developer_name,
+          assignment_price,
+          beds,
+          baths,
+          interior_sqft,
+          property_type,
+          unit_type,
+          status
+        )
       `)
       .eq("id", leadId)
       .single();
@@ -58,6 +60,79 @@ serve(async (req: Request): Promise<Response> => {
       return new Response(
         JSON.stringify({ error: "Lead not found" }),
         { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Lead details fetched successfully:", { leadId: lead.id, listingId: lead.listing_id });
+
+    // Send to Zapier webhook if configured
+    const zapierWebhookUrl = Deno.env.get("ZAPIER_LISTING_LEADS_WEBHOOK");
+    
+    if (zapierWebhookUrl) {
+      console.log("Sending listing lead to Zapier webhook");
+      
+      const listing = lead.listing as any;
+      
+      const webhookPayload = {
+        // Lead info
+        lead_id: lead.id,
+        lead_name: lead.name,
+        lead_email: lead.email,
+        lead_phone: lead.phone || "",
+        lead_message: lead.message || "",
+        submitted_at: lead.created_at,
+        
+        // Listing info
+        listing_id: lead.listing_id,
+        listing_title: listing?.title || "",
+        project_name: listing?.project_name || "",
+        listing_city: listing?.city || "",
+        listing_neighborhood: listing?.neighborhood || "",
+        developer_name: listing?.developer_name || "",
+        assignment_price: listing?.assignment_price || "",
+        beds: listing?.beds || "",
+        baths: listing?.baths || "",
+        interior_sqft: listing?.interior_sqft || "",
+        property_type: listing?.property_type || "",
+        unit_type: listing?.unit_type || "",
+        
+        // Agent info
+        agent_id: lead.agent_id,
+        
+        // Source
+        source: "PresaleProperties.com",
+        form_type: "Listing Lead Form",
+        lead_type: "listing",
+      };
+
+      console.log("Webhook payload:", JSON.stringify(webhookPayload));
+
+      try {
+        const webhookResponse = await fetch(zapierWebhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(webhookPayload),
+        });
+
+        console.log("Zapier webhook response status:", webhookResponse.status);
+        
+        if (!webhookResponse.ok) {
+          console.error("Zapier webhook failed:", await webhookResponse.text());
+        }
+      } catch (webhookError) {
+        console.error("Error sending to Zapier:", webhookError);
+      }
+    } else {
+      console.log("No Zapier webhook configured (ZAPIER_LISTING_LEADS_WEBHOOK), skipping CRM sync");
+    }
+
+    // Send email notification if Resend is configured
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) {
+      console.log("RESEND_API_KEY not configured, skipping email notification");
+      return new Response(
+        JSON.stringify({ success: true, message: "Lead processed, email notifications not configured" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
@@ -71,18 +146,23 @@ serve(async (req: Request): Promise<Response> => {
     if (profileError || !profile?.email) {
       console.error("Error fetching agent profile:", profileError);
       return new Response(
-        JSON.stringify({ error: "Agent email not found" }),
-        { status: 404, headers: { "Content-Type": "application/json", ...corsHeaders } }
+        JSON.stringify({ success: true, message: "Lead processed, agent email not found" }),
+        { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const listingTitle = lead.listing?.title || "Your Listing";
-    const projectName = lead.listing?.project_name || "";
-    const city = lead.listing?.city || "";
+    // Dynamic import of Resend
+    const { Resend } = await import("https://esm.sh/resend@2.0.0");
+    const resend = new Resend(resendApiKey);
+
+    const listing = lead.listing as any;
+    const listingTitle = listing?.title || "Your Listing";
+    const projectName = listing?.project_name || "";
+    const city = listing?.city || "";
 
     // Send email to agent
     const emailResponse = await resend.emails.send({
-      from: "AssignmentHub <notifications@resend.dev>",
+      from: "PresaleProperties <notifications@resend.dev>",
       to: [profile.email],
       subject: `New Lead for ${listingTitle}`,
       html: `
@@ -139,7 +219,7 @@ serve(async (req: Request): Promise<Response> => {
           <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
           
           <p style="color: #9a9a9a; font-size: 12px; text-align: center;">
-            This email was sent from AssignmentHub. You can manage your leads in your dashboard.
+            This email was sent from PresaleProperties. You can manage your leads in your dashboard.
           </p>
         </div>
       `,
