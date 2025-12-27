@@ -135,7 +135,7 @@ export function PresaleProjectCard({
               {/* Status Badge - Top Left */}
               {statusLabel && (
                 <Badge 
-                  className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-medium shadow-sm"
+                  className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1"
                 >
                   {statusLabel}
                 </Badge>
