@@ -14,7 +14,7 @@ const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
   phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal("")),
-  has_realtor: z.enum(["yes", "no", "open"]),
+  has_realtor: z.enum(["yes", "no"]),
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
@@ -50,12 +50,9 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     setIsSubmitting(true);
 
     try {
-      // Include realtor status in message field for now
       const realtorNote = data.has_realtor === "yes" 
-        ? "Already working with a realtor." 
-        : data.has_realtor === "open" 
-          ? "Open to working with a realtor." 
-          : "Does not have a realtor.";
+        ? "Has a realtor" 
+        : "No realtor";
 
       const { error } = await supabase.from("project_leads").insert({
         project_id: projectId,
@@ -117,29 +114,29 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     switch (status) {
       case "coming_soon":
         return {
-          badge: "Early Access",
+          badge: "Coming Soon",
           badgeIcon: <Sparkles className="h-3 w-3" />,
-          title: "Be the first to know.",
-          description: "Get on the waitlist to be the first to hear when this project is ready to start selling.",
-          buttonText: "Register Now",
-          buttonIcon: <Send className="h-4 w-4 mr-2" />,
+          title: "Get Early Access to Plans & Pricing",
+          description: "Register now to receive floor plans and pricing as soon as they're released.",
+          buttonText: "Get Early Access",
+          buttonIcon: <Download className="h-4 w-4 mr-2" />,
         };
       case "active":
         return {
-          badge: "Now Selling",
-          badgeIcon: <Bell className="h-3 w-3" />,
+          badge: "Instant Access",
+          badgeIcon: <Download className="h-3 w-3" />,
           title: "Download Floor Plans & Pricing",
-          description: "Get instant access to floor plans, pricing sheets, and exclusive incentives.",
-          buttonText: "Download Plans",
+          description: "Get instant access to all available floor plans, pricing sheets, and current incentives.",
+          buttonText: "Get Instant Access",
           buttonIcon: <Download className="h-4 w-4 mr-2" />,
         };
       default:
         return {
           badge: "Sold Out",
           badgeIcon: null,
-          title: "Join the Waitlist",
-          description: "Get notified if any units become available or for similar upcoming projects.",
-          buttonText: "Join Waitlist",
+          title: "Get Notified of Similar Projects",
+          description: "Be the first to know about similar upcoming projects in this area.",
+          buttonText: "Notify Me",
           buttonIcon: <Send className="h-4 w-4 mr-2" />,
         };
     }
@@ -213,20 +210,16 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
             <Label className="text-sm font-medium">Are you working with a realtor?</Label>
             <RadioGroup 
               value={hasRealtor} 
-              onValueChange={(value) => setValue("has_realtor", value as "yes" | "no" | "open")}
-              className="flex flex-col gap-2"
+              onValueChange={(value) => setValue("has_realtor", value as "yes" | "no")}
+              className="flex gap-4"
             >
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <RadioGroupItem value="no" id="realtor-no" />
-                <Label htmlFor="realtor-no" className="text-sm font-normal cursor-pointer">No, I don't have a realtor</Label>
+                <Label htmlFor="realtor-no" className="text-sm font-normal cursor-pointer">No</Label>
               </div>
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2">
                 <RadioGroupItem value="yes" id="realtor-yes" />
-                <Label htmlFor="realtor-yes" className="text-sm font-normal cursor-pointer">Yes, I already have a realtor</Label>
-              </div>
-              <div className="flex items-center space-x-3">
-                <RadioGroupItem value="open" id="realtor-open" />
-                <Label htmlFor="realtor-open" className="text-sm font-normal cursor-pointer">Open to working with one</Label>
+                <Label htmlFor="realtor-yes" className="text-sm font-normal cursor-pointer">Yes</Label>
               </div>
             </RadioGroup>
           </div>
