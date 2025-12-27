@@ -46,10 +46,10 @@ export function Header() {
               Agent Login
             </Button>
           </Link>
-          <Link to="/contact">
+          <Link to="/contact" className="hidden sm:block">
             <Button size="sm" className="shadow-gold">
-              <Phone className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Contact Us</span>
+              <Phone className="h-4 w-4 mr-2" />
+              Contact Us
             </Button>
           </Link>
 
