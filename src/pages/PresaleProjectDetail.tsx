@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -371,201 +371,178 @@ export default function PresaleProjectDetail() {
         </section>
 
         {/* Details */}
-        <section className="py-12">
-          <div className="container">
-            <div className="grid lg:grid-cols-3 gap-8">
+        <section className="py-8 md:py-12">
+          <div className="container px-4">
+            <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-8">
+              <div className="lg:col-span-2 space-y-6 md:space-y-8">
                 {/* Description */}
                 {project.full_description && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>About This Project</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="prose prose-sm max-w-none">
-                        {project.full_description.split("\n").map((p, i) => (
-                          <p key={i}>{p}</p>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">About This Project</h2>
+                    <div className="prose prose-sm max-w-none text-muted-foreground">
+                      {project.full_description.split("\n").map((p, i) => (
+                        <p key={i} className="mb-2 last:mb-0">{p}</p>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* Highlights */}
                 {project.highlights && project.highlights.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Key Highlights</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <ul className="grid sm:grid-cols-2 gap-3">
-                        {project.highlights.map((h, i) => (
-                          <li key={i} className="flex items-start gap-2">
-                            <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                            <span>{h}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Key Highlights</h2>
+                    <ul className="grid sm:grid-cols-2 gap-3">
+                      {project.highlights.map((h, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-sm md:text-base">{h}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
 
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Amenities</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-2">
-                        {project.amenities.map((a, i) => (
-                          <Badge key={i} variant="secondary" className="px-3 py-1">
-                            {a}
-                          </Badge>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Amenities</h2>
+                    <div className="flex flex-wrap gap-2">
+                      {project.amenities.map((a, i) => (
+                        <Badge key={i} variant="secondary" className="px-3 py-1">
+                          {a}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.incentives) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Deposit & Incentives</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Deposit & Incentives</h2>
+                    <div className="space-y-4">
                       {project.deposit_structure && (
                         <div>
-                          <h4 className="font-medium mb-2">Deposit Structure</h4>
-                          <p className="text-muted-foreground">{project.deposit_structure}</p>
+                          <h4 className="font-medium mb-2 text-sm md:text-base">Deposit Structure</h4>
+                          <p className="text-muted-foreground text-sm md:text-base">{project.deposit_structure}</p>
                         </div>
                       )}
                       {project.incentives && (
                         <div>
-                          <h4 className="font-medium mb-2">Current Incentives</h4>
-                          <p className="text-muted-foreground">{project.incentives}</p>
+                          <h4 className="font-medium mb-2 text-sm md:text-base">Current Incentives</h4>
+                          <p className="text-muted-foreground text-sm md:text-base">{project.incentives}</p>
                         </div>
                       )}
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
                 )}
 
                 {/* Downloads */}
                 {((project.floorplan_files && project.floorplan_files.length > 0) || 
                   (project.brochure_files && project.brochure_files.length > 0)) && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Downloads</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex flex-wrap gap-3">
-                        {project.floorplan_files?.map((file, i) => (
-                          <Button key={i} variant="outline" asChild>
-                            <a href={file} target="_blank" rel="noopener noreferrer">
-                              <Download className="h-4 w-4 mr-2" />
-                              Floor Plan {i + 1}
-                            </a>
-                          </Button>
-                        ))}
-                        {project.brochure_files?.map((file, i) => (
-                          <Button key={i} variant="outline" asChild>
-                            <a href={file} target="_blank" rel="noopener noreferrer">
-                              <Download className="h-4 w-4 mr-2" />
-                              Brochure {i + 1}
-                            </a>
-                          </Button>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Downloads</h2>
+                    <div className="flex flex-wrap gap-3">
+                      {project.floorplan_files?.map((file, i) => (
+                        <Button key={i} variant="outline" size="sm" asChild>
+                          <a href={file} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-4 w-4 mr-2" />
+                            Floor Plan {i + 1}
+                          </a>
+                        </Button>
+                      ))}
+                      {project.brochure_files?.map((file, i) => (
+                        <Button key={i} variant="outline" size="sm" asChild>
+                          <a href={file} target="_blank" rel="noopener noreferrer">
+                            <Download className="h-4 w-4 mr-2" />
+                            Brochure {i + 1}
+                          </a>
+                        </Button>
+                      ))}
+                    </div>
+                  </div>
                 )}
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Frequently Asked Questions</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Accordion type="single" collapsible className="w-full">
-                        {project.faq.map((item, i) => (
-                          <AccordionItem key={i} value={`faq-${i}`}>
-                            <AccordionTrigger className="text-left">
-                              {item.question}
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              {item.answer}
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </CardContent>
-                  </Card>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Frequently Asked Questions</h2>
+                    <Accordion type="single" collapsible className="w-full">
+                      {project.faq.map((item, i) => (
+                        <AccordionItem key={i} value={`faq-${i}`}>
+                          <AccordionTrigger className="text-left text-sm md:text-base">
+                            {item.question}
+                          </AccordionTrigger>
+                          <AccordionContent className="text-sm md:text-base text-muted-foreground">
+                            {item.answer}
+                          </AccordionContent>
+                        </AccordionItem>
+                      ))}
+                    </Accordion>
+                  </div>
                 )}
               </div>
 
               {/* Sidebar - Contact Form */}
               <div>
-                <Card id="contact-form" className="sticky top-24">
-                  <CardHeader>
-                    <CardTitle>Get VIP Access</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Receive floor plans, pricing, and exclusive updates
-                    </p>
-                  </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">Name *</Label>
-                        <Input
-                          id="name"
-                          value={formData.name}
-                          onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="email">Email *</Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          value={formData.email}
-                          onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">Phone</Label>
-                        <Input
-                          id="phone"
-                          type="tel"
-                          value={formData.phone}
-                          onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="message">Message</Label>
-                        <Textarea
-                          id="message"
-                          value={formData.message}
-                          onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
-                          placeholder="I'm interested in learning more..."
-                          rows={3}
-                        />
-                      </div>
-                      <Button type="submit" className="w-full" size="lg" disabled={submitting}>
-                        {submitting ? (
-                          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        ) : (
-                          <Mail className="h-4 w-4 mr-2" />
-                        )}
-                        Send Request
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
+                <div id="contact-form" className="sticky top-24 bg-muted/30 rounded-xl p-4 md:p-6">
+                  <h2 className="text-base md:text-lg font-semibold text-foreground mb-1">Get VIP Access</h2>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Receive floor plans, pricing, and exclusive updates
+                  </p>
+                  <form onSubmit={handleSubmit} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name" className="text-sm">Name *</Label>
+                      <Input
+                        id="name"
+                        value={formData.name}
+                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm">Email *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                        required
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="phone" className="text-sm">Phone</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                        className="h-10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="message" className="text-sm">Message</Label>
+                      <Textarea
+                        id="message"
+                        value={formData.message}
+                        onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
+                        placeholder="I'm interested in learning more..."
+                        rows={3}
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" size="lg" disabled={submitting}>
+                      {submitting ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Mail className="h-4 w-4 mr-2" />
+                      )}
+                      Send Request
+                    </Button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
