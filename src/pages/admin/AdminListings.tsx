@@ -25,7 +25,9 @@ import {
   Bath,
   User,
   Loader2,
-  Eye
+  Eye,
+  Lock,
+  Globe
 } from "lucide-react";
 
 type Listing = Tables<"listings"> & {
@@ -178,9 +180,20 @@ export default function AdminListings() {
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-start gap-4">
                     <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-semibold text-lg">{listing.title}</h3>
                         <Badge variant="secondary">Pending Approval</Badge>
+                        {listing.visibility_mode === "restricted" ? (
+                          <Badge variant="outline" className="text-amber-600 border-amber-600">
+                            <Lock className="h-3 w-3 mr-1" />
+                            Restricted
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            <Globe className="h-3 w-3 mr-1" />
+                            Public
+                          </Badge>
+                        )}
                       </div>
                       
                       <p className="text-muted-foreground">{listing.project_name}</p>
