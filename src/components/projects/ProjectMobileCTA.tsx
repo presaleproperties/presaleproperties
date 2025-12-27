@@ -41,14 +41,7 @@ export function ProjectMobileCTA({
   };
 
   const getButtonContent = () => {
-    switch (status) {
-      case "coming_soon":
-        return { text: "Get Early Access", icon: <Download className="h-4 w-4" /> };
-      case "active":
-        return { text: "Get Floor Plans", icon: <Download className="h-4 w-4" /> };
-      default:
-        return { text: "Get Notified", icon: <Send className="h-4 w-4" /> };
-    }
+    return { text: "Get Pricing", icon: <Download className="h-4 w-4" /> };
   };
 
   const buttonContent = getButtonContent();
