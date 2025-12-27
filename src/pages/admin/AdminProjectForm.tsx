@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { BrochureUploadAssistant } from "@/components/admin/BrochureUploadAssistant";
+import { AIProjectUploadWizard } from "@/components/admin/AIProjectUploadWizard";
 import { 
   ArrowLeft,
   Loader2,
@@ -406,6 +406,16 @@ export default function AdminProjectForm() {
     );
   }
 
+  // For new projects, show the AI Upload Wizard
+  if (!isEdit) {
+    return (
+      <AdminLayout>
+        <AIProjectUploadWizard />
+      </AdminLayout>
+    );
+  }
+
+  // For editing existing projects, show the full form
   return (
     <AdminLayout>
       <form onSubmit={handleSubmit} className="space-y-6">
@@ -964,11 +974,6 @@ export default function AdminProjectForm() {
         </div>
       </form>
 
-      <BrochureUploadAssistant
-        isOpen={showUploadAssistant}
-        onClose={() => setShowUploadAssistant(false)}
-        onDataExtracted={handleBrochureDataExtracted}
-      />
     </AdminLayout>
   );
 }
