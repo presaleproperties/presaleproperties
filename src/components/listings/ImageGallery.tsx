@@ -41,7 +41,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
     <>
       {/* Main Image */}
       <div className="relative group">
-        <div className="aspect-[4/3] bg-muted rounded-xl overflow-hidden">
+        <div className="aspect-[4/3] md:aspect-[4/3] bg-muted rounded-xl overflow-hidden">
           <img
             src={currentPhoto?.url}
             alt={`${title} - Photo ${currentIndex + 1}`}
@@ -50,24 +50,24 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
           />
         </div>
         
-        {/* Navigation Arrows */}
+        {/* Navigation Arrows - Always visible on mobile */}
         {photos.length > 1 && (
           <>
             <Button
               variant="secondary"
               size="icon"
-              className="absolute left-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background"
+              className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10"
               onClick={goToPrevious}
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
             </Button>
             <Button
               variant="secondary"
               size="icon"
-              className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background"
+              className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10"
               onClick={goToNext}
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
             </Button>
           </>
         )}
@@ -76,7 +76,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
         <Button
           variant="secondary"
           size="icon"
-          className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background"
+          className="absolute top-2 md:top-3 right-2 md:right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10"
           onClick={() => setIsLightboxOpen(true)}
         >
           <Expand className="h-4 w-4" />
@@ -84,20 +84,20 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
 
         {/* Photo Counter */}
         {photos.length > 1 && (
-          <div className="absolute bottom-3 left-3 bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-medium">
+          <div className="absolute bottom-2 md:bottom-3 left-2 md:left-3 bg-background/80 backdrop-blur-sm px-2 md:px-3 py-0.5 md:py-1 rounded-full text-xs md:text-sm font-medium">
             {currentIndex + 1} / {photos.length}
           </div>
         )}
       </div>
 
-      {/* Thumbnail Strip */}
+      {/* Thumbnail Strip - Grid on mobile, scroll on desktop */}
       {photos.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
-          {photos.map((photo, index) => (
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:flex gap-2 md:overflow-x-auto md:pb-2">
+          {photos.slice(0, 8).map((photo, index) => (
             <button
               key={photo.id}
               onClick={() => setCurrentIndex(index)}
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-colors ${
+              className={`aspect-square md:aspect-auto md:flex-shrink-0 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 transition-colors ${
                 index === currentIndex
                   ? "border-primary"
                   : "border-transparent hover:border-muted-foreground/30"
@@ -110,6 +110,14 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
               />
             </button>
           ))}
+          {photos.length > 8 && (
+            <button
+              onClick={() => setIsLightboxOpen(true)}
+              className="aspect-square md:flex-shrink-0 md:w-20 md:h-20 rounded-lg overflow-hidden border-2 border-transparent hover:border-muted-foreground/30 bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground"
+            >
+              +{photos.length - 8}
+            </button>
+          )}
         </div>
       )}
 

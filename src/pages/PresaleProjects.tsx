@@ -116,25 +116,26 @@ export default function PresaleProjects() {
       
       <main className="min-h-screen bg-background">
         {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-background to-background py-12 md:py-20">
-          <div className="container">
+        <section className="bg-gradient-to-br from-primary/10 via-background to-background py-8 md:py-16">
+          <div className="container px-4">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-3xl md:text-5xl font-bold mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold mb-3 md:mb-4">
                 Find Your Next Presale
               </h1>
-              <p className="text-lg text-muted-foreground mb-8">
+              <p className="text-sm md:text-lg text-muted-foreground mb-6 md:mb-8 px-2">
                 Discover new projects, download floor plans, VIP pricing sheets, and get expert guidance — completely FREE.
               </p>
               
               {/* Quick City Filters */}
-              <div className="flex flex-wrap justify-center gap-2 mb-8">
-                <span className="text-sm text-muted-foreground mr-2 self-center">Top Cities:</span>
+              <div className="flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
+                <span className="text-xs md:text-sm text-muted-foreground mr-1 md:mr-2 self-center hidden sm:inline">Top Cities:</span>
                 {["Surrey", "Langley", "Coquitlam", "Abbotsford", "Vancouver"].map(city => (
                   <Button
                     key={city}
                     variant={cityFilter === city ? "default" : "outline"}
                     size="sm"
                     onClick={() => setCityFilter(cityFilter === city ? "all" : city)}
+                    className="text-xs md:text-sm h-8 px-3"
                   >
                     {city}
                   </Button>
@@ -145,67 +146,69 @@ export default function PresaleProjects() {
         </section>
 
         {/* Filters */}
-        <section className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b py-4">
-          <div className="container">
-            <div className="flex flex-col sm:flex-row gap-4">
+        <section className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b py-3 md:py-4">
+          <div className="container px-4">
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
               <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search projects..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 h-10"
                 />
               </div>
-              <Select value={cityFilter} onValueChange={setCityFilter}>
-                <SelectTrigger className="w-full sm:w-[160px]">
-                  <SelectValue placeholder="All Cities" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Cities</SelectItem>
-                  {cities.map(city => (
-                    <SelectItem key={city} value={city}>{city}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-full sm:w-[160px]">
-                  <SelectValue placeholder="All Statuses" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Statuses</SelectItem>
-                  <SelectItem value="coming_soon">Coming Soon</SelectItem>
-                  <SelectItem value="active">Selling Now</SelectItem>
-                  <SelectItem value="sold_out">Sold Out</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={typeFilter} onValueChange={setTypeFilter}>
-                <SelectTrigger className="w-full sm:w-[160px]">
-                  <SelectValue placeholder="All Types" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Types</SelectItem>
-                  <SelectItem value="condo">Condos</SelectItem>
-                  <SelectItem value="townhome">Townhomes</SelectItem>
-                  <SelectItem value="mixed">Mixed</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-3 gap-2 sm:flex sm:gap-3">
+                <Select value={cityFilter} onValueChange={setCityFilter}>
+                  <SelectTrigger className="w-full sm:w-[140px] h-10 text-xs sm:text-sm">
+                    <SelectValue placeholder="City" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Cities</SelectItem>
+                    {cities.map(city => (
+                      <SelectItem key={city} value={city}>{city}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-[140px] h-10 text-xs sm:text-sm">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="coming_soon">Coming Soon</SelectItem>
+                    <SelectItem value="active">Selling Now</SelectItem>
+                    <SelectItem value="sold_out">Sold Out</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger className="w-full sm:w-[140px] h-10 text-xs sm:text-sm">
+                    <SelectValue placeholder="Type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="condo">Condos</SelectItem>
+                    <SelectItem value="townhome">Townhomes</SelectItem>
+                    <SelectItem value="mixed">Mixed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Projects Grid */}
-        <section className="py-8 md:py-12">
-          <div className="container">
+        <section className="py-6 md:py-12">
+          <div className="container px-4">
             {loading ? (
-              <div className="flex items-center justify-center py-20">
+              <div className="flex items-center justify-center py-16 md:py-20">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : filteredProjects.length === 0 ? (
-              <div className="text-center py-20">
-                <Building2 className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <h2 className="text-2xl font-semibold mb-2">No projects found</h2>
-                <p className="text-muted-foreground mb-6">
+              <div className="text-center py-16 md:py-20">
+                <Building2 className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground mx-auto mb-4" />
+                <h2 className="text-xl md:text-2xl font-semibold mb-2">No projects found</h2>
+                <p className="text-sm md:text-base text-muted-foreground mb-6">
                   Try adjusting your search or filters
                 </p>
                 <Button onClick={() => {
@@ -219,10 +222,10 @@ export default function PresaleProjects() {
               </div>
             ) : (
               <>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
                   Showing {filteredProjects.length} project{filteredProjects.length !== 1 ? "s" : ""}
                 </p>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {filteredProjects.map((project) => (
                     <Link key={project.id} to={`/presale-projects/${project.slug}`}>
                       <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
@@ -248,17 +251,17 @@ export default function PresaleProjects() {
                             )}
                           </div>
                         </div>
-                        <CardContent className="p-4">
-                          <div className="flex items-start justify-between gap-2 mb-2">
-                            <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
+                        <CardContent className="p-3 md:p-4">
+                          <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
+                            <h3 className="font-semibold text-base md:text-lg line-clamp-1 group-hover:text-primary transition-colors">
                               {project.name}
                             </h3>
                           </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-                            <MapPin className="h-4 w-4 shrink-0" />
+                          <div className="flex items-center gap-1.5 md:gap-2 text-xs md:text-sm text-muted-foreground mb-1.5 md:mb-2">
+                            <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
                             <span className="truncate">{project.city}, {project.neighborhood}</span>
                           </div>
-                          <div className="flex items-center justify-between text-sm mb-3">
+                          <div className="flex items-center justify-between text-xs md:text-sm mb-2 md:mb-3">
                             <span className="text-muted-foreground">{formatType(project.project_type)}</span>
                             {project.completion_year && (
                               <span className="flex items-center gap-1 text-muted-foreground">
@@ -268,19 +271,19 @@ export default function PresaleProjects() {
                             )}
                           </div>
                           {project.short_description && (
-                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                            <p className="text-xs md:text-sm text-muted-foreground line-clamp-2 mb-2 md:mb-3 hidden sm:block">
                               {project.short_description}
                             </p>
                           )}
                           <div className="flex items-center justify-between">
                             {project.starting_price ? (
-                              <span className="text-lg font-bold text-primary">
+                              <span className="text-base md:text-lg font-bold text-primary">
                                 From {formatPrice(project.starting_price)}
                               </span>
                             ) : (
-                              <span className="text-sm text-muted-foreground">Contact for pricing</span>
+                              <span className="text-xs md:text-sm text-muted-foreground">Contact for pricing</span>
                             )}
-                            <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+                            <ArrowRight className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                           </div>
                         </CardContent>
                       </Card>
