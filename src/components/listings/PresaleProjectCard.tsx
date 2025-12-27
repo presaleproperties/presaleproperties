@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -14,14 +14,20 @@ interface PresaleProjectCardProps {
   projectType: "condo" | "townhome" | "mixed";
   status?: "coming_soon" | "active" | "sold_out";
   completionYear?: number | null;
-  developerName?: string | null;
-  address?: string | null;
+  startingPrice?: number | null;
   featuredImage?: string | null;
   galleryImages?: string[] | null;
 }
 
+const formatPrice = (price: number) => {
+  if (price >= 1000000) {
+    return `$${(price / 1000000).toFixed(1)}M`;
+  }
+  return `$${(price / 1000).toFixed(0)}K`;
+};
+
 const formatType = (type: string) => {
-  return type.charAt(0).toUpperCase() + type.slice(1);
+  return type.charAt(0).toUpperCase() + type.slice(1) + "s";
 };
 
 const getStatusLabel = (status: string) => {
@@ -29,7 +35,7 @@ const getStatusLabel = (status: string) => {
     case "active":
       return "Now Selling";
     case "coming_soon":
-      return "Register Now";
+      return "Coming Soon";
     case "sold_out":
       return "Sold Out";
     default:
@@ -46,8 +52,7 @@ export function PresaleProjectCard({
   projectType,
   status = "coming_soon",
   completionYear,
-  developerName,
-  address,
+  startingPrice,
   featuredImage,
   galleryImages,
 }: PresaleProjectCardProps) {
@@ -110,108 +115,119 @@ export function PresaleProjectCard({
 
   return (
     <Link to={`/presale-projects/${slug}`}>
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full">
-        <div className="flex flex-col sm:flex-row">
-          {/* Image Section */}
-          <div 
-            className="relative aspect-[4/3] sm:aspect-square sm:w-48 md:w-56 lg:w-64 shrink-0 overflow-hidden bg-muted"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            {allImages.length > 0 ? (
-              <>
-                <img
-                  src={allImages[currentImageIndex]}
-                  alt={name}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                
-                {/* Status Badge */}
-                {statusLabel && (
-                  <Badge 
-                    variant="secondary" 
-                    className="absolute top-3 left-3 bg-background/95 text-foreground text-xs font-medium shadow-sm"
-                  >
-                    {statusLabel}
-                  </Badge>
-                )}
-                
-                {/* Image navigation arrows */}
-                {imageCount > 1 && (
-                  <>
-                    <button
-                      onClick={goToPrevImage}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                      aria-label="Previous image"
-                    >
-                      <ChevronLeft className="h-5 w-5" />
-                    </button>
-                    <button
-                      onClick={goToNextImage}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
-                      aria-label="Next image"
-                    >
-                      <ChevronRight className="h-5 w-5" />
-                    </button>
-                    
-                    {/* Dots indicator */}
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {allImages.slice(0, 5).map((_, idx) => (
-                        <span
-                          key={idx}
-                          className={cn(
-                            "h-1.5 w-1.5 rounded-full transition-all",
-                            idx === currentImageIndex 
-                              ? "bg-white w-3" 
-                              : "bg-white/50"
-                          )}
-                        />
-                      ))}
-                      {imageCount > 5 && (
-                        <span className="text-white text-xs ml-1">+{imageCount - 5}</span>
-                      )}
-                    </div>
-                  </>
-                )}
-              </>
-            ) : (
-              <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                <Building2 className="h-12 w-12 text-muted-foreground" />
-              </div>
-            )}
-          </div>
-
-          {/* Content Section */}
-          <CardContent className="flex-1 p-4 sm:p-5 flex flex-col justify-between">
-            <div className="space-y-2">
-              <h3 className="font-semibold text-foreground text-base sm:text-lg group-hover:text-primary transition-colors line-clamp-1">
-                {name}
-              </h3>
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out h-full">
+        <div 
+          className="relative aspect-[4/3] overflow-hidden bg-muted"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {allImages.length > 0 ? (
+            <>
+              <img
+                src={allImages[currentImageIndex]}
+                alt={name}
+                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+              />
               
-              {address && (
-                <p className="text-sm text-muted-foreground line-clamp-1">
-                  {address}
-                </p>
+              {/* Status Badge - Top Left */}
+              {statusLabel && (
+                <Badge 
+                  className="absolute top-3 left-3 bg-primary text-primary-foreground text-xs font-medium shadow-sm"
+                >
+                  {statusLabel}
+                </Badge>
               )}
               
-              <p className="text-sm text-muted-foreground">
-                {neighborhood} • {city}
-              </p>
-              
-              <p className="text-sm text-muted-foreground">
-                {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
-              </p>
+              {/* Image navigation arrows */}
+              {imageCount > 1 && (
+                <>
+                  <button
+                    onClick={goToPrevImage}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    aria-label="Previous image"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                  <button
+                    onClick={goToNextImage}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    aria-label="Next image"
+                  >
+                    <ChevronRight className="h-5 w-5" />
+                  </button>
+                  
+                  {/* Dots indicator */}
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    {allImages.slice(0, 5).map((_, idx) => (
+                      <span
+                        key={idx}
+                        className={cn(
+                          "h-1.5 w-1.5 rounded-full transition-all",
+                          idx === currentImageIndex 
+                            ? "bg-white w-3" 
+                            : "bg-white/50"
+                        )}
+                      />
+                    ))}
+                    {imageCount > 5 && (
+                      <span className="text-white text-xs ml-1">+{imageCount - 5}</span>
+                    )}
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+              <Building2 className="h-12 w-12 text-muted-foreground" />
             </div>
-            
-            {developerName && (
-              <div className="mt-4 pt-3 border-t border-border">
-                <p className="text-xs text-muted-foreground">Developer</p>
-                <p className="text-sm font-medium text-foreground line-clamp-1">{developerName}</p>
-              </div>
-            )}
-          </CardContent>
+          )}
+          
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+
+          {/* Photo Count - Bottom Right */}
+          {imageCount > 1 && (
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+              <span>{currentImageIndex + 1}/{imageCount}</span>
+            </div>
+          )}
         </div>
+
+        <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+          <div className="flex items-start gap-1.5 text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
+            <span className="text-xs sm:text-sm truncate">
+              {neighborhood}
+            </span>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
+              {name}
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+              {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
+            </p>
+          </div>
+
+          <div className="flex items-end justify-between pt-2 border-t border-border">
+            <div>
+              {startingPrice ? (
+                <p className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                  From {formatPrice(startingPrice)}
+                </p>
+              ) : (
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Contact for pricing
+                </p>
+              )}
+            </div>
+            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {city}
+            </span>
+          </div>
+        </CardContent>
       </Card>
     </Link>
   );
