@@ -5,13 +5,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface FileInfo {
+  id: string;
+  url: string;
+  type: 'image' | 'pdf' | 'unknown';
+  contentType?: string;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { folderUrl } = await req.json();
+    const { folderUrl, includeAll } = await req.json();
     
     if (!folderUrl) {
       return new Response(
@@ -20,7 +27,7 @@ serve(async (req) => {
       );
     }
 
-    console.log('Fetching Drive folder:', folderUrl);
+    console.log('Fetching Drive folder:', folderUrl, 'includeAll:', includeAll);
 
     // Extract folder ID from various Google Drive URL formats
     const folderIdMatch = folderUrl.match(/\/folders\/([a-zA-Z0-9_-]+)/);
@@ -35,7 +42,6 @@ serve(async (req) => {
     console.log('Folder ID:', folderId);
 
     // Try to fetch the folder's HTML page to extract file IDs
-    // This works for publicly shared folders
     const folderPageUrl = `https://drive.google.com/drive/folders/${folderId}`;
     
     const response = await fetch(folderPageUrl, {
@@ -57,14 +63,12 @@ serve(async (req) => {
     const html = await response.text();
     
     // Extract file IDs from the page HTML
-    // Google Drive embeds file data in a specific format
     const fileIdPattern = /\["([a-zA-Z0-9_-]{25,})"/g;
     const potentialIds = new Set<string>();
     let match;
     
     while ((match = fileIdPattern.exec(html)) !== null) {
       const id = match[1];
-      // Filter to likely file IDs (25-45 chars, alphanumeric with dash/underscore)
       if (id.length >= 25 && id.length <= 45 && /^[a-zA-Z0-9_-]+$/.test(id)) {
         potentialIds.add(id);
       }
@@ -81,61 +85,73 @@ serve(async (req) => {
     if (potentialIds.size === 0) {
       return new Response(
         JSON.stringify({ 
-          error: 'No files found in folder. Make sure folder contains images and is publicly shared.',
-          suggestion: 'Try sharing individual image links instead.'
+          error: 'No files found in folder. Make sure folder contains files and is publicly shared.',
+          suggestion: 'Try sharing individual file links instead.'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Convert to image URLs and validate them
+    // Categorize files by type
     const imageUrls: string[] = [];
-    const ids = Array.from(potentialIds).slice(0, 50); // Limit to 50 files
+    const pdfUrls: string[] = [];
+    const ids = Array.from(potentialIds).slice(0, 50);
     
     for (const fileId of ids) {
-      // Skip the folder ID itself
       if (fileId === folderId) continue;
       
-      const imageUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
+      const fileUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
       
-      // Quick HEAD request to validate it's accessible
       try {
-        const checkResponse = await fetch(imageUrl, { 
+        const checkResponse = await fetch(fileUrl, { 
           method: 'HEAD',
           redirect: 'follow'
         });
         
         const contentType = checkResponse.headers.get('content-type') || '';
-        if (contentType.includes('image') || checkResponse.ok) {
-          imageUrls.push(imageUrl);
+        
+        if (contentType.includes('image')) {
+          imageUrls.push(fileUrl);
           console.log('Valid image found:', fileId);
+        } else if (contentType.includes('pdf') || contentType.includes('application/pdf')) {
+          // For PDFs, use the download URL format
+          const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+          pdfUrls.push(pdfUrl);
+          console.log('Valid PDF found:', fileId);
+        } else if (includeAll && checkResponse.ok) {
+          // If includeAll, try to determine type by testing
+          imageUrls.push(fileUrl);
         }
       } catch (e) {
-        // Skip inaccessible files
         console.log('Skipping file:', fileId);
       }
       
-      // Limit to 20 valid images
-      if (imageUrls.length >= 20) break;
+      // Limit counts
+      if (imageUrls.length >= 30) break;
+      if (pdfUrls.length >= 10) break;
     }
 
-    if (imageUrls.length === 0) {
+    const totalFiles = imageUrls.length + pdfUrls.length;
+    
+    if (totalFiles === 0) {
       return new Response(
         JSON.stringify({ 
-          error: 'Could not load any images from this folder.',
-          suggestion: 'Make sure the folder contains image files and is publicly shared.'
+          error: 'Could not load any files from this folder.',
+          suggestion: 'Make sure the folder contains image or PDF files and is publicly shared.'
         }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log(`Returning ${imageUrls.length} image URLs`);
+    console.log(`Returning ${imageUrls.length} images and ${pdfUrls.length} PDFs`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         images: imageUrls,
-        count: imageUrls.length
+        pdfs: pdfUrls,
+        imageCount: imageUrls.length,
+        pdfCount: pdfUrls.length
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
