@@ -39,6 +39,12 @@ export function LightboxGallery({
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
   }, [images.length]);
 
+  const goToIndex = useCallback((index: number) => {
+    if (index >= 0 && index < images.length) {
+      setCurrentIndex(index);
+    }
+  }, [images.length]);
+
   // Keyboard navigation
   useEffect(() => {
     if (!open) return;
@@ -47,11 +53,17 @@ export function LightboxGallery({
       if (e.key === "ArrowRight") goToNext();
       if (e.key === "ArrowLeft") goToPrev();
       if (e.key === "Escape") onOpenChange(false);
+      
+      // 1-9 for quick image selection
+      const num = parseInt(e.key, 10);
+      if (num >= 1 && num <= 9) {
+        goToIndex(num - 1);
+      }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [open, goToNext, goToPrev, onOpenChange]);
+  }, [open, goToNext, goToPrev, onOpenChange, goToIndex]);
 
   // Touch handlers for swipe
   const onTouchStart = (e: React.TouchEvent) => {
