@@ -31,6 +31,12 @@ export function Header() {
           >
             About
           </Link>
+          <Link
+            to="/agents"
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            For Agents
+          </Link>
         </nav>
 
         <div className="flex items-center gap-3">
