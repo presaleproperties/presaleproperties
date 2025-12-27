@@ -614,11 +614,11 @@ export default function AdminProjectForm() {
                 AI Import
               </Button>
             )}
-            {formData.is_published && formData.slug && (
+            {formData.slug && (
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => window.open(`/presale-projects/${formData.slug}`, "_blank")}
+                onClick={() => window.open(`/presale-projects/${formData.slug}?preview=true`, "_blank")}
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Preview
