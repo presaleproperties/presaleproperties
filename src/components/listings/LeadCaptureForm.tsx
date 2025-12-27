@@ -13,7 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
-  phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal("")),
+  phone: z.string().trim().min(1, "Phone number is required").max(20, "Phone must be less than 20 characters"),
   message: z.string().trim().max(1000, "Message must be less than 1000 characters").optional().or(z.literal("")),
 });
 
@@ -155,7 +155,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium">Phone (optional)</Label>
+            <Label htmlFor="phone" className="text-sm font-medium">Phone *</Label>
             <Input
               id="phone"
               type="tel"
@@ -163,6 +163,9 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               {...register("phone")}
               className={`h-11 ${errors.phone ? "border-destructive" : ""}`}
             />
+            {errors.phone && (
+              <p className="text-xs text-destructive">{errors.phone.message}</p>
+            )}
           </div>
 
           <div className="space-y-2">
