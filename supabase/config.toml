@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.send-project-lead]
 verify_jwt = false
+
+[functions.parse-project-brochure]
+verify_jwt = false

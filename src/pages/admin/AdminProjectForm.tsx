@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { BrochureUploadAssistant } from "@/components/admin/BrochureUploadAssistant";
 import { 
   ArrowLeft,
   Loader2,
@@ -23,7 +24,8 @@ import {
   Eye,
   Plus,
   X,
-  Upload
+  Upload,
+  Sparkles
 } from "lucide-react";
 
 type ProjectFormData = {
@@ -97,6 +99,7 @@ export default function AdminProjectForm() {
   const [newHighlight, setNewHighlight] = useState("");
   const [newAmenity, setNewAmenity] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [showUploadAssistant, setShowUploadAssistant] = useState(false);
   const { toast } = useToast();
 
   const isEdit = !!id;
@@ -165,6 +168,32 @@ export default function AdminProjectForm() {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+  };
+
+  const handleBrochureDataExtracted = (data: any) => {
+    setFormData(prev => ({
+      ...prev,
+      name: data.name || prev.name,
+      slug: data.name ? generateSlug(data.name) : prev.slug,
+      developer_name: data.developer_name || prev.developer_name,
+      city: data.city || prev.city,
+      neighborhood: data.neighborhood || prev.neighborhood,
+      address: data.address || prev.address,
+      project_type: data.project_type || prev.project_type,
+      unit_mix: data.unit_mix || prev.unit_mix,
+      starting_price: data.starting_price?.toString() || prev.starting_price,
+      price_range: data.price_range || prev.price_range,
+      deposit_structure: data.deposit_structure || prev.deposit_structure,
+      incentives: data.incentives || prev.incentives,
+      completion_month: data.completion_month?.toString() || prev.completion_month,
+      completion_year: data.completion_year?.toString() || prev.completion_year,
+      occupancy_estimate: data.occupancy_estimate || prev.occupancy_estimate,
+      short_description: data.short_description || prev.short_description,
+      full_description: data.full_description || prev.full_description,
+      highlights: data.highlights?.length > 0 ? data.highlights : prev.highlights,
+      amenities: data.amenities?.length > 0 ? data.amenities : prev.amenities,
+      faq: data.faq?.length > 0 ? data.faq : prev.faq,
+    }));
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -400,6 +429,16 @@ export default function AdminProjectForm() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {!isEdit && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowUploadAssistant(true)}
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                AI Import
+              </Button>
+            )}
             {formData.is_published && formData.slug && (
               <Button
                 type="button"
@@ -924,6 +963,12 @@ export default function AdminProjectForm() {
           </div>
         </div>
       </form>
+
+      <BrochureUploadAssistant
+        isOpen={showUploadAssistant}
+        onClose={() => setShowUploadAssistant(false)}
+        onDataExtracted={handleBrochureDataExtracted}
+      />
     </AdminLayout>
   );
 }
