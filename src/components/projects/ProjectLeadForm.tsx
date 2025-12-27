@@ -2,11 +2,11 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Bell, Sparkles } from "lucide-react";
+import { Send, CheckCircle, Bell, Sparkles, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -14,7 +14,7 @@ const leadSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
   email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
   phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal("")),
-  message: z.string().trim().max(1000, "Message must be less than 1000 characters").optional().or(z.literal("")),
+  has_realtor: z.enum(["yes", "no", "open"]),
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
@@ -35,20 +35,34 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
+    watch,
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
+    defaultValues: {
+      has_realtor: "no",
+    },
   });
+
+  const hasRealtor = watch("has_realtor");
 
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
 
     try {
+      // Include realtor status in message field for now
+      const realtorNote = data.has_realtor === "yes" 
+        ? "Already working with a realtor." 
+        : data.has_realtor === "open" 
+          ? "Open to working with a realtor." 
+          : "Does not have a realtor.";
+
       const { error } = await supabase.from("project_leads").insert({
         project_id: projectId,
         name: data.name,
         email: data.email,
         phone: data.phone || null,
-        message: data.message || null,
+        message: realtorNote,
       });
 
       if (error) throw error;
@@ -56,8 +70,10 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
       setIsSubmitted(true);
       reset();
       toast({
-        title: "You're on the list!",
-        description: "We'll send you exclusive updates and early access.",
+        title: status === "coming_soon" ? "You're on the list!" : "Plans sent!",
+        description: status === "coming_soon" 
+          ? "We'll send you exclusive updates and early access."
+          : "Check your email for floor plans and pricing.",
       });
     } catch (error) {
       console.error("Error submitting lead:", error);
@@ -78,17 +94,20 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           <CheckCircle className="h-8 w-8 text-primary" />
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">
-          You're on the VIP List!
+          {status === "coming_soon" ? "You're on the VIP List!" : "Plans Sent!"}
         </h3>
         <p className="text-muted-foreground mb-4">
-          We'll notify you with exclusive early access, pricing, and floor plans.
+          {status === "coming_soon" 
+            ? "We'll notify you with exclusive early access, pricing, and floor plans."
+            : "Check your email for floor plans, pricing, and project details."
+          }
         </p>
         <Button
           variant="outline"
           onClick={() => setIsSubmitted(false)}
           className="w-full"
         >
-          Register Another Email
+          Submit Another Request
         </Button>
       </div>
     );
@@ -103,14 +122,16 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           title: "Be the first to know.",
           description: "Get on the waitlist to be the first to hear when this project is ready to start selling.",
           buttonText: "Register Now",
+          buttonIcon: <Send className="h-4 w-4 mr-2" />,
         };
       case "active":
         return {
           badge: "Now Selling",
           badgeIcon: <Bell className="h-3 w-3" />,
-          title: "Get Exclusive Pricing",
-          description: "Register to receive floor plans, pricing, and special incentives directly.",
-          buttonText: "Get Pricing & Plans",
+          title: "Download Floor Plans & Pricing",
+          description: "Get instant access to floor plans, pricing sheets, and exclusive incentives.",
+          buttonText: "Download Plans",
+          buttonIcon: <Download className="h-4 w-4 mr-2" />,
         };
       default:
         return {
@@ -119,6 +140,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           title: "Join the Waitlist",
           description: "Get notified if any units become available or for similar upcoming projects.",
           buttonText: "Join Waitlist",
+          buttonIcon: <Send className="h-4 w-4 mr-2" />,
         };
     }
   };
@@ -186,6 +208,29 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
             />
           </div>
 
+          {/* Realtor Question */}
+          <div className="space-y-3">
+            <Label className="text-sm font-medium">Are you working with a realtor?</Label>
+            <RadioGroup 
+              value={hasRealtor} 
+              onValueChange={(value) => setValue("has_realtor", value as "yes" | "no" | "open")}
+              className="flex flex-col gap-2"
+            >
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="no" id="realtor-no" />
+                <Label htmlFor="realtor-no" className="text-sm font-normal cursor-pointer">No, I don't have a realtor</Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="yes" id="realtor-yes" />
+                <Label htmlFor="realtor-yes" className="text-sm font-normal cursor-pointer">Yes, I already have a realtor</Label>
+              </div>
+              <div className="flex items-center space-x-3">
+                <RadioGroupItem value="open" id="realtor-open" />
+                <Label htmlFor="realtor-open" className="text-sm font-normal cursor-pointer">Open to working with one</Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           <Button
             type="submit"
             className="w-full h-12 text-base font-semibold"
@@ -193,17 +238,17 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
             disabled={isSubmitting}
           >
             {isSubmitting ? (
-              "Registering..."
+              "Submitting..."
             ) : (
               <>
-                <Send className="h-4 w-4 mr-2" />
+                {content.buttonIcon}
                 {content.buttonText}
               </>
             )}
           </Button>
 
           <p className="text-xs text-muted-foreground text-center">
-            By registering, you agree to receive updates about this project.
+            By submitting, you agree to receive updates about this project.
           </p>
         </form>
       </div>

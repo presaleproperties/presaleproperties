@@ -281,11 +281,15 @@ export default function PresaleProjectDetail() {
             {/* Action Buttons - Desktop inline, Mobile stacked */}
             <div className="flex flex-wrap gap-3 mt-4 mb-2">
               <Button size="lg" onClick={scrollToForm} className="font-semibold">
-                Register Now
+                {project.status === "coming_soon" ? (
+                  <>Register Now</>
+                ) : (
+                  <>Download Plans</>
+                )}
               </Button>
               {project.status === "active" && (
                 <Badge variant="outline" className="text-sm px-4 py-2 h-auto">
-                  Move-in Ready
+                  Now Selling
                 </Badge>
               )}
             </div>
