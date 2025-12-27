@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
 
@@ -83,7 +84,10 @@ export function LightboxGallery({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-none">
+      <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-none" aria-describedby={undefined}>
+        <VisuallyHidden>
+          <DialogTitle>Image Gallery - {alt}</DialogTitle>
+        </VisuallyHidden>
         <div
           ref={containerRef}
           className="relative w-full h-full flex items-center justify-center"
