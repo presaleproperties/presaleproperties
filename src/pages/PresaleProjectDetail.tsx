@@ -301,11 +301,6 @@ export default function PresaleProjectDetail() {
                   <>Download Plans</>
                 )}
               </Button>
-              {project.status === "active" && (
-                <Badge variant="outline" className="text-sm px-4 py-2 h-auto">
-                  Now Selling
-                </Badge>
-              )}
             </div>
 
             {/* Highlights Grid - REW Style */}
