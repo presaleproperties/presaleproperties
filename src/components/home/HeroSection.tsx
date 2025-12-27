@@ -54,7 +54,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[480px] sm:min-h-[540px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[420px] sm:min-h-[500px] md:min-h-[600px] flex items-center justify-center overflow-hidden">
       {/* Background Image */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
@@ -65,15 +65,15 @@ export function HeroSection() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/60" />
       
       {/* Content */}
-      <div className="container relative z-10 py-10 sm:py-14 md:py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-6 sm:space-y-8">
+      <div className="container relative z-10 py-8 sm:py-14 md:py-20 px-4">
+        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
           {/* Tagline */}
-          <p className="text-white/80 text-sm sm:text-base animate-fade-in">
+          <p className="text-white/80 text-xs sm:text-sm md:text-base animate-fade-in">
             Vancouver's Premier Presale Marketplace
           </p>
           
           {/* Main Heading */}
-          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-tight" style={{ animationDelay: "0.1s" }}>
+          <h1 className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-tight px-2" style={{ animationDelay: "0.1s" }}>
             Find Your Next <span className="text-primary">Presale</span> Here
           </h1>
 
@@ -83,12 +83,12 @@ export function HeroSection() {
             style={{ animationDelay: "0.2s" }}
           >
             {/* Tabs */}
-            <div className="flex items-center justify-between border-b border-border px-4 py-3">
-              <div className="flex items-center gap-2">
+            <div className="flex items-center justify-between border-b border-border px-3 sm:px-4 py-2 sm:py-3">
+              <div className="flex items-center gap-1 sm:gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("projects")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
                     activeTab === "projects"
                       ? "bg-foreground text-background"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -99,7 +99,7 @@ export function HeroSection() {
                 <button
                   type="button"
                   onClick={() => setActiveTab("assignments")}
-                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                  className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all ${
                     activeTab === "assignments"
                       ? "bg-foreground text-background"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
@@ -120,11 +120,11 @@ export function HeroSection() {
 
             {/* Search Input */}
             <form onSubmit={handleSearch}>
-              <div className="relative px-4 py-3" ref={searchContainerRef}>
+              <div className="relative px-3 sm:px-4 py-2 sm:py-3" ref={searchContainerRef}>
                 <Input
                   type="text"
                   placeholder={activeTab === "projects" 
-                    ? "City, Neighbourhood, Developer Name..." 
+                    ? "City, Neighbourhood, Developer..." 
                     : "Project, Neighbourhood, City..."
                   }
                   value={searchQuery}
@@ -133,14 +133,14 @@ export function HeroSection() {
                     setShowSuggestions(true);
                   }}
                   onFocus={() => setShowSuggestions(true)}
-                  className="h-12 sm:h-14 text-base pl-4 pr-12 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary rounded-lg"
+                  className="h-11 sm:h-12 md:h-14 text-sm sm:text-base pl-3 sm:pl-4 pr-11 sm:pr-12 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary rounded-lg"
                   autoComplete="off"
                 />
                 <button 
                   type="submit"
-                  className="absolute right-6 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-5 sm:right-6 top-1/2 -translate-y-1/2 h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <Search className="h-5 w-5" />
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
                 {activeTab === "projects" && (
                   <SearchSuggestions
@@ -155,9 +155,9 @@ export function HeroSection() {
           </div>
 
           {/* Top Cities */}
-          <div className="space-y-3 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-              <span className="text-sm text-white/70 mr-1">
+          <div className="space-y-2 sm:space-y-3 animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 md:gap-3">
+              <span className="text-xs sm:text-sm text-white/70 mr-0.5 sm:mr-1 w-full sm:w-auto mb-1 sm:mb-0">
                 Top Cities
               </span>
               {(activeTab === "projects" ? projectCities : assignmentCities).map((city) => (
@@ -166,7 +166,7 @@ export function HeroSection() {
                   variant="outline"
                   size="sm"
                   onClick={() => handleCityClick(city)}
-                  className="rounded-full bg-transparent text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white transition-all duration-200 text-xs sm:text-sm px-3 sm:px-4 h-8"
+                  className="rounded-full bg-transparent text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-2.5 sm:px-3 md:px-4 h-7 sm:h-8"
                 >
                   {city}
                 </Button>

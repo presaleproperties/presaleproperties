@@ -43,20 +43,20 @@ export function FeaturedListings() {
   });
 
   return (
-    <section className="py-20 md:py-28 bg-background relative">
+    <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-background relative">
       {/* Top divider */}
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
       <div className="container px-4">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6 mb-12">
-          <div className="space-y-3">
-            <span className="text-xs font-semibold uppercase tracking-widest text-primary">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
+          <div className="space-y-2 sm:space-y-3">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
               Verified Listings
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
               Featured Assignments
             </h2>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground text-sm sm:text-base md:text-lg">
               Hand-picked opportunities from verified agents
             </p>
           </div>
