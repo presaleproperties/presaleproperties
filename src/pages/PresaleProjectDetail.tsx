@@ -128,8 +128,8 @@ export default function PresaleProjectDetail() {
       if (error) throw error;
 
       toast({
-        title: "Request Submitted!",
-        description: "We'll get back to you with more details shortly.",
+        title: "Plans request received!",
+        description: "Check your email for download links.",
       });
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (error) {
