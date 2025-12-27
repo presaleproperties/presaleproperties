@@ -75,7 +75,9 @@ serve(async (req: Request): Promise<Response> => {
         lead_name: lead.name,
         lead_email: lead.email,
         lead_phone: lead.phone || "",
-        has_realtor: lead.message || "",
+        lead_notes: lead.message || "",
+        is_realtor: lead.message?.includes("Is a realtor") ? "Yes" : "No",
+        has_realtor: lead.message?.includes("Has a realtor") ? "Yes" : "No",
         submitted_at: lead.created_at,
         
         // Project info
