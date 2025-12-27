@@ -19,7 +19,7 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between">
         <Link to="/" className="flex items-center gap-2 shrink-0">
           <span className="text-xl font-bold tracking-tight">
-            Assignment<span className="text-primary">Hub</span>
+            presale<span className="text-primary">properties</span>
           </span>
         </Link>
 
@@ -70,7 +70,7 @@ export function Header() {
                 {/* Header */}
                 <div className="p-6 border-b border-border/50">
                   <span className="text-lg font-bold tracking-tight">
-                    Assignment<span className="text-primary">Hub</span>
+                    presale<span className="text-primary">properties</span>
                   </span>
                 </div>
 
