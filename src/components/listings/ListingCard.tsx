@@ -79,7 +79,7 @@ export function ListingCard({
 
   return (
     <Link to={`/assignments/${id}`}>
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-card-hover hover:-translate-y-1 transition-all duration-300 ease-out">
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out">
         <div className="relative aspect-[4/3] overflow-hidden bg-muted">
           {imageUrl ? (
             <img
@@ -93,8 +93,8 @@ export function ListingCard({
             </div>
           )}
           
-          {/* Overlay on hover */}
-          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           
           {/* Badges - Top Left */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
