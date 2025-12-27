@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize, Camera } from "lucide-react";
+import { MapPin, Bed, Bath, Maximize, Camera, Lock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { SaveButton } from "./SaveButton";
+
 interface AgentInfo {
   name?: string;
   brokerage?: string;
@@ -29,6 +30,7 @@ interface ListingCardProps {
   imageUrl?: string;
   photoCount?: number;
   agent?: AgentInfo;
+  visibilityMode?: "public" | "restricted";
 }
 
 const formatPrice = (price: number) => {
@@ -69,10 +71,11 @@ export function ListingCard({
   imageUrl,
   photoCount = 0,
   agent,
+  visibilityMode = "public",
 }: ListingCardProps) {
-  const completionDate = completionYear
-    ? `${completionMonth ? `${completionMonth}/` : ""}${completionYear}`
-    : null;
+  const isRestricted = visibilityMode === "restricted";
+  const displayTitle = isRestricted ? "Presale Condo Assignment – Vancouver" : projectName;
+  const displaySubtitle = isRestricted ? `${formatUnitType(beds === 0 ? "studio" : `${beds}bed`)} in ${city}` : title;
 
   return (
     <Link to={`/assignments/${id}`}>
@@ -81,7 +84,7 @@ export function ListingCard({
           {imageUrl ? (
             <img
               src={imageUrl}
-              alt={title}
+              alt={displayTitle}
               className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
             />
           ) : (
@@ -94,13 +97,19 @@ export function ListingCard({
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
           
           {/* Badges - Top Left */}
-          {isFeatured && (
-            <div className="absolute top-3 left-3">
+          <div className="absolute top-3 left-3 flex flex-col gap-2">
+            {isFeatured && (
               <Badge className="bg-primary text-primary-foreground shadow-gold">
                 Featured
               </Badge>
-            </div>
-          )}
+            )}
+            {isRestricted && (
+              <Badge variant="secondary" className="bg-amber-500/90 text-white gap-1">
+                <Lock className="h-3 w-3" />
+                Restricted
+              </Badge>
+            )}
+          </div>
 
           {/* Save Button - Top Right */}
           <div className="absolute top-3 right-3">
@@ -120,15 +129,15 @@ export function ListingCard({
           <div className="flex items-start gap-1.5 text-muted-foreground">
             <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
             <span className="text-sm truncate">
-              {address || neighborhood || city}
+              {isRestricted ? city : (address || neighborhood || city)}
             </span>
           </div>
 
           <div>
             <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200">
-              {projectName}
+              {displayTitle}
             </h3>
-            <p className="text-sm text-muted-foreground line-clamp-1">{title}</p>
+            <p className="text-sm text-muted-foreground line-clamp-1">{displaySubtitle}</p>
           </div>
 
           <div className="flex items-center gap-4 text-sm text-muted-foreground">

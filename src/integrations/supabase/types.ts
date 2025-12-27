@@ -250,6 +250,7 @@ export type Database = {
           title: string
           unit_type: Database["public"]["Enums"]["unit_type"]
           updated_at: string
+          visibility_mode: Database["public"]["Enums"]["visibility_mode"]
         }
         Insert: {
           address?: string | null
@@ -289,6 +290,7 @@ export type Database = {
           title: string
           unit_type?: Database["public"]["Enums"]["unit_type"]
           updated_at?: string
+          visibility_mode?: Database["public"]["Enums"]["visibility_mode"]
         }
         Update: {
           address?: string | null
@@ -328,6 +330,7 @@ export type Database = {
           title?: string
           unit_type?: Database["public"]["Enums"]["unit_type"]
           updated_at?: string
+          visibility_mode?: Database["public"]["Enums"]["visibility_mode"]
         }
         Relationships: []
       }
@@ -510,6 +513,7 @@ export type Database = {
         | "2bed_den"
         | "3bed"
         | "penthouse"
+      visibility_mode: "public" | "restricted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -663,6 +667,7 @@ export const Constants = {
         "3bed",
         "penthouse",
       ],
+      visibility_mode: ["public", "restricted"],
     },
   },
 } as const

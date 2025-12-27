@@ -518,6 +518,7 @@ export default function Assignments() {
                       isFeatured={listing.is_featured || false}
                       imageUrl={listing.listing_photos?.[0]?.url}
                       photoCount={listing.listing_photos?.length || 0}
+                      visibilityMode={(listing as any).visibility_mode || "public"}
                       agent={{
                         name: listing.agentProfile?.full_name || undefined,
                         avatarUrl: listing.agentProfile?.avatar_url || undefined,

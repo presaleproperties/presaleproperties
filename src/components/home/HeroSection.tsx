@@ -67,15 +67,14 @@ export function HeroSection() {
           
           {/* Main Heading */}
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in" style={{ animationDelay: "0.1s" }}>
-            Buy & Sell <span className="text-primary">Assignments</span> with Confidence
+            Vancouver's Assignment Marketplace for <span className="text-primary">Presale Condos</span>
           </h1>
           
           <p 
             className="text-lg md:text-xl text-white/90 max-w-2xl mx-auto animate-fade-in drop-shadow-md" 
             style={{ animationDelay: "0.2s" }}
           >
-            The trusted marketplace connecting buyers with verified agents. 
-            Discover exclusive presale opportunities before they hit the market.
+            Browse verified presale condo assignments from licensed agents across Metro Vancouver.
           </p>
 
           {/* Floating Search Card - REW.ca style */}

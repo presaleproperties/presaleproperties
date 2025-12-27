@@ -387,6 +387,12 @@ export default function DashboardListings() {
                               Rejection reason: {listing.rejection_reason}
                             </p>
                           )}
+                          {listing.expires_at && (listing.status === "published" || listing.status === "expired") && (
+                            <p className={`text-sm mt-2 ${listing.status === "expired" ? "text-destructive" : "text-muted-foreground"}`}>
+                              {listing.status === "expired" ? "Expired: " : "Expires: "}
+                              {new Date(listing.expires_at).toLocaleDateString("en-CA", { year: "numeric", month: "short", day: "numeric" })}
+                            </p>
+                          )}
                         </div>
                         
                         <div className="text-right">
