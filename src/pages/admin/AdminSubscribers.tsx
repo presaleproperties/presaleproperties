@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { 
   Mail, 
@@ -7,7 +7,9 @@ import {
   Download,
   Bell,
   Calendar,
-  TrendingUp
+  TrendingUp,
+  Trash2,
+  Loader2
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -21,8 +23,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface Subscriber {
   id: string;
@@ -32,6 +46,8 @@ interface Subscriber {
 
 export default function AdminSubscribers() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
   // Fetch subscribers (newsletter signups without project_id)
   const { data: subscribers, isLoading } = useQuery({
@@ -46,6 +62,28 @@ export default function AdminSubscribers() {
 
       if (error) throw error;
       return data as Subscriber[];
+    },
+  });
+
+  // Delete subscriber mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("project_leads")
+        .delete()
+        .eq("id", id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin-subscribers"] });
+      toast.success("Subscriber removed");
+      setDeletingId(null);
+    },
+    onError: (error) => {
+      console.error("Error deleting subscriber:", error);
+      toast.error("Failed to remove subscriber");
+      setDeletingId(null);
     },
   });
 
@@ -206,12 +244,49 @@ export default function AdminSubscribers() {
                       </div>
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" asChild>
-                        <a href={`mailto:${sub.email}`}>
-                          <Mail className="h-4 w-4 mr-2" />
-                          Email
-                        </a>
-                      </Button>
+                      <div className="flex items-center justify-end gap-1">
+                        <Button variant="ghost" size="sm" asChild>
+                          <a href={`mailto:${sub.email}`}>
+                            <Mail className="h-4 w-4 mr-2" />
+                            Email
+                          </a>
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            >
+                              {deletingId === sub.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Remove subscriber?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This will remove <strong>{sub.email}</strong> from your subscriber list. This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  setDeletingId(sub.id);
+                                  deleteMutation.mutate(sub.id);
+                                }}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Remove
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
