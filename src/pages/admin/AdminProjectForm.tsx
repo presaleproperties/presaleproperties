@@ -705,7 +705,7 @@ export default function AdminProjectForm() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="coming_soon">Coming Soon</SelectItem>
-                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="active">Selling Now</SelectItem>
                         <SelectItem value="sold_out">Sold Out</SelectItem>
                       </SelectContent>
                     </Select>
