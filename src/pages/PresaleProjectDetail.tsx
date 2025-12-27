@@ -162,11 +162,11 @@ export default function PresaleProjectDetail() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "coming_soon":
-        return <Badge className="bg-blue-500 hover:bg-blue-600 text-sm px-3 py-1">Coming Soon</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600 text-xs px-2 py-0.5">Coming Soon</Badge>;
       case "active":
-        return <Badge className="bg-green-500 hover:bg-green-600 text-sm px-3 py-1">Now Selling</Badge>;
+        return <Badge className="bg-green-500 hover:bg-green-600 text-xs px-2 py-0.5">Now Selling</Badge>;
       case "sold_out":
-        return <Badge variant="secondary" className="text-sm px-3 py-1">Sold Out</Badge>;
+        return <Badge variant="secondary" className="text-xs px-2 py-0.5">Sold Out</Badge>;
       default:
         return null;
     }
@@ -267,7 +267,7 @@ export default function PresaleProjectDetail() {
             <div className="flex flex-wrap items-center gap-2 mb-3">
               {getStatusBadge(project.status)}
               {project.is_featured && (
-                <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white">
+                <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
                   <Star className="h-3 w-3 mr-1 fill-current" />
                   Featured
                 </Badge>
