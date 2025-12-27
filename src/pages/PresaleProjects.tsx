@@ -408,28 +408,29 @@ export default function PresaleProjects() {
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <Header />
 
-        {/* Hero Section - Clean & Minimal */}
-        <section className="bg-background border-b border-border py-8 md:py-12">
+        {/* Hero Section - Compact on mobile */}
+        <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-3xl">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
+              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
                 New & Pre Construction Homes
               </h1>
-              <p className="text-sm md:text-base text-muted-foreground mb-4">
-                Whether you're looking for a new condo, townhome, or development, we're here to guide you. 
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-2 sm:mb-4 line-clamp-2 sm:line-clamp-none">
                 Search presale projects in Greater Vancouver. View details, floor plans, and pricing.
               </p>
-              <p className="text-sm text-muted-foreground">
-                Showing{" "}
+              <p className="text-xs sm:text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">{totalCount}</span>
-                {" "}projects available.{" "}
+                {" "}projects available
                 {activeFilterCount > 0 && (
-                  <button 
-                    onClick={clearAllFilters}
-                    className="text-primary hover:underline"
-                  >
-                    Clear all filters
-                  </button>
+                  <>
+                    {" · "}
+                    <button 
+                      onClick={clearAllFilters}
+                      className="text-primary hover:underline"
+                    >
+                      Clear filters
+                    </button>
+                  </>
                 )}
               </p>
             </div>
