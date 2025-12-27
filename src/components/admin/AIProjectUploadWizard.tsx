@@ -568,6 +568,53 @@ export function AIProjectUploadWizard() {
     }
   };
 
+  const handleImportDriveFolder = async () => {
+    if (!driveUrl.trim()) return;
+
+    // Check if it's a folder URL
+    if (!driveUrl.includes('/folders/')) {
+      toast({
+        title: "Not a Folder URL",
+        description: "Please enter a Google Drive folder share link",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoadingDrive(true);
+
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke('fetch-drive-folder', {
+        body: { folderUrl: driveUrl }
+      });
+
+      if (fnError) throw new Error(fnError.message);
+      if (!data?.success) throw new Error(data?.error || 'Failed to fetch folder');
+
+      const newImages = data.images as string[];
+      
+      // Add all images
+      setExtractedImages(prev => [...prev, ...newImages]);
+      setSelectedImages(prev => [...prev, ...newImages]);
+      setDriveUrl("");
+      setIsAddingDriveUrl(false);
+
+      toast({
+        title: "Folder Imported",
+        description: `Added ${newImages.length} images from Google Drive`,
+      });
+    } catch (err: any) {
+      console.error('Drive folder import error:', err);
+      toast({
+        title: "Import Failed",
+        description: err.message || "Could not import folder. Make sure it's publicly shared.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDrive(false);
+    }
+  };
+
   const handleAISortImages = async () => {
     if (selectedImages.length < 2) {
       toast({
@@ -1037,20 +1084,59 @@ export function AIProjectUploadWizard() {
                       </Button>
                     </div>
                   ) : isAddingDriveUrl ? (
-                    <div className="flex gap-2">
-                      <Input
-                        value={driveUrl}
-                        onChange={(e) => setDriveUrl(e.target.value)}
-                        placeholder="Google Drive share link..."
-                        onKeyDown={(e) => e.key === "Enter" && handleAddDriveImages()}
-                        disabled={isLoadingDrive}
-                      />
-                      <Button size="icon" onClick={handleAddDriveImages} disabled={isLoadingDrive}>
-                        {isLoadingDrive ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-                      </Button>
-                      <Button size="icon" variant="ghost" onClick={() => { setIsAddingDriveUrl(false); setDriveUrl(""); }}>
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          value={driveUrl}
+                          onChange={(e) => setDriveUrl(e.target.value)}
+                          placeholder="Drive folder or file link..."
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              if (driveUrl.includes('/folders/')) {
+                                handleImportDriveFolder();
+                              } else {
+                                handleAddDriveImages();
+                              }
+                            }
+                          }}
+                          disabled={isLoadingDrive}
+                        />
+                        <Button size="icon" variant="ghost" onClick={() => { setIsAddingDriveUrl(false); setDriveUrl(""); }}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="flex-1"
+                          onClick={handleAddDriveImages}
+                          disabled={isLoadingDrive || !driveUrl.trim()}
+                        >
+                          {isLoadingDrive && !driveUrl.includes('/folders/') ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <Plus className="h-4 w-4 mr-1" />
+                          )}
+                          Add Single
+                        </Button>
+                        <Button
+                          size="sm"
+                          className="flex-1"
+                          onClick={handleImportDriveFolder}
+                          disabled={isLoadingDrive || !driveUrl.includes('/folders/')}
+                        >
+                          {isLoadingDrive && driveUrl.includes('/folders/') ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <FolderOpen className="h-4 w-4 mr-1" />
+                          )}
+                          Import Folder
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Paste a folder link to import all images, or a file link for single image
+                      </p>
                     </div>
                   ) : (
                     <div className="space-y-2">
