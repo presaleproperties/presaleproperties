@@ -74,6 +74,60 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string
+          excerpt: string | null
+          featured_image: string | null
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          publish_date: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          publish_date?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          excerpt?: string | null
+          featured_image?: string | null
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          publish_date?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       expiration_notifications: {
         Row: {
           id: string
@@ -378,6 +432,126 @@ export type Database = {
           },
         ]
       }
+      presale_projects: {
+        Row: {
+          address: string | null
+          amenities: string[] | null
+          brochure_files: string[] | null
+          city: string
+          completion_month: number | null
+          completion_year: number | null
+          created_at: string
+          deposit_structure: string | null
+          developer_name: string | null
+          faq: Json | null
+          featured_image: string | null
+          floorplan_files: string[] | null
+          full_description: string | null
+          gallery_images: string[] | null
+          highlights: string[] | null
+          id: string
+          incentives: string | null
+          is_featured: boolean
+          is_indexed: boolean
+          is_published: boolean
+          map_lat: number | null
+          map_lng: number | null
+          name: string
+          neighborhood: string
+          occupancy_estimate: string | null
+          og_image: string | null
+          price_range: string | null
+          project_type: Database["public"]["Enums"]["project_type"]
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          short_description: string | null
+          slug: string
+          starting_price: number | null
+          status: Database["public"]["Enums"]["project_status"]
+          unit_mix: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          amenities?: string[] | null
+          brochure_files?: string[] | null
+          city: string
+          completion_month?: number | null
+          completion_year?: number | null
+          created_at?: string
+          deposit_structure?: string | null
+          developer_name?: string | null
+          faq?: Json | null
+          featured_image?: string | null
+          floorplan_files?: string[] | null
+          full_description?: string | null
+          gallery_images?: string[] | null
+          highlights?: string[] | null
+          id?: string
+          incentives?: string | null
+          is_featured?: boolean
+          is_indexed?: boolean
+          is_published?: boolean
+          map_lat?: number | null
+          map_lng?: number | null
+          name: string
+          neighborhood: string
+          occupancy_estimate?: string | null
+          og_image?: string | null
+          price_range?: string | null
+          project_type?: Database["public"]["Enums"]["project_type"]
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug: string
+          starting_price?: number | null
+          status?: Database["public"]["Enums"]["project_status"]
+          unit_mix?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          amenities?: string[] | null
+          brochure_files?: string[] | null
+          city?: string
+          completion_month?: number | null
+          completion_year?: number | null
+          created_at?: string
+          deposit_structure?: string | null
+          developer_name?: string | null
+          faq?: Json | null
+          featured_image?: string | null
+          floorplan_files?: string[] | null
+          full_description?: string | null
+          gallery_images?: string[] | null
+          highlights?: string[] | null
+          id?: string
+          incentives?: string | null
+          is_featured?: boolean
+          is_indexed?: boolean
+          is_published?: boolean
+          map_lat?: number | null
+          map_lng?: number | null
+          name?: string
+          neighborhood?: string
+          occupancy_estimate?: string | null
+          og_image?: string | null
+          price_range?: string | null
+          project_type?: Database["public"]["Enums"]["project_type"]
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          short_description?: string | null
+          slug?: string
+          starting_price?: number | null
+          status?: Database["public"]["Enums"]["project_status"]
+          unit_mix?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -410,6 +584,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      project_leads: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          name: string
+          phone: string | null
+          project_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          name: string
+          phone?: string | null
+          project_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          name?: string
+          phone?: string | null
+          project_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_leads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       saved_listings: {
         Row: {
@@ -504,6 +716,8 @@ export type Database = {
         | "rejected"
         | "expired"
         | "paused"
+      project_status: "coming_soon" | "active" | "sold_out"
+      project_type: "condo" | "townhome" | "mixed"
       property_type: "condo" | "townhouse" | "other"
       unit_type:
         | "studio"
@@ -657,6 +871,8 @@ export const Constants = {
         "expired",
         "paused",
       ],
+      project_status: ["coming_soon", "active", "sold_out"],
+      project_type: ["condo", "townhome", "mixed"],
       property_type: ["condo", "townhouse", "other"],
       unit_type: [
         "studio",
