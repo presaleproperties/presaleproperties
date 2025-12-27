@@ -469,8 +469,8 @@ export default function PresaleProjectDetail() {
                     status={project.status}
                   />
                   
-                  {/* Quick Actions Below Form */}
-                  <div className="mt-4 flex flex-col gap-3">
+                  {/* Quick Actions Below Form - Desktop only */}
+                  <div className="mt-4 hidden lg:flex flex-col gap-3">
                     <Button variant="outline" size="lg" className="w-full" asChild>
                       <a href="tel:+16722581100">
                         <Phone className="h-4 w-4 mr-2" />
