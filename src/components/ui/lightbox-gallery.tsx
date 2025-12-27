@@ -1,28 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, X, ZoomIn, Expand } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Expand } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// Helper to get high-quality image URL from Supabase storage
-function getOptimizedImageUrl(url: string, options?: { width?: number; height?: number; quality?: number }): string {
-  // Only transform Supabase storage URLs
-  if (!url || !url.includes('/storage/v1/object/public/')) {
-    return url;
-  }
-  
-  // Use render endpoint for transformations
-  const transformedUrl = url.replace('/storage/v1/object/public/', '/storage/v1/render/image/public/');
-  
-  const params = new URLSearchParams();
-  if (options?.width) params.set('width', options.width.toString());
-  if (options?.height) params.set('height', options.height.toString());
-  params.set('quality', (options?.quality || 100).toString());
-  
-  const separator = transformedUrl.includes('?') ? '&' : '?';
-  return `${transformedUrl}${separator}${params.toString()}`;
-}
 
 interface LightboxGalleryProps {
   images: string[];
@@ -154,16 +135,13 @@ export function LightboxGallery({
             </Button>
           )}
 
-          {/* Main image - High quality */}
+          {/* Main image */}
           <div className="w-full h-full flex items-center justify-center p-4 md:p-12">
             <img
-              src={getOptimizedImageUrl(images[currentIndex], { width: 1920, quality: 100 })}
+              src={images[currentIndex]}
               alt={`${alt} ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain select-none"
               draggable={false}
-              loading="eager"
-              decoding="sync"
-              fetchPriority="high"
             />
           </div>
 
@@ -193,9 +171,10 @@ export function LightboxGallery({
                   }`}
                 >
                   <img
-                    src={getOptimizedImageUrl(img, { width: 128, quality: 80 })}
+                    src={img}
                     alt=""
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                 </button>
               ))}
@@ -268,7 +247,7 @@ export function GalleryWithLightbox({
   if (images.length === 0) {
     return (
       <div className={`aspect-[4/3] md:aspect-[16/10] rounded-xl overflow-hidden bg-muted flex items-center justify-center ${className}`}>
-        <ZoomIn className="h-16 w-16 text-muted-foreground" />
+        <Expand className="h-16 w-16 text-muted-foreground" />
       </div>
     );
   }
@@ -288,12 +267,9 @@ export function GalleryWithLightbox({
             className="relative w-full aspect-[4/3] md:aspect-[4/3] rounded-xl overflow-hidden bg-muted cursor-pointer"
           >
             <img
-              src={getOptimizedImageUrl(images[selectedIndex], { width: 1200, quality: 90 })}
+              src={images[selectedIndex]}
               alt={alt}
-              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-              loading="eager"
-              decoding="async"
-              fetchPriority="high"
+              className="w-full h-full object-cover"
             />
           </div>
 
@@ -375,7 +351,7 @@ export function GalleryWithLightbox({
                       : "border-transparent"
                   }`}
                 >
-                  <img src={getOptimizedImageUrl(img, { width: 128, quality: 80 })} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
                 </button>
               ))}
             </div>
@@ -392,7 +368,7 @@ export function GalleryWithLightbox({
                       : "border-transparent hover:border-muted-foreground/50"
                   }`}
                 >
-                  <img src={getOptimizedImageUrl(img, { width: 200, quality: 80 })} alt="" className="w-full h-full object-cover" />
+                  <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
                 </button>
               ))}
               {images.length > 5 && (
