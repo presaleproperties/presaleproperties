@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
-const topCities = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Richmond"];
+const projectCities = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Richmond"];
+const assignmentCities = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Richmond"];
 
 type SearchTab = "projects" | "assignments";
 
@@ -159,7 +160,7 @@ export function HeroSection() {
               <span className="text-sm text-white/70 mr-1">
                 Top Cities
               </span>
-              {topCities.map((city) => (
+              {(activeTab === "projects" ? projectCities : assignmentCities).map((city) => (
                 <Button
                   key={city}
                   variant="outline"
