@@ -37,7 +37,8 @@ import {
   Trash2,
   Link,
   FolderOpen,
-  Wand2
+  Wand2,
+  GripVertical
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -90,6 +91,8 @@ export function AIProjectUploadWizard() {
   const [isLoadingDrive, setIsLoadingDrive] = useState(false);
   const [isSortingImages, setIsSortingImages] = useState(false);
   const [isAddingDriveUrl, setIsAddingDriveUrl] = useState(false);
+  const [draggedImage, setDraggedImage] = useState<string | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   
   // State
   const [step, setStep] = useState<WizardStep>("upload");
@@ -609,6 +612,45 @@ export function AIProjectUploadWizard() {
     }
   };
 
+  const handleDragStart = (e: React.DragEvent, imageUrl: string) => {
+    setDraggedImage(imageUrl);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', imageUrl);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedImage(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragOverImage = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    setDragOverIndex(index);
+  };
+
+  const handleDropOnImage = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    
+    if (!draggedImage) return;
+    
+    const draggedIndex = selectedImages.indexOf(draggedImage);
+    if (draggedIndex === -1 || draggedIndex === targetIndex) {
+      setDraggedImage(null);
+      setDragOverIndex(null);
+      return;
+    }
+
+    // Reorder the selected images
+    const newSelectedImages = [...selectedImages];
+    newSelectedImages.splice(draggedIndex, 1);
+    newSelectedImages.splice(targetIndex, 0, draggedImage);
+    setSelectedImages(newSelectedImages);
+
+    setDraggedImage(null);
+    setDragOverIndex(null);
+  };
+
   // Render based on current step
   return (
     <div className="space-y-6">
@@ -1061,7 +1103,41 @@ export function AIProjectUploadWizard() {
                   )}
                 </div>
 
-                <ScrollArea className="h-[350px]">
+                {/* Selected images - draggable order */}
+                {selectedImages.length > 0 && (
+                  <div className="space-y-2">
+                    <Label className="text-xs text-muted-foreground">Selected Order (drag to reorder)</Label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selectedImages.map((img, i) => (
+                        <div
+                          key={`selected-${i}`}
+                          draggable
+                          onDragStart={(e) => handleDragStart(e, img)}
+                          onDragEnd={handleDragEnd}
+                          onDragOver={(e) => handleDragOverImage(e, i)}
+                          onDrop={(e) => handleDropOnImage(e, i)}
+                          className={`relative w-14 h-14 rounded-md overflow-hidden cursor-grab active:cursor-grabbing border-2 transition-all ${
+                            draggedImage === img ? "opacity-50 scale-95" : ""
+                          } ${dragOverIndex === i && draggedImage !== img ? "border-primary ring-2 ring-primary/30" : "border-muted"}`}
+                        >
+                          <img src={img} alt={`Order ${i + 1}`} className="w-full h-full object-cover" />
+                          {i === 0 && (
+                            <div className="absolute inset-0 bg-primary/20 flex items-center justify-center">
+                              <span className="text-[10px] font-bold text-primary-foreground bg-primary/90 px-1 rounded">Hero</span>
+                            </div>
+                          )}
+                          <div className="absolute bottom-0 right-0 bg-background/80 text-[10px] px-1 font-medium">
+                            {i + 1}
+                          </div>
+                          <GripVertical className="absolute top-0.5 left-0.5 h-3 w-3 text-white drop-shadow-md" />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <ScrollArea className="h-[280px]">
+                  <Label className="text-xs text-muted-foreground mb-2 block">All Images (click to select)</Label>
                   <div className="grid grid-cols-2 gap-2">
                     {extractedImages.map((img, i) => (
                       <div 
