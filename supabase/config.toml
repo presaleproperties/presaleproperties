@@ -17,3 +17,6 @@ verify_jwt = false
 
 [functions.sort-project-images]
 verify_jwt = false
+
+[functions.fetch-drive-folder]
+verify_jwt = false
