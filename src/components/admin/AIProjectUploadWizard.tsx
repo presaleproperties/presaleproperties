@@ -679,33 +679,74 @@ export function AIProjectUploadWizard() {
         }
       }
 
-      // Add the uploaded files
-      setUploadedFiles(prev => [...prev, ...newFiles]);
-      
       // Store images for the review step
       const allPdfImages = newFiles.flatMap(f => f.images.map(img => img.dataUrl));
-      setExtractedImages(prev => [...prev, ...allPdfImages, ...imageUrls]);
-      setSelectedImages(prev => [...prev, ...allPdfImages, ...imageUrls].slice(0, 20));
-
+      const combinedImages = [...allPdfImages, ...imageUrls];
+      
+      setExtractedImages(combinedImages);
+      setSelectedImages(combinedImages.slice(0, 20));
       setUploadDriveUrl("");
 
-      const totalItems = newFiles.length + imageUrls.length;
       toast({
-        title: "Project Imported",
-        description: `Added ${newFiles.length} documents and ${imageUrls.length} images from Google Drive`,
+        title: "Files Imported",
+        description: `Found ${newFiles.length} documents and ${imageUrls.length} images. Processing with AI...`,
       });
 
-      // If we have files, auto-proceed to processing
+      // Auto-proceed to AI processing if we have PDF content
       if (newFiles.length > 0) {
-        toast({
-          title: "Ready to Extract",
-          description: "Click 'Extract Data with AI' to analyze the documents",
+        setStep("processing");
+        setIsProcessing(true);
+
+        // Combine all text from uploaded files
+        const combinedText = newFiles
+          .map(f => `--- ${f.name} ---\n${f.text}`)
+          .join("\n\n");
+
+        console.log("Auto-sending to AI for extraction, text length:", combinedText.length);
+        
+        const { data: aiData, error: aiError } = await supabase.functions.invoke('parse-project-brochure', {
+          body: { 
+            documentText: combinedText,
+            documentType: 'brochure and pricing sheet'
+          }
         });
+
+        if (aiError) throw new Error(aiError.message || "AI processing failed");
+        if (!aiData?.success || !aiData?.data) throw new Error(aiData?.error || "No data extracted");
+
+        console.log("AI extracted data:", aiData.data);
+        
+        // Limit highlights and amenities to 10 each
+        const limitedData = {
+          ...aiData.data,
+          highlights: aiData.data.highlights?.slice(0, 10),
+          amenities: aiData.data.amenities?.slice(0, 10),
+        };
+        
+        setExtractedData(limitedData);
+        setFormData(limitedData);
+        setStep("review");
+        setIsProcessing(false);
+
+        toast({
+          title: "AI Extraction Complete",
+          description: `Extracted data for: ${aiData.data.name || 'New Project'}`,
+        });
+      } else if (imageUrls.length > 0) {
+        // No PDFs but has images - go to review with empty form
+        toast({
+          title: "Images Only",
+          description: "No PDFs found. Please fill in project details manually.",
+        });
+        setFormData({});
+        setStep("review");
       }
 
     } catch (err: any) {
       console.error('Drive project import error:', err);
       setError(err.message || 'Could not import project from Drive');
+      setStep("upload");
+      setIsProcessing(false);
       toast({
         title: "Import Failed",
         description: err.message || "Could not import project. Make sure the folder is publicly shared.",
@@ -841,24 +882,25 @@ export function AIProjectUploadWizard() {
       {/* Step 1: Upload */}
       {step === "upload" && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-primary" />
+          <CardHeader className="text-center pb-2">
+            <CardTitle className="flex items-center justify-center gap-2 text-2xl">
+              <Sparkles className="h-6 w-6 text-primary" />
               AI-Powered Project Upload
             </CardTitle>
-            <CardDescription>
-              Upload your project brochure and pricing sheet. AI will extract all details and images automatically.
+            <CardDescription className="text-base">
+              Paste your Google Drive folder link and AI will do the rest
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Google Drive Import */}
-            <div className="p-4 bg-primary/5 border border-primary/20 rounded-xl space-y-3">
-              <div className="flex items-center gap-2 text-primary">
-                <FolderOpen className="h-5 w-5" />
-                <span className="font-medium">Import from Google Drive</span>
+            {/* Google Drive Import - Primary */}
+            <div className="p-6 bg-primary/5 border-2 border-primary/30 rounded-xl space-y-4">
+              <div className="flex items-center justify-center gap-2 text-primary">
+                <FolderOpen className="h-6 w-6" />
+                <span className="font-semibold text-lg">Import from Google Drive</span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                Paste a shared folder link containing brochures, info sheets, and photos. We'll import everything at once.
+              <p className="text-sm text-muted-foreground text-center">
+                Put all your files (brochures, info sheets, photos) in one folder.<br />
+                AI will extract project details and organize images automatically.
               </p>
               <div className="flex gap-2">
                 <Input
@@ -867,43 +909,59 @@ export function AIProjectUploadWizard() {
                   placeholder="https://drive.google.com/drive/folders/..."
                   disabled={isImportingProject}
                   onKeyDown={(e) => e.key === "Enter" && handleImportProjectFromDrive()}
+                  className="text-center"
                 />
-                <Button 
-                  onClick={handleImportProjectFromDrive}
-                  disabled={isImportingProject || !uploadDriveUrl.includes('/folders/')}
-                >
-                  {isImportingProject ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <>
-                      <FolderOpen className="h-4 w-4 mr-2" />
-                      Import
-                    </>
-                  )}
-                </Button>
               </div>
+              <Button 
+                onClick={handleImportProjectFromDrive}
+                disabled={isImportingProject || !uploadDriveUrl.includes('/folders/')}
+                size="lg"
+                className="w-full"
+              >
+                {isImportingProject ? (
+                  <>
+                    <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    Importing & Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-5 w-5 mr-2" />
+                    Import & Extract with AI
+                  </>
+                )}
+              </Button>
               {isImportingProject && (
-                <p className="text-xs text-muted-foreground animate-pulse">
-                  Fetching and processing files from Drive...
-                </p>
+                <div className="text-center space-y-1">
+                  <p className="text-sm text-muted-foreground animate-pulse">
+                    Fetching files, extracting PDF content, analyzing with AI...
+                  </p>
+                  <p className="text-xs text-muted-foreground">This may take 30-60 seconds</p>
+                </div>
               )}
             </div>
+
+            {error && (
+              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+                <p className="text-sm text-destructive">{error}</p>
+              </div>
+            )}
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">Or upload manually</span>
+                <span className="bg-background px-2 text-muted-foreground">Or upload PDFs manually</span>
               </div>
             </div>
 
-            {/* Drop zone */}
+            {/* Manual PDF Upload - Secondary */}
             <div
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-muted-foreground/25 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/30"
+              className="border border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-primary/50 transition-colors cursor-pointer bg-muted/20"
             >
               <input
                 ref={fileInputRef}
@@ -914,22 +972,22 @@ export function AIProjectUploadWizard() {
                 className="hidden"
               />
               {isUploading ? (
-                <div className="space-y-3">
-                  <Loader2 className="h-10 w-10 mx-auto text-primary animate-spin" />
-                  <p className="font-medium">Processing PDFs...</p>
+                <div className="space-y-2">
+                  <Loader2 className="h-8 w-8 mx-auto text-primary animate-spin" />
+                  <p className="text-sm font-medium">Processing PDFs...</p>
                 </div>
               ) : (
                 <>
-                  <Upload className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
-                  <p className="font-medium">Drop PDF files here or click to browse</p>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    Upload brochure, pricing sheet, or any project documents
+                  <Upload className="h-8 w-8 mx-auto text-muted-foreground mb-2" />
+                  <p className="text-sm font-medium">Drop PDF files here or click to browse</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Then click "Extract Data with AI" below
                   </p>
                 </>
               )}
             </div>
 
-            {/* Uploaded files list */}
+            {/* Uploaded files list - only show for manual uploads */}
             {uploadedFiles.length > 0 && (
               <div className="space-y-3">
                 <Label>Uploaded Documents ({uploadedFiles.length})</Label>
@@ -956,13 +1014,6 @@ export function AIProjectUploadWizard() {
                     </Button>
                   </div>
                 ))}
-              </div>
-            )}
-
-            {error && (
-              <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-                <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
-                <p className="text-sm text-destructive">{error}</p>
               </div>
             )}
 
