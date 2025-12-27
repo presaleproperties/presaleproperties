@@ -329,7 +329,8 @@ export default function PresaleProjectDetail() {
               unitMix={project.unit_mix}
               completionMonth={project.completion_month}
               completionYear={project.completion_year}
-              startingPrice={project.starting_price}
+              city={project.city}
+              neighborhood={project.neighborhood}
               depositStructure={project.deposit_structure}
               incentives={project.incentives}
             />
