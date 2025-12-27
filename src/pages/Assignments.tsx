@@ -23,6 +23,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { CTASection } from "@/components/home/CTASection";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -571,6 +572,7 @@ export default function Assignments() {
         </div>
       </main>
 
+      <CTASection />
       <Footer />
     </PullToRefresh>
   );
