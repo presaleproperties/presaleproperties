@@ -645,34 +645,45 @@ export function AIProjectUploadWizard() {
       if (fnError) throw new Error(fnError.message);
       if (!data?.success) throw new Error(data?.error || 'Failed to fetch folder');
 
-      const pdfUrls = data.pdfs as string[] || [];
-      const imageUrls = data.images as string[] || [];
+      const pdfFileIds = (data.pdfFileIds as string[]) || [];
+      const imageUrls = (data.images as string[]) || [];
 
-      console.log(`Found ${pdfUrls.length} PDFs and ${imageUrls.length} images`);
+      console.log(`Found ${pdfFileIds.length} PDFs and ${imageUrls.length} images`);
 
-      if (pdfUrls.length === 0 && imageUrls.length === 0) {
+      if (pdfFileIds.length === 0 && imageUrls.length === 0) {
         throw new Error('No PDFs or images found in the folder');
+      }
+
+      // Proxy PDFs via backend -> upload to our public storage to avoid Drive CORS
+      let proxiedPdfUrls: string[] = [];
+      if (pdfFileIds.length > 0) {
+        const { data: proxyData, error: proxyErr } = await supabase.functions.invoke('import-drive-files', {
+          body: { fileIds: pdfFileIds, fileType: 'pdf' }
+        });
+        if (proxyErr) throw new Error(proxyErr.message || 'Could not import PDFs from Drive');
+        if (!proxyData?.success) throw new Error(proxyData?.error || 'Could not import PDFs from Drive');
+        proxiedPdfUrls = (proxyData.files as { id: string; url: string }[]).map(f => f.url);
       }
 
       // Process PDFs - fetch and extract text
       const newFiles: UploadedFile[] = [];
-      
-      for (let i = 0; i < pdfUrls.length; i++) {
-        const pdfUrl = pdfUrls[i];
+
+      for (let i = 0; i < proxiedPdfUrls.length; i++) {
+        const pdfUrl = proxiedPdfUrls[i];
         try {
-          console.log(`Fetching PDF ${i + 1}/${pdfUrls.length}`);
+          console.log(`Fetching PDF ${i + 1}/${proxiedPdfUrls.length}`);
           const pdfResponse = await fetch(pdfUrl);
           const pdfBlob = await pdfResponse.blob();
           const pdfFile = new File([pdfBlob], `document-${i + 1}.pdf`, { type: 'application/pdf' });
-          
+
           const { text, images } = await extractTextFromPDF(pdfFile);
-          
+
           newFiles.push({
             name: `Drive Document ${i + 1}`,
             text,
             images,
           });
-          
+
           console.log(`Extracted ${text.length} chars and ${images.length} images from PDF ${i + 1}`);
         } catch (pdfErr) {
           console.warn(`Could not process PDF ${i + 1}:`, pdfErr);
@@ -682,7 +693,7 @@ export function AIProjectUploadWizard() {
       // Store images for the review step
       const allPdfImages = newFiles.flatMap(f => f.images.map(img => img.dataUrl));
       const combinedImages = [...allPdfImages, ...imageUrls];
-      
+
       setExtractedImages(combinedImages);
       setSelectedImages(combinedImages.slice(0, 20));
       setUploadDriveUrl("");

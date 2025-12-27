@@ -117,7 +117,7 @@ serve(async (req) => {
 
     // Categorize files by type
     const imageUrls: string[] = [];
-    const pdfUrls: string[] = [];
+    const pdfFileIds: string[] = [];
     
     // First, process file entries with names (more reliable)
     for (const entry of fileEntries) {
@@ -126,9 +126,8 @@ serve(async (req) => {
       const lowerName = entry.name.toLowerCase();
       
       if (lowerName.endsWith('.pdf') || pdfIds.has(entry.id)) {
-        const pdfUrl = `https://drive.google.com/uc?export=download&id=${entry.id}`;
-        if (!pdfUrls.includes(pdfUrl)) {
-          pdfUrls.push(pdfUrl);
+        if (!pdfFileIds.includes(entry.id)) {
+          pdfFileIds.push(entry.id);
           console.log('PDF found by name:', entry.name, entry.id);
         }
       } else if (
@@ -145,7 +144,7 @@ serve(async (req) => {
         }
       }
       
-      if (pdfUrls.length >= 10 && imageUrls.length >= 30) break;
+      if (pdfFileIds.length >= 10 && imageUrls.length >= 30) break;
     }
     
     // Then check remaining IDs by making requests
@@ -155,13 +154,12 @@ serve(async (req) => {
       .slice(0, 30);
     
     for (const fileId of remainingIds) {
-      if (imageUrls.length >= 30 && pdfUrls.length >= 10) break;
+      if (imageUrls.length >= 30 && pdfFileIds.length >= 10) break;
       
       // Check if this ID was mentioned with PDF
       if (pdfIds.has(fileId)) {
-        const pdfUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
-        if (!pdfUrls.includes(pdfUrl)) {
-          pdfUrls.push(pdfUrl);
+        if (!pdfFileIds.includes(fileId)) {
+          pdfFileIds.push(fileId);
           console.log('PDF found by mention:', fileId);
         }
         continue;
@@ -185,9 +183,9 @@ serve(async (req) => {
           contentType.includes('pdf') || 
           contentDisposition.toLowerCase().includes('.pdf')
         ) {
-          if (!pdfUrls.includes(downloadUrl)) {
-            pdfUrls.push(downloadUrl);
-            console.log('PDF found by content-type:', fileId);
+          if (!pdfFileIds.includes(fileId)) {
+            pdfFileIds.push(fileId);
+            console.log('PDF found by header:', fileId);
           }
         } else if (contentType.includes('image')) {
           if (!imageUrls.includes(directImageUrl)) {
@@ -205,7 +203,7 @@ serve(async (req) => {
       }
     }
 
-    const totalFiles = imageUrls.length + pdfUrls.length;
+    const totalFiles = imageUrls.length + pdfFileIds.length;
     
     if (totalFiles === 0) {
       return new Response(
@@ -217,15 +215,15 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Returning ${imageUrls.length} images and ${pdfUrls.length} PDFs`);
+    console.log(`Returning ${imageUrls.length} images and ${pdfFileIds.length} PDFs`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
         images: imageUrls,
-        pdfs: pdfUrls,
+        pdfFileIds,
         imageCount: imageUrls.length,
-        pdfCount: pdfUrls.length
+        pdfCount: pdfFileIds.length
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
