@@ -1017,8 +1017,20 @@ export default function AdminProjectForm() {
 
             {/* SEO */}
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle>SEO Settings</CardTitle>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const seoFields = updateSeoFields({});
+                    setFormData(prev => ({ ...prev, ...seoFields }));
+                  }}
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Regenerate
+                </Button>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
