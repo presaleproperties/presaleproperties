@@ -30,6 +30,7 @@ import AdminListings from "./pages/admin/AdminListings";
 import AdminAllListings from "./pages/admin/AdminAllListings";
 import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminLeads from "./pages/admin/AdminLeads";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
@@ -71,6 +72,7 @@ const App = () => (
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminProtectedRoute><AdminOverview /></AdminProtectedRoute>} />
             <Route path="/admin/projects" element={<AdminProtectedRoute><AdminProjects /></AdminProtectedRoute>} />
+            <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/projects/new" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
             <Route path="/admin/projects/:id/edit" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
             <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogs /></AdminProtectedRoute>} />
