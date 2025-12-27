@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Bell, Sparkles, Download } from "lucide-react";
+import { Send, CheckCircle, Bell, Sparkles, Download, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,6 +116,10 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     }
   };
 
+  const whatsappNumber = "16045551234"; // Replace with your actual WhatsApp number
+  const whatsappMessage = encodeURIComponent(`Hi! I just submitted my info for ${projectName} and would love to learn more.`);
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
+
   if (isSubmitted) {
     return (
       <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl p-6 text-center">
@@ -123,20 +127,19 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           <CheckCircle className="h-8 w-8 text-primary" />
         </div>
         <h3 className="text-xl font-semibold text-foreground mb-2">
-          {status === "coming_soon" ? "You're on the VIP List!" : "Plans Sent!"}
+          All Set!
         </h3>
         <p className="text-muted-foreground mb-4">
-          {status === "coming_soon" 
-            ? "We'll notify you with exclusive early access, pricing, and floor plans."
-            : "Check your email for floor plans, pricing, and project details."
-          }
+          We received your info and will be in touch soon with floor plans and pricing.
         </p>
         <Button
-          variant="outline"
-          onClick={() => setIsSubmitted(false)}
+          asChild
           className="w-full"
         >
-          Submit Another Request
+          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Chat with an Agent Now
+          </a>
         </Button>
       </div>
     );
