@@ -563,15 +563,6 @@ export default function PresaleProjects() {
                                 <Building2 className="h-12 w-12 text-muted-foreground" />
                               </div>
                             )}
-                            <div className="absolute top-3 left-3 flex items-center gap-2">
-                              {getStatusBadge(project.status)}
-                              {project.is_featured && (
-                                <Badge className="bg-yellow-500 hover:bg-yellow-600">
-                                  <Star className="h-3 w-3 mr-1 fill-current" />
-                                  Featured
-                                </Badge>
-                              )}
-                            </div>
                           </div>
                           <CardContent className="p-3 md:p-4">
                             <div className="flex items-start justify-between gap-2 mb-1.5 md:mb-2">
