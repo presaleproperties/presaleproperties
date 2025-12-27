@@ -125,33 +125,33 @@ export function ListingCard({
           )}
         </div>
 
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
           <div className="flex items-start gap-1.5 text-muted-foreground">
-            <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-            <span className="text-sm truncate">
+            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
+            <span className="text-xs sm:text-sm truncate">
               {isRestricted ? city : (address || neighborhood || city)}
             </span>
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200">
+            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
               {displayTitle}
             </h3>
-            <p className="text-sm text-muted-foreground line-clamp-1">{displaySubtitle}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{displaySubtitle}</p>
           </div>
 
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
             <span className="flex items-center gap-1">
-              <Bed className="h-4 w-4" />
+              <Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               {beds}
             </span>
             <span className="flex items-center gap-1">
-              <Bath className="h-4 w-4" />
+              <Bath className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               {baths}
             </span>
             {interiorSqft && (
               <span className="flex items-center gap-1">
-                <Maximize className="h-4 w-4" />
+                <Maximize className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 {interiorSqft} sqft
               </span>
             )}
@@ -159,11 +159,11 @@ export function ListingCard({
 
           <div className="flex items-end justify-between pt-2 border-t border-border">
             <div>
-              <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+              <p className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
                 {formatPrice(assignmentPrice)}
               </p>
             </div>
-            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
               {city}
             </span>
           </div>
