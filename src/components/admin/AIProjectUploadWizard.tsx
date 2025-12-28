@@ -102,10 +102,6 @@ export function AIProjectUploadWizard() {
   const [isImportingDrive, setIsImportingDrive] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   
-  // Website URL state
-  const [websiteUrl, setWebsiteUrl] = useState("");
-  const [isScrapingWebsite, setIsScrapingWebsite] = useState(false);
-  const [websiteText, setWebsiteText] = useState("");
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
@@ -201,45 +197,10 @@ export function AIProjectUploadWizard() {
     setUploadedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
-  const scrapeWebsite = async (): Promise<string> => {
-    if (!websiteUrl.trim()) return "";
-    
-    setIsScrapingWebsite(true);
-    try {
-      const { data, error: fnError } = await supabase.functions.invoke('scrape-project-website', {
-        body: { url: websiteUrl }
-      });
-
-      if (fnError) throw new Error(fnError.message);
-      
-      // Handle blocked websites gracefully
-      if (data?.blocked) {
-        toast({
-          title: "Website Protected",
-          description: "This website has bot protection. You can paste the content manually or continue with PDFs only.",
-        });
-        return "";
-      }
-      
-      if (!data?.success) throw new Error(data?.error || 'Failed to scrape website');
-
-      console.log("Website scraped, text length:", data.text.length);
-      return data.text;
-    } catch (err: any) {
-      console.error("Website scrape error:", err);
-      toast({
-        title: "Website Scrape Issue",
-        description: "Could not extract content from website. Continuing with available data.",
-      });
-      return "";
-    } finally {
-      setIsScrapingWebsite(false);
-    }
-  };
 
   const processWithAI = async () => {
-    if (uploadedFiles.length === 0 && !websiteUrl.trim()) {
-      setError("Please upload at least one PDF file or enter a website URL");
+    if (uploadedFiles.length === 0) {
+      setError("Please upload at least one PDF file");
       return;
     }
 
@@ -248,28 +209,17 @@ export function AIProjectUploadWizard() {
     setError(null);
 
     try {
-      // Scrape website if URL provided
-      let scrapedWebsiteText = "";
-      if (websiteUrl.trim()) {
-        scrapedWebsiteText = await scrapeWebsite();
-        setWebsiteText(scrapedWebsiteText);
-      }
-
       // Combine all text from uploaded files
-      const combinedText = uploadedFiles.length > 0
-        ? uploadedFiles
-            .map(f => `--- ${f.name} ---\n${f.text}`)
-            .join("\n\n")
-        : "";
+      const combinedText = uploadedFiles
+        .map(f => `--- ${f.name} ---\n${f.text}`)
+        .join("\n\n");
 
-      console.log("Sending to AI for extraction, brochure length:", combinedText.length, "website length:", scrapedWebsiteText.length);
+      console.log("Sending to AI for extraction, brochure length:", combinedText.length);
       
       const { data, error: fnError } = await supabase.functions.invoke('parse-project-brochure', {
         body: { 
-          documentText: combinedText || null,
-          documentType: 'brochure and pricing sheet',
-          websiteText: scrapedWebsiteText || null,
-          websiteUrl: websiteUrl || null
+          documentText: combinedText,
+          documentType: 'brochure and pricing sheet'
         }
       });
 
@@ -688,35 +638,6 @@ export function AIProjectUploadWizard() {
               )}
             </div>
 
-            {/* Website URL Input */}
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="flex-1 h-px bg-border" />
-                <span className="text-sm text-muted-foreground px-2">OR add developer website</span>
-                <div className="flex-1 h-px bg-border" />
-              </div>
-              
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <Globe className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    value={websiteUrl}
-                    onChange={(e) => setWebsiteUrl(e.target.value)}
-                    placeholder="https://developer-website.com/project-name"
-                    className="pl-10"
-                  />
-                </div>
-              </div>
-              
-              {websiteUrl && (
-                <div className="flex items-center gap-2 p-3 bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg">
-                  <Link className="h-4 w-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
-                  <p className="text-sm text-blue-700 dark:text-blue-300">
-                    Website data will be prioritized over brochure data when conflicts occur
-                  </p>
-                </div>
-              )}
-            </div>
 
             {error && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
@@ -761,22 +682,13 @@ export function AIProjectUploadWizard() {
             {/* Action Button */}
             <Button 
               onClick={processWithAI}
-              disabled={(uploadedFiles.length === 0 && !websiteUrl.trim()) || isUploading || isScrapingWebsite}
+              disabled={uploadedFiles.length === 0 || isUploading}
               size="lg"
               className="w-full"
             >
-              {isScrapingWebsite ? (
-                <>
-                  <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                  Fetching Website...
-                </>
-              ) : (
-                <>
-                  <Sparkles className="h-5 w-5 mr-2" />
-                  Extract Project Details with AI
-                  <ArrowRight className="h-5 w-5 ml-2" />
-                </>
-              )}
+              <Sparkles className="h-5 w-5 mr-2" />
+              Extract Project Details with AI
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Button>
           </CardContent>
         </Card>
