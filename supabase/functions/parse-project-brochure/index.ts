@@ -13,16 +13,16 @@ serve(async (req) => {
   }
 
   try {
-    const { documentText, documentType } = await req.json();
+    const { documentText, documentType, websiteText, websiteUrl } = await req.json();
 
-    if (!documentText) {
+    if (!documentText && !websiteText) {
       return new Response(
-        JSON.stringify({ error: 'Document text is required' }),
+        JSON.stringify({ error: 'Either document text or website text is required' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('Parsing project brochure, text length:', documentText.length);
+    console.log('Parsing project data, brochure length:', documentText?.length || 0, 'website length:', websiteText?.length || 0);
 
     const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
@@ -33,11 +33,31 @@ serve(async (req) => {
       );
     }
 
-    const systemPrompt = `You are a real estate project data extraction assistant. Extract project information from the provided brochure/information sheet text.
+    // Build context with priority to website data
+    let contextParts: string[] = [];
+    
+    if (websiteText) {
+      contextParts.push(`=== DEVELOPER WEBSITE (PRIMARY SOURCE - prioritize this data) ===\nSource: ${websiteUrl || 'Developer website'}\n\n${websiteText}`);
+    }
+    
+    if (documentText) {
+      contextParts.push(`=== BROCHURE/PDF DOCUMENTS (SECONDARY SOURCE) ===\n${documentType || 'Brochure'}\n\n${documentText}`);
+    }
+
+    const combinedContext = contextParts.join('\n\n---\n\n');
+
+    const systemPrompt = `You are a real estate project data extraction assistant. Extract project information from the provided sources.
+
+IMPORTANT: When data conflicts between sources, ALWAYS prioritize the DEVELOPER WEBSITE data over brochure data. The website contains the most current and accurate information.
+
+Extract all available information and merge intelligently:
+- Use website data as the primary source for all fields
+- Fill in gaps from brochure data only when website doesn't have the info
+- For pricing, use the most current/accurate figures (usually from website)
 
 Return the data by calling the provided tool. Do NOT return JSON in plain text.`;
 
-    const userPrompt = `Extract project data from this ${documentType || 'brochure'}:\n\n${documentText}`;
+    const userPrompt = `Extract project data from these sources:\n\n${combinedContext}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -56,7 +76,7 @@ Return the data by calling the provided tool. Do NOT return JSON in plain text.`
             type: 'function',
             function: {
               name: 'extract_project',
-              description: 'Extract structured presale project data from brochure text.',
+              description: 'Extract structured presale project data from brochure and/or website text.',
               parameters: {
                 type: 'object',
                 additionalProperties: false,
@@ -66,10 +86,9 @@ Return the data by calling the provided tool. Do NOT return JSON in plain text.`
                   city: { type: 'string' },
                   neighborhood: { type: 'string' },
                   address: { type: 'string' },
-                  project_type: { type: 'string', enum: ['condo', 'townhome', 'mixed'] },
+                  project_type: { type: 'string', enum: ['condo', 'townhome', 'mixed', 'duplex', 'single_family'] },
                   unit_mix: { type: 'string' },
                   starting_price: { type: ['number', 'null'] },
-                  price_range: { type: 'string' },
                   deposit_structure: { type: 'string' },
                   incentives: { type: 'string' },
                   completion_month: { type: ['number', 'null'] },
@@ -101,7 +120,6 @@ Return the data by calling the provided tool. Do NOT return JSON in plain text.`
                   'project_type',
                   'unit_mix',
                   'starting_price',
-                  'price_range',
                   'deposit_structure',
                   'incentives',
                   'completion_month',
