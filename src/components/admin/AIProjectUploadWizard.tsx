@@ -211,6 +211,16 @@ export function AIProjectUploadWizard() {
       });
 
       if (fnError) throw new Error(fnError.message);
+      
+      // Handle blocked websites gracefully
+      if (data?.blocked) {
+        toast({
+          title: "Website Protected",
+          description: "This website has bot protection. You can paste the content manually or continue with PDFs only.",
+        });
+        return "";
+      }
+      
       if (!data?.success) throw new Error(data?.error || 'Failed to scrape website');
 
       console.log("Website scraped, text length:", data.text.length);
@@ -218,9 +228,8 @@ export function AIProjectUploadWizard() {
     } catch (err: any) {
       console.error("Website scrape error:", err);
       toast({
-        title: "Website Scrape Failed",
-        description: err.message || "Could not extract content from website. Continuing with PDFs only.",
-        variant: "destructive",
+        title: "Website Scrape Issue",
+        description: "Could not extract content from website. Continuing with available data.",
       });
       return "";
     } finally {
