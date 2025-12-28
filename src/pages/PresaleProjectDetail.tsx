@@ -251,7 +251,7 @@ export default function PresaleProjectDetail() {
 
         {/* Hero */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
-          <div className="container px-4 py-6 md:py-8">
+          <div className="container px-3 py-4 md:px-4 md:py-6 lg:py-8">
             <GalleryWithLightbox
               images={allImages}
               selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
@@ -263,9 +263,9 @@ export default function PresaleProjectDetail() {
 
         {/* Project Info Section */}
         <section className="border-t">
-          <div className="container px-4 py-6">
+          <div className="container px-3 py-4 md:px-4 md:py-5 lg:py-6">
             {/* Status Badge Row */}
-            <div className="flex flex-wrap items-center gap-2 mb-3">
+            <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
               {getStatusBadge(project.status)}
               {project.is_featured && (
                 <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
@@ -276,26 +276,26 @@ export default function PresaleProjectDetail() {
             </div>
 
             {/* Title and Location */}
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{project.name}</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1.5 md:mb-2">{project.name}</h1>
             
             {project.starting_price ? (
-              <div className="mb-3">
-                <span className="text-xl font-semibold text-primary">
+              <div className="mb-2 md:mb-3">
+                <span className="text-lg md:text-xl font-semibold text-primary">
                   From {formatPrice(project.starting_price)}
                 </span>
               </div>
             ) : (
-              <div className="text-lg text-muted-foreground mb-3">Contact for pricing</div>
+              <div className="text-base md:text-lg text-muted-foreground mb-2 md:mb-3">Contact for pricing</div>
             )}
 
-            <div className="flex items-center gap-2 text-muted-foreground mb-2">
-              <MapPin className="h-4 w-4 shrink-0" />
+            <div className="flex items-center gap-2 text-muted-foreground text-sm md:text-base mb-1.5 md:mb-2">
+              <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
               <span>{project.address || `${project.neighborhood}, ${project.city}`}</span>
             </div>
 
-            {/* Action Buttons - Desktop inline, Mobile stacked */}
-            <div className="flex flex-wrap gap-3 mt-4 mb-2">
-              <Button size="lg" onClick={scrollToForm} className="font-semibold">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4 mb-2">
+              <Button size="default" onClick={scrollToForm} className="font-semibold text-sm md:text-base md:h-11">
                 {project.status === "coming_soon" ? (
                   <>Register Now</>
                 ) : (
@@ -304,7 +304,7 @@ export default function PresaleProjectDetail() {
               </Button>
             </div>
 
-            {/* Highlights Grid - REW Style */}
+            {/* Highlights Grid */}
             <ProjectHighlights
               projectType={project.project_type}
               unitMix={project.unit_mix}
@@ -319,20 +319,20 @@ export default function PresaleProjectDetail() {
         </section>
 
         {/* Details Grid */}
-        <section className="py-6 md:py-10">
-          <div className="container px-4">
-            <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <section className="py-4 md:py-6 lg:py-10">
+          <div className="container px-3 md:px-4">
+            <div className="grid lg:grid-cols-3 gap-4 md:gap-5 lg:gap-8">
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-6 md:space-y-8">
-                {/* Amenities - Shown first like REW */}
+              <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-8">
+                {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Amenities</h2>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
                       {project.amenities.map((a, i) => (
                         <div key={i} className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 text-green-500 shrink-0" />
-                          <span className="text-sm">{a}</span>
+                          <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-500 shrink-0" />
+                          <span className="text-xs md:text-sm">{a}</span>
                         </div>
                       ))}
                     </div>
@@ -341,11 +341,11 @@ export default function PresaleProjectDetail() {
 
                 {/* Description */}
                 {project.full_description && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Development Features</h2>
+                    <div className="prose prose-sm max-w-none text-muted-foreground text-xs md:text-sm">
                       {project.full_description.split("\n").map((p, i) => (
-                        <p key={i} className="mb-3 last:mb-0">{p}</p>
+                        <p key={i} className="mb-2 md:mb-3 last:mb-0">{p}</p>
                       ))}
                     </div>
                   </div>
@@ -353,13 +353,13 @@ export default function PresaleProjectDetail() {
 
                 {/* Highlights */}
                 {project.highlights && project.highlights.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Key Highlights</h2>
-                    <ul className="grid sm:grid-cols-2 gap-3">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Key Highlights</h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
                       {project.highlights.map((h, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <CheckCircle className="h-5 w-5 text-green-500 shrink-0 mt-0.5" />
-                          <span className="text-sm md:text-base">{h}</span>
+                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-xs md:text-sm">{h}</span>
                         </li>
                       ))}
                     </ul>
@@ -368,35 +368,35 @@ export default function PresaleProjectDetail() {
 
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Deposit & Fees</h2>
-                    <div className="space-y-4">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Deposit & Fees</h2>
+                    <div className="space-y-3 md:space-y-4">
                       {project.deposit_structure && (
                         <div>
-                          <h4 className="font-medium mb-2 text-sm md:text-base">Deposit Structure</h4>
-                          <p className="text-muted-foreground text-sm md:text-base">{project.deposit_structure}</p>
+                          <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Deposit Structure</h4>
+                          <p className="text-muted-foreground text-xs md:text-sm">{project.deposit_structure}</p>
                         </div>
                       )}
                       {(project.strata_fees || project.assignment_fees) && (
-                        <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-3 md:gap-4">
                           {project.strata_fees && (
                             <div>
-                              <h4 className="font-medium mb-2 text-sm md:text-base">Strata Fees (Est.)</h4>
-                              <p className="text-muted-foreground text-sm md:text-base">{project.strata_fees}</p>
+                              <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Strata Fees (Est.)</h4>
+                              <p className="text-muted-foreground text-xs md:text-sm">{project.strata_fees}</p>
                             </div>
                           )}
                           {project.assignment_fees && (
                             <div>
-                              <h4 className="font-medium mb-2 text-sm md:text-base">Assignment Fees</h4>
-                              <p className="text-muted-foreground text-sm md:text-base">{project.assignment_fees}</p>
+                              <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Assignment Fees</h4>
+                              <p className="text-muted-foreground text-xs md:text-sm">{project.assignment_fees}</p>
                             </div>
                           )}
                         </div>
                       )}
                       {project.incentives && (
                         <div>
-                          <h4 className="font-medium mb-2 text-sm md:text-base">Current Incentives</h4>
-                          <p className="text-muted-foreground text-sm md:text-base">{project.incentives}</p>
+                          <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Current Incentives</h4>
+                          <p className="text-muted-foreground text-xs md:text-sm">{project.incentives}</p>
                         </div>
                       )}
                     </div>
@@ -406,21 +406,21 @@ export default function PresaleProjectDetail() {
                 {/* Downloads */}
                 {((project.floorplan_files && project.floorplan_files.length > 0) || 
                   (project.brochure_files && project.brochure_files.length > 0)) && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Downloads</h2>
-                    <div className="flex flex-wrap gap-3">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Downloads</h2>
+                    <div className="flex flex-wrap gap-2 md:gap-3">
                       {project.floorplan_files?.map((file, i) => (
-                        <Button key={i} variant="outline" size="sm" asChild>
+                        <Button key={i} variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9" asChild>
                           <a href={file} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-4 w-4 mr-2" />
+                            <Download className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                             Floor Plan {i + 1}
                           </a>
                         </Button>
                       ))}
                       {project.brochure_files?.map((file, i) => (
-                        <Button key={i} variant="outline" size="sm" asChild>
+                        <Button key={i} variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9" asChild>
                           <a href={file} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-4 w-4 mr-2" />
+                            <Download className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
                             Brochure {i + 1}
                           </a>
                         </Button>
@@ -431,23 +431,23 @@ export default function PresaleProjectDetail() {
 
                 {/* Developer Info */}
                 {project.developer_name && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-2">Developer</h2>
-                    <p className="font-medium">{project.developer_name}</p>
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-1.5 md:mb-2">Developer</h2>
+                    <p className="font-medium text-sm md:text-base">{project.developer_name}</p>
                   </div>
                 )}
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Frequently Asked Questions</h2>
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Frequently Asked Questions</h2>
                     <Accordion type="single" collapsible className="w-full">
                       {project.faq.map((item, i) => (
                         <AccordionItem key={i} value={`faq-${i}`}>
-                          <AccordionTrigger className="text-left text-sm md:text-base">
+                          <AccordionTrigger className="text-left text-xs md:text-sm py-2.5 md:py-3">
                             {item.question}
                           </AccordionTrigger>
-                          <AccordionContent className="text-sm md:text-base text-muted-foreground">
+                          <AccordionContent className="text-xs md:text-sm text-muted-foreground">
                             {item.answer}
                           </AccordionContent>
                         </AccordionItem>
