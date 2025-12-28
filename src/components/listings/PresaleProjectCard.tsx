@@ -11,7 +11,7 @@ interface PresaleProjectCardProps {
   name: string;
   city: string;
   neighborhood: string;
-  projectType: "condo" | "townhome" | "mixed";
+  projectType: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   status?: "coming_soon" | "active" | "sold_out";
   completionYear?: number | null;
   startingPrice?: number | null;
@@ -27,7 +27,14 @@ const formatPrice = (price: number) => {
 };
 
 const formatType = (type: string) => {
-  return type.charAt(0).toUpperCase() + type.slice(1) + "s";
+  const typeMap: Record<string, string> = {
+    condo: "Condos",
+    townhome: "Townhomes",
+    mixed: "Mixed",
+    duplex: "Duplexes",
+    single_family: "Single Family Homes",
+  };
+  return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1) + "s";
 };
 
 const getStatusLabel = (status: string) => {

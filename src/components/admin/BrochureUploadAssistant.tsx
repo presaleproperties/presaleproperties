@@ -42,7 +42,7 @@ type ExtractedProjectData = {
   city?: string;
   neighborhood?: string;
   address?: string;
-  project_type?: "condo" | "townhome" | "mixed";
+  project_type?: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix?: string;
   starting_price?: number;
   price_range?: string;

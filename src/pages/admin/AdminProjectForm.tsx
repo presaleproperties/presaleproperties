@@ -38,7 +38,7 @@ type ProjectFormData = {
   neighborhood: string;
   address: string;
   developer_name: string;
-  project_type: "condo" | "townhome" | "mixed";
+  project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix: string;
   starting_price: string;
   deposit_structure: string;
@@ -739,6 +739,8 @@ export default function AdminProjectForm() {
                       <SelectContent>
                         <SelectItem value="condo">Condo</SelectItem>
                         <SelectItem value="townhome">Townhome</SelectItem>
+                        <SelectItem value="duplex">Duplex</SelectItem>
+                        <SelectItem value="single_family">Single Family Home</SelectItem>
                         <SelectItem value="mixed">Mixed</SelectItem>
                       </SelectContent>
                     </Select>

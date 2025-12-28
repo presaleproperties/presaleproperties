@@ -717,7 +717,7 @@ export type Database = {
         | "expired"
         | "paused"
       project_status: "coming_soon" | "active" | "sold_out"
-      project_type: "condo" | "townhome" | "mixed"
+      project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family"
       property_type: "condo" | "townhouse" | "other"
       unit_type:
         | "studio"
@@ -872,7 +872,7 @@ export const Constants = {
         "paused",
       ],
       project_status: ["coming_soon", "active", "sold_out"],
-      project_type: ["condo", "townhome", "mixed"],
+      project_type: ["condo", "townhome", "mixed", "duplex", "single_family"],
       property_type: ["condo", "townhouse", "other"],
       unit_type: [
         "studio",

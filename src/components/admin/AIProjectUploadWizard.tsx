@@ -44,7 +44,7 @@ type ExtractedProjectData = {
   city?: string;
   neighborhood?: string;
   address?: string;
-  project_type?: "condo" | "townhome" | "mixed";
+  project_type?: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix?: string;
   starting_price?: number;
   price_range?: string;
@@ -757,6 +757,8 @@ export function AIProjectUploadWizard() {
                         <SelectContent>
                           <SelectItem value="condo">Condo</SelectItem>
                           <SelectItem value="townhome">Townhome</SelectItem>
+                          <SelectItem value="duplex">Duplex</SelectItem>
+                          <SelectItem value="single_family">Single Family Home</SelectItem>
                           <SelectItem value="mixed">Mixed</SelectItem>
                         </SelectContent>
                       </Select>
