@@ -254,7 +254,7 @@ export function GalleryWithLightbox({
 
   return (
     <>
-      <div className="space-y-3">
+      <div className="space-y-2 md:space-y-3">
         {/* Main image with navigation arrows and swipe support */}
         <div 
           className="relative group"
@@ -264,7 +264,7 @@ export function GalleryWithLightbox({
         >
           <div
             onClick={() => openLightbox(selectedIndex)}
-            className="relative w-full aspect-[4/3] md:aspect-[4/3] rounded-xl overflow-hidden bg-muted cursor-pointer"
+            className="relative w-full aspect-[4/3] md:aspect-[16/9] lg:aspect-[4/3] rounded-lg md:rounded-xl overflow-hidden bg-muted cursor-pointer"
           >
             <img
               src={images[selectedIndex]}
@@ -273,30 +273,30 @@ export function GalleryWithLightbox({
             />
           </div>
 
-          {/* Navigation arrows - always visible on mobile, hover on desktop */}
+          {/* Navigation arrows - always visible on mobile/tablet, hover on desktop */}
           {images.length > 1 && (
             <>
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute left-2 md:left-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md z-10"
+                className="absolute left-2 top-1/2 -translate-y-1/2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10 rounded-full shadow-md z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectIndex((selectedIndex - 1 + images.length) % images.length);
                 }}
               >
-                <ChevronLeft className="h-5 w-5" />
+                <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
               </Button>
               <Button
                 variant="secondary"
                 size="icon"
-                className="absolute right-2 md:right-3 top-1/2 -translate-y-1/2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md z-10"
+                className="absolute right-2 top-1/2 -translate-y-1/2 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10 rounded-full shadow-md z-10"
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelectIndex((selectedIndex + 1) % images.length);
                 }}
               >
-                <ChevronRight className="h-5 w-5" />
+                <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
               </Button>
             </>
           )}
@@ -305,29 +305,29 @@ export function GalleryWithLightbox({
           <Button
             variant="secondary"
             size="icon"
-            className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md z-10"
+            className="absolute top-2 right-2 md:top-3 md:right-3 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-8 w-8 md:h-10 md:w-10 rounded-full shadow-md z-10"
             onClick={() => openLightbox(selectedIndex)}
           >
-            <Expand className="h-4 w-4" />
+            <Expand className="h-3.5 w-3.5 md:h-4 md:w-4" />
           </Button>
 
           {/* Photo Counter */}
           {images.length > 1 && (
-            <div className="absolute bottom-3 left-3 bg-black/70 backdrop-blur-sm px-3 py-1.5 rounded-full text-xs font-medium text-white">
+            <div className="absolute bottom-2 left-2 md:bottom-3 md:left-3 bg-black/70 backdrop-blur-sm px-2 py-1 md:px-3 md:py-1.5 rounded-full text-[11px] md:text-xs font-medium text-white">
               {selectedIndex + 1} / {images.length}
             </div>
           )}
 
-          {/* Dot Indicators for Mobile */}
-          {images.length > 1 && images.length <= 6 && (
-            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 md:hidden">
+          {/* Dot Indicators for Mobile/Tablet */}
+          {images.length > 1 && images.length <= 8 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1 lg:hidden">
               {images.map((_, idx) => (
                 <span
                   key={idx}
                   className={cn(
-                    "h-2 w-2 rounded-full transition-all",
+                    "h-1.5 w-1.5 md:h-2 md:w-2 rounded-full transition-all",
                     idx === selectedIndex 
-                      ? "bg-white w-4" 
+                      ? "bg-white w-3 md:w-4" 
                       : "bg-white/50"
                   )}
                 />
@@ -336,19 +336,19 @@ export function GalleryWithLightbox({
           )}
         </div>
 
-        {/* Thumbnails - horizontal scroll on mobile, grid on desktop */}
+        {/* Thumbnails - hide on mobile, horizontal scroll on tablet, grid on desktop */}
         {images.length > 1 && (
           <>
-            {/* Mobile: Single row horizontal scroll */}
-            <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide sm:hidden -mx-1 px-1">
+            {/* Tablet: Compact horizontal scroll */}
+            <div className="hidden md:flex lg:hidden gap-1.5 overflow-x-auto pb-1 scrollbar-hide">
               {images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => onSelectIndex(i)}
-                  className={`shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
+                  className={`shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-all ${
                     selectedIndex === i
-                      ? "border-primary ring-2 ring-primary/20"
-                      : "border-transparent"
+                      ? "border-primary"
+                      : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
                   <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" />
@@ -357,7 +357,7 @@ export function GalleryWithLightbox({
             </div>
 
             {/* Desktop: Grid layout */}
-            <div className="hidden sm:grid grid-cols-5 md:grid-cols-4 lg:grid-cols-6 gap-2">
+            <div className="hidden lg:grid grid-cols-6 gap-2">
               {images.slice(0, 5).map((img, i) => (
                 <button
                   key={i}
