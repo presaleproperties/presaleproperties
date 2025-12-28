@@ -2,8 +2,7 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
-import { FeaturedListings } from "@/components/home/FeaturedListings";
-import { LatestListings } from "@/components/home/LatestListings";
+import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 
@@ -14,8 +13,7 @@ const Index = () => {
       <main className="flex-1">
         <HeroSection />
         <FeaturedProjects />
-        <FeaturedListings />
-        <LatestListings />
+        <CityProjectsSection />
         <NewConstructionBenefits />
         <BuyerCTASection />
       </main>
