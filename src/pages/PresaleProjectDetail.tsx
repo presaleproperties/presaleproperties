@@ -48,6 +48,8 @@ type Project = {
   unit_mix: string | null;
   starting_price: number | null;
   deposit_structure: string | null;
+  strata_fees: string | null;
+  assignment_fees: string | null;
   incentives: string | null;
   completion_month: number | null;
   completion_year: number | null;
@@ -365,14 +367,30 @@ export default function PresaleProjectDetail() {
                 )}
 
                 {/* Deposit & Incentives */}
-                {(project.deposit_structure || project.incentives) && (
+                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
                   <div className="bg-muted/30 rounded-xl p-5 md:p-6">
-                    <h2 className="text-lg font-semibold text-foreground mb-4">Deposit & Incentives</h2>
+                    <h2 className="text-lg font-semibold text-foreground mb-4">Deposit & Fees</h2>
                     <div className="space-y-4">
                       {project.deposit_structure && (
                         <div>
                           <h4 className="font-medium mb-2 text-sm md:text-base">Deposit Structure</h4>
                           <p className="text-muted-foreground text-sm md:text-base">{project.deposit_structure}</p>
+                        </div>
+                      )}
+                      {(project.strata_fees || project.assignment_fees) && (
+                        <div className="grid sm:grid-cols-2 gap-4">
+                          {project.strata_fees && (
+                            <div>
+                              <h4 className="font-medium mb-2 text-sm md:text-base">Strata Fees (Est.)</h4>
+                              <p className="text-muted-foreground text-sm md:text-base">{project.strata_fees}</p>
+                            </div>
+                          )}
+                          {project.assignment_fees && (
+                            <div>
+                              <h4 className="font-medium mb-2 text-sm md:text-base">Assignment Fees</h4>
+                              <p className="text-muted-foreground text-sm md:text-base">{project.assignment_fees}</p>
+                            </div>
+                          )}
                         </div>
                       )}
                       {project.incentives && (
