@@ -4,6 +4,9 @@ const FEATURED_CITIES = [
   { city: "Langley", title: "Langley Projects", subtitle: "Township & City of Langley" },
   { city: "Surrey", title: "Surrey Projects", subtitle: "South of the Fraser" },
   { city: "Coquitlam", title: "Coquitlam Projects", subtitle: "Tri-Cities Area" },
+  { city: "Delta", title: "Delta Projects", subtitle: "Ladner, Tsawwassen & North Delta" },
+  { city: "Abbotsford", title: "Abbotsford Projects", subtitle: "Fraser Valley" },
+  { city: "Vancouver", title: "Vancouver Projects", subtitle: "Downtown & East Vancouver" },
 ];
 
 export function CityProjectsSection() {
