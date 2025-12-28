@@ -44,7 +44,7 @@ type Project = {
   neighborhood: string;
   address: string | null;
   developer_name: string | null;
-  project_type: "condo" | "townhome" | "mixed";
+  project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix: string | null;
   starting_price: number | null;
   price_range: string | null;

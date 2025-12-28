@@ -1,7 +1,7 @@
 import { Building2, Layers, Calendar, DollarSign, Gift, MapPin } from "lucide-react";
 
 interface ProjectHighlightsProps {
-  projectType: "condo" | "townhome" | "mixed";
+  projectType: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unitMix?: string | null;
   completionMonth?: number | null;
   completionYear?: number | null;
@@ -34,10 +34,21 @@ export function ProjectHighlights({
 
   const location = getLocation();
 
+  const formatProjectType = (type: string) => {
+    const typeMap: Record<string, string> = {
+      condo: "Condo",
+      townhome: "Townhome",
+      mixed: "Mixed",
+      duplex: "Duplex",
+      single_family: "Single Family",
+    };
+    return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
   const highlights = [
     {
       label: "Type",
-      value: projectType.charAt(0).toUpperCase() + projectType.slice(1),
+      value: formatProjectType(projectType),
       icon: <Building2 className="h-4 w-4" />,
     },
     unitMix && {
