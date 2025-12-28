@@ -1,15 +1,33 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight } from "lucide-react";
+import { Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+
+const CITY_LINKS = [
+  { slug: "vancouver", name: "Vancouver" },
+  { slug: "surrey", name: "Surrey" },
+  { slug: "langley", name: "Langley" },
+  { slug: "coquitlam", name: "Coquitlam" },
+  { slug: "burnaby", name: "Burnaby" },
+  { slug: "delta", name: "Delta" },
+  { slug: "abbotsford", name: "Abbotsford" },
+  { slug: "richmond", name: "Richmond" },
+];
 
 export function Header() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
-    { to: "/presale-projects", label: "Presale Projects", icon: Building2 },
     { to: "/assignments", label: "Assignments", icon: FileStack },
     { to: "/blog", label: "Blog", icon: BookOpen },
     { to: "/agents", label: "For Agents", icon: Users, highlight: true },
@@ -27,7 +45,49 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-6">
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
+                  Presale Projects
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="w-[400px] p-4">
+                    <div className="mb-3">
+                      <Link 
+                        to="/presale-projects" 
+                        className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                      >
+                        <Building2 className="h-4 w-4 text-primary" />
+                        <div>
+                          <div className="text-sm font-medium">All Projects</div>
+                          <p className="text-xs text-muted-foreground">Browse all presale developments</p>
+                        </div>
+                      </Link>
+                    </div>
+                    <div className="border-t pt-3">
+                      <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">BY CITY</p>
+                      <div className="grid grid-cols-2 gap-1">
+                        {CITY_LINKS.map((city) => (
+                          <NavigationMenuLink key={city.slug} asChild>
+                            <Link
+                              to={`/presale-condos-${city.slug}`}
+                              className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                            >
+                              <MapPin className="h-3 w-3 text-muted-foreground" />
+                              {city.name}
+                            </Link>
+                          </NavigationMenuLink>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+          
           {navLinks.map((link) => (
             <Link
               key={link.to}
@@ -70,32 +130,70 @@ export function Header() {
             >
               <div className="flex flex-col h-full">
                 {/* Navigation Links */}
-                <nav className="flex-1 pt-8">
+                <nav className="flex-1 pt-8 overflow-y-auto">
                   <div className="space-y-1 px-3">
-                    {navLinks.map((link) => {
-                      const Icon = link.icon;
-                      const active = isActive(link.to);
-                      return (
-                        <Link
-                          key={link.to}
-                          to={link.to}
-                          onClick={() => setOpen(false)}
-                          className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                            active 
-                              ? "bg-primary/10 text-primary" 
-                              : link.highlight
-                                ? "text-primary hover:bg-primary/5"
-                                : "text-foreground hover:bg-muted"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <Icon className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-                            <span className="text-[15px] font-medium">{link.label}</span>
-                          </div>
-                          <ChevronRight className={`h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 ${active ? "text-primary/50" : ""}`} />
-                        </Link>
-                      );
-                    })}
+                    {/* Presale Projects Section */}
+                    <Link
+                      to="/presale-projects"
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        isActive("/presale-projects") 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                        <span className="text-[15px] font-medium">All Projects</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                    </Link>
+                    
+                    {/* City Links */}
+                    <div className="px-4 pt-3 pb-1">
+                      <p className="text-xs font-semibold text-muted-foreground">BY CITY</p>
+                    </div>
+                    {CITY_LINKS.map((city) => (
+                      <Link
+                        key={city.slug}
+                        to={`/presale-condos-${city.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 group text-foreground hover:bg-muted"
+                      >
+                        <div className="flex items-center gap-3">
+                          <MapPin className="h-3 w-3 text-muted-foreground" />
+                          <span className="text-sm">{city.name}</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                      </Link>
+                    ))}
+
+                    <div className="pt-3 border-t mt-3">
+                      {navLinks.map((link) => {
+                        const Icon = link.icon;
+                        const active = isActive(link.to);
+                        return (
+                          <Link
+                            key={link.to}
+                            to={link.to}
+                            onClick={() => setOpen(false)}
+                            className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                              active 
+                                ? "bg-primary/10 text-primary" 
+                                : link.highlight
+                                  ? "text-primary hover:bg-primary/5"
+                                  : "text-foreground hover:bg-muted"
+                            }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <Icon className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
+                              <span className="text-[15px] font-medium">{link.label}</span>
+                            </div>
+                            <ChevronRight className={`h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 ${active ? "text-primary/50" : ""}`} />
+                          </Link>
+                        );
+                      })}
+                    </div>
                   </div>
                 </nav>
 
