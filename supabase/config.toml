@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.fetch-drive-folder]
 verify_jwt = false
+
+[functions.scrape-project-website]
+verify_jwt = false
