@@ -101,7 +101,7 @@ export function AIProjectUploadWizard() {
   const [driveUrl, setDriveUrl] = useState("");
   const [isImportingDrive, setIsImportingDrive] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  
+  const [pastedContent, setPastedContent] = useState("");
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
@@ -199,8 +199,8 @@ export function AIProjectUploadWizard() {
 
 
   const processWithAI = async () => {
-    if (uploadedFiles.length === 0) {
-      setError("Please upload at least one PDF file");
+    if (uploadedFiles.length === 0 && !pastedContent.trim()) {
+      setError("Please upload at least one PDF file or paste some content");
       return;
     }
 
@@ -210,16 +210,21 @@ export function AIProjectUploadWizard() {
 
     try {
       // Combine all text from uploaded files
-      const combinedText = uploadedFiles
-        .map(f => `--- ${f.name} ---\n${f.text}`)
-        .join("\n\n");
+      const pdfText = uploadedFiles.length > 0
+        ? uploadedFiles.map(f => `--- ${f.name} ---\n${f.text}`).join("\n\n")
+        : "";
+      
+      // Combine PDF text with pasted content
+      const combinedText = [pdfText, pastedContent.trim()]
+        .filter(Boolean)
+        .join("\n\n--- Pasted Content ---\n");
 
-      console.log("Sending to AI for extraction, brochure length:", combinedText.length);
+      console.log("Sending to AI for extraction, total length:", combinedText.length);
       
       const { data, error: fnError } = await supabase.functions.invoke('parse-project-brochure', {
         body: { 
           documentText: combinedText,
-          documentType: 'brochure and pricing sheet'
+          documentType: 'brochure, pricing sheet, and website content'
         }
       });
 
@@ -679,10 +684,32 @@ export function AIProjectUploadWizard() {
               </div>
             )}
 
+            {/* Manual Content Paste */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-sm text-muted-foreground px-2">OR paste content manually</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+              
+              <Textarea
+                value={pastedContent}
+                onChange={(e) => setPastedContent(e.target.value)}
+                placeholder="Paste project details from developer websites, emails, or other sources here..."
+                className="min-h-[120px] resize-y"
+              />
+              
+              {pastedContent.trim() && (
+                <p className="text-xs text-muted-foreground">
+                  {pastedContent.length.toLocaleString()} characters pasted
+                </p>
+              )}
+            </div>
+
             {/* Action Button */}
             <Button 
               onClick={processWithAI}
-              disabled={uploadedFiles.length === 0 || isUploading}
+              disabled={(uploadedFiles.length === 0 && !pastedContent.trim()) || isUploading}
               size="lg"
               className="w-full"
             >
