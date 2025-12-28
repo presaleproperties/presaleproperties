@@ -11,6 +11,11 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 const CITY_LINKS = [
   { slug: "vancouver", name: "Vancouver" },
@@ -25,9 +30,11 @@ const CITY_LINKS = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [citiesOpen, setCitiesOpen] = useState(false);
   const location = useLocation();
 
   const navLinks = [
+    { to: "/presale-projects", label: "Presale Projects", icon: Building2 },
     { to: "/assignments", label: "Assignments", icon: FileStack },
     { to: "/blog", label: "Blog", icon: BookOpen },
     { to: "/agents", label: "For Agents", icon: Users, highlight: true },
@@ -53,7 +60,7 @@ export function Header() {
                   Presale Projects
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="w-[400px] p-4">
+                  <div className="w-[400px] p-4 bg-background">
                     <div className="mb-3">
                       <Link 
                         to="/presale-projects" 
@@ -88,19 +95,24 @@ export function Header() {
             </NavigationMenuList>
           </NavigationMenu>
           
-          {navLinks.map((link) => (
-            <Link
-              key={link.to}
-              to={link.to}
-              className={`text-sm font-medium transition-colors ${
-                link.highlight 
-                  ? "text-primary hover:text-primary/80" 
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {link.label}
-            </Link>
-          ))}
+          <Link
+            to="/assignments"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Assignments
+          </Link>
+          <Link
+            to="/blog"
+            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Blog
+          </Link>
+          <Link
+            to="/agents"
+            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            For Agents
+          </Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
@@ -132,7 +144,7 @@ export function Header() {
                 {/* Navigation Links */}
                 <nav className="flex-1 pt-8 overflow-y-auto">
                   <div className="space-y-1 px-3">
-                    {/* Presale Projects Section */}
+                    {/* Presale Projects with Cities Dropdown */}
                     <Link
                       to="/presale-projects"
                       onClick={() => setOpen(false)}
@@ -144,61 +156,87 @@ export function Header() {
                     >
                       <div className="flex items-center gap-3">
                         <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-                        <span className="text-[15px] font-medium">All Projects</span>
+                        <span className="text-[15px] font-medium">Presale Projects</span>
                       </div>
                       <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                     </Link>
-                    
-                    {/* City Links */}
-                    <div className="px-4 pt-3 pb-1">
-                      <p className="text-xs font-semibold text-muted-foreground">BY CITY</p>
-                    </div>
-                    {CITY_LINKS.map((city) => (
-                      <Link
-                        key={city.slug}
-                        to={`/presale-condos-${city.slug}`}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-200 group text-foreground hover:bg-muted"
-                      >
-                        <div className="flex items-center gap-3">
-                          <MapPin className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">{city.name}</span>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                      </Link>
-                    ))}
 
-                    <div className="pt-3 border-t mt-3">
-                      {navLinks.map((link) => {
-                        const Icon = link.icon;
-                        const active = isActive(link.to);
-                        return (
+                    {/* Collapsible Cities Section */}
+                    <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
+                      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
+                        <div className="flex items-center gap-3">
+                          <MapPin className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-[15px] font-medium">Cities</span>
+                        </div>
+                        <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                        {CITY_LINKS.map((city) => (
                           <Link
-                            key={link.to}
-                            to={link.to}
+                            key={city.slug}
+                            to={`/presale-condos-${city.slug}`}
                             onClick={() => setOpen(false)}
-                            className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
-                              active 
-                                ? "bg-primary/10 text-primary" 
-                                : link.highlight
-                                  ? "text-primary hover:bg-primary/5"
-                                  : "text-foreground hover:bg-muted"
-                            }`}
+                            className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                           >
-                            <div className="flex items-center gap-3">
-                              <Icon className={`h-4 w-4 ${active ? "text-primary" : "text-muted-foreground group-hover:text-foreground"}`} />
-                              <span className="text-[15px] font-medium">{link.label}</span>
-                            </div>
-                            <ChevronRight className={`h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 ${active ? "text-primary/50" : ""}`} />
+                            <span className="text-sm">{city.name}</span>
                           </Link>
-                        );
-                      })}
-                    </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
+
+                    {/* Other Nav Links */}
+                    <Link
+                      to="/assignments"
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        isActive("/assignments") 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <FileStack className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                        <span className="text-[15px] font-medium">Assignments</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                    </Link>
+
+                    <Link
+                      to="/blog"
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        isActive("/blog") 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
+                        <span className="text-[15px] font-medium">Blog</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                    </Link>
+
+                    <Link
+                      to="/agents"
+                      onClick={() => setOpen(false)}
+                      className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        isActive("/agents") 
+                          ? "bg-primary/10 text-primary" 
+                          : "text-primary hover:bg-primary/5"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Users className="h-4 w-4 text-primary" />
+                        <span className="text-[15px] font-medium">For Agents</span>
+                      </div>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                    </Link>
                   </div>
                 </nav>
 
                 {/* Footer Actions */}
-                <div className="p-4 space-y-2">
+                <div className="p-4 space-y-2 border-t">
                   <Link to="/login" onClick={() => setOpen(false)} className="block">
                     <Button variant="outline" className="w-full h-11 font-medium">
                       Agent Login
