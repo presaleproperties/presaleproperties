@@ -38,6 +38,7 @@ import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
+import CityPresalePage from "./pages/CityPresalePage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
+            <Route path="/presale-condos-:citySlug" element={<CityPresalePage />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/assignments" element={<Assignments />} />
