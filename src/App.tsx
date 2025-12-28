@@ -27,6 +27,7 @@ import AdminProjectForm from "./pages/admin/AdminProjectForm";
 import AdminProjectImport from "./pages/admin/AdminProjectImport";
 import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminBlogForm from "./pages/admin/AdminBlogForm";
+import AdminBlogImport from "./pages/admin/AdminBlogImport";
 import AdminAgents from "./pages/admin/AdminAgents";
 import AdminListings from "./pages/admin/AdminListings";
 import AdminAllListings from "./pages/admin/AdminAllListings";
@@ -83,6 +84,7 @@ const App = () => (
             <Route path="/admin/projects/:id/edit" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
             <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogs /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/new" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
+            <Route path="/admin/blogs/import" element={<AdminProtectedRoute><AdminBlogImport /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/:id/edit" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
             <Route path="/admin/listings" element={<AdminProtectedRoute><AdminListings /></AdminProtectedRoute>} />
