@@ -36,7 +36,8 @@ import {
   Pencil,
   Copy,
   Trash2,
-  Tag
+  Tag,
+  Upload
 } from "lucide-react";
 
 type BlogPost = {
@@ -205,10 +206,16 @@ export default function AdminBlogs() {
             <h1 className="text-2xl font-bold">Blog Posts</h1>
             <p className="text-muted-foreground">Manage blog content</p>
           </div>
-          <Button onClick={() => navigate("/admin/blogs/new")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Post
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/admin/blogs/import")} className="gap-2">
+              <Upload className="h-4 w-4" />
+              Import CSV
+            </Button>
+            <Button onClick={() => navigate("/admin/blogs/new")} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create Post
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
