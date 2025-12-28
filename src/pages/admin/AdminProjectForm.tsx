@@ -42,6 +42,8 @@ type ProjectFormData = {
   unit_mix: string;
   starting_price: string;
   deposit_structure: string;
+  strata_fees: string;
+  assignment_fees: string;
   incentives: string;
   completion_month: string;
   completion_year: string;
@@ -72,6 +74,8 @@ const defaultFormData: ProjectFormData = {
   unit_mix: "",
   starting_price: "",
   deposit_structure: "",
+  strata_fees: "",
+  assignment_fees: "",
   incentives: "",
   completion_month: "",
   completion_year: "",
@@ -133,8 +137,9 @@ export default function AdminProjectForm() {
         project_type: data.project_type || "condo",
         unit_mix: data.unit_mix || "",
         starting_price: data.starting_price?.toString() || "",
-        
         deposit_structure: data.deposit_structure || "",
+        strata_fees: data.strata_fees || "",
+        assignment_fees: data.assignment_fees || "",
         incentives: data.incentives || "",
         completion_month: data.completion_month?.toString() || "",
         completion_year: data.completion_year?.toString() || "",
@@ -322,8 +327,9 @@ export default function AdminProjectForm() {
         project_type: formData.project_type,
         unit_mix: formData.unit_mix || null,
         starting_price: formData.starting_price ? parseFloat(formData.starting_price) : null,
-        
         deposit_structure: formData.deposit_structure || null,
+        strata_fees: formData.strata_fees || null,
+        assignment_fees: formData.assignment_fees || null,
         incentives: formData.incentives || null,
         completion_month: formData.completion_month ? parseInt(formData.completion_month) : null,
         completion_year: formData.completion_year ? parseInt(formData.completion_year) : null,
@@ -794,6 +800,26 @@ export default function AdminProjectForm() {
                     placeholder="e.g., 5% on signing, 5% in 90 days, 5% in 180 days..."
                     rows={2}
                   />
+                </div>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="strata_fees">Strata Fees (Est.)</Label>
+                    <Input
+                      id="strata_fees"
+                      value={formData.strata_fees}
+                      onChange={(e) => setFormData(prev => ({ ...prev, strata_fees: e.target.value }))}
+                      placeholder="e.g., $0.45/sqft"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="assignment_fees">Assignment Fees</Label>
+                    <Input
+                      id="assignment_fees"
+                      value={formData.assignment_fees}
+                      onChange={(e) => setFormData(prev => ({ ...prev, assignment_fees: e.target.value }))}
+                      placeholder="e.g., $5,000 + 1%"
+                    />
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="incentives">Incentives</Label>

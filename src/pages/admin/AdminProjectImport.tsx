@@ -48,9 +48,11 @@ const FIELD_MAPPING: Record<string, string> = {
   'Status': 'status',
   'City': 'city',
   'Hero Shot': 'featured_image',
+  'Developer Name': 'developer_name',
+  'Strata Fees': 'strata_fees',
+  'Assignment Fees': 'assignment_fees',
   // Skipped fields (not in our database):
-  // - Size (sq.ft), Assignment Fee, Strata Fees (Est)
-  // - Total Floors, Total Units, High Rise / Low Rise
+  // - Size (sq.ft), Total Floors, Total Units, High Rise / Low Rise
   // - Category, Video
 };
 
@@ -321,6 +323,9 @@ export default function AdminProjectImport() {
         amenities: amenities.length > 0 ? amenities : null,
         is_published: !isDraft,
         is_featured: false,
+        developer_name: row['Developer Name'] || null,
+        strata_fees: row['Strata Fees'] || null,
+        assignment_fees: row['Assignment Fees'] || null,
       };
 
       const { error } = await supabase

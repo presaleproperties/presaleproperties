@@ -436,6 +436,7 @@ export type Database = {
         Row: {
           address: string | null
           amenities: string[] | null
+          assignment_fees: string | null
           brochure_files: string[] | null
           city: string
           completion_month: number | null
@@ -469,12 +470,14 @@ export type Database = {
           slug: string
           starting_price: number | null
           status: Database["public"]["Enums"]["project_status"]
+          strata_fees: string | null
           unit_mix: string | null
           updated_at: string
         }
         Insert: {
           address?: string | null
           amenities?: string[] | null
+          assignment_fees?: string | null
           brochure_files?: string[] | null
           city: string
           completion_month?: number | null
@@ -508,12 +511,14 @@ export type Database = {
           slug: string
           starting_price?: number | null
           status?: Database["public"]["Enums"]["project_status"]
+          strata_fees?: string | null
           unit_mix?: string | null
           updated_at?: string
         }
         Update: {
           address?: string | null
           amenities?: string[] | null
+          assignment_fees?: string | null
           brochure_files?: string[] | null
           city?: string
           completion_month?: number | null
@@ -547,6 +552,7 @@ export type Database = {
           slug?: string
           starting_price?: number | null
           status?: Database["public"]["Enums"]["project_status"]
+          strata_fees?: string | null
           unit_mix?: string | null
           updated_at?: string
         }
