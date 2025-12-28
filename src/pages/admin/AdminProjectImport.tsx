@@ -81,38 +81,62 @@ export default function AdminProjectImport() {
   const [migrateImages, setMigrateImages] = useState(true);
 
   const parseCSV = (text: string): CSVRow[] => {
-    const lines = text.split('\n');
-    if (lines.length < 2) return [];
-
-    // Parse header row - handle quoted values
-    const parseCSVLine = (line: string): string[] => {
-      const result: string[] = [];
-      let current = '';
+    // Handle multi-line quoted values by properly parsing CSV
+    const parseCSVContent = (content: string): string[][] => {
+      const rows: string[][] = [];
+      let currentRow: string[] = [];
+      let currentValue = '';
       let inQuotes = false;
       
-      for (let i = 0; i < line.length; i++) {
-        const char = line[i];
+      for (let i = 0; i < content.length; i++) {
+        const char = content[i];
+        const nextChar = content[i + 1];
+        
         if (char === '"') {
-          inQuotes = !inQuotes;
+          if (inQuotes && nextChar === '"') {
+            // Escaped quote
+            currentValue += '"';
+            i++;
+          } else {
+            // Toggle quote mode
+            inQuotes = !inQuotes;
+          }
         } else if (char === ',' && !inQuotes) {
-          result.push(current.trim());
-          current = '';
-        } else {
-          current += char;
+          currentRow.push(currentValue.trim());
+          currentValue = '';
+        } else if ((char === '\n' || (char === '\r' && nextChar === '\n')) && !inQuotes) {
+          // End of row
+          currentRow.push(currentValue.trim());
+          if (currentRow.some(v => v)) { // Only add non-empty rows
+            rows.push(currentRow);
+          }
+          currentRow = [];
+          currentValue = '';
+          if (char === '\r') i++; // Skip \n in \r\n
+        } else if (char !== '\r') {
+          currentValue += char;
         }
       }
-      result.push(current.trim());
-      return result;
+      
+      // Don't forget the last value/row
+      if (currentValue || currentRow.length > 0) {
+        currentRow.push(currentValue.trim());
+        if (currentRow.some(v => v)) {
+          rows.push(currentRow);
+        }
+      }
+      
+      return rows;
     };
 
-    const headers = parseCSVLine(lines[0]);
+    const allRows = parseCSVContent(text);
+    if (allRows.length < 2) return [];
+
+    const headers = allRows[0];
     const rows: CSVRow[] = [];
 
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i].trim();
-      if (!line) continue;
-      
-      const values = parseCSVLine(line);
+    for (let i = 1; i < allRows.length; i++) {
+      const values = allRows[i];
       const row: CSVRow = {};
       
       headers.forEach((header, index) => {
