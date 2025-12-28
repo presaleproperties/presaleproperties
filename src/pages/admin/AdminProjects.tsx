@@ -36,7 +36,8 @@ import {
   Loader2,
   Pencil,
   Copy,
-  Trash2
+  Trash2,
+  Upload
 } from "lucide-react";
 
 type Project = {
@@ -246,10 +247,16 @@ export default function AdminProjects() {
             <h1 className="text-2xl font-bold">Presale Projects</h1>
             <p className="text-muted-foreground">Manage presale project listings</p>
           </div>
-          <Button onClick={() => navigate("/admin/projects/new")} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create Project
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => navigate("/admin/projects/import")} className="gap-2">
+              <Upload className="h-4 w-4" />
+              Import CSV
+            </Button>
+            <Button onClick={() => navigate("/admin/projects/new")} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create Project
+            </Button>
+          </div>
         </div>
 
         {/* Filters */}
