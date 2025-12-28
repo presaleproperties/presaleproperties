@@ -32,7 +32,7 @@ interface ImportResult {
   error?: string;
 }
 
-// Field mapping from Framer CSV to Supabase
+// Field mapping from Framer CSV to Supabase (only fields that exist in our database)
 const FIELD_MAPPING: Record<string, string> = {
   'Slug': 'slug',
   'Name': 'name',
@@ -48,11 +48,14 @@ const FIELD_MAPPING: Record<string, string> = {
   'Status': 'status',
   'City': 'city',
   'Hero Shot': 'featured_image',
+  // Skipped fields (not in our database):
+  // - Size (sq.ft), Assignment Fee, Strata Fees (Est)
+  // - Total Floors, Total Units, High Rise / Low Rise
+  // - Category, Video
 };
 
-// Image fields that need to be migrated
-const IMAGE_FIELDS = [
-  'Hero Shot',
+// Image fields for gallery (only using ones that make sense for gallery_images)
+const GALLERY_IMAGE_FIELDS = [
   'Vertical Shot',
   'Indoor 1',
   'Indoor 2',
@@ -258,7 +261,7 @@ export default function AdminProjectImport() {
         }
 
         // Download gallery images
-        for (const field of IMAGE_FIELDS.slice(1)) { // Skip Hero Shot
+        for (const field of GALLERY_IMAGE_FIELDS) {
           if (row[field]) {
             const newUrl = await downloadImage(row[field]);
             if (newUrl) galleryImages.push(newUrl);
@@ -266,7 +269,7 @@ export default function AdminProjectImport() {
         }
       } else {
         // Just use original URLs
-        IMAGE_FIELDS.slice(1).forEach(field => {
+        GALLERY_IMAGE_FIELDS.forEach(field => {
           if (row[field]) galleryImages.push(row[field]);
         });
       }
