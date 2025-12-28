@@ -42,6 +42,8 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 type ExtractedProjectData = {
   name?: string;
+  slug?: string;
+  status?: "coming_soon" | "active" | "sold_out";
   developer_name?: string;
   city?: string;
   neighborhood?: string;
@@ -49,7 +51,6 @@ type ExtractedProjectData = {
   project_type?: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix?: string;
   starting_price?: number;
-  price_range?: string;
   deposit_structure?: string;
   incentives?: string;
   completion_month?: number;
@@ -60,6 +61,9 @@ type ExtractedProjectData = {
   highlights?: string[];
   amenities?: string[];
   faq?: { question: string; answer: string }[];
+  seo_title?: string;
+  seo_description?: string;
+  is_indexed?: boolean;
 };
 
 type UploadedFile = {
@@ -84,7 +88,10 @@ export function AIProjectUploadWizard() {
   const [error, setError] = useState<string | null>(null);
   
   // Form data for review/edit
-  const [formData, setFormData] = useState<ExtractedProjectData>({});
+  const [formData, setFormData] = useState<ExtractedProjectData>({
+    status: "coming_soon",
+    is_indexed: true,
+  });
   const [isPublished, setIsPublished] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
   
@@ -459,8 +466,8 @@ export function AIProjectUploadWizard() {
     try {
       const projectData = {
         name: formData.name,
-        slug: generateSlug(formData.name || ""),
-        status: "coming_soon" as const,
+        slug: formData.slug || generateSlug(formData.name || ""),
+        status: formData.status || "coming_soon",
         city: formData.city,
         neighborhood: formData.neighborhood,
         address: formData.address || null,
@@ -468,7 +475,6 @@ export function AIProjectUploadWizard() {
         project_type: formData.project_type || "condo",
         unit_mix: formData.unit_mix || null,
         starting_price: formData.starting_price || null,
-        price_range: formData.price_range || null,
         deposit_structure: formData.deposit_structure || null,
         incentives: formData.incentives || null,
         completion_month: formData.completion_month || null,
@@ -479,6 +485,9 @@ export function AIProjectUploadWizard() {
         highlights: formData.highlights || null,
         amenities: formData.amenities || null,
         faq: formData.faq || [],
+        seo_title: formData.seo_title || null,
+        seo_description: formData.seo_description || null,
+        is_indexed: formData.is_indexed ?? true,
         featured_image: featuredImage || null,
         gallery_images: galleryImages.length > 0 ? galleryImages : null,
         is_published: isPublished,
@@ -561,6 +570,29 @@ export function AIProjectUploadWizard() {
     setFormData(prev => ({
       ...prev,
       amenities: prev.amenities?.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addFaq = () => {
+    setFormData(prev => ({
+      ...prev,
+      faq: [...(prev.faq || []), { question: "", answer: "" }]
+    }));
+  };
+
+  const updateFaq = (index: number, field: "question" | "answer", value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      faq: prev.faq?.map((item, i) => 
+        i === index ? { ...item, [field]: value } : item
+      )
+    }));
+  };
+
+  const removeFaq = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      faq: prev.faq?.filter((_, i) => i !== index)
     }));
   };
 
@@ -787,17 +819,51 @@ export function AIProjectUploadWizard() {
                       <Label>Project Name *</Label>
                       <Input
                         value={formData.name || ""}
-                        onChange={(e) => updateFormField("name", e.target.value)}
-                        placeholder="Project name"
+                        onChange={(e) => {
+                          const name = e.target.value;
+                          setFormData(prev => ({
+                            ...prev,
+                            name,
+                            slug: prev.slug || generateSlug(name)
+                          }));
+                        }}
+                        placeholder="e.g., The Park Residences"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <Label>URL Slug</Label>
+                      <Input
+                        value={formData.slug || ""}
+                        onChange={(e) => updateFormField("slug", e.target.value)}
+                        placeholder="auto-generated-from-name"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>Developer</Label>
                       <Input
                         value={formData.developer_name || ""}
                         onChange={(e) => updateFormField("developer_name", e.target.value)}
-                        placeholder="Developer name"
+                        placeholder="e.g., Concord Pacific"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Status</Label>
+                      <Select
+                        value={formData.status || "coming_soon"}
+                        onValueChange={(v) => updateFormField("status", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="coming_soon">Coming Soon</SelectItem>
+                          <SelectItem value="active">Selling Now</SelectItem>
+                          <SelectItem value="sold_out">Sold Out</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
 
@@ -865,24 +931,14 @@ export function AIProjectUploadWizard() {
                   <CardTitle>Pricing & Deposits</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Starting Price</Label>
-                      <Input
-                        type="number"
-                        value={formData.starting_price || ""}
-                        onChange={(e) => updateFormField("starting_price", e.target.value ? Number(e.target.value) : undefined)}
-                        placeholder="e.g., 499000"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Price Range</Label>
-                      <Input
-                        value={formData.price_range || ""}
-                        onChange={(e) => updateFormField("price_range", e.target.value)}
-                        placeholder="e.g., $499K - $899K"
-                      />
-                    </div>
+                  <div className="space-y-2">
+                    <Label>Starting Price</Label>
+                    <Input
+                      type="number"
+                      value={formData.starting_price || ""}
+                      onChange={(e) => updateFormField("starting_price", e.target.value ? Number(e.target.value) : undefined)}
+                      placeholder="e.g., 499000"
+                    />
                   </div>
 
                   <div className="space-y-2">
@@ -1060,6 +1116,88 @@ export function AIProjectUploadWizard() {
                       No amenities yet. Click "Add" to add one.
                     </p>
                   )}
+                </CardContent>
+              </Card>
+
+              {/* FAQ */}
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle>FAQ</CardTitle>
+                  <Button size="sm" variant="outline" onClick={addFaq}>
+                    <Plus className="h-4 w-4 mr-1" /> Add FAQ
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {formData.faq && formData.faq.length > 0 ? (
+                    formData.faq.map((item, i) => (
+                      <div key={i} className="border rounded-lg p-4 space-y-3">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="flex-1 space-y-2">
+                            <Input
+                              value={item.question}
+                              onChange={(e) => updateFaq(i, "question", e.target.value)}
+                              placeholder="Question"
+                            />
+                            <Textarea
+                              value={item.answer}
+                              onChange={(e) => updateFaq(i, "answer", e.target.value)}
+                              placeholder="Answer"
+                              rows={2}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFaq(i)}
+                            className="text-destructive hover:text-destructive"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-muted-foreground text-center py-4">
+                      No FAQ items yet. Click "Add FAQ" to get started.
+                    </p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* SEO Settings */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>SEO Settings</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label>SEO Title</Label>
+                    <Input
+                      value={formData.seo_title || ""}
+                      onChange={(e) => updateFormField("seo_title", e.target.value)}
+                      placeholder="Leave blank to use project name"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>SEO Description</Label>
+                    <Textarea
+                      value={formData.seo_description || ""}
+                      onChange={(e) => updateFormField("seo_description", e.target.value)}
+                      placeholder="Meta description for search engines..."
+                      rows={3}
+                    />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label>Index in Search Engines</Label>
+                      <p className="text-xs text-muted-foreground">Allow search engines to index this page</p>
+                    </div>
+                    <Switch
+                      checked={formData.is_indexed ?? true}
+                      onCheckedChange={(v) => updateFormField("is_indexed", v)}
+                    />
+                  </div>
                 </CardContent>
               </Card>
             </div>
