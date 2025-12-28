@@ -47,7 +47,6 @@ type Project = {
   project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix: string | null;
   starting_price: number | null;
-  price_range: string | null;
   deposit_structure: string | null;
   incentives: string | null;
   completion_month: number | null;
