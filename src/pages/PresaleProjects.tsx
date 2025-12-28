@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,25 @@ import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
 
-const CITIES = ["Vancouver", "Burnaby", "Richmond", "Surrey", "Coquitlam", "North Vancouver", "West Vancouver"];
+const CITIES = [
+  "Vancouver", 
+  "Burnaby", 
+  "Richmond", 
+  "Surrey", 
+  "Coquitlam", 
+  "Port Coquitlam",
+  "Port Moody",
+  "North Vancouver", 
+  "West Vancouver",
+  "Langley",
+  "Langley Township",
+  "Delta",
+  "Abbotsford",
+  "Chilliwack",
+  "Maple Ridge",
+  "New Westminster",
+  "White Rock"
+];
 const STATUS_OPTIONS = [
   { value: "any", label: "All Status" },
   { value: "coming_soon", label: "Coming Soon" },
@@ -77,6 +95,7 @@ type Project = {
 export default function PresaleProjects() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
@@ -398,25 +417,116 @@ export default function PresaleProjects() {
     </div>
   );
 
+  // Dynamic SEO based on filters
+  const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search}`;
+  
+  const getSeoTitle = () => {
+    const parts: string[] = [];
+    
+    if (filters.projectType !== "any") {
+      const typeLabel = filters.projectType === "condo" ? "Presale Condos" : 
+                        filters.projectType === "townhome" ? "Presale Townhomes" : "New Developments";
+      parts.push(typeLabel);
+    } else {
+      parts.push("Presale Projects");
+    }
+    
+    if (filters.city !== "any") {
+      parts.push(`in ${filters.city}`);
+    } else {
+      parts.push("in Metro Vancouver");
+    }
+    
+    if (filters.status === "coming_soon") {
+      parts.push("- Coming Soon");
+    } else if (filters.status === "active") {
+      parts.push("- Now Selling");
+    }
+    
+    return `${parts.join(" ")} | New Construction Homes | PresaleProperties.com`;
+  };
+
+  const getSeoDescription = () => {
+    const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Langley, Coquitlam, Burnaby, Delta & Abbotsford";
+    const typeText = filters.projectType === "condo" ? "presale condos" : 
+                     filters.projectType === "townhome" ? "presale townhomes" : 
+                     "new construction condos, townhomes & homes";
+    
+    return `Browse ${totalCount}+ ${typeText} in ${cityText}. View floor plans, VIP pricing, deposit structures & register for early access to the best pre-construction developments.`;
+  };
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": getSeoTitle(),
+    "description": getSeoDescription(),
+    "url": canonicalUrl,
+    "numberOfItems": totalCount,
+    "itemListElement": filteredProjects?.slice(0, 10).map((project, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": project.name,
+        "url": `https://presaleproperties.com/presale-projects/${project.slug}`,
+        "image": project.featured_image,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": project.city,
+          "addressRegion": "BC",
+          "addressCountry": "CA"
+        }
+      }
+    })) || []
+  };
+
   return (
     <>
       <Helmet>
-        <title>Presale Projects | PresaleProperties.com</title>
-        <meta name="description" content="Discover new presale projects in Greater Vancouver. Browse condos, townhomes, and mixed developments with VIP pricing and floor plans." />
+        <title>{getSeoTitle()}</title>
+        <meta name="description" content={getSeoDescription()} />
+        <meta name="keywords" content={`presale ${filters.city !== "any" ? filters.city : "Vancouver Surrey Langley Coquitlam Burnaby Delta Abbotsford"}, new construction condos, presale townhomes, pre-construction homes, VIP presale pricing, floor plans, Metro Vancouver real estate`} />
+        <link rel="canonical" href={canonicalUrl} />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={getSeoTitle()} />
+        <meta property="og:description" content={getSeoDescription()} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="PresaleProperties.com" />
+        <meta property="og:locale" content="en_CA" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={getSeoTitle()} />
+        <meta name="twitter:description" content={getSeoDescription()} />
+        
+        {/* Geo */}
+        <meta name="geo.region" content="CA-BC" />
+        <meta name="geo.placename" content={filters.city !== "any" ? filters.city : "Metro Vancouver"} />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <Header />
 
-        {/* Hero Section - Compact on mobile */}
+        {/* Hero Section - SEO optimized */}
         <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-3xl">
               <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
-                New & Pre Construction Homes
+                {filters.city !== "any" 
+                  ? `Presale Projects in ${filters.city}` 
+                  : "New & Pre-Construction Homes in Metro Vancouver"}
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-2 sm:mb-4 line-clamp-2 sm:line-clamp-none">
-                Search presale projects in Greater Vancouver. View details, floor plans, and pricing.
+                {filters.city !== "any"
+                  ? `Browse new construction condos, townhomes & developments in ${filters.city}. View floor plans, pricing & register for VIP access.`
+                  : "Search presale condos & townhomes in Vancouver, Surrey, Langley, Coquitlam, Burnaby, Delta & Abbotsford. VIP pricing & floor plans."}
               </p>
               <p className="text-xs sm:text-sm text-muted-foreground">
                 <span className="font-medium text-foreground">{totalCount}</span>

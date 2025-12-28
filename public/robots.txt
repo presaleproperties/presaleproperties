@@ -1,8 +1,13 @@
+# robots.txt for PresaleProperties.com
+# https://presaleproperties.com
+
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 1
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +15,16 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
+User-agent: LinkedInBot
+Allow: /
+
 User-agent: *
 Allow: /
+
+# Sitemap
+Sitemap: https://presaleproperties.com/sitemap.xml
+
+# Disallow admin/dashboard areas from indexing
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /login

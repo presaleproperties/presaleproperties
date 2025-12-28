@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
@@ -66,17 +66,23 @@ type Project = {
   seo_title: string | null;
   seo_description: string | null;
   is_featured: boolean;
+  published_at: string | null;
+  map_lat: number | null;
+  map_lng: number | null;
 };
 
 export default function PresaleProjectDetail() {
   const { slug } = useParams();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { toast } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+
+  const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
 
   const previewToken = searchParams.get("preview");
 
@@ -232,11 +238,117 @@ export default function PresaleProjectDetail() {
     ...(project.gallery_images || [])
   ].filter(Boolean) as string[];
 
+  // SEO helpers
+  const projectTypeLabel = project.project_type === "condo" ? "Condos" : 
+                           project.project_type === "townhome" ? "Townhomes" : 
+                           project.project_type === "mixed" ? "Mixed-Use Development" :
+                           project.project_type === "duplex" ? "Duplexes" : "Single Family Homes";
+  
+  const seoTitle = project.seo_title || 
+    `${project.name} | New ${projectTypeLabel} in ${project.neighborhood}, ${project.city}`;
+  
+  const seoDescription = project.seo_description || project.short_description ||
+    `${project.name} - New presale ${project.project_type} development in ${project.neighborhood}, ${project.city}. ${project.starting_price ? `Starting from $${project.starting_price.toLocaleString()}.` : ""} ${project.completion_year ? `Estimated completion ${project.completion_year}.` : ""} View floor plans, pricing & register for VIP access.`;
+
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": project.name,
+    "description": seoDescription,
+    "url": canonicalUrl,
+    "image": project.featured_image || undefined,
+    "datePosted": project.published_at || undefined,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": project.city,
+      "addressRegion": "BC",
+      "addressCountry": "CA",
+      "streetAddress": project.address || project.neighborhood
+    },
+    "geo": project.map_lat && project.map_lng ? {
+      "@type": "GeoCoordinates",
+      "latitude": project.map_lat,
+      "longitude": project.map_lng
+    } : undefined,
+    "offers": project.starting_price ? {
+      "@type": "Offer",
+      "priceCurrency": "CAD",
+      "price": project.starting_price,
+      "priceValidUntil": project.completion_year ? `${project.completion_year}-12-31` : undefined,
+      "availability": project.status === "sold_out" ? "https://schema.org/SoldOut" : 
+                      project.status === "coming_soon" ? "https://schema.org/PreOrder" : 
+                      "https://schema.org/InStock"
+    } : undefined,
+    "additionalType": project.project_type === "condo" ? "https://schema.org/Apartment" :
+                      project.project_type === "townhome" ? "https://schema.org/House" : 
+                      "https://schema.org/Residence"
+  };
+
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://presaleproperties.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Presale Projects",
+        "item": "https://presaleproperties.com/presale-projects"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": project.city,
+        "item": `https://presaleproperties.com/presale-projects?city=${encodeURIComponent(project.city)}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": project.name,
+        "item": canonicalUrl
+      }
+    ]
+  };
+
   return (
     <>
       <Helmet>
-        <title>{project.seo_title || `${project.name} | PresaleProperties.com`}</title>
-        <meta name="description" content={project.seo_description || project.short_description || `${project.name} - ${project.project_type} in ${project.city}, ${project.neighborhood}`} />
+        <title>{seoTitle}</title>
+        <meta name="description" content={seoDescription} />
+        <meta name="keywords" content={`${project.name}, presale ${project.city}, new ${project.project_type} ${project.neighborhood}, ${project.developer_name || ""} development, pre-construction ${project.city}, ${project.neighborhood} new homes`} />
+        <link rel="canonical" href={canonicalUrl} />
+        
+        {/* Open Graph */}
+        <meta property="og:type" content="realestate.listing" />
+        <meta property="og:title" content={seoTitle} />
+        <meta property="og:description" content={seoDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="PresaleProperties.com" />
+        {project.featured_image && <meta property="og:image" content={project.featured_image} />}
+        <meta property="og:locale" content="en_CA" />
+        
+        {/* Twitter */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={seoTitle} />
+        <meta name="twitter:description" content={seoDescription} />
+        {project.featured_image && <meta name="twitter:image" content={project.featured_image} />}
+        
+        {/* Geo */}
+        <meta name="geo.region" content="CA-BC" />
+        <meta name="geo.placename" content={project.city} />
+        
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(breadcrumbData)}
+        </script>
       </Helmet>
 
       <Header />
