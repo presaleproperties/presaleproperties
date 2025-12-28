@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -37,7 +38,9 @@ import {
   Copy,
   Trash2,
   Tag,
-  Upload
+  Upload,
+  ImagePlus,
+  Sparkles
 } from "lucide-react";
 
 type BlogPost = {
@@ -49,6 +52,7 @@ type BlogPost = {
   is_published: boolean;
   publish_date: string | null;
   updated_at: string;
+  featured_image: string | null;
 };
 
 export default function AdminBlogs() {
@@ -60,6 +64,8 @@ export default function AdminBlogs() {
   const [publishedFilter, setPublishedFilter] = useState<string>("all");
   const [deletePost, setDeletePost] = useState<BlogPost | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [selectedPosts, setSelectedPosts] = useState<Set<string>>(new Set());
+  const [generatingImages, setGeneratingImages] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,7 +76,7 @@ export default function AdminBlogs() {
     try {
       const { data, error } = await supabase
         .from("blog_posts")
-        .select("id, title, slug, category, is_featured, is_published, publish_date, updated_at")
+        .select("id, title, slug, category, is_featured, is_published, publish_date, updated_at, featured_image")
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
@@ -84,6 +90,66 @@ export default function AdminBlogs() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const togglePostSelection = (postId: string) => {
+    setSelectedPosts(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(postId)) {
+        newSet.delete(postId);
+      } else {
+        newSet.add(postId);
+      }
+      return newSet;
+    });
+  };
+
+  const selectAllPosts = () => {
+    if (selectedPosts.size === filteredPosts.length) {
+      setSelectedPosts(new Set());
+    } else {
+      setSelectedPosts(new Set(filteredPosts.map(p => p.id)));
+    }
+  };
+
+  const generateImagesForSelected = async () => {
+    if (selectedPosts.size === 0) {
+      toast({
+        title: "No posts selected",
+        description: "Please select blog posts to generate images for",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setGeneratingImages(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-blog-images", {
+        body: { blogIds: Array.from(selectedPosts) },
+      });
+
+      if (error) throw error;
+
+      const successCount = data.results?.filter((r: any) => r.success).length || 0;
+      const failCount = data.results?.filter((r: any) => !r.success).length || 0;
+
+      toast({
+        title: "Image Generation Complete",
+        description: `Generated ${successCount} images${failCount > 0 ? `, ${failCount} failed` : ""}`,
+      });
+
+      setSelectedPosts(new Set());
+      fetchPosts();
+    } catch (error) {
+      console.error("Error generating images:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate images. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGeneratingImages(false);
     }
   };
 
@@ -206,7 +272,22 @@ export default function AdminBlogs() {
             <h1 className="text-2xl font-bold">Blog Posts</h1>
             <p className="text-muted-foreground">Manage blog content</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {selectedPosts.size > 0 && (
+              <Button
+                variant="secondary"
+                onClick={generateImagesForSelected}
+                disabled={generatingImages}
+                className="gap-2"
+              >
+                {generatingImages ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Sparkles className="h-4 w-4" />
+                )}
+                Generate AI Images ({selectedPosts.size})
+              </Button>
+            )}
             <Button variant="outline" onClick={() => navigate("/admin/blogs/import")} className="gap-2">
               <Upload className="h-4 w-4" />
               Import CSV
@@ -277,10 +358,31 @@ export default function AdminBlogs() {
           </Card>
         ) : (
           <div className="space-y-3">
+            {/* Select All */}
+            <div className="flex items-center gap-2 px-2">
+              <Checkbox
+                checked={selectedPosts.size === filteredPosts.length && filteredPosts.length > 0}
+                onCheckedChange={selectAllPosts}
+              />
+              <span className="text-sm text-muted-foreground">Select all ({filteredPosts.length})</span>
+            </div>
             {filteredPosts.map((post) => (
-              <Card key={post.id} className="hover:shadow-md transition-shadow">
+              <Card key={post.id} className={`hover:shadow-md transition-shadow ${selectedPosts.has(post.id) ? 'ring-2 ring-primary' : ''}`}>
                 <CardContent className="p-4">
                   <div className="flex flex-col lg:flex-row lg:items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <Checkbox
+                        checked={selectedPosts.has(post.id)}
+                        onCheckedChange={() => togglePostSelection(post.id)}
+                      />
+                      {post.featured_image && (
+                        <img
+                          src={post.featured_image}
+                          alt=""
+                          className="w-16 h-12 object-cover rounded"
+                        />
+                      )}
+                    </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap mb-1">
                         <h3 className="font-semibold truncate">{post.title}</h3>
