@@ -87,12 +87,28 @@ export default function Contact() {
     }
   };
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateAgent",
+    "name": "PresaleProperties.com",
+    "url": "https://presaleproperties.com",
+    "telephone": "+1-672-258-1100",
+    "email": "info@presaleproperties.com",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Vancouver",
+      "addressRegion": "BC",
+      "addressCountry": "CA"
+    },
+    "areaServed": ["Vancouver", "Surrey", "Langley", "Coquitlam", "Burnaby", "Delta", "Abbotsford", "Richmond"]
+  };
+
   if (isSubmitted) {
     return (
       <>
         <Helmet>
-          <title>Contact Us | AssignmentHub</title>
-          <meta name="description" content="Get in touch with AssignmentHub. We're here to help with your pre-construction assignment questions." />
+          <title>Contact Us | Presale Properties Vancouver BC</title>
+          <meta name="description" content="Contact PresaleProperties.com for presale condos, new construction homes & townhomes in Vancouver, Surrey, Langley & Metro Vancouver. Call 672-258-1100." />
         </Helmet>
         <div className="min-h-screen flex flex-col bg-background">
           <Header />
@@ -117,8 +133,19 @@ export default function Contact() {
   return (
     <>
       <Helmet>
-        <title>Contact Us | AssignmentHub</title>
-        <meta name="description" content="Get in touch with AssignmentHub. We're here to help with your pre-construction assignment questions." />
+        <title>Contact Us | Presale Properties Vancouver BC</title>
+        <meta name="description" content="Contact PresaleProperties.com for presale condos, new construction homes & townhomes in Vancouver, Surrey, Langley & Metro Vancouver. Call 672-258-1100." />
+        <meta name="keywords" content="contact presale properties, Vancouver real estate, presale condos Vancouver, new construction BC" />
+        <link rel="canonical" href="https://presaleproperties.com/contact" />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Contact Us | Presale Properties Vancouver BC" />
+        <meta property="og:description" content="Get in touch with PresaleProperties.com for presale condos and new construction homes in Metro Vancouver." />
+        <meta property="og:url" content="https://presaleproperties.com/contact" />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
       <div className="min-h-screen flex flex-col bg-background">
         <Header />
@@ -149,10 +176,10 @@ export default function Contact() {
                       <div>
                         <h3 className="font-semibold mb-1">Email Us</h3>
                         <a 
-                          href="mailto:info@assignmenthub.ca" 
+                          href="mailto:info@presaleproperties.com" 
                           className="text-muted-foreground hover:text-primary transition-colors"
                         >
-                          info@assignmenthub.ca
+                          info@presaleproperties.com
                         </a>
                       </div>
                     </CardContent>
@@ -166,10 +193,10 @@ export default function Contact() {
                       <div>
                         <h3 className="font-semibold mb-1">Call Us</h3>
                         <a 
-                          href="tel:+14165551234" 
+                          href="tel:+16722581100" 
                           className="text-muted-foreground hover:text-primary transition-colors"
                         >
-                          (416) 555-1234
+                          (672) 258-1100
                         </a>
                       </div>
                     </CardContent>
@@ -183,7 +210,7 @@ export default function Contact() {
                       <div>
                         <h3 className="font-semibold mb-1">Location</h3>
                         <p className="text-muted-foreground">
-                          Toronto, Ontario<br />
+                          Vancouver, BC<br />
                           Canada
                         </p>
                       </div>
@@ -240,7 +267,7 @@ export default function Contact() {
                             id="phone"
                             name="phone"
                             type="tel"
-                            placeholder="(416) 555-1234"
+                            placeholder="(672) 258-1100"
                             value={formData.phone}
                             onChange={handleChange}
                             className={errors.phone ? "border-destructive" : ""}
