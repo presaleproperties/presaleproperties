@@ -64,34 +64,23 @@ export function Header() {
             </SheetTrigger>
             <SheetContent 
               side="right" 
-              className="w-[280px] sm:w-[320px] p-0 border-l border-border/50"
+              className="w-[260px] p-0 border-l border-border/30"
             >
               <div className="flex flex-col h-full">
-                {/* Header */}
-                <div className="p-6 border-b border-border/50">
-                  <span className="text-lg font-bold tracking-tight">
-                    presale<span className="text-primary">properties</span>
-                  </span>
-                </div>
-
                 {/* Navigation Links */}
-                <nav className="flex-1 p-6">
-                  <div className="flex flex-col gap-1">
-                    {navLinks.map((link, index) => (
+                <nav className="flex-1 py-4 px-3">
+                  <div className="flex flex-col">
+                    {navLinks.map((link) => (
                       <Link
                         key={link.to}
                         to={link.to}
                         onClick={() => setOpen(false)}
-                        className={`group flex items-center gap-3 px-4 py-3.5 rounded-lg text-base font-medium transition-all duration-200 hover:bg-muted/80 active:scale-[0.98] ${
+                        className={`px-3 py-2.5 text-sm font-medium transition-colors ${
                           link.highlight 
-                            ? "text-primary bg-primary/5 hover:bg-primary/10" 
-                            : "text-foreground"
+                            ? "text-primary" 
+                            : "text-foreground/80 hover:text-foreground"
                         }`}
-                        style={{
-                          animationDelay: `${index * 50}ms`,
-                        }}
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-current opacity-40 group-hover:opacity-100 transition-opacity" />
                         {link.label}
                       </Link>
                     ))}
@@ -99,15 +88,15 @@ export function Header() {
                 </nav>
 
                 {/* Footer Actions */}
-                <div className="p-6 border-t border-border/50 bg-muted/30">
+                <div className="p-4 border-t border-border/30">
                   <Link to="/login" onClick={() => setOpen(false)} className="block">
-                    <Button variant="outline" className="w-full h-12 text-base font-medium">
+                    <Button variant="ghost" size="sm" className="w-full justify-start text-sm font-medium">
                       Agent Login
                     </Button>
                   </Link>
-                  <Link to="/contact" onClick={() => setOpen(false)} className="block mt-3">
-                    <Button className="w-full h-12 text-base font-medium shadow-gold">
-                      <Phone className="h-4 w-4 mr-2" />
+                  <Link to="/contact" onClick={() => setOpen(false)} className="block mt-1">
+                    <Button size="sm" className="w-full text-sm font-medium">
+                      <Phone className="h-3.5 w-3.5 mr-1.5" />
                       Contact Us
                     </Button>
                   </Link>
