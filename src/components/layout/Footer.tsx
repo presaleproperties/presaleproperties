@@ -1,10 +1,21 @@
 import { Link } from "react-router-dom";
 
+const CITY_LINKS = [
+  { slug: "vancouver", name: "Vancouver" },
+  { slug: "surrey", name: "Surrey" },
+  { slug: "langley", name: "Langley" },
+  { slug: "coquitlam", name: "Coquitlam" },
+  { slug: "burnaby", name: "Burnaby" },
+  { slug: "delta", name: "Delta" },
+  { slug: "abbotsford", name: "Abbotsford" },
+  { slug: "richmond", name: "Richmond" },
+];
+
 export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-8 sm:py-12 px-4">
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-5">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2">
               <span className="text-lg sm:text-xl font-bold tracking-tight">
@@ -17,28 +28,39 @@ export function Footer() {
           </div>
 
           <div className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Presales</h4>
+            <h4 className="text-xs sm:text-sm font-semibold">Presales by City</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
                 <Link to="/presale-projects" className="hover:text-foreground transition-colors">
                   All Projects
                 </Link>
               </li>
-              <li>
-                <Link to="/presale-projects?city=Surrey" className="hover:text-foreground transition-colors">
-                  Surrey
-                </Link>
-              </li>
-              <li>
-                <Link to="/presale-projects?city=Langley" className="hover:text-foreground transition-colors">
-                  Langley
-                </Link>
-              </li>
-              <li>
-                <Link to="/presale-projects?city=Coquitlam" className="hover:text-foreground transition-colors">
-                  Coquitlam
-                </Link>
-              </li>
+              {CITY_LINKS.slice(0, 4).map((city) => (
+                <li key={city.slug}>
+                  <Link 
+                    to={`/presale-condos-${city.slug}`} 
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {city.name} Presales
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="text-xs sm:text-sm font-semibold">More Cities</h4>
+            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+              {CITY_LINKS.slice(4).map((city) => (
+                <li key={city.slug}>
+                  <Link 
+                    to={`/presale-condos-${city.slug}`} 
+                    className="hover:text-foreground transition-colors"
+                  >
+                    {city.name} Presales
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
