@@ -14,27 +14,27 @@ import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 
 const CITIES = [
-  { slug: "any", name: "All" },
+  { slug: "any", name: "Any City" },
   { slug: "Vancouver", name: "Vancouver" },
   { slug: "Surrey", name: "Surrey" },
 ];
 
 const PROJECT_TYPES = [
-  { value: "any", label: "All" },
-  { value: "condo", label: "Condos" },
-  { value: "townhome", label: "Towns" },
+  { value: "any", label: "Any Type" },
+  { value: "condo", label: "Condo" },
+  { value: "townhome", label: "Townhome" },
 ];
 
 const PRICE_RANGES = [
-  { value: "any", label: "Any" },
-  { value: "750000", label: "<$750K" },
-  { value: "1000000", label: "<$1M" },
+  { value: "any", label: "Any Price" },
+  { value: "750000", label: "Under $750K" },
+  { value: "1000000", label: "Under $1M" },
 ];
 
 const DEPOSIT_OPTIONS = [
-  { value: "any", label: "Any" },
-  { value: "5", label: "≤5%" },
-  { value: "10", label: "≤10%" },
+  { value: "any", label: "Any Deposit" },
+  { value: "5", label: "5% or Less" },
+  { value: "10", label: "10% or Less" },
 ];
 
 interface FloatingBottomNavProps {
@@ -148,16 +148,36 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
 
   const hasActiveFilters = filterCity !== "any" || filterType !== "any" || filterPrice !== "any" || filterDeposit !== "any";
 
-  const Chip = ({ selected, onClick, children }: { selected: boolean; onClick: () => void; children: React.ReactNode }) => (
-    <button
-      onClick={onClick}
-      className={cn(
-        "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-        selected ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-      )}
-    >
-      {children}
-    </button>
+  const FilterRow = ({ 
+    label, 
+    options, 
+    value, 
+    onChange 
+  }: { 
+    label: string;
+    options: { value: string; label: string }[];
+    value: string;
+    onChange: (v: string) => void;
+  }) => (
+    <div className="flex items-center gap-2">
+      <span className="text-xs text-muted-foreground w-16 shrink-0">{label}</span>
+      <div className="flex gap-1 flex-1">
+        {options.map((opt) => (
+          <button
+            key={opt.value}
+            onClick={() => onChange(opt.value)}
+            className={cn(
+              "flex-1 py-2 text-xs font-medium rounded-lg transition-all",
+              value === opt.value
+                ? "bg-foreground text-background"
+                : "bg-muted/60 text-muted-foreground hover:bg-muted"
+            )}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    </div>
   );
 
   return (
@@ -221,42 +241,45 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
       <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
 
       <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-        <SheetContent side="bottom" className="rounded-t-2xl px-4 pb-6 pt-4">
-          <SheetHeader className="pb-3">
-            <SheetTitle className="text-sm font-semibold text-center">Filter Projects</SheetTitle>
+        <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-6 pt-3">
+          <div className="w-10 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-4" />
+          <SheetHeader className="sr-only">
+            <SheetTitle>Filter Projects</SheetTitle>
           </SheetHeader>
           
-          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
-            <div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase mb-1.5 block">City</span>
-              <div className="flex flex-wrap gap-1">
-                {CITIES.map((c) => <Chip key={c.slug} selected={filterCity === c.slug} onClick={() => setFilterCity(c.slug)}>{c.name}</Chip>)}
-              </div>
-            </div>
-            <div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase mb-1.5 block">Type</span>
-              <div className="flex flex-wrap gap-1">
-                {PROJECT_TYPES.map((t) => <Chip key={t.value} selected={filterType === t.value} onClick={() => setFilterType(t.value)}>{t.label}</Chip>)}
-              </div>
-            </div>
-            <div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase mb-1.5 block">Price</span>
-              <div className="flex flex-wrap gap-1">
-                {PRICE_RANGES.map((p) => <Chip key={p.value} selected={filterPrice === p.value} onClick={() => setFilterPrice(p.value)}>{p.label}</Chip>)}
-              </div>
-            </div>
-            <div>
-              <span className="text-[10px] font-medium text-muted-foreground uppercase mb-1.5 block">Deposit</span>
-              <div className="flex flex-wrap gap-1">
-                {DEPOSIT_OPTIONS.map((d) => <Chip key={d.value} selected={filterDeposit === d.value} onClick={() => setFilterDeposit(d.value)}>{d.label}</Chip>)}
-              </div>
-            </div>
+          <div className="space-y-3">
+            <FilterRow 
+              label="City" 
+              options={CITIES.map(c => ({ value: c.slug, label: c.name }))} 
+              value={filterCity} 
+              onChange={setFilterCity} 
+            />
+            <FilterRow 
+              label="Type" 
+              options={PROJECT_TYPES} 
+              value={filterType} 
+              onChange={setFilterType} 
+            />
+            <FilterRow 
+              label="Price" 
+              options={PRICE_RANGES} 
+              value={filterPrice} 
+              onChange={setFilterPrice} 
+            />
+            <FilterRow 
+              label="Deposit" 
+              options={DEPOSIT_OPTIONS} 
+              value={filterDeposit} 
+              onChange={setFilterDeposit} 
+            />
           </div>
 
-          <div className="flex gap-3 mt-4">
-            <Button variant="outline" size="sm" className="flex-1" onClick={handleResetFilters}>Reset</Button>
+          <div className="flex gap-3 mt-5">
+            <Button variant="ghost" size="sm" className="text-muted-foreground" onClick={handleResetFilters}>
+              Clear
+            </Button>
             <Button size="sm" className="flex-1" onClick={handleApplyFilters}>
-              Show {matchingCount} Projects
+              View {matchingCount} Projects
             </Button>
           </div>
         </SheetContent>
