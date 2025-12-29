@@ -79,7 +79,7 @@ export function Header() {
                         {CITY_LINKS.map((city) => (
                           <NavigationMenuLink key={city.slug} asChild>
                             <Link
-                              to={`/presale-condos-${city.slug}`}
+                              to={`/presale-condos/${city.slug}`}
                               className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
                             >
                               <MapPin className="h-3 w-3 text-muted-foreground" />
@@ -174,7 +174,7 @@ export function Header() {
                         {CITY_LINKS.map((city) => (
                           <Link
                             key={city.slug}
-                            to={`/presale-condos-${city.slug}`}
+                            to={`/presale-condos/${city.slug}`}
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                           >
