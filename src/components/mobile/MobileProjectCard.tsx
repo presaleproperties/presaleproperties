@@ -29,7 +29,7 @@ const formatPrice = (price: number) => {
 const getStatusLabel = (status: string) => {
   switch (status) {
     case "active":
-      return "Selling";
+      return "Selling Now";
     case "registering":
       return "Registering";
     case "coming_soon":
@@ -38,21 +38,6 @@ const getStatusLabel = (status: string) => {
       return "Sold Out";
     default:
       return null;
-  }
-};
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "active":
-      return "bg-green-500/90 text-white";
-    case "registering":
-      return "bg-blue-500/90 text-white";
-    case "coming_soon":
-      return "bg-amber-500/90 text-white";
-    case "sold_out":
-      return "bg-gray-500/90 text-white";
-    default:
-      return "bg-primary text-primary-foreground";
   }
 };
 
@@ -116,10 +101,7 @@ export function MobileProjectCard({
           
           {/* Status Badge - top left */}
           {statusLabel && (
-            <Badge className={cn(
-              "absolute top-2 left-2 px-2 py-0.5 text-[10px] font-semibold border-0",
-              getStatusColor(status)
-            )}>
+            <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-medium border-0 shadow-sm">
               {statusLabel}
             </Badge>
           )}
