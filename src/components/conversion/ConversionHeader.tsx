@@ -78,9 +78,10 @@ export function ConversionHeader() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container flex h-16 items-center justify-between">
+        {/* Desktop: standard height, Mobile: compact */}
+        <div className="container flex h-12 md:h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-xl font-bold tracking-tight">
+            <span className="text-lg md:text-xl font-bold tracking-tight">
               presale<span className="text-primary">properties</span>
             </span>
           </Link>
@@ -161,11 +162,11 @@ export function ConversionHeader() {
             </Button>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Mobile Menu - Compact */}
           <div className="flex items-center lg:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
+                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
                   <span className="sr-only">Toggle menu</span>
                   {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </Button>

@@ -30,7 +30,7 @@ export function PullToRefreshIndicator({
     <div
       className="fixed left-0 right-0 flex items-center justify-center z-50 pointer-events-none"
       style={{
-        top: 64, // Below header
+        top: 48, // Below compact header (h-12 = 48px)
         height: `${Math.max(pullDistance, isRefreshing ? threshold : 0)}px`,
       }}
     >
