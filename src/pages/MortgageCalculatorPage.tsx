@@ -335,6 +335,65 @@ export default function MortgageCalculatorPage() {
     };
   }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, isFirstTimeBuyer, isNewConstruction, lawyerFees, titleInsurance, homeInspection, appraisalFees, utilities, homeInsurance]);
 
+  // Down payment comparison scenarios (like ratehub's 4-column view)
+  const downPaymentComparison = useMemo(() => {
+    const price = debouncedPrice;
+    const annualRate = mortgageRate / 100;
+    const periodicRate = annualRate / 12;
+    
+    // Calculate minimum down payment based on price
+    let minDownPercent = 5;
+    if (price > 1500000) {
+      minDownPercent = 20;
+    } else if (price > 500000) {
+      // 5% of first $500K + 10% of rest
+      const minDown = 25000 + (price - 500000) * 0.1;
+      minDownPercent = Math.ceil((minDown / price) * 100);
+    }
+    
+    // Create 4 scenarios with appropriate percentages
+    const percentages = price > 1500000 
+      ? [20, 25, 30, 35]
+      : [Math.max(5, minDownPercent), 10, 15, 20];
+    
+    return percentages.map((percent, index) => {
+      const downPayment = (price * percent) / 100;
+      const principal = price - downPayment;
+      
+      // CMHC insurance for down payments less than 20%
+      let cmhcInsurance = 0;
+      if (percent < 20) {
+        if (percent >= 15) {
+          cmhcInsurance = principal * 0.028;
+        } else if (percent >= 10) {
+          cmhcInsurance = principal * 0.031;
+        } else {
+          cmhcInsurance = principal * 0.04;
+        }
+      }
+      
+      const mortgageAmount = principal + cmhcInsurance;
+      
+      const monthlyPayment = mortgageAmount > 0 && periodicRate > 0
+        ? (mortgageAmount * periodicRate * Math.pow(1 + periodicRate, amortization * 12)) /
+          (Math.pow(1 + periodicRate, amortization * 12) - 1)
+        : 0;
+      
+      const isSelected = percent === downPaymentPercent;
+      const isMinimum = index === 0 && percent === minDownPercent;
+      
+      return {
+        percent,
+        downPayment,
+        cmhcInsurance,
+        mortgageAmount,
+        monthlyPayment,
+        isSelected,
+        isMinimum
+      };
+    });
+  }, [debouncedPrice, mortgageRate, amortization, downPaymentPercent]);
+
   // Interest rate risk scenarios
   const rateScenarios = useMemo(() => {
     const scenarios = [
@@ -823,6 +882,90 @@ export default function MortgageCalculatorPage() {
                           </Label>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Down Payment Comparison (4-column view like ratehub) */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                        Compare Down Payment Scenarios
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        See how different down payments affect your mortgage and monthly payment
+                      </p>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
+                        <div className="grid grid-cols-4 gap-2 min-w-[500px]">
+                          {downPaymentComparison.map((scenario, i) => (
+                            <button
+                              key={scenario.percent}
+                              onClick={() => setDownPaymentOption(scenario.percent.toString())}
+                              className={`p-3 rounded-lg border text-center transition-all hover:border-primary/50 ${
+                                scenario.isSelected 
+                                  ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
+                                  : 'border-border hover:bg-muted/50'
+                              }`}
+                            >
+                              {/* Header */}
+                              <div className="mb-2">
+                                <div className="flex items-center justify-center gap-1">
+                                  <span className={`text-lg font-bold ${scenario.isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                    {scenario.percent}%
+                                  </span>
+                                  {scenario.isMinimum && (
+                                    <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
+                                      MIN
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground">Down Payment</p>
+                              </div>
+
+                              {/* Down Payment Amount */}
+                              <div className="py-2 border-t">
+                                <p className="text-xs text-muted-foreground mb-0.5">Down Payment</p>
+                                <p className="text-sm font-semibold">{formatCurrency(scenario.downPayment)}</p>
+                              </div>
+
+                              {/* CMHC Insurance */}
+                              <div className="py-2 border-t">
+                                <p className="text-xs text-muted-foreground mb-0.5">CMHC Insurance</p>
+                                <p className={`text-sm font-medium ${scenario.cmhcInsurance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                                  {scenario.cmhcInsurance > 0 ? `+${formatCurrency(scenario.cmhcInsurance)}` : '$0'}
+                                </p>
+                              </div>
+
+                              {/* Total Mortgage */}
+                              <div className="py-2 border-t bg-muted/30 -mx-3 px-3 rounded-b-lg">
+                                <p className="text-xs text-muted-foreground mb-0.5">Total Mortgage</p>
+                                <p className="text-sm font-bold">{formatCurrency(scenario.mortgageAmount)}</p>
+                              </div>
+
+                              {/* Monthly Payment */}
+                              <div className="pt-3 mt-2 border-t">
+                                <p className="text-xs text-muted-foreground mb-0.5">Monthly Payment</p>
+                                <p className={`text-xl font-bold ${scenario.isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                  {formatCurrency(scenario.monthlyPayment)}
+                                </p>
+                              </div>
+
+                              {/* Select indicator */}
+                              {scenario.isSelected && (
+                                <div className="mt-2 text-xs text-primary font-medium flex items-center justify-center gap-1">
+                                  <CheckCircle className="h-3.5 w-3.5" />
+                                  Selected
+                                </div>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-3 text-center">
+                        Click any scenario to select it • Down payments under 20% require CMHC insurance
+                      </p>
                     </CardContent>
                   </Card>
 
