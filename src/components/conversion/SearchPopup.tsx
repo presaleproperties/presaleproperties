@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions, SuggestionType } from "@/components/home/SearchSuggestions";
+import { cn } from "@/lib/utils";
 
 type SearchTab = "projects" | "assignments";
 
@@ -44,14 +45,12 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     setSearchQuery(value);
     setShowSuggestions(false);
 
-    // If this is a specific presale project, go to its detail page
     if (type === "presale" && slug) {
       navigate(`/presale-projects/${encodeURIComponent(slug)}`);
       onOpenChange(false);
       return;
     }
 
-    // Otherwise, fall back to a search results page for the active tab
     const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
     onOpenChange(false);
@@ -63,90 +62,106 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
 
   return (
     <>
-      {/* Backdrop */}
+      {/* Backdrop with blur */}
       <div 
-        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md animate-fade-in"
+        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xl animate-fade-in"
         onClick={() => onOpenChange(false)}
       />
       
-      {/* Floating Search */}
-      <div className="fixed inset-x-0 top-0 z-50 px-4 pt-24 sm:pt-28 md:pt-32 animate-fade-in">
-        <div className="mx-auto w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px]">
-          {/* Close button */}
-          <button
-            onClick={() => onOpenChange(false)}
-            className="absolute top-8 sm:top-10 right-4 sm:right-6 h-8 w-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl text-white hover:bg-white/20 transition-colors"
-          >
-            <X className="h-4 w-4" />
-          </button>
-
-          {/* Solid White Container - Matching Hero Style */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
-            {/* Tabs */}
-            <div className="flex items-center border-b border-border px-3 py-2.5 sm:py-3">
-              <div className="flex items-center gap-1 sm:gap-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("projects")}
-                  className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
-                    activeTab === "projects"
-                      ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  Projects
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("assignments")}
-                  className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
-                    activeTab === "assignments"
-                      ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  Assignments
-                </button>
-              </div>
+      {/* Floating Glass Search Container */}
+      <div className="fixed inset-x-0 bottom-0 z-50 px-4 pb-8 animate-slide-in-up">
+        <div className="mx-auto w-full max-w-md">
+          {/* Glass Container - Matching Bottom Nav Style */}
+          <div className={cn(
+            "bg-white/20 backdrop-blur-xl rounded-2xl",
+            "border border-white/30 shadow-2xl",
+            "overflow-hidden"
+          )}>
+            {/* Header with Close */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/20">
+              <span className="text-white font-semibold text-sm">Search</span>
+              <button
+                onClick={() => onOpenChange(false)}
+                className="h-8 w-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* Search Input - Matching Hero Style */}
+            {/* Tabs - Glass Pills */}
+            <div className="flex items-center gap-2 px-4 py-3">
+              <button
+                type="button"
+                onClick={() => setActiveTab("projects")}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                  activeTab === "projects"
+                    ? "bg-white text-foreground shadow-lg"
+                    : "bg-white/10 text-white/80 hover:bg-white/20"
+                )}
+              >
+                Projects
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab("assignments")}
+                className={cn(
+                  "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                  activeTab === "assignments"
+                    ? "bg-white text-foreground shadow-lg"
+                    : "bg-white/10 text-white/80 hover:bg-white/20"
+                )}
+              >
+                Assignments
+              </button>
+            </div>
+
+            {/* Search Input - Glass Style */}
             <form onSubmit={handleSearch}>
-              <div className="relative px-3 py-2.5 sm:py-3" ref={searchContainerRef}>
-                <Input
-                  ref={inputRef}
-                  type="text"
-                  placeholder={activeTab === "projects" 
-                    ? "City, Developer, Project..." 
-                    : "Project, City..."
-                  }
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(e.target.value.length >= 2);
-                  }}
-                  className="h-10 sm:h-11 text-sm sm:text-base pl-3.5 pr-10 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
-                  autoComplete="off"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-full"
-                >
-                  <Search className="h-4 w-4 sm:h-5 sm:w-5" />
-                </button>
+              <div className="relative px-4 pb-4" ref={searchContainerRef}>
+                <div className="relative">
+                  <Input
+                    ref={inputRef}
+                    type="text"
+                    placeholder={activeTab === "projects" 
+                      ? "City, Developer, Project..." 
+                      : "Project, City..."
+                    }
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowSuggestions(e.target.value.length >= 2);
+                    }}
+                    className={cn(
+                      "h-12 text-base pl-4 pr-12 rounded-xl",
+                      "bg-white/90 backdrop-blur-sm border-white/50",
+                      "text-foreground placeholder:text-muted-foreground",
+                      "focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:border-white"
+                    )}
+                    autoComplete="off"
+                  />
+                  <button 
+                    type="submit"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center bg-foreground text-background rounded-lg hover:bg-foreground/90 transition-colors"
+                  >
+                    <Search className="h-4 w-4" />
+                  </button>
+                </div>
               </div>
             </form>
             
-            {/* Suggestions dropdown - Only when typing */}
+            {/* Suggestions dropdown - Glass overlay */}
             {showSuggestions && hasSuggestions && (
-              <div className="border-t border-border">
-                <SearchSuggestions
-                  query={searchQuery}
-                  onSelect={handleSuggestionSelect}
-                  isVisible={showSuggestions}
-                  onClose={() => setShowSuggestions(false)}
-                  searchMode={activeTab}
-                />
+              <div className="px-4 pb-4">
+                <div className="bg-white rounded-xl shadow-lg overflow-hidden max-h-[40vh] overflow-y-auto">
+                  <SearchSuggestions
+                    query={searchQuery}
+                    onSelect={handleSuggestionSelect}
+                    isVisible={showSuggestions}
+                    onClose={() => setShowSuggestions(false)}
+                    searchMode={activeTab}
+                  />
+                </div>
               </div>
             )}
           </div>

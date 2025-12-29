@@ -43,38 +43,38 @@ export function MobileContextBar({
   };
 
   return (
-    <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-sm border-b border-border md:hidden">
-      <div className="flex items-center justify-between px-4 py-2.5">
-        {/* Location Selector */}
+    <div className="sticky top-16 z-40 bg-background border-b border-border md:hidden">
+      <div className="flex items-center justify-between px-4 py-3">
+        {/* Location Selector - Clean & Bold */}
         <Sheet open={locationOpen} onOpenChange={setLocationOpen}>
           <SheetTrigger asChild>
-            <button className="flex items-center gap-1.5 active:opacity-70 transition-opacity">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span className="font-medium text-sm text-foreground max-w-[180px] truncate">
+            <button className="flex items-center gap-2 active:opacity-70 transition-opacity">
+              <MapPin className="h-5 w-5 text-primary" />
+              <span className="font-semibold text-foreground max-w-[200px] truncate">
                 {selectedCityName}
               </span>
               <ChevronDown className="h-4 w-4 text-muted-foreground" />
             </button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="rounded-t-2xl">
+          <SheetContent side="bottom" className="rounded-t-3xl">
             <SheetHeader className="text-left pb-4">
-              <SheetTitle>Select Location</SheetTitle>
+              <SheetTitle className="text-lg font-bold">Select Location</SheetTitle>
             </SheetHeader>
-            <div className="space-y-1 max-h-[50vh] overflow-y-auto">
+            <div className="space-y-1 max-h-[50vh] overflow-y-auto pb-6">
               {CITIES.map((city) => (
                 <button
                   key={city.slug}
                   onClick={() => handleCitySelect(city.slug)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl transition-colors ${
                     selectedCity === city.slug 
-                      ? "bg-primary/10 text-primary" 
+                      ? "bg-primary text-primary-foreground" 
                       : "hover:bg-muted text-foreground"
                   }`}
                 >
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-5 w-5" />
                   <span className="font-medium">{city.name}</span>
                   {selectedCity === city.slug && (
-                    <span className="ml-auto text-primary">✓</span>
+                    <span className="ml-auto">✓</span>
                   )}
                 </button>
               ))}
@@ -82,12 +82,12 @@ export function MobileContextBar({
           </SheetContent>
         </Sheet>
 
-        {/* Notification Bell */}
-        <Button variant="ghost" size="icon" className="relative h-9 w-9">
+        {/* Notification Bell - Subtle */}
+        <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full">
           <Bell className="h-5 w-5 text-muted-foreground" />
           {alertCount > 0 && (
             <Badge 
-              className="absolute -top-1 -right-1 h-5 min-w-[20px] px-1 text-[10px] bg-destructive text-destructive-foreground"
+              className="absolute -top-0.5 -right-0.5 h-5 min-w-[20px] px-1 text-[10px] bg-destructive text-destructive-foreground"
             >
               {alertCount > 9 ? "9+" : alertCount}
             </Badge>

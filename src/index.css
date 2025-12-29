@@ -149,6 +149,31 @@
     text-wrap: balance;
   }
 
+  /* Animations for mobile UX */
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slide-in-up {
+    from { 
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to { 
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+  }
+
+  .animate-slide-in-up {
+    animation: slide-in-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
   /* Safe area support for notched devices */
   .safe-top {
     padding-top: env(safe-area-inset-top);
