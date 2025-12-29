@@ -10,6 +10,8 @@ import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { MobileHomePage } from "@/components/mobile/MobileHomePage";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data (helps with AI recommendations)
 const HOME_FAQS = [
@@ -32,6 +34,7 @@ const HOME_FAQS = [
 ];
 
 const Index = () => {
+  const isMobile = useIsMobile();
   // Primary structured data - RealEstateAgent with LocalBusiness
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -118,6 +121,47 @@ const Index = () => {
     ]
   };
 
+  // Mobile: Show Uber Eats-style discovery layout
+  if (isMobile) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <Helmet>
+          <title>Presale Condos Vancouver | New Construction Pricing & Floor Plans | PresaleProperties</title>
+          <meta name="description" content="Browse presale condos in Vancouver, Surrey, Langley, Coquitlam & Burnaby. Get VIP pricing, floor plans & incentives for new construction condos and townhomes across Metro Vancouver." />
+          <meta name="keywords" content="presale condos Vancouver, Vancouver presale condos pricing, Vancouver presale condos floor plans, new presale condos Vancouver, presale condos Surrey, Surrey new condos presale, presale condos Langley, Langley presale townhomes, presale condos Coquitlam, Burnaby presale condos, Delta presale condos, Abbotsford presale condos, Fraser Valley presale condos, VIP presale access, presale register" />
+          <link rel="canonical" href="https://presaleproperties.com/" />
+          
+          <meta property="og:type" content="website" />
+          <meta property="og:title" content="Presale Condos Vancouver | VIP Pricing & Floor Plans" />
+          <meta property="og:description" content="Browse presale condos in Vancouver, Surrey, Langley & Coquitlam. Get VIP pricing, floor plans & incentives for new construction projects." />
+          <meta property="og:url" content="https://presaleproperties.com/" />
+          <meta property="og:site_name" content="PresaleProperties.com" />
+          <meta property="og:locale" content="en_CA" />
+          
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:title" content="Presale Condos Vancouver | New Construction Pricing" />
+          <meta name="twitter:description" content="Browse presale condos in Metro Vancouver. VIP pricing, floor plans & early access to new construction." />
+          
+          <meta name="geo.region" content="CA-BC" />
+          <meta name="geo.placename" content="Vancouver" />
+          
+          <script type="application/ld+json">
+            {JSON.stringify(organizationSchema)}
+          </script>
+          <script type="application/ld+json">
+            {JSON.stringify(offerCatalogSchema)}
+          </script>
+        </Helmet>
+
+        <FAQSchema faqs={HOME_FAQS} />
+        
+        <ConversionHeader />
+        <MobileHomePage />
+      </div>
+    );
+  }
+
+  // Desktop: Original layout
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
