@@ -38,7 +38,7 @@ export default function BuyersGuide() {
     {
       number: "02",
       title: "Connect with Agent",
-      description: "Submit an inquiry to the listing agent. They'll provide full details, floor plans, and answer your questions.",
+      description: "Submit an inquiry to the agent. They'll provide full details, floor plans, and answer your questions.",
       icon: Users,
     },
     {
@@ -341,11 +341,11 @@ export default function BuyersGuide() {
                 Calculate Your Monthly Payments
               </h2>
               <p className="text-muted-foreground mb-6">
-                Use our mortgage calculator on any listing page to estimate your monthly payments based on different down payment scenarios.
+                Use our mortgage calculator on any assignment page to estimate your monthly payments based on different down payment scenarios.
               </p>
               <Link to="/assignments">
                 <Button size="lg">
-                  Browse Listings with Calculator
+                  Browse Assignments with Calculator
                   <ArrowRight className="h-4 w-4 ml-2" />
                 </Button>
               </Link>
@@ -427,7 +427,7 @@ export default function BuyersGuide() {
                 Ready to Find Your Assignment?
               </h2>
               <p className="text-muted-foreground mb-8">
-                Browse our curated selection of presale assignments across Metro Vancouver. Each listing is from a verified real estate agent.
+                Browse our curated selection of presale assignments across Metro Vancouver. Each assignment is from a verified real estate agent.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Link to="/assignments">

@@ -80,8 +80,8 @@ const MONTHS = [
 ];
 
 const VISIBILITY_MODES = [
-  { value: "public", label: "Public Listing", description: "All details visible to everyone" },
-  { value: "restricted", label: "Restricted Listing", description: "Developer-compliant mode - project/developer details hidden" },
+  { value: "public", label: "Public Assignment", description: "All details visible to everyone" },
+  { value: "restricted", label: "Restricted Assignment", description: "Developer-compliant mode - project/developer details hidden" },
 ];
 
 const listingSchema = z.object({
@@ -188,7 +188,7 @@ export default function ListingForm() {
       if (listing.agent_id !== user?.id) {
         toast({
           title: "Access denied",
-          description: "You can only edit your own listings.",
+          description: "You can only edit your own assignments.",
           variant: "destructive",
         });
         navigate("/dashboard/listings");
@@ -249,7 +249,7 @@ export default function ListingForm() {
       console.error("Error fetching listing:", error);
       toast({
         title: "Error",
-        description: "Failed to load listing.",
+        description: "Failed to load assignment.",
         variant: "destructive",
       });
     } finally {
@@ -408,10 +408,10 @@ export default function ListingForm() {
       }
 
       toast({
-        title: isEditing ? "Listing updated" : "Listing created",
+        title: isEditing ? "Assignment updated" : "Assignment created",
         description: isEditing 
           ? "Your changes have been saved."
-          : "Your listing has been saved as a draft.",
+          : "Your assignment has been saved as a draft.",
       });
 
       navigate("/dashboard/listings");
@@ -419,7 +419,7 @@ export default function ListingForm() {
       console.error("Error saving listing:", error);
       toast({
         title: "Error",
-        description: "Failed to save listing. Please try again.",
+        description: "Failed to save assignment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -449,10 +449,10 @@ export default function ListingForm() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold">
-              {isEditing ? "Edit Listing" : "Create New Listing"}
+              {isEditing ? "Edit Assignment" : "Create New Assignment"}
             </h1>
             <p className="text-muted-foreground">
-              {isEditing ? "Update your assignment listing" : "Add a new assignment to the marketplace"}
+              {isEditing ? "Update your assignment" : "Add a new assignment to the marketplace"}
             </p>
           </div>
         </div>
@@ -462,9 +462,9 @@ export default function ListingForm() {
             {/* Visibility Mode */}
             <Card className="border-primary/20 bg-primary/5">
               <CardHeader>
-                <CardTitle>Listing Visibility</CardTitle>
+                <CardTitle>Assignment Visibility</CardTitle>
                 <CardDescription>
-                  Choose how this listing will be displayed publicly
+                  Choose how this assignment will be displayed publicly
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">

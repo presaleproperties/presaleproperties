@@ -107,7 +107,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           Request Sent!
         </h3>
         <p className="text-muted-foreground mb-4">
-          Thank you for your interest. The listing agent will contact you shortly.
+          Thank you for your interest. The agent will contact you shortly.
         </p>
         <Button
           variant="outline"
@@ -127,7 +127,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
         <div className="flex items-center gap-2 mb-2">
           <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
             <Sparkles className="h-3 w-3" />
-            {isRestricted ? "Exclusive Listing" : "High Interest"}
+            {isRestricted ? "Exclusive Assignment" : "High Interest"}
           </span>
         </div>
         <h3 className="text-xl font-bold text-foreground">

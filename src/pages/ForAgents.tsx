@@ -72,7 +72,7 @@ export default function ForAgents() {
                 None of it is built for buyers.
               </p>
               <p>
-                As a result, serious buyers miss opportunities and agents struggle to surface listings.
+                As a result, serious buyers miss opportunities and agents struggle to surface assignments.
               </p>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function ForAgents() {
             </div>
             <div className="prose prose-lg text-muted-foreground ml-14">
               <p>
-                Assignment listings posted in private groups get buried within hours.
+                Assignments posted in private groups get buried within hours.
                 They aren't searchable, indexed, or discoverable by buyers actively looking.
               </p>
               <p className="font-semibold text-foreground">
@@ -130,7 +130,7 @@ export default function ForAgents() {
             </div>
             <div className="prose prose-lg text-muted-foreground ml-14">
               <p>
-                Many developers do not allow public marketing of assignment listings.
+                Many developers do not allow public marketing of assignments.
                 This is common and expected in presales.
               </p>
               <p>
@@ -140,7 +140,7 @@ export default function ForAgents() {
                 <div className="p-4 rounded-lg border bg-background">
                   <div className="flex items-center gap-2 mb-2">
                     <Eye className="h-5 w-5 text-green-600" />
-                    <span className="font-semibold">Public Listings</span>
+                    <span className="font-semibold">Public Assignments</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Full details visible to all visitors
@@ -149,7 +149,7 @@ export default function ForAgents() {
                 <div className="p-4 rounded-lg border bg-background">
                   <div className="flex items-center gap-2 mb-2">
                     <Lock className="h-5 w-5 text-amber-600" />
-                    <span className="font-semibold">Restricted Listings</span>
+                    <span className="font-semibold">Restricted Assignments</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Developer-compliant, details shared on inquiry
@@ -157,7 +157,7 @@ export default function ForAgents() {
                 </div>
               </div>
               <p className="mt-6">
-                Restricted listings hide sensitive details and require buyer inquiry to access full information.
+                Restricted assignments hide sensitive details and require buyer inquiry to access full information.
               </p>
             </div>
           </div>
@@ -169,11 +169,11 @@ export default function ForAgents() {
             <div className="flex items-start gap-4 mb-6">
               <Lock className="h-10 w-10 text-amber-600 flex-shrink-0 mt-1" />
               <h2 className="text-3xl md:text-4xl font-bold">
-                Restricted Listings Aren't a Limitation — They're an Advantage
+                Restricted Assignments Aren't a Limitation — They're an Advantage
               </h2>
             </div>
             <div className="prose prose-lg text-muted-foreground ml-14">
-              <p>By gating sensitive details, restricted listings:</p>
+              <p>By gating sensitive details, restricted assignments:</p>
               <ul className="space-y-2 not-prose mt-4">
                 <li className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
@@ -206,7 +206,7 @@ export default function ForAgents() {
               {[
                 "A central, searchable assignment marketplace",
                 "Public exposure without breaking developer rules",
-                "Listings buyers can actually find",
+                "Assignments buyers can actually find",
                 "Direct buyer inquiries to your email",
                 "No middleman — you control the conversation",
                 "Higher-quality buyer inquiries",
@@ -233,7 +233,7 @@ export default function ForAgents() {
             </div>
             <div className="prose prose-lg text-muted-foreground ml-14">
               <p>
-                When a buyer submits an inquiry on your assignment listing, the lead is sent directly to your email.
+                When a buyer submits an inquiry on your assignment, the lead is sent directly to your email.
               </p>
               <p>
                 No platform middleman. No lead aggregation. No shared inquiries.
@@ -312,7 +312,7 @@ export default function ForAgents() {
         <section className="py-8 border-t">
           <div className="container max-w-3xl">
             <p className="text-sm text-muted-foreground text-center">
-              All listings are submitted by licensed real estate agents and reviewed prior to publication. 
+              All assignments are submitted by licensed real estate agents and reviewed prior to publication. 
               AssignmentHub Vancouver does not represent developers and does not facilitate transactions.
             </p>
           </div>

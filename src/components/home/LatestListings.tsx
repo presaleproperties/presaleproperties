@@ -110,7 +110,7 @@ export function LatestListings() {
         ) : (
           <div className="text-center py-12 bg-background rounded-lg border border-border">
             <p className="text-muted-foreground">
-              No listings available yet. Be the first to list!
+              No assignments available yet. Be the first to list!
             </p>
             <Link to="/register" className="mt-4 inline-block">
               <Button>Become an Agent</Button>

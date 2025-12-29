@@ -99,7 +99,7 @@ export default function AdminListings() {
       console.error("Error fetching listings:", error);
       toast({
         title: "Error",
-        description: "Failed to load listings",
+        description: "Failed to load assignments",
         variant: "destructive",
       });
     } finally {
@@ -143,7 +143,7 @@ export default function AdminListings() {
       if (error) throw error;
 
       toast({
-        title: actionType === "approve" ? "Listing Approved" : "Listing Rejected",
+        title: actionType === "approve" ? "Assignment Approved" : "Assignment Rejected",
         description: `"${selectedListing.title}" has been ${actionType === "approve" ? "published" : "rejected"}`,
       });
 
@@ -152,7 +152,7 @@ export default function AdminListings() {
       console.error("Error updating listing:", error);
       toast({
         title: "Error",
-        description: "Failed to update listing status",
+        description: "Failed to update assignment status",
         variant: "destructive",
       });
     } finally {
@@ -324,7 +324,7 @@ export default function AdminListings() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold">Listings</h1>
+          <h1 className="text-2xl font-bold">Assignments</h1>
           <p className="text-muted-foreground">Manage assignments and approval queue</p>
         </div>
 
@@ -362,7 +362,7 @@ export default function AdminListings() {
                     <CardContent className="py-12 text-center">
                       <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
                       <h3 className="text-lg font-medium mb-2">All caught up!</h3>
-                      <p className="text-muted-foreground">No listings pending approval</p>
+                      <p className="text-muted-foreground">No assignments pending approval</p>
                     </CardContent>
                   </Card>
                 ) : (
@@ -378,7 +378,7 @@ export default function AdminListings() {
                     <Card>
                       <CardContent className="py-12 text-center">
                         <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No published listings</h3>
+                        <h3 className="text-lg font-medium mb-2">No published assignments</h3>
                       </CardContent>
                     </Card>
                   ) : (
@@ -393,8 +393,8 @@ export default function AdminListings() {
                     <Card>
                       <CardContent className="py-12 text-center">
                         <Star className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No featured listings</h3>
-                        <p className="text-muted-foreground">Feature listings from the Published tab</p>
+                        <h3 className="text-lg font-medium mb-2">No featured assignments</h3>
+                        <p className="text-muted-foreground">Feature assignments from the Published tab</p>
                       </CardContent>
                     </Card>
                   ) : (
@@ -409,7 +409,7 @@ export default function AdminListings() {
                     <Card>
                       <CardContent className="py-12 text-center">
                         <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No listings yet</h3>
+                        <h3 className="text-lg font-medium mb-2">No assignments yet</h3>
                       </CardContent>
                     </Card>
                   ) : (
@@ -427,7 +427,7 @@ export default function AdminListings() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionType === "approve" ? "Approve Listing" : "Reject Listing"}
+              {actionType === "approve" ? "Approve Assignment" : "Reject Assignment"}
             </DialogTitle>
             <DialogDescription>
               {actionType === "approve" 
@@ -443,7 +443,7 @@ export default function AdminListings() {
                 <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Explain why the listing was rejected..."
+                  placeholder="Explain why the assignment was rejected..."
                   className="mt-1"
                 />
               </div>

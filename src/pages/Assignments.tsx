@@ -402,7 +402,7 @@ export default function Assignments() {
   return (
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
       <Helmet>
-        <title>Presale Assignment Listings | Buy Condo Assignments in Vancouver</title>
+        <title>Presale Assignments | Buy Condo Assignments in Vancouver</title>
         <meta name="description" content="Browse presale condo assignments in Metro Vancouver. Find pre-construction condos, townhomes & assignment opportunities in Vancouver, Surrey, Burnaby & more." />
         <link rel="canonical" href="https://presaleproperties.com/assignments" />
       </Helmet>
@@ -423,7 +423,7 @@ export default function Assignments() {
         <div className="container px-4">
           <div className="max-w-3xl">
             <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3">
-              Assignment Listings
+              Assignments
             </h1>
             <p className="text-sm md:text-base text-muted-foreground mb-4">
               Browse pre-construction condo assignments across Metro Vancouver. 

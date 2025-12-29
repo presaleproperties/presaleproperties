@@ -26,7 +26,7 @@ const QUICK_LINKS = [
     icon: Building2 
   },
   { 
-    title: "Assignment Listings", 
+    title: "Assignments", 
     description: "Find assignment opportunities",
     href: "/assignments",
     icon: FileText 

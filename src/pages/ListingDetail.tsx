@@ -184,10 +184,10 @@ export default function ListingDetail() {
         <Header />
         <main className="container py-16 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">
-            Listing Not Found
+            Assignment Not Found
           </h1>
           <p className="text-muted-foreground mb-6">
-            This listing may have been removed or is no longer available.
+            This assignment may have been removed or is no longer available.
           </p>
           <Link to="/assignments">
             <Button>Browse All Assignments</Button>
@@ -234,7 +234,7 @@ export default function ListingDetail() {
           <Alert className="mb-4 md:mb-6 border-amber-500/50 bg-amber-500/10">
             <AlertTriangle className="h-4 w-4 text-amber-500" />
             <AlertDescription className="text-amber-700 text-sm">
-              <strong>Preview Mode:</strong> This listing is not yet published (Status: {listing.status.replace(/_/g, " ")}).
+              <strong>Preview Mode:</strong> This assignment is not yet published (Status: {listing.status.replace(/_/g, " ")}).
             </AlertDescription>
           </Alert>
         )}

@@ -41,7 +41,7 @@ const navGroups = [
     label: "Content",
     items: [
       { href: "/admin/projects", label: "Projects", icon: Building2 },
-      { href: "/admin/listings", label: "Listings", icon: FileStack },
+      { href: "/admin/listings", label: "Assignments", icon: FileStack },
       { href: "/admin/blogs", label: "Blog Posts", icon: BookOpen },
     ]
   },
