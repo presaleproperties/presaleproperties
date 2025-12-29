@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AccessPackModal } from "./AccessPackModal";
+import { supabase } from "@/integrations/supabase/client";
 
 const CITY_LINKS = [
   { slug: "vancouver", name: "Vancouver" },
@@ -33,31 +34,41 @@ export function ConversionHeader() {
   const [open, setOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalVariant, setModalVariant] = useState<"floorplans" | "fit_call">("floorplans");
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const location = useLocation();
+
+  useEffect(() => {
+    const fetchWhatsapp = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "whatsapp_number")
+        .maybeSingle();
+      if (data?.value) setWhatsappNumber(data.value as string);
+    };
+    fetchWhatsapp();
+  }, []);
 
   const isActive = (path: string) => location.pathname === path;
 
-  const openFloorplans = () => {
-    setModalVariant("floorplans");
-    setModalOpen(true);
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in learning about presale projects. Can you help me?")}`;
+
+  const openChatNow = () => {
     setOpen(false);
-    
     if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "click_get_floorplans", {
+      (window as any).gtag("event", "click_chat_now", {
         page_path: window.location.pathname,
         source: "header",
       });
     }
+    window.open(whatsappLink, "_blank");
   };
 
-  const openFitCall = () => {
-    setModalVariant("fit_call");
+  const openCallBack = () => {
     setModalOpen(true);
     setOpen(false);
-    
     if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "click_book_call", {
+      (window as any).gtag("event", "click_request_callback", {
         page_path: window.location.pathname,
         source: "header",
       });
@@ -140,11 +151,11 @@ export function ConversionHeader() {
 
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={openFitCall}>
+            <Button variant="outline" size="sm" onClick={openCallBack}>
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
             </Button>
-            <Button size="sm" onClick={openFloorplans} className="shadow-gold">
+            <Button size="sm" onClick={openChatNow} className="shadow-gold">
               <MessageCircle className="h-4 w-4 mr-2" />
               Chat Now
             </Button>
@@ -152,7 +163,7 @@ export function ConversionHeader() {
 
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            <Button size="sm" onClick={openFloorplans} className="h-9 px-3">
+            <Button size="sm" onClick={openChatNow} className="h-9 px-3">
               <MessageCircle className="h-4 w-4" />
             </Button>
             
@@ -255,11 +266,11 @@ export function ConversionHeader() {
                   </nav>
 
                   <div className="p-4 space-y-2 border-t">
-                    <Button onClick={openFloorplans} className="w-full h-11 font-medium">
+                    <Button onClick={openChatNow} className="w-full h-11 font-medium">
                       <MessageCircle className="h-4 w-4 mr-2" />
                       Chat Now
                     </Button>
-                    <Button variant="outline" onClick={openFitCall} className="w-full h-11 font-medium">
+                    <Button variant="outline" onClick={openCallBack} className="w-full h-11 font-medium">
                       <Phone className="h-4 w-4 mr-2" />
                       Request a Call Back
                     </Button>
@@ -274,7 +285,7 @@ export function ConversionHeader() {
       <AccessPackModal
         open={modalOpen}
         onOpenChange={setModalOpen}
-        variant={modalVariant}
+        variant="fit_call"
         source="header"
       />
     </>
