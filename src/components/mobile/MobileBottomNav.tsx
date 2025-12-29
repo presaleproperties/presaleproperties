@@ -47,37 +47,41 @@ export function MobileBottomNav() {
       {/* Transparent Gradient Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none">
         {/* Gradient fade background */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         
         {/* Button container */}
-        <div className="relative flex items-center justify-center gap-3 px-6 py-4 pb-6 pointer-events-auto">
-          {/* Search Button - Glass style */}
+        <div className="relative flex items-center justify-center gap-4 px-6 py-5 pb-7 pointer-events-auto">
+          {/* Search Button - Primary Glass CTA */}
           <button
             onClick={handleSearchClick}
             className={cn(
-              "flex items-center gap-2 px-6 py-3 rounded-full",
-              "bg-white/20 backdrop-blur-md border border-white/30",
-              "text-foreground font-semibold",
-              "shadow-lg active:scale-95 transition-all duration-150"
+              "flex items-center gap-2.5 px-8 py-3.5 rounded-full",
+              "bg-white/25 backdrop-blur-xl",
+              "border border-white/40",
+              "text-white font-semibold text-base",
+              "shadow-lg shadow-black/20",
+              "active:scale-95 transition-all duration-150"
             )}
           >
             <Search className="h-5 w-5" />
             <span>Search</span>
           </button>
 
-          {/* WhatsApp Button - Glass style with WhatsApp logo outline */}
+          {/* WhatsApp Button - Glass Circle with Outline Logo */}
           <button
             onClick={handleMessageClick}
             className={cn(
-              "flex items-center justify-center h-12 w-12 rounded-full",
-              "bg-white/20 backdrop-blur-md border border-white/30",
-              "shadow-lg active:scale-95 transition-all duration-150"
+              "flex items-center justify-center h-14 w-14 rounded-full",
+              "bg-white/25 backdrop-blur-xl",
+              "border border-white/40",
+              "shadow-lg shadow-black/20",
+              "active:scale-95 transition-all duration-150"
             )}
           >
-            {/* WhatsApp Logo - outline style */}
+            {/* WhatsApp Logo - Clean outline style */}
             <svg 
               viewBox="0 0 24 24" 
-              className="h-6 w-6"
+              className="h-7 w-7 text-white"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
@@ -91,7 +95,7 @@ export function MobileBottomNav() {
         </div>
       </div>
 
-      {/* Search Popup */}
+      {/* Search Popup - Glass Style */}
       <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
     </>
   );
