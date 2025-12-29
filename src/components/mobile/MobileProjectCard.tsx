@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Building2 } from "lucide-react";
+import { Calendar, Building2, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -56,6 +56,23 @@ const getStatusColor = (status: string) => {
   }
 };
 
+const getProjectTypeLabel = (type: string) => {
+  switch (type) {
+    case "condo":
+      return "Condo";
+    case "townhome":
+      return "Townhome";
+    case "mixed":
+      return "Mixed";
+    case "duplex":
+      return "Duplex";
+    case "single_family":
+      return "House";
+    default:
+      return type;
+  }
+};
+
 export function MobileProjectCard({
   id,
   slug,
@@ -91,14 +108,14 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[180px]" : "w-[145px]"
+        isLarge ? "w-[240px]" : "w-[200px]"
       )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-transform duration-150">
-        {/* Image - maximized ~75% of card */}
+        {/* Wider Image - ~65% of card height */}
         <div className={cn(
           "relative bg-muted overflow-hidden",
-          isLarge ? "aspect-[4/5]" : "aspect-[3/4]"
+          isLarge ? "aspect-[16/12]" : "aspect-[16/11]"
         )}>
           {featuredImage ? (
             <img
@@ -117,7 +134,7 @@ export function MobileProjectCard({
           {/* Status Badge - top left */}
           {statusLabel && (
             <Badge className={cn(
-              "absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[10px] font-semibold border-0",
+              "absolute top-2 left-2 px-2 py-0.5 text-[10px] font-semibold border-0",
               getStatusColor(status)
             )}>
               {statusLabel}
@@ -126,35 +143,46 @@ export function MobileProjectCard({
 
           {/* Deposit badge - bottom right on image */}
           {depositPercent && (
-            <div className="absolute bottom-1.5 right-1.5">
-              <span className="text-[11px] font-bold text-white bg-primary/90 px-1.5 py-0.5 rounded shadow-sm">
-                {depositPercent}% dep
+            <div className="absolute bottom-2 right-2">
+              <span className="text-[11px] font-bold text-white bg-primary/90 px-2 py-1 rounded shadow-sm">
+                {depositPercent}% Deposit
               </span>
             </div>
           )}
         </div>
 
-        {/* Compact Details - ~25% of card */}
-        <div className="px-2 py-1.5 space-y-0.5">
-          <h4 className="font-semibold text-[13px] text-foreground line-clamp-1 leading-tight">{name}</h4>
-          <p className="text-[11px] text-muted-foreground line-clamp-1">
-            {neighborhood}
-          </p>
+        {/* Project Details - ~35% of card */}
+        <div className="px-3 py-2.5 space-y-1.5">
+          {/* Name */}
+          <h4 className="font-semibold text-sm text-foreground line-clamp-1 leading-tight">{name}</h4>
+          
+          {/* Location */}
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <MapPin className="h-3 w-3 shrink-0" />
+            <span className="text-xs truncate">{neighborhood}, {city}</span>
+          </div>
+
+          {/* Price & Type Row */}
           <div className="flex items-center justify-between">
             {startingPrice ? (
-              <span className="text-[13px] font-bold text-foreground">
-                {formatPrice(startingPrice)}+
+              <span className="text-sm font-bold text-foreground">
+                From {formatPrice(startingPrice)}
               </span>
             ) : (
-              <span className="text-[10px] text-primary font-medium">Register</span>
+              <span className="text-xs text-primary font-medium">Register for pricing</span>
             )}
-            {completionYear && (
-              <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
-                <Calendar className="h-2.5 w-2.5" />
-                {completionYear}
-              </span>
-            )}
+            <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+              {getProjectTypeLabel(projectType)}
+            </span>
           </div>
+
+          {/* Completion Year */}
+          {completionYear && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground pt-0.5">
+              <Calendar className="h-3 w-3" />
+              <span>Est. {completionYear}</span>
+            </div>
+          )}
         </div>
       </div>
     </Link>

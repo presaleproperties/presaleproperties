@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Map, MessageCircle } from "lucide-react";
+import { Search, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchPopup } from "@/components/conversion/SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,12 +24,13 @@ export function MobileBottomNav() {
 
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in presale properties. Can you help me?")}`;
 
-  const handleMapClick = () => {
+  const handleSearchClick = () => {
     if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "mobile_map_search_click", {
+      (window as any).gtag("event", "mobile_search_click", {
         page_path: location.pathname,
       });
     }
+    setSearchOpen(true);
   };
 
   const handleMessageClick = () => {
@@ -46,34 +47,42 @@ export function MobileBottomNav() {
       {/* Transparent Gradient Bottom Bar */}
       <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none">
         {/* Gradient fade background */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
         
         {/* Button container */}
-        <div className="relative flex items-center justify-center gap-4 px-6 py-4 pb-6 pointer-events-auto">
-          {/* Map Search Button - Primary/Center */}
-          <Link
-            to="/presale-projects?view=map"
-            onClick={handleMapClick}
+        <div className="relative flex items-center justify-center gap-3 px-6 py-4 pb-6 pointer-events-auto">
+          {/* Search Button - Glass style */}
+          <button
+            onClick={handleSearchClick}
             className={cn(
               "flex items-center gap-2 px-6 py-3 rounded-full",
-              "bg-foreground text-background font-semibold",
+              "bg-white/20 backdrop-blur-md border border-white/30",
+              "text-foreground font-semibold",
               "shadow-lg active:scale-95 transition-all duration-150"
             )}
           >
-            <Map className="h-5 w-5" />
-            <span>Map Search</span>
-          </Link>
+            <Search className="h-5 w-5" />
+            <span>Search</span>
+          </button>
 
-          {/* Message Button - Right */}
+          {/* WhatsApp Button - Glass style with phone in message bubble */}
           <button
             onClick={handleMessageClick}
             className={cn(
-              "flex items-center justify-center h-12 w-12 rounded-full",
-              "bg-green-500 text-white",
+              "relative flex items-center justify-center h-12 w-12 rounded-full",
+              "bg-white/20 backdrop-blur-md border border-white/30",
               "shadow-lg active:scale-95 transition-all duration-150"
             )}
           >
-            <MessageCircle className="h-5 w-5" />
+            {/* Message bubble background */}
+            <svg 
+              viewBox="0 0 24 24" 
+              className="h-7 w-7 text-green-500 fill-current"
+            >
+              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+            </svg>
+            {/* Phone icon centered */}
+            <Phone className="absolute h-3.5 w-3.5 text-white fill-white" />
           </button>
         </div>
       </div>
