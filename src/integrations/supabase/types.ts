@@ -766,31 +766,49 @@ export type Database = {
       }
       project_leads: {
         Row: {
+          budget: string | null
           created_at: string
+          drip_sequence: string | null
           email: string
           id: string
+          last_drip_sent: number | null
           message: string | null
           name: string
+          next_drip_at: string | null
+          persona: string | null
           phone: string | null
           project_id: string | null
+          timeline: string | null
         }
         Insert: {
+          budget?: string | null
           created_at?: string
+          drip_sequence?: string | null
           email: string
           id?: string
+          last_drip_sent?: number | null
           message?: string | null
           name: string
+          next_drip_at?: string | null
+          persona?: string | null
           phone?: string | null
           project_id?: string | null
+          timeline?: string | null
         }
         Update: {
+          budget?: string | null
           created_at?: string
+          drip_sequence?: string | null
           email?: string
           id?: string
+          last_drip_sent?: number | null
           message?: string | null
           name?: string
+          next_drip_at?: string | null
+          persona?: string | null
           phone?: string | null
           project_id?: string | null
+          timeline?: string | null
         }
         Relationships: [
           {

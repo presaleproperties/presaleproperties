@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.send-campaign-email]
 verify_jwt = true
+
+[functions.send-drip-email]
+verify_jwt = false
