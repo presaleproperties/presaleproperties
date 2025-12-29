@@ -385,6 +385,40 @@ export default function BuyersGuide() {
           </div>
         </section>
 
+        {/* Internal Links Section - SEO with exact match anchor text */}
+        <section className="py-12 md:py-16 bg-muted/30">
+          <div className="container px-4">
+            <div className="max-w-4xl mx-auto">
+              <h2 className="text-2xl font-bold text-foreground mb-6">
+                Browse Presale Condos by City
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                Find new condo developments and presale townhomes across Metro Vancouver and the Fraser Valley with VIP access presale registration, floorplans & pricing, and presale pricing sheets.
+              </p>
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+                <Link to="/presale-condos/surrey" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
+                  <span className="font-medium">Presale Condos Surrey</span>
+                </Link>
+                <Link to="/presale-condos/langley" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
+                  <span className="font-medium">Presale Condos Langley</span>
+                </Link>
+                <Link to="/presale-condos/coquitlam" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
+                  <span className="font-medium">Presale Condos Coquitlam</span>
+                </Link>
+                <Link to="/presale-condos/burnaby" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
+                  <span className="font-medium">Presale Condos Burnaby</span>
+                </Link>
+                <Link to="/presale-condos/abbotsford" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
+                  <span className="font-medium">Abbotsford Presale Condos</span>
+                </Link>
+                <Link to="/presale-condos/vancouver" className="p-3 rounded-lg border bg-card hover:border-primary transition-colors">
+                  <span className="font-medium">Presale Condos Vancouver</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Final CTA */}
         <section className="py-12 md:py-16">
           <div className="container px-4">
