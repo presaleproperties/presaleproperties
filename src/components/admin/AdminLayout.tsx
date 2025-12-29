@@ -6,7 +6,7 @@ import {
   LayoutDashboard, 
   Users, 
   Building2, 
-  FileCheck,
+  FileStack,
   DollarSign,
   Settings,
   LogOut,
@@ -14,39 +14,78 @@ import {
   X,
   Shield,
   Users2,
-  Bell,
-  Mail
+  Mail,
+  BookOpen,
+  ChevronDown
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface AdminLayoutProps {
   children: ReactNode;
 }
 
-const navItems = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard },
-  { href: "/admin/projects", label: "Projects", icon: Building2 },
-  { href: "/admin/leads", label: "Leads", icon: Users2 },
-  { href: "/admin/subscribers", label: "Subscribers", icon: Bell },
-  { href: "/admin/email-campaigns", label: "Campaigns", icon: Mail },
-  { href: "/admin/email-templates", label: "Templates", icon: Mail },
-  { href: "/admin/blogs", label: "Blogs", icon: FileCheck },
-  { href: "/admin/agents", label: "Agent Verification", icon: Users },
-  { href: "/admin/listings", label: "Listing Approval", icon: FileCheck },
-  { href: "/admin/all-listings", label: "All Listings", icon: Building2 },
-  { href: "/admin/payments", label: "Payments", icon: DollarSign },
-  { href: "/admin/settings", label: "Settings", icon: Settings },
+// Organized navigation with logical groups
+const navGroups = [
+  {
+    label: "Dashboard",
+    items: [
+      { href: "/admin", label: "Overview", icon: LayoutDashboard },
+    ]
+  },
+  {
+    label: "Content",
+    items: [
+      { href: "/admin/projects", label: "Projects", icon: Building2 },
+      { href: "/admin/listings", label: "Listings", icon: FileStack },
+      { href: "/admin/blogs", label: "Blog Posts", icon: BookOpen },
+    ]
+  },
+  {
+    label: "Users & Leads",
+    items: [
+      { href: "/admin/agents", label: "Agents", icon: Users },
+      { href: "/admin/leads", label: "Leads", icon: Users2 },
+    ]
+  },
+  {
+    label: "Marketing",
+    items: [
+      { href: "/admin/email-campaigns", label: "Email Campaigns", icon: Mail },
+      { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
+    ]
+  },
+  {
+    label: "Finance",
+    items: [
+      { href: "/admin/payments", label: "Payments", icon: DollarSign },
+    ]
+  },
+  {
+    label: "System",
+    items: [
+      { href: "/admin/settings", label: "Settings", icon: Settings },
+    ]
+  },
 ];
+
+// Flat list for mobile quick access
+const allNavItems = navGroups.flatMap(group => group.items);
 
 export function AdminLayout({ children }: AdminLayoutProps) {
   const { signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [expandedGroups, setExpandedGroups] = useState<string[]>(["Dashboard", "Content", "Users & Leads"]);
 
   const handleSignOut = async () => {
     await signOut();
-    navigate("/login");
+    navigate("/admin/login");
   };
 
   const isActive = (href: string) => {
@@ -56,81 +95,140 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     return location.pathname.startsWith(href);
   };
 
+  const toggleGroup = (label: string) => {
+    setExpandedGroups(prev => 
+      prev.includes(label) 
+        ? prev.filter(g => g !== label)
+        : [...prev, label]
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex h-16 items-center px-4 gap-4">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          >
-            {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </Button>
-          
+    <div className="min-h-screen flex bg-background">
+      {/* Sidebar - Desktop */}
+      <aside className="hidden lg:flex w-64 flex-col border-r bg-muted/30">
+        <div className="p-4 border-b">
           <Link to="/admin" className="flex items-center gap-2 font-bold text-xl">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="hidden sm:inline">Admin Panel</span>
+            <span>Admin Panel</span>
           </Link>
+        </div>
 
-          <nav className="hidden md:flex items-center gap-1 ml-6">
-            {navItems.map((item) => (
-              <Link key={item.href} to={item.href}>
-                <Button
-                  variant={isActive(item.href) ? "secondary" : "ghost"}
-                  size="sm"
-                  className="gap-2"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
-                </Button>
-              </Link>
-            ))}
-          </nav>
+        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+          {navGroups.map((group) => (
+            <Collapsible 
+              key={group.label}
+              open={expandedGroups.includes(group.label)}
+              onOpenChange={() => toggleGroup(group.label)}
+            >
+              <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground">
+                {group.label}
+                <ChevronDown className={cn(
+                  "h-4 w-4 transition-transform",
+                  expandedGroups.includes(group.label) && "rotate-180"
+                )} />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-1 mt-1">
+                {group.items.map((item) => (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={cn(
+                      "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                      isActive(item.href)
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Link>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+          ))}
+        </nav>
 
-          <div className="ml-auto flex items-center gap-2">
-            <Link to="/dashboard">
-              <Button variant="outline" size="sm">
-                Agent Dashboard
-              </Button>
-            </Link>
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
-              <LogOut className="h-4 w-4 mr-2" />
-              Sign Out
+        <div className="p-4 border-t space-y-2">
+          <Link to="/dashboard">
+            <Button variant="outline" size="sm" className="w-full">
+              Agent Dashboard
             </Button>
-          </div>
+          </Link>
+          <Button variant="ghost" size="sm" className="w-full" onClick={handleSignOut}>
+            <LogOut className="h-4 w-4 mr-2" />
+            Sign Out
+          </Button>
         </div>
-      </header>
+      </aside>
 
-      {/* Mobile Menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-b bg-background">
-          <nav className="flex flex-col p-4 gap-1">
-            {navItems.map((item) => (
-              <Link 
-                key={item.href} 
-                to={item.href}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                <Button
-                  variant={isActive(item.href) ? "secondary" : "ghost"}
-                  className="w-full justify-start gap-2"
-                >
-                  <item.icon className="h-4 w-4" />
-                  {item.label}
+      {/* Main Area */}
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Header */}
+        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex h-16 items-center px-4 gap-4">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            >
+              {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+            
+            <Link to="/admin" className="flex items-center gap-2 font-bold text-xl lg:hidden">
+              <Shield className="h-6 w-6 text-primary" />
+              <span>Admin</span>
+            </Link>
+
+            <div className="ml-auto flex items-center gap-2">
+              <Link to="/" className="hidden sm:block">
+                <Button variant="ghost" size="sm">
+                  View Site
                 </Button>
               </Link>
-            ))}
-          </nav>
-        </div>
-      )}
+              <Link to="/dashboard" className="lg:hidden">
+                <Button variant="outline" size="sm">
+                  Dashboard
+                </Button>
+              </Link>
+              <Button variant="ghost" size="sm" onClick={handleSignOut} className="lg:hidden">
+                <LogOut className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </header>
 
-      {/* Main Content */}
-      <main className="container py-6">
-        {children}
-      </main>
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden border-b bg-background">
+            <nav className="flex flex-col p-4 gap-1 max-h-[70vh] overflow-y-auto">
+              {allNavItems.map((item) => (
+                <Link 
+                  key={item.href} 
+                  to={item.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant={isActive(item.href) ? "secondary" : "ghost"}
+                    className="w-full justify-start gap-2"
+                  >
+                    <item.icon className="h-4 w-4" />
+                    {item.label}
+                  </Button>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        )}
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          <div className="container py-6">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
