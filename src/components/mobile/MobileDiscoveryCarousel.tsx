@@ -10,6 +10,7 @@ type CarouselType =
   | "hot_projects"
   | "condos"
   | "townhomes"
+  | "single_family"
   | "city_vancouver"
   | "city_surrey"
   | "city_burnaby"
@@ -77,6 +78,9 @@ export function MobileDiscoveryCarousel({
       } else if (type === "townhomes") {
         // Townhomes only
         query = query.eq("project_type", "townhome").order("published_at", { ascending: false });
+      } else if (type === "single_family") {
+        // Single-family/detached homes
+        query = query.eq("project_type", "single_family").order("published_at", { ascending: false });
       } else {
         // City-specific carousels
         const cityName = getCityFromType(type);
@@ -103,12 +107,13 @@ export function MobileDiscoveryCarousel({
   };
 
   // Determine if this is a large carousel
-  const isLargeCarousel = size === "large" || type === "hot_projects" || type === "condos" || type === "townhomes";
+  const isLargeCarousel = size === "large" || type === "hot_projects" || type === "condos" || type === "townhomes" || type === "single_family";
   
   const cityFromType = getCityFromType(type);
   const getSeeAllLink = () => {
     if (type === "condos") return "/presale-projects?type=condo";
     if (type === "townhomes") return "/presale-projects?type=townhome";
+    if (type === "single_family") return "/presale-projects?type=single_family";
     if (cityFromType) return `/presale-projects?city=${encodeURIComponent(cityFromType)}`;
     return "/presale-projects";
   };
