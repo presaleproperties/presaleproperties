@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
-import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
@@ -801,7 +801,7 @@ export default function PresaleProjects() {
         </main>
 
         <NewConstructionBenefits />
-        <MobileBottomNav />
+        <FloatingBottomNav />
         <Footer />
       </PullToRefresh>
     </>
