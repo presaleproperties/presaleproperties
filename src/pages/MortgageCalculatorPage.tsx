@@ -631,14 +631,36 @@ export default function MortgageCalculatorPage() {
           </div>
         </section>
 
+        {/* Mobile Sticky Results Bar */}
+        <div className="lg:hidden sticky top-0 z-40 bg-background/95 backdrop-blur-sm border-b">
+          <div className="container px-4 py-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">{frequencyLabels[paymentFrequency]} Payment</p>
+                <p className="text-2xl font-bold text-primary">{formatCurrency(calculations.payment, 0)}</p>
+              </div>
+              <div className="flex gap-3 text-center">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Cash to Close</p>
+                  <p className="text-sm font-semibold">{formatCurrency(calculations.cashToClose)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Monthly Total</p>
+                  <p className="text-sm font-semibold">{formatCurrency(calculations.totalMonthlyCarrying)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Calculator Section */}
-        <section className="py-6 md:py-10">
+        <section className="py-4 md:py-10">
           <div className="container px-4">
             <div className="max-w-6xl mx-auto">
-              <div className="grid lg:grid-cols-3 gap-6">
+              <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
                 
                 {/* Inputs Column */}
-                <div className="lg:col-span-2 space-y-4">
+                <div className="lg:col-span-2 space-y-3 md:space-y-4">
                   {/* Main Calculator Card */}
                   <Card>
                     <CardHeader className="pb-4">
@@ -849,15 +871,16 @@ export default function MortgageCalculatorPage() {
                         </Select>
                       </div>
 
-                      {/* Buyer Options */}
-                      <div className="flex flex-wrap gap-4 pt-2">
+                      {/* Buyer Options - Optimized for mobile */}
+                      <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
                         <div className="flex items-center gap-2">
                           <Switch
                             id="first-time-buyer"
                             checked={isFirstTimeBuyer}
                             onCheckedChange={setIsFirstTimeBuyer}
+                            className="scale-90 md:scale-100"
                           />
-                          <Label htmlFor="first-time-buyer" className="text-sm cursor-pointer">
+                          <Label htmlFor="first-time-buyer" className="text-xs md:text-sm cursor-pointer">
                             First-time buyer
                           </Label>
                         </div>
@@ -866,8 +889,9 @@ export default function MortgageCalculatorPage() {
                             id="new-construction"
                             checked={isNewConstruction}
                             onCheckedChange={setIsNewConstruction}
+                            className="scale-90 md:scale-100"
                           />
-                          <Label htmlFor="new-construction" className="text-sm cursor-pointer">
+                          <Label htmlFor="new-construction" className="text-xs md:text-sm cursor-pointer">
                             New construction
                           </Label>
                         </div>
@@ -876,8 +900,9 @@ export default function MortgageCalculatorPage() {
                             id="include-gst"
                             checked={includeGST}
                             onCheckedChange={setIncludeGST}
+                            className="scale-90 md:scale-100"
                           />
-                          <Label htmlFor="include-gst" className="text-sm cursor-pointer">
+                          <Label htmlFor="include-gst" className="text-xs md:text-sm cursor-pointer">
                             Include GST (5%)
                           </Label>
                         </div>
@@ -896,93 +921,92 @@ export default function MortgageCalculatorPage() {
                         See how different down payments affect your mortgage and monthly payment
                       </p>
                     </CardHeader>
-                    <CardContent>
-                      <div className="overflow-x-auto -mx-4 px-4 md:mx-0 md:px-0">
-                        <div className="grid grid-cols-4 gap-2 min-w-[500px]">
-                          {downPaymentComparison.map((scenario, i) => (
-                            <button
-                              key={scenario.percent}
-                              onClick={() => setDownPaymentOption(scenario.percent.toString())}
-                              className={`p-3 rounded-lg border text-center transition-all hover:border-primary/50 ${
-                                scenario.isSelected 
-                                  ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
-                                  : 'border-border hover:bg-muted/50'
-                              }`}
-                            >
-                              {/* Header */}
-                              <div className="mb-2">
-                                <div className="flex items-center justify-center gap-1">
-                                  <span className={`text-lg font-bold ${scenario.isSelected ? 'text-primary' : 'text-foreground'}`}>
-                                    {scenario.percent}%
+                    <CardContent className="px-3 md:px-6">
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                        {downPaymentComparison.map((scenario, i) => (
+                          <button
+                            key={scenario.percent}
+                            onClick={() => setDownPaymentOption(scenario.percent.toString())}
+                            className={`p-2.5 md:p-3 rounded-lg border text-center transition-all active:scale-[0.98] ${
+                              scenario.isSelected 
+                                ? 'border-primary bg-primary/5 ring-2 ring-primary/20' 
+                                : 'border-border hover:bg-muted/50'
+                            }`}
+                          >
+                            {/* Header */}
+                            <div className="mb-1.5 md:mb-2">
+                              <div className="flex items-center justify-center gap-1">
+                                <span className={`text-base md:text-lg font-bold ${scenario.isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                  {scenario.percent}%
+                                </span>
+                                {scenario.isMinimum && (
+                                  <span className="text-[9px] md:text-[10px] bg-muted text-muted-foreground px-1 py-0.5 rounded">
+                                    MIN
                                   </span>
-                                  {scenario.isMinimum && (
-                                    <span className="text-[10px] bg-muted text-muted-foreground px-1.5 py-0.5 rounded">
-                                      MIN
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="text-xs text-muted-foreground">Down Payment</p>
+                                )}
                               </div>
+                              <p className="text-[10px] md:text-xs text-muted-foreground">Down</p>
+                            </div>
 
-                              {/* Down Payment Amount */}
-                              <div className="py-2 border-t">
-                                <p className="text-xs text-muted-foreground mb-0.5">Down Payment</p>
-                                <p className="text-sm font-semibold">{formatCurrency(scenario.downPayment)}</p>
+                            {/* Down Payment Amount - Hidden on mobile for space */}
+                            <div className="hidden md:block py-2 border-t">
+                              <p className="text-xs text-muted-foreground mb-0.5">Down Payment</p>
+                              <p className="text-sm font-semibold">{formatCurrency(scenario.downPayment)}</p>
+                            </div>
+
+                            {/* CMHC - Compact on mobile */}
+                            <div className="py-1.5 md:py-2 border-t">
+                              <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">CMHC</p>
+                              <p className={`text-xs md:text-sm font-medium ${scenario.cmhcInsurance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
+                                {scenario.cmhcInsurance > 0 ? `+${formatCurrency(scenario.cmhcInsurance)}` : '$0'}
+                              </p>
+                            </div>
+
+                            {/* Total Mortgage - Hidden on mobile */}
+                            <div className="hidden md:block py-2 border-t bg-muted/30 -mx-3 px-3">
+                              <p className="text-xs text-muted-foreground mb-0.5">Mortgage</p>
+                              <p className="text-sm font-bold">{formatCurrency(scenario.mortgageAmount)}</p>
+                            </div>
+
+                            {/* Monthly Payment */}
+                            <div className="pt-2 md:pt-3 mt-1 md:mt-2 border-t">
+                              <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5">Monthly</p>
+                              <p className={`text-base md:text-xl font-bold ${scenario.isSelected ? 'text-primary' : 'text-foreground'}`}>
+                                {formatCurrency(scenario.monthlyPayment)}
+                              </p>
+                            </div>
+
+                            {/* Select indicator - Smaller on mobile */}
+                            {scenario.isSelected && (
+                              <div className="mt-1.5 md:mt-2 text-[10px] md:text-xs text-primary font-medium flex items-center justify-center gap-1">
+                                <CheckCircle className="h-3 w-3 md:h-3.5 md:w-3.5" />
+                                <span className="hidden md:inline">Selected</span>
                               </div>
-
-                              {/* CMHC Insurance */}
-                              <div className="py-2 border-t">
-                                <p className="text-xs text-muted-foreground mb-0.5">CMHC Insurance</p>
-                                <p className={`text-sm font-medium ${scenario.cmhcInsurance > 0 ? 'text-amber-600' : 'text-green-600'}`}>
-                                  {scenario.cmhcInsurance > 0 ? `+${formatCurrency(scenario.cmhcInsurance)}` : '$0'}
-                                </p>
-                              </div>
-
-                              {/* Total Mortgage */}
-                              <div className="py-2 border-t bg-muted/30 -mx-3 px-3 rounded-b-lg">
-                                <p className="text-xs text-muted-foreground mb-0.5">Total Mortgage</p>
-                                <p className="text-sm font-bold">{formatCurrency(scenario.mortgageAmount)}</p>
-                              </div>
-
-                              {/* Monthly Payment */}
-                              <div className="pt-3 mt-2 border-t">
-                                <p className="text-xs text-muted-foreground mb-0.5">Monthly Payment</p>
-                                <p className={`text-xl font-bold ${scenario.isSelected ? 'text-primary' : 'text-foreground'}`}>
-                                  {formatCurrency(scenario.monthlyPayment)}
-                                </p>
-                              </div>
-
-                              {/* Select indicator */}
-                              {scenario.isSelected && (
-                                <div className="mt-2 text-xs text-primary font-medium flex items-center justify-center gap-1">
-                                  <CheckCircle className="h-3.5 w-3.5" />
-                                  Selected
-                                </div>
-                              )}
-                            </button>
-                          ))}
-                        </div>
+                            )}
+                          </button>
+                        ))}
                       </div>
-                      <p className="text-xs text-muted-foreground mt-3 text-center">
-                        Click any scenario to select it • Down payments under 20% require CMHC insurance
+                      <p className="text-[10px] md:text-xs text-muted-foreground mt-2 md:mt-3 text-center">
+                        Tap to select • Under 20% requires CMHC insurance
                       </p>
                     </CardContent>
                   </Card>
 
                   {/* Cash Needed to Close */}
                   <Card>
-                    <CardHeader className="pb-2">
+                    <CardHeader className="py-3 md:pb-2">
                       <button 
                         onClick={() => setShowClosingDetails(!showClosingDetails)}
-                        className="flex items-center justify-between w-full text-left"
+                        className="flex items-center justify-between w-full text-left gap-2"
                       >
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Wallet className="h-5 w-5 text-primary" />
-                          Cash Needed to Close
+                        <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                          <Wallet className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                          <span className="hidden sm:inline">Cash Needed to Close</span>
+                          <span className="sm:hidden">Cash to Close</span>
                         </CardTitle>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl font-bold text-primary">{formatCurrency(calculations.cashToClose)}</span>
-                          {showClosingDetails ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <span className="text-lg md:text-xl font-bold text-primary">{formatCurrency(calculations.cashToClose)}</span>
+                          {showClosingDetails ? <ChevronUp className="h-4 w-4 md:h-5 md:w-5" /> : <ChevronDown className="h-4 w-4 md:h-5 md:w-5" />}
                         </div>
                       </button>
                     </CardHeader>
@@ -1100,18 +1124,19 @@ export default function MortgageCalculatorPage() {
 
                   {/* Monthly Expenses */}
                   <Card>
-                    <CardHeader className="pb-2">
+                    <CardHeader className="py-3 md:pb-2">
                       <button 
                         onClick={() => setShowMonthlyDetails(!showMonthlyDetails)}
-                        className="flex items-center justify-between w-full text-left"
+                        className="flex items-center justify-between w-full text-left gap-2"
                       >
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Receipt className="h-5 w-5 text-primary" />
-                          Monthly Carrying Costs
+                        <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                          <Receipt className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                          <span className="hidden sm:inline">Monthly Carrying Costs</span>
+                          <span className="sm:hidden">Monthly Costs</span>
                         </CardTitle>
-                        <div className="flex items-center gap-3">
-                          <span className="text-xl font-bold text-primary">{formatCurrency(calculations.totalMonthlyCarrying)}</span>
-                          {showMonthlyDetails ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                        <div className="flex items-center gap-2 md:gap-3">
+                          <span className="text-lg md:text-xl font-bold text-primary">{formatCurrency(calculations.totalMonthlyCarrying)}</span>
+                          {showMonthlyDetails ? <ChevronUp className="h-4 w-4 md:h-5 md:w-5" /> : <ChevronDown className="h-4 w-4 md:h-5 md:w-5" />}
                         </div>
                       </button>
                     </CardHeader>
@@ -1181,25 +1206,25 @@ export default function MortgageCalculatorPage() {
 
                   {/* Interest Rate Risk */}
                   <Card>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center gap-2">
-                        <TrendingUp className="h-5 w-5 text-primary" />
+                    <CardHeader className="pb-2 md:pb-3">
+                      <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                        <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-primary" />
                         Interest Rate Scenarios
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-xs text-muted-foreground mb-3">See how your payment changes with different rates:</p>
-                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <CardContent className="px-3 md:px-6">
+                      <p className="text-[10px] md:text-xs text-muted-foreground mb-2 md:mb-3">See how your payment changes with different rates:</p>
+                      <div className="grid grid-cols-4 gap-1.5 md:gap-2">
                         {rateScenarios.map((scenario, i) => (
                           <div 
                             key={i} 
-                            className={`p-3 rounded-lg border text-center ${i === 0 ? 'bg-primary/5 border-primary/30' : ''}`}
+                            className={`p-2 md:p-3 rounded-lg border text-center ${i === 0 ? 'bg-primary/5 border-primary/30' : ''}`}
                           >
-                            <p className="text-xs text-muted-foreground mb-1">{scenario.label}</p>
-                            <p className="text-sm font-medium">{scenario.rate.toFixed(2)}%</p>
-                            <p className="text-lg font-bold">{formatCurrency(scenario.payment)}</p>
+                            <p className="text-[10px] md:text-xs text-muted-foreground mb-0.5 md:mb-1">{scenario.label}</p>
+                            <p className="text-xs md:text-sm font-medium">{scenario.rate.toFixed(2)}%</p>
+                            <p className="text-sm md:text-lg font-bold">{formatCurrency(scenario.payment)}</p>
                             {scenario.difference !== 0 && (
-                              <p className={`text-xs ${scenario.difference > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                              <p className={`text-[10px] md:text-xs ${scenario.difference > 0 ? 'text-red-500' : 'text-green-500'}`}>
                                 {scenario.difference > 0 ? '+' : ''}{formatCurrency(scenario.difference)}
                               </p>
                             )}
@@ -1275,8 +1300,8 @@ export default function MortgageCalculatorPage() {
                   </div>
                 </div>
 
-                {/* Results Column (Sticky) */}
-                <div className="lg:col-span-1">
+                {/* Results Column (Sticky) - Hidden on mobile since we have sticky bar */}
+                <div className="hidden lg:block lg:col-span-1">
                   <div className="sticky top-4 space-y-4">
                     {/* Main Payment Card */}
                     <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background">
