@@ -9,6 +9,7 @@ import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { Footer } from "@/components/layout/Footer";
+import { cn } from "@/lib/utils";
 
 export function MobileHomePage() {
   const [selectedCity, setSelectedCity] = useState("all");
@@ -59,89 +60,129 @@ export function MobileHomePage() {
         alertCount={0}
       />
 
-      {/* Category Chips - Functional Navigation */}
-      <MobileCategoryChips
-        selectedChip={selectedChip}
-        onChipSelect={handleChipSelect}
-      />
+      {/* Category Chips - Sticky below header */}
+      <div className="sticky top-12 z-30 bg-background">
+        <MobileCategoryChips
+          selectedChip={selectedChip}
+          onChipSelect={handleChipSelect}
+        />
+      </div>
+
+      {/* Mobile Hero - Brief welcome message */}
+      <div 
+        className="px-4 pt-4 pb-2"
+        style={{ 
+          transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
+          transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
+        }}
+      >
+        <h1 className="text-lg font-bold text-foreground">
+          New Presale Condos & Townhomes
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Browse Metro Vancouver's latest developments
+        </p>
+      </div>
 
       {/* Discovery Sections */}
       <div 
-        className="space-y-6 py-4"
+        className="space-y-6 py-2"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
         {/* Condos - Large Cards */}
-        <MobileDiscoveryCarousel
-          type="condos"
-          title="Presale Condos"
-          city={selectedCity}
-        />
+        <CarouselSection delay={0}>
+          <MobileDiscoveryCarousel
+            type="condos"
+            title="Presale Condos"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
         {/* Townhomes - Large Cards */}
-        <MobileDiscoveryCarousel
-          type="townhomes"
-          title="Presale Townhomes"
-          city={selectedCity}
-        />
+        <CarouselSection delay={50}>
+          <MobileDiscoveryCarousel
+            type="townhomes"
+            title="Presale Townhomes"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
         {/* Single-Family / Detached - Large Cards */}
-        <MobileDiscoveryCarousel
-          type="single_family"
-          title="Detached Homes"
-          city={selectedCity}
-        />
+        <CarouselSection delay={100}>
+          <MobileDiscoveryCarousel
+            type="single_family"
+            title="Detached Homes"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
         {/* City-based Carousels */}
-        <MobileDiscoveryCarousel
-          type="city_vancouver"
-          title="Vancouver"
-          city={selectedCity}
-        />
+        <CarouselSection delay={150}>
+          <MobileDiscoveryCarousel
+            type="city_vancouver"
+            title="Vancouver"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_surrey"
-          title="Surrey"
-          city={selectedCity}
-        />
+        <CarouselSection delay={200}>
+          <MobileDiscoveryCarousel
+            type="city_surrey"
+            title="Surrey"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_burnaby"
-          title="Burnaby"
-          city={selectedCity}
-        />
+        <CarouselSection delay={250}>
+          <MobileDiscoveryCarousel
+            type="city_burnaby"
+            title="Burnaby"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_coquitlam"
-          title="Coquitlam"
-          city={selectedCity}
-        />
+        <CarouselSection delay={300}>
+          <MobileDiscoveryCarousel
+            type="city_coquitlam"
+            title="Coquitlam"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_langley"
-          title="Langley"
-          city={selectedCity}
-        />
+        <CarouselSection delay={350}>
+          <MobileDiscoveryCarousel
+            type="city_langley"
+            title="Langley"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_richmond"
-          title="Richmond"
-          city={selectedCity}
-        />
+        <CarouselSection delay={400}>
+          <MobileDiscoveryCarousel
+            type="city_richmond"
+            title="Richmond"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_delta"
-          title="Delta"
-          city={selectedCity}
-        />
+        <CarouselSection delay={450}>
+          <MobileDiscoveryCarousel
+            type="city_delta"
+            title="Delta"
+            city={selectedCity}
+          />
+        </CarouselSection>
 
-        <MobileDiscoveryCarousel
-          type="city_abbotsford"
-          title="Abbotsford"
-          city={selectedCity}
-        />
+        <CarouselSection delay={500}>
+          <MobileDiscoveryCarousel
+            type="city_abbotsford"
+            title="Abbotsford"
+            city={selectedCity}
+          />
+        </CarouselSection>
       </div>
 
       {/* Benefits Section - Mobile optimized */}
@@ -153,12 +194,24 @@ export function MobileHomePage() {
       <RelatedContent />
 
       {/* Footer - with extra bottom padding for nav */}
-      <div className="pb-24">
+      <div className="pb-28">
         <Footer />
       </div>
 
       {/* Bottom Navigation */}
       <MobileBottomNav />
+    </div>
+  );
+}
+
+// Animated carousel section wrapper
+function CarouselSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  return (
+    <div 
+      className="animate-fade-in"
+      style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
+    >
+      {children}
     </div>
   );
 }

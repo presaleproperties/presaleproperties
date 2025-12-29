@@ -82,7 +82,7 @@ export function MobileCategoryChips({ selectedChip, onChipSelect }: MobileCatego
   };
 
   return (
-    <div className="md:hidden overflow-hidden border-b border-border/50">
+    <div className="md:hidden overflow-hidden border-b border-border/50 bg-background">
       <div
         ref={scrollRef}
         className="flex gap-1.5 overflow-x-auto scrollbar-hide px-3 py-1.5"
