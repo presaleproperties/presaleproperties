@@ -65,7 +65,7 @@ export function MobileDiscoveryCarousel({
     queryFn: async () => {
       let query = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, deposit_percent, featured_image, last_verified_date")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, deposit_percent, featured_image, gallery_images, last_verified_date")
         .eq("is_published", true);
 
       // Apply type-specific filters
@@ -183,6 +183,7 @@ export function MobileDiscoveryCarousel({
             startingPrice={project.starting_price}
             depositPercent={project.deposit_percent}
             featuredImage={project.featured_image}
+            galleryImages={project.gallery_images}
             lastVerifiedDate={project.last_verified_date}
             size={isLargeCarousel ? "large" : "default"}
           />
