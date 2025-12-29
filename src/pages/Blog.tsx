@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Search,
@@ -86,13 +87,21 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>Blog | PresaleProperties.com</title>
+        <title>Blog | Real Estate Insights & Market Updates | PresaleProperties.com</title>
         <meta name="description" content="Stay updated with the latest real estate news, market insights, and tips for buying presale properties in Greater Vancouver." />
+        <link rel="canonical" href="https://presaleproperties.com/blog" />
       </Helmet>
 
       <Header />
       
       <main className="min-h-screen bg-background">
+        {/* Breadcrumb */}
+        <div className="border-b bg-muted/30">
+          <div className="container py-3">
+            <Breadcrumbs items={[{ label: "Blog" }]} />
+          </div>
+        </div>
+
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary/10 via-background to-background py-12 md:py-16">
           <div className="container">

@@ -6,6 +6,28 @@ import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
+import { RelatedContent } from "@/components/home/RelatedContent";
+import { FAQSchema } from "@/components/seo/FAQSchema";
+
+// Homepage FAQs for structured data (helps with AI recommendations)
+const HOME_FAQS = [
+  {
+    question: "What are presale condos?",
+    answer: "Presale condos are properties sold before construction is complete. Buyers purchase at today's prices with a deposit, then pay the balance when the building is finished, typically 2-4 years later."
+  },
+  {
+    question: "What is the difference between presale and assignment?",
+    answer: "A presale is buying directly from the developer before completion. An assignment is when an original presale buyer sells their purchase contract to a new buyer before the building is finished."
+  },
+  {
+    question: "Where can I find presale condos in Vancouver?",
+    answer: "PresaleProperties.com lists presale condos and townhomes across Metro Vancouver including Vancouver, Surrey, Burnaby, Coquitlam, Langley, Richmond, and other cities."
+  },
+  {
+    question: "How much deposit do I need for a presale?",
+    answer: "Presale deposits typically range from 15-20% of the purchase price, paid in installments over 12-18 months. Some developers offer lower deposits or extended schedules."
+  },
+];
 
 const Index = () => {
   const structuredData = {
@@ -39,6 +61,8 @@ const Index = () => {
           {JSON.stringify(structuredData)}
         </script>
       </Helmet>
+
+      <FAQSchema faqs={HOME_FAQS} />
       
       <Header />
       <main className="flex-1">
@@ -46,6 +70,7 @@ const Index = () => {
         <FeaturedProjects />
         <CityProjectsSection />
         <NewConstructionBenefits />
+        <RelatedContent />
         <BuyerCTASection />
       </main>
       <Footer />

@@ -10,6 +10,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { FAQSchema } from "@/components/seo/FAQSchema";
+import { RelatedContent } from "@/components/home/RelatedContent";
 import { 
   FileText, 
   DollarSign, 
@@ -165,10 +168,19 @@ export default function BuyersGuide() {
         <meta name="keywords" content="how to buy assignment, presale assignment guide, Vancouver condo assignment, assignment buying process, presale assignment costs, BC assignment rules" />
         <link rel="canonical" href="https://presaleproperties.com/buyers-guide" />
       </Helmet>
+      
+      <FAQSchema faqs={faqs} />
 
       <Header />
 
       <main className="flex-1">
+        {/* Breadcrumb */}
+        <div className="border-b bg-muted/30">
+          <div className="container px-4 py-3">
+            <Breadcrumbs items={[{ label: "Buyer's Guide" }]} />
+          </div>
+        </div>
+
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-primary/5 to-background py-12 md:py-20">
           <div className="container px-4">
@@ -398,6 +410,9 @@ export default function BuyersGuide() {
             </div>
           </div>
         </section>
+
+        {/* Related Content for Internal Linking */}
+        <RelatedContent />
       </main>
 
       <Footer />
