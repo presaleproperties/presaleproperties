@@ -21,7 +21,7 @@ const formSchema = z.object({
   persona: z.enum(["first_time", "investor"]),
   workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
   timeline: z.enum(["0_3", "3_plus"]),
-  propertyType: z.enum(["condo", "townhome", "single_family"]),
+  propertyType: z.enum(["condo", "townhome"]),
   message: z.string().max(1000).optional(),
 });
 
@@ -55,7 +55,6 @@ const TIMELINES = [
 const PROPERTY_TYPES = [
   { value: "condo", label: "Condo" },
   { value: "townhome", label: "Townhome" },
-  { value: "single_family", label: "Single Family" },
 ];
 
 export function AccessPackModal({
@@ -231,8 +230,8 @@ export function AccessPackModal({
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5 sm:space-y-4">
-              {/* Contact Info - 3 columns on mobile */}
-              <div className="grid grid-cols-3 sm:grid-cols-2 gap-2 sm:gap-3">
+              {/* Contact Info - stacked rows */}
+              <div className="space-y-2 sm:space-y-3">
                 <div>
                   <Label htmlFor="name" className="text-xs sm:text-sm">
                     Name <span className="text-destructive">*</span>
@@ -260,7 +259,7 @@ export function AccessPackModal({
                   />
                 </div>
 
-                <div className="col-span-1 sm:col-span-2">
+                <div>
                   <Label htmlFor="email" className="text-xs sm:text-sm">
                     Email <span className="text-destructive">*</span>
                   </Label>
