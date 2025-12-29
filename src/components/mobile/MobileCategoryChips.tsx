@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Building2, Home, DollarSign, Percent, Calendar } from "lucide-react";
+import { Building2, Home, Percent, Calendar, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CategoryChip {
@@ -18,37 +18,37 @@ interface CategoryChip {
 
 const CATEGORY_CHIPS: CategoryChip[] = [
   { 
+    id: "all", 
+    label: "All", 
+    icon: <LayoutGrid className="h-2.5 w-2.5" />, 
+    route: "/presale-projects",
+    filter: {} 
+  },
+  { 
     id: "condos", 
     label: "Condos", 
-    icon: <Building2 className="h-3 w-3" />, 
+    icon: <Building2 className="h-2.5 w-2.5" />, 
     route: "/presale-projects?type=condo",
     filter: { type: "condo" } 
   },
   { 
     id: "townhomes", 
-    label: "Townhomes", 
-    icon: <Home className="h-3 w-3" />, 
+    label: "Towns", 
+    icon: <Home className="h-2.5 w-2.5" />, 
     route: "/presale-projects?type=townhome",
     filter: { type: "townhome" } 
   },
   { 
-    id: "under500k", 
-    label: "Under $500K", 
-    icon: <DollarSign className="h-3 w-3" />, 
-    route: "/presale-projects?maxPrice=500000",
-    filter: { maxPrice: 500000 } 
-  },
-  { 
     id: "5deposit", 
-    label: "5% Deposit", 
-    icon: <Percent className="h-3 w-3" />, 
+    label: "5%", 
+    icon: <Percent className="h-2.5 w-2.5" />, 
     route: "/presale-projects?deposit=5",
     filter: { depositPercent: 5 } 
   },
   { 
     id: "2027plus", 
     label: "2027+", 
-    icon: <Calendar className="h-3 w-3" />, 
+    icon: <Calendar className="h-2.5 w-2.5" />, 
     route: "/presale-projects?completionYear=2027",
     filter: { minCompletionYear: 2027 } 
   },
@@ -82,20 +82,20 @@ export function MobileCategoryChips({ selectedChip, onChipSelect }: MobileCatego
   };
 
   return (
-    <div className="md:hidden overflow-hidden">
+    <div className="md:hidden overflow-hidden border-b border-border/50">
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-2 -mx-0"
+        className="flex gap-1.5 overflow-x-auto scrollbar-hide px-3 py-1.5"
       >
         {CATEGORY_CHIPS.map((chip) => (
           <button
             key={chip.id}
             onClick={() => handleChipClick(chip)}
             className={cn(
-              "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95",
+              "flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all active:scale-95",
               selectedChip === chip.id
                 ? "bg-foreground text-background shadow-sm"
-                : "bg-muted text-muted-foreground hover:bg-muted/80"
+                : "bg-muted/80 text-muted-foreground"
             )}
           >
             {chip.icon}
