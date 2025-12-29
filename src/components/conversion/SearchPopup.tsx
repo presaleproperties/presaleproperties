@@ -69,7 +69,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
       />
       
       {/* Floating Glass Search Container - Top 1/3 on mobile */}
-      <div className="fixed inset-x-0 top-[15%] md:top-[20%] z-50 px-4 animate-fade-in">
+      <div className="fixed inset-x-0 top-[15%] md:top-[20%] z-50 px-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="mx-auto w-full max-w-md">
           {/* Glass Container - Matching Bottom Nav Style */}
           <div className={cn(
