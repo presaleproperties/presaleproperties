@@ -6,6 +6,8 @@ import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ChevronLeft,
@@ -162,12 +164,30 @@ export default function BlogPost() {
     );
   }
 
+  const canonicalUrl = `https://presaleproperties.com/blog/${post.slug}`;
+
   return (
     <>
       <Helmet>
         <title>{post.seo_title || `${post.title} | PresaleProperties.com`}</title>
         <meta name="description" content={post.seo_description || post.excerpt || post.title} />
+        <link rel="canonical" href={canonicalUrl} />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" content={post.seo_title || post.title} />
+        <meta property="og:description" content={post.seo_description || post.excerpt || ""} />
+        <meta property="og:url" content={canonicalUrl} />
+        {post.featured_image && <meta property="og:image" content={post.featured_image} />}
+        <meta name="twitter:card" content="summary_large_image" />
       </Helmet>
+
+      <ArticleSchema
+        title={post.title}
+        description={post.seo_description || post.excerpt || post.title}
+        url={canonicalUrl}
+        image={post.featured_image || undefined}
+        datePublished={post.publish_date || undefined}
+        category={post.category || undefined}
+      />
 
       <Header />
 
@@ -175,10 +195,12 @@ export default function BlogPost() {
         {/* Breadcrumb */}
         <div className="border-b">
           <div className="container py-3">
-            <Link to="/blog" className="text-sm text-muted-foreground hover:text-primary flex items-center gap-1">
-              <ChevronLeft className="h-4 w-4" />
-              Back to Blog
-            </Link>
+            <Breadcrumbs 
+              items={[
+                { label: "Blog", href: "/blog" },
+                { label: post.title }
+              ]} 
+            />
           </div>
         </div>
 

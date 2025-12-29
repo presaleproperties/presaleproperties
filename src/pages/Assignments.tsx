@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +26,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CTASection } from "@/components/home/CTASection";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { FAQSchema } from "@/components/seo/FAQSchema";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
@@ -57,6 +60,26 @@ const SORT_OPTIONS = [
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
   { value: "completion", label: "Completion Date" },
+];
+
+// FAQs for structured data
+const ASSIGNMENT_FAQS = [
+  {
+    question: "What is a presale assignment?",
+    answer: "A presale assignment is when the original buyer of a presale condo or townhome sells their purchase contract to a new buyer before the building is completed. You're buying the right to purchase the property at the original contract price."
+  },
+  {
+    question: "Are assignment sales legal in BC?",
+    answer: "Yes, assignment sales are completely legal in British Columbia. They must be disclosed to the developer and are subject to specific tax rules. Most developers require written approval before an assignment can proceed."
+  },
+  {
+    question: "How much does an assignment cost?",
+    answer: "Assignment costs include the original purchase price, any premium (assignment fee) negotiated with the seller, developer fees, and legal costs. You'll also reimburse the seller for deposits already paid, typically 15-20% of the original price."
+  },
+  {
+    question: "Do I get the same warranty as original buyers?",
+    answer: "Yes, the 2-5-10 home warranty from BC Housing transfers to you as the new owner. You receive full warranty protection starting from the date of completion."
+  },
 ];
 
 export default function Assignments() {
@@ -378,7 +401,22 @@ export default function Assignments() {
 
   return (
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
+      <Helmet>
+        <title>Presale Assignment Listings | Buy Condo Assignments in Vancouver</title>
+        <meta name="description" content="Browse presale condo assignments in Metro Vancouver. Find pre-construction condos, townhomes & assignment opportunities in Vancouver, Surrey, Burnaby & more." />
+        <link rel="canonical" href="https://presaleproperties.com/assignments" />
+      </Helmet>
+
+      <FAQSchema faqs={ASSIGNMENT_FAQS} />
+
       <Header />
+
+      {/* Breadcrumb */}
+      <div className="border-b bg-muted/30">
+        <div className="container px-4 py-3">
+          <Breadcrumbs items={[{ label: "Assignments" }]} />
+        </div>
+      </div>
 
       {/* Hero Section - Clean & Minimal */}
       <section className="bg-background border-b border-border py-8 md:py-12">
