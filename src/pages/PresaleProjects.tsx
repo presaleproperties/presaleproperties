@@ -32,7 +32,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Lazy load map component
 const ProjectsMap = lazy(() => import("@/components/projects/ProjectsMap").then(m => ({ default: m.ProjectsMap })));
 
-const ITEMS_PER_PAGE = 12;
+const ITEMS_PER_PAGE = 16;
 
 const CITIES = [
   "Vancouver", 
