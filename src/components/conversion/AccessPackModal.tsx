@@ -22,7 +22,6 @@ const formSchema = z.object({
   persona: z.enum(["first_time", "investor"]),
   workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
   timeline: z.enum(["0_6", "6_plus"]),
-  budget: z.enum(["under_500", "under_850", "over_1m"]),
   propertyType: z.enum(["condo", "townhome", "single_family"]),
   message: z.string().max(1000).optional(),
 });
@@ -52,12 +51,6 @@ const AGENT_OPTIONS = [
 const TIMELINES = [
   { value: "0_6", label: "0–6 months" },
   { value: "6_plus", label: "6+ months" },
-];
-
-const BUDGETS = [
-  { value: "under_500", label: "Under $500K" },
-  { value: "under_850", label: "Under $850K" },
-  { value: "over_1m", label: "$1M+" },
 ];
 
 const PROPERTY_TYPES = [
@@ -107,7 +100,6 @@ export function AccessPackModal({
       persona: "first_time",
       workingWithAgent: "no",
       timeline: "0_6",
-      budget: "under_850",
       propertyType: "condo",
       message: "",
     },
@@ -124,7 +116,6 @@ export function AccessPackModal({
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
         `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
-        `Budget: ${BUDGETS.find(b => b.value === data.budget)?.label}`,
         `Property Type: ${PROPERTY_TYPES.find(pt => pt.value === data.propertyType)?.label}`,
         `Source: ${source}`,
         `UTM: ${utmParams.get("utm_source") || "direct"} / ${utmParams.get("utm_medium") || ""} / ${utmParams.get("utm_campaign") || ""}`,
@@ -151,7 +142,6 @@ export function AccessPackModal({
           message: messageData,
           persona: actualPersona,
           timeline: data.timeline,
-          budget: data.budget,
           drip_sequence: dripSequence,
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
@@ -183,7 +173,6 @@ export function AccessPackModal({
             project_name: projectName || "general",
             persona: actualPersona,
             timeline: data.timeline,
-            budget_range: data.budget,
             working_with_agent: data.workingWithAgent,
           });
         }
@@ -373,32 +362,6 @@ export function AccessPackModal({
                     >
                       <RadioGroupItem value={t.value} className="sr-only" />
                       {t.label}
-                    </Label>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              {/* Budget */}
-              <div>
-                <Label className="text-sm font-medium">
-                  Budget range <span className="text-destructive">*</span>
-                </Label>
-                <RadioGroup
-                  value={form.watch("budget")}
-                  onValueChange={(v) => form.setValue("budget", v as any)}
-                  className="grid grid-cols-3 gap-2 mt-2"
-                >
-                  {BUDGETS.map((b) => (
-                    <Label
-                      key={b.value}
-                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
-                        form.watch("budget") === b.value
-                          ? "border-primary bg-primary/10 text-primary font-medium"
-                          : "border-border hover:border-muted-foreground/50"
-                      }`}
-                    >
-                      <RadioGroupItem value={b.value} className="sr-only" />
-                      {b.label}
                     </Label>
                   ))}
                 </RadioGroup>
