@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
-import { Loader2, ArrowDown } from "lucide-react";
+import { ReactNode, useState, useEffect } from "react";
+import { Loader2, ArrowDown, Check } from "lucide-react";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { cn } from "@/lib/utils";
 
@@ -21,30 +21,62 @@ export function PullToRefreshIndicator({
   isRefreshing,
   threshold = 80,
 }: PullToRefreshIndicatorProps) {
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [wasRefreshing, setWasRefreshing] = useState(false);
+  
   const progress = Math.min(pullDistance / threshold, 1);
   const shouldTrigger = pullDistance >= threshold;
 
-  if (pullDistance <= 10 && !isRefreshing) return null;
+  // Track when refresh completes to show success state
+  useEffect(() => {
+    if (isRefreshing) {
+      setWasRefreshing(true);
+      setShowSuccess(false);
+    } else if (wasRefreshing && !isRefreshing) {
+      setShowSuccess(true);
+      setWasRefreshing(false);
+      const timer = setTimeout(() => setShowSuccess(false), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isRefreshing, wasRefreshing]);
+
+  if (pullDistance <= 10 && !isRefreshing && !showSuccess) return null;
+
+  const getMessage = () => {
+    if (showSuccess) return "Updated!";
+    if (isRefreshing) return "Refreshing...";
+    if (shouldTrigger) return "Release to refresh";
+    return "Pull to refresh";
+  };
 
   return (
     <div
-      className="fixed left-0 right-0 flex items-center justify-center z-50 pointer-events-none"
+      className="fixed left-0 right-0 flex flex-col items-center justify-center z-50 pointer-events-none"
       style={{
-        top: 48, // Below compact header (h-12 = 48px)
-        height: `${Math.max(pullDistance, isRefreshing ? threshold : 0)}px`,
+        top: 48,
+        height: `${Math.max(pullDistance, isRefreshing ? threshold : showSuccess ? 60 : 0)}px`,
+        transition: !isRefreshing && pullDistance === 0 ? 'height 0.3s ease-out' : undefined,
       }}
     >
+      {/* Animated indicator circle */}
       <div
         className={cn(
-          "flex items-center justify-center w-10 h-10 rounded-full bg-background border border-border shadow-lg transition-all duration-200",
-          shouldTrigger && !isRefreshing && "bg-primary border-primary",
-          isRefreshing && "bg-primary border-primary"
+          "flex items-center justify-center w-10 h-10 rounded-full shadow-lg transition-all duration-300",
+          showSuccess 
+            ? "bg-green-500 border-green-500 scale-110" 
+            : shouldTrigger || isRefreshing 
+              ? "bg-primary border-primary" 
+              : "bg-background border border-border"
         )}
         style={{
-          transform: `rotate(${progress * 180}deg) scale(${0.5 + progress * 0.5})`,
+          transform: !showSuccess && !isRefreshing 
+            ? `rotate(${progress * 180}deg) scale(${0.5 + progress * 0.5})` 
+            : undefined,
         }}
       >
-        {isRefreshing ? (
+        {showSuccess ? (
+          <Check className="h-5 w-5 text-white animate-scale-in" />
+        ) : isRefreshing ? (
           <Loader2 className="h-5 w-5 text-primary-foreground animate-spin" />
         ) : (
           <ArrowDown
@@ -55,6 +87,24 @@ export function PullToRefreshIndicator({
           />
         )}
       </div>
+      
+      {/* Status text */}
+      <span 
+        className={cn(
+          "mt-1.5 text-xs font-medium transition-all duration-200",
+          showSuccess 
+            ? "text-green-600" 
+            : shouldTrigger || isRefreshing 
+              ? "text-primary" 
+              : "text-muted-foreground"
+        )}
+        style={{
+          opacity: progress > 0.3 || isRefreshing || showSuccess ? 1 : 0,
+          transform: `translateY(${progress > 0.3 || isRefreshing || showSuccess ? 0 : -10}px)`,
+        }}
+      >
+        {getMessage()}
+      </span>
     </div>
   );
 }
