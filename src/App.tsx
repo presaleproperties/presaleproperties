@@ -7,6 +7,7 @@ import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { FloatingWhatsApp } from "@/components/conversion/FloatingWhatsApp";
 import Index from "./pages/Index";
 import Assignments from "./pages/Assignments";
 import ListingDetail from "./pages/ListingDetail";
@@ -100,6 +101,7 @@ const App = () => (
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          <FloatingWhatsApp />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
