@@ -373,14 +373,15 @@ export default function CityPresalePage() {
   const canonicalUrl = `https://presaleproperties.com/presale-condos-${citySlug}`;
   const currentYear = new Date().getFullYear();
 
-  const seoTitle = `Presale Condos & Townhomes ${cityName} BC ${currentYear} | New Construction Homes`;
-  const seoDescription = cityConfig.description;
+  // SEO-optimized title with primary keywords
+  const seoTitle = `Presale Condos ${cityName} | ${cityName} New Condos Presale ${currentYear} | Pricing & Floor Plans`;
+  const seoDescription = `${cityConfig.description} View VIP pricing, floor plans, incentives & register for early access to ${cityName} presale condos and townhomes.`;
 
-  // Structured data for the city page
+  // Enhanced structured data with LocalBusiness context
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `Presale Projects in ${cityName}, BC`,
+    "name": `Presale Condos ${cityName}, BC - New Construction Pricing & Floor Plans`,
     "description": cityConfig.longDescription,
     "url": canonicalUrl,
     "numberOfItems": totalCount,
@@ -397,7 +398,13 @@ export default function CityPresalePage() {
           "addressLocality": project.city,
           "addressRegion": "BC",
           "addressCountry": "CA"
-        }
+        },
+        "offers": project.starting_price ? {
+          "@type": "Offer",
+          "priceCurrency": "CAD",
+          "price": project.starting_price,
+          "availability": project.status === "sold_out" ? "https://schema.org/SoldOut" : "https://schema.org/InStock"
+        } : undefined
       }
     })) || []
   };
@@ -623,7 +630,7 @@ export default function CityPresalePage() {
               </Badge>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 tracking-tight">
-                Presale Condos & Townhomes in {cityName}
+                Presale Condos {cityName} – New {cityName} Condos Presale Pricing & Floor Plans
               </h1>
               
               <p className="text-lg md:text-xl text-muted-foreground mb-6 leading-relaxed">
