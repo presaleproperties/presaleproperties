@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Search } from "lucide-react";
+import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -17,7 +17,6 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AccessPackModal } from "./AccessPackModal";
-import { SearchPopup } from "./SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
 
 const CITY_LINKS = [
@@ -35,7 +34,6 @@ export function ConversionHeader() {
   const [open, setOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const location = useLocation();
 
@@ -151,16 +149,8 @@ export function ConversionHeader() {
             </Link>
           </nav>
 
-          {/* Desktop Search & CTAs */}
+          {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-muted-foreground hover:text-foreground"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-4 w-4" />
-            </Button>
             <Button variant="outline" size="sm" onClick={openCallBack}>
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
@@ -172,15 +162,7 @@ export function ConversionHeader() {
           </div>
 
           {/* Mobile Menu */}
-          <div className="flex items-center gap-1 lg:hidden">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-10 w-10 text-muted-foreground"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="h-5 w-5" />
-            </Button>
+          <div className="flex items-center lg:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
@@ -302,8 +284,6 @@ export function ConversionHeader() {
         variant="fit_call"
         source="header"
       />
-
-      <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
     </>
   );
 }
