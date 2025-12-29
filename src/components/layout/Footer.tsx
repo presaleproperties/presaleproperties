@@ -40,7 +40,7 @@ export function Footer() {
               {CITY_LINKS.slice(0, 4).map((city) => (
                 <li key={city.slug}>
                   <Link 
-                    to={`/presale-condos-${city.slug}`} 
+                    to={`/presale-condos/${city.slug}`} 
                     className="hover:text-foreground transition-colors"
                     title={city.label}
                   >
@@ -57,7 +57,7 @@ export function Footer() {
               {CITY_LINKS.slice(4).map((city) => (
                 <li key={city.slug}>
                   <Link 
-                    to={`/presale-condos-${city.slug}`} 
+                    to={`/presale-condos/${city.slug}`} 
                     className="hover:text-foreground transition-colors"
                     title={city.label}
                   >
