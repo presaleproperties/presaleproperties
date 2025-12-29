@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MapPin, Calendar, Building2 } from "lucide-react";
+import { Calendar, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +29,7 @@ const formatPrice = (price: number) => {
 const getStatusLabel = (status: string) => {
   switch (status) {
     case "active":
-      return "Selling Now";
+      return "Selling";
     case "registering":
       return "Registering";
     case "coming_soon":
@@ -44,13 +44,13 @@ const getStatusLabel = (status: string) => {
 const getStatusColor = (status: string) => {
   switch (status) {
     case "active":
-      return "bg-green-500 text-white";
+      return "bg-green-500/90 text-white";
     case "registering":
-      return "bg-primary text-primary-foreground";
+      return "bg-blue-500/90 text-white";
     case "coming_soon":
-      return "bg-blue-500 text-white";
+      return "bg-amber-500/90 text-white";
     case "sold_out":
-      return "bg-muted-foreground text-white";
+      return "bg-gray-500/90 text-white";
     default:
       return "bg-primary text-primary-foreground";
   }
@@ -83,11 +83,6 @@ export function MobileProjectCard({
     }
   };
 
-  const formatVerifiedDate = (dateStr: string) => {
-    const date = new Date(dateStr);
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  };
-
   const isLarge = size === "large";
 
   return (
@@ -96,14 +91,14 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[220px] sm:w-[260px]" : "w-[165px] sm:w-[180px]"
+        isLarge ? "w-[180px]" : "w-[145px]"
       )}
     >
-      <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:shadow-none active:scale-[0.98] transition-all duration-150">
-        {/* Image */}
+      <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-transform duration-150">
+        {/* Image - maximized ~75% of card */}
         <div className={cn(
           "relative bg-muted overflow-hidden",
-          isLarge ? "aspect-[16/10]" : "aspect-[4/3]"
+          isLarge ? "aspect-[4/5]" : "aspect-[3/4]"
         )}>
           {featuredImage ? (
             <img
@@ -112,83 +107,54 @@ export function MobileProjectCard({
               className="h-full w-full object-cover"
               loading="lazy"
               decoding="async"
-              sizes={isLarge ? "(max-width: 640px) 220px, 260px" : "(max-width: 640px) 165px, 180px"}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <Building2 className={cn("text-muted-foreground", isLarge ? "h-12 w-12" : "h-8 w-8")} />
+              <Building2 className="h-10 w-10 text-muted-foreground" />
             </div>
           )}
           
-          {/* Status Badge */}
+          {/* Status Badge - top left */}
           {statusLabel && (
             <Badge className={cn(
-              "absolute top-2 left-2 px-2 py-0.5",
-              isLarge ? "text-xs" : "text-[10px] px-1.5",
+              "absolute top-1.5 left-1.5 px-1.5 py-0.5 text-[10px] font-semibold border-0",
               getStatusColor(status)
             )}>
               {statusLabel}
             </Badge>
           )}
-        </div>
 
-        {/* Content */}
-        <div className={cn("space-y-1.5", isLarge ? "p-3" : "p-2.5")}>
-          {/* Name & Area */}
-          <div>
-            <h4 className={cn(
-              "font-semibold text-foreground line-clamp-1",
-              isLarge ? "text-base" : "text-sm"
-            )}>{name}</h4>
-            <div className="flex items-center gap-1 text-muted-foreground">
-              <MapPin className="h-3 w-3 shrink-0" />
-              <span className="text-xs truncate">{neighborhood}</span>
-            </div>
-          </div>
-
-          {/* Price */}
-          <div>
-            {startingPrice ? (
-              <p className={cn(
-                "font-bold text-foreground",
-                isLarge ? "text-base" : "text-sm"
-              )}>
-                From {formatPrice(startingPrice)}
-              </p>
-            ) : (
-              <p className="text-xs text-primary font-medium">
-                Register for pricing
-              </p>
-            )}
-          </div>
-
-          {/* Key Info Row */}
-          <div className="flex items-center justify-between pt-1.5 border-t border-border">
-            {/* Deposit */}
-            {depositPercent && (
-              <span className={cn(
-                "font-bold text-foreground",
-                isLarge ? "text-sm" : "text-xs"
-              )}>
+          {/* Deposit badge - bottom right on image */}
+          {depositPercent && (
+            <div className="absolute bottom-1.5 right-1.5">
+              <span className="text-[11px] font-bold text-white bg-primary/90 px-1.5 py-0.5 rounded shadow-sm">
                 {depositPercent}% dep
               </span>
+            </div>
+          )}
+        </div>
+
+        {/* Compact Details - ~25% of card */}
+        <div className="px-2 py-1.5 space-y-0.5">
+          <h4 className="font-semibold text-[13px] text-foreground line-clamp-1 leading-tight">{name}</h4>
+          <p className="text-[11px] text-muted-foreground line-clamp-1">
+            {neighborhood}
+          </p>
+          <div className="flex items-center justify-between">
+            {startingPrice ? (
+              <span className="text-[13px] font-bold text-foreground">
+                {formatPrice(startingPrice)}+
+              </span>
+            ) : (
+              <span className="text-[10px] text-primary font-medium">Register</span>
             )}
-            
-            {/* Completion Year */}
             {completionYear && (
-              <span className="text-xs text-muted-foreground flex items-center gap-0.5">
-                <Calendar className="h-3 w-3" />
+              <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                <Calendar className="h-2.5 w-2.5" />
                 {completionYear}
               </span>
             )}
           </div>
-
-          {/* Last Verified */}
-          {lastVerifiedDate && (
-            <p className="text-[10px] text-muted-foreground/70">
-              Verified {formatVerifiedDate(lastVerifiedDate)}
-            </p>
-          )}
         </div>
       </div>
     </Link>
