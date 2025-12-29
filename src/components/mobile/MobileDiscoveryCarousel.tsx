@@ -96,13 +96,14 @@ export function MobileDiscoveryCarousel({
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-5 w-16" />
         </div>
-        <div className="flex gap-2.5 overflow-hidden px-4">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className={isHotProjects ? "shrink-0 w-[200px]" : "shrink-0 w-[160px]"}>
-              <Skeleton className={isHotProjects ? "aspect-[4/5] w-full rounded-t-xl" : "aspect-[3/4] w-full rounded-t-xl"} />
-              <div className="px-2.5 py-2 space-y-1 bg-card rounded-b-xl border border-t-0 border-border">
+        <div className="flex gap-3 overflow-hidden px-4">
+          {[1, 2].map((i) => (
+            <div key={i} className={isHotProjects ? "shrink-0 w-[240px]" : "shrink-0 w-[200px]"}>
+              <Skeleton className={isHotProjects ? "aspect-[16/12] w-full rounded-t-xl" : "aspect-[16/11] w-full rounded-t-xl"} />
+              <div className="px-3 py-2.5 space-y-1.5 bg-card rounded-b-xl border border-t-0 border-border">
                 <Skeleton className="h-4 w-3/4" />
-                <Skeleton className="h-3 w-1/2" />
+                <Skeleton className="h-3 w-full" />
+                <Skeleton className="h-4 w-1/2" />
               </div>
             </div>
           ))}
@@ -130,10 +131,11 @@ export function MobileDiscoveryCarousel({
       </div>
 
       {/* Scrollable Cards - gap ensures peek of next card */}
+      {/* Scrollable Cards - gap ensures peek of next card */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-2.5 overflow-x-auto scrollbar-hide pl-4 pr-8 pb-1"
+        className="flex gap-3 overflow-x-auto scrollbar-hide pl-4 pr-10 pb-1"
       >
         {projects.map((project) => (
           <MobileProjectCard
