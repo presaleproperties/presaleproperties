@@ -36,6 +36,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import AdminEmailCampaigns from "./pages/admin/AdminEmailCampaigns";
+import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
@@ -95,6 +96,7 @@ const App = () => (
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             <Route path="/admin/email-campaigns" element={<AdminProtectedRoute><AdminEmailCampaigns /></AdminProtectedRoute>} />
+            <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
