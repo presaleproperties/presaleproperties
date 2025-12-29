@@ -85,8 +85,8 @@ export function ConversionHeader() {
             </span>
           </Link>
 
-          {/* Desktop/Tablet Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
+          {/* Desktop Navigation */}
+          <nav className="hidden lg:flex items-center gap-6">
             <NavigationMenu>
               <NavigationMenuList>
                 <NavigationMenuItem>
@@ -149,8 +149,8 @@ export function ConversionHeader() {
             </Link>
           </nav>
 
-          {/* Desktop/Tablet CTAs */}
-          <div className="hidden md:flex items-center gap-2">
+          {/* Desktop CTAs */}
+          <div className="hidden lg:flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={openCallBack}>
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
@@ -162,7 +162,7 @@ export function ConversionHeader() {
           </div>
 
           {/* Mobile Menu */}
-          <div className="flex items-center gap-1 md:hidden">
+          <div className="flex items-center gap-1 lg:hidden">
             <Button 
               size="icon" 
               className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
