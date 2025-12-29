@@ -92,24 +92,6 @@ const COMPLETION_YEAR_OPTIONS = [
   { value: "2027", label: "2027" },
   { value: "2028", label: "2028+" },
 ];
-const ASSIGNMENT_OPTIONS = [
-  { value: "any", label: "Any" },
-  { value: "Yes", label: "Yes" },
-  { value: "No", label: "No" },
-];
-const SKYTRAIN_OPTIONS = [
-  { value: "any", label: "Any" },
-  { value: "true", label: "Yes - Near SkyTrain" },
-];
-const RENTAL_OPTIONS = [
-  { value: "any", label: "Any" },
-  { value: "Allowed", label: "Allowed" },
-  { value: "Restricted", label: "Restricted" },
-];
-const INCENTIVES_OPTIONS = [
-  { value: "any", label: "Any" },
-  { value: "true", label: "Yes - Incentives Available" },
-];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
   { value: "verified", label: "Recently Verified" },
@@ -159,10 +141,6 @@ export default function PresaleProjects() {
     priceRange: searchParams.get("price") || "any",
     depositPercent: searchParams.get("deposit") || "any",
     completionYear: searchParams.get("year") || "any",
-    assignmentAllowed: searchParams.get("assignment") || "any",
-    nearSkytrain: searchParams.get("skytrain") || "any",
-    rentalRestrictions: searchParams.get("rental") || "any",
-    incentivesAvailable: searchParams.get("incentives") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
@@ -207,18 +185,6 @@ export default function PresaleProjects() {
           countQuery = countQuery.eq("completion_year", yearVal);
         }
       }
-      if (filters.assignmentAllowed !== "any") {
-        countQuery = countQuery.eq("assignment_allowed", filters.assignmentAllowed);
-      }
-      if (filters.nearSkytrain === "true") {
-        countQuery = countQuery.eq("near_skytrain", true);
-      }
-      if (filters.rentalRestrictions !== "any") {
-        countQuery = countQuery.eq("rental_restrictions", filters.rentalRestrictions);
-      }
-      if (filters.incentivesAvailable === "true") {
-        countQuery = countQuery.eq("incentives_available", true);
-      }
 
       const { count } = await countQuery;
 
@@ -257,18 +223,6 @@ export default function PresaleProjects() {
         } else {
           query = query.eq("completion_year", yearVal);
         }
-      }
-      if (filters.assignmentAllowed !== "any") {
-        query = query.eq("assignment_allowed", filters.assignmentAllowed);
-      }
-      if (filters.nearSkytrain === "true") {
-        query = query.eq("near_skytrain", true);
-      }
-      if (filters.rentalRestrictions !== "any") {
-        query = query.eq("rental_restrictions", filters.rentalRestrictions);
-      }
-      if (filters.incentivesAvailable === "true") {
-        query = query.eq("incentives_available", true);
       }
 
       // Apply sorting
@@ -365,10 +319,6 @@ export default function PresaleProjects() {
     filters.priceRange !== "any",
     filters.depositPercent !== "any",
     filters.completionYear !== "any",
-    filters.assignmentAllowed !== "any",
-    filters.nearSkytrain !== "any",
-    filters.rentalRestrictions !== "any",
-    filters.incentivesAvailable !== "any",
   ].filter(Boolean).length;
 
   const formatPrice = (price: number) => {
@@ -490,65 +440,6 @@ export default function PresaleProjects() {
         </Select>
       </div>
 
-      {/* Assignment Allowed */}
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Assignment Allowed</label>
-        <Select value={filters.assignmentAllowed} onValueChange={(v) => updateFilter("assignment", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any" />
-          </SelectTrigger>
-          <SelectContent>
-            {ASSIGNMENT_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Near SkyTrain */}
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Near SkyTrain</label>
-        <Select value={filters.nearSkytrain} onValueChange={(v) => updateFilter("skytrain", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any" />
-          </SelectTrigger>
-          <SelectContent>
-            {SKYTRAIN_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Rental Restrictions */}
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Rental Policy</label>
-        <Select value={filters.rentalRestrictions} onValueChange={(v) => updateFilter("rental", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any" />
-          </SelectTrigger>
-          <SelectContent>
-            {RENTAL_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Incentives Available */}
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Incentives</label>
-        <Select value={filters.incentivesAvailable} onValueChange={(v) => updateFilter("incentives", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any" />
-          </SelectTrigger>
-          <SelectContent>
-            {INCENTIVES_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
 
       {activeFilterCount > 0 && (
         <Button variant="ghost" onClick={clearAllFilters} className="w-full">
