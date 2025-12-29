@@ -200,7 +200,7 @@ export function MobileProjectCard({
           {/* Left: Name & Location */}
           <div className="min-w-0 flex-1">
             <h4 className="font-semibold text-sm text-foreground truncate">{name}</h4>
-            <p className="text-xs text-muted-foreground truncate">{neighborhood}, {city}</p>
+            <p className="text-xs text-muted-foreground truncate">{city}</p>
             {completionYear && (
               <p className="text-[10px] text-muted-foreground mt-0.5">{completionYear}</p>
             )}
