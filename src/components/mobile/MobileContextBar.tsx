@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MapPin, Bell, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,6 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 const CITIES = [
   { slug: "all", name: "All Metro Vancouver" },
@@ -34,8 +35,33 @@ export function MobileContextBar({
   alertCount = 0 
 }: MobileContextBarProps) {
   const [locationOpen, setLocationOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollThreshold = 10;
 
   const selectedCityName = CITIES.find(c => c.slug === selectedCity)?.name || "All Metro Vancouver";
+
+  // Scroll detection for hide/show
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDiff = currentScrollY - lastScrollY.current;
+      
+      if (Math.abs(scrollDiff) > scrollThreshold) {
+        if (scrollDiff > 0 && currentScrollY > 60) {
+          // Scrolling down - hide
+          setIsVisible(false);
+        } else {
+          // Scrolling up - show
+          setIsVisible(true);
+        }
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const handleCitySelect = (slug: string) => {
     onCityChange(slug);
@@ -43,7 +69,13 @@ export function MobileContextBar({
   };
 
   return (
-    <div className="sticky top-12 z-40 bg-background border-b border-border md:hidden">
+    <div 
+      className={cn(
+        "sticky top-12 z-40 bg-background border-b border-border md:hidden",
+        "transition-all duration-300 ease-out",
+        isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
+      )}
+    >
       <div className="flex items-center justify-between px-4 py-2">
         {/* Location Selector - Compact */}
         <Sheet open={locationOpen} onOpenChange={setLocationOpen}>
