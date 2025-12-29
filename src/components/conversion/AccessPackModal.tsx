@@ -19,10 +19,11 @@ const formSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
-  persona: z.enum(["first_time", "investor", "upgrader", "downsizer"]),
+  persona: z.enum(["first_time", "investor"]),
   workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
-  timeline: z.enum(["0_3", "3_6", "6_12", "12_plus"]),
-  budget: z.enum(["under_600", "600_800", "800_1m", "over_1m"]),
+  timeline: z.enum(["0_6", "6_plus"]),
+  budget: z.enum(["under_500", "under_850", "over_1m"]),
+  propertyType: z.enum(["condo", "townhome", "single_family"]),
   message: z.string().max(1000).optional(),
 });
 
@@ -40,8 +41,6 @@ interface AccessPackModalProps {
 const PERSONAS = [
   { value: "first_time", label: "First-time Buyer" },
   { value: "investor", label: "Investor" },
-  { value: "upgrader", label: "Upgrading" },
-  { value: "downsizer", label: "Downsizing" },
 ];
 
 const AGENT_OPTIONS = [
@@ -51,17 +50,20 @@ const AGENT_OPTIONS = [
 ];
 
 const TIMELINES = [
-  { value: "0_3", label: "0–3 months" },
-  { value: "3_6", label: "3–6 months" },
-  { value: "6_12", label: "6–12 months" },
-  { value: "12_plus", label: "12+ months" },
+  { value: "0_6", label: "0–6 months" },
+  { value: "6_plus", label: "6+ months" },
 ];
 
 const BUDGETS = [
-  { value: "under_600", label: "Under $600K" },
-  { value: "600_800", label: "$600K – $800K" },
-  { value: "800_1m", label: "$800K – $1M" },
+  { value: "under_500", label: "Under $500K" },
+  { value: "under_850", label: "Under $850K" },
   { value: "over_1m", label: "$1M+" },
+];
+
+const PROPERTY_TYPES = [
+  { value: "condo", label: "Condo" },
+  { value: "townhome", label: "Townhome" },
+  { value: "single_family", label: "Single Family" },
 ];
 
 export function AccessPackModal({
@@ -104,8 +106,9 @@ export function AccessPackModal({
       phone: "",
       persona: "first_time",
       workingWithAgent: "no",
-      timeline: "3_6",
-      budget: "600_800",
+      timeline: "0_6",
+      budget: "under_850",
+      propertyType: "condo",
       message: "",
     },
   });
@@ -122,6 +125,7 @@ export function AccessPackModal({
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
         `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
         `Budget: ${BUDGETS.find(b => b.value === data.budget)?.label}`,
+        `Property Type: ${PROPERTY_TYPES.find(pt => pt.value === data.propertyType)?.label}`,
         `Source: ${source}`,
         `UTM: ${utmParams.get("utm_source") || "direct"} / ${utmParams.get("utm_medium") || ""} / ${utmParams.get("utm_campaign") || ""}`,
         data.message ? `\n\nMessage: ${data.message}` : "",
@@ -240,6 +244,9 @@ export function AccessPackModal({
                   ? `Get expert guidance on ${projectName}` 
                   : "Connect with our presale experts for personalized advice"}
               </p>
+              <p className="text-xs text-green-600 font-medium mt-2">
+                ✓ Same-day callback available
+              </p>
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -353,7 +360,7 @@ export function AccessPackModal({
                 <RadioGroup
                   value={form.watch("timeline")}
                   onValueChange={(v) => form.setValue("timeline", v as any)}
-                  className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2"
+                  className="grid grid-cols-2 gap-2 mt-2"
                 >
                   {TIMELINES.map((t) => (
                     <Label
@@ -379,7 +386,7 @@ export function AccessPackModal({
                 <RadioGroup
                   value={form.watch("budget")}
                   onValueChange={(v) => form.setValue("budget", v as any)}
-                  className="grid grid-cols-2 gap-2 mt-2"
+                  className="grid grid-cols-3 gap-2 mt-2"
                 >
                   {BUDGETS.map((b) => (
                     <Label
@@ -392,6 +399,32 @@ export function AccessPackModal({
                     >
                       <RadioGroupItem value={b.value} className="sr-only" />
                       {b.label}
+                    </Label>
+                  ))}
+                </RadioGroup>
+              </div>
+
+              {/* Property Type */}
+              <div>
+                <Label className="text-sm font-medium">
+                  Looking for <span className="text-destructive">*</span>
+                </Label>
+                <RadioGroup
+                  value={form.watch("propertyType")}
+                  onValueChange={(v) => form.setValue("propertyType", v as any)}
+                  className="grid grid-cols-3 gap-2 mt-2"
+                >
+                  {PROPERTY_TYPES.map((pt) => (
+                    <Label
+                      key={pt.value}
+                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
+                        form.watch("propertyType") === pt.value
+                          ? "border-primary bg-primary/10 text-primary font-medium"
+                          : "border-border hover:border-muted-foreground/50"
+                      }`}
+                    >
+                      <RadioGroupItem value={pt.value} className="sr-only" />
+                      {pt.label}
                     </Label>
                   ))}
                 </RadioGroup>
