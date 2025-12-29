@@ -313,9 +313,9 @@ export function LightboxGallery({
             </Button>
           )}
 
-          {/* Thumbnail strip */}
+          {/* Thumbnail strip - moved up on mobile to avoid browser navigation */}
           {images.length > 1 && scale <= 1 && (
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto">
+            <div className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto">
               {images.map((img, i) => (
                 <button
                   key={i}
@@ -337,8 +337,8 @@ export function LightboxGallery({
             </div>
           )}
 
-          {/* Mobile zoom hint */}
-          <div className="absolute bottom-24 left-1/2 -translate-x-1/2 text-white/50 text-xs md:hidden text-center">
+          {/* Mobile zoom hint - positioned above thumbnails */}
+          <div className="absolute bottom-36 md:bottom-24 left-1/2 -translate-x-1/2 text-white/50 text-xs md:hidden text-center">
             {scale > 1 ? "Pinch or double-tap to zoom out" : "Double-tap or pinch to zoom • Swipe to navigate"}
           </div>
         </div>
