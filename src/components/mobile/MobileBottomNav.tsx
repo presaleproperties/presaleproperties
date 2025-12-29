@@ -81,39 +81,39 @@ export function MobileBottomNav() {
         {/* Gradient fade background */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         
-        {/* Button container */}
-        <div className="relative flex items-center justify-center gap-4 px-6 py-5 pb-7 pointer-events-auto">
-          {/* Search Button - Primary Glass CTA */}
+        {/* Button container - smaller buttons */}
+        <div className="relative flex items-center justify-center gap-3 px-6 py-4 pb-6 pointer-events-auto">
+          {/* Search Button - Smaller Glass CTA */}
           <button
             onClick={handleSearchClick}
             className={cn(
-              "flex items-center gap-2.5 px-8 py-3.5 rounded-full",
-              "bg-white/25 backdrop-blur-xl",
-              "border border-white/40",
-              "text-white font-semibold text-base",
-              "shadow-lg shadow-black/20",
+              "flex items-center gap-2 px-4 py-2.5 rounded-full",
+              "bg-white/10 backdrop-blur-2xl",
+              "border border-white/20",
+              "text-foreground/80 font-medium text-sm",
+              "shadow-lg",
               "active:scale-95 transition-all duration-150"
             )}
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-4 w-4" />
             <span>Search</span>
           </button>
 
-          {/* WhatsApp Button - Glass Circle with Outline Logo */}
+          {/* WhatsApp Button - Smaller Glass Circle */}
           <button
             onClick={handleMessageClick}
             className={cn(
-              "flex items-center justify-center h-14 w-14 rounded-full",
-              "bg-white/25 backdrop-blur-xl",
-              "border border-white/40",
-              "shadow-lg shadow-black/20",
+              "flex items-center justify-center h-10 w-10 rounded-full",
+              "bg-white/10 backdrop-blur-2xl",
+              "border border-white/20",
+              "shadow-lg",
               "active:scale-95 transition-all duration-150"
             )}
           >
             {/* WhatsApp Logo - Clean outline style */}
             <svg 
               viewBox="0 0 24 24" 
-              className="h-7 w-7 text-white"
+              className="h-5 w-5 text-foreground/70"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"

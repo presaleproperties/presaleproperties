@@ -27,10 +27,10 @@ export function FloatingSearchButton() {
 
   return (
     <>
-      {/* Floating Search Button - Bottom Center with Glassmorphism */}
+      {/* Floating Search Button - Desktop/Tablet only (hidden on mobile) */}
       <button
         onClick={() => setSearchOpen(true)}
-        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-lg hover:shadow-xl hover:bg-white/15 transition-all duration-300 hover:scale-105 ${
+        className={`fixed bottom-6 left-1/2 -translate-x-1/2 z-40 hidden md:flex items-center gap-2 px-4 py-2.5 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-lg hover:shadow-xl hover:bg-white/15 transition-all duration-300 hover:scale-105 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
         }`}
         aria-label="Search"
