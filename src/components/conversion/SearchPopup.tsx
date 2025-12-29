@@ -121,6 +121,12 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                 >
                   <Search className="h-4 w-4" />
                 </button>
+              </div>
+            </form>
+            
+            {/* Suggestions dropdown */}
+            {showSuggestions && (
+              <div className="border-t border-border/30">
                 <SearchSuggestions
                   query={searchQuery}
                   onSelect={handleSuggestionSelect}
@@ -129,7 +135,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                   searchMode={activeTab}
                 />
               </div>
-            </form>
+            )}
           </div>
         </div>
       </div>
