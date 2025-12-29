@@ -80,71 +80,72 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
             <X className="h-4 w-4" />
           </button>
 
-          {/* Glassmorphism Container */}
-          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+          {/* Solid White Container - Matching Hero Style */}
+          <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl overflow-hidden">
             {/* Tabs */}
-            <div className="flex items-center gap-1 px-3 pt-3">
-              <button
-                type="button"
-                onClick={() => setActiveTab("projects")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  activeTab === "projects"
-                    ? "bg-white/20 text-white"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                Projects
-              </button>
-              <button
-                type="button"
-                onClick={() => setActiveTab("assignments")}
-                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-                  activeTab === "assignments"
-                    ? "bg-white/20 text-white"
-                    : "text-white/60 hover:text-white"
-                }`}
-              >
-                Assignments
-              </button>
+            <div className="flex items-center border-b border-border px-3 py-2.5 sm:py-3">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("projects")}
+                  className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+                    activeTab === "projects"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  Projects
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab("assignments")}
+                  className={`px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all ${
+                    activeTab === "assignments"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  Assignments
+                </button>
+              </div>
             </div>
 
-            {/* Search Input - Thinner iPhone-like style */}
+            {/* Search Input - Matching Hero Style */}
             <form onSubmit={handleSearch}>
-              <div className="relative p-3" ref={searchContainerRef}>
+              <div className="relative px-3 py-2.5 sm:py-3" ref={searchContainerRef}>
                 <Input
                   ref={inputRef}
                   type="text"
                   placeholder={activeTab === "projects" 
-                    ? "Search city, developer..." 
-                    : "Search project, city..."
+                    ? "City, Developer, Project..." 
+                    : "Project, City..."
                   }
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
                     setShowSuggestions(e.target.value.length >= 2);
                   }}
-                  className="h-9 text-sm pl-3 pr-9 border-0 bg-white/15 backdrop-blur-xl text-white placeholder:text-white/50 focus-visible:ring-1 focus-visible:ring-white/30 rounded-full"
+                  className="h-10 sm:h-11 text-sm sm:text-base pl-3.5 pr-10 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
                   autoComplete="off"
                 />
                 <button 
                   type="submit"
-                  className="absolute right-5 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center text-white/60 hover:text-white transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors rounded-full"
                 >
-                  <Search className="h-4 w-4" />
+                  <Search className="h-4 w-4 sm:h-5 sm:w-5" />
                 </button>
               </div>
             </form>
             
             {/* Suggestions dropdown - Only when typing */}
             {showSuggestions && hasSuggestions && (
-              <div className="border-t border-white/10">
+              <div className="border-t border-border">
                 <SearchSuggestions
                   query={searchQuery}
                   onSelect={handleSuggestionSelect}
                   isVisible={showSuggestions}
                   onClose={() => setShowSuggestions(false)}
                   searchMode={activeTab}
-                  glassStyle
                 />
               </div>
             )}
