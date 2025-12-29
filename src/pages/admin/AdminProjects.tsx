@@ -46,7 +46,7 @@ type Project = {
   slug: string;
   city: string;
   neighborhood: string;
-  status: "coming_soon" | "active" | "sold_out";
+  status: "coming_soon" | "registering" | "active" | "sold_out";
   completion_year: number | null;
   is_featured: boolean;
   is_published: boolean;

@@ -12,11 +12,12 @@ interface PresaleProjectCardProps {
   city: string;
   neighborhood: string;
   projectType: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
-  status?: "coming_soon" | "active" | "sold_out";
+  status?: "coming_soon" | "registering" | "active" | "sold_out";
   completionYear?: number | null;
   startingPrice?: number | null;
   featuredImage?: string | null;
   galleryImages?: string[] | null;
+  lastVerifiedDate?: string | null;
 }
 
 const formatPrice = (price: number) => {
@@ -40,7 +41,9 @@ const formatType = (type: string) => {
 const getStatusLabel = (status: string) => {
   switch (status) {
     case "active":
-      return "Now Selling";
+      return "Selling Now";
+    case "registering":
+      return "Registering";
     case "coming_soon":
       return "Coming Soon";
     case "sold_out":

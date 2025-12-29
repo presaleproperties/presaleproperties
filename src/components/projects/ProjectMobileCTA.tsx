@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProjectMobileCTAProps {
   projectName: string;
-  status: "coming_soon" | "active" | "sold_out";
+  status: "coming_soon" | "registering" | "active" | "sold_out";
   startingPrice?: number | null;
   onRegisterClick: () => void;
 }

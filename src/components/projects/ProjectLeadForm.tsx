@@ -27,7 +27,7 @@ type LeadFormData = z.infer<typeof leadSchema>;
 interface ProjectLeadFormProps {
   projectId: string;
   projectName: string;
-  status: "coming_soon" | "active" | "sold_out";
+  status: "coming_soon" | "registering" | "active" | "sold_out";
   brochureUrl?: string | null;
 }
 
@@ -230,6 +230,16 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
           subtitle: "Floor Plans & Pricing",
           description: "Be the first to receive exclusive pricing and floor plans.",
           buttonText: "Get Early Access",
+          buttonIcon: <ArrowRight className="h-5 w-5" />,
+        };
+      case "registering":
+        return {
+          badge: "Registering",
+          badgeIcon: <Sparkles className="h-3 w-3" />,
+          title: "Register Now",
+          subtitle: "Priority Access",
+          description: "Register for VIP access to pricing and floor plans.",
+          buttonText: "Register Now",
           buttonIcon: <ArrowRight className="h-5 w-5" />,
         };
       case "active":
