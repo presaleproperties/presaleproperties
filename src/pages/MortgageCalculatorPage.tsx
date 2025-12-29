@@ -128,7 +128,7 @@ export default function MortgageCalculatorPage() {
   const [mortgageRateInput, setMortgageRateInput] = useState("3.79");
   const [amortization, setAmortization] = useState(25);
   const [paymentFrequency, setPaymentFrequency] = useState<"monthly" | "semi-monthly" | "bi-weekly" | "accelerated-bi-weekly" | "weekly" | "accelerated-weekly">("monthly");
-  const [propertyTax, setPropertyTax] = useState(3000);
+  const [propertyTax, setPropertyTax] = useState(2100);
   const [strataFee, setStrataFee] = useState(350);
   const [includeGST, setIncludeGST] = useState(true);
   const [isPrimaryHome, setIsPrimaryHome] = useState(true);
