@@ -13,6 +13,7 @@ import {
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { RelatedContent } from "@/components/home/RelatedContent";
+import { InteractiveMortgageCalculator } from "@/components/calculators/InteractiveMortgageCalculator";
 import { 
   FileText, 
   DollarSign, 
@@ -332,24 +333,18 @@ export default function BuyersGuide() {
           </div>
         </section>
 
-        {/* Calculator CTA */}
+        {/* Mortgage Calculator */}
         <section className="py-12 md:py-16">
           <div className="container px-4">
-            <div className="max-w-3xl mx-auto bg-primary/5 rounded-2xl p-6 md:p-10 text-center">
-              <Calculator className="h-12 w-12 text-primary mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-foreground mb-3">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-3">
                 Calculate Your Monthly Payments
               </h2>
-              <p className="text-muted-foreground mb-6">
-                Use our mortgage calculator on any assignment page to estimate your monthly payments based on different down payment scenarios.
+              <p className="text-muted-foreground max-w-2xl mx-auto">
+                Enter your purchase price to estimate monthly payments based on different down payment and interest rate scenarios.
               </p>
-              <Link to="/assignments">
-                <Button size="lg">
-                  Browse Assignments with Calculator
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </Link>
             </div>
+            <InteractiveMortgageCalculator defaultPrice={650000} />
           </div>
         </section>
 
