@@ -1,19 +1,18 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchPopup } from "@/components/conversion/SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
+  Drawer,
+  DrawerContent,
+  DrawerTitle,
+} from "@/components/ui/drawer";
+import { useQuery } from "@tanstack/react-query";
 
 const CITIES = [
-  { slug: "any", name: "All Cities" },
+  { slug: "any", name: "All" },
   { slug: "Vancouver", name: "Vancouver" },
   { slug: "Surrey", name: "Surrey" },
 ];
@@ -26,14 +25,14 @@ const PROJECT_TYPES = [
 
 const PRICE_RANGES = [
   { value: "any", label: "Any" },
-  { value: "750000", label: "<$750K" },
-  { value: "1000000", label: "<$1M" },
+  { value: "750000", label: "Under $750K" },
+  { value: "1000000", label: "Under $1M" },
 ];
 
 const DEPOSIT_OPTIONS = [
   { value: "any", label: "Any" },
-  { value: "5", label: "≤5%" },
-  { value: "10", label: "≤10%" },
+  { value: "5", label: "5% or less" },
+  { value: "10", label: "10% or less" },
 ];
 
 const YEAR_OPTIONS = [
@@ -63,6 +62,37 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
   const [filterPrice, setFilterPrice] = useState("any");
   const [filterDeposit, setFilterDeposit] = useState("any");
   const [filterYear, setFilterYear] = useState("any");
+
+  // Fetch all published projects for counting
+  const { data: allProjects = [] } = useQuery({
+    queryKey: ["filter-projects-count"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("id, city, project_type, starting_price, deposit_percent, completion_year")
+        .eq("is_published", true);
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Calculate matching count based on current filters
+  const matchingCount = useMemo(() => {
+    return allProjects.filter((project) => {
+      if (filterCity !== "any" && project.city !== filterCity) return false;
+      if (filterType !== "any" && project.project_type !== filterType) return false;
+      if (filterPrice !== "any" && project.starting_price && project.starting_price > Number(filterPrice)) return false;
+      if (filterDeposit !== "any" && project.deposit_percent && project.deposit_percent > Number(filterDeposit)) return false;
+      if (filterYear !== "any") {
+        if (filterYear === "2027") {
+          if (project.completion_year && project.completion_year < 2027) return false;
+        } else {
+          if (project.completion_year && project.completion_year !== Number(filterYear)) return false;
+        }
+      }
+      return true;
+    }).length;
+  }, [allProjects, filterCity, filterType, filterPrice, filterDeposit, filterYear]);
   
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -82,13 +112,10 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
       const currentScrollY = window.scrollY;
       const scrollDiff = currentScrollY - lastScrollY.current;
       
-      // Only trigger if scroll difference exceeds threshold
       if (Math.abs(scrollDiff) > scrollThreshold) {
         if (scrollDiff > 0 && currentScrollY > 50) {
-          // Scrolling down - hide
           setIsVisible(false);
         } else {
-          // Scrolling up - show
           setIsVisible(true);
         }
         lastScrollY.current = currentScrollY;
@@ -145,9 +172,31 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
 
   const hasActiveFilters = filterCity !== "any" || filterType !== "any" || filterPrice !== "any" || filterDeposit !== "any" || filterYear !== "any";
 
+  const FilterChip = ({ 
+    selected, 
+    onClick, 
+    children 
+  }: { 
+    selected: boolean; 
+    onClick: () => void; 
+    children: React.ReactNode;
+  }) => (
+    <button
+      onClick={onClick}
+      className={cn(
+        "px-3 py-1.5 rounded-full text-sm font-medium transition-all",
+        selected
+          ? "bg-foreground text-background"
+          : "bg-muted/50 text-muted-foreground hover:bg-muted"
+      )}
+    >
+      {children}
+    </button>
+  );
+
   return (
     <>
-      {/* Transparent Gradient Bottom Bar - Visible on all devices, hide on scroll */}
+      {/* Transparent Gradient Bottom Bar */}
       <div 
         className={cn(
           "fixed bottom-0 left-0 right-0 z-50 pointer-events-none",
@@ -155,12 +204,10 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
           isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
         )}
       >
-        {/* Gradient fade background */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         
-        {/* Button container - responsive sizing */}
         <div className="relative flex items-center justify-center gap-2 md:gap-3 lg:gap-4 px-6 py-4 pb-6 md:pb-8 pointer-events-auto">
-          {/* WhatsApp Button - Glass Circle (LEFT) */}
+          {/* WhatsApp Button */}
           <button
             onClick={handleMessageClick}
             className={cn(
@@ -172,7 +219,6 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
               "hover:bg-white/20 active:scale-95 transition-all duration-150"
             )}
           >
-            {/* WhatsApp Logo - Clean outline style */}
             <svg 
               viewBox="0 0 24 24" 
               className="h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 text-foreground/70"
@@ -187,7 +233,7 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </svg>
           </button>
 
-          {/* Search Button - Glass CTA (CENTER) */}
+          {/* Search Button */}
           <button
             onClick={handleSearchClick}
             className={cn(
@@ -204,7 +250,7 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             <span>Search</span>
           </button>
 
-          {/* Filter Button - Glass Circle (RIGHT) */}
+          {/* Filter Button */}
           <button
             onClick={handleFilterClick}
             className={cn(
@@ -224,143 +270,143 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
         </div>
       </div>
 
-      {/* Search Popup - Glass Style */}
       <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
 
-      {/* Filter Sheet - Compact single page */}
-      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader className="text-left pb-3">
-            <SheetTitle className="text-base font-bold">Filter Projects</SheetTitle>
-          </SheetHeader>
+      {/* Modern Filter Drawer */}
+      <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
+        <DrawerContent className="bg-background border-t border-border/50 rounded-t-[20px] max-h-[85vh]">
+          <DrawerTitle className="sr-only">Filter Projects</DrawerTitle>
           
-          <div className="space-y-3 pb-4">
-            {/* City */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground w-14">City</span>
-              <div className="flex gap-1.5 flex-1 justify-end">
-                {CITIES.map((city) => (
-                  <button
-                    key={city.slug}
-                    onClick={() => setFilterCity(city.slug)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                      filterCity === city.slug
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {city.name}
-                  </button>
-                ))}
-              </div>
-            </div>
+          {/* Handle bar */}
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+          </div>
 
-            {/* Project Type */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground w-14">Type</span>
-              <div className="flex gap-1.5 flex-1 justify-end">
-                {PROJECT_TYPES.map((type) => (
-                  <button
-                    key={type.value}
-                    onClick={() => setFilterType(type.value)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                      filterType === type.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {type.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Starting Price */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground w-14">Price</span>
-              <div className="flex gap-1.5 flex-1 justify-end">
-                {PRICE_RANGES.map((price) => (
-                  <button
-                    key={price.value}
-                    onClick={() => setFilterPrice(price.value)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                      filterPrice === price.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {price.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Deposit */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground w-14">Deposit</span>
-              <div className="flex gap-1.5 flex-1 justify-end">
-                {DEPOSIT_OPTIONS.map((deposit) => (
-                  <button
-                    key={deposit.value}
-                    onClick={() => setFilterDeposit(deposit.value)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                      filterDeposit === deposit.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {deposit.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Year */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted-foreground w-14">Year</span>
-              <div className="flex gap-1.5 flex-1 justify-end">
-                {YEAR_OPTIONS.map((year) => (
-                  <button
-                    key={year.value}
-                    onClick={() => setFilterYear(year.value)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                      filterYear === year.value
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                    )}
-                  >
-                    {year.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3 pt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
+          <div className="px-5 pb-6 pt-2">
+            {/* Header with close and reset */}
+            <div className="flex items-center justify-between mb-5">
+              <button
+                onClick={() => setFilterOpen(false)}
+                className="p-1.5 -ml-1.5 rounded-full hover:bg-muted/50 transition-colors"
+              >
+                <X className="h-5 w-5 text-muted-foreground" />
+              </button>
+              <h2 className="text-base font-semibold">Filters</h2>
+              <button
                 onClick={handleResetFilters}
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 Reset
-              </Button>
-              <Button
-                size="sm"
-                className="flex-1"
-                onClick={handleApplyFilters}
-              >
-                Apply
-              </Button>
+              </button>
             </div>
+
+            {/* Filters in compact grid */}
+            <div className="space-y-4">
+              {/* City */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+                  City
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {CITIES.map((city) => (
+                    <FilterChip
+                      key={city.slug}
+                      selected={filterCity === city.slug}
+                      onClick={() => setFilterCity(city.slug)}
+                    >
+                      {city.name}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+
+              {/* Type */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+                  Type
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {PROJECT_TYPES.map((type) => (
+                    <FilterChip
+                      key={type.value}
+                      selected={filterType === type.value}
+                      onClick={() => setFilterType(type.value)}
+                    >
+                      {type.label}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+
+              {/* Price & Deposit Row */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+                    Price
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {PRICE_RANGES.map((price) => (
+                      <FilterChip
+                        key={price.value}
+                        selected={filterPrice === price.value}
+                        onClick={() => setFilterPrice(price.value)}
+                      >
+                        {price.label}
+                      </FilterChip>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+                    Deposit
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {DEPOSIT_OPTIONS.map((deposit) => (
+                      <FilterChip
+                        key={deposit.value}
+                        selected={filterDeposit === deposit.value}
+                        onClick={() => setFilterDeposit(deposit.value)}
+                      >
+                        {deposit.label}
+                      </FilterChip>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Year */}
+              <div>
+                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-2 block">
+                  Completion Year
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {YEAR_OPTIONS.map((year) => (
+                    <FilterChip
+                      key={year.value}
+                      selected={filterYear === year.value}
+                      onClick={() => setFilterYear(year.value)}
+                    >
+                      {year.label}
+                    </FilterChip>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Apply Button with count */}
+            <button
+              onClick={handleApplyFilters}
+              className={cn(
+                "w-full mt-6 py-3.5 rounded-xl font-semibold text-base transition-all",
+                "bg-foreground text-background",
+                "active:scale-[0.98]"
+              )}
+            >
+              Show {matchingCount} {matchingCount === 1 ? "Project" : "Projects"}
+            </button>
           </div>
-        </SheetContent>
-      </Sheet>
+        </DrawerContent>
+      </Drawer>
     </>
   );
 }
