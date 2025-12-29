@@ -119,6 +119,25 @@ serve(async (req: Request): Promise<Response> => {
       console.log("No Zapier webhook configured (ZAPIER_PROJECT_LEADS_WEBHOOK), skipping CRM sync");
     }
 
+    // Trigger welcome email with project files
+    if (lead.project_id) {
+      console.log("Triggering welcome email for lead");
+      try {
+        const welcomeResponse = await supabase.functions.invoke("send-welcome-email", {
+          body: {
+            lead_id: lead.id,
+            project_id: lead.project_id,
+            lead_name: lead.name,
+            lead_email: lead.email,
+          },
+        });
+        console.log("Welcome email triggered:", welcomeResponse);
+      } catch (emailError) {
+        console.error("Failed to trigger welcome email:", emailError);
+        // Don't throw - lead was still saved successfully
+      }
+    }
+
     return new Response(
       JSON.stringify({ success: true, leadId: lead.id }),
       {
