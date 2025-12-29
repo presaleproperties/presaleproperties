@@ -200,8 +200,8 @@ export function AccessPackModal({
 
       setStep(3);
       toast({
-        title: "You're in!",
-        description: "Check your email for floor plans and pricing.",
+        title: "Check your inbox!",
+        description: "Your download links are on the way.",
       });
     } catch (error: any) {
       console.error("Error:", error);
@@ -225,7 +225,7 @@ export function AccessPackModal({
       <DialogContent className="sm:max-w-md p-0 overflow-hidden bg-background">
         <VisuallyHidden>
           <DialogTitle>
-            {variant === "floorplans" ? "Get Floorplans + Pricing" : "Book a Fit Call"}
+            {variant === "floorplans" ? "Download Floor Plans & Pricing" : "Book a Fit Call"}
           </DialogTitle>
         </VisuallyHidden>
 
@@ -237,10 +237,12 @@ export function AccessPackModal({
                 <Download className="h-6 w-6 text-primary" />
               </div>
               <h2 className="text-xl font-bold">
-                {variant === "floorplans" ? "Get Floorplans + Pricing" : "Book Your Fit Call"}
+                {variant === "floorplans" ? "Download Floor Plans & Pricing" : "Book Your Fit Call"}
               </h2>
               <p className="text-sm text-muted-foreground mt-1">
-                {projectName ? `For ${projectName}` : "Instant access to all available projects"}
+                {projectName 
+                  ? `Get instant access to ${projectName} details` 
+                  : "Instant access to the latest floor plans, pricing sheets & incentives"}
               </p>
             </div>
 
@@ -289,8 +291,8 @@ export function AccessPackModal({
         {step === 2 && (
           <div className="p-6">
             <div className="text-center mb-5">
-              <h2 className="text-lg font-bold">Almost there!</h2>
-              <p className="text-sm text-muted-foreground">Help us match you with the best options</p>
+              <h2 className="text-lg font-bold">One more step!</h2>
+              <p className="text-sm text-muted-foreground">We'll send your download link instantly</p>
             </div>
 
             <form onSubmit={form2.handleSubmit(onStep2Submit)} className="space-y-4">
@@ -386,7 +388,7 @@ export function AccessPackModal({
                 ) : (
                   <>
                     <Download className="h-4 w-4 mr-2" />
-                    Get Instant Access
+                    Send My Download Link
                   </>
                 )}
               </Button>
@@ -400,9 +402,9 @@ export function AccessPackModal({
             <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/10 rounded-full mb-4">
               <CheckCircle className="h-8 w-8 text-green-500" />
             </div>
-            <h2 className="text-xl font-bold mb-2">You're All Set!</h2>
+            <h2 className="text-xl font-bold mb-2">Check Your Inbox!</h2>
             <p className="text-muted-foreground mb-6">
-              Check your email for floor plans, pricing, and current incentives.
+              Your floor plans and pricing sheets are on the way. Download links sent to your email.
             </p>
 
             <div className="space-y-3">
