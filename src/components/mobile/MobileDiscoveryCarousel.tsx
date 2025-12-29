@@ -96,14 +96,13 @@ export function MobileDiscoveryCarousel({
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-5 w-16" />
         </div>
-        <div className="flex gap-3 overflow-hidden px-4">
+        <div className="flex gap-2.5 overflow-hidden px-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className={isHotProjects ? "shrink-0 w-[220px]" : "shrink-0 w-[165px]"}>
-              <Skeleton className={isHotProjects ? "aspect-[16/10] w-full rounded-t-xl" : "aspect-[4/3] w-full rounded-t-xl"} />
-              <div className="p-2.5 space-y-2 bg-card rounded-b-xl border border-t-0 border-border">
+            <div key={i} className={isHotProjects ? "shrink-0 w-[200px]" : "shrink-0 w-[160px]"}>
+              <Skeleton className={isHotProjects ? "aspect-[4/5] w-full rounded-t-xl" : "aspect-[3/4] w-full rounded-t-xl"} />
+              <div className="px-2.5 py-2 space-y-1 bg-card rounded-b-xl border border-t-0 border-border">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-1/2" />
-                <Skeleton className="h-4 w-2/3" />
               </div>
             </div>
           ))}
@@ -117,10 +116,10 @@ export function MobileDiscoveryCarousel({
   }
 
   return (
-    <div className="space-y-3 md:hidden">
+    <div className="space-y-2.5 md:hidden">
       {/* Header */}
       <div className="flex items-center justify-between px-4">
-        <h3 className="text-lg font-bold text-foreground">{title}</h3>
+        <h3 className="text-base font-bold text-foreground">{title}</h3>
         <Link 
           to={seeAllLink}
           className="flex items-center gap-1 text-sm font-medium text-primary active:opacity-70"
@@ -130,11 +129,11 @@ export function MobileDiscoveryCarousel({
         </Link>
       </div>
 
-      {/* Scrollable Cards */}
+      {/* Scrollable Cards - gap ensures peek of next card */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide px-4 pb-1"
+        className="flex gap-2.5 overflow-x-auto scrollbar-hide pl-4 pr-8 pb-1"
       >
         {projects.map((project) => (
           <MobileProjectCard
