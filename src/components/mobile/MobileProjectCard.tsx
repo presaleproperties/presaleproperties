@@ -1,3 +1,4 @@
+import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { Calendar, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -15,6 +16,7 @@ interface MobileProjectCardProps {
   startingPrice?: number | null;
   depositPercent?: number | null;
   featuredImage?: string | null;
+  galleryImages?: string[] | null;
   lastVerifiedDate?: string | null;
   size?: "default" | "large";
 }
@@ -53,12 +55,63 @@ export function MobileProjectCard({
   startingPrice,
   depositPercent,
   featuredImage,
+  galleryImages,
   lastVerifiedDate,
   size = "default",
 }: MobileProjectCardProps) {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const touchStartX = useRef<number | null>(null);
+  const touchEndX = useRef<number | null>(null);
+  const isSwiping = useRef(false);
+
   const statusLabel = getStatusLabel(status);
 
-  const handleCardTap = () => {
+  // Combine featured image with gallery images
+  const allImages = [
+    featuredImage,
+    ...(galleryImages || []),
+  ].filter(Boolean) as string[];
+
+  const imageCount = allImages.length;
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    isSwiping.current = false;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+    if (touchStartX.current && Math.abs(touchStartX.current - touchEndX.current) > 10) {
+      isSwiping.current = true;
+    }
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    
+    const diff = touchStartX.current - touchEndX.current;
+    const threshold = 50;
+
+    if (Math.abs(diff) > threshold && imageCount > 1) {
+      e.preventDefault();
+      if (diff > 0) {
+        setCurrentImageIndex((prev) => (prev + 1) % imageCount);
+      } else {
+        setCurrentImageIndex((prev) => (prev - 1 + imageCount) % imageCount);
+      }
+    }
+
+    touchStartX.current = null;
+    touchEndX.current = null;
+  };
+
+  const handleCardTap = (e: React.MouseEvent) => {
+    // Prevent navigation if we just swiped
+    if (isSwiping.current) {
+      e.preventDefault();
+      return;
+    }
+    
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "project_card_tap", {
         project_id: id,
@@ -80,14 +133,19 @@ export function MobileProjectCard({
       )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-transform duration-150">
-        {/* Wide Image - maximized */}
-        <div className={cn(
-          "relative bg-muted overflow-hidden",
-          isLarge ? "aspect-[16/11]" : "aspect-[16/10]"
-        )}>
-          {featuredImage ? (
+        {/* Wide Image - with swipe support */}
+        <div 
+          className={cn(
+            "relative bg-muted overflow-hidden",
+            isLarge ? "aspect-[16/11]" : "aspect-[16/10]"
+          )}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+        >
+          {allImages.length > 0 ? (
             <img
-              src={featuredImage}
+              src={allImages[currentImageIndex]}
               alt={name}
               className="h-full w-full object-cover"
               loading="lazy"
@@ -104,6 +162,26 @@ export function MobileProjectCard({
             <Badge className="absolute top-2 left-2 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-medium border-0 shadow-sm">
               {statusLabel}
             </Badge>
+          )}
+
+          {/* Dots indicator for multiple images */}
+          {imageCount > 1 && (
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
+              {allImages.slice(0, 5).map((_, idx) => (
+                <span
+                  key={idx}
+                  className={cn(
+                    "h-1 w-1 rounded-full transition-all",
+                    idx === currentImageIndex 
+                      ? "bg-white w-2" 
+                      : "bg-white/50"
+                  )}
+                />
+              ))}
+              {imageCount > 5 && (
+                <span className="text-white text-[8px] ml-0.5">+{imageCount - 5}</span>
+              )}
+            </div>
           )}
 
           {/* Deposit badge - bottom right on image */}
