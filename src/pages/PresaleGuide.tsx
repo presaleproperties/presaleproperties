@@ -129,8 +129,8 @@ export default function PresaleGuide() {
   const costs = [
     {
       name: "Deposit (Staged Payments)",
-      description: "Typically 15-20% of purchase price, paid in installments during construction. These are held in trust and protect both buyer and developer.",
-      typical: "15-20% of price",
+      description: "Typically 5-20% of purchase price, paid in installments during construction. These are held in trust and protect both buyer and developer.",
+      typical: "5-20% of price",
     },
     {
       name: "5% GST (New Home)",
