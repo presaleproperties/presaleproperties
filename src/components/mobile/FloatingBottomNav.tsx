@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchPopup } from "@/components/conversion/SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,17 +10,50 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 const CITIES = [
-  { slug: "all", name: "All Metro Vancouver" },
-  { slug: "vancouver", name: "Vancouver" },
-  { slug: "surrey", name: "Surrey" },
-  { slug: "langley", name: "Langley" },
-  { slug: "coquitlam", name: "Coquitlam" },
-  { slug: "burnaby", name: "Burnaby" },
-  { slug: "delta", name: "Delta" },
-  { slug: "richmond", name: "Richmond" },
-  { slug: "abbotsford", name: "Abbotsford" },
+  { slug: "any", name: "All Cities" },
+  { slug: "Vancouver", name: "Vancouver" },
+  { slug: "Surrey", name: "Surrey" },
+  { slug: "Langley", name: "Langley" },
+  { slug: "Coquitlam", name: "Coquitlam" },
+  { slug: "Burnaby", name: "Burnaby" },
+  { slug: "Delta", name: "Delta" },
+  { slug: "Richmond", name: "Richmond" },
+  { slug: "Abbotsford", name: "Abbotsford" },
+];
+
+const PROJECT_TYPES = [
+  { value: "any", label: "All Types" },
+  { value: "condo", label: "Condos" },
+  { value: "townhome", label: "Townhomes" },
+  { value: "mixed", label: "Mixed" },
+  { value: "duplex", label: "Duplexes" },
+  { value: "single_family", label: "Single Family" },
+];
+
+const PRICE_RANGES = [
+  { value: "any", label: "Any Price" },
+  { value: "500000", label: "Under $500K" },
+  { value: "750000", label: "Under $750K" },
+  { value: "1000000", label: "Under $1M" },
+  { value: "1500000", label: "Under $1.5M" },
+];
+
+const DEPOSIT_OPTIONS = [
+  { value: "any", label: "Any Deposit" },
+  { value: "5", label: "Up to 5%" },
+  { value: "10", label: "Up to 10%" },
+  { value: "15", label: "Up to 15%" },
+  { value: "20", label: "Up to 20%" },
+];
+
+const YEAR_OPTIONS = [
+  { value: "any", label: "Any Year" },
+  { value: "2025", label: "2025" },
+  { value: "2026", label: "2026" },
+  { value: "2027", label: "2027+" },
 ];
 
 interface FloatingBottomNavProps {
@@ -28,14 +61,22 @@ interface FloatingBottomNavProps {
   onCityChange?: (city: string) => void;
 }
 
-export function FloatingBottomNav({ selectedCity = "all", onCityChange }: FloatingBottomNavProps) {
+export function FloatingBottomNav({ selectedCity = "any", onCityChange }: FloatingBottomNavProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [searchOpen, setSearchOpen] = useState(false);
-  const [locationOpen, setLocationOpen] = useState(false);
+  const [filterOpen, setFilterOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
   const scrollThreshold = 10;
+
+  // Filter state
+  const [filterCity, setFilterCity] = useState("any");
+  const [filterType, setFilterType] = useState("any");
+  const [filterPrice, setFilterPrice] = useState("any");
+  const [filterDeposit, setFilterDeposit] = useState("any");
+  const [filterYear, setFilterYear] = useState("any");
   
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -83,13 +124,28 @@ export function FloatingBottomNav({ selectedCity = "all", onCityChange }: Floati
     setSearchOpen(true);
   };
 
-  const handleLocationClick = () => {
-    setLocationOpen(true);
+  const handleFilterClick = () => {
+    setFilterOpen(true);
   };
 
-  const handleCitySelect = (slug: string) => {
-    onCityChange?.(slug);
-    setLocationOpen(false);
+  const handleApplyFilters = () => {
+    const params = new URLSearchParams();
+    if (filterCity !== "any") params.set("city", filterCity);
+    if (filterType !== "any") params.set("projectType", filterType);
+    if (filterPrice !== "any") params.set("maxPrice", filterPrice);
+    if (filterDeposit !== "any") params.set("depositPercent", filterDeposit);
+    if (filterYear !== "any") params.set("completionYear", filterYear);
+    
+    navigate(`/presale-projects${params.toString() ? `?${params.toString()}` : ""}`);
+    setFilterOpen(false);
+  };
+
+  const handleResetFilters = () => {
+    setFilterCity("any");
+    setFilterType("any");
+    setFilterPrice("any");
+    setFilterDeposit("any");
+    setFilterYear("any");
   };
 
   const handleMessageClick = () => {
@@ -100,6 +156,8 @@ export function FloatingBottomNav({ selectedCity = "all", onCityChange }: Floati
     }
     window.open(whatsappLink, "_blank");
   };
+
+  const hasActiveFilters = filterCity !== "any" || filterType !== "any" || filterPrice !== "any" || filterDeposit !== "any" || filterYear !== "any";
 
   return (
     <>
@@ -116,39 +174,7 @@ export function FloatingBottomNav({ selectedCity = "all", onCityChange }: Floati
         
         {/* Button container - responsive sizing */}
         <div className="relative flex items-center justify-center gap-2 md:gap-3 lg:gap-4 px-6 py-4 pb-6 md:pb-8 pointer-events-auto">
-          {/* Location Button - Glass Circle */}
-          <button
-            onClick={handleLocationClick}
-            className={cn(
-              "flex items-center justify-center rounded-full",
-              "h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14",
-              "bg-white/10 backdrop-blur-2xl",
-              "border border-white/20",
-              "shadow-lg",
-              "hover:bg-white/20 active:scale-95 transition-all duration-150"
-            )}
-          >
-            <MapPin className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground/80" />
-          </button>
-
-          {/* Search Button - Glass CTA */}
-          <button
-            onClick={handleSearchClick}
-            className={cn(
-              "flex items-center gap-2 md:gap-2.5 rounded-full",
-              "px-4 py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-3.5",
-              "bg-white/10 backdrop-blur-2xl",
-              "border border-white/20",
-              "text-foreground/80 font-medium text-sm md:text-base lg:text-lg",
-              "shadow-lg",
-              "hover:bg-white/20 active:scale-95 transition-all duration-150"
-            )}
-          >
-            <Search className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
-            <span>Search</span>
-          </button>
-
-          {/* WhatsApp Button - Glass Circle */}
+          {/* WhatsApp Button - Glass Circle (LEFT) */}
           <button
             onClick={handleMessageClick}
             className={cn(
@@ -174,36 +200,176 @@ export function FloatingBottomNav({ selectedCity = "all", onCityChange }: Floati
               <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
             </svg>
           </button>
+
+          {/* Search Button - Glass CTA (CENTER) */}
+          <button
+            onClick={handleSearchClick}
+            className={cn(
+              "flex items-center gap-2 md:gap-2.5 rounded-full",
+              "px-4 py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-3.5",
+              "bg-white/10 backdrop-blur-2xl",
+              "border border-white/20",
+              "text-foreground/80 font-medium text-sm md:text-base lg:text-lg",
+              "shadow-lg",
+              "hover:bg-white/20 active:scale-95 transition-all duration-150"
+            )}
+          >
+            <Search className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
+            <span>Search</span>
+          </button>
+
+          {/* Filter Button - Glass Circle (RIGHT) */}
+          <button
+            onClick={handleFilterClick}
+            className={cn(
+              "flex items-center justify-center rounded-full relative",
+              "h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14",
+              "bg-white/10 backdrop-blur-2xl",
+              "border border-white/20",
+              "shadow-lg",
+              "hover:bg-white/20 active:scale-95 transition-all duration-150"
+            )}
+          >
+            <SlidersHorizontal className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground/80" />
+            {hasActiveFilters && (
+              <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full border-2 border-background" />
+            )}
+          </button>
         </div>
       </div>
 
       {/* Search Popup - Glass Style */}
       <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
 
-      {/* Location Sheet */}
-      <Sheet open={locationOpen} onOpenChange={setLocationOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
+      {/* Filter Sheet */}
+      <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
           <SheetHeader className="text-left pb-4">
-            <SheetTitle className="text-lg font-bold">Select Location</SheetTitle>
+            <SheetTitle className="text-lg font-bold">Filter Projects</SheetTitle>
           </SheetHeader>
-          <div className="space-y-1 max-h-[50vh] overflow-y-auto pb-6">
-            {CITIES.map((city) => (
-              <button
-                key={city.slug}
-                onClick={() => handleCitySelect(city.slug)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
-                  selectedCity === city.slug 
-                    ? "bg-primary text-primary-foreground" 
-                    : "hover:bg-muted text-foreground"
-                }`}
+          
+          <div className="space-y-5 pb-6">
+            {/* City */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-2 block">City</label>
+              <div className="flex flex-wrap gap-2">
+                {CITIES.map((city) => (
+                  <button
+                    key={city.slug}
+                    onClick={() => setFilterCity(city.slug)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      filterCity === city.slug
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {city.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Project Type */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-2 block">Project Type</label>
+              <div className="flex flex-wrap gap-2">
+                {PROJECT_TYPES.map((type) => (
+                  <button
+                    key={type.value}
+                    onClick={() => setFilterType(type.value)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      filterType === type.value
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {type.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Starting Price */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-2 block">Starting Price</label>
+              <div className="flex flex-wrap gap-2">
+                {PRICE_RANGES.map((price) => (
+                  <button
+                    key={price.value}
+                    onClick={() => setFilterPrice(price.value)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      filterPrice === price.value
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {price.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Deposit */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-2 block">Deposit</label>
+              <div className="flex flex-wrap gap-2">
+                {DEPOSIT_OPTIONS.map((deposit) => (
+                  <button
+                    key={deposit.value}
+                    onClick={() => setFilterDeposit(deposit.value)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      filterDeposit === deposit.value
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {deposit.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Year */}
+            <div>
+              <label className="text-sm font-medium text-muted-foreground mb-2 block">Completion Year</label>
+              <div className="flex flex-wrap gap-2">
+                {YEAR_OPTIONS.map((year) => (
+                  <button
+                    key={year.value}
+                    onClick={() => setFilterYear(year.value)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      filterYear === year.value
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                    )}
+                  >
+                    {year.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3 pt-4">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={handleResetFilters}
               >
-                <MapPin className="h-4 w-4" />
-                <span className="font-medium text-sm">{city.name}</span>
-                {selectedCity === city.slug && (
-                  <span className="ml-auto">✓</span>
-                )}
-              </button>
-            ))}
+                Reset
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={handleApplyFilters}
+              >
+                Apply Filters
+              </Button>
+            </div>
           </div>
         </SheetContent>
       </Sheet>
