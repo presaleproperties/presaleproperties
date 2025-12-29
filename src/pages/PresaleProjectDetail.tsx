@@ -15,7 +15,7 @@ import {
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
+import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -657,8 +657,17 @@ export default function PresaleProjectDetail() {
         onRegisterClick={scrollToForm}
       />
 
-      {/* Buyer CTA Section - Consistent with Homepage */}
-      <BuyerCTASection />
+      {/* More Projects from Same City */}
+      <section className="bg-muted/30 py-8 md:py-12">
+        <div className="container px-4">
+          <CityProjectsCarousel
+            city={project.city}
+            title={`More Projects in ${project.city}`}
+            subtitle="Explore similar presale opportunities nearby"
+            excludeSlug={project.slug}
+          />
+        </div>
+      </section>
 
       <Footer />
     </>

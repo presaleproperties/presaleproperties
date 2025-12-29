@@ -11,27 +11,35 @@ interface CityProjectsCarouselProps {
   city: string;
   title: string;
   subtitle?: string;
+  excludeSlug?: string;
 }
 
-export function CityProjectsCarousel({ city, title, subtitle }: CityProjectsCarouselProps) {
+export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: CityProjectsCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const { data: projects, isLoading } = useQuery({
-    queryKey: ["city-projects", city],
+    queryKey: ["city-projects", city, excludeSlug],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("presale_projects")
         .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images")
         .eq("is_published", true)
         .ilike("city", `%${city}%`)
         .order("is_featured", { ascending: false })
         .order("published_at", { ascending: false })
-        .limit(10);
+        .limit(excludeSlug ? 11 : 10);
+
+      if (excludeSlug) {
+        query = query.neq("slug", excludeSlug);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
-      return data;
+      // If we excluded a slug and got 11, trim to 10
+      return excludeSlug && data && data.length > 10 ? data.slice(0, 10) : data;
     },
   });
 
