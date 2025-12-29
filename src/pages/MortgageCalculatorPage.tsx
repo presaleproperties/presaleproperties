@@ -224,17 +224,16 @@ export default function MortgageCalculatorPage() {
     // Down payment is calculated on price + GST
     const downPayment = (priceWithGST * downPaymentPercent) / 100;
     
-    // Mortgage is based on base price minus down payment (GST paid separately at closing)
-    const mortgageBase = basePrice - (downPayment - gstAmount * (downPaymentPercent / 100));
-    const principal = Math.max(0, basePrice - downPayment + gstAmount);
+    // Mortgage principal = total price with GST - down payment
+    // The mortgage covers what you don't pay upfront
+    const principal = priceWithGST - downPayment;
     
-    // CMHC insurance for down payments less than 20% (based on base price, not including GST)
+    // CMHC insurance for down payments less than 20%
     let cmhcInsurance = 0;
-    const effectiveDownPaymentPercent = (downPayment / priceWithGST) * 100;
-    if (effectiveDownPaymentPercent < 20) {
-      if (effectiveDownPaymentPercent >= 15) {
+    if (downPaymentPercent < 20) {
+      if (downPaymentPercent >= 15) {
         cmhcInsurance = principal * 0.028;
-      } else if (effectiveDownPaymentPercent >= 10) {
+      } else if (downPaymentPercent >= 10) {
         cmhcInsurance = principal * 0.031;
       } else {
         cmhcInsurance = principal * 0.04;
@@ -327,12 +326,14 @@ export default function MortgageCalculatorPage() {
     // Total monthly carrying costs
     const totalMonthlyCarrying = monthlyPayment + monthlyPropertyTax + strataFee + monthlyHomeInsurance + monthlyUtilities;
     
-    // Cash to close: down payment (based on price+GST) + PTT + closing costs
-    // The down payment already covers the GST portion since it's calculated on priceWithGST
-    // We only add net GST that isn't covered by the down payment
-    const gstPortionInDownPayment = gstAmount * (downPaymentPercent / 100);
-    const gstOwedAtClosing = gstAmount - gstPortionInDownPayment - gstRebate - bcNewHousingRebate;
-    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees + Math.max(0, gstOwedAtClosing);
+    // Cash to close breakdown:
+    // - Down payment (already calculated on priceWithGST)
+    // - PTT (on base price)
+    // - PST on CMHC
+    // - Closing costs (lawyer, title insurance, inspection, appraisal)
+    // - GST rebates reduce total (but GST is already factored into down payment calc)
+    const netGstRebates = gstRebate + bcNewHousingRebate;
+    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees - netGstRebates;
     
     return {
       propertyPrice: basePrice,
