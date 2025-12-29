@@ -3,7 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { MobileContextBar } from "./MobileContextBar";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
-
+import { MobileBottomNav } from "./MobileBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
@@ -156,6 +156,9 @@ export function MobileHomePage() {
       <div className="pb-24">
         <Footer />
       </div>
+
+      {/* Bottom Navigation */}
+      <MobileBottomNav />
     </div>
   );
 }

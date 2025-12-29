@@ -1,5 +1,6 @@
 import { useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { Building2, Home, Percent, Calendar, LayoutGrid } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CategoryChip {
@@ -18,31 +19,36 @@ interface CategoryChip {
 const CATEGORY_CHIPS: CategoryChip[] = [
   { 
     id: "all", 
-    label: "All Projects", 
+    label: "All", 
+    icon: <LayoutGrid className="h-2.5 w-2.5" />, 
     route: "/presale-projects",
     filter: {} 
   },
   { 
     id: "condos", 
     label: "Condos", 
+    icon: <Building2 className="h-2.5 w-2.5" />, 
     route: "/presale-projects?type=condo",
     filter: { type: "condo" } 
   },
   { 
     id: "townhomes", 
-    label: "Townhomes", 
+    label: "Towns", 
+    icon: <Home className="h-2.5 w-2.5" />, 
     route: "/presale-projects?type=townhome",
     filter: { type: "townhome" } 
   },
   { 
     id: "5deposit", 
-    label: "5% Deposit Only", 
+    label: "5%", 
+    icon: <Percent className="h-2.5 w-2.5" />, 
     route: "/presale-projects?deposit=5",
     filter: { depositPercent: 5 } 
   },
   { 
     id: "2027plus", 
     label: "2027+", 
+    icon: <Calendar className="h-2.5 w-2.5" />, 
     route: "/presale-projects?completionYear=2027",
     filter: { minCompletionYear: 2027 } 
   },
@@ -76,22 +82,23 @@ export function MobileCategoryChips({ selectedChip, onChipSelect }: MobileCatego
   };
 
   return (
-    <div className="md:hidden sticky top-12 z-30 bg-background/95 backdrop-blur-sm">
+    <div className="md:hidden overflow-hidden border-b border-border/50">
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide px-3 py-0.5"
+        className="flex gap-1.5 overflow-x-auto scrollbar-hide px-3 py-1.5"
       >
         {CATEGORY_CHIPS.map((chip) => (
           <button
             key={chip.id}
             onClick={() => handleChipClick(chip)}
             className={cn(
-              "px-3 py-px rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95",
+              "flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-all active:scale-95",
               selectedChip === chip.id
-                ? "bg-foreground text-background"
-                : "bg-muted/60 text-muted-foreground"
+                ? "bg-foreground text-background shadow-sm"
+                : "bg-muted/80 text-muted-foreground"
             )}
           >
+            {chip.icon}
             {chip.label}
           </button>
         ))}
