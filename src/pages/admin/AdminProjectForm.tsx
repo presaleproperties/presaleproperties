@@ -27,7 +27,8 @@ import {
   Upload,
   Sparkles,
   FolderOpen,
-  Image
+  Image,
+  FileText
 } from "lucide-react";
 
 type ProjectFormData = {
@@ -55,6 +56,7 @@ type ProjectFormData = {
   faq: { question: string; answer: string }[];
   featured_image: string;
   gallery_images: string[];
+  brochure_files: string[];
   seo_title: string;
   seo_description: string;
   is_indexed: boolean;
@@ -87,6 +89,7 @@ const defaultFormData: ProjectFormData = {
   faq: [],
   featured_image: "",
   gallery_images: [],
+  brochure_files: [],
   seo_title: "",
   seo_description: "",
   is_indexed: true,
@@ -151,6 +154,7 @@ export default function AdminProjectForm() {
         faq: (Array.isArray(data.faq) ? data.faq : []) as { question: string; answer: string }[],
         featured_image: data.featured_image || "",
         gallery_images: data.gallery_images || [],
+        brochure_files: data.brochure_files || [],
         seo_title: data.seo_title || "",
         seo_description: data.seo_description || "",
         is_indexed: data.is_indexed ?? true,
@@ -341,6 +345,7 @@ export default function AdminProjectForm() {
         faq: formData.faq.length > 0 ? formData.faq : [],
         featured_image: formData.featured_image || null,
         gallery_images: formData.gallery_images.length > 0 ? formData.gallery_images : null,
+        brochure_files: formData.brochure_files.length > 0 ? formData.brochure_files : null,
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         is_indexed: formData.is_indexed,
@@ -491,6 +496,55 @@ export default function AdminProjectForm() {
     setFormData(prev => ({
       ...prev,
       gallery_images: prev.gallery_images.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const file = files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `brochures/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("listing-files")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("listing-files")
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({
+        ...prev,
+        brochure_files: [urlData.publicUrl],
+      }));
+
+      toast({
+        title: "Upload Complete",
+        description: "Brochure PDF uploaded successfully",
+      });
+    } catch (error) {
+      console.error("Error uploading brochure:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload brochure",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removeBrochure = () => {
+    setFormData(prev => ({
+      ...prev,
+      brochure_files: [],
     }));
   };
 
@@ -1228,6 +1282,59 @@ export default function AdminProjectForm() {
                     disabled={uploading}
                   />
                 </label>
+              </CardContent>
+            </Card>
+
+            {/* Brochure PDF */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Brochure PDF
+                </CardTitle>
+                <CardDescription>
+                  Upload a PDF brochure that leads can download after submitting the form
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {formData.brochure_files.length > 0 ? (
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-8 w-8 text-primary" />
+                      <div>
+                        <p className="font-medium text-sm">Brochure uploaded</p>
+                        <a 
+                          href={formData.brochure_files[0]} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          View PDF
+                        </a>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={removeBrochure}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                    <FileText className="h-8 w-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">Click to upload PDF brochure</span>
+                    <input
+                      type="file"
+                      accept=".pdf"
+                      className="hidden"
+                      onChange={handleBrochureUpload}
+                      disabled={uploading}
+                    />
+                  </label>
+                )}
               </CardContent>
             </Card>
           </div>
