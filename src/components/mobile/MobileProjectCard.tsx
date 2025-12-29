@@ -22,10 +22,11 @@ interface MobileProjectCardProps {
 }
 
 const formatPrice = (price: number) => {
-  if (price >= 1000000) {
-    return `$${(price / 1000000).toFixed(1)}M`;
-  }
-  return `$${(price / 1000).toFixed(0)}K`;
+  return new Intl.NumberFormat('en-CA', {
+    style: 'currency',
+    currency: 'CAD',
+    maximumFractionDigits: 0,
+  }).format(price);
 };
 
 const getStatusLabel = (status: string) => {
