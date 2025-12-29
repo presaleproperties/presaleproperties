@@ -25,7 +25,7 @@ export function Footer() {
               <img 
                 src={presaleLogo} 
                 alt="Presale Properties" 
-                className="h-10 sm:h-12 w-auto object-contain"
+                className="h-12 sm:h-14 w-auto object-contain"
               />
             </Link>
             <p className="text-xs sm:text-sm text-muted-foreground">
