@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export function FloatingWhatsApp() {
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
+  const [isVisible, setIsVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -16,6 +17,23 @@ export function FloatingWhatsApp() {
     };
     fetchWhatsapp();
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY < lastScrollY || currentScrollY < 100) {
+        setIsVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        setIsVisible(false);
+      }
+      
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in learning about presale projects. Can you help me?")}`;
 
@@ -32,15 +50,25 @@ export function FloatingWhatsApp() {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-20 right-3 md:right-4 lg:right-6 z-50 h-11 w-11 md:h-12 md:w-12 lg:h-14 lg:w-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
+      className={`fixed bottom-20 right-4 md:right-6 z-40 flex items-center gap-1.5 md:gap-2 px-3 py-2 md:px-4 md:py-2.5 bg-white/10 backdrop-blur-2xl border border-white/20 rounded-full shadow-lg hover:shadow-xl hover:bg-white/15 transition-all duration-300 hover:scale-105 ${
+        isVisible ? "translate-y-0 opacity-100" : "translate-y-20 opacity-0 pointer-events-none"
+      }`}
       aria-label="Chat on WhatsApp"
     >
-      <MessageCircle className="h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7" />
-      
-      {/* Tooltip on desktop */}
-      <span className="hidden lg:block absolute right-16 bg-foreground text-background text-sm font-medium px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-        Chat with us
-      </span>
+      {/* WhatsApp Icon */}
+      <svg 
+        viewBox="0 0 24 24" 
+        className="h-3.5 w-3.5 md:h-4 md:w-4 text-foreground/70"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+        <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
+      </svg>
+      <span className="text-xs md:text-sm text-foreground/80">WhatsApp</span>
     </button>
   );
 }
