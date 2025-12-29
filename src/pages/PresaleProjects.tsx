@@ -53,13 +53,6 @@ const CITIES = [
   "New Westminster",
   "White Rock"
 ];
-const STATUS_OPTIONS = [
-  { value: "any", label: "All Status" },
-  { value: "coming_soon", label: "Coming Soon" },
-  { value: "registering", label: "Registering" },
-  { value: "active", label: "Selling Now" },
-  { value: "sold_out", label: "Sold Out" },
-];
 const TYPE_OPTIONS = [
   { value: "any", label: "All Types" },
   { value: "condo", label: "Condos" },
@@ -136,7 +129,6 @@ export default function PresaleProjects() {
   // Get filter values from URL params
   const filters = {
     city: searchParams.get("city") || "any",
-    status: searchParams.get("status") || "any",
     projectType: searchParams.get("type") || "any",
     priceRange: searchParams.get("price") || "any",
     depositPercent: searchParams.get("deposit") || "any",
@@ -158,9 +150,6 @@ export default function PresaleProjects() {
       // Apply filters to count query
       if (filters.city !== "any") {
         countQuery = countQuery.eq("city", filters.city);
-      }
-      if (filters.status !== "any") {
-        countQuery = countQuery.eq("status", filters.status as "coming_soon" | "registering" | "active" | "sold_out");
       }
       if (filters.projectType !== "any") {
         countQuery = countQuery.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
@@ -197,9 +186,6 @@ export default function PresaleProjects() {
       // Apply filters
       if (filters.city !== "any") {
         query = query.eq("city", filters.city);
-      }
-      if (filters.status !== "any") {
-        query = query.eq("status", filters.status as "coming_soon" | "registering" | "active" | "sold_out");
       }
       if (filters.projectType !== "any") {
         query = query.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
@@ -314,7 +300,6 @@ export default function PresaleProjects() {
 
   const activeFilterCount = [
     filters.city !== "any",
-    filters.status !== "any",
     filters.projectType !== "any",
     filters.priceRange !== "any",
     filters.depositPercent !== "any",
@@ -365,20 +350,6 @@ export default function PresaleProjects() {
         </Select>
       </div>
 
-      {/* Status */}
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Status</label>
-        <Select value={filters.status} onValueChange={(v) => updateFilter("status", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
 
       {/* Project Type */}
       <div>
@@ -552,11 +523,6 @@ export default function PresaleProjects() {
       parts.push("in Metro Vancouver");
     }
     
-    if (filters.status === "coming_soon") {
-      parts.push("- Coming Soon");
-    } else if (filters.status === "active") {
-      parts.push("- Now Selling");
-    }
     
     return `${parts.join(" ")} | New Construction Homes | PresaleProperties.com`;
   };
@@ -738,14 +704,6 @@ export default function PresaleProjects() {
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {filters.city}
                   <button onClick={() => updateFilter("city", "any")}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.status !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  {STATUS_OPTIONS.find((s) => s.value === filters.status)?.label}
-                  <button onClick={() => updateFilter("status", "any")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
