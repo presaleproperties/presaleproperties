@@ -198,6 +198,7 @@ interface GalleryTriggerProps {
   onSelectIndex: (index: number) => void;
   alt?: string;
   className?: string;
+  compact?: boolean;
 }
 
 export function GalleryWithLightbox({
@@ -206,6 +207,7 @@ export function GalleryWithLightbox({
   onSelectIndex,
   alt = "Gallery image",
   className = "",
+  compact = false,
 }: GalleryTriggerProps) {
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
@@ -253,6 +255,11 @@ export function GalleryWithLightbox({
     );
   }
 
+  // Compact mode uses shorter aspect ratio for desktop side-by-side layouts
+  const mainAspectClass = compact 
+    ? "aspect-[4/3] md:aspect-[16/10] lg:aspect-[4/3]" 
+    : "aspect-[4/3] md:aspect-[16/9] lg:aspect-[4/3]";
+
   return (
     <>
       <div className="space-y-2 md:space-y-3">
@@ -265,7 +272,7 @@ export function GalleryWithLightbox({
         >
           <div
             onClick={() => openLightbox(selectedIndex)}
-            className="relative w-full aspect-[4/3] md:aspect-[16/9] lg:aspect-[4/3] rounded-lg md:rounded-xl overflow-hidden bg-muted cursor-pointer"
+            className={`relative w-full ${mainAspectClass} rounded-lg md:rounded-xl overflow-hidden bg-muted cursor-pointer`}
           >
             <img
               src={images[selectedIndex]}

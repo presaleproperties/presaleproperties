@@ -361,62 +361,116 @@ export default function PresaleProjectDetail() {
           </div>
         )}
 
-        {/* Hero */}
+        {/* Hero - Side-by-side layout on desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-3 py-4 md:px-4 md:py-6 lg:py-8">
-            <GalleryWithLightbox
-              images={allImages}
-              selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
-              onSelectIndex={(index) => setSelectedImage(allImages[index])}
-              alt={project.name}
-            />
+            <div className="grid lg:grid-cols-5 gap-4 lg:gap-8">
+              {/* Gallery - Takes 3 columns on desktop */}
+              <div className="lg:col-span-3">
+                <GalleryWithLightbox
+                  images={allImages}
+                  selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
+                  onSelectIndex={(index) => setSelectedImage(allImages[index])}
+                  alt={project.name}
+                  compact
+                />
+              </div>
+
+              {/* Project Info - Takes 2 columns on desktop */}
+              <div className="lg:col-span-2">
+                {/* Status Badge Row */}
+                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+                  {getStatusBadge(project.status)}
+                  {project.is_featured && (
+                    <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
+                      <Star className="h-3 w-3 mr-1 fill-current" />
+                      Featured
+                    </Badge>
+                  )}
+                </div>
+
+                {/* Title and Location */}
+                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-1.5 md:mb-2">{project.name}</h1>
+                
+                {project.starting_price ? (
+                  <div className="mb-2 md:mb-3">
+                    <span className="text-lg md:text-xl font-semibold text-primary">
+                      From {formatPrice(project.starting_price)}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="text-base md:text-lg text-muted-foreground mb-2 md:mb-3">Contact for pricing</div>
+                )}
+
+                <div className="flex items-center gap-2 text-muted-foreground text-sm md:text-base mb-3">
+                  <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
+                  <span>{project.address || `${project.neighborhood}, ${project.city}`}</span>
+                </div>
+
+                {/* Quick Facts on desktop hero */}
+                <div className="hidden lg:block space-y-3 mb-4">
+                  {project.developer_name && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Developer:</span>
+                      <span className="font-medium">{project.developer_name}</span>
+                    </div>
+                  )}
+                  {project.completion_year && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Completion:</span>
+                      <span className="font-medium">
+                        {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
+                      </span>
+                    </div>
+                  )}
+                  {project.unit_mix && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Home className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Units:</span>
+                      <span className="font-medium">{project.unit_mix}</span>
+                    </div>
+                  )}
+                  {project.deposit_structure && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Deposit:</span>
+                      <span className="font-medium">{project.deposit_structure}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4 mb-2">
+                  <Button size="default" onClick={scrollToForm} className="font-semibold text-sm md:text-base md:h-11">
+                    {project.status === "coming_soon" ? (
+                      <>Register Now</>
+                    ) : (
+                      <>Download Plans</>
+                    )}
+                  </Button>
+                  <Button variant="outline" size="default" onClick={handleShare} className="text-sm md:text-base md:h-11">
+                    <Share2 className="h-4 w-4 mr-2" />
+                    Share
+                  </Button>
+                </div>
+
+                {/* Short description on desktop */}
+                {project.short_description && (
+                  <p className="hidden lg:block text-sm text-muted-foreground mt-4 leading-relaxed">
+                    {project.short_description}
+                  </p>
+                )}
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* Project Info Section */}
-        <section className="border-t">
-          <div className="container px-3 py-4 md:px-4 md:py-5 lg:py-6">
-            {/* Status Badge Row */}
-            <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
-              {getStatusBadge(project.status)}
-              {project.is_featured && (
-                <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
-                  <Star className="h-3 w-3 mr-1 fill-current" />
-                  Featured
-                </Badge>
-              )}
-            </div>
-
-            {/* Title and Location */}
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1.5 md:mb-2">{project.name}</h1>
-            
-            {project.starting_price ? (
-              <div className="mb-2 md:mb-3">
-                <span className="text-lg md:text-xl font-semibold text-primary">
-                  From {formatPrice(project.starting_price)}
-                </span>
-              </div>
-            ) : (
-              <div className="text-base md:text-lg text-muted-foreground mb-2 md:mb-3">Contact for pricing</div>
-            )}
-
-            <div className="flex items-center gap-2 text-muted-foreground text-sm md:text-base mb-1.5 md:mb-2">
-              <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-              <span>{project.address || `${project.neighborhood}, ${project.city}`}</span>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4 mb-2">
-              <Button size="default" onClick={scrollToForm} className="font-semibold text-sm md:text-base md:h-11">
-                {project.status === "coming_soon" ? (
-                  <>Register Now</>
-                ) : (
-                  <>Download Plans</>
-                )}
-              </Button>
-            </div>
-
-            {/* Highlights Grid */}
+        {/* Mobile/Tablet Project Info Section */}
+        <section className="border-t lg:hidden">
+          <div className="container px-3 py-4 md:px-4 md:py-5">
+            {/* Highlights Grid for mobile/tablet */}
             <ProjectHighlights
               projectType={project.project_type}
               unitMix={project.unit_mix}
