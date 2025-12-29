@@ -21,8 +21,8 @@ Allow: /
 User-agent: *
 Allow: /
 
-# Sitemap
-Sitemap: https://presaleproperties.com/sitemap.xml
+# Sitemap - Dynamic sitemap generated from database
+Sitemap: https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap
 
 # Disallow admin/dashboard areas from indexing
 Disallow: /admin
