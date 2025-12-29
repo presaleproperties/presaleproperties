@@ -487,9 +487,11 @@ export default function PresaleProjectDetail() {
         {/* Details Grid */}
         <section className="py-4 md:py-6 lg:py-10">
           <div className="container px-3 md:px-4">
-            <div className="grid md:grid-cols-3 gap-4 md:gap-5 lg:gap-8">
+            {/* On tablet (md): full-width content, form moves to bottom center */}
+            {/* On desktop (lg): 3-column grid with sidebar */}
+            <div className="grid lg:grid-cols-3 gap-4 md:gap-5 lg:gap-8">
               {/* Main Content */}
-              <div className="md:col-span-2 space-y-4 md:space-y-5 lg:space-y-8">
+              <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-8">
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
                   <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
@@ -623,9 +625,9 @@ export default function PresaleProjectDetail() {
                 )}
               </div>
 
-              {/* Sidebar - Contact Form */}
-              <div>
-                <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24">
+              {/* Sidebar - Contact Form (Desktop only) */}
+              <div className="hidden lg:block">
+                <div ref={formRef} id="contact-form" className="lg:sticky lg:top-24">
                   <ProjectLeadForm
                     projectId={project.id}
                     projectName={project.name}
@@ -633,15 +635,37 @@ export default function PresaleProjectDetail() {
                     brochureUrl={project.brochure_files?.[0] || null}
                   />
                   
-                  {/* Quick Actions Below Form - Tablet and Desktop */}
-                  <div className="mt-3 lg:mt-4 hidden md:flex flex-col gap-2 lg:gap-3">
-                    <Button variant="outline" size="default" className="w-full h-9 lg:h-10 text-sm lg:text-base" asChild>
+                  {/* Quick Actions Below Form - Desktop */}
+                  <div className="mt-4 flex flex-col gap-3">
+                    <Button variant="outline" size="default" className="w-full h-10 text-base" asChild>
                       <a href="tel:+16722581100">
                         <Phone className="h-4 w-4 mr-2" />
                         Call Now
                       </a>
                     </Button>
                   </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tablet-only centered lead form at bottom */}
+            <div className="hidden md:block lg:hidden mt-8">
+              <div ref={formRef} id="contact-form-tablet" className="max-w-xl mx-auto">
+                <ProjectLeadForm
+                  projectId={project.id}
+                  projectName={project.name}
+                  status={project.status}
+                  brochureUrl={project.brochure_files?.[0] || null}
+                />
+                
+                {/* Quick Actions Below Form - Tablet */}
+                <div className="mt-4 flex justify-center gap-3">
+                  <Button variant="outline" size="default" className="h-10 text-sm px-6" asChild>
+                    <a href="tel:+16722581100">
+                      <Phone className="h-4 w-4 mr-2" />
+                      Call Now
+                    </a>
+                  </Button>
                 </div>
               </div>
             </div>
