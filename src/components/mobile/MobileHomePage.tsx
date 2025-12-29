@@ -73,10 +73,17 @@ export function MobileHomePage() {
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        {/* Hot Presale Projects - Large Cards */}
+        {/* Condos - Large Cards */}
         <MobileDiscoveryCarousel
-          type="hot_projects"
-          title="Hot Presale Projects"
+          type="condos"
+          title="Presale Condos"
+          city={selectedCity}
+        />
+
+        {/* Townhomes - Large Cards */}
+        <MobileDiscoveryCarousel
+          type="townhomes"
+          title="Presale Townhomes"
           city={selectedCity}
         />
 

@@ -7,7 +7,9 @@ import { MobileProjectCard } from "./MobileProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type CarouselType = 
-  | "hot_projects" 
+  | "hot_projects"
+  | "condos"
+  | "townhomes"
   | "city_vancouver"
   | "city_surrey"
   | "city_burnaby"
@@ -22,6 +24,7 @@ interface MobileDiscoveryCarouselProps {
   title: string;
   city?: string;
   limit?: number;
+  size?: "default" | "large";
 }
 
 const getCityFromType = (type: CarouselType): string | null => {
@@ -51,7 +54,8 @@ export function MobileDiscoveryCarousel({
   type, 
   title, 
   city = "all",
-  limit = 10 
+  limit = 10,
+  size
 }: MobileDiscoveryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -67,6 +71,12 @@ export function MobileDiscoveryCarousel({
       if (type === "hot_projects") {
         // Hot projects - featured or recently published active projects
         query = query.eq("status", "active").order("published_at", { ascending: false });
+      } else if (type === "condos") {
+        // Condos only
+        query = query.eq("project_type", "condo").order("published_at", { ascending: false });
+      } else if (type === "townhomes") {
+        // Townhomes only
+        query = query.eq("project_type", "townhome").order("published_at", { ascending: false });
       } else {
         // City-specific carousels
         const cityName = getCityFromType(type);
@@ -92,11 +102,17 @@ export function MobileDiscoveryCarousel({
     }
   };
 
-  const isHotProjects = type === "hot_projects";
+  // Determine if this is a large carousel
+  const isLargeCarousel = size === "large" || type === "hot_projects" || type === "condos" || type === "townhomes";
+  
   const cityFromType = getCityFromType(type);
-  const seeAllLink = cityFromType 
-    ? `/presale-projects?city=${encodeURIComponent(cityFromType)}`
-    : "/presale-projects";
+  const getSeeAllLink = () => {
+    if (type === "condos") return "/presale-projects?type=condo";
+    if (type === "townhomes") return "/presale-projects?type=townhome";
+    if (cityFromType) return `/presale-projects?city=${encodeURIComponent(cityFromType)}`;
+    return "/presale-projects";
+  };
+  const seeAllLink = getSeeAllLink();
 
   if (isLoading) {
     return (
@@ -107,8 +123,8 @@ export function MobileDiscoveryCarousel({
         </div>
         <div className="flex gap-3 overflow-hidden px-4">
           {[1, 2].map((i) => (
-            <div key={i} className={isHotProjects ? "shrink-0 w-[300px]" : "shrink-0 w-[260px]"}>
-              <Skeleton className={isHotProjects ? "aspect-[16/11] w-full rounded-t-xl" : "aspect-[16/10] w-full rounded-t-xl"} />
+            <div key={i} className={isLargeCarousel ? "shrink-0 w-[300px]" : "shrink-0 w-[260px]"}>
+              <Skeleton className={isLargeCarousel ? "aspect-[16/11] w-full rounded-t-xl" : "aspect-[16/10] w-full rounded-t-xl"} />
               <div className="px-3 py-2 bg-card rounded-b-xl border border-t-0 border-border flex justify-between">
                 <div className="space-y-1">
                   <Skeleton className="h-4 w-24" />
@@ -163,7 +179,7 @@ export function MobileDiscoveryCarousel({
             depositPercent={project.deposit_percent}
             featuredImage={project.featured_image}
             lastVerifiedDate={project.last_verified_date}
-            size={isHotProjects ? "large" : "default"}
+            size={isLargeCarousel ? "large" : "default"}
           />
         ))}
       </div>
