@@ -255,10 +255,10 @@ export function GalleryWithLightbox({
     );
   }
 
-  // Compact mode uses shorter aspect ratio for desktop side-by-side layouts
+  // Compact mode uses shorter aspect ratio for tablet/desktop side-by-side layouts
   const mainAspectClass = compact 
-    ? "aspect-[4/3] md:aspect-[16/10] lg:aspect-[4/3]" 
-    : "aspect-[4/3] md:aspect-[16/9] lg:aspect-[4/3]";
+    ? "aspect-[4/3] md:aspect-[4/3] lg:aspect-[4/3]" 
+    : "aspect-[4/3] md:aspect-[16/10] lg:aspect-[4/3]";
 
   return (
     <>
