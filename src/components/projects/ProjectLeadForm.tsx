@@ -10,15 +10,16 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Accepts: (604) 555-0123, 604-555-0123, 6045550123, +1 604 555 0123, etc.
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
 const leadSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
-  phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Please enter a valid phone number"),
-  is_realtor: z.enum(["yes", "no"]),
-  has_realtor: z.enum(["yes", "no"]),
+  name: z.string().trim().min(1, "Name is required").max(100),
+  email: z.string().trim().email("Please enter a valid email").max(255),
+  phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
+  persona: z.enum(["first_time", "investor"]),
+  workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
+  timeline: z.enum(["0_3", "3_plus"]),
+  propertyType: z.enum(["condo", "townhome"]),
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
@@ -29,13 +30,33 @@ interface ProjectLeadFormProps {
   status: "coming_soon" | "active" | "sold_out";
 }
 
+const PERSONAS = [
+  { value: "first_time", label: "First-time Buyer" },
+  { value: "investor", label: "Investor" },
+];
+
+const AGENT_OPTIONS = [
+  { value: "no", label: "No" },
+  { value: "yes", label: "Yes" },
+  { value: "i_am_realtor", label: "I am a Realtor" },
+];
+
+const TIMELINES = [
+  { value: "0_3", label: "0–3 months" },
+  { value: "3_plus", label: "3+ months" },
+];
+
+const PROPERTY_TYPES = [
+  { value: "condo", label: "Condo" },
+  { value: "townhome", label: "Townhome" },
+];
+
 export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState<string>("");
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const { toast } = useToast();
 
-  // Fetch WhatsApp number from settings
   useEffect(() => {
     const fetchWhatsappNumber = async () => {
       const { data } = await supabase
@@ -51,23 +72,18 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     fetchWhatsappNumber();
   }, []);
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    reset,
-    setValue,
-    watch,
-  } = useForm<LeadFormData>({
+  const form = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
     defaultValues: {
-      is_realtor: "no",
-      has_realtor: "no",
+      name: "",
+      email: "",
+      phone: "",
+      persona: "first_time",
+      workingWithAgent: "no",
+      timeline: "0_3",
+      propertyType: "condo",
     },
   });
-
-  const isRealtor = watch("is_realtor");
-  const hasRealtor = watch("has_realtor");
 
   const onInvalid = () => {
     toast({
@@ -81,11 +97,17 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     setIsSubmitting(true);
 
     try {
-      const isRealtorNote = data.is_realtor === "yes" ? "Is a realtor" : "Not a realtor";
-      const hasRealtorNote = data.has_realtor === "yes" ? "Has a realtor" : "No realtor";
-      const notes = `${isRealtorNote} | ${hasRealtorNote}`;
+      const messageData = [
+        `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
+        `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
+        `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
+        `Property Type: ${PROPERTY_TYPES.find(pt => pt.value === data.propertyType)?.label}`,
+      ].join(" | ");
 
-      // Insert lead into database
+      const nextDripAt = new Date().toISOString();
+      const dripSequence = data.persona === "investor" ? "investor" : "buyer";
+      const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona;
+
       const { data: insertedLead, error } = await supabase
         .from("project_leads")
         .insert({
@@ -93,33 +115,35 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           name: data.name,
           email: data.email,
           phone: data.phone,
-          message: notes,
+          message: messageData,
+          persona: actualPersona,
+          timeline: data.timeline,
+          drip_sequence: dripSequence,
+          last_drip_sent: 0,
+          next_drip_at: nextDripAt,
         })
         .select("id")
         .maybeSingle();
 
       if (error) throw error;
 
-      // Send to CRM via edge function (fire and forget)
       if (insertedLead?.id) {
         supabase.functions
-          .invoke("send-project-lead", {
-            body: { leadId: insertedLead.id },
-          })
-          .catch((err) => {
-            console.error("Error sending to CRM:", err);
-            // Don't show error to user - lead was still saved
-          });
+          .invoke("send-project-lead", { body: { leadId: insertedLead.id } })
+          .catch(console.error);
+
+        supabase.functions
+          .invoke("send-drip-email", {})
+          .catch(console.error);
       }
 
+      localStorage.setItem("presale_persona", actualPersona);
+
       setIsSubmitted(true);
-      reset();
+      form.reset();
       toast({
-        title: status === "coming_soon" ? "You're on the list!" : "Plans sent!",
-        description:
-          status === "coming_soon"
-            ? "We'll send you exclusive updates and early access."
-            : "Check your email for floor plans and pricing.",
+        title: status === "coming_soon" ? "You're on the list!" : "Request submitted!",
+        description: "We'll be in touch shortly.",
       });
     } catch (error: any) {
       console.error("Error submitting lead:", error);
@@ -133,9 +157,8 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
     }
   };
 
-  const defaultWhatsappNumber = "16722581100";
   const whatsappMessage = encodeURIComponent(`Hi! I just submitted my info for ${projectName} and would love to learn more.`);
-  const whatsappLink = `https://wa.me/${whatsappNumber || defaultWhatsappNumber}?text=${whatsappMessage}`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${whatsappMessage}`;
 
   if (isSubmitted) {
     return (
@@ -143,12 +166,8 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
         <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/15 rounded-full mb-4">
           <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
-        <h3 className="text-xl font-bold text-foreground mb-2">
-          You're All Set!
-        </h3>
-        <p className="text-muted-foreground mb-5">
-          Check your email for floor plans, pricing, and project details.
-        </p>
+        <h3 className="text-xl font-bold text-foreground mb-2">You're All Set!</h3>
+        <p className="text-muted-foreground mb-5">We'll be in touch shortly with project details.</p>
         <Button
           asChild
           size="lg"
@@ -203,160 +222,183 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
       {/* Header */}
-      <div className="bg-primary px-5 py-5">
+      <div className="bg-primary px-5 py-4">
         {content.badgeIcon && (
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground/90 bg-primary-foreground/15 px-2.5 py-1 rounded-full mb-3">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground/90 bg-primary-foreground/15 px-2.5 py-1 rounded-full mb-2">
             {content.badgeIcon}
             {content.badge}
           </span>
         )}
-        <h3 className="text-2xl font-bold text-primary-foreground leading-tight">
+        <h3 className="text-xl font-bold text-primary-foreground leading-tight">
           {content.title}
-          <span className="block text-primary-foreground/90">{content.subtitle}</span>
+          <span className="block text-primary-foreground/90 text-lg">{content.subtitle}</span>
         </h3>
-        <p className="text-sm text-primary-foreground/75 mt-2">
-          {content.description}
-        </p>
+        <p className="text-xs text-primary-foreground/75 mt-1">{content.description}</p>
+        <p className="text-xs text-green-300 font-medium mt-1">✓ Same-day callback available</p>
       </div>
 
       {/* Form */}
-      <div className="p-5 bg-card">
-        <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
-          {/* Name Field */}
+      <div className="p-4 bg-card">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-3">
+          {/* Contact Fields */}
           <div className="space-y-2">
-            <Label htmlFor="lead-name" className="text-sm font-semibold text-foreground">
-              Full Name <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="lead-name"
-              placeholder="John Smith"
-              {...register("name")}
-              className={`h-12 text-base rounded-xl bg-background border-2 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-                errors.name ? "border-destructive focus:border-destructive" : "border-input"
-              }`}
-            />
-            {errors.name && (
-              <p className="text-xs text-destructive font-medium">{errors.name.message}</p>
-            )}
+            <div>
+              <Label htmlFor="lead-name" className="text-xs font-semibold">
+                Name <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="lead-name"
+                placeholder="John Smith"
+                autoComplete="off"
+                {...form.register("name")}
+                className="h-10 text-sm rounded-lg"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="lead-phone" className="text-xs font-semibold">
+                Phone <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="lead-phone"
+                type="tel"
+                placeholder="604-555-0123"
+                autoComplete="off"
+                {...form.register("phone")}
+                className="h-10 text-sm rounded-lg"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor="lead-email" className="text-xs font-semibold">
+                Email <span className="text-destructive">*</span>
+              </Label>
+              <Input
+                id="lead-email"
+                type="email"
+                placeholder="john@email.com"
+                autoComplete="off"
+                {...form.register("email")}
+                className="h-10 text-sm rounded-lg"
+              />
+            </div>
           </div>
 
-          {/* Email Field */}
-          <div className="space-y-2">
-            <Label htmlFor="lead-email" className="text-sm font-semibold text-foreground">
-              Email <span className="text-destructive">*</span>
+          {/* I am a... */}
+          <div>
+            <Label className="text-xs font-semibold">
+              I am a... <span className="text-destructive">*</span>
             </Label>
-            <Input
-              id="lead-email"
-              type="email"
-              placeholder="john@example.com"
-              {...register("email")}
-              className={`h-12 text-base rounded-xl bg-background border-2 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-                errors.email ? "border-destructive focus:border-destructive" : "border-input"
-              }`}
-            />
-            {errors.email && (
-              <p className="text-xs text-destructive font-medium">{errors.email.message}</p>
-            )}
-          </div>
-
-          {/* Phone Field */}
-          <div className="space-y-2">
-            <Label htmlFor="lead-phone" className="text-sm font-semibold text-foreground">
-              Phone <span className="text-destructive">*</span>
-            </Label>
-            <Input
-              id="lead-phone"
-              type="tel"
-              inputMode="tel"
-              placeholder="(604) 555-0123"
-              {...register("phone")}
-              className={`h-12 text-base rounded-xl bg-background border-2 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-                errors.phone ? "border-destructive focus:border-destructive" : "border-input"
-              }`}
-            />
-            {errors.phone && (
-              <p className="text-xs text-destructive font-medium">{errors.phone.message}</p>
-            )}
-          </div>
-
-          {/* Is Realtor Question */}
-          <div className="space-y-2.5 pt-1">
-            <Label className="text-sm font-semibold text-foreground">Are you a realtor?</Label>
-            <RadioGroup 
-              value={isRealtor} 
-              onValueChange={(value) => setValue("is_realtor", value as "yes" | "no")}
-              className="flex gap-3"
+            <RadioGroup
+              value={form.watch("persona")}
+              onValueChange={(v) => form.setValue("persona", v as any)}
+              className="grid grid-cols-2 gap-1.5 mt-1"
             >
-              <Label 
-                htmlFor="is-realtor-no" 
-                className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
-                  isRealtor === "no" 
-                    ? "border-primary bg-primary text-primary-foreground shadow-md" 
-                    : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
-                }`}
-              >
-                <RadioGroupItem value="no" id="is-realtor-no" className="sr-only" />
-                No
-              </Label>
-              <Label 
-                htmlFor="is-realtor-yes" 
-                className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
-                  isRealtor === "yes" 
-                    ? "border-primary bg-primary text-primary-foreground shadow-md" 
-                    : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
-                }`}
-              >
-                <RadioGroupItem value="yes" id="is-realtor-yes" className="sr-only" />
-                Yes
-              </Label>
+              {PERSONAS.map((p) => (
+                <Label
+                  key={p.value}
+                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                    form.watch("persona") === p.value
+                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <RadioGroupItem value={p.value} className="sr-only" />
+                  {p.label}
+                </Label>
+              ))}
             </RadioGroup>
           </div>
 
-          {/* Has Realtor Question - Only show if they're not a realtor */}
-          {isRealtor === "no" && (
-            <div className="space-y-2.5">
-              <Label className="text-sm font-semibold text-foreground">Working with a realtor?</Label>
-              <RadioGroup 
-                value={hasRealtor} 
-                onValueChange={(value) => setValue("has_realtor", value as "yes" | "no")}
-                className="flex gap-3"
+          {/* Working with agent */}
+          <div>
+            <Label className="text-xs font-semibold">
+              Working with a Realtor? <span className="text-destructive">*</span>
+            </Label>
+            <RadioGroup
+              value={form.watch("workingWithAgent")}
+              onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
+              className="grid grid-cols-3 gap-1.5 mt-1"
+            >
+              {AGENT_OPTIONS.map((a) => (
+                <Label
+                  key={a.value}
+                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                    form.watch("workingWithAgent") === a.value
+                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <RadioGroupItem value={a.value} className="sr-only" />
+                  {a.label}
+                </Label>
+              ))}
+            </RadioGroup>
+          </div>
+
+          {/* Timeline & Property Type side by side */}
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs font-semibold">
+                Timeline <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup
+                value={form.watch("timeline")}
+                onValueChange={(v) => form.setValue("timeline", v as any)}
+                className="grid grid-cols-1 gap-1.5 mt-1"
               >
-                <Label 
-                  htmlFor="realtor-no" 
-                  className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
-                    hasRealtor === "no" 
-                      ? "border-primary bg-primary text-primary-foreground shadow-md" 
-                      : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
-                  }`}
-                >
-                  <RadioGroupItem value="no" id="realtor-no" className="sr-only" />
-                  No
-                </Label>
-                <Label 
-                  htmlFor="realtor-yes" 
-                  className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
-                    hasRealtor === "yes" 
-                      ? "border-primary bg-primary text-primary-foreground shadow-md" 
-                      : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
-                  }`}
-                >
-                  <RadioGroupItem value="yes" id="realtor-yes" className="sr-only" />
-                  Yes
-                </Label>
+                {TIMELINES.map((t) => (
+                  <Label
+                    key={t.value}
+                    className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                      form.watch("timeline") === t.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}
+                  >
+                    <RadioGroupItem value={t.value} className="sr-only" />
+                    {t.label}
+                  </Label>
+                ))}
               </RadioGroup>
             </div>
-          )}
+
+            <div>
+              <Label className="text-xs font-semibold">
+                Looking for <span className="text-destructive">*</span>
+              </Label>
+              <RadioGroup
+                value={form.watch("propertyType")}
+                onValueChange={(v) => form.setValue("propertyType", v as any)}
+                className="grid grid-cols-1 gap-1.5 mt-1"
+              >
+                {PROPERTY_TYPES.map((pt) => (
+                  <Label
+                    key={pt.value}
+                    className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                      form.watch("propertyType") === pt.value
+                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        : "border-border hover:border-muted-foreground/50"
+                    }`}
+                  >
+                    <RadioGroupItem value={pt.value} className="sr-only" />
+                    {pt.label}
+                  </Label>
+                ))}
+              </RadioGroup>
+            </div>
+          </div>
 
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-14 text-base font-bold rounded-xl gap-2 shadow-lg mt-2"
+            className="w-full h-12 text-sm font-bold rounded-xl gap-2 shadow-lg"
             size="lg"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
-                <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                 Sending...
               </span>
             ) : (
@@ -368,18 +410,18 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           </Button>
 
           {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-5 pt-3 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Shield className="h-4 w-4 text-green-500" />
-              <span className="font-medium">Secure</span>
+          <div className="flex items-center justify-center gap-4 pt-1 text-[10px] text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Shield className="h-3 w-3 text-green-500" />
+              Secure
             </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-4 w-4 text-blue-500" />
-              <span className="font-medium">Instant</span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3 text-blue-500" />
+              Instant
             </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="h-4 w-4 text-purple-500" />
-              <span className="font-medium">Free</span>
+            <span className="flex items-center gap-1">
+              <Users className="h-3 w-3 text-purple-500" />
+              Free
             </span>
           </div>
         </form>
