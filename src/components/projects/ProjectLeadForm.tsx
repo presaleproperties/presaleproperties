@@ -139,6 +139,26 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
 
       localStorage.setItem("presale_persona", actualPersona);
 
+      // Analytics tracking
+      if (typeof window !== "undefined") {
+        if ((window as any).gtag) {
+          (window as any).gtag("event", "submit_access_pack", {
+            page_path: window.location.pathname,
+            project_name: projectName,
+            persona: actualPersona,
+            timeline: data.timeline,
+            working_with_agent: data.workingWithAgent,
+            source: "project_lead_form",
+          });
+        }
+        if ((window as any).fbq) {
+          (window as any).fbq("track", "Lead", {
+            content_name: projectName,
+            content_category: actualPersona,
+          });
+        }
+      }
+
       setIsSubmitted(true);
       form.reset();
       toast({
