@@ -21,7 +21,8 @@ import {
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
+import { StickyConversionBar } from "@/components/conversion/StickyConversionBar";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
@@ -512,9 +513,7 @@ export default function PresaleProjects() {
       </Helmet>
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
-        <Header />
-
-        {/* Hero Section - SEO optimized */}
+        <ConversionHeader />
         <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-3xl">
@@ -692,6 +691,7 @@ export default function PresaleProjects() {
         </main>
 
         <NewConstructionBenefits />
+        <StickyConversionBar />
         <Footer />
       </PullToRefresh>
     </>

@@ -1,5 +1,6 @@
 import { Helmet } from "react-helmet-async";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
+import { StickyConversionBar } from "@/components/conversion/StickyConversionBar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
@@ -64,7 +65,7 @@ const Index = () => {
 
       <FAQSchema faqs={HOME_FAQS} />
       
-      <Header />
+      <ConversionHeader />
       <main className="flex-1">
         <HeroSection />
         <FeaturedProjects />
@@ -73,6 +74,7 @@ const Index = () => {
         <RelatedContent />
         <BuyerCTASection />
       </main>
+      <StickyConversionBar />
       <Footer />
     </div>
   );
