@@ -293,10 +293,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       </div>
 
       {/* Form */}
-      <div className="p-4 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-3">
-          {/* Contact Fields */}
-          <div className="space-y-2">
+      <div className="p-4 md:p-5 bg-card">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-3 md:space-y-4">
+          {/* Contact Fields - single column on mobile/tablet for readability */}
+          <div className="space-y-2.5">
             <div>
               <Label htmlFor="lead-name" className="text-xs font-semibold">
                 Name <span className="text-destructive">*</span>
@@ -306,7 +306,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                 placeholder="John Smith"
                 autoComplete="off"
                 {...form.register("name")}
-                className="h-10 text-sm rounded-lg"
+                className="h-11 text-sm rounded-lg"
               />
             </div>
 
@@ -320,7 +320,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                 placeholder="604-555-0123"
                 autoComplete="off"
                 {...form.register("phone")}
-                className="h-10 text-sm rounded-lg"
+                className="h-11 text-sm rounded-lg"
               />
             </div>
 
@@ -334,7 +334,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                 placeholder="john@email.com"
                 autoComplete="off"
                 {...form.register("email")}
-                className="h-10 text-sm rounded-lg"
+                className="h-11 text-sm rounded-lg"
               />
             </div>
           </div>
@@ -347,14 +347,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
             <RadioGroup
               value={form.watch("persona")}
               onValueChange={(v) => form.setValue("persona", v as any)}
-              className="grid grid-cols-2 gap-1.5 mt-1"
+              className="grid grid-cols-2 gap-2 mt-1.5"
             >
               {PERSONAS.map((p) => (
                 <Label
                   key={p.value}
-                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                  className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
                     form.watch("persona") === p.value
-                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
@@ -373,14 +373,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
             <RadioGroup
               value={form.watch("workingWithAgent")}
               onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-              className="grid grid-cols-3 gap-1.5 mt-1"
+              className="grid grid-cols-3 gap-2 mt-1.5"
             >
               {AGENT_OPTIONS.map((a) => (
                 <Label
                   key={a.value}
-                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                  className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all text-center px-1 ${
                     form.watch("workingWithAgent") === a.value
-                      ? "border-primary bg-primary/10 text-primary font-medium"
+                      ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
@@ -392,7 +392,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
           </div>
 
           {/* Timeline & Property Type side by side */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-3">
             <div>
               <Label className="text-xs font-semibold">
                 Timeline <span className="text-destructive">*</span>
@@ -400,14 +400,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
               <RadioGroup
                 value={form.watch("timeline")}
                 onValueChange={(v) => form.setValue("timeline", v as any)}
-                className="grid grid-cols-1 gap-1.5 mt-1"
+                className="grid grid-cols-1 gap-2 mt-1.5"
               >
                 {TIMELINES.map((t) => (
                   <Label
                     key={t.value}
-                    className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
                       form.watch("timeline") === t.value
-                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        ? "border-primary bg-primary/10 text-primary"
                         : "border-border hover:border-muted-foreground/50"
                     }`}
                   >
@@ -425,14 +425,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
               <RadioGroup
                 value={form.watch("propertyType")}
                 onValueChange={(v) => form.setValue("propertyType", v as any)}
-                className="grid grid-cols-1 gap-1.5 mt-1"
+                className="grid grid-cols-1 gap-2 mt-1.5"
               >
                 {PROPERTY_TYPES.map((pt) => (
                   <Label
                     key={pt.value}
-                    className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
                       form.watch("propertyType") === pt.value
-                        ? "border-primary bg-primary/10 text-primary font-medium"
+                        ? "border-primary bg-primary/10 text-primary"
                         : "border-border hover:border-muted-foreground/50"
                     }`}
                   >
