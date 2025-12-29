@@ -97,7 +97,7 @@ export function LightboxGallery({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[95vw] max-h-[95vh] w-full h-full p-0 bg-black/95 border-none" aria-describedby={undefined}>
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-black/98 border-none rounded-none" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Image Gallery - {alt}</DialogTitle>
         </VisuallyHidden>
@@ -135,12 +135,13 @@ export function LightboxGallery({
             </Button>
           )}
 
-          {/* Main image */}
-          <div className="w-full h-full flex items-center justify-center p-4 md:p-12">
+          {/* Main image - constrained to fit without zooming */}
+          <div className="w-full h-full flex items-center justify-center px-16 py-24 md:px-20 md:py-28">
             <img
               src={images[currentIndex]}
               alt={`${alt} ${currentIndex + 1}`}
-              className="max-w-full max-h-full object-contain select-none"
+              className="max-w-full max-h-full w-auto h-auto object-contain select-none"
+              style={{ maxHeight: 'calc(100vh - 140px)', maxWidth: 'calc(100vw - 120px)' }}
               draggable={false}
             />
           </div>
