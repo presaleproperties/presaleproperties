@@ -53,6 +53,7 @@ const CITIES = [
 const STATUS_OPTIONS = [
   { value: "any", label: "All Status" },
   { value: "coming_soon", label: "Coming Soon" },
+  { value: "registering", label: "Registering" },
   { value: "active", label: "Selling Now" },
   { value: "sold_out", label: "Sold Out" },
 ];
@@ -65,17 +66,55 @@ const TYPE_OPTIONS = [
 const PRICE_RANGES = [
   { value: "any", label: "Any Price" },
   { value: "0-500000", label: "Under $500K" },
+  { value: "500000-700000", label: "Under $700K" },
   { value: "500000-750000", label: "$500K - $750K" },
+  { value: "750000-900000", label: "Under $900K" },
   { value: "750000-1000000", label: "$750K - $1M" },
   { value: "1000000-1500000", label: "$1M - $1.5M" },
   { value: "1500000-2000000", label: "$1.5M - $2M" },
   { value: "2000000-999999999", label: "$2M+" },
 ];
+const DEPOSIT_OPTIONS = [
+  { value: "any", label: "Any Deposit" },
+  { value: "5", label: "5%" },
+  { value: "10", label: "10%" },
+  { value: "15", label: "15%" },
+  { value: "20", label: "20%" },
+  { value: "25", label: "25%+" },
+];
+const COMPLETION_YEAR_OPTIONS = [
+  { value: "any", label: "Any Year" },
+  { value: "2025", label: "2025" },
+  { value: "2026", label: "2026" },
+  { value: "2027", label: "2027" },
+  { value: "2028", label: "2028+" },
+];
+const ASSIGNMENT_OPTIONS = [
+  { value: "any", label: "Any" },
+  { value: "Yes", label: "Yes" },
+  { value: "No", label: "No" },
+];
+const SKYTRAIN_OPTIONS = [
+  { value: "any", label: "Any" },
+  { value: "true", label: "Yes - Near SkyTrain" },
+];
+const RENTAL_OPTIONS = [
+  { value: "any", label: "Any" },
+  { value: "Allowed", label: "Allowed" },
+  { value: "Restricted", label: "Restricted" },
+];
+const INCENTIVES_OPTIONS = [
+  { value: "any", label: "Any" },
+  { value: "true", label: "Yes - Incentives Available" },
+];
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
+  { value: "verified", label: "Recently Verified" },
   { value: "price-asc", label: "Price: Low to High" },
   { value: "price-desc", label: "Price: High to Low" },
-  { value: "completion", label: "Completion Date" },
+  { value: "deposit-asc", label: "Lowest Deposit" },
+  { value: "completion", label: "Completion Soonest" },
+  { value: "investor", label: "Most Investor-Friendly" },
 ];
 
 type Project = {
@@ -84,13 +123,19 @@ type Project = {
   slug: string;
   city: string;
   neighborhood: string;
-  status: "coming_soon" | "active" | "sold_out";
+  status: "coming_soon" | "registering" | "active" | "sold_out";
   project_type: "condo" | "townhome" | "mixed";
   completion_year: number | null;
   starting_price: number | null;
   featured_image: string | null;
   gallery_images: string[] | null;
   is_featured: boolean;
+  last_verified_date: string | null;
+  deposit_percent: number | null;
+  assignment_allowed: string | null;
+  near_skytrain: boolean | null;
+  rental_restrictions: string | null;
+  incentives_available: boolean | null;
 };
 
 export default function PresaleProjects() {
@@ -106,6 +151,12 @@ export default function PresaleProjects() {
     status: searchParams.get("status") || "any",
     projectType: searchParams.get("type") || "any",
     priceRange: searchParams.get("price") || "any",
+    depositPercent: searchParams.get("deposit") || "any",
+    completionYear: searchParams.get("year") || "any",
+    assignmentAllowed: searchParams.get("assignment") || "any",
+    nearSkytrain: searchParams.get("skytrain") || "any",
+    rentalRestrictions: searchParams.get("rental") || "any",
+    incentivesAvailable: searchParams.get("incentives") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
@@ -125,7 +176,7 @@ export default function PresaleProjects() {
         countQuery = countQuery.eq("city", filters.city);
       }
       if (filters.status !== "any") {
-        countQuery = countQuery.eq("status", filters.status as "coming_soon" | "active" | "sold_out");
+        countQuery = countQuery.eq("status", filters.status as "coming_soon" | "registering" | "active" | "sold_out");
       }
       if (filters.projectType !== "any") {
         countQuery = countQuery.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
@@ -134,13 +185,41 @@ export default function PresaleProjects() {
         const [min, max] = filters.priceRange.split("-").map(Number);
         countQuery = countQuery.gte("starting_price", min).lte("starting_price", max);
       }
+      if (filters.depositPercent !== "any") {
+        const depositVal = parseInt(filters.depositPercent);
+        if (depositVal >= 25) {
+          countQuery = countQuery.gte("deposit_percent", 25);
+        } else {
+          countQuery = countQuery.eq("deposit_percent", depositVal);
+        }
+      }
+      if (filters.completionYear !== "any") {
+        const yearVal = parseInt(filters.completionYear);
+        if (yearVal >= 2028) {
+          countQuery = countQuery.gte("completion_year", 2028);
+        } else {
+          countQuery = countQuery.eq("completion_year", yearVal);
+        }
+      }
+      if (filters.assignmentAllowed !== "any") {
+        countQuery = countQuery.eq("assignment_allowed", filters.assignmentAllowed);
+      }
+      if (filters.nearSkytrain === "true") {
+        countQuery = countQuery.eq("near_skytrain", true);
+      }
+      if (filters.rentalRestrictions !== "any") {
+        countQuery = countQuery.eq("rental_restrictions", filters.rentalRestrictions);
+      }
+      if (filters.incentivesAvailable === "true") {
+        countQuery = countQuery.eq("incentives_available", true);
+      }
 
       const { count } = await countQuery;
 
       // Then get paginated data
       let query = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, is_featured")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, is_featured, last_verified_date, deposit_percent, assignment_allowed, near_skytrain, rental_restrictions, incentives_available")
         .eq("is_published", true);
 
       // Apply filters
@@ -148,7 +227,7 @@ export default function PresaleProjects() {
         query = query.eq("city", filters.city);
       }
       if (filters.status !== "any") {
-        query = query.eq("status", filters.status as "coming_soon" | "active" | "sold_out");
+        query = query.eq("status", filters.status as "coming_soon" | "registering" | "active" | "sold_out");
       }
       if (filters.projectType !== "any") {
         query = query.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
@@ -156,6 +235,34 @@ export default function PresaleProjects() {
       if (filters.priceRange !== "any") {
         const [min, max] = filters.priceRange.split("-").map(Number);
         query = query.gte("starting_price", min).lte("starting_price", max);
+      }
+      if (filters.depositPercent !== "any") {
+        const depositVal = parseInt(filters.depositPercent);
+        if (depositVal >= 25) {
+          query = query.gte("deposit_percent", 25);
+        } else {
+          query = query.eq("deposit_percent", depositVal);
+        }
+      }
+      if (filters.completionYear !== "any") {
+        const yearVal = parseInt(filters.completionYear);
+        if (yearVal >= 2028) {
+          query = query.gte("completion_year", 2028);
+        } else {
+          query = query.eq("completion_year", yearVal);
+        }
+      }
+      if (filters.assignmentAllowed !== "any") {
+        query = query.eq("assignment_allowed", filters.assignmentAllowed);
+      }
+      if (filters.nearSkytrain === "true") {
+        query = query.eq("near_skytrain", true);
+      }
+      if (filters.rentalRestrictions !== "any") {
+        query = query.eq("rental_restrictions", filters.rentalRestrictions);
+      }
+      if (filters.incentivesAvailable === "true") {
+        query = query.eq("incentives_available", true);
       }
 
       // Apply sorting
@@ -168,6 +275,18 @@ export default function PresaleProjects() {
           break;
         case "completion":
           query = query.order("completion_year", { ascending: true }).order("completion_month", { ascending: true });
+          break;
+        case "verified":
+          query = query.order("last_verified_date", { ascending: false, nullsFirst: false });
+          break;
+        case "deposit-asc":
+          query = query.order("deposit_percent", { ascending: true, nullsFirst: false });
+          break;
+        case "investor":
+          // Investor-friendly: assignments allowed, no rental restrictions, lower deposit
+          query = query
+            .order("deposit_percent", { ascending: true, nullsFirst: false })
+            .order("starting_price", { ascending: true, nullsFirst: false });
           break;
         default:
           query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
@@ -238,6 +357,12 @@ export default function PresaleProjects() {
     filters.status !== "any",
     filters.projectType !== "any",
     filters.priceRange !== "any",
+    filters.depositPercent !== "any",
+    filters.completionYear !== "any",
+    filters.assignmentAllowed !== "any",
+    filters.nearSkytrain !== "any",
+    filters.rentalRestrictions !== "any",
+    filters.incentivesAvailable !== "any",
   ].filter(Boolean).length;
 
   const formatPrice = (price: number) => {
@@ -251,6 +376,8 @@ export default function PresaleProjects() {
     switch (status) {
       case "coming_soon":
         return <Badge className="bg-blue-500 hover:bg-blue-600">Coming Soon</Badge>;
+      case "registering":
+        return <Badge className="bg-purple-500 hover:bg-purple-600">Registering</Badge>;
       case "active":
         return <Badge className="bg-green-500 hover:bg-green-600">Selling Now</Badge>;
       case "sold_out":
@@ -327,10 +454,100 @@ export default function PresaleProjects() {
         </Select>
       </div>
 
+      {/* Deposit Percentage */}
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Deposit %</label>
+        <Select value={filters.depositPercent} onValueChange={(v) => updateFilter("deposit", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any Deposit" />
+          </SelectTrigger>
+          <SelectContent>
+            {DEPOSIT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Completion Year */}
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Completion Year</label>
+        <Select value={filters.completionYear} onValueChange={(v) => updateFilter("year", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any Year" />
+          </SelectTrigger>
+          <SelectContent>
+            {COMPLETION_YEAR_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Assignment Allowed */}
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Assignment Allowed</label>
+        <Select value={filters.assignmentAllowed} onValueChange={(v) => updateFilter("assignment", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any" />
+          </SelectTrigger>
+          <SelectContent>
+            {ASSIGNMENT_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Near SkyTrain */}
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Near SkyTrain</label>
+        <Select value={filters.nearSkytrain} onValueChange={(v) => updateFilter("skytrain", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any" />
+          </SelectTrigger>
+          <SelectContent>
+            {SKYTRAIN_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Rental Restrictions */}
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Rental Policy</label>
+        <Select value={filters.rentalRestrictions} onValueChange={(v) => updateFilter("rental", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any" />
+          </SelectTrigger>
+          <SelectContent>
+            {RENTAL_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Incentives Available */}
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Incentives</label>
+        <Select value={filters.incentivesAvailable} onValueChange={(v) => updateFilter("incentives", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any" />
+          </SelectTrigger>
+          <SelectContent>
+            {INCENTIVES_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {activeFilterCount > 0 && (
         <Button variant="ghost" onClick={clearAllFilters} className="w-full">
           <X className="h-4 w-4 mr-2" />
-          Clear All Filters
+          Clear All Filters ({activeFilterCount})
         </Button>
       )}
     </div>

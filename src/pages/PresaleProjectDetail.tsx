@@ -40,7 +40,7 @@ type Project = {
   id: string;
   name: string;
   slug: string;
-  status: "coming_soon" | "active" | "sold_out";
+  status: "coming_soon" | "registering" | "active" | "sold_out";
   city: string;
   neighborhood: string;
   address: string | null;

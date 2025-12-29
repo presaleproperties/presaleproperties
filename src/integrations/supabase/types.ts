@@ -609,12 +609,14 @@ export type Database = {
         Row: {
           address: string | null
           amenities: string[] | null
+          assignment_allowed: string | null
           assignment_fees: string | null
           brochure_files: string[] | null
           city: string
           completion_month: number | null
           completion_year: number | null
           created_at: string
+          deposit_percent: number | null
           deposit_structure: string | null
           developer_name: string | null
           faq: Json | null
@@ -625,18 +627,23 @@ export type Database = {
           highlights: string[] | null
           id: string
           incentives: string | null
+          incentives_available: boolean | null
+          info_source: string | null
           is_featured: boolean
           is_indexed: boolean
           is_published: boolean
+          last_verified_date: string | null
           map_lat: number | null
           map_lng: number | null
           name: string
+          near_skytrain: boolean | null
           neighborhood: string
           occupancy_estimate: string | null
           og_image: string | null
           price_range: string | null
           project_type: Database["public"]["Enums"]["project_type"]
           published_at: string | null
+          rental_restrictions: string | null
           seo_description: string | null
           seo_title: string | null
           short_description: string | null
@@ -650,12 +657,14 @@ export type Database = {
         Insert: {
           address?: string | null
           amenities?: string[] | null
+          assignment_allowed?: string | null
           assignment_fees?: string | null
           brochure_files?: string[] | null
           city: string
           completion_month?: number | null
           completion_year?: number | null
           created_at?: string
+          deposit_percent?: number | null
           deposit_structure?: string | null
           developer_name?: string | null
           faq?: Json | null
@@ -666,18 +675,23 @@ export type Database = {
           highlights?: string[] | null
           id?: string
           incentives?: string | null
+          incentives_available?: boolean | null
+          info_source?: string | null
           is_featured?: boolean
           is_indexed?: boolean
           is_published?: boolean
+          last_verified_date?: string | null
           map_lat?: number | null
           map_lng?: number | null
           name: string
+          near_skytrain?: boolean | null
           neighborhood: string
           occupancy_estimate?: string | null
           og_image?: string | null
           price_range?: string | null
           project_type?: Database["public"]["Enums"]["project_type"]
           published_at?: string | null
+          rental_restrictions?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
@@ -691,12 +705,14 @@ export type Database = {
         Update: {
           address?: string | null
           amenities?: string[] | null
+          assignment_allowed?: string | null
           assignment_fees?: string | null
           brochure_files?: string[] | null
           city?: string
           completion_month?: number | null
           completion_year?: number | null
           created_at?: string
+          deposit_percent?: number | null
           deposit_structure?: string | null
           developer_name?: string | null
           faq?: Json | null
@@ -707,18 +723,23 @@ export type Database = {
           highlights?: string[] | null
           id?: string
           incentives?: string | null
+          incentives_available?: boolean | null
+          info_source?: string | null
           is_featured?: boolean
           is_indexed?: boolean
           is_published?: boolean
+          last_verified_date?: string | null
           map_lat?: number | null
           map_lng?: number | null
           name?: string
+          near_skytrain?: boolean | null
           neighborhood?: string
           occupancy_estimate?: string | null
           og_image?: string | null
           price_range?: string | null
           project_type?: Database["public"]["Enums"]["project_type"]
           published_at?: string | null
+          rental_restrictions?: string | null
           seo_description?: string | null
           seo_title?: string | null
           short_description?: string | null
@@ -913,7 +934,7 @@ export type Database = {
         | "rejected"
         | "expired"
         | "paused"
-      project_status: "coming_soon" | "active" | "sold_out"
+      project_status: "coming_soon" | "registering" | "active" | "sold_out"
       project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family"
       property_type: "condo" | "townhouse" | "other"
       unit_type:
@@ -1068,7 +1089,7 @@ export const Constants = {
         "expired",
         "paused",
       ],
-      project_status: ["coming_soon", "active", "sold_out"],
+      project_status: ["coming_soon", "registering", "active", "sold_out"],
       project_type: ["condo", "townhome", "mixed", "duplex", "single_family"],
       property_type: ["condo", "townhouse", "other"],
       unit_type: [
