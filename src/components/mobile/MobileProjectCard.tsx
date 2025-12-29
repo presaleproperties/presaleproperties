@@ -194,25 +194,28 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Compact Info Bar */}
-        <div className="px-3 py-2 flex items-center justify-between gap-2">
-          <div className="min-w-0 flex-1">
+        {/* Info Section - Optimized layout */}
+        <div className="px-3 py-2.5 space-y-1">
+          {/* Project name and location */}
+          <div>
             <h4 className="font-semibold text-sm text-foreground truncate">{name}</h4>
-            <p className="text-xs text-muted-foreground truncate">{neighborhood}</p>
+            <p className="text-xs text-muted-foreground truncate">{neighborhood} • {completionYear ? completionYear : "TBA"}</p>
           </div>
-          <div className="text-right shrink-0">
+          
+          {/* Price - Prominent display */}
+          <div className="flex items-baseline justify-between">
             {startingPrice ? (
-              <span className="text-sm font-bold text-foreground">
-                {formatPrice(startingPrice)}
-              </span>
+              <div>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Starting from</span>
+                <p className="text-lg font-bold text-foreground leading-tight">
+                  {formatPrice(startingPrice)}
+                </p>
+              </div>
             ) : (
-              <span className="text-[10px] text-primary">TBA</span>
-            )}
-            {completionYear && (
-              <p className="text-[10px] text-muted-foreground flex items-center justify-end gap-0.5">
-                <Calendar className="h-2.5 w-2.5" />
-                {completionYear}
-              </p>
+              <div>
+                <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Price</span>
+                <p className="text-base font-semibold text-primary">Contact for pricing</p>
+              </div>
             )}
           </div>
         </div>
