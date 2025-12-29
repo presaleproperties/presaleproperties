@@ -162,4 +162,29 @@
   .touch-active {
     @apply active:scale-[0.98] transition-transform;
   }
+
+  /* Leaflet map popup styling */
+  .leaflet-popup-content-wrapper {
+    @apply bg-background border border-border rounded-lg shadow-lg;
+    padding: 0;
+  }
+  
+  .leaflet-popup-content {
+    margin: 0;
+    min-width: 220px;
+  }
+  
+  .leaflet-popup-tip {
+    @apply bg-background border-l border-b border-border;
+  }
+
+  .leaflet-container {
+    font-family: inherit;
+  }
+
+  /* Custom marker styling */
+  .custom-marker {
+    background: transparent;
+    border: none;
+  }
 }

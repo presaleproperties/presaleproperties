@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2 } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +28,9 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { supabase } from "@/integrations/supabase/client";
+
+// Lazy load map component
+const ProjectsMap = lazy(() => import("@/components/projects/ProjectsMap").then(m => ({ default: m.ProjectsMap })));
 
 const ITEMS_PER_PAGE = 12;
 
@@ -136,6 +139,8 @@ type Project = {
   near_skytrain: boolean | null;
   rental_restrictions: string | null;
   incentives_available: boolean | null;
+  map_lat: number | null;
+  map_lng: number | null;
 };
 
 export default function PresaleProjects() {
@@ -144,6 +149,7 @@ export default function PresaleProjects() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   // Get filter values from URL params
   const filters = {
@@ -219,7 +225,7 @@ export default function PresaleProjects() {
       // Then get paginated data
       let query = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, is_featured, last_verified_date, deposit_percent, assignment_allowed, near_skytrain, rental_restrictions, incentives_available")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, is_featured, last_verified_date, deposit_percent, assignment_allowed, near_skytrain, rental_restrictions, incentives_available, map_lat, map_lng")
         .eq("is_published", true);
 
       // Apply filters
@@ -811,6 +817,26 @@ export default function PresaleProjects() {
                   ))}
                 </SelectContent>
               </Select>
+
+              {/* View Mode Toggle */}
+              <div className="flex border rounded-lg overflow-hidden">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  className="rounded-none h-10 px-3"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "map" ? "default" : "ghost"}
+                  size="sm"
+                  className="rounded-none h-10 px-3"
+                  onClick={() => setViewMode("map")}
+                >
+                  <Map className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
 
@@ -876,6 +902,24 @@ export default function PresaleProjects() {
                     Clear Filters
                   </Button>
                 </div>
+              ) : viewMode === "map" ? (
+                <>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
+                    Showing {filteredProjects.length} project{filteredProjects.length !== 1 ? "s" : ""} on map
+                  </p>
+                  <Suspense fallback={
+                    <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+                      <div className="text-center text-muted-foreground">
+                        <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+                        <p>Loading map...</p>
+                      </div>
+                    </div>
+                  }>
+                    <div className="relative">
+                      <ProjectsMap projects={filteredProjects} isLoading={isLoading} />
+                    </div>
+                  </Suspense>
+                </>
               ) : (
                 <>
                   <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
