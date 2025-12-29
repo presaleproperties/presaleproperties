@@ -11,7 +11,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -306,7 +306,7 @@ export default function CityProductPage() {
   if (!config) {
     return (
       <div className="min-h-screen flex flex-col">
-        <Header />
+        <ConversionHeader />
         <main className="flex-grow flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-4">Page Not Found</h1>
@@ -358,7 +358,7 @@ export default function CityProductPage() {
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
-      <Header />
+      <ConversionHeader />
 
       <main className="flex-grow">
         {/* Breadcrumbs */}

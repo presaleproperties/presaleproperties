@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -111,7 +111,7 @@ export default function Contact() {
           <meta name="description" content="Contact PresaleProperties.com for presale condos, new construction homes & townhomes in Vancouver, Surrey, Langley & Metro Vancouver. Call 672-258-1100." />
         </Helmet>
         <div className="min-h-screen flex flex-col bg-background">
-          <Header />
+          <ConversionHeader />
           <main className="flex-1 container py-16">
             <div className="max-w-lg mx-auto text-center">
               <div className="mb-6 inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary/10">
@@ -148,7 +148,7 @@ export default function Contact() {
         </script>
       </Helmet>
       <div className="min-h-screen flex flex-col bg-background">
-        <Header />
+        <ConversionHeader />
         <main className="flex-1">
           {/* Hero Section */}
           <section className="py-16 md:py-24 bg-gradient-to-b from-primary/5 to-background">

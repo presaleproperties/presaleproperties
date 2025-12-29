@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 
 import { Button } from "@/components/ui/button";
@@ -203,7 +203,7 @@ export default function PresaleProjectDetail() {
   if (loading) {
     return (
       <>
-        <Header />
+        <ConversionHeader />
         <div className="min-h-screen flex items-center justify-center">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
@@ -215,7 +215,7 @@ export default function PresaleProjectDetail() {
   if (!project) {
     return (
       <>
-        <Header />
+        <ConversionHeader />
         <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
           <Building2 className="h-16 w-16 text-muted-foreground mb-4" />
           <h1 className="text-2xl font-bold mb-2">Project Not Found</h1>
@@ -352,7 +352,7 @@ export default function PresaleProjectDetail() {
         </script>
       </Helmet>
 
-      <Header />
+      <ConversionHeader />
 
       <main className="min-h-screen bg-background pb-24 lg:pb-0">
         {/* Preview Mode Banner */}

@@ -22,7 +22,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListingCard } from "@/components/listings/ListingCard";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { CTASection } from "@/components/home/CTASection";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -409,7 +409,7 @@ export default function Assignments() {
 
       <FAQSchema faqs={ASSIGNMENT_FAQS} />
 
-      <Header />
+      <ConversionHeader />
 
       {/* Breadcrumb */}
       <div className="border-b bg-muted/30">
