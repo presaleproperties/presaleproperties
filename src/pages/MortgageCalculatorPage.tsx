@@ -327,13 +327,12 @@ export default function MortgageCalculatorPage() {
     const totalMonthlyCarrying = monthlyPayment + monthlyPropertyTax + strataFee + monthlyHomeInsurance + monthlyUtilities;
     
     // Cash to close breakdown:
-    // - Down payment (already calculated on priceWithGST)
+    // - Down payment (calculated on priceWithGST, so GST is already included in down payment)
     // - PTT (on base price)
-    // - PST on CMHC
+    // - PST on CMHC (if applicable)
     // - Closing costs (lawyer, title insurance, inspection, appraisal)
-    // - GST rebates reduce total (but GST is already factored into down payment calc)
-    const netGstRebates = gstRebate + bcNewHousingRebate;
-    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees - netGstRebates;
+    // GST rebates are credited back to buyer at closing
+    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees - gstRebate - bcNewHousingRebate;
     
     return {
       propertyPrice: basePrice,
@@ -1172,25 +1171,28 @@ export default function MortgageCalculatorPage() {
                             </div>
                           )}
                           
-                          {calculations.gstAmount > 0 && (
+                          {/* GST Rebates - shown only if applicable (GST itself is in down payment) */}
+                          {(calculations.gstRebate > 0 || calculations.bcNewHousingRebate > 0) && (
                             <div className="border-t pt-2">
-                              <div className="flex justify-between py-1">
-                                <span className="text-muted-foreground">GST (5%)</span>
-                                <span>{formatCurrency(calculations.gstAmount)}</span>
-                              </div>
+                              <p className="text-xs font-medium text-muted-foreground mb-2">GST Rebates (credited at closing)</p>
                               {calculations.gstRebate > 0 && (
-                                <div className="flex justify-between py-1 text-green-600">
-                                  <span className="pl-3">Federal Rebate</span>
+                                <div className="flex justify-between py-1 pl-3 text-green-600">
+                                  <span>Federal GST Rebate</span>
                                   <span>-{formatCurrency(calculations.gstRebate)}</span>
                                 </div>
                               )}
                               {calculations.bcNewHousingRebate > 0 && (
-                                <div className="flex justify-between py-1 text-green-600">
-                                  <span className="pl-3">BC New Housing Rebate</span>
+                                <div className="flex justify-between py-1 pl-3 text-green-600">
+                                  <span>BC New Housing Rebate</span>
                                   <span>-{formatCurrency(calculations.bcNewHousingRebate)}</span>
                                 </div>
                               )}
                             </div>
+                          )}
+                          {includeGST && (
+                            <p className="text-xs text-muted-foreground mt-2 italic">
+                              Note: GST ({formatCurrency(calculations.gstAmount)}) is included in down payment calculation
+                            </p>
                           )}
                           
                           <div className="border-t pt-2">
