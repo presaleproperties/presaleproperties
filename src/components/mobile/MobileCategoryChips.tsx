@@ -17,6 +17,12 @@ interface CategoryChip {
 
 const CATEGORY_CHIPS: CategoryChip[] = [
   { 
+    id: "all", 
+    label: "All Projects", 
+    route: "/presale-projects",
+    filter: {} 
+  },
+  { 
     id: "condos", 
     label: "Condos", 
     route: "/presale-projects?type=condo",
@@ -24,13 +30,13 @@ const CATEGORY_CHIPS: CategoryChip[] = [
   },
   { 
     id: "townhomes", 
-    label: "Towns", 
+    label: "Townhomes", 
     route: "/presale-projects?type=townhome",
     filter: { type: "townhome" } 
   },
   { 
     id: "5deposit", 
-    label: "5%", 
+    label: "5% Deposit Only", 
     route: "/presale-projects?deposit=5",
     filter: { depositPercent: 5 } 
   },
