@@ -59,35 +59,38 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
 
   if (!open) return null;
 
+  const hasSuggestions = searchQuery.length >= 2;
+
   return (
     <>
       {/* Backdrop */}
       <div 
-        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm animate-fade-in"
+        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md animate-fade-in"
         onClick={() => onOpenChange(false)}
       />
       
       {/* Floating Search */}
-      <div className="fixed inset-x-0 top-0 z-50 px-3 sm:px-4 pt-12 sm:pt-16 md:pt-20 animate-fade-in">
-        <div className="mx-auto max-w-[calc(100%-1rem)] sm:max-w-sm md:max-w-md">
+      <div className="fixed inset-x-0 top-0 z-50 px-4 pt-16 sm:pt-20 animate-fade-in">
+        <div className="mx-auto max-w-sm">
           {/* Close button */}
           <button
             onClick={() => onOpenChange(false)}
-            className="absolute top-4 sm:top-6 right-4 sm:right-6 h-8 w-8 sm:h-9 sm:w-9 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors"
+            className="absolute top-6 right-6 h-8 w-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl text-white hover:bg-white/20 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
 
-          <div className="bg-background rounded-lg sm:rounded-xl shadow-2xl border border-border/30 overflow-hidden">
+          {/* Glassmorphism Container */}
+          <div className="bg-white/10 backdrop-blur-2xl rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
             {/* Tabs */}
-            <div className="flex items-center gap-1 px-2 pt-2">
+            <div className="flex items-center gap-1 px-3 pt-3">
               <button
                 type="button"
                 onClick={() => setActiveTab("projects")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   activeTab === "projects"
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white/20 text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 Projects
@@ -95,19 +98,19 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
               <button
                 type="button"
                 onClick={() => setActiveTab("assignments")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                   activeTab === "assignments"
-                    ? "bg-foreground text-background"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "bg-white/20 text-white"
+                    : "text-white/60 hover:text-white"
                 }`}
               >
                 Assignments
               </button>
             </div>
 
-            {/* Search Input */}
+            {/* Search Input - Thinner iPhone-like style */}
             <form onSubmit={handleSearch}>
-              <div className="relative p-2" ref={searchContainerRef}>
+              <div className="relative p-3" ref={searchContainerRef}>
                 <Input
                   ref={inputRef}
                   type="text"
@@ -118,30 +121,30 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
+                    setShowSuggestions(e.target.value.length >= 2);
                   }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="h-10 text-sm pl-3 pr-10 border-0 bg-muted/40 text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-primary/40 rounded-lg"
+                  className="h-9 text-sm pl-3 pr-9 border-0 bg-white/15 backdrop-blur-xl text-white placeholder:text-white/50 focus-visible:ring-1 focus-visible:ring-white/30 rounded-full"
                   autoComplete="off"
                 />
                 <button 
                   type="submit"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center text-white/60 hover:text-white transition-colors"
                 >
                   <Search className="h-4 w-4" />
                 </button>
               </div>
             </form>
             
-            {/* Suggestions dropdown */}
-            {showSuggestions && (
-              <div className="border-t border-border/30">
+            {/* Suggestions dropdown - Only when typing */}
+            {showSuggestions && hasSuggestions && (
+              <div className="border-t border-white/10">
                 <SearchSuggestions
                   query={searchQuery}
                   onSelect={handleSuggestionSelect}
                   isVisible={showSuggestions}
                   onClose={() => setShowSuggestions(false)}
                   searchMode={activeTab}
+                  glassStyle
                 />
               </div>
             )}
