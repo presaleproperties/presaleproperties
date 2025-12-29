@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MapPin, Building2, FileText, BookOpen } from "lucide-react";
+import { ArrowRight, MapPin, Building2, FileText, BookOpen, Calculator } from "lucide-react";
 
 const POPULAR_CITIES = [
   { name: "Vancouver", slug: "vancouver", count: "50+" },
@@ -13,6 +13,12 @@ const POPULAR_CITIES = [
 ];
 
 const QUICK_LINKS = [
+  { 
+    title: "Mortgage Calculator", 
+    description: "Estimate your monthly payments",
+    href: "/mortgage-calculator",
+    icon: Calculator 
+  },
   { 
     title: "Presale Guide", 
     description: "Learn how to buy a presale condo",
@@ -30,12 +36,6 @@ const QUICK_LINKS = [
     description: "View all presale developments",
     href: "/presale-projects",
     icon: Building2 
-  },
-  { 
-    title: "Assignments", 
-    description: "Find assignment opportunities",
-    href: "/assignments",
-    icon: FileText 
   },
 ];
 
