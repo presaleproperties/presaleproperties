@@ -146,7 +146,7 @@ export function ConversionHeader() {
             </Button>
             <Button size="sm" onClick={openFloorplans} className="shadow-gold">
               <Download className="h-4 w-4 mr-2" />
-              Get Floorplans
+              Download Plans
             </Button>
           </div>
 
@@ -257,7 +257,7 @@ export function ConversionHeader() {
                   <div className="p-4 space-y-2 border-t">
                     <Button onClick={openFloorplans} className="w-full h-11 font-medium">
                       <Download className="h-4 w-4 mr-2" />
-                      Get Floorplans + Pricing
+                      Download Plans & Pricing
                     </Button>
                     <Button variant="outline" onClick={openFitCall} className="w-full h-11 font-medium">
                       <Calendar className="h-4 w-4 mr-2" />

@@ -63,7 +63,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
             className="flex-1 h-12 font-semibold shadow-lg"
           >
             <Download className="h-4 w-4 mr-2" />
-            Get Floorplans
+            Download Plans & Pricing
           </Button>
           <Button 
             variant="outline" 
@@ -83,7 +83,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
             className="h-11 px-6 font-semibold rounded-full"
           >
             <Download className="h-4 w-4 mr-2" />
-            Get Floorplans + Pricing
+            Download Plans & Pricing
           </Button>
           <Button 
             variant="outline" 
