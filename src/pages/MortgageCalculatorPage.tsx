@@ -97,19 +97,14 @@ function calculatePTT(
   const municipal = 0;
   
   // PTT Exemption for primary home + new construction in BC
-  // Newly built home exemption: full exemption up to $835,000, partial up to $860,000
+  // Full exemption when buying new construction as primary residence
   let rebate = 0;
   let exemptionType = "";
   
   if (isPrimaryHome && isNewConstruction) {
-    // BC Newly Built Home Exemption for principal residence
-    if (price <= 835000) {
-      rebate = provincial; // Full exemption
-      exemptionType = "Newly Built Home Exemption";
-    } else if (price < 860000) {
-      rebate = provincial * (1 - (price - 835000) / 25000);
-      exemptionType = "Newly Built Home Exemption (partial)";
-    }
+    // Full PTT exemption for primary residence + new construction
+    rebate = provincial;
+    exemptionType = "Primary Residence New Home Exemption";
   }
   
   return {
