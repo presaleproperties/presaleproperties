@@ -136,7 +136,13 @@ export function AccessPackModal({
         `UTM: ${utmParams.get("utm_source") || "direct"} / ${utmParams.get("utm_medium") || ""} / ${utmParams.get("utm_campaign") || ""}`,
       ].join(" | ");
 
-      // Save lead
+      // Calculate next drip email time (instant for first email)
+      const nextDripAt = new Date().toISOString();
+
+      // Determine drip sequence based on persona
+      const dripSequence = data.persona === "investor" ? "investor" : "buyer";
+
+      // Save lead with qualifying data
       const { data: lead, error } = await supabase
         .from("project_leads")
         .insert({
@@ -145,16 +151,28 @@ export function AccessPackModal({
           email: fullData.email,
           phone: fullData.phone,
           message,
+          persona: data.persona,
+          timeline: data.timeline,
+          budget: data.budget,
+          drip_sequence: dripSequence,
+          last_drip_sent: 0,
+          next_drip_at: nextDripAt,
         })
         .select("id")
         .maybeSingle();
 
       if (error) throw error;
 
-      // Trigger CRM webhook
+      // Trigger CRM webhook and start drip sequence
       if (lead?.id) {
+        // Send to CRM
         supabase.functions
           .invoke("send-project-lead", { body: { leadId: lead.id } })
+          .catch(console.error);
+
+        // Trigger first drip email immediately
+        supabase.functions
+          .invoke("send-drip-email", {})
           .catch(console.error);
       }
 
