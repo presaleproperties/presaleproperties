@@ -13,6 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
+import { LightboxGallery } from "@/components/ui/lightbox-gallery";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -36,7 +37,9 @@ import {
   TrendingUp,
   Users,
   Banknote,
-  RefreshCw
+  RefreshCw,
+  Images,
+  ChevronRight
 } from "lucide-react";
 
 type Project = {
@@ -86,6 +89,8 @@ export default function PresaleProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [hasUnlockedFloorplans, setHasUnlockedFloorplans] = useState(false);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
   const previewToken = searchParams.get("preview");
@@ -215,9 +220,15 @@ export default function PresaleProjectDetail() {
     );
   }
 
+  // Combine all images for lightbox
+  const allImages = [
+    project.featured_image,
+    ...(project.gallery_images || [])
+  ].filter(Boolean) as string[];
+
   // SEO helpers
-  const projectTypeLabel = project.project_type === "condo" ? "Condos" : 
-                           project.project_type === "townhome" ? "Townhomes" : 
+  const projectTypeLabel = project.project_type === "condo" ? "Condos" :
+                           project.project_type === "townhome" ? "Townhomes" :
                            project.project_type === "mixed" ? "Mixed-Use Development" :
                            project.project_type === "duplex" ? "Duplexes" : "Single Family Homes";
   
@@ -370,19 +381,43 @@ export default function PresaleProjectDetail() {
 
         {/* ===== SECTION 1: FULL-SCREEN HERO ===== */}
         <section className="relative min-h-[70vh] lg:min-h-[85vh] flex items-end">
-          {/* Background Image */}
-          <div className="absolute inset-0">
+          {/* Background Image - Clickable for gallery */}
+          <div 
+            className="absolute inset-0 cursor-pointer group"
+            onClick={() => {
+              if (allImages.length > 0) {
+                setLightboxIndex(0);
+                setLightboxOpen(true);
+              }
+            }}
+          >
             {project.featured_image ? (
               <img
                 src={project.featured_image}
                 alt={project.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             ) : (
               <div className="w-full h-full bg-gradient-to-br from-muted to-muted/50" />
             )}
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+            
+            {/* Gallery Indicator - Top Right */}
+            {allImages.length > 1 && (
+              <button 
+                className="absolute top-4 right-4 lg:top-6 lg:right-6 flex items-center gap-2 bg-black/60 hover:bg-black/80 backdrop-blur-sm text-white px-3 py-2 rounded-full text-sm font-medium transition-all z-20"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setLightboxIndex(0);
+                  setLightboxOpen(true);
+                }}
+              >
+                <Images className="h-4 w-4" />
+                <span>{allImages.length} Photos</span>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Hero Content */}
@@ -827,6 +862,15 @@ export default function PresaleProjectDetail() {
           </div>
         </div>
       </div>
+
+      {/* Lightbox Gallery */}
+      <LightboxGallery
+        images={allImages}
+        initialIndex={lightboxIndex}
+        open={lightboxOpen}
+        onOpenChange={setLightboxOpen}
+        alt={project.name}
+      />
 
       <Footer />
     </>
