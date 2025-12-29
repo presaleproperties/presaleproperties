@@ -51,7 +51,7 @@ export function FeaturedListings() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
           <div className="space-y-2 sm:space-y-3">
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
-              Verified Listings
+              Verified Assignments
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
               Featured Assignments
@@ -111,7 +111,7 @@ export function FeaturedListings() {
         ) : (
           <div className="text-center py-12 bg-muted/30 rounded-lg">
             <p className="text-muted-foreground">
-              No featured listings available yet.
+              No featured assignments available yet.
             </p>
             <Link to="/assignments" className="mt-4 inline-block">
               <Button variant="outline">Browse All Assignments</Button>

@@ -92,7 +92,7 @@ export default function DashboardListings() {
 
       toast({
         title: "Submitted for Approval",
-        description: "Your listing is now pending admin review.",
+        description: "Your assignment is now pending admin review.",
       });
 
       fetchListings();
@@ -120,8 +120,8 @@ export default function DashboardListings() {
       if (error) throw error;
 
       toast({
-        title: "Listing Paused",
-        description: "Your listing is now hidden from the marketplace.",
+        title: "Assignment Paused",
+        description: "Your assignment is now hidden from the marketplace.",
       });
 
       fetchListings();
@@ -129,7 +129,7 @@ export default function DashboardListings() {
       console.error("Error pausing listing:", error);
       toast({
         title: "Error",
-        description: "Failed to pause listing. Please try again.",
+        description: "Failed to pause assignment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -149,8 +149,8 @@ export default function DashboardListings() {
       if (error) throw error;
 
       toast({
-        title: "Listing Resumed",
-        description: "Your listing is now visible on the marketplace.",
+        title: "Assignment Resumed",
+        description: "Your assignment is now visible on the marketplace.",
       });
 
       fetchListings();
@@ -158,7 +158,7 @@ export default function DashboardListings() {
       console.error("Error resuming listing:", error);
       toast({
         title: "Error",
-        description: "Failed to resume listing. Please try again.",
+        description: "Failed to resume assignment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -187,8 +187,8 @@ export default function DashboardListings() {
       if (error) throw error;
 
       toast({
-        title: "Listing Renewed",
-        description: "Your listing has been renewed for another 365 days.",
+        title: "Assignment Renewed",
+        description: "Your assignment has been renewed for another 365 days.",
       });
 
       fetchListings();
@@ -196,7 +196,7 @@ export default function DashboardListings() {
       console.error("Error renewing listing:", error);
       toast({
         title: "Error",
-        description: "Failed to renew listing. Please try again.",
+        description: "Failed to renew assignment. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -273,19 +273,19 @@ export default function DashboardListings() {
               {listing.status === "published" && (
                 <DropdownMenuItem onClick={() => handlePauseListing(listing)}>
                   <Pause className="h-4 w-4 mr-2" />
-                  Pause Listing
+                  Pause Assignment
                 </DropdownMenuItem>
               )}
               {listing.status === "paused" && (
                 <DropdownMenuItem onClick={() => handleResumeListing(listing)}>
                   <Play className="h-4 w-4 mr-2" />
-                  Resume Listing
+                  Resume Assignment
                 </DropdownMenuItem>
               )}
               {listing.status === "expired" && (
                 <DropdownMenuItem onClick={() => handleRenewListing(listing)}>
                   <RefreshCw className="h-4 w-4 mr-2" />
-                  Renew Listing
+                  Renew Assignment
                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
@@ -301,13 +301,13 @@ export default function DashboardListings() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-bold">My Listings</h1>
-            <p className="text-muted-foreground">Manage your assignment listings</p>
+            <h1 className="text-2xl font-bold">My Assignments</h1>
+            <p className="text-muted-foreground">Manage your assignments</p>
           </div>
           <Link to="/dashboard/listings/new">
             <Button>
               <Plus className="h-4 w-4 mr-2" />
-              New Listing
+              New Assignment
             </Button>
           </Link>
         </div>
@@ -338,16 +338,16 @@ export default function DashboardListings() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">No listings found</h3>
+                  <h3 className="text-lg font-medium mb-2">No assignments found</h3>
                   <p className="text-muted-foreground mb-4">
                     {activeTab === "all" 
-                      ? "Create your first listing to get started"
-                      : `No ${activeTab} listings`}
+                      ? "Create your first assignment to get started"
+                      : `No ${activeTab} assignments`}
                   </p>
                   <Link to="/dashboard/listings/new">
                     <Button>
                       <Plus className="h-4 w-4 mr-2" />
-                      Create Listing
+                      Create Assignment
                     </Button>
                   </Link>
                 </CardContent>

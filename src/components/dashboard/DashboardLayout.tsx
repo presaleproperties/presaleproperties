@@ -23,7 +23,7 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { label: "Overview", href: "/dashboard", icon: LayoutDashboard },
-  { label: "My Listings", href: "/dashboard/listings", icon: Building2 },
+  { label: "My Assignments", href: "/dashboard/listings", icon: Building2 },
   { label: "Leads", href: "/dashboard/leads", icon: Users },
   { label: "Billing", href: "/dashboard/billing", icon: CreditCard },
   { label: "Profile", href: "/dashboard/profile", icon: User },
