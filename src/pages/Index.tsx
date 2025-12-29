@@ -10,7 +10,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
-import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
+import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data (helps with AI recommendations)
@@ -213,7 +213,7 @@ const Index = () => {
           <BuyerCTASection />
         </ScrollReveal>
       </main>
-      <MobileBottomNav />
+      <FloatingBottomNav />
       <Footer />
     </div>
   );

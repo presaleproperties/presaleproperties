@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
-import { MobileBottomNav } from "./MobileBottomNav";
+import { FloatingBottomNav } from "./FloatingBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
@@ -191,7 +191,7 @@ export function MobileHomePage() {
       </div>
 
       {/* Bottom Navigation with Location Picker */}
-      <MobileBottomNav 
+      <FloatingBottomNav 
         selectedCity={selectedCity}
         onCityChange={handleCityChange}
       />

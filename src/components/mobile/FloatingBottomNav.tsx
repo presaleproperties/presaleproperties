@@ -23,12 +23,12 @@ const CITIES = [
   { slug: "abbotsford", name: "Abbotsford" },
 ];
 
-interface MobileBottomNavProps {
+interface FloatingBottomNavProps {
   selectedCity?: string;
   onCityChange?: (city: string) => void;
 }
 
-export function MobileBottomNav({ selectedCity = "all", onCityChange }: MobileBottomNavProps) {
+export function FloatingBottomNav({ selectedCity = "all", onCityChange }: FloatingBottomNavProps) {
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [locationOpen, setLocationOpen] = useState(false);
