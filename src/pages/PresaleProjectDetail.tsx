@@ -15,6 +15,7 @@ import {
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
+import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -655,6 +656,9 @@ export default function PresaleProjectDetail() {
         startingPrice={project.starting_price}
         onRegisterClick={scrollToForm}
       />
+
+      {/* Buyer CTA Section - Consistent with Homepage */}
+      <BuyerCTASection />
 
       <Footer />
     </>
