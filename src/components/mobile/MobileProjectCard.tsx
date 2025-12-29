@@ -133,11 +133,11 @@ export function MobileProjectCard({
       )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-transform duration-150">
-        {/* Wide Image - with swipe support */}
+        {/* Larger Image - with swipe support */}
         <div 
           className={cn(
             "relative bg-muted overflow-hidden",
-            isLarge ? "aspect-[16/11]" : "aspect-[16/10]"
+            isLarge ? "aspect-[4/3]" : "aspect-[16/11]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -194,28 +194,28 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Info Section - Optimized layout */}
-        <div className="px-3 py-2.5 space-y-1">
-          {/* Project name and location */}
-          <div>
+        {/* Info Section - Side by side layout */}
+        <div className="px-3 py-2.5 flex items-start justify-between gap-2">
+          {/* Left: Name & Location */}
+          <div className="min-w-0 flex-1">
             <h4 className="font-semibold text-sm text-foreground truncate">{name}</h4>
-            <p className="text-xs text-muted-foreground truncate">{neighborhood} • {completionYear ? completionYear : "TBA"}</p>
+            <p className="text-xs text-muted-foreground truncate">{neighborhood}</p>
+            {completionYear && (
+              <p className="text-[10px] text-muted-foreground mt-0.5">{completionYear}</p>
+            )}
           </div>
           
-          {/* Price - Prominent display */}
-          <div className="flex items-baseline justify-between">
+          {/* Right: Price - Prominent */}
+          <div className="text-right shrink-0">
             {startingPrice ? (
-              <div>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Starting from</span>
-                <p className="text-lg font-bold text-foreground leading-tight">
+              <>
+                <span className="text-[9px] text-muted-foreground uppercase tracking-wide block">From</span>
+                <p className="text-base font-bold text-foreground leading-tight">
                   {formatPrice(startingPrice)}
                 </p>
-              </div>
+              </>
             ) : (
-              <div>
-                <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Price</span>
-                <p className="text-base font-semibold text-primary">Contact for pricing</p>
-              </div>
+              <span className="text-xs text-primary font-medium">TBA</span>
             )}
           </div>
         </div>
