@@ -1,6 +1,5 @@
 import { useState, useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { MobileContextBar } from "./MobileContextBar";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileBottomNav } from "./MobileBottomNav";
@@ -51,13 +50,6 @@ export function MobileHomePage() {
       <PullToRefreshIndicator 
         pullDistance={pullDistance} 
         isRefreshing={isRefreshing} 
-      />
-
-      {/* Top Context Bar */}
-      <MobileContextBar
-        selectedCity={selectedCity}
-        onCityChange={handleCityChange}
-        alertCount={0}
       />
 
       {/* Category Chips - Sticky below header */}
@@ -198,8 +190,11 @@ export function MobileHomePage() {
         <Footer />
       </div>
 
-      {/* Bottom Navigation */}
-      <MobileBottomNav />
+      {/* Bottom Navigation with Location Picker */}
+      <MobileBottomNav 
+        selectedCity={selectedCity}
+        onCityChange={handleCityChange}
+      />
     </div>
   );
 }

@@ -1,13 +1,37 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
-import { Search } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchPopup } from "@/components/conversion/SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
-export function MobileBottomNav() {
+const CITIES = [
+  { slug: "all", name: "All Metro Vancouver" },
+  { slug: "vancouver", name: "Vancouver" },
+  { slug: "surrey", name: "Surrey" },
+  { slug: "langley", name: "Langley" },
+  { slug: "coquitlam", name: "Coquitlam" },
+  { slug: "burnaby", name: "Burnaby" },
+  { slug: "delta", name: "Delta" },
+  { slug: "richmond", name: "Richmond" },
+  { slug: "abbotsford", name: "Abbotsford" },
+];
+
+interface MobileBottomNavProps {
+  selectedCity?: string;
+  onCityChange?: (city: string) => void;
+}
+
+export function MobileBottomNav({ selectedCity = "all", onCityChange }: MobileBottomNavProps) {
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
+  const [locationOpen, setLocationOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -59,6 +83,15 @@ export function MobileBottomNav() {
     setSearchOpen(true);
   };
 
+  const handleLocationClick = () => {
+    setLocationOpen(true);
+  };
+
+  const handleCitySelect = (slug: string) => {
+    onCityChange?.(slug);
+    setLocationOpen(false);
+  };
+
   const handleMessageClick = () => {
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "mobile_message_click", {
@@ -81,9 +114,23 @@ export function MobileBottomNav() {
         {/* Gradient fade background */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         
-        {/* Button container - smaller buttons */}
-        <div className="relative flex items-center justify-center gap-3 px-6 py-4 pb-6 pointer-events-auto">
-          {/* Search Button - Smaller Glass CTA */}
+        {/* Button container */}
+        <div className="relative flex items-center justify-center gap-2 px-6 py-4 pb-6 pointer-events-auto">
+          {/* Location Button - Glass Circle */}
+          <button
+            onClick={handleLocationClick}
+            className={cn(
+              "flex items-center justify-center h-10 w-10 rounded-full",
+              "bg-white/10 backdrop-blur-2xl",
+              "border border-white/20",
+              "shadow-lg",
+              "active:scale-95 transition-all duration-150"
+            )}
+          >
+            <MapPin className="h-4 w-4 text-foreground/80" />
+          </button>
+
+          {/* Search Button - Glass CTA */}
           <button
             onClick={handleSearchClick}
             className={cn(
@@ -99,7 +146,7 @@ export function MobileBottomNav() {
             <span>Search</span>
           </button>
 
-          {/* WhatsApp Button - Smaller Glass Circle */}
+          {/* WhatsApp Button - Glass Circle */}
           <button
             onClick={handleMessageClick}
             className={cn(
@@ -129,6 +176,34 @@ export function MobileBottomNav() {
 
       {/* Search Popup - Glass Style */}
       <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
+
+      {/* Location Sheet */}
+      <Sheet open={locationOpen} onOpenChange={setLocationOpen}>
+        <SheetContent side="bottom" className="rounded-t-3xl">
+          <SheetHeader className="text-left pb-4">
+            <SheetTitle className="text-lg font-bold">Select Location</SheetTitle>
+          </SheetHeader>
+          <div className="space-y-1 max-h-[50vh] overflow-y-auto pb-6">
+            {CITIES.map((city) => (
+              <button
+                key={city.slug}
+                onClick={() => handleCitySelect(city.slug)}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors ${
+                  selectedCity === city.slug 
+                    ? "bg-primary text-primary-foreground" 
+                    : "hover:bg-muted text-foreground"
+                }`}
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="font-medium text-sm">{city.name}</span>
+                {selectedCity === city.slug && (
+                  <span className="ml-auto">✓</span>
+                )}
+              </button>
+            ))}
+          </div>
+        </SheetContent>
+      </Sheet>
     </>
   );
 }
