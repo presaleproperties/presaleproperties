@@ -62,31 +62,21 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
 
   return (
     <>
-      {/* Backdrop with blur */}
+      {/* Backdrop - lighter blur */}
       <div 
-        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-md animate-fade-in"
+        className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm animate-fade-in"
         onClick={() => onOpenChange(false)}
       />
       
       {/* Floating Glass Search Container - Top 1/3 on mobile */}
       <div className="fixed inset-x-0 top-[15%] md:top-[20%] z-50 px-4 animate-in fade-in zoom-in-95 duration-200">
         <div className="mx-auto w-full max-w-md">
-          {/* Glass Container - Matching Bottom Nav Style */}
+          {/* Glass Container */}
           <div className={cn(
-            "bg-black/40 backdrop-blur-2xl rounded-2xl",
-            "border border-white/20 shadow-2xl",
-            "overflow-hidden"
+            "bg-black/30 backdrop-blur-xl rounded-2xl",
+            "border border-white/15 shadow-2xl",
+            "overflow-hidden pt-3"
           )}>
-            {/* Header with Close */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <span className="text-white font-semibold text-sm drop-shadow-sm">Search</span>
-              <button
-                onClick={() => onOpenChange(false)}
-                className="h-8 w-8 flex items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 transition-colors border border-white/20"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
 
             {/* Tabs - Glass Pills */}
             <div className="flex items-center gap-2 px-4 py-3">
