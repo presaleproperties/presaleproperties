@@ -33,14 +33,14 @@ const CATEGORY_CHIPS: CategoryChip[] = [
   },
   { 
     id: "townhomes", 
-    label: "Towns", 
+    label: "Townhomes", 
     icon: <Home className="h-2.5 w-2.5" />, 
     route: "/presale-projects?type=townhome",
     filter: { type: "townhome" } 
   },
   { 
     id: "5deposit", 
-    label: "5%", 
+    label: "5% Deposit", 
     icon: <Percent className="h-2.5 w-2.5" />, 
     route: "/presale-projects?deposit=5",
     filter: { depositPercent: 5 } 
