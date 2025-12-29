@@ -74,10 +74,10 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
         <div className="flex gap-2">
           <Button 
             onClick={openChatNow}
-            className="flex-1 h-12 font-semibold shadow-lg bg-[#25D366] hover:bg-[#20BD5A] text-white"
+            className="flex-1 h-12 font-semibold shadow-lg"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
-            WhatsApp
+            Chat Now
           </Button>
           <Button 
             variant="outline" 
@@ -94,10 +94,10 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
         <div className="bg-background/95 backdrop-blur border border-border rounded-full shadow-2xl px-2 py-2 flex items-center gap-2">
           <Button 
             onClick={openChatNow}
-            className="h-11 px-6 font-semibold rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white"
+            className="h-11 px-6 font-semibold rounded-full"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
-            WhatsApp
+            Chat Now
           </Button>
           <Button 
             variant="outline" 
