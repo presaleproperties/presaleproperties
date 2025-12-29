@@ -79,7 +79,8 @@ function useDebounce<T>(value: T, delay: number): T {
 function calculatePTT(
   price: number, 
   isPrimaryHome: boolean = false, 
-  isNewConstruction: boolean = false
+  isNewConstruction: boolean = false,
+  isFirstTimeBuyer: boolean = false
 ): { provincial: number; municipal: number; rebate: number; exemptionType: string; total: number } {
   // BC Property Transfer Tax
   let provincial = 0;
@@ -96,15 +97,25 @@ function calculatePTT(
   // Additional 2% for foreign buyers in Metro Vancouver (not calculating for now)
   const municipal = 0;
   
-  // PTT Exemption for primary home + new construction in BC
-  // Full exemption when buying new construction as primary residence
   let rebate = 0;
   let exemptionType = "";
   
+  // Priority 1: Primary Home + New Construction = Full exemption
   if (isPrimaryHome && isNewConstruction) {
-    // Full PTT exemption for primary residence + new construction
     rebate = provincial;
     exemptionType = "Primary Residence New Home Exemption";
+  }
+  // Priority 2: First-Time Home Buyer exemption (resale or new)
+  else if (isFirstTimeBuyer) {
+    // BC FTB exemption: full up to $500K, partial $500K-$525K
+    if (price <= 500000) {
+      rebate = provincial; // Full exemption
+      exemptionType = "First-Time Buyer Exemption";
+    } else if (price < 525000) {
+      // Partial exemption - phases out between $500K and $525K
+      rebate = provincial * (1 - (price - 500000) / 25000);
+      exemptionType = "First-Time Buyer Exemption (partial)";
+    }
   }
   
   return {
@@ -132,6 +143,7 @@ export default function MortgageCalculatorPage() {
   const [strataFee, setStrataFee] = useState(350);
   const [includeGST, setIncludeGST] = useState(true);
   const [isPrimaryHome, setIsPrimaryHome] = useState(true);
+  const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(false);
   const [rateType, setRateType] = useState<"fixed" | "variable">("fixed");
   
   // Closing costs
@@ -261,8 +273,8 @@ export default function MortgageCalculatorPage() {
       }
     }
     
-    // Property Transfer Tax - Primary home + new construction (GST) gets exemption
-    const ptt = calculatePTT(basePrice, isPrimaryHome, includeGST);
+    // Property Transfer Tax - check exemptions
+    const ptt = calculatePTT(basePrice, isPrimaryHome, includeGST, isFirstTimeBuyer);
     
     // Payment calculations based on frequency
     const annualRate = mortgageRate / 100;
@@ -361,7 +373,7 @@ export default function MortgageCalculatorPage() {
       totalPayments: amortization * periodsPerYear,
       yearsToPayoff: isAccelerated ? yearsToPayoff : amortization
     };
-  }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, isPrimaryHome, lawyerFees, titleInsurance, homeInspection, appraisalFees, utilities, homeInsurance]);
+  }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, isPrimaryHome, isFirstTimeBuyer, lawyerFees, titleInsurance, homeInspection, appraisalFees, utilities, homeInsurance]);
 
   // Down payment comparison scenarios (like ratehub's 4-column view)
   const downPaymentComparison = useMemo(() => {
@@ -1004,6 +1016,27 @@ export default function MortgageCalculatorPage() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Switch
+                            id="first-time-buyer"
+                            checked={isFirstTimeBuyer}
+                            onCheckedChange={setIsFirstTimeBuyer}
+                            className="scale-90 md:scale-100"
+                          />
+                          <Label htmlFor="first-time-buyer" className="text-xs md:text-sm cursor-pointer flex items-center gap-1">
+                            First-time buyer
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>BC first-time buyers get full PTT exemption on homes up to $500K, partial up to $525K. Must be Canadian citizen/PR, BC resident 1+ year.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </Label>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Switch
                             id="include-gst"
                             checked={includeGST}
                             onCheckedChange={setIncludeGST}
@@ -1027,7 +1060,13 @@ export default function MortgageCalculatorPage() {
                       {isPrimaryHome && includeGST && (
                         <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
                           <CheckCircle className="h-3 w-3" />
-                          PTT exemption may apply for primary residence + new construction
+                          PTT exempt: Primary residence + new construction
+                        </p>
+                      )}
+                      {isFirstTimeBuyer && !includeGST && (
+                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          FTB PTT exemption: Full up to $500K, partial up to $525K
                         </p>
                       )}
                     </CardContent>
