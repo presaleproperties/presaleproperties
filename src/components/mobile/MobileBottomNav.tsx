@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Search, Phone } from "lucide-react";
+import { useLocation } from "react-router-dom";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SearchPopup } from "@/components/conversion/SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,24 +65,28 @@ export function MobileBottomNav() {
             <span>Search</span>
           </button>
 
-          {/* WhatsApp Button - Glass style with phone in message bubble */}
+          {/* WhatsApp Button - Glass style with WhatsApp logo outline */}
           <button
             onClick={handleMessageClick}
             className={cn(
-              "relative flex items-center justify-center h-12 w-12 rounded-full",
+              "flex items-center justify-center h-12 w-12 rounded-full",
               "bg-white/20 backdrop-blur-md border border-white/30",
               "shadow-lg active:scale-95 transition-all duration-150"
             )}
           >
-            {/* Message bubble background */}
+            {/* WhatsApp Logo - outline style */}
             <svg 
               viewBox="0 0 24 24" 
-              className="h-7 w-7 text-green-500 fill-current"
+              className="h-6 w-6"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/>
+              <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
+              <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
             </svg>
-            {/* Phone icon centered */}
-            <Phone className="absolute h-3.5 w-3.5 text-white fill-white" />
           </button>
         </div>
       </div>

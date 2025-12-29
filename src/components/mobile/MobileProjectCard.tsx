@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Calendar, Building2, MapPin } from "lucide-react";
+import { Calendar, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -56,23 +56,6 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const getProjectTypeLabel = (type: string) => {
-  switch (type) {
-    case "condo":
-      return "Condo";
-    case "townhome":
-      return "Townhome";
-    case "mixed":
-      return "Mixed";
-    case "duplex":
-      return "Duplex";
-    case "single_family":
-      return "House";
-    default:
-      return type;
-  }
-};
-
 export function MobileProjectCard({
   id,
   slug,
@@ -108,14 +91,14 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[240px]" : "w-[200px]"
+        isLarge ? "w-[260px]" : "w-[220px]"
       )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-transform duration-150">
-        {/* Wider Image - ~65% of card height */}
+        {/* Wide Image - maximized */}
         <div className={cn(
           "relative bg-muted overflow-hidden",
-          isLarge ? "aspect-[16/12]" : "aspect-[16/11]"
+          "aspect-[16/10]"
         )}>
           {featuredImage ? (
             <img
@@ -145,44 +128,33 @@ export function MobileProjectCard({
           {depositPercent && (
             <div className="absolute bottom-2 right-2">
               <span className="text-[11px] font-bold text-white bg-primary/90 px-2 py-1 rounded shadow-sm">
-                {depositPercent}% Deposit
+                {depositPercent}%
               </span>
             </div>
           )}
         </div>
 
-        {/* Project Details - ~35% of card */}
-        <div className="px-3 py-2.5 space-y-1.5">
-          {/* Name */}
-          <h4 className="font-semibold text-sm text-foreground line-clamp-1 leading-tight">{name}</h4>
-          
-          {/* Location */}
-          <div className="flex items-center gap-1 text-muted-foreground">
-            <MapPin className="h-3 w-3 shrink-0" />
-            <span className="text-xs truncate">{neighborhood}, {city}</span>
+        {/* Compact Info Bar */}
+        <div className="px-3 py-2 flex items-center justify-between gap-2">
+          <div className="min-w-0 flex-1">
+            <h4 className="font-semibold text-sm text-foreground truncate">{name}</h4>
+            <p className="text-xs text-muted-foreground truncate">{neighborhood}</p>
           </div>
-
-          {/* Price & Type Row */}
-          <div className="flex items-center justify-between">
+          <div className="text-right shrink-0">
             {startingPrice ? (
               <span className="text-sm font-bold text-foreground">
-                From {formatPrice(startingPrice)}
+                {formatPrice(startingPrice)}
               </span>
             ) : (
-              <span className="text-xs text-primary font-medium">Register for pricing</span>
+              <span className="text-[10px] text-primary">TBA</span>
             )}
-            <span className="text-[10px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-              {getProjectTypeLabel(projectType)}
-            </span>
+            {completionYear && (
+              <p className="text-[10px] text-muted-foreground flex items-center justify-end gap-0.5">
+                <Calendar className="h-2.5 w-2.5" />
+                {completionYear}
+              </p>
+            )}
           </div>
-
-          {/* Completion Year */}
-          {completionYear && (
-            <div className="flex items-center gap-1 text-xs text-muted-foreground pt-0.5">
-              <Calendar className="h-3 w-3" />
-              <span>Est. {completionYear}</span>
-            </div>
-          )}
         </div>
       </div>
     </Link>
