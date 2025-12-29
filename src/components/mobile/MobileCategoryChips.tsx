@@ -20,35 +20,35 @@ const CATEGORY_CHIPS: CategoryChip[] = [
   { 
     id: "condos", 
     label: "Condos", 
-    icon: <Building2 className="h-3.5 w-3.5" />, 
+    icon: <Building2 className="h-3 w-3" />, 
     route: "/presale-projects?type=condo",
     filter: { type: "condo" } 
   },
   { 
     id: "townhomes", 
     label: "Townhomes", 
-    icon: <Home className="h-3.5 w-3.5" />, 
+    icon: <Home className="h-3 w-3" />, 
     route: "/presale-projects?type=townhome",
     filter: { type: "townhome" } 
   },
   { 
     id: "under500k", 
     label: "Under $500K", 
-    icon: <DollarSign className="h-3.5 w-3.5" />, 
+    icon: <DollarSign className="h-3 w-3" />, 
     route: "/presale-projects?maxPrice=500000",
     filter: { maxPrice: 500000 } 
   },
   { 
     id: "5deposit", 
     label: "5% Deposit", 
-    icon: <Percent className="h-3.5 w-3.5" />, 
+    icon: <Percent className="h-3 w-3" />, 
     route: "/presale-projects?deposit=5",
     filter: { depositPercent: 5 } 
   },
   { 
     id: "2027plus", 
     label: "2027+", 
-    icon: <Calendar className="h-3.5 w-3.5" />, 
+    icon: <Calendar className="h-3 w-3" />, 
     route: "/presale-projects?completionYear=2027",
     filter: { minCompletionYear: 2027 } 
   },
@@ -85,14 +85,14 @@ export function MobileCategoryChips({ selectedChip, onChipSelect }: MobileCatego
     <div className="md:hidden overflow-hidden">
       <div
         ref={scrollRef}
-        className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-3 -mx-0"
+        className="flex gap-2 overflow-x-auto scrollbar-hide px-4 py-2 -mx-0"
       >
         {CATEGORY_CHIPS.map((chip) => (
           <button
             key={chip.id}
             onClick={() => handleChipClick(chip)}
             className={cn(
-              "flex items-center gap-1.5 px-3.5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all active:scale-95",
+              "flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95",
               selectedChip === chip.id
                 ? "bg-foreground text-background shadow-sm"
                 : "bg-muted text-muted-foreground hover:bg-muted/80"
