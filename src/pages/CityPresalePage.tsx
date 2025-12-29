@@ -26,6 +26,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
+import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
@@ -1002,6 +1003,9 @@ export default function CityPresalePage() {
         </section>
 
         <NewConstructionBenefits />
+        
+        {/* Buyer CTA Section - Consistent with Homepage */}
+        <BuyerCTASection />
       </main>
 
       <Footer />
