@@ -14,8 +14,14 @@ const POPULAR_CITIES = [
 
 const QUICK_LINKS = [
   { 
-    title: "Buyer's Guide", 
-    description: "Learn about assignments & presales",
+    title: "Presale Guide", 
+    description: "Learn how to buy a presale condo",
+    href: "/presale-guide",
+    icon: Building2 
+  },
+  { 
+    title: "Assignment Guide", 
+    description: "Learn about assignment purchases",
     href: "/buyers-guide",
     icon: BookOpen 
   },
