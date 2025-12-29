@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { SearchSuggestions } from "@/components/home/SearchSuggestions";
+import { SearchSuggestions, SuggestionType } from "@/components/home/SearchSuggestions";
 
 type SearchTab = "projects" | "assignments";
 
@@ -40,11 +40,22 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     onOpenChange(false);
   };
 
-  const handleSuggestionSelect = (value: string) => {
+  const handleSuggestionSelect = (value: string, type: SuggestionType) => {
     setSearchQuery(value);
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
-    navigate(`${basePath}?q=${encodeURIComponent(value)}`);
+    
+    // Navigate based on suggestion type
+    if (type === "presale") {
+      // For presale projects, navigate directly to the project page
+      navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
+    } else if (type === "project") {
+      // For assignment projects
+      navigate(`/assignments?q=${encodeURIComponent(value)}`);
+    } else {
+      // For cities, neighborhoods, developers - use current tab context
+      const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+      navigate(`${basePath}?q=${encodeURIComponent(value)}`);
+    }
     onOpenChange(false);
   };
 
