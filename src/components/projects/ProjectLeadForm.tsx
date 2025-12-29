@@ -234,7 +234,6 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           <span className="block text-primary-foreground/90 text-lg">{content.subtitle}</span>
         </h3>
         <p className="text-xs text-primary-foreground/75 mt-1">{content.description}</p>
-        <p className="text-xs text-green-300 font-medium mt-1">✓ Same-day callback available</p>
       </div>
 
       {/* Form */}
