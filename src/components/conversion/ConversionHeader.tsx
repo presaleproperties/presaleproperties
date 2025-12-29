@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Download, Calendar, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
+import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -141,19 +141,19 @@ export function ConversionHeader() {
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={openFitCall}>
-              <Calendar className="h-4 w-4 mr-2" />
-              Book Fit Call
+              <Phone className="h-4 w-4 mr-2" />
+              Request a Call Back
             </Button>
             <Button size="sm" onClick={openFloorplans} className="shadow-gold">
-              <Download className="h-4 w-4 mr-2" />
-              Download Plans
+              <MessageCircle className="h-4 w-4 mr-2" />
+              Chat Now
             </Button>
           </div>
 
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 lg:hidden">
             <Button size="sm" onClick={openFloorplans} className="h-9 px-3">
-              <Download className="h-4 w-4" />
+              <MessageCircle className="h-4 w-4" />
             </Button>
             
             <Sheet open={open} onOpenChange={setOpen}>
@@ -256,12 +256,12 @@ export function ConversionHeader() {
 
                   <div className="p-4 space-y-2 border-t">
                     <Button onClick={openFloorplans} className="w-full h-11 font-medium">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download Plans & Pricing
+                      <MessageCircle className="h-4 w-4 mr-2" />
+                      Chat Now
                     </Button>
                     <Button variant="outline" onClick={openFitCall} className="w-full h-11 font-medium">
-                      <Calendar className="h-4 w-4 mr-2" />
-                      Book Fit Call
+                      <Phone className="h-4 w-4 mr-2" />
+                      Request a Call Back
                     </Button>
                   </div>
                 </div>
