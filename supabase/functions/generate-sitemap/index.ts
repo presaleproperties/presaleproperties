@@ -50,6 +50,16 @@ Deno.serve(async (req) => {
       { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
     ]);
 
+    // Price-based SEO pages
+    const pricePoints = ["500k", "600k", "700k", "800k", "900k", "1000k"];
+    const priceCities = ["surrey", "langley", "coquitlam", "burnaby", "vancouver", "richmond", "delta", "abbotsford"];
+    const pricePages = priceCities.flatMap(city => 
+      pricePoints.flatMap(price => [
+        { url: `/presale-condos-under-${price}-${city}`, priority: "0.8", changefreq: "daily", lastmod: now },
+        { url: `/presale-townhomes-under-${price}-${city}`, priority: "0.8", changefreq: "daily", lastmod: now }
+      ])
+    );
+
     // Fetch presale projects
     const { data: projects } = await supabase
       .from("presale_projects")
@@ -91,7 +101,7 @@ Deno.serve(async (req) => {
     }));
 
     // Build XML
-    const allPages = [...staticPages, ...cityPages, ...cityProductPages, ...projectPages, ...blogPages, ...listingPages];
+    const allPages = [...staticPages, ...cityPages, ...cityProductPages, ...pricePages, ...projectPages, ...blogPages, ...listingPages];
     
     const urlEntries = allPages.map(page => `
   <url>
