@@ -40,22 +40,20 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     onOpenChange(false);
   };
 
-  const handleSuggestionSelect = (value: string, type: SuggestionType) => {
+  const handleSuggestionSelect = (value: string, type: SuggestionType, slug?: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
-    
-    // Navigate based on suggestion type
-    if (type === "presale") {
-      // For presale projects, navigate directly to the project page
-      navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
-    } else if (type === "project") {
-      // For assignment projects
-      navigate(`/assignments?q=${encodeURIComponent(value)}`);
-    } else {
-      // For cities, neighborhoods, developers - use current tab context
-      const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
-      navigate(`${basePath}?q=${encodeURIComponent(value)}`);
+
+    // If this is a specific presale project, go to its detail page
+    if (type === "presale" && slug) {
+      navigate(`/presale-projects/${encodeURIComponent(slug)}`);
+      onOpenChange(false);
+      return;
     }
+
+    // Otherwise, fall back to a search results page for the active tab
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    navigate(`${basePath}?q=${encodeURIComponent(value)}`);
     onOpenChange(false);
   };
 
