@@ -4,6 +4,8 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 
+const TOP_CITIES = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Burnaby"];
+
 type SearchTab = "projects" | "assignments";
 
 interface SearchPopupProps {
@@ -45,6 +47,12 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     setShowSuggestions(false);
     const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
+    onOpenChange(false);
+  };
+
+  const handleCityClick = (city: string) => {
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    navigate(`${basePath}?city=${encodeURIComponent(city)}`);
     onOpenChange(false);
   };
 
@@ -134,6 +142,22 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                   onClose={() => setShowSuggestions(false)}
                   searchMode={activeTab}
                 />
+              </div>
+            )}
+
+            {/* City shortcuts - hidden on mobile */}
+            {!showSuggestions && (
+              <div className="hidden sm:flex items-center gap-2 px-3 pb-3 pt-1 flex-wrap">
+                {TOP_CITIES.map((city) => (
+                  <button
+                    key={city}
+                    type="button"
+                    onClick={() => handleCityClick(city)}
+                    className="px-3 py-1 text-xs font-medium rounded-full border border-border/50 text-muted-foreground hover:text-foreground hover:border-foreground/30 hover:bg-muted/50 transition-colors"
+                  >
+                    {city}
+                  </button>
+                ))}
               </div>
             )}
           </div>
