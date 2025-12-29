@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -9,30 +9,64 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ShieldCheck, Lock } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, ArrowLeft, Mail, KeyRound } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
+const resetRequestSchema = z.object({
+  email: z.string().trim().email("Please enter a valid email address"),
+});
+
+const newPasswordSchema = z.object({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string().min(6, "Please confirm your password"),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 type LoginFormData = z.infer<typeof loginSchema>;
+type ResetRequestFormData = z.infer<typeof resetRequestSchema>;
+type NewPasswordFormData = z.infer<typeof newPasswordSchema>;
+
+type ViewMode = "login" | "forgot" | "reset";
 
 export default function AdminLogin() {
+  const [searchParams] = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
+  const [viewMode, setViewMode] = useState<ViewMode>("login");
+  const [resetEmailSent, setResetEmailSent] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const form = useForm<LoginFormData>({
+  const loginForm = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-    },
+    defaultValues: { email: "", password: "" },
+  });
+
+  const resetRequestForm = useForm<ResetRequestFormData>({
+    resolver: zodResolver(resetRequestSchema),
+    defaultValues: { email: "" },
+  });
+
+  const newPasswordForm = useForm<NewPasswordFormData>({
+    resolver: zodResolver(newPasswordSchema),
+    defaultValues: { password: "", confirmPassword: "" },
   });
 
   useEffect(() => {
+    // Check if this is a password reset callback
+    const type = searchParams.get("type");
+    if (type === "recovery") {
+      setViewMode("reset");
+      setCheckingAuth(false);
+      return;
+    }
+
     // Check if already logged in as admin
     const checkExistingSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -54,13 +88,12 @@ export default function AdminLogin() {
     };
 
     checkExistingSession();
-  }, [navigate]);
+  }, [navigate, searchParams]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
 
     try {
-      // Sign in
       const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
         email: data.email,
         password: data.password,
@@ -74,7 +107,6 @@ export default function AdminLogin() {
         throw new Error("Authentication failed");
       }
 
-      // Check if user has admin role
       const { data: roleData, error: roleError } = await supabase
         .from("user_roles")
         .select("role")
@@ -88,7 +120,6 @@ export default function AdminLogin() {
       }
 
       if (!roleData) {
-        // User is not an admin - sign them out
         await supabase.auth.signOut();
         throw new Error("Access denied. Admin privileges required.");
       }
@@ -103,6 +134,61 @@ export default function AdminLogin() {
       toast({
         title: "Login failed",
         description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetRequest = async (data: ResetRequestFormData) => {
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
+        redirectTo: `${window.location.origin}/admin/login?type=recovery`,
+      });
+
+      if (error) throw error;
+
+      setResetEmailSent(true);
+      toast({
+        title: "Reset email sent",
+        description: "Check your inbox for the password reset link.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send reset email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNewPassword = async (data: NewPasswordFormData) => {
+    setIsLoading(true);
+
+    try {
+      const { error } = await supabase.auth.updateUser({
+        password: data.password,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Password updated",
+        description: "Your password has been successfully reset.",
+      });
+      
+      setViewMode("login");
+      // Clear the URL params
+      navigate("/admin/login", { replace: true });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update password",
         variant: "destructive",
       });
     } finally {
@@ -133,72 +219,233 @@ export default function AdminLogin() {
         </div>
 
         <Card className="shadow-xl border-border/50">
-          <CardHeader className="text-center pb-4">
-            <CardTitle className="text-xl flex items-center justify-center gap-2">
-              <Lock className="h-5 w-5" />
-              Admin Login
-            </CardTitle>
-            <CardDescription>
-              Enter your admin credentials to continue
-            </CardDescription>
-          </CardHeader>
-          
-          <CardContent>
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleLogin)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="admin@example.com" 
-                          type="email" 
-                          autoComplete="email"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="password"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Password</FormLabel>
-                      <FormControl>
-                        <Input 
-                          placeholder="••••••••" 
-                          type="password" 
-                          autoComplete="current-password"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Sign In
-                </Button>
-              </form>
-            </Form>
+          {/* Login View */}
+          {viewMode === "login" && (
+            <>
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-xl flex items-center justify-center gap-2">
+                  <Lock className="h-5 w-5" />
+                  Admin Login
+                </CardTitle>
+                <CardDescription>
+                  Enter your admin credentials to continue
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                <Form {...loginForm}>
+                  <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
+                    <FormField
+                      control={loginForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="admin@example.com" 
+                              type="email" 
+                              autoComplete="email"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={loginForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex items-center justify-between">
+                            <FormLabel>Password</FormLabel>
+                            <Button
+                              type="button"
+                              variant="link"
+                              className="px-0 h-auto text-xs text-muted-foreground"
+                              onClick={() => setViewMode("forgot")}
+                            >
+                              Forgot password?
+                            </Button>
+                          </div>
+                          <FormControl>
+                            <Input 
+                              placeholder="••••••••" 
+                              type="password" 
+                              autoComplete="current-password"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Sign In
+                    </Button>
+                  </form>
+                </Form>
 
-            <div className="mt-6 pt-6 border-t border-border text-center">
-              <p className="text-xs text-muted-foreground">
-                This portal is restricted to authorized administrators.
-                <br />
-                Unauthorized access attempts are logged.
-              </p>
-            </div>
-          </CardContent>
+                <div className="mt-6 pt-6 border-t border-border text-center">
+                  <p className="text-xs text-muted-foreground">
+                    This portal is restricted to authorized administrators.
+                    <br />
+                    Unauthorized access attempts are logged.
+                  </p>
+                </div>
+              </CardContent>
+            </>
+          )}
+
+          {/* Forgot Password View */}
+          {viewMode === "forgot" && (
+            <>
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-xl flex items-center justify-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Reset Password
+                </CardTitle>
+                <CardDescription>
+                  {resetEmailSent 
+                    ? "Check your email for the reset link"
+                    : "Enter your email to receive a reset link"
+                  }
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                {resetEmailSent ? (
+                  <div className="text-center space-y-4">
+                    <div className="p-4 rounded-lg bg-primary/10">
+                      <Mail className="h-12 w-12 mx-auto text-primary mb-3" />
+                      <p className="text-sm">
+                        We've sent a password reset link to your email.
+                        Click the link to set a new password.
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        setViewMode("login");
+                        setResetEmailSent(false);
+                        resetRequestForm.reset();
+                      }}
+                    >
+                      <ArrowLeft className="mr-2 h-4 w-4" />
+                      Back to Login
+                    </Button>
+                  </div>
+                ) : (
+                  <Form {...resetRequestForm}>
+                    <form onSubmit={resetRequestForm.handleSubmit(handleResetRequest)} className="space-y-4">
+                      <FormField
+                        control={resetRequestForm.control}
+                        name="email"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
+                            <FormControl>
+                              <Input 
+                                placeholder="admin@example.com" 
+                                type="email" 
+                                autoComplete="email"
+                                {...field} 
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      
+                      <Button type="submit" className="w-full" disabled={isLoading}>
+                        {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Send Reset Link
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full"
+                        onClick={() => setViewMode("login")}
+                      >
+                        <ArrowLeft className="mr-2 h-4 w-4" />
+                        Back to Login
+                      </Button>
+                    </form>
+                  </Form>
+                )}
+              </CardContent>
+            </>
+          )}
+
+          {/* Set New Password View */}
+          {viewMode === "reset" && (
+            <>
+              <CardHeader className="text-center pb-4">
+                <CardTitle className="text-xl flex items-center justify-center gap-2">
+                  <KeyRound className="h-5 w-5" />
+                  Set New Password
+                </CardTitle>
+                <CardDescription>
+                  Enter your new password below
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent>
+                <Form {...newPasswordForm}>
+                  <form onSubmit={newPasswordForm.handleSubmit(handleNewPassword)} className="space-y-4">
+                    <FormField
+                      control={newPasswordForm.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="••••••••" 
+                              type="password" 
+                              autoComplete="new-password"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <FormField
+                      control={newPasswordForm.control}
+                      name="confirmPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Confirm Password</FormLabel>
+                          <FormControl>
+                            <Input 
+                              placeholder="••••••••" 
+                              type="password" 
+                              autoComplete="new-password"
+                              {...field} 
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Update Password
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </>
+          )}
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
