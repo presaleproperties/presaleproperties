@@ -30,6 +30,7 @@ import { AgentContactCard } from "@/components/listings/AgentContactCard";
 import { ShareButtons } from "@/components/listings/ShareButtons";
 import { SaveButton } from "@/components/listings/SaveButton";
 import { MobileCTABar } from "@/components/listings/MobileCTABar";
+import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { useAuth } from "@/hooks/useAuth";
 
 const formatPrice = (price: number) => {
@@ -462,7 +463,7 @@ export default function ListingDetail() {
             )}
           </div>
 
-          {/* Right Column - Lead Form & Agent Info */}
+          {/* Right Column - Lead Form, Calculator & Agent Info */}
           <div className="lg:col-span-1">
             <div ref={formRef} className="sticky top-6 space-y-6">
               <LeadCaptureForm 
@@ -471,6 +472,7 @@ export default function ListingDetail() {
                 listingTitle={displayTitle}
                 isRestricted={isRestricted}
               />
+              <MortgageCalculator price={Number(listing.assignment_price)} />
               <AgentContactCard agent={agentInfo || null} />
             </div>
           </div>
