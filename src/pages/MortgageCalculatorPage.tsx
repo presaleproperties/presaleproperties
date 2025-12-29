@@ -118,8 +118,8 @@ function calculatePTT(
 
 export default function MortgageCalculatorPage() {
   // Calculator inputs
-  const [propertyPrice, setPropertyPrice] = useState(750000);
-  const [priceInput, setPriceInput] = useState("750,000");
+  const [propertyPrice, setPropertyPrice] = useState(500000);
+  const [priceInput, setPriceInput] = useState("500,000");
   const [downPaymentOption, setDownPaymentOption] = useState("20");
   const [customDownPaymentPercent, setCustomDownPaymentPercent] = useState("");
   const [customDownPaymentDollar, setCustomDownPaymentDollar] = useState("");
