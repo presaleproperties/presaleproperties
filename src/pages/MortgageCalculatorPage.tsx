@@ -76,7 +76,11 @@ function useDebounce<T>(value: T, delay: number): T {
 }
 
 // BC Property Transfer Tax calculation
-function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): { provincial: number; municipal: number; rebate: number; total: number } {
+function calculatePTT(
+  price: number, 
+  isFirstTimeBuyer: boolean = false, 
+  isNewConstruction: boolean = false
+): { provincial: number; municipal: number; rebate: number; ftbRebate: number; newHomeRebate: number; total: number } {
   // BC Property Transfer Tax
   let provincial = 0;
   if (price <= 200000) {
@@ -93,30 +97,47 @@ function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): { provi
   const municipal = 0;
   
   // First-time home buyer rebate (up to $8,000 for homes up to $500,000, partial for $500,000-$525,000)
-  let rebate = 0;
+  // For new construction, FTB exemption threshold is higher: up to $835,000 (full), $860,000 (partial)
+  let ftbRebate = 0;
   if (isFirstTimeBuyer) {
-    if (price <= 500000) {
-      rebate = Math.min(provincial, 8000);
-    } else if (price < 525000) {
-      rebate = Math.min(provincial, 8000 * (1 - (price - 500000) / 25000));
+    if (isNewConstruction) {
+      // BC newly built home exemption for FTB - full exemption up to $835,000, partial up to $860,000
+      if (price <= 835000) {
+        ftbRebate = Math.min(provincial, provincial); // Full exemption
+      } else if (price < 860000) {
+        ftbRebate = Math.min(provincial, provincial * (1 - (price - 835000) / 25000));
+      }
+    } else {
+      // Standard FTB exemption for resale homes
+      if (price <= 500000) {
+        ftbRebate = Math.min(provincial, 8000);
+      } else if (price < 525000) {
+        ftbRebate = Math.min(provincial, 8000 * (1 - (price - 500000) / 25000));
+      }
     }
   }
   
-  // New home exemption for presales (similar calculation)
-  if (price <= 750000) {
-    // Newly built home exemption - up to $13,000 for homes up to $750,000
-    const newHomeRebate = Math.min(provincial, 13000);
-    rebate = Math.max(rebate, newHomeRebate);
-  } else if (price < 800000) {
-    const newHomeRebate = Math.min(provincial, 13000 * (1 - (price - 750000) / 50000));
-    rebate = Math.max(rebate, newHomeRebate);
+  // Newly built home exemption (for non-FTB buyers of new construction)
+  // Up to $13,000 for homes up to $750,000, partial for $750,000-$800,000
+  let newHomeRebate = 0;
+  if (isNewConstruction && !isFirstTimeBuyer) {
+    if (price <= 750000) {
+      newHomeRebate = Math.min(provincial, 13000);
+    } else if (price < 800000) {
+      newHomeRebate = Math.min(provincial, 13000 * (1 - (price - 750000) / 50000));
+    }
   }
+  
+  // Take the larger rebate
+  const rebate = Math.max(ftbRebate, newHomeRebate);
   
   return {
     provincial,
     municipal,
     rebate,
-    total: provincial + municipal - rebate
+    ftbRebate,
+    newHomeRebate,
+    total: Math.max(0, provincial + municipal - rebate)
   };
 }
 
@@ -125,7 +146,9 @@ export default function MortgageCalculatorPage() {
   const [propertyPrice, setPropertyPrice] = useState(750000);
   const [priceInput, setPriceInput] = useState("750,000");
   const [downPaymentOption, setDownPaymentOption] = useState("20");
-  const [customDownPayment, setCustomDownPayment] = useState("");
+  const [customDownPaymentPercent, setCustomDownPaymentPercent] = useState("");
+  const [customDownPaymentDollar, setCustomDownPaymentDollar] = useState("");
+  const [downPaymentInputMode, setDownPaymentInputMode] = useState<"percent" | "dollar">("percent");
   const [mortgageRate, setMortgageRate] = useState(4.99);
   const [amortization, setAmortization] = useState(25);
   const [paymentFrequency, setPaymentFrequency] = useState<"monthly" | "semi-monthly" | "bi-weekly" | "accelerated-bi-weekly" | "weekly" | "accelerated-weekly">("monthly");
@@ -184,27 +207,55 @@ export default function MortgageCalculatorPage() {
   // Debounced price for calculations
   const debouncedPrice = useDebounce(propertyPrice, 300);
 
-  // Calculate down payment percentage
+  // Calculate total price including GST for new construction
+  const totalPriceWithGST = useMemo(() => {
+    if (includeGST) {
+      return debouncedPrice * 1.05; // 5% GST
+    }
+    return debouncedPrice;
+  }, [debouncedPrice, includeGST]);
+
+  // Calculate down payment percentage based on input mode
   const downPaymentPercent = useMemo(() => {
     if (downPaymentOption === "custom") {
-      const customValue = parseFloat(customDownPayment);
-      return isNaN(customValue) ? 20 : customValue;
+      if (downPaymentInputMode === "dollar") {
+        const dollarValue = parseFloat(customDownPaymentDollar.replace(/[^0-9]/g, ''));
+        if (!isNaN(dollarValue) && totalPriceWithGST > 0) {
+          return (dollarValue / totalPriceWithGST) * 100;
+        }
+        return 20;
+      } else {
+        const customValue = parseFloat(customDownPaymentPercent);
+        return isNaN(customValue) ? 20 : customValue;
+      }
     }
     return parseFloat(downPaymentOption);
-  }, [downPaymentOption, customDownPayment]);
+  }, [downPaymentOption, customDownPaymentPercent, customDownPaymentDollar, downPaymentInputMode, totalPriceWithGST]);
 
   // Main calculations
   const calculations = useMemo(() => {
-    const price = debouncedPrice;
-    const downPayment = (price * downPaymentPercent) / 100;
-    const principal = price - downPayment;
+    const basePrice = debouncedPrice;
     
-    // CMHC insurance for down payments less than 20%
+    // GST (5% on new homes) - added to purchase price
+    const gstAmount = includeGST ? basePrice * 0.05 : 0;
+    
+    // Total price including GST (this is what down payment is based on)
+    const priceWithGST = basePrice + gstAmount;
+    
+    // Down payment is calculated on price + GST
+    const downPayment = (priceWithGST * downPaymentPercent) / 100;
+    
+    // Mortgage is based on base price minus down payment (GST paid separately at closing)
+    const mortgageBase = basePrice - (downPayment - gstAmount * (downPaymentPercent / 100));
+    const principal = Math.max(0, basePrice - downPayment + gstAmount);
+    
+    // CMHC insurance for down payments less than 20% (based on base price, not including GST)
     let cmhcInsurance = 0;
-    if (downPaymentPercent < 20) {
-      if (downPaymentPercent >= 15) {
+    const effectiveDownPaymentPercent = (downPayment / priceWithGST) * 100;
+    if (effectiveDownPaymentPercent < 20) {
+      if (effectiveDownPaymentPercent >= 15) {
         cmhcInsurance = principal * 0.028;
-      } else if (downPaymentPercent >= 10) {
+      } else if (effectiveDownPaymentPercent >= 10) {
         cmhcInsurance = principal * 0.031;
       } else {
         cmhcInsurance = principal * 0.04;
@@ -216,31 +267,28 @@ export default function MortgageCalculatorPage() {
     
     const mortgageAmount = principal + cmhcInsurance;
     
-    // GST (5% on new homes)
-    const gstAmount = includeGST ? price * 0.05 : 0;
-    
     // GST Rebate for new homes (36% of GST on homes up to $350,000, reduced for $350,000-$450,000)
     let gstRebate = 0;
     if (includeGST) {
-      if (price <= 350000) {
+      if (basePrice <= 350000) {
         gstRebate = gstAmount * 0.36;
-      } else if (price < 450000) {
-        gstRebate = gstAmount * 0.36 * (1 - (price - 350000) / 100000);
+      } else if (basePrice < 450000) {
+        gstRebate = gstAmount * 0.36 * (1 - (basePrice - 350000) / 100000);
       }
     }
     
     // BC New Housing Rebate (71.43% of provincial portion, capped)
     let bcNewHousingRebate = 0;
-    if (isNewConstruction && price <= 850000) {
-      const pstEquivalent = price * 0.07; // Provincial portion equivalent
+    if (isNewConstruction && basePrice <= 850000) {
+      const pstEquivalent = basePrice * 0.07; // Provincial portion equivalent
       bcNewHousingRebate = Math.min(pstEquivalent * 0.7143, 42500);
-      if (price > 750000) {
-        bcNewHousingRebate = bcNewHousingRebate * (1 - (price - 750000) / 100000);
+      if (basePrice > 750000) {
+        bcNewHousingRebate = bcNewHousingRebate * (1 - (basePrice - 750000) / 100000);
       }
     }
     
-    // Property Transfer Tax
-    const ptt = calculatePTT(price, isFirstTimeBuyer);
+    // Property Transfer Tax - FTB on new construction gets full exemption up to $835K
+    const ptt = calculatePTT(basePrice, isFirstTimeBuyer, isNewConstruction);
     
     // Payment calculations based on frequency
     const annualRate = mortgageRate / 100;
@@ -300,11 +348,16 @@ export default function MortgageCalculatorPage() {
     // Total monthly carrying costs
     const totalMonthlyCarrying = monthlyPayment + monthlyPropertyTax + strataFee + monthlyHomeInsurance + monthlyUtilities;
     
-    // Cash needed to close
-    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees + gstAmount - gstRebate - bcNewHousingRebate;
+    // Cash to close: down payment (based on price+GST) + PTT + closing costs
+    // The down payment already covers the GST portion since it's calculated on priceWithGST
+    // We only add net GST that isn't covered by the down payment
+    const gstPortionInDownPayment = gstAmount * (downPaymentPercent / 100);
+    const gstOwedAtClosing = gstAmount - gstPortionInDownPayment - gstRebate - bcNewHousingRebate;
+    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees + Math.max(0, gstOwedAtClosing);
     
     return {
-      propertyPrice: price,
+      propertyPrice: basePrice,
+      priceWithGST,
       downPayment,
       downPaymentPercent,
       mortgageAmount,
@@ -337,28 +390,32 @@ export default function MortgageCalculatorPage() {
 
   // Down payment comparison scenarios (like ratehub's 4-column view)
   const downPaymentComparison = useMemo(() => {
-    const price = debouncedPrice;
+    const basePrice = debouncedPrice;
+    // Use price with GST for down payment calculations
+    const priceForDP = includeGST ? basePrice * 1.05 : basePrice;
     const annualRate = mortgageRate / 100;
     const periodicRate = annualRate / 12;
     
-    // Calculate minimum down payment based on price
+    // Calculate minimum down payment based on price (before GST for CMHC rules)
     let minDownPercent = 5;
-    if (price > 1500000) {
+    if (basePrice > 1500000) {
       minDownPercent = 20;
-    } else if (price > 500000) {
+    } else if (basePrice > 500000) {
       // 5% of first $500K + 10% of rest
-      const minDown = 25000 + (price - 500000) * 0.1;
-      minDownPercent = Math.ceil((minDown / price) * 100);
+      const minDown = 25000 + (basePrice - 500000) * 0.1;
+      minDownPercent = Math.ceil((minDown / basePrice) * 100);
     }
     
     // Create 4 scenarios with appropriate percentages
-    const percentages = price > 1500000 
+    const percentages = basePrice > 1500000 
       ? [20, 25, 30, 35]
       : [Math.max(5, minDownPercent), 10, 15, 20];
     
     return percentages.map((percent, index) => {
-      const downPayment = (price * percent) / 100;
-      const principal = price - downPayment;
+      // Down payment based on price with GST
+      const downPayment = (priceForDP * percent) / 100;
+      // Mortgage principal is base price minus the down payment allocated to base price
+      const principal = basePrice - (downPayment * (basePrice / priceForDP));
       
       // CMHC insurance for down payments less than 20%
       let cmhcInsurance = 0;
@@ -379,7 +436,7 @@ export default function MortgageCalculatorPage() {
           (Math.pow(1 + periodicRate, amortization * 12) - 1)
         : 0;
       
-      const isSelected = percent === downPaymentPercent;
+      const isSelected = Math.abs(percent - downPaymentPercent) < 0.5;
       const isMinimum = index === 0 && percent === minDownPercent;
       
       return {
@@ -392,7 +449,7 @@ export default function MortgageCalculatorPage() {
         isMinimum
       };
     });
-  }, [debouncedPrice, mortgageRate, amortization, downPaymentPercent]);
+  }, [debouncedPrice, mortgageRate, amortization, downPaymentPercent, includeGST]);
 
   // Interest rate risk scenarios
   const rateScenarios = useMemo(() => {
@@ -752,17 +809,77 @@ export default function MortgageCalculatorPage() {
                             </SelectContent>
                           </Select>
                           {downPaymentOption === "custom" ? (
-                            <div className="relative col-span-1">
-                              <Input
-                                type="number"
-                                value={customDownPayment}
-                                onChange={(e) => setCustomDownPayment(e.target.value)}
-                                placeholder="%"
-                                className="h-11 pr-8"
-                                min="5"
-                                max="80"
-                              />
-                              <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <div className="col-span-1 sm:col-span-3 grid grid-cols-3 gap-2">
+                              {/* Toggle between % and $ */}
+                              <div className="flex rounded-lg border overflow-hidden h-11">
+                                <button
+                                  type="button"
+                                  onClick={() => setDownPaymentInputMode("percent")}
+                                  className={`flex-1 flex items-center justify-center text-sm font-medium transition-colors ${
+                                    downPaymentInputMode === "percent"
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted hover:bg-muted/80"
+                                  }`}
+                                >
+                                  <Percent className="h-4 w-4" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setDownPaymentInputMode("dollar")}
+                                  className={`flex-1 flex items-center justify-center text-sm font-medium transition-colors ${
+                                    downPaymentInputMode === "dollar"
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-muted hover:bg-muted/80"
+                                  }`}
+                                >
+                                  <DollarSign className="h-4 w-4" />
+                                </button>
+                              </div>
+                              {downPaymentInputMode === "percent" ? (
+                                <div className="relative">
+                                  <Input
+                                    type="number"
+                                    value={customDownPaymentPercent}
+                                    onChange={(e) => setCustomDownPaymentPercent(e.target.value)}
+                                    placeholder="20"
+                                    className="h-11 pr-8"
+                                    min="5"
+                                    max="80"
+                                  />
+                                  <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                </div>
+                              ) : (
+                                <div className="relative">
+                                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                  <Input
+                                    type="text"
+                                    inputMode="numeric"
+                                    value={customDownPaymentDollar}
+                                    onChange={(e) => {
+                                      const value = e.target.value.replace(/[^0-9]/g, '');
+                                      setCustomDownPaymentDollar(value);
+                                    }}
+                                    onBlur={() => {
+                                      const num = parseInt(customDownPaymentDollar);
+                                      if (!isNaN(num)) {
+                                        setCustomDownPaymentDollar(num.toLocaleString());
+                                      }
+                                    }}
+                                    onFocus={() => {
+                                      setCustomDownPaymentDollar(customDownPaymentDollar.replace(/[^0-9]/g, ''));
+                                    }}
+                                    placeholder="150,000"
+                                    className="h-11 pl-8"
+                                  />
+                                </div>
+                              )}
+                              <div className="flex items-center justify-center bg-muted rounded-lg px-2 text-xs">
+                                <span className="font-medium">
+                                  {downPaymentInputMode === "percent" 
+                                    ? formatCurrency(calculations.downPayment)
+                                    : `${downPaymentPercent.toFixed(1)}%`}
+                                </span>
+                              </div>
                             </div>
                           ) : (
                             <div className="flex items-center justify-center bg-muted rounded-lg px-3 col-span-1">
@@ -772,10 +889,15 @@ export default function MortgageCalculatorPage() {
                           {calculations.cmhcInsurance > 0 && (
                             <div className="col-span-2 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
                               <Info className="h-3.5 w-3.5 shrink-0" />
-                              <span>+{formatCurrency(calculations.cmhcInsurance)} CMHC</span>
+                              <span>+{formatCurrency(calculations.cmhcInsurance)} CMHC (down payment under 20%)</span>
                             </div>
                           )}
                         </div>
+                        {includeGST && (
+                          <p className="text-xs text-muted-foreground mt-2 px-1">
+                            Down payment is based on total price with GST ({formatCurrency(calculations.priceWithGST)})
+                          </p>
+                        )}
                         <div className="flex items-center justify-between mt-2 px-1 text-sm">
                           <span className="text-muted-foreground">Total Mortgage</span>
                           <span className="font-semibold">{formatCurrency(calculations.mortgageAmount)}</span>
@@ -1019,20 +1141,44 @@ export default function MortgageCalculatorPage() {
                           </div>
                           
                           <div className="border-t pt-2">
-                            <p className="text-xs font-medium text-muted-foreground mb-2">Property Transfer Tax</p>
+                            <p className="text-xs font-medium text-muted-foreground mb-2">Property Transfer Tax (BC)</p>
                             <div className="flex justify-between py-1 pl-3">
-                              <span className="text-muted-foreground">Provincial</span>
+                              <span className="text-muted-foreground">Provincial PTT</span>
                               <span>{formatCurrency(calculations.ptt.provincial)}</span>
                             </div>
-                            {calculations.ptt.rebate > 0 && (
+                            {calculations.ptt.ftbRebate > 0 && isFirstTimeBuyer && isNewConstruction && (
                               <div className="flex justify-between py-1 pl-3 text-green-600">
-                                <span>Exemption/Rebate</span>
-                                <span>-{formatCurrency(calculations.ptt.rebate)}</span>
+                                <span className="flex items-center gap-1">
+                                  FTB New Home Exemption
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <HelpCircle className="h-3 w-3" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-xs">
+                                        <p>First-time buyers of newly built homes in BC can get full PTT exemption on homes up to $835,000, with partial exemption up to $860,000.</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </span>
+                                <span>-{formatCurrency(calculations.ptt.ftbRebate)}</span>
+                              </div>
+                            )}
+                            {calculations.ptt.ftbRebate > 0 && isFirstTimeBuyer && !isNewConstruction && (
+                              <div className="flex justify-between py-1 pl-3 text-green-600">
+                                <span>First-Time Buyer Exemption</span>
+                                <span>-{formatCurrency(calculations.ptt.ftbRebate)}</span>
+                              </div>
+                            )}
+                            {calculations.ptt.newHomeRebate > 0 && !isFirstTimeBuyer && isNewConstruction && (
+                              <div className="flex justify-between py-1 pl-3 text-green-600">
+                                <span>Newly Built Home Exemption</span>
+                                <span>-{formatCurrency(calculations.ptt.newHomeRebate)}</span>
                               </div>
                             )}
                             <div className="flex justify-between py-1 pl-3 font-medium">
                               <span>Net PTT</span>
-                              <span>{formatCurrency(calculations.ptt.total)}</span>
+                              <span>{calculations.ptt.total === 0 ? <span className="text-green-600">$0</span> : formatCurrency(calculations.ptt.total)}</span>
                             </div>
                           </div>
                           
