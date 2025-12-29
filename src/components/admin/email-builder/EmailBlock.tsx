@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { GripVertical, Trash2, Settings } from "lucide-react";
+import { useState, useRef } from "react";
+import { GripVertical, Trash2, Settings, Upload, Loader2, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { BlockType } from "./EmailBlockPalette";
 
 export interface EmailBlockData {
@@ -46,6 +49,52 @@ export function EmailBlock({
   onDrop,
 }: EmailBlockProps) {
   const [isEditing, setIsEditing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Invalid file type", description: "Please upload an image file.", variant: "destructive" });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image under 5MB.", variant: "destructive" });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${crypto.randomUUID()}.${fileExt}`;
+      const filePath = `email-images/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("email-assets")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("email-assets")
+        .getPublicUrl(filePath);
+
+      onUpdate({ ...block.content, src: urlData.publicUrl });
+      toast({ title: "Image uploaded", description: "Your image has been uploaded successfully." });
+    } catch (error: any) {
+      console.error("Upload error:", error);
+      toast({ title: "Upload failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   const renderBlockContent = () => {
     switch (block.type) {
@@ -201,25 +250,80 @@ export function EmailBlock({
       case "image":
         return (
           <div className="space-y-3">
-            <div className="space-y-1">
-              <Label>Image URL</Label>
-              <Input
-                value={block.content.src}
-                onChange={(e) => onUpdate({ ...block.content, src: e.target.value })}
-                placeholder="https://..."
-              />
-            </div>
+            <Tabs defaultValue="upload" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="upload">Upload</TabsTrigger>
+                <TabsTrigger value="url">URL</TabsTrigger>
+              </TabsList>
+              <TabsContent value="upload" className="space-y-2 mt-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                {block.content.src ? (
+                  <div className="space-y-2">
+                    <img
+                      src={block.content.src}
+                      alt={block.content.alt || "Uploaded image"}
+                      className="w-full h-24 object-cover rounded border"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                    >
+                      {isUploading ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Upload className="h-4 w-4 mr-2" />
+                      )}
+                      Replace Image
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    variant="outline"
+                    className="w-full h-20 border-dashed"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                  >
+                    {isUploading ? (
+                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
+                    ) : (
+                      <ImageIcon className="h-5 w-5 mr-2" />
+                    )}
+                    {isUploading ? "Uploading..." : "Click to upload image"}
+                  </Button>
+                )}
+              </TabsContent>
+              <TabsContent value="url" className="space-y-2 mt-2">
+                <div className="space-y-1">
+                  <Label>Image URL</Label>
+                  <Input
+                    value={block.content.src || ""}
+                    onChange={(e) => onUpdate({ ...block.content, src: e.target.value })}
+                    placeholder="https://..."
+                  />
+                </div>
+              </TabsContent>
+            </Tabs>
             <div className="space-y-1">
               <Label>Alt Text</Label>
               <Input
-                value={block.content.alt}
+                value={block.content.alt || ""}
                 onChange={(e) => onUpdate({ ...block.content, alt: e.target.value })}
+                placeholder="Describe the image"
               />
             </div>
             <div className="space-y-1">
               <Label>Width</Label>
               <Select
-                value={block.content.width}
+                value={block.content.width || "100%"}
                 onValueChange={(v) => onUpdate({ ...block.content, width: v })}
               >
                 <SelectTrigger>
