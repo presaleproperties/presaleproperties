@@ -21,7 +21,7 @@ const formSchema = z.object({
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   persona: z.enum(["first_time", "investor"]),
   workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
-  timeline: z.enum(["0_6", "6_plus"]),
+  timeline: z.enum(["0_3", "3_plus"]),
   propertyType: z.enum(["condo", "townhome", "single_family"]),
   message: z.string().max(1000).optional(),
 });
@@ -49,8 +49,8 @@ const AGENT_OPTIONS = [
 ];
 
 const TIMELINES = [
-  { value: "0_6", label: "0–6 months" },
-  { value: "6_plus", label: "6+ months" },
+  { value: "0_3", label: "0–3 months" },
+  { value: "3_plus", label: "3+ months" },
 ];
 
 const PROPERTY_TYPES = [
@@ -99,7 +99,7 @@ export function AccessPackModal({
       phone: "",
       persona: "first_time",
       workingWithAgent: "no",
-      timeline: "0_6",
+      timeline: "0_3",
       propertyType: "condo",
       message: "",
     },
