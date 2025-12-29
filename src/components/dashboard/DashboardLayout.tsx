@@ -16,7 +16,6 @@ import {
   Shield
 } from "lucide-react";
 import { useState } from "react";
-import presaleLogo from "@/assets/presale-logo.png";
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -62,12 +61,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </Button>
-            <Link to="/" className="flex items-center">
-              <img 
-                src={presaleLogo} 
-                alt="Presale Properties" 
-                className="h-9 sm:h-10 w-auto object-contain"
-              />
+            <Link to="/" className="flex items-center gap-2">
+              <span className="text-xl font-bold tracking-tight">
+                Assignment<span className="text-primary">Hub</span>
+              </span>
             </Link>
           </div>
           
