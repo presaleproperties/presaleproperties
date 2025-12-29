@@ -41,22 +41,12 @@ export function MobileContextBar({
 
   const selectedCityName = CITIES.find(c => c.slug === selectedCity)?.name || "All Metro Vancouver";
 
-  // Scroll detection for hide/show
+  // Scroll detection - only show when at top
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
-      const scrollDiff = currentScrollY - lastScrollY.current;
-      
-      if (Math.abs(scrollDiff) > scrollThreshold) {
-        if (scrollDiff > 0 && currentScrollY > 60) {
-          // Scrolling down - hide
-          setIsVisible(false);
-        } else {
-          // Scrolling up - show
-          setIsVisible(true);
-        }
-        lastScrollY.current = currentScrollY;
-      }
+      // Only show when scrolled to top (within threshold)
+      setIsVisible(currentScrollY <= scrollThreshold);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
