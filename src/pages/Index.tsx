@@ -9,6 +9,7 @@ import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefi
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { FAQSchema } from "@/components/seo/FAQSchema";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 // Homepage FAQs for structured data (helps with AI recommendations)
 const HOME_FAQS = [
@@ -152,11 +153,21 @@ const Index = () => {
       <ConversionHeader />
       <main className="flex-1">
         <HeroSection />
-        <FeaturedProjects />
-        <CityProjectsSection />
-        <NewConstructionBenefits />
-        <RelatedContent />
-        <BuyerCTASection />
+        <ScrollReveal animation="fade-up">
+          <FeaturedProjects />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <CityProjectsSection />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <NewConstructionBenefits />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <RelatedContent />
+        </ScrollReveal>
+        <ScrollReveal animation="scale" delay={100}>
+          <BuyerCTASection />
+        </ScrollReveal>
       </main>
       <StickyConversionBar />
       <Footer />
