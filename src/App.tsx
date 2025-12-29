@@ -37,6 +37,7 @@ import AdminLeads from "./pages/admin/AdminLeads";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import AdminEmailCampaigns from "./pages/admin/AdminEmailCampaigns";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
+import AdminLogin from "./pages/admin/AdminLogin";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
@@ -77,6 +78,9 @@ const App = () => (
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
+            
+            {/* Admin Login */}
+            <Route path="/admin/login" element={<AdminLogin />} />
             
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminProtectedRoute><AdminOverview /></AdminProtectedRoute>} />
