@@ -155,15 +155,15 @@ export function ConversionHeader() {
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
             </Button>
-            <Button size="sm" onClick={openChatNow} className="shadow-gold">
+            <Button size="sm" onClick={openChatNow} className="bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg">
               <MessageCircle className="h-4 w-4 mr-2" />
-              Chat Now
+              WhatsApp
             </Button>
           </div>
 
           {/* Mobile Menu */}
           <div className="flex items-center gap-2 lg:hidden">
-            <Button size="sm" onClick={openChatNow} className="h-9 px-3">
+            <Button size="sm" onClick={openChatNow} className="h-9 px-3 bg-[#25D366] hover:bg-[#20BD5A] text-white">
               <MessageCircle className="h-4 w-4" />
             </Button>
             
@@ -266,9 +266,9 @@ export function ConversionHeader() {
                   </nav>
 
                   <div className="p-4 space-y-2 border-t">
-                    <Button onClick={openChatNow} className="w-full h-11 font-medium">
+                    <Button onClick={openChatNow} className="w-full h-11 font-medium bg-[#25D366] hover:bg-[#20BD5A] text-white">
                       <MessageCircle className="h-4 w-4 mr-2" />
-                      Chat Now
+                      WhatsApp
                     </Button>
                     <Button variant="outline" onClick={openCallBack} className="w-full h-11 font-medium">
                       <Phone className="h-4 w-4 mr-2" />
