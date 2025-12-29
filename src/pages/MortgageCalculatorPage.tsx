@@ -78,9 +78,9 @@ function useDebounce<T>(value: T, delay: number): T {
 // BC Property Transfer Tax calculation
 function calculatePTT(
   price: number, 
-  isFirstTimeBuyer: boolean = false, 
+  isPrimaryHome: boolean = false, 
   isNewConstruction: boolean = false
-): { provincial: number; municipal: number; rebate: number; ftbRebate: number; newHomeRebate: number; total: number } {
+): { provincial: number; municipal: number; rebate: number; exemptionType: string; total: number } {
   // BC Property Transfer Tax
   let provincial = 0;
   if (price <= 200000) {
@@ -96,47 +96,27 @@ function calculatePTT(
   // Additional 2% for foreign buyers in Metro Vancouver (not calculating for now)
   const municipal = 0;
   
-  // First-time home buyer rebate (up to $8,000 for homes up to $500,000, partial for $500,000-$525,000)
-  // For new construction, FTB exemption threshold is higher: up to $835,000 (full), $860,000 (partial)
-  let ftbRebate = 0;
-  if (isFirstTimeBuyer) {
-    if (isNewConstruction) {
-      // BC newly built home exemption for FTB - full exemption up to $835,000, partial up to $860,000
-      if (price <= 835000) {
-        ftbRebate = Math.min(provincial, provincial); // Full exemption
-      } else if (price < 860000) {
-        ftbRebate = Math.min(provincial, provincial * (1 - (price - 835000) / 25000));
-      }
-    } else {
-      // Standard FTB exemption for resale homes
-      if (price <= 500000) {
-        ftbRebate = Math.min(provincial, 8000);
-      } else if (price < 525000) {
-        ftbRebate = Math.min(provincial, 8000 * (1 - (price - 500000) / 25000));
-      }
+  // PTT Exemption for primary home + new construction in BC
+  // Newly built home exemption: full exemption up to $835,000, partial up to $860,000
+  let rebate = 0;
+  let exemptionType = "";
+  
+  if (isPrimaryHome && isNewConstruction) {
+    // BC Newly Built Home Exemption for principal residence
+    if (price <= 835000) {
+      rebate = provincial; // Full exemption
+      exemptionType = "Newly Built Home Exemption";
+    } else if (price < 860000) {
+      rebate = provincial * (1 - (price - 835000) / 25000);
+      exemptionType = "Newly Built Home Exemption (partial)";
     }
   }
-  
-  // Newly built home exemption (for non-FTB buyers of new construction)
-  // Up to $13,000 for homes up to $750,000, partial for $750,000-$800,000
-  let newHomeRebate = 0;
-  if (isNewConstruction && !isFirstTimeBuyer) {
-    if (price <= 750000) {
-      newHomeRebate = Math.min(provincial, 13000);
-    } else if (price < 800000) {
-      newHomeRebate = Math.min(provincial, 13000 * (1 - (price - 750000) / 50000));
-    }
-  }
-  
-  // Take the larger rebate
-  const rebate = Math.max(ftbRebate, newHomeRebate);
   
   return {
     provincial,
     municipal,
     rebate,
-    ftbRebate,
-    newHomeRebate,
+    exemptionType,
     total: Math.max(0, provincial + municipal - rebate)
   };
 }
@@ -155,8 +135,7 @@ export default function MortgageCalculatorPage() {
   const [propertyTax, setPropertyTax] = useState(3000);
   const [strataFee, setStrataFee] = useState(350);
   const [includeGST, setIncludeGST] = useState(true);
-  const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(false);
-  const [isNewConstruction, setIsNewConstruction] = useState(true);
+  const [isPrimaryHome, setIsPrimaryHome] = useState(true);
   const [rateType, setRateType] = useState<"fixed" | "variable">("fixed");
   
   // Closing costs
@@ -277,9 +256,9 @@ export default function MortgageCalculatorPage() {
       }
     }
     
-    // BC New Housing Rebate (71.43% of provincial portion, capped)
+    // BC New Housing Rebate (71.43% of provincial portion, capped) - only for new construction
     let bcNewHousingRebate = 0;
-    if (isNewConstruction && basePrice <= 850000) {
+    if (includeGST && basePrice <= 850000) {
       const pstEquivalent = basePrice * 0.07; // Provincial portion equivalent
       bcNewHousingRebate = Math.min(pstEquivalent * 0.7143, 42500);
       if (basePrice > 750000) {
@@ -287,8 +266,8 @@ export default function MortgageCalculatorPage() {
       }
     }
     
-    // Property Transfer Tax - FTB on new construction gets full exemption up to $835K
-    const ptt = calculatePTT(basePrice, isFirstTimeBuyer, isNewConstruction);
+    // Property Transfer Tax - Primary home + new construction (GST) gets exemption
+    const ptt = calculatePTT(basePrice, isPrimaryHome, includeGST);
     
     // Payment calculations based on frequency
     const annualRate = mortgageRate / 100;
@@ -386,7 +365,7 @@ export default function MortgageCalculatorPage() {
       totalPayments: amortization * periodsPerYear,
       yearsToPayoff: isAccelerated ? yearsToPayoff : amortization
     };
-  }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, isFirstTimeBuyer, isNewConstruction, lawyerFees, titleInsurance, homeInspection, appraisalFees, utilities, homeInsurance]);
+  }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, isPrimaryHome, lawyerFees, titleInsurance, homeInspection, appraisalFees, utilities, homeInsurance]);
 
   // Down payment comparison scenarios (like ratehub's 4-column view)
   const downPaymentComparison = useMemo(() => {
@@ -997,24 +976,23 @@ export default function MortgageCalculatorPage() {
                       <div className="flex flex-wrap gap-x-4 gap-y-2 pt-2">
                         <div className="flex items-center gap-2">
                           <Switch
-                            id="first-time-buyer"
-                            checked={isFirstTimeBuyer}
-                            onCheckedChange={setIsFirstTimeBuyer}
+                            id="primary-home"
+                            checked={isPrimaryHome}
+                            onCheckedChange={setIsPrimaryHome}
                             className="scale-90 md:scale-100"
                           />
-                          <Label htmlFor="first-time-buyer" className="text-xs md:text-sm cursor-pointer">
-                            First-time buyer
-                          </Label>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Switch
-                            id="new-construction"
-                            checked={isNewConstruction}
-                            onCheckedChange={setIsNewConstruction}
-                            className="scale-90 md:scale-100"
-                          />
-                          <Label htmlFor="new-construction" className="text-xs md:text-sm cursor-pointer">
-                            New construction
+                          <Label htmlFor="primary-home" className="text-xs md:text-sm cursor-pointer flex items-center gap-1">
+                            Primary home
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>Select if this will be your principal residence. Combined with new construction (GST), you may qualify for PTT exemption up to $835K.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </Label>
                         </div>
                         <div className="flex items-center gap-2">
@@ -1024,11 +1002,27 @@ export default function MortgageCalculatorPage() {
                             onCheckedChange={setIncludeGST}
                             className="scale-90 md:scale-100"
                           />
-                          <Label htmlFor="include-gst" className="text-xs md:text-sm cursor-pointer">
-                            Include GST (5%)
+                          <Label htmlFor="include-gst" className="text-xs md:text-sm cursor-pointer flex items-center gap-1">
+                            New construction (GST 5%)
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3 w-3 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>New homes are subject to 5% GST. Rebates may apply for homes under $450K.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </Label>
                         </div>
                       </div>
+                      {isPrimaryHome && includeGST && (
+                        <p className="text-xs text-green-600 mt-2 flex items-center gap-1">
+                          <CheckCircle className="h-3 w-3" />
+                          PTT exemption may apply for primary residence + new construction
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
 
@@ -1146,34 +1140,22 @@ export default function MortgageCalculatorPage() {
                               <span className="text-muted-foreground">Provincial PTT</span>
                               <span>{formatCurrency(calculations.ptt.provincial)}</span>
                             </div>
-                            {calculations.ptt.ftbRebate > 0 && isFirstTimeBuyer && isNewConstruction && (
+                            {calculations.ptt.rebate > 0 && (
                               <div className="flex justify-between py-1 pl-3 text-green-600">
                                 <span className="flex items-center gap-1">
-                                  FTB New Home Exemption
+                                  {calculations.ptt.exemptionType}
                                   <TooltipProvider>
                                     <Tooltip>
                                       <TooltipTrigger asChild>
                                         <HelpCircle className="h-3 w-3" />
                                       </TooltipTrigger>
                                       <TooltipContent className="max-w-xs">
-                                        <p>First-time buyers of newly built homes in BC can get full PTT exemption on homes up to $835,000, with partial exemption up to $860,000.</p>
+                                        <p>Primary residence buyers of newly built homes in BC can get full PTT exemption on homes up to $835,000, with partial exemption up to $860,000.</p>
                                       </TooltipContent>
                                     </Tooltip>
                                   </TooltipProvider>
                                 </span>
-                                <span>-{formatCurrency(calculations.ptt.ftbRebate)}</span>
-                              </div>
-                            )}
-                            {calculations.ptt.ftbRebate > 0 && isFirstTimeBuyer && !isNewConstruction && (
-                              <div className="flex justify-between py-1 pl-3 text-green-600">
-                                <span>First-Time Buyer Exemption</span>
-                                <span>-{formatCurrency(calculations.ptt.ftbRebate)}</span>
-                              </div>
-                            )}
-                            {calculations.ptt.newHomeRebate > 0 && !isFirstTimeBuyer && isNewConstruction && (
-                              <div className="flex justify-between py-1 pl-3 text-green-600">
-                                <span>Newly Built Home Exemption</span>
-                                <span>-{formatCurrency(calculations.ptt.newHomeRebate)}</span>
+                                <span>-{formatCurrency(calculations.ptt.rebate)}</span>
                               </div>
                             )}
                             <div className="flex justify-between py-1 pl-3 font-medium">
