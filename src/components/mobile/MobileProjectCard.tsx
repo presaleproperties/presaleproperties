@@ -91,14 +91,14 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[260px]" : "w-[220px]"
+        isLarge ? "w-[300px]" : "w-[260px]"
       )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-transform duration-150">
         {/* Wide Image - maximized */}
         <div className={cn(
           "relative bg-muted overflow-hidden",
-          "aspect-[16/10]"
+          isLarge ? "aspect-[16/11]" : "aspect-[16/10]"
         )}>
           {featuredImage ? (
             <img

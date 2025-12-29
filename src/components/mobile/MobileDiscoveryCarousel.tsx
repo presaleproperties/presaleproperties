@@ -98,8 +98,8 @@ export function MobileDiscoveryCarousel({
         </div>
         <div className="flex gap-3 overflow-hidden px-4">
           {[1, 2].map((i) => (
-            <div key={i} className={isHotProjects ? "shrink-0 w-[260px]" : "shrink-0 w-[220px]"}>
-              <Skeleton className="aspect-[16/10] w-full rounded-t-xl" />
+            <div key={i} className={isHotProjects ? "shrink-0 w-[300px]" : "shrink-0 w-[260px]"}>
+              <Skeleton className={isHotProjects ? "aspect-[16/11] w-full rounded-t-xl" : "aspect-[16/10] w-full rounded-t-xl"} />
               <div className="px-3 py-2 bg-card rounded-b-xl border border-t-0 border-border flex justify-between">
                 <div className="space-y-1">
                   <Skeleton className="h-4 w-24" />
