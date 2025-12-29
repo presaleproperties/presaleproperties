@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import realBrokerLogo from "@/assets/real-broker-logo.avif";
 
 const CITY_LINKS = [
   { slug: "vancouver", name: "Vancouver", label: "Presale Condos Vancouver" },
@@ -97,6 +98,23 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
+          </div>
+        </div>
+
+        {/* Brokerage Section */}
+        <div className="mt-8 pt-6 border-t border-border">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 justify-center">
+            <img 
+              src={realBrokerLogo} 
+              alt="Real Broker" 
+              className="h-10 sm:h-12 w-auto object-contain"
+            />
+            <div className="text-center sm:text-left">
+              <p className="text-sm font-medium text-foreground">Real Broker</p>
+              <p className="text-xs text-muted-foreground">
+                666 Burrard St, Suite 500, Vancouver, British Columbia V6C 3P6
+              </p>
+            </div>
           </div>
         </div>
 
