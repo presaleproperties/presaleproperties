@@ -70,12 +70,12 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
       />
       
       {/* Floating Search */}
-      <div className="fixed inset-x-0 top-0 z-50 px-4 pt-16 sm:pt-20 animate-fade-in">
-        <div className="mx-auto max-w-sm">
+      <div className="fixed inset-x-0 top-0 z-50 px-4 pt-24 sm:pt-28 md:pt-32 animate-fade-in">
+        <div className="mx-auto w-full max-w-[320px] sm:max-w-[360px] md:max-w-[400px]">
           {/* Close button */}
           <button
             onClick={() => onOpenChange(false)}
-            className="absolute top-6 right-6 h-8 w-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl text-white hover:bg-white/20 transition-colors"
+            className="absolute top-8 sm:top-10 right-4 sm:right-6 h-8 w-8 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-xl text-white hover:bg-white/20 transition-colors"
           >
             <X className="h-4 w-4" />
           </button>
