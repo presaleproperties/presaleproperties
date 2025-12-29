@@ -184,15 +184,6 @@ export function MobileProjectCard({
               )}
             </div>
           )}
-
-          {/* Deposit badge - bottom right on image */}
-          {depositPercent && (
-            <div className="absolute bottom-2 right-2">
-              <span className="text-[11px] font-bold text-white bg-primary/90 px-2 py-1 rounded shadow-sm">
-                {depositPercent}%
-              </span>
-            </div>
-          )}
         </div>
 
         {/* Info Section - Side by side layout */}
