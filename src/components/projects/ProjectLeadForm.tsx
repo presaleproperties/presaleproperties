@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Sparkles, Download, MessageCircle, Shield, Clock, Users } from "lucide-react";
+import { Send, CheckCircle, Sparkles, Download, MessageCircle, Shield, Clock, Users, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,8 +139,8 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
 
   if (isSubmitted) {
     return (
-      <div className="bg-gradient-to-br from-green-500/10 via-green-500/5 to-background border border-green-500/20 rounded-2xl p-6 text-center">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/10 rounded-full mb-4">
+      <div className="bg-card border-2 border-green-500/30 rounded-2xl p-6 text-center shadow-lg">
+        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/15 rounded-full mb-4">
           <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
         <h3 className="text-xl font-bold text-foreground mb-2">
@@ -152,7 +152,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
         <Button
           asChild
           size="lg"
-          className="w-full h-14 text-base font-semibold rounded-xl bg-green-600 hover:bg-green-700"
+          className="w-full h-14 text-base font-semibold rounded-xl bg-green-600 hover:bg-green-700 text-white"
         >
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="h-5 w-5 mr-2" />
@@ -173,7 +173,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           subtitle: "Floor Plans & Pricing",
           description: "Be the first to receive exclusive pricing and floor plans.",
           buttonText: "Get Early Access",
-          buttonIcon: <Download className="h-5 w-5" />,
+          buttonIcon: <ArrowRight className="h-5 w-5" />,
         };
       case "active":
         return {
@@ -183,7 +183,7 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           subtitle: "& Pricing Instantly",
           description: "Access all floor plans, pricing, and current incentives.",
           buttonText: "Get Instant Access",
-          buttonIcon: <Download className="h-5 w-5" />,
+          buttonIcon: <ArrowRight className="h-5 w-5" />,
         };
       default:
         return {
@@ -201,85 +201,98 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
   const content = getFormContent();
 
   return (
-    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-2xl overflow-hidden shadow-lg">
-      {/* Header with urgency messaging */}
-      <div className="bg-primary/10 px-5 py-5 border-b border-primary/10">
-        <div className="flex items-center gap-2 mb-2">
-          {content.badgeIcon && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/15 px-2.5 py-1 rounded-full">
-              {content.badgeIcon}
-              {content.badge}
-            </span>
-          )}
-        </div>
-        <h3 className="text-2xl font-bold text-foreground leading-tight">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+      {/* Header */}
+      <div className="bg-primary px-5 py-5">
+        {content.badgeIcon && (
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground/90 bg-primary-foreground/15 px-2.5 py-1 rounded-full mb-3">
+            {content.badgeIcon}
+            {content.badge}
+          </span>
+        )}
+        <h3 className="text-2xl font-bold text-primary-foreground leading-tight">
           {content.title}
-          <span className="block text-primary">{content.subtitle}</span>
+          <span className="block text-primary-foreground/90">{content.subtitle}</span>
         </h3>
-        <p className="text-sm text-muted-foreground mt-2">
+        <p className="text-sm text-primary-foreground/75 mt-2">
           {content.description}
         </p>
       </div>
 
       {/* Form */}
-      <div className="p-5">
+      <div className="p-5 bg-card">
         <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="lead-name" className="text-sm font-semibold">Full Name</Label>
+          {/* Name Field */}
+          <div className="space-y-2">
+            <Label htmlFor="lead-name" className="text-sm font-semibold text-foreground">
+              Full Name <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="lead-name"
               placeholder="John Smith"
               {...register("name")}
-              className={`h-12 text-base rounded-xl bg-background ${errors.name ? "border-destructive" : "border-input"}`}
+              className={`h-12 text-base rounded-xl bg-background border-2 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                errors.name ? "border-destructive focus:border-destructive" : "border-input"
+              }`}
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
+              <p className="text-xs text-destructive font-medium">{errors.name.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="lead-email" className="text-sm font-semibold">Email</Label>
+          {/* Email Field */}
+          <div className="space-y-2">
+            <Label htmlFor="lead-email" className="text-sm font-semibold text-foreground">
+              Email <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="lead-email"
               type="email"
               placeholder="john@example.com"
               {...register("email")}
-              className={`h-12 text-base rounded-xl bg-background ${errors.email ? "border-destructive" : "border-input"}`}
+              className={`h-12 text-base rounded-xl bg-background border-2 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                errors.email ? "border-destructive focus:border-destructive" : "border-input"
+              }`}
             />
             {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
+              <p className="text-xs text-destructive font-medium">{errors.email.message}</p>
             )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="lead-phone" className="text-sm font-semibold">Phone</Label>
+          {/* Phone Field */}
+          <div className="space-y-2">
+            <Label htmlFor="lead-phone" className="text-sm font-semibold text-foreground">
+              Phone <span className="text-destructive">*</span>
+            </Label>
             <Input
               id="lead-phone"
               type="tel"
               inputMode="tel"
               placeholder="(604) 555-0123"
               {...register("phone")}
-              className={`h-12 text-base rounded-xl bg-background ${errors.phone ? "border-destructive" : "border-input"}`}
+              className={`h-12 text-base rounded-xl bg-background border-2 text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                errors.phone ? "border-destructive focus:border-destructive" : "border-input"
+              }`}
             />
             {errors.phone && (
-              <p className="text-xs text-destructive">{errors.phone.message}</p>
+              <p className="text-xs text-destructive font-medium">{errors.phone.message}</p>
             )}
           </div>
 
-          {/* Is Realtor Question - Pill buttons */}
-          <div className="space-y-2">
-            <Label className="text-sm font-semibold">Are you a realtor?</Label>
+          {/* Is Realtor Question */}
+          <div className="space-y-2.5 pt-1">
+            <Label className="text-sm font-semibold text-foreground">Are you a realtor?</Label>
             <RadioGroup 
               value={isRealtor} 
               onValueChange={(value) => setValue("is_realtor", value as "yes" | "no")}
-              className="flex gap-2"
+              className="flex gap-3"
             >
               <Label 
                 htmlFor="is-realtor-no" 
-                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
                   isRealtor === "no" 
-                    ? "border-primary bg-primary/10 text-primary" 
-                    : "border-border hover:border-muted-foreground/50"
+                    ? "border-primary bg-primary text-primary-foreground shadow-md" 
+                    : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
                 }`}
               >
                 <RadioGroupItem value="no" id="is-realtor-no" className="sr-only" />
@@ -287,10 +300,10 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
               </Label>
               <Label 
                 htmlFor="is-realtor-yes" 
-                className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
                   isRealtor === "yes" 
-                    ? "border-primary bg-primary/10 text-primary" 
-                    : "border-border hover:border-muted-foreground/50"
+                    ? "border-primary bg-primary text-primary-foreground shadow-md" 
+                    : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
                 }`}
               >
                 <RadioGroupItem value="yes" id="is-realtor-yes" className="sr-only" />
@@ -301,19 +314,19 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
 
           {/* Has Realtor Question - Only show if they're not a realtor */}
           {isRealtor === "no" && (
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold">Working with a realtor?</Label>
+            <div className="space-y-2.5">
+              <Label className="text-sm font-semibold text-foreground">Working with a realtor?</Label>
               <RadioGroup 
                 value={hasRealtor} 
                 onValueChange={(value) => setValue("has_realtor", value as "yes" | "no")}
-                className="flex gap-2"
+                className="flex gap-3"
               >
                 <Label 
                   htmlFor="realtor-no" 
-                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                  className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
                     hasRealtor === "no" 
-                      ? "border-primary bg-primary/10 text-primary" 
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-primary bg-primary text-primary-foreground shadow-md" 
+                      : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
                   }`}
                 >
                   <RadioGroupItem value="no" id="realtor-no" className="sr-only" />
@@ -321,10 +334,10 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
                 </Label>
                 <Label 
                   htmlFor="realtor-yes" 
-                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 cursor-pointer transition-all text-sm font-medium ${
+                  className={`flex-1 flex items-center justify-center h-12 rounded-xl border-2 cursor-pointer transition-all text-sm font-semibold ${
                     hasRealtor === "yes" 
-                      ? "border-primary bg-primary/10 text-primary" 
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-primary bg-primary text-primary-foreground shadow-md" 
+                      : "border-border bg-background text-foreground hover:border-primary/50 hover:bg-muted/50"
                   }`}
                 >
                   <RadioGroupItem value="yes" id="realtor-yes" className="sr-only" />
@@ -334,38 +347,39 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
             </div>
           )}
 
+          {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-14 text-base font-bold rounded-xl gap-2 shadow-lg"
+            className="w-full h-14 text-base font-bold rounded-xl gap-2 shadow-lg mt-2"
             size="lg"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
-                <span className="h-5 w-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                 Sending...
               </span>
             ) : (
               <>
-                {content.buttonIcon}
                 {content.buttonText}
+                {content.buttonIcon}
               </>
             )}
           </Button>
 
           {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-4 pt-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Shield className="h-3.5 w-3.5" />
-              Secure
+          <div className="flex items-center justify-center gap-5 pt-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Shield className="h-4 w-4 text-green-500" />
+              <span className="font-medium">Secure</span>
             </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3.5 w-3.5" />
-              Instant
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-4 w-4 text-blue-500" />
+              <span className="font-medium">Instant</span>
             </span>
-            <span className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" />
-              Free
+            <span className="flex items-center gap-1.5">
+              <Users className="h-4 w-4 text-purple-500" />
+              <span className="font-medium">Free</span>
             </span>
           </div>
         </form>
