@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -9,6 +9,9 @@ export function MobileBottomNav() {
   const location = useLocation();
   const [searchOpen, setSearchOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState("16722581100");
+  const [isVisible, setIsVisible] = useState(true);
+  const lastScrollY = useRef(0);
+  const scrollThreshold = 10;
   
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -20,6 +23,29 @@ export function MobileBottomNav() {
       if (data?.value) setWhatsappNumber(data.value as string);
     };
     fetchWhatsapp();
+  }, []);
+
+  // Scroll detection for hide/show
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDiff = currentScrollY - lastScrollY.current;
+      
+      // Only trigger if scroll difference exceeds threshold
+      if (Math.abs(scrollDiff) > scrollThreshold) {
+        if (scrollDiff > 0 && currentScrollY > 50) {
+          // Scrolling down - hide
+          setIsVisible(false);
+        } else {
+          // Scrolling up - show
+          setIsVisible(true);
+        }
+        lastScrollY.current = currentScrollY;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in presale properties. Can you help me?")}`;
@@ -44,8 +70,14 @@ export function MobileBottomNav() {
 
   return (
     <>
-      {/* Transparent Gradient Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none">
+      {/* Transparent Gradient Bottom Bar - Hide on scroll */}
+      <div 
+        className={cn(
+          "fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none",
+          "transition-all duration-300 ease-out",
+          isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        )}
+      >
         {/* Gradient fade background */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         
