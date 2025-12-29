@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AccessPackModal } from "./AccessPackModal";
+import { SearchPopup } from "./SearchPopup";
 import { supabase } from "@/integrations/supabase/client";
 
 const CITY_LINKS = [
@@ -35,10 +36,8 @@ export function ConversionHeader() {
   const [citiesOpen, setCitiesOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -51,15 +50,6 @@ export function ConversionHeader() {
     };
     fetchWhatsapp();
   }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/presale-projects?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-      setSearchQuery("");
-    }
-  };
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -163,45 +153,14 @@ export function ConversionHeader() {
 
           {/* Desktop Search & CTAs */}
           <div className="hidden lg:flex items-center gap-2">
-            {/* Expandable Search */}
-            <div className="relative">
-              {searchOpen ? (
-                <form onSubmit={handleSearch} className="flex items-center">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search projects..."
-                    className="w-48 h-9 px-3 pr-8 text-sm border border-border rounded-md bg-background focus:outline-none focus:ring-1 focus:ring-primary/50"
-                    autoFocus
-                    onBlur={() => {
-                      if (!searchQuery) setSearchOpen(false);
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-0 h-9 w-9 text-muted-foreground hover:text-foreground"
-                    onClick={() => {
-                      setSearchOpen(false);
-                      setSearchQuery("");
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </form>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 text-muted-foreground hover:text-foreground"
-                  onClick={() => setSearchOpen(true)}
-                >
-                  <Search className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-muted-foreground hover:text-foreground"
+              onClick={() => setSearchOpen(true)}
+            >
+              <Search className="h-4 w-4" />
+            </Button>
             <Button variant="outline" size="sm" onClick={openCallBack}>
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
@@ -218,7 +177,7 @@ export function ConversionHeader() {
               variant="ghost" 
               size="icon" 
               className="h-10 w-10 text-muted-foreground"
-              onClick={() => navigate("/presale-projects?focus=search")}
+              onClick={() => setSearchOpen(true)}
             >
               <Search className="h-5 w-5" />
             </Button>
@@ -343,6 +302,8 @@ export function ConversionHeader() {
         variant="fit_call"
         source="header"
       />
+
+      <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
     </>
   );
 }
