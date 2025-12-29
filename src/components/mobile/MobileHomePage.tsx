@@ -7,7 +7,7 @@ import { MobileBottomNav } from "./MobileBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
+import { RelatedContent } from "@/components/home/RelatedContent";
 import { Footer } from "@/components/layout/Footer";
 
 export function MobileHomePage() {
@@ -149,8 +149,8 @@ export function MobileHomePage() {
         <NewConstructionBenefits />
       </div>
 
-      {/* CTA Section */}
-      <BuyerCTASection />
+      {/* Quick Links Section */}
+      <RelatedContent />
 
       {/* Footer - with extra bottom padding for nav */}
       <div className="pb-24">
