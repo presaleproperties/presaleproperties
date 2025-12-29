@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
+import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -162,14 +162,18 @@ export function ConversionHeader() {
           </div>
 
           {/* Mobile Menu */}
-          <div className="flex items-center gap-2 lg:hidden">
-            <Button size="sm" onClick={openChatNow} className="h-9 px-3 bg-[#25D366] hover:bg-[#20BD5A] text-white">
-              <MessageCircle className="h-4 w-4" />
+          <div className="flex items-center gap-1 lg:hidden">
+            <Button 
+              size="icon" 
+              className="h-10 w-10 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground"
+              onClick={() => {/* TODO: open search */}}
+            >
+              <Search className="h-5 w-5" />
             </Button>
             
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="shrink-0">
+                <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
                   <span className="sr-only">Toggle menu</span>
                   {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </Button>
