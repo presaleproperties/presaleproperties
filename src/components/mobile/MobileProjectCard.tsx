@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Building2 } from "lucide-react";
+import { Calendar, Building2, MapPin } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -200,9 +200,15 @@ export function MobileProjectCard({
           {/* Left: Name & Location */}
           <div className="min-w-0 flex-1">
             <h4 className="font-semibold text-sm text-foreground truncate">{name}</h4>
-            <p className="text-xs text-muted-foreground truncate">{city}</p>
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">{city}</span>
+            </div>
             {completionYear && (
-              <p className="text-[10px] text-muted-foreground mt-0.5">{completionYear}</p>
+              <div className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
+                <Calendar className="h-2.5 w-2.5 shrink-0" />
+                <span>{completionYear}</span>
+              </div>
             )}
           </div>
           
