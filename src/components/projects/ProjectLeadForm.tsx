@@ -28,6 +28,7 @@ interface ProjectLeadFormProps {
   projectId: string;
   projectName: string;
   status: "coming_soon" | "active" | "sold_out";
+  brochureUrl?: string | null;
 }
 
 const PERSONAS = [
@@ -51,7 +52,7 @@ const PROPERTY_TYPES = [
   { value: "townhome", label: "Townhome" },
 ];
 
-export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadFormProps) {
+export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
@@ -187,11 +188,28 @@ export function ProjectLeadForm({ projectId, projectName, status }: ProjectLeadF
           <CheckCircle className="h-8 w-8 text-green-500" />
         </div>
         <h3 className="text-xl font-bold text-foreground mb-2">You're All Set!</h3>
-        <p className="text-muted-foreground mb-5">We'll be in touch shortly with project details.</p>
+        <p className="text-muted-foreground mb-4">
+          Check your email for the latest pricing & floor plans.
+        </p>
+        
+        {brochureUrl && (
+          <Button
+            asChild
+            size="lg"
+            className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground mb-3"
+          >
+            <a href={brochureUrl} target="_blank" rel="noopener noreferrer" download>
+              <Download className="h-5 w-5 mr-2" />
+              Download Brochure
+            </a>
+          </Button>
+        )}
+        
         <Button
           asChild
           size="lg"
-          className="w-full h-14 text-base font-semibold rounded-xl bg-green-600 hover:bg-green-700 text-white"
+          variant={brochureUrl ? "outline" : "default"}
+          className={`w-full h-14 text-base font-semibold rounded-xl ${!brochureUrl ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
         >
           <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
             <MessageCircle className="h-5 w-5 mr-2" />

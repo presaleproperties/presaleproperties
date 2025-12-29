@@ -631,6 +631,7 @@ export default function PresaleProjectDetail() {
                     projectId={project.id}
                     projectName={project.name}
                     status={project.status}
+                    brochureUrl={project.brochure_files?.[0] || null}
                   />
                   
                   {/* Quick Actions Below Form - Desktop only */}
