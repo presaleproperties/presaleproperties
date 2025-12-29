@@ -87,6 +87,13 @@ export function MobileHomePage() {
           city={selectedCity}
         />
 
+        {/* Single-Family / Detached - Large Cards */}
+        <MobileDiscoveryCarousel
+          type="single_family"
+          title="Detached Homes"
+          city={selectedCity}
+        />
+
         {/* City-based Carousels */}
         <MobileDiscoveryCarousel
           type="city_vancouver"
