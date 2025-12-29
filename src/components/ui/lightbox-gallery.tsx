@@ -201,7 +201,7 @@ export function LightboxGallery({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-black/98 border-none rounded-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-100 duration-200" aria-describedby={undefined}>
+      <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-black/98 border-none rounded-none [&>button]:hidden data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-100 duration-200" aria-describedby={undefined}>
         <VisuallyHidden>
           <DialogTitle>Image Gallery - {alt}</DialogTitle>
         </VisuallyHidden>
@@ -218,11 +218,12 @@ export function LightboxGallery({
           <Button
             variant="ghost"
             size="icon"
-            className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 h-10 w-10"
+            className="absolute top-4 right-4 z-50 text-white bg-black/40 hover:bg-black/60 border border-white/20 h-11 w-11"
             onClick={(e) => {
               e.stopPropagation();
               onOpenChange(false);
             }}
+            aria-label="Close gallery"
           >
             <X className="h-6 w-6" />
           </Button>
@@ -324,10 +325,11 @@ export function LightboxGallery({
             </Button>
           )}
 
-          {/* Thumbnail strip - moved up on mobile to avoid browser navigation */}
+          {/* Thumbnail strip - lifted for mobile safe-area */}
           {images.length > 1 && scale <= 1 && (
-            <div 
-              className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto"
+            <div
+              className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto"
+              style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
               onClick={(e) => e.stopPropagation()}
             >
               {images.map((img, i) => (
@@ -350,11 +352,6 @@ export function LightboxGallery({
               ))}
             </div>
           )}
-
-          {/* Mobile zoom hint - positioned above thumbnails */}
-          <div className="absolute bottom-36 md:bottom-24 left-1/2 -translate-x-1/2 text-white/50 text-xs md:hidden text-center">
-            {scale > 1 ? "Pinch or double-tap to zoom out" : "Double-tap or pinch to zoom • Swipe to navigate"}
-          </div>
         </div>
       </DialogContent>
     </Dialog>
