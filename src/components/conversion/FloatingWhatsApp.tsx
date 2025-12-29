@@ -32,10 +32,10 @@ export function FloatingWhatsApp() {
   return (
     <button
       onClick={handleClick}
-      className="fixed bottom-20 right-4 lg:bottom-6 lg:right-6 z-50 h-14 w-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
+      className="fixed bottom-20 right-3 md:right-4 lg:right-6 z-50 h-11 w-11 md:h-12 md:w-12 lg:h-14 lg:w-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 flex items-center justify-center group"
       aria-label="Chat on WhatsApp"
     >
-      <MessageCircle className="h-7 w-7" />
+      <MessageCircle className="h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7" />
       
       {/* Tooltip on desktop */}
       <span className="hidden lg:block absolute right-16 bg-foreground text-background text-sm font-medium px-3 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
