@@ -12,6 +12,7 @@ interface SearchSuggestionsProps {
   isVisible: boolean;
   onClose: () => void;
   searchMode?: "assignments" | "projects";
+  glassStyle?: boolean;
 }
 
 interface Suggestion {
@@ -28,7 +29,8 @@ export function SearchSuggestions({
   onSelect, 
   isVisible, 
   onClose,
-  searchMode = "projects"
+  searchMode = "projects",
+  glassStyle = false
 }: SearchSuggestionsProps) {
   const [activeIndex, setActiveIndex] = useState(-1);
   const listRef = useRef<HTMLDivElement>(null);
@@ -248,16 +250,19 @@ export function SearchSuggestions({
   }
 
   const getIcon = (type: SuggestionType) => {
+    const iconClass = glassStyle ? "text-white/80" : "text-primary";
+    const mutedIconClass = glassStyle ? "text-white/60" : "text-muted-foreground";
+    
     switch (type) {
       case "project":
       case "presale":
-        return <Building2 className="h-4 w-4 text-primary shrink-0" />;
+        return <Building2 className={cn("h-4 w-4 shrink-0", iconClass)} />;
       case "neighborhood":
-        return <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />;
+        return <MapPin className={cn("h-4 w-4 shrink-0", mutedIconClass)} />;
       case "city":
-        return <MapPinned className="h-4 w-4 text-primary/70 shrink-0" />;
+        return <MapPinned className={cn("h-4 w-4 shrink-0", iconClass)} />;
       case "developer":
-        return <HardHat className="h-4 w-4 text-primary/70 shrink-0" />;
+        return <HardHat className={cn("h-4 w-4 shrink-0", iconClass)} />;
     }
   };
 
@@ -279,29 +284,40 @@ export function SearchSuggestions({
   return (
     <div
       ref={listRef}
-      className="bg-background overflow-hidden max-h-64 overflow-y-auto"
-    >
-      {isShowingPopular && (
-        <div className="flex items-center gap-2 px-4 py-2 text-xs text-muted-foreground border-b border-border bg-muted/30">
-          <TrendingUp className="h-3 w-3" />
-          Popular Searches
-        </div>
+      className={cn(
+        "overflow-hidden max-h-64 overflow-y-auto",
+        glassStyle ? "bg-transparent" : "bg-background"
       )}
+    >
       {suggestions.map((suggestion, index) => (
         <button
           key={`${suggestion.type}-${suggestion.value}`}
           type="button"
           className={cn(
-            "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
-            index === activeIndex ? "bg-muted" : "hover:bg-muted/50"
+            "w-full flex items-center gap-3 px-4 py-2.5 text-left transition-colors",
+            glassStyle 
+              ? index === activeIndex 
+                ? "bg-white/20" 
+                : "hover:bg-white/10"
+              : index === activeIndex 
+                ? "bg-muted" 
+                : "hover:bg-muted/50"
           )}
           onClick={() => onSelect(suggestion.value, suggestion.type, suggestion.slug)}
           onMouseEnter={() => setActiveIndex(index)}
         >
           {getIcon(suggestion.type)}
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground truncate">{suggestion.value}</p>
-            <p className="text-xs text-muted-foreground">
+            <p className={cn(
+              "font-medium truncate text-sm",
+              glassStyle ? "text-white" : "text-foreground"
+            )}>
+              {suggestion.value}
+            </p>
+            <p className={cn(
+              "text-xs",
+              glassStyle ? "text-white/60" : "text-muted-foreground"
+            )}>
               {getLabel(suggestion.type)}
               {suggestion.count > 1 && ` · ${suggestion.count} ${suggestion.type === "presale" ? "project" : "listing"}${suggestion.count !== 1 ? "s" : ""}`}
             </p>
