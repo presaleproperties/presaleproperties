@@ -8,7 +8,7 @@ type SuggestionType = "project" | "neighborhood" | "city" | "developer" | "presa
 
 interface SearchSuggestionsProps {
   query: string;
-  onSelect: (value: string, type: SuggestionType) => void;
+  onSelect: (value: string, type: SuggestionType, slug?: string) => void;
   isVisible: boolean;
   onClose: () => void;
   searchMode?: "assignments" | "projects";
@@ -229,7 +229,8 @@ export function SearchSuggestions({
         case "Enter":
           e.preventDefault();
           if (activeIndex >= 0 && suggestions[activeIndex]) {
-            onSelect(suggestions[activeIndex].value, suggestions[activeIndex].type);
+            const s = suggestions[activeIndex];
+            onSelect(s.value, s.type, s.slug);
           }
           break;
         case "Escape":
@@ -254,9 +255,9 @@ export function SearchSuggestions({
       case "neighborhood":
         return <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />;
       case "city":
-        return <MapPinned className="h-4 w-4 text-blue-500 shrink-0" />;
+        return <MapPinned className="h-4 w-4 text-primary/70 shrink-0" />;
       case "developer":
-        return <HardHat className="h-4 w-4 text-amber-500 shrink-0" />;
+        return <HardHat className="h-4 w-4 text-primary/70 shrink-0" />;
     }
   };
 
@@ -289,13 +290,12 @@ export function SearchSuggestions({
       {suggestions.map((suggestion, index) => (
         <button
           key={`${suggestion.type}-${suggestion.value}`}
+          type="button"
           className={cn(
             "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
-            index === activeIndex
-              ? "bg-muted"
-              : "hover:bg-muted/50"
+            index === activeIndex ? "bg-muted" : "hover:bg-muted/50"
           )}
-          onClick={() => onSelect(suggestion.value, suggestion.type)}
+          onClick={() => onSelect(suggestion.value, suggestion.type, suggestion.slug)}
           onMouseEnter={() => setActiveIndex(index)}
         >
           {getIcon(suggestion.type)}
