@@ -1,6 +1,5 @@
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
-import { StickyConversionBar } from "@/components/conversion/StickyConversionBar";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
@@ -11,6 +10,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
+import { MobileBottomNav } from "@/components/mobile/MobileBottomNav";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data (helps with AI recommendations)
@@ -213,7 +213,7 @@ const Index = () => {
           <BuyerCTASection />
         </ScrollReveal>
       </main>
-      <StickyConversionBar />
+      <MobileBottomNav />
       <Footer />
     </div>
   );

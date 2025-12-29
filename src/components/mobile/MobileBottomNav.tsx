@@ -103,10 +103,10 @@ export function MobileBottomNav({ selectedCity = "all", onCityChange }: MobileBo
 
   return (
     <>
-      {/* Transparent Gradient Bottom Bar - Hide on scroll */}
+      {/* Transparent Gradient Bottom Bar - Visible on all devices, hide on scroll */}
       <div 
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-50 md:hidden pointer-events-none",
+          "fixed bottom-0 left-0 right-0 z-50 pointer-events-none",
           "transition-all duration-300 ease-out",
           isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
         )}
@@ -114,35 +114,37 @@ export function MobileBottomNav({ selectedCity = "all", onCityChange }: MobileBo
         {/* Gradient fade background */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
         
-        {/* Button container */}
-        <div className="relative flex items-center justify-center gap-2 px-6 py-4 pb-6 pointer-events-auto">
+        {/* Button container - responsive sizing */}
+        <div className="relative flex items-center justify-center gap-2 md:gap-3 lg:gap-4 px-6 py-4 pb-6 md:pb-8 pointer-events-auto">
           {/* Location Button - Glass Circle */}
           <button
             onClick={handleLocationClick}
             className={cn(
-              "flex items-center justify-center h-10 w-10 rounded-full",
+              "flex items-center justify-center rounded-full",
+              "h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14",
               "bg-white/10 backdrop-blur-2xl",
               "border border-white/20",
               "shadow-lg",
-              "active:scale-95 transition-all duration-150"
+              "hover:bg-white/20 active:scale-95 transition-all duration-150"
             )}
           >
-            <MapPin className="h-4 w-4 text-foreground/80" />
+            <MapPin className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground/80" />
           </button>
 
           {/* Search Button - Glass CTA */}
           <button
             onClick={handleSearchClick}
             className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-full",
+              "flex items-center gap-2 md:gap-2.5 rounded-full",
+              "px-4 py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-3.5",
               "bg-white/10 backdrop-blur-2xl",
               "border border-white/20",
-              "text-foreground/80 font-medium text-sm",
+              "text-foreground/80 font-medium text-sm md:text-base lg:text-lg",
               "shadow-lg",
-              "active:scale-95 transition-all duration-150"
+              "hover:bg-white/20 active:scale-95 transition-all duration-150"
             )}
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
             <span>Search</span>
           </button>
 
@@ -150,17 +152,18 @@ export function MobileBottomNav({ selectedCity = "all", onCityChange }: MobileBo
           <button
             onClick={handleMessageClick}
             className={cn(
-              "flex items-center justify-center h-10 w-10 rounded-full",
+              "flex items-center justify-center rounded-full",
+              "h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14",
               "bg-white/10 backdrop-blur-2xl",
               "border border-white/20",
               "shadow-lg",
-              "active:scale-95 transition-all duration-150"
+              "hover:bg-white/20 active:scale-95 transition-all duration-150"
             )}
           >
             {/* WhatsApp Logo - Clean outline style */}
             <svg 
               viewBox="0 0 24 24" 
-              className="h-5 w-5 text-foreground/70"
+              className="h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 text-foreground/70"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.5"
