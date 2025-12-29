@@ -79,14 +79,14 @@ export function MobileCategoryChips({ selectedChip, onChipSelect }: MobileCatego
     <div className="md:hidden overflow-hidden">
       <div
         ref={scrollRef}
-        className="flex gap-1.5 overflow-x-auto scrollbar-hide px-3 py-1"
+        className="flex gap-2 overflow-x-auto scrollbar-hide px-3 py-1"
       >
         {CATEGORY_CHIPS.map((chip) => (
           <button
             key={chip.id}
             onClick={() => handleChipClick(chip)}
             className={cn(
-              "px-2.5 py-0.5 rounded-full text-[11px] font-medium whitespace-nowrap transition-all active:scale-95",
+              "px-3 py-[3px] rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95",
               selectedChip === chip.id
                 ? "bg-foreground text-background"
                 : "bg-muted/70 text-muted-foreground"
