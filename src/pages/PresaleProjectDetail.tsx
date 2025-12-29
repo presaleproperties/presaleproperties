@@ -362,12 +362,12 @@ export default function PresaleProjectDetail() {
           </div>
         )}
 
-        {/* Hero - Side-by-side layout on desktop */}
+        {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-3 py-4 md:px-4 md:py-6 lg:py-8">
-            <div className="grid lg:grid-cols-5 gap-4 lg:gap-8">
-              {/* Gallery - Takes 3 columns on desktop */}
-              <div className="lg:col-span-3">
+            <div className="grid md:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+              {/* Gallery - Takes 3 columns on tablet/desktop */}
+              <div className="md:col-span-3">
                 <GalleryWithLightbox
                   images={allImages}
                   selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
@@ -377,8 +377,8 @@ export default function PresaleProjectDetail() {
                 />
               </div>
 
-              {/* Project Info - Takes 2 columns on desktop */}
-              <div className="lg:col-span-2">
+              {/* Project Info - Takes 2 columns on tablet/desktop */}
+              <div className="md:col-span-2">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
@@ -391,7 +391,7 @@ export default function PresaleProjectDetail() {
                 </div>
 
                 {/* Title and Location */}
-                <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-foreground mb-1.5 md:mb-2">{project.name}</h1>
+                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-1.5 md:mb-2 leading-tight">{project.name}</h1>
                 
                 {project.starting_price ? (
                   <div className="mb-2 md:mb-3">
@@ -403,23 +403,23 @@ export default function PresaleProjectDetail() {
                   <div className="text-base md:text-lg text-muted-foreground mb-2 md:mb-3">Contact for pricing</div>
                 )}
 
-                <div className="flex items-center gap-2 text-muted-foreground text-sm md:text-base mb-3">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
                   <MapPin className="h-3.5 w-3.5 md:h-4 md:w-4 shrink-0" />
-                  <span>{project.address || `${project.neighborhood}, ${project.city}`}</span>
+                  <span className="truncate">{project.address || `${project.neighborhood}, ${project.city}`}</span>
                 </div>
 
-                {/* Quick Facts on desktop hero */}
-                <div className="hidden lg:block space-y-3 mb-4">
+                {/* Quick Facts - visible on tablet and desktop */}
+                <div className="hidden md:block space-y-2 lg:space-y-3 mb-3 lg:mb-4">
                   {project.developer_name && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-xs lg:text-sm">
+                      <Building2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Developer:</span>
-                      <span className="font-medium">{project.developer_name}</span>
+                      <span className="font-medium truncate">{project.developer_name}</span>
                     </div>
                   )}
                   {project.completion_year && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-xs lg:text-sm">
+                      <Calendar className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Completion:</span>
                       <span className="font-medium">
                         {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
@@ -427,39 +427,39 @@ export default function PresaleProjectDetail() {
                     </div>
                   )}
                   {project.unit_mix && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Home className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-xs lg:text-sm">
+                      <Home className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Units:</span>
-                      <span className="font-medium">{project.unit_mix}</span>
+                      <span className="font-medium truncate">{project.unit_mix}</span>
                     </div>
                   )}
                   {project.deposit_structure && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2 text-xs lg:text-sm">
+                      <DollarSign className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Deposit:</span>
-                      <span className="font-medium">{project.deposit_structure}</span>
+                      <span className="font-medium truncate">{project.deposit_structure}</span>
                     </div>
                   )}
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-wrap gap-2 md:gap-3 mt-3 md:mt-4 mb-2">
-                  <Button size="default" onClick={scrollToForm} className="font-semibold text-sm md:text-base md:h-11">
+                <div className="flex flex-wrap gap-2 md:gap-2.5 lg:gap-3 mt-3 md:mt-4 mb-2">
+                  <Button size="default" onClick={scrollToForm} className="font-semibold text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11">
                     {project.status === "coming_soon" ? (
                       <>Register Now</>
                     ) : (
                       <>Download Plans</>
                     )}
                   </Button>
-                  <Button variant="outline" size="default" onClick={handleShare} className="text-sm md:text-base md:h-11">
-                    <Share2 className="h-4 w-4 mr-2" />
+                  <Button variant="outline" size="default" onClick={handleShare} className="text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11">
+                    <Share2 className="h-4 w-4 mr-1.5 md:mr-2" />
                     Share
                   </Button>
                 </div>
 
-                {/* Short description on desktop */}
+                {/* Short description - visible on tablet and desktop */}
                 {project.short_description && (
-                  <p className="hidden lg:block text-sm text-muted-foreground mt-4 leading-relaxed">
+                  <p className="hidden md:block text-xs lg:text-sm text-muted-foreground mt-3 lg:mt-4 leading-relaxed line-clamp-3 lg:line-clamp-none">
                     {project.short_description}
                   </p>
                 )}
@@ -468,10 +468,9 @@ export default function PresaleProjectDetail() {
           </div>
         </section>
 
-        {/* Mobile/Tablet Project Info Section */}
-        <section className="border-t lg:hidden">
-          <div className="container px-3 py-4 md:px-4 md:py-5">
-            {/* Highlights Grid for mobile/tablet */}
+        {/* Mobile-only Project Highlights Section */}
+        <section className="border-t md:hidden">
+          <div className="container px-3 py-4">
             <ProjectHighlights
               projectType={project.project_type}
               unitMix={project.unit_mix}
@@ -488,9 +487,9 @@ export default function PresaleProjectDetail() {
         {/* Details Grid */}
         <section className="py-4 md:py-6 lg:py-10">
           <div className="container px-3 md:px-4">
-            <div className="grid lg:grid-cols-3 gap-4 md:gap-5 lg:gap-8">
+            <div className="grid md:grid-cols-3 gap-4 md:gap-5 lg:gap-8">
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-8">
+              <div className="md:col-span-2 space-y-4 md:space-y-5 lg:space-y-8">
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
                   <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
@@ -626,7 +625,7 @@ export default function PresaleProjectDetail() {
 
               {/* Sidebar - Contact Form */}
               <div>
-                <div ref={formRef} id="contact-form" className="sticky top-24">
+                <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24">
                   <ProjectLeadForm
                     projectId={project.id}
                     projectName={project.name}
@@ -634,9 +633,9 @@ export default function PresaleProjectDetail() {
                     brochureUrl={project.brochure_files?.[0] || null}
                   />
                   
-                  {/* Quick Actions Below Form - Desktop only */}
-                  <div className="mt-4 hidden lg:flex flex-col gap-3">
-                    <Button variant="outline" size="lg" className="w-full" asChild>
+                  {/* Quick Actions Below Form - Tablet and Desktop */}
+                  <div className="mt-3 lg:mt-4 hidden md:flex flex-col gap-2 lg:gap-3">
+                    <Button variant="outline" size="default" className="w-full h-9 lg:h-10 text-sm lg:text-base" asChild>
                       <a href="tel:+16722581100">
                         <Phone className="h-4 w-4 mr-2" />
                         Call Now
