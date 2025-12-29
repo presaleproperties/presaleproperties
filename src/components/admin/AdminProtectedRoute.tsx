@@ -50,7 +50,7 @@ export function AdminProtectedRoute({ children }: AdminProtectedRouteProps) {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/admin/login" replace />;
   }
 
   if (!isAdmin) {
