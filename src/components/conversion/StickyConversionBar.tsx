@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Download, Calendar, X } from "lucide-react";
+import { MessageCircle, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AccessPackModal } from "./AccessPackModal";
 
@@ -62,15 +62,15 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
             onClick={openFloorplans}
             className="flex-1 h-12 font-semibold shadow-lg"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download Plans & Pricing
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Chat Now
           </Button>
           <Button 
             variant="outline" 
             onClick={openFitCall}
             className="h-12 px-4"
           >
-            <Calendar className="h-4 w-4" />
+            <Phone className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -82,16 +82,16 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
             onClick={openFloorplans}
             className="h-11 px-6 font-semibold rounded-full"
           >
-            <Download className="h-4 w-4 mr-2" />
-            Download Plans & Pricing
+            <MessageCircle className="h-4 w-4 mr-2" />
+            Chat Now
           </Button>
           <Button 
             variant="outline" 
             onClick={openFitCall}
             className="h-11 px-6 rounded-full"
           >
-            <Calendar className="h-4 w-4 mr-2" />
-            Book Fit Call
+            <Phone className="h-4 w-4 mr-2" />
+            Request a Call Back
           </Button>
           <button 
             onClick={() => setDismissed(true)}
