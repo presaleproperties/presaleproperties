@@ -42,6 +42,7 @@ import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
 import CityPresalePage from "./pages/CityPresalePage";
+import CityProductPage from "./pages/CityProductPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
@@ -61,6 +62,8 @@ const App = () => (
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
+            <Route path="/:citySlug-presale-condos" element={<CityProductPage />} />
+            <Route path="/:citySlug-presale-townhomes" element={<CityProductPage />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/assignments" element={<Assignments />} />
