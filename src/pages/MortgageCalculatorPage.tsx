@@ -129,7 +129,8 @@ export default function MortgageCalculatorPage() {
   const [customDownPaymentPercent, setCustomDownPaymentPercent] = useState("");
   const [customDownPaymentDollar, setCustomDownPaymentDollar] = useState("");
   const [downPaymentInputMode, setDownPaymentInputMode] = useState<"percent" | "dollar">("percent");
-  const [mortgageRate, setMortgageRate] = useState(4.99);
+  const [mortgageRate, setMortgageRate] = useState(3.79);
+  const [mortgageRateInput, setMortgageRateInput] = useState("3.79");
   const [amortization, setAmortization] = useState(25);
   const [paymentFrequency, setPaymentFrequency] = useState<"monthly" | "semi-monthly" | "bi-weekly" | "accelerated-bi-weekly" | "weekly" | "accelerated-weekly">("monthly");
   const [propertyTax, setPropertyTax] = useState(3000);
@@ -929,13 +930,24 @@ export default function MortgageCalculatorPage() {
                           <div className="relative">
                             <Input
                               id="mortgage-rate"
-                              type="number"
-                              value={mortgageRate}
-                              onChange={(e) => setMortgageRate(parseFloat(e.target.value) || 0)}
+                              type="text"
+                              inputMode="decimal"
+                              value={mortgageRateInput}
+                              onChange={(e) => {
+                                const value = e.target.value;
+                                setMortgageRateInput(value);
+                                const parsed = parseFloat(value);
+                                if (!isNaN(parsed) && parsed >= 0 && parsed <= 15) {
+                                  setMortgageRate(parsed);
+                                }
+                              }}
+                              onBlur={() => {
+                                if (mortgageRateInput === "" || isNaN(parseFloat(mortgageRateInput))) {
+                                  setMortgageRateInput(mortgageRate.toString());
+                                }
+                              }}
                               className="h-11 pr-8"
-                              step="0.01"
-                              min="0"
-                              max="15"
+                              placeholder="3.79"
                             />
                             <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           </div>
