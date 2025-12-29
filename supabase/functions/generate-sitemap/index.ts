@@ -33,16 +33,22 @@ Deno.serve(async (req) => {
     ];
 
     // City landing pages
-    const cityPages: { url: string; priority: string; changefreq: string; lastmod?: string }[] = [
-      "surrey", "langley", "coquitlam", "vancouver", "burnaby", "richmond",
+    const cities = ["surrey", "langley", "coquitlam", "vancouver", "burnaby", "richmond",
       "delta", "abbotsford", "port-coquitlam", "port-moody", "new-westminster",
-      "north-vancouver", "white-rock", "maple-ridge", "chilliwack"
-    ].map(city => ({
-      url: `/presale-condos-${city}`,
+      "north-vancouver", "white-rock", "maple-ridge", "chilliwack"];
+    
+    const cityPages = cities.map(city => ({
+      url: `/presale-condos/${city}`,
       priority: "0.85",
       changefreq: "daily",
       lastmod: now
     }));
+
+    // City + Product type SEO pages
+    const cityProductPages = cities.flatMap(city => [
+      { url: `/${city}-presale-condos`, priority: "0.85", changefreq: "daily", lastmod: now },
+      { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
+    ]);
 
     // Fetch presale projects
     const { data: projects } = await supabase
@@ -85,7 +91,7 @@ Deno.serve(async (req) => {
     }));
 
     // Build XML
-    const allPages = [...staticPages, ...cityPages, ...projectPages, ...blogPages, ...listingPages];
+    const allPages = [...staticPages, ...cityPages, ...cityProductPages, ...projectPages, ...blogPages, ...listingPages];
     
     const urlEntries = allPages.map(page => `
   <url>
