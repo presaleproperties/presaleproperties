@@ -212,19 +212,23 @@ export function LightboxGallery({
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
           onWheel={onWheel}
+          onClick={() => onOpenChange(false)}
         >
           {/* Close button */}
           <Button
             variant="ghost"
             size="icon"
             className="absolute top-4 right-4 z-50 text-white hover:bg-white/20 h-10 w-10"
-            onClick={() => onOpenChange(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenChange(false);
+            }}
           >
             <X className="h-6 w-6" />
           </Button>
 
           {/* Image counter and zoom controls */}
-          <div className="absolute top-4 left-4 z-50 flex items-center gap-2">
+          <div className="absolute top-4 left-4 z-50 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
             <div className="text-white/80 text-sm font-medium bg-black/40 px-3 py-1.5 rounded-full">
               {currentIndex + 1} / {images.length}
             </div>
@@ -269,7 +273,10 @@ export function LightboxGallery({
               variant="ghost"
               size="icon"
               className="absolute left-2 md:left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
-              onClick={goToPrev}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToPrev();
+              }}
             >
               <ChevronLeft className="h-8 w-8" />
             </Button>
@@ -279,6 +286,7 @@ export function LightboxGallery({
           <div 
             className="w-full h-full flex items-center justify-center px-4 py-20 md:px-16 md:py-24"
             style={{ cursor: scale > 1 ? 'grab' : 'default' }}
+            onClick={(e) => e.stopPropagation()}
           >
             <img
               ref={imageRef}
@@ -307,7 +315,10 @@ export function LightboxGallery({
               variant="ghost"
               size="icon"
               className="absolute right-2 md:right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
-              onClick={goToNext}
+              onClick={(e) => {
+                e.stopPropagation();
+                goToNext();
+              }}
             >
               <ChevronRight className="h-8 w-8" />
             </Button>
@@ -315,7 +326,10 @@ export function LightboxGallery({
 
           {/* Thumbnail strip - moved up on mobile to avoid browser navigation */}
           {images.length > 1 && scale <= 1 && (
-            <div className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto">
+            <div 
+              className="absolute bottom-20 md:bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               {images.map((img, i) => (
                 <button
                   key={i}
