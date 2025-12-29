@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { MessageCircle, Phone, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AccessPackModal } from "./AccessPackModal";
+import { supabase } from "@/integrations/supabase/client";
 
 interface StickyConversionBarProps {
   projectId?: string;
@@ -10,13 +11,24 @@ interface StickyConversionBarProps {
 
 export function StickyConversionBar({ projectId, projectName }: StickyConversionBarProps) {
   const [modalOpen, setModalOpen] = useState(false);
-  const [modalVariant, setModalVariant] = useState<"floorplans" | "fit_call">("floorplans");
   const [dismissed, setDismissed] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
+
+  useEffect(() => {
+    const fetchWhatsapp = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "whatsapp_number")
+        .maybeSingle();
+      if (data?.value) setWhatsappNumber(data.value as string);
+    };
+    fetchWhatsapp();
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show after scrolling 300px
       setVisible(window.scrollY > 300);
     };
 
@@ -24,26 +36,28 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const openFloorplans = () => {
-    setModalVariant("floorplans");
-    setModalOpen(true);
-    
-    // Track click
+  const whatsappMessage = projectName 
+    ? `Hi! I'm interested in ${projectName}. Can you help me with more details?`
+    : "Hi! I'm interested in learning about presale projects. Can you help me?";
+  
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+
+  const openChatNow = () => {
     if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "click_get_floorplans", {
+      (window as any).gtag("event", "click_chat_now", {
         page_path: window.location.pathname,
         project_name: projectName || "general",
         source: "sticky_bar",
       });
     }
+    window.open(whatsappLink, "_blank");
   };
 
-  const openFitCall = () => {
-    setModalVariant("fit_call");
+  const openCallBack = () => {
     setModalOpen(true);
     
     if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "click_book_call", {
+      (window as any).gtag("event", "click_request_callback", {
         page_path: window.location.pathname,
         project_name: projectName || "general",
         source: "sticky_bar",
@@ -59,7 +73,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
       <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur border-t border-border p-3 safe-area-pb">
         <div className="flex gap-2">
           <Button 
-            onClick={openFloorplans}
+            onClick={openChatNow}
             className="flex-1 h-12 font-semibold shadow-lg"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
@@ -67,7 +81,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
           </Button>
           <Button 
             variant="outline" 
-            onClick={openFitCall}
+            onClick={openCallBack}
             className="h-12 px-4"
           >
             <Phone className="h-4 w-4" />
@@ -79,7 +93,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
       <div className="hidden lg:block fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="bg-background/95 backdrop-blur border border-border rounded-full shadow-2xl px-2 py-2 flex items-center gap-2">
           <Button 
-            onClick={openFloorplans}
+            onClick={openChatNow}
             className="h-11 px-6 font-semibold rounded-full"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
@@ -87,7 +101,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
           </Button>
           <Button 
             variant="outline" 
-            onClick={openFitCall}
+            onClick={openCallBack}
             className="h-11 px-6 rounded-full"
           >
             <Phone className="h-4 w-4 mr-2" />
@@ -107,7 +121,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
         onOpenChange={setModalOpen}
         projectId={projectId}
         projectName={projectName}
-        variant={modalVariant}
+        variant="fit_call"
         source="sticky_bar"
       />
     </>
