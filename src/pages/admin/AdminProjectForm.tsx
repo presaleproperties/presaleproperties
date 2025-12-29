@@ -43,9 +43,16 @@ type ProjectFormData = {
   unit_mix: string;
   starting_price: string;
   deposit_structure: string;
+  deposit_percent: string;
   strata_fees: string;
   assignment_fees: string;
+  assignment_allowed: string;
+  rental_restrictions: string;
   incentives: string;
+  incentives_available: boolean;
+  near_skytrain: boolean;
+  map_lat: string;
+  map_lng: string;
   completion_month: string;
   completion_year: string;
   occupancy_estimate: string;
@@ -76,9 +83,16 @@ const defaultFormData: ProjectFormData = {
   unit_mix: "",
   starting_price: "",
   deposit_structure: "",
+  deposit_percent: "",
   strata_fees: "",
   assignment_fees: "",
+  assignment_allowed: "Unknown",
+  rental_restrictions: "Unknown",
   incentives: "",
+  incentives_available: false,
+  near_skytrain: false,
+  map_lat: "",
+  map_lng: "",
   completion_month: "",
   completion_year: "",
   occupancy_estimate: "",
@@ -141,9 +155,16 @@ export default function AdminProjectForm() {
         unit_mix: data.unit_mix || "",
         starting_price: data.starting_price?.toString() || "",
         deposit_structure: data.deposit_structure || "",
+        deposit_percent: data.deposit_percent?.toString() || "",
         strata_fees: data.strata_fees || "",
         assignment_fees: data.assignment_fees || "",
+        assignment_allowed: data.assignment_allowed || "Unknown",
+        rental_restrictions: data.rental_restrictions || "Unknown",
         incentives: data.incentives || "",
+        incentives_available: data.incentives_available || false,
+        near_skytrain: data.near_skytrain || false,
+        map_lat: data.map_lat?.toString() || "",
+        map_lng: data.map_lng?.toString() || "",
         completion_month: data.completion_month?.toString() || "",
         completion_year: data.completion_year?.toString() || "",
         occupancy_estimate: data.occupancy_estimate || "",
@@ -332,9 +353,16 @@ export default function AdminProjectForm() {
         unit_mix: formData.unit_mix || null,
         starting_price: formData.starting_price ? parseFloat(formData.starting_price) : null,
         deposit_structure: formData.deposit_structure || null,
+        deposit_percent: formData.deposit_percent ? parseInt(formData.deposit_percent) : null,
         strata_fees: formData.strata_fees || null,
         assignment_fees: formData.assignment_fees || null,
+        assignment_allowed: formData.assignment_allowed || "Unknown",
+        rental_restrictions: formData.rental_restrictions || "Unknown",
         incentives: formData.incentives || null,
+        incentives_available: formData.incentives_available,
+        near_skytrain: formData.near_skytrain,
+        map_lat: formData.map_lat ? parseFloat(formData.map_lat) : null,
+        map_lng: formData.map_lng ? parseFloat(formData.map_lng) : null,
         completion_month: formData.completion_month ? parseInt(formData.completion_month) : null,
         completion_year: formData.completion_year ? parseInt(formData.completion_year) : null,
         occupancy_estimate: formData.occupancy_estimate || null,
@@ -855,7 +883,17 @@ export default function AdminProjectForm() {
                     rows={2}
                   />
                 </div>
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="deposit_percent">Deposit %</Label>
+                    <Input
+                      id="deposit_percent"
+                      type="number"
+                      value={formData.deposit_percent}
+                      onChange={(e) => setFormData(prev => ({ ...prev, deposit_percent: e.target.value }))}
+                      placeholder="e.g., 20"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="strata_fees">Strata Fees (Est.)</Label>
                     <Input
@@ -885,6 +923,108 @@ export default function AdminProjectForm() {
                     rows={2}
                   />
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Investor & Decision Filters */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Investor & Decision Filters</CardTitle>
+                <CardDescription>Key decision-making data for buyers and investors</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="assignment_allowed">Assignment Allowed</Label>
+                    <Select
+                      value={formData.assignment_allowed}
+                      onValueChange={(v) => setFormData(prev => ({ ...prev, assignment_allowed: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Yes">Yes</SelectItem>
+                        <SelectItem value="No">No</SelectItem>
+                        <SelectItem value="Limited">Limited</SelectItem>
+                        <SelectItem value="Unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rental_restrictions">Rental Restrictions</Label>
+                    <Select
+                      value={formData.rental_restrictions}
+                      onValueChange={(v) => setFormData(prev => ({ ...prev, rental_restrictions: v }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="None">None (No Restrictions)</SelectItem>
+                        <SelectItem value="Short-term only">Short-term Only</SelectItem>
+                        <SelectItem value="Minimum rental period">Minimum Rental Period</SelectItem>
+                        <SelectItem value="Owner occupancy required">Owner Occupancy Required</SelectItem>
+                        <SelectItem value="Unknown">Unknown</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid sm:grid-cols-3 gap-4">
+                  <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <Switch
+                      id="near_skytrain"
+                      checked={formData.near_skytrain}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, near_skytrain: checked }))}
+                    />
+                    <Label htmlFor="near_skytrain" className="cursor-pointer">Near SkyTrain</Label>
+                  </div>
+                  <div className="flex items-center space-x-2 p-3 border rounded-lg">
+                    <Switch
+                      id="incentives_available"
+                      checked={formData.incentives_available}
+                      onCheckedChange={(checked) => setFormData(prev => ({ ...prev, incentives_available: checked }))}
+                    />
+                    <Label htmlFor="incentives_available" className="cursor-pointer">Incentives Available</Label>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Map Coordinates */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Map Location</CardTitle>
+                <CardDescription>Latitude and longitude for the project map pin</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="map_lat">Latitude</Label>
+                    <Input
+                      id="map_lat"
+                      type="number"
+                      step="any"
+                      value={formData.map_lat}
+                      onChange={(e) => setFormData(prev => ({ ...prev, map_lat: e.target.value }))}
+                      placeholder="e.g., 49.2827"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="map_lng">Longitude</Label>
+                    <Input
+                      id="map_lng"
+                      type="number"
+                      step="any"
+                      value={formData.map_lng}
+                      onChange={(e) => setFormData(prev => ({ ...prev, map_lng: e.target.value }))}
+                      placeholder="e.g., -123.1207"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Tip: Find coordinates on Google Maps by right-clicking a location and selecting the coordinates.
+                </p>
               </CardContent>
             </Card>
 
