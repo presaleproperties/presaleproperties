@@ -7,12 +7,12 @@ import { MobileProjectCard } from "./MobileProjectCard";
 import { Skeleton } from "@/components/ui/skeleton";
 
 type CarouselType = 
-  | "selling_now" 
-  | "newly_launched" 
-  | "best_entry_price" 
-  | "completing_soon" 
-  | "investor_picks" 
-  | "near_skytrain";
+  | "hot_projects" 
+  | "city_vancouver"
+  | "city_surrey"
+  | "city_burnaby"
+  | "city_coquitlam"
+  | "city_langley";
 
 interface MobileDiscoveryCarouselProps {
   type: CarouselType;
@@ -21,28 +21,20 @@ interface MobileDiscoveryCarouselProps {
   limit?: number;
 }
 
-const getQueryConfig = (type: CarouselType, city: string) => {
-  const baseQuery = {
-    select: "id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, deposit_percent, featured_image, last_verified_date",
-    isPublished: true,
-    city: city !== "all" ? city : null,
-  };
-
+const getCityFromType = (type: CarouselType): string | null => {
   switch (type) {
-    case "selling_now":
-      return { ...baseQuery, status: "active", orderBy: "published_at" };
-    case "newly_launched":
-      return { ...baseQuery, orderBy: "created_at" };
-    case "best_entry_price":
-      return { ...baseQuery, orderBy: "starting_price", ascending: true };
-    case "completing_soon":
-      return { ...baseQuery, orderBy: "completion_year", ascending: true };
-    case "investor_picks":
-      return { ...baseQuery, nearSkytrain: true, orderBy: "starting_price", ascending: true };
-    case "near_skytrain":
-      return { ...baseQuery, nearSkytrain: true, orderBy: "published_at" };
+    case "city_vancouver":
+      return "Vancouver";
+    case "city_surrey":
+      return "Surrey";
+    case "city_burnaby":
+      return "Burnaby";
+    case "city_coquitlam":
+      return "Coquitlam";
+    case "city_langley":
+      return "Langley";
     default:
-      return baseQuery;
+      return null;
   }
 };
 
@@ -62,32 +54,16 @@ export function MobileDiscoveryCarousel({
         .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, deposit_percent, featured_image, last_verified_date")
         .eq("is_published", true);
 
-      // Apply city filter
-      if (city && city !== "all") {
-        query = query.ilike("city", `%${city}%`);
-      }
-
       // Apply type-specific filters
-      switch (type) {
-        case "selling_now":
-          query = query.eq("status", "active").order("published_at", { ascending: false });
-          break;
-        case "newly_launched":
-          query = query.order("created_at", { ascending: false });
-          break;
-        case "best_entry_price":
-          query = query.not("starting_price", "is", null).order("starting_price", { ascending: true });
-          break;
-        case "completing_soon":
-          query = query
-            .not("completion_year", "is", null)
-            .gte("completion_year", new Date().getFullYear())
-            .order("completion_year", { ascending: true });
-          break;
-        case "investor_picks":
-        case "near_skytrain":
-          query = query.eq("near_skytrain", true).order("starting_price", { ascending: true });
-          break;
+      if (type === "hot_projects") {
+        // Hot projects - featured or recently published active projects
+        query = query.eq("status", "active").order("published_at", { ascending: false });
+      } else {
+        // City-specific carousels
+        const cityName = getCityFromType(type);
+        if (cityName) {
+          query = query.ilike("city", `%${cityName}%`).order("published_at", { ascending: false });
+        }
       }
 
       query = query.limit(limit);
@@ -99,7 +75,6 @@ export function MobileDiscoveryCarousel({
   });
 
   const handleScroll = () => {
-    // Track carousel scroll
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "carousel_scrolled", {
         carousel_type: type,
@@ -107,6 +82,12 @@ export function MobileDiscoveryCarousel({
       });
     }
   };
+
+  const isHotProjects = type === "hot_projects";
+  const cityFromType = getCityFromType(type);
+  const seeAllLink = cityFromType 
+    ? `/presale-projects?city=${encodeURIComponent(cityFromType)}`
+    : "/presale-projects";
 
   if (isLoading) {
     return (
@@ -117,8 +98,8 @@ export function MobileDiscoveryCarousel({
         </div>
         <div className="flex gap-3 overflow-hidden px-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="shrink-0 w-[165px]">
-              <Skeleton className="aspect-[4/3] w-full rounded-t-xl" />
+            <div key={i} className={isHotProjects ? "shrink-0 w-[220px]" : "shrink-0 w-[165px]"}>
+              <Skeleton className={isHotProjects ? "aspect-[16/10] w-full rounded-t-xl" : "aspect-[4/3] w-full rounded-t-xl"} />
               <div className="p-2.5 space-y-2 bg-card rounded-b-xl border border-t-0 border-border">
                 <Skeleton className="h-4 w-3/4" />
                 <Skeleton className="h-3 w-1/2" />
@@ -141,7 +122,7 @@ export function MobileDiscoveryCarousel({
       <div className="flex items-center justify-between px-4">
         <h3 className="text-lg font-bold text-foreground">{title}</h3>
         <Link 
-          to={`/presale-projects?filter=${type}${city !== "all" ? `&city=${city}` : ""}`}
+          to={seeAllLink}
           className="flex items-center gap-1 text-sm font-medium text-primary active:opacity-70"
         >
           See all
@@ -170,6 +151,7 @@ export function MobileDiscoveryCarousel({
             depositPercent={project.deposit_percent}
             featuredImage={project.featured_image}
             lastVerifiedDate={project.last_verified_date}
+            size={isHotProjects ? "large" : "default"}
           />
         ))}
       </div>

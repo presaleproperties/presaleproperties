@@ -1,51 +1,83 @@
-import { useRef, useState } from "react";
-import { Building2, Home, FileStack, DollarSign, Percent, Calendar, Train, TrendingUp } from "lucide-react";
+import { useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { Building2, Home, DollarSign, Percent, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface CategoryChip {
   id: string;
   label: string;
   icon?: React.ReactNode;
+  route: string;
   filter: {
     type?: string;
     maxPrice?: number;
     depositPercent?: number;
     minCompletionYear?: number;
-    nearSkytrain?: boolean;
-    investorFriendly?: boolean;
-    isAssignment?: boolean;
   };
 }
 
 const CATEGORY_CHIPS: CategoryChip[] = [
-  { id: "all", label: "All", filter: {} },
-  { id: "condos", label: "Condos", icon: <Building2 className="h-3.5 w-3.5" />, filter: { type: "condo" } },
-  { id: "townhomes", label: "Townhomes", icon: <Home className="h-3.5 w-3.5" />, filter: { type: "townhome" } },
-  { id: "assignments", label: "Assignments", icon: <FileStack className="h-3.5 w-3.5" />, filter: { isAssignment: true } },
-  { id: "under700k", label: "Under $700K", icon: <DollarSign className="h-3.5 w-3.5" />, filter: { maxPrice: 700000 } },
-  { id: "10deposit", label: "10% Deposit", icon: <Percent className="h-3.5 w-3.5" />, filter: { depositPercent: 10 } },
-  { id: "2027plus", label: "2027+", icon: <Calendar className="h-3.5 w-3.5" />, filter: { minCompletionYear: 2027 } },
-  { id: "skytrain", label: "Near SkyTrain", icon: <Train className="h-3.5 w-3.5" />, filter: { nearSkytrain: true } },
-  { id: "investor", label: "Investor Friendly", icon: <TrendingUp className="h-3.5 w-3.5" />, filter: { investorFriendly: true } },
+  { 
+    id: "condos", 
+    label: "Condos", 
+    icon: <Building2 className="h-3.5 w-3.5" />, 
+    route: "/presale-projects?type=condo",
+    filter: { type: "condo" } 
+  },
+  { 
+    id: "townhomes", 
+    label: "Townhomes", 
+    icon: <Home className="h-3.5 w-3.5" />, 
+    route: "/presale-projects?type=townhome",
+    filter: { type: "townhome" } 
+  },
+  { 
+    id: "under500k", 
+    label: "Under $500K", 
+    icon: <DollarSign className="h-3.5 w-3.5" />, 
+    route: "/presale-projects?maxPrice=500000",
+    filter: { maxPrice: 500000 } 
+  },
+  { 
+    id: "5deposit", 
+    label: "5% Deposit", 
+    icon: <Percent className="h-3.5 w-3.5" />, 
+    route: "/presale-projects?deposit=5",
+    filter: { depositPercent: 5 } 
+  },
+  { 
+    id: "2027plus", 
+    label: "2027+", 
+    icon: <Calendar className="h-3.5 w-3.5" />, 
+    route: "/presale-projects?completionYear=2027",
+    filter: { minCompletionYear: 2027 } 
+  },
 ];
 
 interface MobileCategoryChipsProps {
-  selectedChip: string;
-  onChipSelect: (chipId: string, filter: CategoryChip["filter"]) => void;
+  selectedChip?: string;
+  onChipSelect?: (chipId: string, filter: CategoryChip["filter"]) => void;
 }
 
 export function MobileCategoryChips({ selectedChip, onChipSelect }: MobileCategoryChipsProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   const handleChipClick = (chip: CategoryChip) => {
-    onChipSelect(chip.id, chip.filter);
-    
     // Track analytics
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "chip_selected", {
         chip_id: chip.id,
         chip_label: chip.label,
       });
+    }
+
+    // Navigate to the filtered projects page
+    navigate(chip.route);
+    
+    // Also call callback if provided
+    if (onChipSelect) {
+      onChipSelect(chip.id, chip.filter);
     }
   };
 

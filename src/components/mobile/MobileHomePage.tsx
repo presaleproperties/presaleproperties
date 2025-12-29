@@ -6,13 +6,12 @@ import { MobileBottomNav } from "./MobileBottomNav";
 
 export function MobileHomePage() {
   const [selectedCity, setSelectedCity] = useState("all");
-  const [selectedChip, setSelectedChip] = useState("all");
+  const [selectedChip, setSelectedChip] = useState<string | undefined>(undefined);
   const [activeFilter, setActiveFilter] = useState<CategoryChip["filter"]>({});
 
   const handleCityChange = useCallback((city: string) => {
     setSelectedCity(city);
     
-    // Track location change
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "location_changed", {
         city: city,
@@ -34,47 +33,49 @@ export function MobileHomePage() {
         alertCount={0}
       />
 
-      {/* Category Chips */}
+      {/* Category Chips - Functional Navigation */}
       <MobileCategoryChips
         selectedChip={selectedChip}
         onChipSelect={handleChipSelect}
       />
 
       {/* Discovery Sections */}
-      <div className="space-y-6 py-4 pb-20">
+      <div className="space-y-6 py-4 pb-28">
+        {/* Hot Presale Projects - Large Cards */}
         <MobileDiscoveryCarousel
-          type="selling_now"
-          title="Selling Now"
+          type="hot_projects"
+          title="Hot Presale Projects"
+          city={selectedCity}
+        />
+
+        {/* City-based Carousels */}
+        <MobileDiscoveryCarousel
+          type="city_vancouver"
+          title="Vancouver"
           city={selectedCity}
         />
 
         <MobileDiscoveryCarousel
-          type="newly_launched"
-          title="Newly Launched"
+          type="city_surrey"
+          title="Surrey"
           city={selectedCity}
         />
 
         <MobileDiscoveryCarousel
-          type="best_entry_price"
-          title="Best Entry Price"
+          type="city_burnaby"
+          title="Burnaby"
           city={selectedCity}
         />
 
         <MobileDiscoveryCarousel
-          type="completing_soon"
-          title="Completing Soon"
+          type="city_coquitlam"
+          title="Coquitlam"
           city={selectedCity}
         />
 
         <MobileDiscoveryCarousel
-          type="investor_picks"
-          title="Investor Picks"
-          city={selectedCity}
-        />
-
-        <MobileDiscoveryCarousel
-          type="near_skytrain"
-          title="Near SkyTrain"
+          type="city_langley"
+          title="Langley"
           city={selectedCity}
         />
       </div>
