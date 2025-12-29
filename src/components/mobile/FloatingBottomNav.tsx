@@ -16,43 +16,29 @@ const CITIES = [
   { slug: "any", name: "All Cities" },
   { slug: "Vancouver", name: "Vancouver" },
   { slug: "Surrey", name: "Surrey" },
-  { slug: "Langley", name: "Langley" },
-  { slug: "Coquitlam", name: "Coquitlam" },
-  { slug: "Burnaby", name: "Burnaby" },
-  { slug: "Delta", name: "Delta" },
-  { slug: "Richmond", name: "Richmond" },
-  { slug: "Abbotsford", name: "Abbotsford" },
 ];
 
 const PROJECT_TYPES = [
-  { value: "any", label: "All Types" },
+  { value: "any", label: "All" },
   { value: "condo", label: "Condos" },
-  { value: "townhome", label: "Townhomes" },
-  { value: "mixed", label: "Mixed" },
-  { value: "duplex", label: "Duplexes" },
-  { value: "single_family", label: "Single Family" },
+  { value: "townhome", label: "Towns" },
 ];
 
 const PRICE_RANGES = [
-  { value: "any", label: "Any Price" },
-  { value: "500000", label: "Under $500K" },
-  { value: "750000", label: "Under $750K" },
-  { value: "1000000", label: "Under $1M" },
-  { value: "1500000", label: "Under $1.5M" },
+  { value: "any", label: "Any" },
+  { value: "750000", label: "<$750K" },
+  { value: "1000000", label: "<$1M" },
 ];
 
 const DEPOSIT_OPTIONS = [
-  { value: "any", label: "Any Deposit" },
-  { value: "5", label: "Up to 5%" },
-  { value: "10", label: "Up to 10%" },
-  { value: "15", label: "Up to 15%" },
-  { value: "20", label: "Up to 20%" },
+  { value: "any", label: "Any" },
+  { value: "5", label: "≤5%" },
+  { value: "10", label: "≤10%" },
 ];
 
 const YEAR_OPTIONS = [
-  { value: "any", label: "Any Year" },
+  { value: "any", label: "Any" },
   { value: "2025", label: "2025" },
-  { value: "2026", label: "2026" },
   { value: "2027", label: "2027+" },
 ];
 
@@ -241,27 +227,27 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
       {/* Search Popup - Glass Style */}
       <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
 
-      {/* Filter Sheet */}
+      {/* Filter Sheet - Compact single page */}
       <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
-          <SheetHeader className="text-left pb-4">
-            <SheetTitle className="text-lg font-bold">Filter Projects</SheetTitle>
+        <SheetContent side="bottom" className="rounded-t-3xl">
+          <SheetHeader className="text-left pb-3">
+            <SheetTitle className="text-base font-bold">Filter Projects</SheetTitle>
           </SheetHeader>
           
-          <div className="space-y-5 pb-6">
+          <div className="space-y-3 pb-4">
             {/* City */}
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">City</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground w-14">City</span>
+              <div className="flex gap-1.5 flex-1 justify-end">
                 {CITIES.map((city) => (
                   <button
                     key={city.slug}
                     onClick={() => setFilterCity(city.slug)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
                       filterCity === city.slug
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        : "bg-muted text-muted-foreground"
                     )}
                   >
                     {city.name}
@@ -271,18 +257,18 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </div>
 
             {/* Project Type */}
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">Project Type</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground w-14">Type</span>
+              <div className="flex gap-1.5 flex-1 justify-end">
                 {PROJECT_TYPES.map((type) => (
                   <button
                     key={type.value}
                     onClick={() => setFilterType(type.value)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
                       filterType === type.value
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        : "bg-muted text-muted-foreground"
                     )}
                   >
                     {type.label}
@@ -292,18 +278,18 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </div>
 
             {/* Starting Price */}
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">Starting Price</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground w-14">Price</span>
+              <div className="flex gap-1.5 flex-1 justify-end">
                 {PRICE_RANGES.map((price) => (
                   <button
                     key={price.value}
                     onClick={() => setFilterPrice(price.value)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
                       filterPrice === price.value
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        : "bg-muted text-muted-foreground"
                     )}
                   >
                     {price.label}
@@ -313,18 +299,18 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </div>
 
             {/* Deposit */}
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">Deposit</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground w-14">Deposit</span>
+              <div className="flex gap-1.5 flex-1 justify-end">
                 {DEPOSIT_OPTIONS.map((deposit) => (
                   <button
                     key={deposit.value}
                     onClick={() => setFilterDeposit(deposit.value)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
                       filterDeposit === deposit.value
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        : "bg-muted text-muted-foreground"
                     )}
                   >
                     {deposit.label}
@@ -334,18 +320,18 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </div>
 
             {/* Year */}
-            <div>
-              <label className="text-sm font-medium text-muted-foreground mb-2 block">Completion Year</label>
-              <div className="flex flex-wrap gap-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground w-14">Year</span>
+              <div className="flex gap-1.5 flex-1 justify-end">
                 {YEAR_OPTIONS.map((year) => (
                   <button
                     key={year.value}
                     onClick={() => setFilterYear(year.value)}
                     className={cn(
-                      "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                      "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
                       filterYear === year.value
                         ? "bg-primary text-primary-foreground"
-                        : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        : "bg-muted text-muted-foreground"
                     )}
                   >
                     {year.label}
@@ -355,19 +341,21 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
+                size="sm"
                 className="flex-1"
                 onClick={handleResetFilters}
               >
                 Reset
               </Button>
               <Button
+                size="sm"
                 className="flex-1"
                 onClick={handleApplyFilters}
               >
-                Apply Filters
+                Apply
               </Button>
             </div>
           </div>
