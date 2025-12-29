@@ -16,6 +16,7 @@ interface MobileProjectCardProps {
   depositPercent?: number | null;
   featuredImage?: string | null;
   lastVerifiedDate?: string | null;
+  size?: "default" | "large";
 }
 
 const formatPrice = (price: number) => {
@@ -68,11 +69,11 @@ export function MobileProjectCard({
   depositPercent,
   featuredImage,
   lastVerifiedDate,
+  size = "default",
 }: MobileProjectCardProps) {
   const statusLabel = getStatusLabel(status);
 
   const handleCardTap = () => {
-    // Track analytics
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "project_card_tap", {
         project_id: id,
@@ -87,15 +88,23 @@ export function MobileProjectCard({
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
 
+  const isLarge = size === "large";
+
   return (
     <Link 
       to={`/presale-projects/${slug}`} 
       onClick={handleCardTap}
-      className="block shrink-0 w-[165px] sm:w-[180px]"
+      className={cn(
+        "block shrink-0",
+        isLarge ? "w-[220px] sm:w-[260px]" : "w-[165px] sm:w-[180px]"
+      )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:shadow-none active:scale-[0.98] transition-all duration-150">
         {/* Image */}
-        <div className="relative aspect-[4/3] bg-muted overflow-hidden">
+        <div className={cn(
+          "relative bg-muted overflow-hidden",
+          isLarge ? "aspect-[16/10]" : "aspect-[4/3]"
+        )}>
           {featuredImage ? (
             <img
               src={featuredImage}
@@ -103,26 +112,34 @@ export function MobileProjectCard({
               className="h-full w-full object-cover"
               loading="lazy"
               decoding="async"
+              sizes={isLarge ? "(max-width: 640px) 220px, 260px" : "(max-width: 640px) 165px, 180px"}
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <Building2 className="h-8 w-8 text-muted-foreground" />
+              <Building2 className={cn("text-muted-foreground", isLarge ? "h-12 w-12" : "h-8 w-8")} />
             </div>
           )}
           
           {/* Status Badge */}
           {statusLabel && (
-            <Badge className={cn("absolute top-2 left-2 text-[10px] px-1.5 py-0.5", getStatusColor(status))}>
+            <Badge className={cn(
+              "absolute top-2 left-2 px-2 py-0.5",
+              isLarge ? "text-xs" : "text-[10px] px-1.5",
+              getStatusColor(status)
+            )}>
               {statusLabel}
             </Badge>
           )}
         </div>
 
         {/* Content */}
-        <div className="p-2.5 space-y-1.5">
+        <div className={cn("space-y-1.5", isLarge ? "p-3" : "p-2.5")}>
           {/* Name & Area */}
           <div>
-            <h4 className="font-semibold text-sm text-foreground line-clamp-1">{name}</h4>
+            <h4 className={cn(
+              "font-semibold text-foreground line-clamp-1",
+              isLarge ? "text-base" : "text-sm"
+            )}>{name}</h4>
             <div className="flex items-center gap-1 text-muted-foreground">
               <MapPin className="h-3 w-3 shrink-0" />
               <span className="text-xs truncate">{neighborhood}</span>
@@ -132,7 +149,10 @@ export function MobileProjectCard({
           {/* Price */}
           <div>
             {startingPrice ? (
-              <p className="text-sm font-bold text-foreground">
+              <p className={cn(
+                "font-bold text-foreground",
+                isLarge ? "text-base" : "text-sm"
+              )}>
                 From {formatPrice(startingPrice)}
               </p>
             ) : (
@@ -143,10 +163,13 @@ export function MobileProjectCard({
           </div>
 
           {/* Key Info Row */}
-          <div className="flex items-center justify-between pt-1 border-t border-border">
+          <div className="flex items-center justify-between pt-1.5 border-t border-border">
             {/* Deposit */}
             {depositPercent && (
-              <span className="text-xs font-bold text-foreground">
+              <span className={cn(
+                "font-bold text-foreground",
+                isLarge ? "text-sm" : "text-xs"
+              )}>
                 {depositPercent}% dep
               </span>
             )}
