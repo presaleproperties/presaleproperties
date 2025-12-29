@@ -14,6 +14,7 @@ import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ForAgents from "./pages/ForAgents";
 import BuyersGuide from "./pages/BuyersGuide";
+import PresaleGuide from "./pages/PresaleGuide";
 import Login from "./pages/Login";
 import DashboardOverview from "./pages/dashboard/DashboardOverview";
 import DashboardListings from "./pages/dashboard/DashboardListings";
@@ -67,6 +68,7 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/agents" element={<ForAgents />} />
             <Route path="/buyers-guide" element={<BuyersGuide />} />
+            <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/login" element={<Login />} />
             
             {/* Agent Dashboard Routes */}
