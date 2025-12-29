@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +21,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { toast } from "sonner";
@@ -33,13 +47,20 @@ import {
   Home,
   Building2,
   TrendingUp,
+  TrendingDown,
   ArrowRight,
   Mail,
   Phone,
   User,
   Info,
   CheckCircle,
-  Sparkles
+  Sparkles,
+  HelpCircle,
+  Wallet,
+  Receipt,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp
 } from "lucide-react";
 
 // Debounce hook for performance
@@ -54,6 +75,51 @@ function useDebounce<T>(value: T, delay: number): T {
   return debouncedValue;
 }
 
+// BC Property Transfer Tax calculation
+function calculatePTT(price: number, isFirstTimeBuyer: boolean = false): { provincial: number; municipal: number; rebate: number; total: number } {
+  // BC Property Transfer Tax
+  let provincial = 0;
+  if (price <= 200000) {
+    provincial = price * 0.01;
+  } else if (price <= 2000000) {
+    provincial = 2000 + (price - 200000) * 0.02;
+  } else if (price <= 3000000) {
+    provincial = 2000 + 36000 + (price - 2000000) * 0.03;
+  } else {
+    provincial = 2000 + 36000 + 30000 + (price - 3000000) * 0.05;
+  }
+  
+  // Additional 2% for foreign buyers in Metro Vancouver (not calculating for now)
+  const municipal = 0;
+  
+  // First-time home buyer rebate (up to $8,000 for homes up to $500,000, partial for $500,000-$525,000)
+  let rebate = 0;
+  if (isFirstTimeBuyer) {
+    if (price <= 500000) {
+      rebate = Math.min(provincial, 8000);
+    } else if (price < 525000) {
+      rebate = Math.min(provincial, 8000 * (1 - (price - 500000) / 25000));
+    }
+  }
+  
+  // New home exemption for presales (similar calculation)
+  if (price <= 750000) {
+    // Newly built home exemption - up to $13,000 for homes up to $750,000
+    const newHomeRebate = Math.min(provincial, 13000);
+    rebate = Math.max(rebate, newHomeRebate);
+  } else if (price < 800000) {
+    const newHomeRebate = Math.min(provincial, 13000 * (1 - (price - 750000) / 50000));
+    rebate = Math.max(rebate, newHomeRebate);
+  }
+  
+  return {
+    provincial,
+    municipal,
+    rebate,
+    total: provincial + municipal - rebate
+  };
+}
+
 export default function MortgageCalculatorPage() {
   // Calculator inputs
   const [propertyPrice, setPropertyPrice] = useState(750000);
@@ -62,12 +128,28 @@ export default function MortgageCalculatorPage() {
   const [customDownPayment, setCustomDownPayment] = useState("");
   const [mortgageRate, setMortgageRate] = useState(4.99);
   const [amortization, setAmortization] = useState(25);
-  const [paymentFrequency, setPaymentFrequency] = useState<"monthly" | "semi-monthly" | "bi-weekly" | "weekly">("monthly");
-  const [propertyTax, setPropertyTax] = useState(0);
+  const [paymentFrequency, setPaymentFrequency] = useState<"monthly" | "semi-monthly" | "bi-weekly" | "accelerated-bi-weekly" | "weekly" | "accelerated-weekly">("monthly");
+  const [propertyTax, setPropertyTax] = useState(3000);
   const [strataFee, setStrataFee] = useState(350);
-  const [includeGST, setIncludeGST] = useState(false);
-  const [includeLegalCosts, setIncludeLegalCosts] = useState(false);
+  const [includeGST, setIncludeGST] = useState(true);
+  const [isFirstTimeBuyer, setIsFirstTimeBuyer] = useState(false);
+  const [isNewConstruction, setIsNewConstruction] = useState(true);
   const [rateType, setRateType] = useState<"fixed" | "variable">("fixed");
+  
+  // Closing costs
+  const [lawyerFees, setLawyerFees] = useState(1500);
+  const [titleInsurance, setTitleInsurance] = useState(250);
+  const [homeInspection, setHomeInspection] = useState(500);
+  const [appraisalFees, setAppraisalFees] = useState(350);
+  
+  // Monthly expenses
+  const [utilities, setUtilities] = useState(150);
+  const [homeInsurance, setHomeInsurance] = useState(100);
+  
+  // UI state
+  const [showClosingDetails, setShowClosingDetails] = useState(false);
+  const [showMonthlyDetails, setShowMonthlyDetails] = useState(false);
+  const [showAmortizationSchedule, setShowAmortizationSchedule] = useState(false);
   
   // Lead capture
   const [showLeadForm, setShowLeadForm] = useState(false);
@@ -93,10 +175,8 @@ export default function MortgageCalculatorPage() {
     
     setInputsCompleted(count);
     
-    // Show lead form after 4+ inputs modified
     if (count >= 4 && !leadSubmitted) {
       setShowLeadForm(true);
-      // Track soft_lead_shown event
       trackEvent("soft_lead_shown", getEventContext());
     }
   }, [propertyPrice, downPaymentOption, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, leadSubmitted]);
@@ -131,47 +211,97 @@ export default function MortgageCalculatorPage() {
       }
     }
     
+    // PST on CMHC (8% in BC)
+    const pstOnCmhc = cmhcInsurance * 0.08;
+    
     const mortgageAmount = principal + cmhcInsurance;
     
     // GST (5% on new homes)
     const gstAmount = includeGST ? price * 0.05 : 0;
     
-    // Legal costs estimate
-    const legalCosts = includeLegalCosts ? 2500 : 0;
+    // GST Rebate for new homes (36% of GST on homes up to $350,000, reduced for $350,000-$450,000)
+    let gstRebate = 0;
+    if (includeGST) {
+      if (price <= 350000) {
+        gstRebate = gstAmount * 0.36;
+      } else if (price < 450000) {
+        gstRebate = gstAmount * 0.36 * (1 - (price - 350000) / 100000);
+      }
+    }
+    
+    // BC New Housing Rebate (71.43% of provincial portion, capped)
+    let bcNewHousingRebate = 0;
+    if (isNewConstruction && price <= 850000) {
+      const pstEquivalent = price * 0.07; // Provincial portion equivalent
+      bcNewHousingRebate = Math.min(pstEquivalent * 0.7143, 42500);
+      if (price > 750000) {
+        bcNewHousingRebate = bcNewHousingRebate * (1 - (price - 750000) / 100000);
+      }
+    }
+    
+    // Property Transfer Tax
+    const ptt = calculatePTT(price, isFirstTimeBuyer);
     
     // Payment calculations based on frequency
     const annualRate = mortgageRate / 100;
-    const paymentsPerYear = {
+    const isAccelerated = paymentFrequency.includes("accelerated");
+    const baseFrequency = paymentFrequency.replace("accelerated-", "");
+    
+    const paymentsPerYear: Record<string, number> = {
       monthly: 12,
       "semi-monthly": 24,
       "bi-weekly": 26,
       weekly: 52
-    }[paymentFrequency];
+    };
     
-    const periodicRate = annualRate / paymentsPerYear;
-    const totalPayments = amortization * paymentsPerYear;
-    
-    // Payment calculation using standard amortization formula
-    const payment = mortgageAmount > 0 && periodicRate > 0
-      ? (mortgageAmount * periodicRate * Math.pow(1 + periodicRate, totalPayments)) /
-        (Math.pow(1 + periodicRate, totalPayments) - 1)
+    const periodsPerYear = paymentsPerYear[baseFrequency] || 12;
+    const periodicRate = annualRate / 12; // Always use monthly compounding
+    const monthlyPayment = mortgageAmount > 0 && periodicRate > 0
+      ? (mortgageAmount * periodicRate * Math.pow(1 + periodicRate, amortization * 12)) /
+        (Math.pow(1 + periodicRate, amortization * 12) - 1)
       : 0;
     
-    // Total amounts
-    const totalPaymentsAmount = payment * totalPayments;
+    // Calculate payment based on frequency
+    let payment = monthlyPayment;
+    if (baseFrequency === "bi-weekly") {
+      payment = isAccelerated ? monthlyPayment / 2 : (monthlyPayment * 12) / 26;
+    } else if (baseFrequency === "weekly") {
+      payment = isAccelerated ? monthlyPayment / 4 : (monthlyPayment * 12) / 52;
+    } else if (baseFrequency === "semi-monthly") {
+      payment = monthlyPayment / 2;
+    }
+    
+    // Effective annual payments for accelerated
+    const effectivePaymentsPerYear = isAccelerated 
+      ? (baseFrequency === "bi-weekly" ? 26 : 52)
+      : periodsPerYear;
+    
+    // Total amounts (adjusted for accelerated payments)
+    const effectiveAnnualPayment = payment * effectivePaymentsPerYear;
+    const yearsToPayoff = isAccelerated 
+      ? Math.log(1 / (1 - (mortgageAmount * (annualRate / effectivePaymentsPerYear)) / payment)) / 
+        (effectivePaymentsPerYear * Math.log(1 + annualRate / effectivePaymentsPerYear))
+      : amortization;
+    
+    const totalPaymentsAmount = effectiveAnnualPayment * (isAccelerated ? yearsToPayoff : amortization);
     const totalInterest = totalPaymentsAmount - mortgageAmount;
     
     // Property tax per payment period
-    const propertyTaxPerPeriod = propertyTax > 0 ? propertyTax / paymentsPerYear : 0;
+    const propertyTaxPerPeriod = propertyTax > 0 ? propertyTax / periodsPerYear : 0;
     
     // Strata fee per payment period (assume monthly input)
-    const strataPerPeriod = strataFee > 0 ? (strataFee * 12) / paymentsPerYear : 0;
+    const strataPerPeriod = strataFee > 0 ? (strataFee * 12) / periodsPerYear : 0;
     
-    // Total payment including extras
-    const totalPaymentWithExtras = payment + propertyTaxPerPeriod + strataPerPeriod;
+    // Monthly equivalents
+    const monthlyPropertyTax = propertyTax / 12;
+    const monthlyHomeInsurance = homeInsurance;
+    const monthlyUtilities = utilities;
     
-    // Monthly equivalent for comparison
-    const monthlyEquivalent = totalPaymentWithExtras * (paymentsPerYear / 12);
+    // Total monthly carrying costs
+    const totalMonthlyCarrying = monthlyPayment + monthlyPropertyTax + strataFee + monthlyHomeInsurance + monthlyUtilities;
+    
+    // Cash needed to close
+    const cashToClose = downPayment + ptt.total + pstOnCmhc + lawyerFees + titleInsurance + homeInspection + appraisalFees + gstAmount - gstRebate - bcNewHousingRebate;
     
     return {
       propertyPrice: price,
@@ -179,19 +309,89 @@ export default function MortgageCalculatorPage() {
       downPaymentPercent,
       mortgageAmount,
       cmhcInsurance,
+      pstOnCmhc,
       gstAmount,
-      legalCosts,
+      gstRebate,
+      bcNewHousingRebate,
+      ptt,
       payment,
+      monthlyPayment,
       totalInterest,
       totalCost: totalPaymentsAmount + downPayment,
       propertyTaxPerPeriod,
       strataPerPeriod,
-      totalPaymentWithExtras,
-      monthlyEquivalent,
-      paymentsPerYear,
-      totalPayments
+      monthlyPropertyTax,
+      monthlyHomeInsurance,
+      monthlyUtilities,
+      totalMonthlyCarrying,
+      cashToClose,
+      lawyerFees,
+      titleInsurance,
+      homeInspection,
+      appraisalFees,
+      paymentsPerYear: periodsPerYear,
+      totalPayments: amortization * periodsPerYear,
+      yearsToPayoff: isAccelerated ? yearsToPayoff : amortization
     };
-  }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, includeLegalCosts]);
+  }, [debouncedPrice, downPaymentPercent, mortgageRate, amortization, paymentFrequency, propertyTax, strataFee, includeGST, isFirstTimeBuyer, isNewConstruction, lawyerFees, titleInsurance, homeInspection, appraisalFees, utilities, homeInsurance]);
+
+  // Interest rate risk scenarios
+  const rateScenarios = useMemo(() => {
+    const scenarios = [
+      { label: "Current Rate", rate: mortgageRate },
+      { label: "-1%", rate: Math.max(0.5, mortgageRate - 1) },
+      { label: "+1%", rate: mortgageRate + 1 },
+      { label: "+2%", rate: mortgageRate + 2 },
+    ];
+    
+    return scenarios.map(scenario => {
+      const annualRate = scenario.rate / 100;
+      const periodicRate = annualRate / 12;
+      const monthlyPayment = calculations.mortgageAmount > 0 && periodicRate > 0
+        ? (calculations.mortgageAmount * periodicRate * Math.pow(1 + periodicRate, amortization * 12)) /
+          (Math.pow(1 + periodicRate, amortization * 12) - 1)
+        : 0;
+      
+      return {
+        ...scenario,
+        payment: monthlyPayment,
+        difference: monthlyPayment - calculations.monthlyPayment
+      };
+    });
+  }, [mortgageRate, calculations.mortgageAmount, calculations.monthlyPayment, amortization]);
+
+  // Amortization schedule (first 5 years + summary)
+  const amortizationSchedule = useMemo(() => {
+    const schedule: { year: number; totalPaid: number; principalPaid: number; interestPaid: number; balance: number }[] = [];
+    let balance = calculations.mortgageAmount;
+    const annualRate = mortgageRate / 100;
+    const monthlyRate = annualRate / 12;
+    const monthlyPayment = calculations.monthlyPayment;
+    
+    for (let year = 1; year <= Math.min(amortization, 10); year++) {
+      let yearlyPrincipal = 0;
+      let yearlyInterest = 0;
+      
+      for (let month = 1; month <= 12; month++) {
+        if (balance <= 0) break;
+        const interestPayment = balance * monthlyRate;
+        const principalPayment = Math.min(monthlyPayment - interestPayment, balance);
+        yearlyInterest += interestPayment;
+        yearlyPrincipal += principalPayment;
+        balance -= principalPayment;
+      }
+      
+      schedule.push({
+        year,
+        totalPaid: yearlyPrincipal + yearlyInterest,
+        principalPaid: yearlyPrincipal,
+        interestPaid: yearlyInterest,
+        balance: Math.max(0, balance)
+      });
+    }
+    
+    return schedule;
+  }, [calculations.mortgageAmount, calculations.monthlyPayment, mortgageRate, amortization]);
 
   // Format currency
   const formatCurrency = (amount: number, decimals = 0) => {
@@ -232,11 +432,9 @@ export default function MortgageCalculatorPage() {
 
   // Track events
   const trackEvent = (eventName: string, params: Record<string, any>) => {
-    // GA4
     if (typeof window !== 'undefined' && (window as any).gtag) {
       (window as any).gtag('event', eventName, params);
     }
-    // Meta Pixel
     if (typeof window !== 'undefined' && (window as any).fbq) {
       (window as any).fbq('trackCustom', eventName, params);
     }
@@ -255,7 +453,6 @@ export default function MortgageCalculatorPage() {
     setIsSubmitting(true);
     
     try {
-      // Get UTM params
       const urlParams = new URLSearchParams(window.location.search);
       const utmData = {
         utm_source: urlParams.get('utm_source'),
@@ -263,19 +460,17 @@ export default function MortgageCalculatorPage() {
         utm_campaign: urlParams.get('utm_campaign'),
       };
 
-      // Save to database
       const { error } = await supabase.from("project_leads").insert({
         name: leadForm.name,
         email: leadForm.email,
         phone: leadForm.phone || null,
-        message: `Mortgage Calculator Lead - Price: ${formatCurrency(propertyPrice)}, Down: ${downPaymentPercent}%, Rate: ${mortgageRate}%, Amort: ${amortization}yr, Payment: ${formatCurrency(calculations.payment)}`,
+        message: `Mortgage Calculator Lead - Price: ${formatCurrency(propertyPrice)}, Down: ${downPaymentPercent}%, Rate: ${mortgageRate}%, Amort: ${amortization}yr, Payment: ${formatCurrency(calculations.monthlyPayment)}`,
         persona: "Buyer",
         timeline: "0-3 months"
       });
 
       if (error) throw error;
 
-      // Track event
       trackEvent("soft_lead_submit", {
         ...getEventContext(),
         lead_type: "mortgage_calculator",
@@ -319,29 +514,31 @@ export default function MortgageCalculatorPage() {
       answer: "CMHC (Canada Mortgage and Housing Corporation) insurance protects lenders when borrowers have less than 20% down payment. The insurance premium (2.8-4% of mortgage) is added to your loan. For a $700,000 presale with 10% down, CMHC insurance would add approximately $19,530 to your mortgage amount."
     },
     {
-      question: "Should I choose fixed or variable rate for a presale?",
-      answer: "This depends on your risk tolerance and market conditions. Fixed rates offer payment certainty, which is valuable for first-time buyers. Variable rates are typically lower initially but can increase. For presales, you'll make this decision closer to completion when you finalize your mortgage, so monitor rate trends during construction."
+      question: "What is BC Property Transfer Tax?",
+      answer: "Property Transfer Tax (PTT) is a provincial tax paid when you buy property in BC. The rate is 1% on the first $200,000, 2% on $200,000-$2,000,000, 3% on $2,000,000-$3,000,000, and 5% above $3,000,000. First-time buyers may qualify for exemptions up to $8,000 on homes up to $500,000. New home buyers can get up to $13,000 exemption."
     },
     {
-      question: "What other costs should I budget for beyond the mortgage payment?",
-      answer: "Beyond your mortgage, budget for: property tax (0.25-0.4% of value annually), strata fees ($200-600/month), home insurance ($300-800/year), utilities ($100-200/month), and maintenance. For presales, also budget for GST (5% on new homes, partial rebate if primary residence), legal fees ($1,500-2,500), and any assignment or inspection costs."
+      question: "What closing costs should I budget for?",
+      answer: "Beyond your down payment, budget for: Property Transfer Tax (1-5% depending on price), lawyer fees ($1,500-$2,500), title insurance ($200-$400), home inspection ($300-$600), appraisal fees ($300-$500), PST on CMHC insurance if applicable (8%), and GST on new homes (5%, with partial rebates available)."
     }
   ];
 
   // Payment frequency labels
-  const frequencyLabels = {
+  const frequencyLabels: Record<string, string> = {
     monthly: "Monthly",
     "semi-monthly": "Semi-Monthly",
     "bi-weekly": "Bi-Weekly",
-    weekly: "Weekly"
+    "accelerated-bi-weekly": "Accelerated Bi-Weekly",
+    weekly: "Weekly",
+    "accelerated-weekly": "Accelerated Weekly"
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
         <title>Mortgage Calculator for Presale Condos & Townhomes | PresaleProperties.com</title>
-        <meta name="description" content="Estimate your monthly mortgage payments for presale condos & townhomes in Surrey, Langley, Coquitlam, Burnaby, Abbotsford & Vancouver. Try our interactive tool." />
-        <meta name="keywords" content="presale mortgage calculator, mortgage payment calculator BC, mortgage payments presale condos, presale condo affordability, mortgage estimate Vancouver" />
+        <meta name="description" content="Estimate your monthly mortgage payments for presale condos & townhomes in Surrey, Langley, Coquitlam, Burnaby, Abbotsford & Vancouver. Includes land transfer tax, closing costs, and amortization schedule." />
+        <meta name="keywords" content="presale mortgage calculator, mortgage payment calculator BC, mortgage payments presale condos, presale condo affordability, mortgage estimate Vancouver, land transfer tax BC, closing costs calculator" />
         <link rel="canonical" href="https://presaleproperties.com/mortgage-calculator" />
       </Helmet>
       
@@ -358,7 +555,7 @@ export default function MortgageCalculatorPage() {
         </div>
 
         {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/5 to-background py-10 md:py-14">
+        <section className="bg-gradient-to-b from-primary/5 to-background py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 text-primary text-sm font-medium rounded-full mb-4">
@@ -369,52 +566,99 @@ export default function MortgageCalculatorPage() {
                 Mortgage Payment Calculator
               </h1>
               <p className="text-muted-foreground max-w-xl mx-auto">
-                Estimate your monthly mortgage payments for new presale properties in Metro Vancouver & Fraser Valley.
+                Get a sense for your mortgage payments, closing costs, and monthly carrying costs for presale properties in Metro Vancouver & Fraser Valley.
               </p>
             </div>
           </div>
         </section>
 
         {/* Calculator Section */}
-        <section className="py-8 md:py-12">
+        <section className="py-6 md:py-10">
           <div className="container px-4">
-            <div className="max-w-5xl mx-auto">
-              <div className="grid lg:grid-cols-5 gap-6 lg:gap-8">
+            <div className="max-w-6xl mx-auto">
+              <div className="grid lg:grid-cols-3 gap-6">
                 
                 {/* Inputs Column */}
-                <div className="lg:col-span-3 space-y-6">
+                <div className="lg:col-span-2 space-y-4">
+                  {/* Main Calculator Card */}
                   <Card>
-                    <CardContent className="p-4 md:p-6 space-y-5">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Calculator className="h-5 w-5 text-primary" />
+                        Calculate Your Mortgage
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-5">
                       
-                      {/* Property Price */}
-                      <div>
-                        <Label htmlFor="property-price" className="text-sm font-medium mb-2 block">
-                          Property Price *
-                        </Label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            id="property-price"
-                            type="text"
-                            inputMode="numeric"
-                            value={priceInput}
-                            onChange={(e) => handlePriceChange(e.target.value)}
-                            onBlur={handlePriceBlur}
-                            onFocus={handlePriceFocus}
-                            className="pl-9 text-lg font-semibold h-12"
-                            placeholder="750,000"
-                          />
+                      {/* Property Price & Location Row */}
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="property-price" className="text-sm font-medium mb-2 flex items-center gap-1">
+                            Property Price
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>The total purchase price of the property before any taxes or fees.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </Label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input
+                              id="property-price"
+                              type="text"
+                              inputMode="numeric"
+                              value={priceInput}
+                              onChange={(e) => handlePriceChange(e.target.value)}
+                              onBlur={handlePriceBlur}
+                              onFocus={handlePriceFocus}
+                              className="pl-9 text-lg font-semibold h-12"
+                              placeholder="750,000"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <Label className="text-sm font-medium mb-2 flex items-center gap-1">
+                            Location
+                          </Label>
+                          <Select defaultValue="bc">
+                            <SelectTrigger className="h-12">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="bc">British Columbia</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       </div>
 
                       {/* Down Payment */}
                       <div>
-                        <Label className="text-sm font-medium mb-2 block">
-                          Down Payment / Deposit
+                        <Label className="text-sm font-medium mb-2 flex items-center gap-1">
+                          Down Payment
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p className="font-medium mb-1">Minimum Down Payment:</p>
+                                <ul className="text-xs space-y-1">
+                                  <li>• $500,000 or less: 5%</li>
+                                  <li>• $500,000-$1.5M: 5% of first $500K + 10% of rest</li>
+                                  <li>• $1.5M+: 20% minimum</li>
+                                </ul>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                         </Label>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                           <Select value={downPaymentOption} onValueChange={setDownPaymentOption}>
-                            <SelectTrigger className="h-12">
+                            <SelectTrigger className="h-11 col-span-1">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -426,33 +670,79 @@ export default function MortgageCalculatorPage() {
                               <SelectItem value="custom">Custom</SelectItem>
                             </SelectContent>
                           </Select>
-                          {downPaymentOption === "custom" && (
-                            <div className="relative">
+                          {downPaymentOption === "custom" ? (
+                            <div className="relative col-span-1">
                               <Input
                                 type="number"
                                 value={customDownPayment}
                                 onChange={(e) => setCustomDownPayment(e.target.value)}
-                                placeholder="Enter %"
-                                className="h-12 pr-8"
+                                placeholder="%"
+                                className="h-11 pr-8"
                                 min="5"
                                 max="80"
                               />
                               <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             </div>
+                          ) : (
+                            <div className="flex items-center justify-center bg-muted rounded-lg px-3 col-span-1">
+                              <span className="font-medium text-sm">{formatCurrency(calculations.downPayment)}</span>
+                            </div>
                           )}
-                          {downPaymentOption !== "custom" && (
-                            <div className="flex items-center justify-center bg-muted rounded-lg px-4">
-                              <span className="font-medium">{formatCurrency(calculations.downPayment)}</span>
+                          {calculations.cmhcInsurance > 0 && (
+                            <div className="col-span-2 flex items-center gap-2 text-xs text-amber-600 bg-amber-50 dark:bg-amber-950/30 rounded-lg px-3 py-2">
+                              <Info className="h-3.5 w-3.5 shrink-0" />
+                              <span>+{formatCurrency(calculations.cmhcInsurance)} CMHC</span>
                             </div>
                           )}
                         </div>
+                        <div className="flex items-center justify-between mt-2 px-1 text-sm">
+                          <span className="text-muted-foreground">Total Mortgage</span>
+                          <span className="font-semibold">{formatCurrency(calculations.mortgageAmount)}</span>
+                        </div>
                       </div>
 
-                      {/* Mortgage Rate & Amortization */}
+                      {/* Amortization & Rate */}
                       <div className="grid sm:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="mortgage-rate" className="text-sm font-medium mb-2 block">
-                            Mortgage Rate (%)
+                          <Label className="text-sm font-medium mb-2 flex items-center gap-1">
+                            Amortization
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>The total length of time to pay off your mortgage. Longer periods mean lower payments but more interest. 30-year amortization requires 20%+ down payment (or first-time buyer/new build exemption).</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          </Label>
+                          <Select value={amortization.toString()} onValueChange={(v) => setAmortization(parseInt(v))}>
+                            <SelectTrigger className="h-11">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="30">30 years</SelectItem>
+                              <SelectItem value="25">25 years</SelectItem>
+                              <SelectItem value="20">20 years</SelectItem>
+                              <SelectItem value="15">15 years</SelectItem>
+                              <SelectItem value="10">10 years</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label htmlFor="mortgage-rate" className="text-sm font-medium mb-2 flex items-center gap-1">
+                            Mortgage Rate
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                                </TooltipTrigger>
+                                <TooltipContent className="max-w-xs">
+                                  <p>The interest rate on your mortgage. Current 5-year fixed rates are around 4.5-5.5%. Variable rates may be lower but fluctuate with prime rate.</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </Label>
                           <div className="relative">
                             <Input
@@ -460,7 +750,7 @@ export default function MortgageCalculatorPage() {
                               type="number"
                               value={mortgageRate}
                               onChange={(e) => setMortgageRate(parseFloat(e.target.value) || 0)}
-                              className="h-12 pr-8"
+                              className="h-11 pr-8"
                               step="0.01"
                               min="0"
                               max="15"
@@ -468,98 +758,61 @@ export default function MortgageCalculatorPage() {
                             <Percent className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                           </div>
                         </div>
-                        <div>
-                          <Label className="text-sm font-medium mb-2 block">
-                            Amortization
-                          </Label>
-                          <Select value={amortization.toString()} onValueChange={(v) => setAmortization(parseInt(v))}>
-                            <SelectTrigger className="h-12">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="10">10 years</SelectItem>
-                              <SelectItem value="15">15 years</SelectItem>
-                              <SelectItem value="20">20 years</SelectItem>
-                              <SelectItem value="25">25 years</SelectItem>
-                              <SelectItem value="30">30 years</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
                       </div>
 
-                      {/* Payment Frequency & Rate Type */}
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label className="text-sm font-medium mb-2 block">
-                            Payment Frequency
-                          </Label>
-                          <Select value={paymentFrequency} onValueChange={(v: any) => setPaymentFrequency(v)}>
-                            <SelectTrigger className="h-12">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="monthly">Monthly</SelectItem>
-                              <SelectItem value="semi-monthly">Semi-Monthly</SelectItem>
-                              <SelectItem value="bi-weekly">Bi-Weekly</SelectItem>
-                              <SelectItem value="weekly">Weekly</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div>
-                          <Label className="text-sm font-medium mb-2 block">
-                            Rate Type
-                          </Label>
-                          <Select value={rateType} onValueChange={(v: any) => setRateType(v)}>
-                            <SelectTrigger className="h-12">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="fixed">Fixed Rate</SelectItem>
-                              <SelectItem value="variable">Variable Rate</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                      {/* Payment Frequency */}
+                      <div>
+                        <Label className="text-sm font-medium mb-2 flex items-center gap-1">
+                          Payment Frequency
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <HelpCircle className="h-3.5 w-3.5 text-muted-foreground" />
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <p><strong>Accelerated payments</strong> help pay off your mortgage faster by making the equivalent of one extra monthly payment per year.</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </Label>
+                        <Select value={paymentFrequency} onValueChange={(v: any) => setPaymentFrequency(v)}>
+                          <SelectTrigger className="h-11">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="monthly">Monthly (12/year)</SelectItem>
+                            <SelectItem value="semi-monthly">Semi-Monthly (24/year)</SelectItem>
+                            <SelectItem value="bi-weekly">Bi-Weekly (26/year)</SelectItem>
+                            <SelectItem value="accelerated-bi-weekly">Accelerated Bi-Weekly (26/year)</SelectItem>
+                            <SelectItem value="weekly">Weekly (52/year)</SelectItem>
+                            <SelectItem value="accelerated-weekly">Accelerated Weekly (52/year)</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
 
-                      {/* Property Tax & Strata */}
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div>
-                          <Label htmlFor="property-tax" className="text-sm font-medium mb-2 block">
-                            Annual Property Tax
+                      {/* Buyer Options */}
+                      <div className="flex flex-wrap gap-4 pt-2">
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id="first-time-buyer"
+                            checked={isFirstTimeBuyer}
+                            onCheckedChange={setIsFirstTimeBuyer}
+                          />
+                          <Label htmlFor="first-time-buyer" className="text-sm cursor-pointer">
+                            First-time buyer
                           </Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="property-tax"
-                              type="number"
-                              value={propertyTax || ""}
-                              onChange={(e) => setPropertyTax(parseFloat(e.target.value) || 0)}
-                              className="h-12 pl-9"
-                              placeholder="2,500"
-                            />
-                          </div>
                         </div>
-                        <div>
-                          <Label htmlFor="strata-fee" className="text-sm font-medium mb-2 block">
-                            Monthly Strata Fee
+                        <div className="flex items-center gap-2">
+                          <Switch
+                            id="new-construction"
+                            checked={isNewConstruction}
+                            onCheckedChange={setIsNewConstruction}
+                          />
+                          <Label htmlFor="new-construction" className="text-sm cursor-pointer">
+                            New construction
                           </Label>
-                          <div className="relative">
-                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                              id="strata-fee"
-                              type="number"
-                              value={strataFee || ""}
-                              onChange={(e) => setStrataFee(parseFloat(e.target.value) || 0)}
-                              className="h-12 pl-9"
-                              placeholder="350"
-                            />
-                          </div>
                         </div>
-                      </div>
-
-                      {/* Optional Toggles */}
-                      <div className="flex flex-col sm:flex-row gap-4 pt-2">
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-2">
                           <Switch
                             id="include-gst"
                             checked={includeGST}
@@ -569,142 +822,416 @@ export default function MortgageCalculatorPage() {
                             Include GST (5%)
                           </Label>
                         </div>
-                        <div className="flex items-center gap-3">
-                          <Switch
-                            id="include-legal"
-                            checked={includeLegalCosts}
-                            onCheckedChange={setIncludeLegalCosts}
-                          />
-                          <Label htmlFor="include-legal" className="text-sm cursor-pointer">
-                            Include Legal Costs (~$2,500)
-                          </Label>
-                        </div>
                       </div>
                     </CardContent>
+                  </Card>
+
+                  {/* Cash Needed to Close */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <button 
+                        onClick={() => setShowClosingDetails(!showClosingDetails)}
+                        className="flex items-center justify-between w-full text-left"
+                      >
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Wallet className="h-5 w-5 text-primary" />
+                          Cash Needed to Close
+                        </CardTitle>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl font-bold text-primary">{formatCurrency(calculations.cashToClose)}</span>
+                          {showClosingDetails ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                        </div>
+                      </button>
+                    </CardHeader>
+                    {showClosingDetails && (
+                      <CardContent className="pt-2 space-y-3">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between py-1">
+                            <span className="text-muted-foreground">Down Payment</span>
+                            <span className="font-medium">{formatCurrency(calculations.downPayment)}</span>
+                          </div>
+                          
+                          <div className="border-t pt-2">
+                            <p className="text-xs font-medium text-muted-foreground mb-2">Property Transfer Tax</p>
+                            <div className="flex justify-between py-1 pl-3">
+                              <span className="text-muted-foreground">Provincial</span>
+                              <span>{formatCurrency(calculations.ptt.provincial)}</span>
+                            </div>
+                            {calculations.ptt.rebate > 0 && (
+                              <div className="flex justify-between py-1 pl-3 text-green-600">
+                                <span>Exemption/Rebate</span>
+                                <span>-{formatCurrency(calculations.ptt.rebate)}</span>
+                              </div>
+                            )}
+                            <div className="flex justify-between py-1 pl-3 font-medium">
+                              <span>Net PTT</span>
+                              <span>{formatCurrency(calculations.ptt.total)}</span>
+                            </div>
+                          </div>
+                          
+                          {calculations.pstOnCmhc > 0 && (
+                            <div className="flex justify-between py-1">
+                              <span className="text-muted-foreground">PST on CMHC Insurance (8%)</span>
+                              <span>{formatCurrency(calculations.pstOnCmhc)}</span>
+                            </div>
+                          )}
+                          
+                          {calculations.gstAmount > 0 && (
+                            <div className="border-t pt-2">
+                              <div className="flex justify-between py-1">
+                                <span className="text-muted-foreground">GST (5%)</span>
+                                <span>{formatCurrency(calculations.gstAmount)}</span>
+                              </div>
+                              {calculations.gstRebate > 0 && (
+                                <div className="flex justify-between py-1 text-green-600">
+                                  <span className="pl-3">Federal Rebate</span>
+                                  <span>-{formatCurrency(calculations.gstRebate)}</span>
+                                </div>
+                              )}
+                              {calculations.bcNewHousingRebate > 0 && (
+                                <div className="flex justify-between py-1 text-green-600">
+                                  <span className="pl-3">BC New Housing Rebate</span>
+                                  <span>-{formatCurrency(calculations.bcNewHousingRebate)}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                          
+                          <div className="border-t pt-2">
+                            <p className="text-xs font-medium text-muted-foreground mb-2">Closing Costs</p>
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <Label className="text-xs">Lawyer Fees</Label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                  <Input
+                                    type="number"
+                                    value={lawyerFees}
+                                    onChange={(e) => setLawyerFees(parseFloat(e.target.value) || 0)}
+                                    className="h-9 pl-6 text-sm"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs">Title Insurance</Label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                  <Input
+                                    type="number"
+                                    value={titleInsurance}
+                                    onChange={(e) => setTitleInsurance(parseFloat(e.target.value) || 0)}
+                                    className="h-9 pl-6 text-sm"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs">Home Inspection</Label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                  <Input
+                                    type="number"
+                                    value={homeInspection}
+                                    onChange={(e) => setHomeInspection(parseFloat(e.target.value) || 0)}
+                                    className="h-9 pl-6 text-sm"
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs">Appraisal Fees</Label>
+                                <div className="relative">
+                                  <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                  <Input
+                                    type="number"
+                                    value={appraisalFees}
+                                    onChange={(e) => setAppraisalFees(parseFloat(e.target.value) || 0)}
+                                    className="h-9 pl-6 text-sm"
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+
+                  {/* Monthly Expenses */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <button 
+                        onClick={() => setShowMonthlyDetails(!showMonthlyDetails)}
+                        className="flex items-center justify-between w-full text-left"
+                      >
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Receipt className="h-5 w-5 text-primary" />
+                          Monthly Carrying Costs
+                        </CardTitle>
+                        <div className="flex items-center gap-3">
+                          <span className="text-xl font-bold text-primary">{formatCurrency(calculations.totalMonthlyCarrying)}</span>
+                          {showMonthlyDetails ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                        </div>
+                      </button>
+                    </CardHeader>
+                    {showMonthlyDetails && (
+                      <CardContent className="pt-2 space-y-3">
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between py-1">
+                            <span className="text-muted-foreground">Mortgage Payment (P&I)</span>
+                            <span className="font-medium">{formatCurrency(calculations.monthlyPayment)}</span>
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3 border-t pt-3">
+                            <div>
+                              <Label className="text-xs">Property Tax (Annual)</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  value={propertyTax}
+                                  onChange={(e) => setPropertyTax(parseFloat(e.target.value) || 0)}
+                                  className="h-9 pl-6 text-sm"
+                                />
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">{formatCurrency(calculations.monthlyPropertyTax)}/mo</p>
+                            </div>
+                            <div>
+                              <Label className="text-xs">Strata Fee (Monthly)</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  value={strataFee}
+                                  onChange={(e) => setStrataFee(parseFloat(e.target.value) || 0)}
+                                  className="h-9 pl-6 text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-xs">Home Insurance (Monthly)</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  value={homeInsurance}
+                                  onChange={(e) => setHomeInsurance(parseFloat(e.target.value) || 0)}
+                                  className="h-9 pl-6 text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div>
+                              <Label className="text-xs">Utilities (Monthly)</Label>
+                              <div className="relative">
+                                <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                                <Input
+                                  type="number"
+                                  value={utilities}
+                                  onChange={(e) => setUtilities(parseFloat(e.target.value) || 0)}
+                                  className="h-9 pl-6 text-sm"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </CardContent>
+                    )}
+                  </Card>
+
+                  {/* Interest Rate Risk */}
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <TrendingUp className="h-5 w-5 text-primary" />
+                        Interest Rate Scenarios
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-xs text-muted-foreground mb-3">See how your payment changes with different rates:</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        {rateScenarios.map((scenario, i) => (
+                          <div 
+                            key={i} 
+                            className={`p-3 rounded-lg border text-center ${i === 0 ? 'bg-primary/5 border-primary/30' : ''}`}
+                          >
+                            <p className="text-xs text-muted-foreground mb-1">{scenario.label}</p>
+                            <p className="text-sm font-medium">{scenario.rate.toFixed(2)}%</p>
+                            <p className="text-lg font-bold">{formatCurrency(scenario.payment)}</p>
+                            {scenario.difference !== 0 && (
+                              <p className={`text-xs ${scenario.difference > 0 ? 'text-red-500' : 'text-green-500'}`}>
+                                {scenario.difference > 0 ? '+' : ''}{formatCurrency(scenario.difference)}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Amortization Schedule */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <button 
+                        onClick={() => setShowAmortizationSchedule(!showAmortizationSchedule)}
+                        className="flex items-center justify-between w-full text-left"
+                      >
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Calendar className="h-5 w-5 text-primary" />
+                          Amortization Schedule
+                        </CardTitle>
+                        {showAmortizationSchedule ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                      </button>
+                    </CardHeader>
+                    {showAmortizationSchedule && (
+                      <CardContent className="pt-2">
+                        <div className="overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-16">Year</TableHead>
+                                <TableHead className="text-right">Total Paid</TableHead>
+                                <TableHead className="text-right">Principal</TableHead>
+                                <TableHead className="text-right">Interest</TableHead>
+                                <TableHead className="text-right">Balance</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {amortizationSchedule.map((row) => (
+                                <TableRow key={row.year}>
+                                  <TableCell className="font-medium">{row.year}</TableCell>
+                                  <TableCell className="text-right">{formatCurrency(row.totalPaid)}</TableCell>
+                                  <TableCell className="text-right text-green-600">{formatCurrency(row.principalPaid)}</TableCell>
+                                  <TableCell className="text-right text-muted-foreground">{formatCurrency(row.interestPaid)}</TableCell>
+                                  <TableCell className="text-right font-medium">{formatCurrency(row.balance)}</TableCell>
+                                </TableRow>
+                              ))}
+                              <TableRow className="bg-muted/50 font-semibold">
+                                <TableCell>Total</TableCell>
+                                <TableCell className="text-right">{formatCurrency(calculations.totalCost)}</TableCell>
+                                <TableCell className="text-right text-green-600">{formatCurrency(calculations.mortgageAmount)}</TableCell>
+                                <TableCell className="text-right">{formatCurrency(calculations.totalInterest)}</TableCell>
+                                <TableCell className="text-right">$0</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-3">
+                          * Showing first {Math.min(amortization, 10)} years. Full amortization is {amortization} years.
+                        </p>
+                      </CardContent>
+                    )}
                   </Card>
 
                   {/* Disclaimer */}
                   <div className="flex items-start gap-2 text-xs text-muted-foreground px-1">
                     <Info className="h-4 w-4 shrink-0 mt-0.5" />
                     <p>
-                      Results are estimates only based on input values. Actual payments may vary based on lender qualification, credit score, and current rates. 
+                      Results are estimates only. Actual payments, taxes, and closing costs may vary. Property transfer tax calculations are for BC only. Consult a mortgage professional for personalized advice.
                       <Link to="/presale-guide" className="text-primary hover:underline ml-1">
-                        Learn how this calculator works →
+                        Learn more about presale financing →
                       </Link>
                     </p>
                   </div>
                 </div>
 
-                {/* Results Column */}
-                <div className="lg:col-span-2 space-y-4">
-                  <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background sticky top-4">
-                    <CardContent className="p-4 md:p-6">
-                      {/* Main Payment */}
-                      <div className="text-center pb-4 border-b mb-4">
-                        <p className="text-sm text-muted-foreground mb-1">
-                          {frequencyLabels[paymentFrequency]} Payment
-                        </p>
-                        <p className="text-4xl md:text-5xl font-bold text-primary">
-                          {formatCurrency(calculations.payment, 0)}
-                        </p>
-                        {paymentFrequency !== "monthly" && (
-                          <p className="text-sm text-muted-foreground mt-2">
-                            ≈ {formatCurrency(calculations.monthlyEquivalent)} monthly equivalent
+                {/* Results Column (Sticky) */}
+                <div className="lg:col-span-1">
+                  <div className="sticky top-4 space-y-4">
+                    {/* Main Payment Card */}
+                    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background">
+                      <CardContent className="p-5">
+                        {/* Main Payment */}
+                        <div className="text-center pb-4 border-b mb-4">
+                          <p className="text-sm text-muted-foreground mb-1">
+                            {frequencyLabels[paymentFrequency]} Payment
                           </p>
-                        )}
-                      </div>
-
-                      {/* Payment Breakdown */}
-                      <div className="space-y-3 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Down Payment</span>
-                          <span className="font-medium">{formatCurrency(calculations.downPayment)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Mortgage Amount</span>
-                          <span className="font-medium">{formatCurrency(calculations.mortgageAmount)}</span>
-                        </div>
-                        {calculations.cmhcInsurance > 0 && (
-                          <div className="flex justify-between text-amber-600">
-                            <span>CMHC Insurance</span>
-                            <span className="font-medium">+{formatCurrency(calculations.cmhcInsurance)}</span>
-                          </div>
-                        )}
-                        {calculations.gstAmount > 0 && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">GST (5%)</span>
-                            <span className="font-medium">{formatCurrency(calculations.gstAmount)}</span>
-                          </div>
-                        )}
-                        {calculations.legalCosts > 0 && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Legal Costs</span>
-                            <span className="font-medium">{formatCurrency(calculations.legalCosts)}</span>
-                          </div>
-                        )}
-                        
-                        <div className="border-t pt-3 mt-3">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Total Interest</span>
-                            <span className="font-medium">{formatCurrency(calculations.totalInterest)}</span>
-                          </div>
-                          <div className="flex justify-between mt-2">
-                            <span className="text-muted-foreground">Total Cost ({amortization}yr)</span>
-                            <span className="font-medium">{formatCurrency(calculations.totalCost)}</span>
-                          </div>
+                          <p className="text-4xl font-bold text-primary">
+                            {formatCurrency(calculations.payment, 0)}
+                          </p>
+                          {paymentFrequency !== "monthly" && (
+                            <p className="text-xs text-muted-foreground mt-1">
+                              ≈ {formatCurrency(calculations.monthlyPayment)} monthly
+                            </p>
+                          )}
+                          {paymentFrequency.includes("accelerated") && (
+                            <p className="text-xs text-green-600 mt-1">
+                              Pay off ~{Math.round(amortization - calculations.yearsToPayoff)} years faster
+                            </p>
+                          )}
                         </div>
 
-                        {(propertyTax > 0 || strataFee > 0) && (
-                          <div className="border-t pt-3 mt-3">
-                            <p className="text-xs text-muted-foreground mb-2">Including extras:</p>
-                            {propertyTax > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Property Tax</span>
-                                <span className="font-medium">+{formatCurrency(calculations.propertyTaxPerPeriod)}/{paymentFrequency.replace("-", " ")}</span>
-                              </div>
-                            )}
-                            {strataFee > 0 && (
-                              <div className="flex justify-between">
-                                <span className="text-muted-foreground">Strata Fee</span>
-                                <span className="font-medium">+{formatCurrency(calculations.strataPerPeriod)}/{paymentFrequency.replace("-", " ")}</span>
-                              </div>
-                            )}
-                            <div className="flex justify-between mt-2 pt-2 border-t">
-                              <span className="font-medium">Total w/ Extras</span>
-                              <span className="font-bold text-primary">{formatCurrency(calculations.totalPaymentWithExtras)}</span>
+                        {/* Key Stats */}
+                        <div className="space-y-2.5 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Property Price</span>
+                            <span className="font-medium">{formatCurrency(calculations.propertyPrice)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Down Payment ({downPaymentPercent}%)</span>
+                            <span className="font-medium">{formatCurrency(calculations.downPayment)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Mortgage Amount</span>
+                            <span className="font-medium">{formatCurrency(calculations.mortgageAmount)}</span>
+                          </div>
+                          {calculations.cmhcInsurance > 0 && (
+                            <div className="flex justify-between text-amber-600">
+                              <span>CMHC Insurance</span>
+                              <span>+{formatCurrency(calculations.cmhcInsurance)}</span>
+                            </div>
+                          )}
+                          
+                          <div className="border-t pt-2.5 mt-2.5">
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Total Interest</span>
+                              <span className="font-medium">{formatCurrency(calculations.totalInterest)}</span>
+                            </div>
+                            <div className="flex justify-between mt-1">
+                              <span className="text-muted-foreground">Total Cost</span>
+                              <span className="font-medium">{formatCurrency(calculations.totalCost)}</span>
                             </div>
                           </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
+                        </div>
+                      </CardContent>
+                    </Card>
 
-                  {/* CTA Card */}
-                  <Card className="border-primary/20">
-                    <CardContent className="p-4">
-                      <div className="flex items-start gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                          <Building2 className="h-5 w-5 text-primary" />
+                    {/* Quick Summary Cards */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <Card className="p-3 text-center">
+                        <p className="text-xs text-muted-foreground mb-1">Cash to Close</p>
+                        <p className="text-lg font-bold">{formatCurrency(calculations.cashToClose)}</p>
+                      </Card>
+                      <Card className="p-3 text-center">
+                        <p className="text-xs text-muted-foreground mb-1">Monthly Total</p>
+                        <p className="text-lg font-bold">{formatCurrency(calculations.totalMonthlyCarrying)}</p>
+                      </Card>
+                    </div>
+
+                    {/* CTA Card */}
+                    <Card className="border-primary/20">
+                      <CardContent className="p-4">
+                        <div className="flex items-start gap-3">
+                          <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                            <Building2 className="h-4 w-4 text-primary" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="text-sm font-medium mb-1">Find presales in your budget</p>
+                            <p className="text-xs text-muted-foreground mb-2">
+                              Projects matching ~{formatCurrency(calculations.totalMonthlyCarrying)}/mo
+                            </p>
+                            <Link to="/presale-projects">
+                              <Button 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => trackEvent("budget_cta_click", getEventContext())}
+                              >
+                                Browse Projects
+                                <ArrowRight className="h-4 w-4 ml-1" />
+                              </Button>
+                            </Link>
+                          </div>
                         </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium mb-1">See presales in your budget</p>
-                          <p className="text-xs text-muted-foreground mb-3">
-                            Find projects matching your {formatCurrency(calculations.monthlyEquivalent)}/mo budget
-                          </p>
-                          <Link to="/presale-projects">
-                            <Button 
-                              size="sm" 
-                              className="w-full"
-                              onClick={() => trackEvent("budget_cta_click", getEventContext())}
-                            >
-                              Browse Presale Projects
-                              <ArrowRight className="h-4 w-4 ml-1" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                      </CardContent>
+                    </Card>
+                  </div>
                 </div>
               </div>
             </div>
@@ -806,59 +1333,6 @@ export default function MortgageCalculatorPage() {
             </div>
           </section>
         )}
-
-        {/* Value Add Section */}
-        <section className="py-10 md:py-14">
-          <div className="container px-4">
-            <div className="max-w-4xl mx-auto">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <Card className="border-primary/20 hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Building2 className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">Find Presale Properties in Your Budget</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Use your estimate to plan deposit + mortgage strategy on presales.
-                        </p>
-                        <Link to="/presale-projects">
-                          <Button variant="outline" size="sm">
-                            Browse Projects
-                            <ArrowRight className="h-4 w-4 ml-1" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-primary/20 hover:shadow-md transition-shadow">
-                  <CardContent className="p-5">
-                    <div className="flex items-start gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Sparkles className="h-6 w-6 text-primary" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold mb-1">Assignment Opportunities</h3>
-                        <p className="text-sm text-muted-foreground mb-3">
-                          Get into a presale at yesterday's prices with shorter wait times.
-                        </p>
-                        <Link to="/assignments">
-                          <Button variant="outline" size="sm">
-                            View Assignments
-                            <ArrowRight className="h-4 w-4 ml-1" />
-                          </Button>
-                        </Link>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* FAQ Section */}
         <section className="py-10 md:py-14 bg-muted/30">
