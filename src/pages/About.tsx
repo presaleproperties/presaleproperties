@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -77,7 +77,7 @@ export default function About() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <ConversionHeader />
       
       <main className="flex-1">
         {/* Hero Section */}

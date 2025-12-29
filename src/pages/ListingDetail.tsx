@@ -22,7 +22,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { supabase } from "@/integrations/supabase/client";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ImageGallery } from "@/components/listings/ImageGallery";
 import { LeadCaptureForm } from "@/components/listings/LeadCaptureForm";
@@ -160,7 +160,7 @@ export default function ListingDetail() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <ConversionHeader />
         <main className="container py-8">
           <Skeleton className="h-8 w-48 mb-6" />
           <div className="grid lg:grid-cols-3 gap-8">
@@ -181,7 +181,7 @@ export default function ListingDetail() {
   if (error || !listing) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <ConversionHeader />
         <main className="container py-16 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">
             Assignment Not Found
@@ -226,7 +226,7 @@ export default function ListingDetail() {
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
       </Helmet>
-      <Header />
+      <ConversionHeader />
       
       <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
         {/* Preview Banner for non-published listings */}
