@@ -69,27 +69,7 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
 
   return (
     <>
-      {/* Mobile Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur border-t border-border p-3 safe-area-pb">
-        <div className="flex gap-2">
-          <Button 
-            onClick={openChatNow}
-            className="flex-1 h-12 font-semibold shadow-lg"
-          >
-            <MessageCircle className="h-4 w-4 mr-2" />
-            Chat Now
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={openCallBack}
-            className="h-12 px-4"
-          >
-            <Phone className="h-4 w-4" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Desktop Floating Bar */}
+      {/* Desktop Floating Bar Only */}
       <div className="hidden lg:block fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
         <div className="bg-background/95 backdrop-blur border border-border rounded-full shadow-2xl px-2 py-2 flex items-center gap-2">
           <Button 
