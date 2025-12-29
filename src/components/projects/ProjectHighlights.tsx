@@ -49,48 +49,55 @@ export function ProjectHighlights({
     {
       label: "Type",
       value: formatProjectType(projectType),
-      icon: <Building2 className="h-4 w-4" />,
+      icon: <Building2 className="h-5 w-5" />,
     },
     unitMix && {
       label: "Unit Mix",
       value: unitMix,
-      icon: <Layers className="h-4 w-4" />,
+      icon: <Layers className="h-5 w-5" />,
     },
     completionYear && {
       label: "Completion",
       value: completionMonth ? `${getMonthName(completionMonth)} ${completionYear}` : completionYear.toString(),
-      icon: <Calendar className="h-4 w-4" />,
+      icon: <Calendar className="h-5 w-5" />,
     },
     location && {
       label: "Location",
       value: location,
-      icon: <MapPin className="h-4 w-4" />,
+      icon: <MapPin className="h-5 w-5" />,
     },
     depositStructure && {
       label: "Deposit",
-      value: depositStructure.length > 30 ? depositStructure.substring(0, 30) + "..." : depositStructure,
-      icon: <DollarSign className="h-4 w-4" />,
+      value: depositStructure.length > 25 ? depositStructure.substring(0, 25) + "..." : depositStructure,
+      icon: <DollarSign className="h-5 w-5" />,
     },
     incentives && {
       label: "Incentives",
-      value: incentives.length > 30 ? incentives.substring(0, 30) + "..." : incentives,
-      icon: <Gift className="h-4 w-4" />,
+      value: incentives.length > 25 ? incentives.substring(0, 25) + "..." : incentives,
+      icon: <Gift className="h-5 w-5" />,
     },
   ].filter(Boolean) as { label: string; value: string; icon: React.ReactNode }[];
 
   if (highlights.length === 0) return null;
 
   return (
-    <div className="border-y border-border/50 py-4 my-6">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+    <div className="bg-muted/40 rounded-xl p-4">
+      <div className="grid grid-cols-2 gap-4">
         {highlights.map((item, index) => (
-          <div key={index} className="text-center md:text-left">
-            <div className="flex items-center justify-center md:justify-start gap-1.5 text-xs text-muted-foreground mb-1">
+          <div 
+            key={index} 
+            className="flex items-start gap-3 p-2 rounded-lg"
+          >
+            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
               {item.icon}
-              <span>{item.label}</span>
             </div>
-            <div className="font-semibold text-sm md:text-base text-foreground">
-              {item.value}
+            <div className="min-w-0 flex-1">
+              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5">
+                {item.label}
+              </div>
+              <div className="font-semibold text-sm text-foreground leading-tight">
+                {item.value}
+              </div>
             </div>
           </div>
         ))}
