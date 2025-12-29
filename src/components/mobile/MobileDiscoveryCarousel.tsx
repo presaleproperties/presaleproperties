@@ -12,7 +12,10 @@ type CarouselType =
   | "city_surrey"
   | "city_burnaby"
   | "city_coquitlam"
-  | "city_langley";
+  | "city_langley"
+  | "city_richmond"
+  | "city_delta"
+  | "city_abbotsford";
 
 interface MobileDiscoveryCarouselProps {
   type: CarouselType;
@@ -33,6 +36,12 @@ const getCityFromType = (type: CarouselType): string | null => {
       return "Coquitlam";
     case "city_langley":
       return "Langley";
+    case "city_richmond":
+      return "Richmond";
+    case "city_delta":
+      return "Delta";
+    case "city_abbotsford":
+      return "Abbotsford";
     default:
       return null;
   }
