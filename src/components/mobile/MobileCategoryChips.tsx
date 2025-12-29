@@ -49,7 +49,7 @@ const CATEGORY_CHIPS: CategoryChip[] = [
     id: "2027plus", 
     label: "2027+", 
     icon: <Calendar className="h-2.5 w-2.5" />, 
-    route: "/presale-projects?completionYear=2027",
+    route: "/presale-projects?year=2027",
     filter: { minCompletionYear: 2027 } 
   },
 ];
