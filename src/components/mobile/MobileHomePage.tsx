@@ -6,6 +6,9 @@ import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileBottomNav } from "./MobileBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
+import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
+import { BuyerCTASection } from "@/components/home/BuyerCTASection";
+import { Footer } from "@/components/layout/Footer";
 
 export function MobileHomePage() {
   const [selectedCity, setSelectedCity] = useState("all");
@@ -14,7 +17,6 @@ export function MobileHomePage() {
   const queryClient = useQueryClient();
 
   const handleRefresh = useCallback(async () => {
-    // Invalidate all mobile discovery queries to refetch fresh data
     await queryClient.invalidateQueries({ queryKey: ["mobile-discovery"] });
   }, [queryClient]);
 
@@ -65,7 +67,7 @@ export function MobileHomePage() {
 
       {/* Discovery Sections */}
       <div 
-        className="space-y-6 py-4 pb-28"
+        className="space-y-6 py-4"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -108,6 +110,37 @@ export function MobileHomePage() {
           title="Langley"
           city={selectedCity}
         />
+
+        <MobileDiscoveryCarousel
+          type="city_richmond"
+          title="Richmond"
+          city={selectedCity}
+        />
+
+        <MobileDiscoveryCarousel
+          type="city_delta"
+          title="Delta"
+          city={selectedCity}
+        />
+
+        <MobileDiscoveryCarousel
+          type="city_abbotsford"
+          title="Abbotsford"
+          city={selectedCity}
+        />
+      </div>
+
+      {/* Benefits Section - Mobile optimized */}
+      <div className="mt-4">
+        <NewConstructionBenefits />
+      </div>
+
+      {/* CTA Section */}
+      <BuyerCTASection />
+
+      {/* Footer - with extra bottom padding for nav */}
+      <div className="pb-24">
+        <Footer />
       </div>
 
       {/* Bottom Navigation */}
