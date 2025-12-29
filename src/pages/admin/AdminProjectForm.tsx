@@ -28,7 +28,8 @@ import {
   Sparkles,
   FolderOpen,
   Image,
-  FileText
+  FileText,
+  MapPin
 } from "lucide-react";
 
 type ProjectFormData = {
@@ -123,7 +124,61 @@ export default function AdminProjectForm() {
   const [showUploadAssistant, setShowUploadAssistant] = useState(false);
   const [driveUrl, setDriveUrl] = useState("");
   const [isImportingDrive, setIsImportingDrive] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
   const { toast } = useToast();
+
+  // Geocode address using OpenStreetMap Nominatim API
+  const geocodeAddress = async (address: string, city: string, neighborhood: string) => {
+    if (!address && !city) return;
+    
+    setIsGeocoding(true);
+    try {
+      // Build search query from available location info
+      const searchParts = [address, neighborhood, city, "BC", "Canada"].filter(Boolean);
+      const searchQuery = searchParts.join(", ");
+      
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`,
+        {
+          headers: {
+            'User-Agent': 'PresaleListingsApp/1.0'
+          }
+        }
+      );
+      
+      if (!response.ok) throw new Error('Geocoding failed');
+      
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        const { lat, lon } = data[0];
+        setFormData(prev => ({
+          ...prev,
+          map_lat: lat,
+          map_lng: lon,
+        }));
+        toast({
+          title: "Coordinates Found",
+          description: `Location: ${parseFloat(lat).toFixed(4)}, ${parseFloat(lon).toFixed(4)}`,
+        });
+      } else {
+        toast({
+          title: "No Results",
+          description: "Could not find coordinates for this address. Try adding more details.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      toast({
+        title: "Geocoding Failed",
+        description: "Could not fetch coordinates. Please enter manually.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const isEdit = !!id;
 
@@ -1022,8 +1077,22 @@ export default function AdminProjectForm() {
                     />
                   </div>
                 </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => geocodeAddress(formData.address, formData.city, formData.neighborhood)}
+                  disabled={isGeocoding || (!formData.address && !formData.city)}
+                  className="w-full"
+                >
+                  {isGeocoding ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <MapPin className="h-4 w-4 mr-2" />
+                  )}
+                  {isGeocoding ? "Finding Coordinates..." : "Get Coordinates from Address"}
+                </Button>
                 <p className="text-xs text-muted-foreground">
-                  Tip: Find coordinates on Google Maps by right-clicking a location and selecting the coordinates.
+                  Auto-fetch coordinates using the address, city, and neighborhood fields above.
                 </p>
               </CardContent>
             </Card>
