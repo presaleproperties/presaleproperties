@@ -160,11 +160,8 @@ export default function PresaleProjects() {
       }
       if (filters.depositPercent !== "any") {
         const depositVal = parseInt(filters.depositPercent);
-        if (depositVal >= 25) {
-          countQuery = countQuery.gte("deposit_percent", 25);
-        } else {
-          countQuery = countQuery.eq("deposit_percent", depositVal);
-        }
+        // Filter for projects with deposit <= selected value (e.g., "5%" shows 5% or less)
+        countQuery = countQuery.lte("deposit_percent", depositVal);
       }
       if (filters.completionYear !== "any") {
         const yearVal = parseInt(filters.completionYear);
@@ -196,11 +193,8 @@ export default function PresaleProjects() {
       }
       if (filters.depositPercent !== "any") {
         const depositVal = parseInt(filters.depositPercent);
-        if (depositVal >= 25) {
-          query = query.gte("deposit_percent", 25);
-        } else {
-          query = query.eq("deposit_percent", depositVal);
-        }
+        // Filter for projects with deposit <= selected value (e.g., "5%" shows 5% or less)
+        query = query.lte("deposit_percent", depositVal);
       }
       if (filters.completionYear !== "any") {
         const yearVal = parseInt(filters.completionYear);
