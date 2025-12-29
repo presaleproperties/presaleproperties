@@ -522,6 +522,45 @@ export type Database = {
         }
         Relationships: []
       }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          preferred_city: string | null
+          price_range: string | null
+          source: string | null
+          unsubscribed_at: string | null
+          wants_assignments: boolean
+          wants_projects: boolean
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          preferred_city?: string | null
+          price_range?: string | null
+          source?: string | null
+          unsubscribed_at?: string | null
+          wants_assignments?: boolean
+          wants_projects?: boolean
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          preferred_city?: string | null
+          price_range?: string | null
+          source?: string | null
+          unsubscribed_at?: string | null
+          wants_assignments?: boolean
+          wants_projects?: boolean
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           agent_id: string

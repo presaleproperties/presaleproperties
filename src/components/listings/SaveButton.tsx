@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useGuestFavorites } from "@/hooks/useGuestFavorites";
 import { cn } from "@/lib/utils";
 
 interface SaveButtonProps {
@@ -15,9 +16,11 @@ interface SaveButtonProps {
 export function SaveButton({ listingId, variant = "icon", className }: SaveButtonProps) {
   const { user } = useAuth();
   const { toast } = useToast();
-  const [isSaved, setIsSaved] = useState(false);
+  const { isFavorite, toggleFavorite } = useGuestFavorites();
+  const [isSavedDb, setIsSavedDb] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // For logged in users, check database
   useEffect(() => {
     if (user) {
       checkIfSaved();
@@ -34,26 +37,33 @@ export function SaveButton({ listingId, variant = "icon", className }: SaveButto
       .eq("listing_id", listingId)
       .maybeSingle();
 
-    setIsSaved(!!data);
+    setIsSavedDb(!!data);
   };
+
+  // Determine if saved (DB for logged in users, localStorage for guests)
+  const isSaved = user ? isSavedDb : isFavorite(listingId);
 
   const handleToggleSave = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
+    // For guests, use localStorage
     if (!user) {
+      toggleFavorite(listingId);
       toast({
-        title: "Login required",
-        description: "Please log in to save listings.",
-        variant: "destructive",
+        title: isFavorite(listingId) ? "Removed from favorites" : "Saved to favorites!",
+        description: isFavorite(listingId) 
+          ? "Listing removed from your favorites." 
+          : "Listing added to your favorites. Sign in to save permanently.",
       });
       return;
     }
 
+    // For logged in users, use database
     setIsLoading(true);
 
     try {
-      if (isSaved) {
+      if (isSavedDb) {
         const { error } = await supabase
           .from("saved_listings")
           .delete()
@@ -62,7 +72,7 @@ export function SaveButton({ listingId, variant = "icon", className }: SaveButto
 
         if (error) throw error;
 
-        setIsSaved(false);
+        setIsSavedDb(false);
         toast({
           title: "Removed from saved",
           description: "Listing removed from your saved list.",
@@ -74,7 +84,7 @@ export function SaveButton({ listingId, variant = "icon", className }: SaveButto
 
         if (error) throw error;
 
-        setIsSaved(true);
+        setIsSavedDb(true);
         toast({
           title: "Saved!",
           description: "Listing added to your saved list.",
