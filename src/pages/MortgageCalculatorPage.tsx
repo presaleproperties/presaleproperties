@@ -1485,16 +1485,6 @@ export default function MortgageCalculatorPage() {
                             </div>
                           )}
                           
-                          <div className="border-t pt-2.5 mt-2.5">
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Total Interest</span>
-                              <span className="font-medium">{formatCurrency(calculations.totalInterest)}</span>
-                            </div>
-                            <div className="flex justify-between mt-1">
-                              <span className="text-muted-foreground">Total Cost</span>
-                              <span className="font-medium">{formatCurrency(calculations.totalCost)}</span>
-                            </div>
-                          </div>
                         </div>
                       </CardContent>
                     </Card>
