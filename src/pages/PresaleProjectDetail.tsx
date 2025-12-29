@@ -364,8 +364,8 @@ export default function PresaleProjectDetail() {
 
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
-          <div className="container px-3 py-4 md:px-4 md:py-6 lg:py-8">
-            <div className="grid md:grid-cols-5 gap-4 md:gap-6 lg:gap-8">
+          <div className="container px-3 py-4 md:px-4 md:py-5 lg:py-8">
+            <div className="grid md:grid-cols-5 gap-3 md:gap-4 lg:gap-8">
               {/* Gallery - Takes 3 columns on tablet/desktop */}
               <div className="md:col-span-3">
                 <GalleryWithLightbox
@@ -485,22 +485,22 @@ export default function PresaleProjectDetail() {
         </section>
 
         {/* Details Grid */}
-        <section className="py-4 md:py-6 lg:py-10">
+        <section className="py-3 md:py-4 lg:py-10">
           <div className="container px-3 md:px-4">
-            {/* On tablet (md): full-width content, form moves to bottom center */}
+            {/* On tablet (md): 2-column layout with integrated form */}
             {/* On desktop (lg): 3-column grid with sidebar */}
-            <div className="grid lg:grid-cols-3 gap-4 md:gap-5 lg:gap-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-8">
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-8">
+              <div className="md:col-span-2 lg:col-span-2 space-y-3 md:space-y-4 lg:space-y-8">
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-2 md:mb-3 lg:mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-1.5 md:gap-2 lg:gap-3">
                       {project.amenities.map((a, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 text-green-500 shrink-0" />
-                          <span className="text-xs md:text-sm">{a}</span>
+                        <div key={i} className="flex items-center gap-1.5 md:gap-2">
+                          <CheckCircle className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4 text-green-500 shrink-0" />
+                          <span className="text-xs md:text-xs lg:text-sm">{a}</span>
                         </div>
                       ))}
                     </div>
@@ -509,11 +509,11 @@ export default function PresaleProjectDetail() {
 
                 {/* Description */}
                 {project.full_description && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground text-xs md:text-sm">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-2 md:mb-3 lg:mb-4">Development Features</h2>
+                    <div className="prose prose-sm max-w-none text-muted-foreground text-xs md:text-xs lg:text-sm">
                       {project.full_description.split("\n").map((p, i) => (
-                        <p key={i} className="mb-2 md:mb-3 last:mb-0">{p}</p>
+                        <p key={i} className="mb-1.5 md:mb-2 lg:mb-3 last:mb-0">{p}</p>
                       ))}
                     </div>
                   </div>
@@ -521,13 +521,13 @@ export default function PresaleProjectDetail() {
 
                 {/* Highlights */}
                 {project.highlights && project.highlights.length > 0 && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Key Highlights</h2>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-2 md:mb-3 lg:mb-4">Key Highlights</h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2 lg:gap-3">
                       {project.highlights.map((h, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0 mt-0.5" />
-                          <span className="text-xs md:text-sm">{h}</span>
+                        <li key={i} className="flex items-start gap-1.5 md:gap-2">
+                          <CheckCircle className="h-3.5 w-3.5 md:h-4 md:w-4 lg:h-5 lg:w-5 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-xs md:text-xs lg:text-sm">{h}</span>
                         </li>
                       ))}
                     </ul>
@@ -536,35 +536,35 @@ export default function PresaleProjectDetail() {
 
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Deposit & Fees</h2>
-                    <div className="space-y-3 md:space-y-4">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-2 md:mb-3 lg:mb-4">Deposit & Fees</h2>
+                    <div className="space-y-2 md:space-y-3 lg:space-y-4">
                       {project.deposit_structure && (
                         <div>
-                          <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Deposit Structure</h4>
-                          <p className="text-muted-foreground text-xs md:text-sm">{project.deposit_structure}</p>
+                          <h4 className="font-medium mb-1 md:mb-1.5 lg:mb-2 text-xs md:text-xs lg:text-sm">Deposit Structure</h4>
+                          <p className="text-muted-foreground text-xs md:text-xs lg:text-sm">{project.deposit_structure}</p>
                         </div>
                       )}
                       {(project.strata_fees || project.assignment_fees) && (
-                        <div className="grid grid-cols-2 gap-3 md:gap-4">
+                        <div className="grid grid-cols-2 gap-2 md:gap-3 lg:gap-4">
                           {project.strata_fees && (
                             <div>
-                              <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Strata Fees (Est.)</h4>
-                              <p className="text-muted-foreground text-xs md:text-sm">{project.strata_fees}</p>
+                              <h4 className="font-medium mb-1 md:mb-1.5 lg:mb-2 text-xs md:text-xs lg:text-sm">Strata Fees (Est.)</h4>
+                              <p className="text-muted-foreground text-xs md:text-xs lg:text-sm">{project.strata_fees}</p>
                             </div>
                           )}
                           {project.assignment_fees && (
                             <div>
-                              <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Assignment Fees</h4>
-                              <p className="text-muted-foreground text-xs md:text-sm">{project.assignment_fees}</p>
+                              <h4 className="font-medium mb-1 md:mb-1.5 lg:mb-2 text-xs md:text-xs lg:text-sm">Assignment Fees</h4>
+                              <p className="text-muted-foreground text-xs md:text-xs lg:text-sm">{project.assignment_fees}</p>
                             </div>
                           )}
                         </div>
                       )}
                       {project.incentives && (
                         <div>
-                          <h4 className="font-medium mb-1.5 md:mb-2 text-xs md:text-sm">Current Incentives</h4>
-                          <p className="text-muted-foreground text-xs md:text-sm">{project.incentives}</p>
+                          <h4 className="font-medium mb-1 md:mb-1.5 lg:mb-2 text-xs md:text-xs lg:text-sm">Current Incentives</h4>
+                          <p className="text-muted-foreground text-xs md:text-xs lg:text-sm">{project.incentives}</p>
                         </div>
                       )}
                     </div>
@@ -574,21 +574,21 @@ export default function PresaleProjectDetail() {
                 {/* Downloads */}
                 {((project.floorplan_files && project.floorplan_files.length > 0) || 
                   (project.brochure_files && project.brochure_files.length > 0)) && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Downloads</h2>
-                    <div className="flex flex-wrap gap-2 md:gap-3">
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-2 md:mb-3 lg:mb-4">Downloads</h2>
+                    <div className="flex flex-wrap gap-1.5 md:gap-2 lg:gap-3">
                       {project.floorplan_files?.map((file, i) => (
-                        <Button key={i} variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9" asChild>
+                        <Button key={i} variant="outline" size="sm" className="text-xs md:text-xs lg:text-sm h-7 md:h-8 lg:h-9" asChild>
                           <a href={file} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+                            <Download className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4 mr-1 md:mr-1.5 lg:mr-2" />
                             Floor Plan {i + 1}
                           </a>
                         </Button>
                       ))}
                       {project.brochure_files?.map((file, i) => (
-                        <Button key={i} variant="outline" size="sm" className="text-xs md:text-sm h-8 md:h-9" asChild>
+                        <Button key={i} variant="outline" size="sm" className="text-xs md:text-xs lg:text-sm h-7 md:h-8 lg:h-9" asChild>
                           <a href={file} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 md:mr-2" />
+                            <Download className="h-3 w-3 md:h-3.5 md:w-3.5 lg:h-4 lg:w-4 mr-1 md:mr-1.5 lg:mr-2" />
                             Brochure {i + 1}
                           </a>
                         </Button>
@@ -599,23 +599,23 @@ export default function PresaleProjectDetail() {
 
                 {/* Developer Info */}
                 {project.developer_name && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-1.5 md:mb-2">Developer</h2>
-                    <p className="font-medium text-sm md:text-base">{project.developer_name}</p>
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-1 md:mb-1.5 lg:mb-2">Developer</h2>
+                    <p className="font-medium text-xs md:text-sm lg:text-base">{project.developer_name}</p>
                   </div>
                 )}
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
-                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Frequently Asked Questions</h2>
+                  <div className="bg-muted/30 rounded-lg md:rounded-xl p-3 md:p-4 lg:p-6">
+                    <h2 className="text-sm md:text-base lg:text-lg font-semibold text-foreground mb-2 md:mb-3 lg:mb-4">Frequently Asked Questions</h2>
                     <Accordion type="single" collapsible className="w-full">
                       {project.faq.map((item, i) => (
                         <AccordionItem key={i} value={`faq-${i}`}>
-                          <AccordionTrigger className="text-left text-xs md:text-sm py-2.5 md:py-3">
+                          <AccordionTrigger className="text-left text-xs md:text-xs lg:text-sm py-2 md:py-2.5 lg:py-3">
                             {item.question}
                           </AccordionTrigger>
-                          <AccordionContent className="text-xs md:text-sm text-muted-foreground">
+                          <AccordionContent className="text-xs md:text-xs lg:text-sm text-muted-foreground">
                             {item.answer}
                           </AccordionContent>
                         </AccordionItem>
@@ -649,8 +649,8 @@ export default function PresaleProjectDetail() {
             </div>
 
             {/* Tablet-only centered lead form at bottom */}
-            <div className="hidden md:block lg:hidden mt-8">
-              <div ref={formRef} id="contact-form-tablet" className="max-w-xl mx-auto">
+            <div className="hidden md:block lg:hidden mt-5">
+              <div ref={formRef} id="contact-form-tablet" className="max-w-md mx-auto">
                 <ProjectLeadForm
                   projectId={project.id}
                   projectName={project.name}
@@ -659,8 +659,8 @@ export default function PresaleProjectDetail() {
                 />
                 
                 {/* Quick Actions Below Form - Tablet */}
-                <div className="mt-4 flex justify-center gap-3">
-                  <Button variant="outline" size="default" className="h-10 text-sm px-6" asChild>
+                <div className="mt-3 flex justify-center">
+                  <Button variant="outline" size="default" className="h-9 text-sm px-5" asChild>
                     <a href="tel:+16722581100">
                       <Phone className="h-4 w-4 mr-2" />
                       Call Now

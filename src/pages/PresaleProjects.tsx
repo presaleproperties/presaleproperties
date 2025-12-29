@@ -627,14 +627,14 @@ export default function PresaleProjects() {
   };
 
   const LoadingSkeleton = () => (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
       {[...Array(6)].map((_, i) => (
-        <div key={i} className="rounded-xl overflow-hidden border border-border">
+        <div key={i} className="rounded-lg md:rounded-xl overflow-hidden border border-border">
           <Skeleton className="aspect-[16/10] w-full" />
-          <div className="p-4 space-y-3">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
+          <div className="p-3 md:p-4 space-y-2 md:space-y-3">
+            <Skeleton className="h-4 md:h-5 w-3/4" />
+            <Skeleton className="h-3 md:h-4 w-1/2" />
+            <Skeleton className="h-3 md:h-4 w-2/3" />
           </div>
         </div>
       ))}
@@ -737,15 +737,15 @@ export default function PresaleProjects() {
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
-        <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
+        <section className="bg-background border-b border-border py-4 md:py-6 lg:py-12">
           <div className="container px-4">
             <div className="max-w-3xl">
-              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+              <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-1.5 md:mb-2 lg:mb-3">
                 {filters.city !== "any" 
                   ? `Presale Projects in ${filters.city}` 
                   : "New & Pre-Construction Homes in Metro Vancouver"}
               </h1>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-2 sm:mb-4 line-clamp-2 sm:line-clamp-none">
+              <p className="text-xs sm:text-sm md:text-sm text-muted-foreground mb-1.5 md:mb-2 lg:mb-4 line-clamp-2 md:line-clamp-none">
                 {filters.city !== "any"
                   ? `Browse new construction condos, townhomes & developments in ${filters.city}. View floor plans, pricing & register for VIP access.`
                   : "Search presale condos & townhomes in Vancouver, Surrey, Langley, Coquitlam, Burnaby, Delta & Abbotsford. VIP pricing & floor plans."}
@@ -769,10 +769,10 @@ export default function PresaleProjects() {
           </div>
         </section>
 
-        <main className="container px-4 py-4 md:py-8">
+        <main className="container px-4 py-3 md:py-5 lg:py-8">
 
           {/* Search & Sort Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
+          <div className="flex flex-col sm:flex-row gap-2 md:gap-3 lg:gap-4 mb-3 md:mb-4 lg:mb-6">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -842,7 +842,7 @@ export default function PresaleProjects() {
 
           {/* Active Filters Pills */}
           {activeFilterCount > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+            <div className="flex flex-wrap gap-1.5 md:gap-2 mb-3 md:mb-4 lg:mb-6">
               {filters.city !== "any" && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {filters.city}
@@ -878,9 +878,9 @@ export default function PresaleProjects() {
             </div>
           )}
 
-          <div className="flex gap-6 lg:gap-8">
+          <div className="flex gap-4 md:gap-5 lg:gap-8">
             {/* Desktop Sidebar Filters */}
-            <aside className="hidden lg:block w-60 flex-shrink-0">
+            <aside className="hidden lg:block w-56 xl:w-60 flex-shrink-0">
               <div className="sticky top-6 bg-card border border-border rounded-xl p-4">
                 <h3 className="font-semibold mb-4">Filter Projects</h3>
                 <FilterControls />
@@ -922,10 +922,10 @@ export default function PresaleProjects() {
                 </>
               ) : (
                 <>
-                  <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
+                  <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4 lg:mb-6">
                     Showing {filteredProjects.length} project{filteredProjects.length !== 1 ? "s" : ""}
                   </p>
-                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
                     {filteredProjects.map((project) => (
                       <PresaleProjectCard
                         key={project.id}
