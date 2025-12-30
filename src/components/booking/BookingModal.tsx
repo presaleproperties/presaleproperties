@@ -387,82 +387,114 @@ export function BookingModal({
 
             {/* Step 3: Contact Info */}
             {step === 3 && (
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Full Name *</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                  />
+              <div className="space-y-3">
+                <div className="space-y-2.5">
+                  <div>
+                    <Label htmlFor="name" className="text-xs font-semibold">
+                      Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      placeholder="John Smith"
+                      className="h-11 text-sm rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="phone" className="text-xs font-semibold">
+                      Phone <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                      placeholder="604-555-0123"
+                      className="h-11 text-sm rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="email" className="text-xs font-semibold">
+                      Email <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="john@email.com"
+                      className="h-11 text-sm rounded-lg"
+                    />
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email *</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="your@email.com"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone *</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    placeholder="(604) 555-1234"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>I am a... *</Label>
-                  <RadioGroup value={buyerType} onValueChange={(v) => setBuyerType(v as BuyerType)}>
-                    <div className="grid grid-cols-2 gap-2">
-                      {BUYER_TYPES.map((type) => (
-                        <Label
-                          key={type.value}
-                          className={cn(
-                            "flex items-center gap-2 p-3 border rounded-lg cursor-pointer text-sm transition-colors",
-                            buyerType === type.value && "border-primary bg-primary/5"
-                          )}
-                        >
-                          <RadioGroupItem value={type.value} />
-                          {type.label}
-                        </Label>
-                      ))}
-                    </div>
+
+                {/* I am a... */}
+                <div>
+                  <Label className="text-xs font-semibold">
+                    I am a... <span className="text-destructive">*</span>
+                  </Label>
+                  <RadioGroup 
+                    value={buyerType} 
+                    onValueChange={(v) => setBuyerType(v as BuyerType)}
+                    className="grid grid-cols-2 gap-2 mt-1.5"
+                  >
+                    {BUYER_TYPES.map((type) => (
+                      <Label
+                        key={type.value}
+                        className={cn(
+                          "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
+                          buyerType === type.value
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-muted-foreground/50"
+                        )}
+                      >
+                        <RadioGroupItem value={type.value} className="sr-only" />
+                        {type.label}
+                      </Label>
+                    ))}
                   </RadioGroup>
                 </div>
-                <div className="space-y-2">
-                  <Label>Timeline to Purchase *</Label>
-                  <RadioGroup value={timeline} onValueChange={(v) => setTimeline(v as Timeline)}>
-                    <div className="grid grid-cols-2 gap-2">
-                      {TIMELINES.map((t) => (
-                        <Label
-                          key={t.value}
-                          className={cn(
-                            "flex items-center gap-2 p-3 border rounded-lg cursor-pointer text-sm transition-colors",
-                            timeline === t.value && "border-primary bg-primary/5"
-                          )}
-                        >
-                          <RadioGroupItem value={t.value} />
-                          {t.label}
-                        </Label>
-                      ))}
-                    </div>
+
+                {/* Timeline to Purchase */}
+                <div>
+                  <Label className="text-xs font-semibold">
+                    Timeline to Purchase <span className="text-destructive">*</span>
+                  </Label>
+                  <RadioGroup 
+                    value={timeline} 
+                    onValueChange={(v) => setTimeline(v as Timeline)}
+                    className="grid grid-cols-2 gap-2 mt-1.5"
+                  >
+                    {TIMELINES.map((t) => (
+                      <Label
+                        key={t.value}
+                        className={cn(
+                          "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
+                          timeline === t.value
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-muted-foreground/50"
+                        )}
+                      >
+                        <RadioGroupItem value={t.value} className="sr-only" />
+                        {t.label}
+                      </Label>
+                    ))}
                   </RadioGroup>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="notes">Notes (optional)</Label>
+
+                {/* Notes */}
+                <div>
+                  <Label htmlFor="notes" className="text-xs font-semibold">
+                    Notes (optional)
+                  </Label>
                   <Textarea
                     id="notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Any specific questions or requirements?"
+                    placeholder="Any specific questions?"
                     rows={2}
+                    className="text-sm rounded-lg resize-none"
                   />
                 </div>
                 
