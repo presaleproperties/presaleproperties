@@ -239,7 +239,7 @@ export function InlineScheduler({
           className="w-full h-12 text-sm font-bold uppercase tracking-wide border-2"
         >
           <Download className="h-4 w-4 mr-2" />
-          Get Pricing
+          Get Floor Plans & Pricing
         </Button>
       </div>
     </div>

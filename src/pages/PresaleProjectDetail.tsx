@@ -13,7 +13,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
-import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
+// ProjectLeadForm removed - unified into BookingModal via InlineScheduler
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
 import { BookingModal } from "@/components/booking/BookingModal";
@@ -687,22 +687,19 @@ export default function PresaleProjectDetail() {
               {/* Sidebar */}
               <div>
                 <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24 space-y-4">
-                  {/* Inline Scheduler */}
+                  {/* Unified Scheduler - handles both tour requests and lead capture */}
                   <InlineScheduler
                     projectId={project.id}
                     projectName={project.name}
                     projectCity={project.city}
                     projectNeighborhood={project.neighborhood}
                     onRequestTour={handleScheduleTourClick}
-                    onDownloadPlans={handleGetPlansClick}
-                  />
-
-                  {/* Lead Form */}
-                  <ProjectLeadForm
-                    projectId={project.id}
-                    projectName={project.name}
-                    status={project.status}
-                    brochureUrl={project.brochure_files?.[0] || null}
+                    onDownloadPlans={() => {
+                      // Open booking modal in "get pricing" mode (no date pre-selected)
+                      setBookingDate(undefined);
+                      setBookingTimePeriod(undefined);
+                      setBookingOpen(true);
+                    }}
                   />
                   
                   {/* Quick Actions Below Form - Tablet and Desktop */}
