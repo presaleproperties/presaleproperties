@@ -5,7 +5,7 @@ import { format, addDays, isSameDay, getDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type TimePeriod = "morning" | "afternoon" | "evening";
+type TimePeriod = "early_afternoon" | "mid_afternoon" | "late_afternoon";
 
 interface InlineSchedulerProps {
   projectId: string;
@@ -26,9 +26,9 @@ interface SchedulerSettings {
 }
 
 const TIME_PERIODS: { value: TimePeriod; label: string; subLabel: string }[] = [
-  { value: "morning", label: "MORNING", subLabel: "8AM TO 12PM" },
-  { value: "afternoon", label: "AFTERNOON", subLabel: "12PM TO 4PM" },
-  { value: "evening", label: "EVENING", subLabel: "4PM TO 8PM" },
+  { value: "early_afternoon", label: "12 - 1 PM", subLabel: "EARLY" },
+  { value: "mid_afternoon", label: "2 - 3 PM", subLabel: "MID" },
+  { value: "late_afternoon", label: "4 - 5 PM", subLabel: "LATE" },
 ];
 
 export function InlineScheduler({
@@ -44,7 +44,7 @@ export function InlineScheduler({
   
   const [dateOffset, setDateOffset] = useState(0);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
-  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("afternoon");
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>("mid_afternoon");
 
   useEffect(() => {
     fetchSchedulerData();
