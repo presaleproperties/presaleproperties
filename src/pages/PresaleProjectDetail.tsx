@@ -16,6 +16,7 @@ import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
+import { BookingModal } from "@/components/booking/BookingModal";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,9 @@ import {
   Home,
   Layers,
   Star,
-  Share2
+  Share2,
+  CalendarCheck,
+  Eye
 } from "lucide-react";
 
 type Project = {
