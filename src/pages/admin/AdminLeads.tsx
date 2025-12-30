@@ -33,6 +33,8 @@ interface ProjectLead {
   email: string;
   phone: string | null;
   message: string | null;
+  persona: string | null;
+  timeline: string | null;
   created_at: string;
   project_id: string | null;
   presale_projects: {
@@ -73,6 +75,8 @@ export default function AdminLeads() {
           email,
           phone,
           message,
+          persona,
+          timeline,
           created_at,
           project_id,
           presale_projects (
@@ -139,10 +143,13 @@ export default function AdminLeads() {
     let csvContent = "data:text/csv;charset=utf-8,";
     
     if (type === "project") {
-      csvContent += "Name,Email,Phone,Has Realtor,Project,City,Submitted At\n";
+      csvContent += "Name,Email,Phone,Persona,Home Size,Agent Status,Project,City,Submitted At\n";
       leads.forEach((lead: any) => {
         const project = lead.presale_projects;
-        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${lead.message || ""}","${project?.name || ""}","${project?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+        const personaLabel = lead.persona === "first_time" ? "First-time Buyer" : lead.persona === "investor" ? "Investor" : lead.persona || "";
+        const homeSizeLabel = lead.timeline === "1_bed" ? "1 Bed" : lead.timeline === "2_bed" ? "2 Bed" : lead.timeline === "3_bed_plus" ? "3 Bed+" : lead.timeline || "";
+        const agentStatus = lead.message?.includes("I am a Realtor") ? "Is Agent" : lead.message?.includes("Working with agent") || lead.message?.includes("Yes") ? "Has Agent" : "No Agent";
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${personaLabel}","${homeSizeLabel}","${agentStatus}","${project?.name || ""}","${project?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
       });
     } else {
       csvContent += "Name,Email,Phone,Message,Listing,Project,City,Submitted At\n";
@@ -247,7 +254,9 @@ export default function AdminLeads() {
                   <TableRow>
                     <TableHead>Contact</TableHead>
                     <TableHead>Project</TableHead>
-                    <TableHead className="hidden md:table-cell">Has Realtor</TableHead>
+                    <TableHead className="hidden lg:table-cell">Persona</TableHead>
+                    <TableHead className="hidden md:table-cell">Home Size</TableHead>
+                    <TableHead className="hidden md:table-cell">Agent</TableHead>
                     <TableHead className="hidden sm:table-cell">Submitted</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -258,6 +267,8 @@ export default function AdminLeads() {
                       <TableRow key={i}>
                         <TableCell><Skeleton className="h-10 w-40" /></TableCell>
                         <TableCell><Skeleton className="h-6 w-32" /></TableCell>
+                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-6 w-20" /></TableCell>
+                        <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-16" /></TableCell>
                         <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-16" /></TableCell>
                         <TableCell className="hidden sm:table-cell"><Skeleton className="h-6 w-24" /></TableCell>
                         <TableCell><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
@@ -265,72 +276,86 @@ export default function AdminLeads() {
                     ))
                   ) : filteredProjectLeads?.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                         No project leads found
                       </TableCell>
                     </TableRow>
                   ) : (
-                    filteredProjectLeads?.map((lead) => (
-                      <TableRow key={lead.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{lead.name}</p>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Mail className="h-3 w-3" />
-                                {lead.email}
-                              </span>
-                              {lead.phone && (
-                                <span className="flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />
-                                  {lead.phone}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {lead.presale_projects ? (
+                    filteredProjectLeads?.map((lead) => {
+                      const personaLabel = lead.persona === "first_time" ? "First-time" : lead.persona === "investor" ? "Investor" : lead.persona === "realtor" ? "Realtor" : lead.persona || "—";
+                      const homeSizeLabel = lead.timeline === "1_bed" ? "1 Bed" : lead.timeline === "2_bed" ? "2 Bed" : lead.timeline === "3_bed_plus" ? "3 Bed+" : lead.timeline || "—";
+                      const agentStatus = lead.message?.includes("I am a Realtor") ? "Is Agent" : lead.message?.includes("Working with agent") || lead.message?.includes("Yes") ? "Has Agent" : "No Agent";
+                      
+                      return (
+                        <TableRow key={lead.id}>
+                          <TableCell>
                             <div>
-                              <p className="font-medium">{lead.presale_projects.name}</p>
-                              <p className="text-sm text-muted-foreground">{lead.presale_projects.city}</p>
+                              <p className="font-medium">{lead.name}</p>
+                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Mail className="h-3 w-3" />
+                                  {lead.email}
+                                </span>
+                                {lead.phone && (
+                                  <span className="flex items-center gap-1">
+                                    <Phone className="h-3 w-3" />
+                                    {lead.phone}
+                                  </span>
+                                )}
+                              </div>
                             </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <Badge variant={lead.message?.includes("No") ? "secondary" : "outline"}>
-                            {lead.message?.includes("No") ? "No" : "Yes"}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">
-                          {format(new Date(lead.created_at), "MMM d, yyyy")}
-                          <br />
-                          <span className="text-xs">{format(new Date(lead.created_at), "h:mm a")}</span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button variant="ghost" size="icon" asChild>
-                              <a href={`mailto:${lead.email}`}>
-                                <Mail className="h-4 w-4" />
-                              </a>
-                            </Button>
-                            {lead.presale_projects && (
+                          </TableCell>
+                          <TableCell>
+                            {lead.presale_projects ? (
+                              <div>
+                                <p className="font-medium">{lead.presale_projects.name}</p>
+                                <p className="text-sm text-muted-foreground">{lead.presale_projects.city}</p>
+                              </div>
+                            ) : (
+                              <span className="text-muted-foreground">—</span>
+                            )}
+                          </TableCell>
+                          <TableCell className="hidden lg:table-cell">
+                            <Badge variant={lead.persona === "investor" ? "default" : "secondary"}>
+                              {personaLabel}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge variant="outline">{homeSizeLabel}</Badge>
+                          </TableCell>
+                          <TableCell className="hidden md:table-cell">
+                            <Badge variant={agentStatus === "Is Agent" ? "default" : agentStatus === "Has Agent" ? "secondary" : "outline"}>
+                              {agentStatus}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden sm:table-cell text-muted-foreground">
+                            {format(new Date(lead.created_at), "MMM d, yyyy")}
+                            <br />
+                            <span className="text-xs">{format(new Date(lead.created_at), "h:mm a")}</span>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1">
                               <Button variant="ghost" size="icon" asChild>
-                                <a 
-                                  href={`/presale-projects/${lead.presale_projects.slug}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <ExternalLink className="h-4 w-4" />
+                                <a href={`mailto:${lead.email}`}>
+                                  <Mail className="h-4 w-4" />
                                 </a>
                               </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                              {lead.presale_projects && (
+                                <Button variant="ghost" size="icon" asChild>
+                                  <a 
+                                    href={`/presale-projects/${lead.presale_projects.slug}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                  >
+                                    <ExternalLink className="h-4 w-4" />
+                                  </a>
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
                   )}
                 </TableBody>
               </Table>
