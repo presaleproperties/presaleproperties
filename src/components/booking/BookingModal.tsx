@@ -23,6 +23,8 @@ interface BookingModalProps {
   projectCity?: string;
   projectNeighborhood?: string;
   projectUrl?: string;
+  initialDate?: Date;
+  initialTimePeriod?: string;
 }
 
 interface AvailabilitySlot {
@@ -66,15 +68,19 @@ export function BookingModal({
   projectCity,
   projectNeighborhood,
   projectUrl,
+  initialDate,
+  initialTimePeriod,
 }: BookingModalProps) {
   const { toast } = useToast();
-  const [step, setStep] = useState(1);
+  // If we have an initial date from inline scheduler, skip to contact info
+  const [step, setStep] = useState(initialDate ? 3 : 1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [timePeriodDisplay, setTimePeriodDisplay] = useState(initialTimePeriod || "");
 
   // Form state
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate);
+  const [selectedTime, setSelectedTime] = useState<string>(initialTimePeriod ? "12:00" : "");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -99,9 +105,10 @@ export function BookingModal({
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
-      setStep(1);
-      setSelectedDate(undefined);
-      setSelectedTime("");
+      setStep(initialDate ? 3 : 1);
+      setSelectedDate(initialDate);
+      setSelectedTime(initialTimePeriod ? "12:00" : "");
+      setTimePeriodDisplay(initialTimePeriod || "");
       setName("");
       setEmail("");
       setPhone("");
@@ -110,7 +117,7 @@ export function BookingModal({
       setNotes("");
       setIsSuccess(false);
     }
-  }, [open]);
+  }, [open, initialDate, initialTimePeriod]);
 
   const fetchSchedulerData = async () => {
     setLoading(true);
@@ -328,12 +335,21 @@ export function BookingModal({
           <DialogTitle className="text-lg">
             {step === 1 && "Select a Date"}
             {step === 2 && "Select a Time"}
-            {step === 3 && "Your Information"}
+            {step === 3 && (initialDate ? "Complete Your Booking" : "Your Information")}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">{projectName}</p>
-          <p className="text-xs text-muted-foreground">
-            Tour the sales centre and display suite in person
-          </p>
+          {initialDate && step === 3 ? (
+            <div className="text-xs text-muted-foreground space-y-0.5">
+              <p>{format(initialDate, "EEEE, MMMM d, yyyy")}</p>
+              {timePeriodDisplay && (
+                <p className="capitalize">{timePeriodDisplay} appointment</p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Tour the sales centre and display suite in person
+            </p>
+          )}
         </DialogHeader>
 
         {loading ? (
