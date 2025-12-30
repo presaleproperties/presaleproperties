@@ -9,10 +9,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, addDays, isSameDay, getDay } from "date-fns";
-import { Calendar as CalendarIcon, Clock, User, CheckCircle, Loader2, ArrowLeft, ArrowRight } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, CheckCircle, Loader2, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type AppointmentType = "preview" | "showing";
 type BuyerType = "first_time" | "investor" | "upgrader" | "other";
 type Timeline = "0_3_months" | "3_6_months" | "6_12_months" | "12_plus_months";
 
@@ -24,7 +23,6 @@ interface BookingModalProps {
   projectCity?: string;
   projectNeighborhood?: string;
   projectUrl?: string;
-  initialType?: AppointmentType;
 }
 
 interface AvailabilitySlot {
@@ -68,7 +66,6 @@ export function BookingModal({
   projectCity,
   projectNeighborhood,
   projectUrl,
-  initialType,
 }: BookingModalProps) {
   const { toast } = useToast();
   const [step, setStep] = useState(1);
@@ -76,7 +73,6 @@ export function BookingModal({
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Form state
-  const [appointmentType, setAppointmentType] = useState<AppointmentType>(initialType || "preview");
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [name, setName] = useState("");
@@ -115,13 +111,6 @@ export function BookingModal({
       setIsSuccess(false);
     }
   }, [open]);
-
-  // Set initial type when provided
-  useEffect(() => {
-    if (initialType) {
-      setAppointmentType(initialType);
-    }
-  }, [initialType]);
 
   const fetchSchedulerData = async () => {
     setLoading(true);
@@ -214,7 +203,7 @@ export function BookingModal({
       const urlParams = new URLSearchParams(window.location.search);
       
       const bookingData = {
-        appointment_type: appointmentType,
+        appointment_type: "showing" as const,
         appointment_date: format(selectedDate, "yyyy-MM-dd"),
         appointment_time: selectedTime + ":00",
         project_id: projectId,
@@ -252,7 +241,7 @@ export function BookingModal({
         (window as any).gtag("event", "booking_completed", {
           event_category: "engagement",
           project_name: projectName,
-          appointment_type: appointmentType,
+          appointment_type: "showing",
           buyer_type: buyerType,
           timeline,
         });
@@ -278,12 +267,10 @@ export function BookingModal({
   const canProceed = () => {
     switch (step) {
       case 1:
-        return !!appointmentType;
-      case 2:
         return !!selectedDate;
-      case 3:
+      case 2:
         return !!selectedTime;
-      case 4:
+      case 3:
         return name.trim() && email.trim() && phone.trim();
       default:
         return false;
@@ -304,10 +291,10 @@ export function BookingModal({
             </div>
             <h2 className="text-xl font-semibold mb-2">Request Submitted!</h2>
             <p className="text-muted-foreground text-sm mb-4">
-              We've received your booking request for {projectName}. 
-              You'll receive a confirmation email once approved.
+              We've received your showing request for {projectName}. 
+              You'll receive a confirmation email with the address once approved.
             </p>
-            <div className="bg-muted rounded-lg p-4 text-left text-sm mb-6">
+            <div className="bg-muted rounded-lg p-4 text-left text-sm mb-4">
               <div className="flex items-center gap-2 mb-2">
                 <CalendarIcon className="h-4 w-4 text-muted-foreground" />
                 <span>{selectedDate && format(selectedDate, "EEEE, MMMM d, yyyy")}</span>
@@ -315,6 +302,14 @@ export function BookingModal({
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-muted-foreground" />
                 <span>{selectedTime && formatTimeDisplay(selectedTime)}</span>
+              </div>
+            </div>
+            <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 text-left text-sm mb-6">
+              <div className="flex items-start gap-2">
+                <MapPin className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                <span className="text-blue-800">
+                  Sales centre address will be provided upon confirmation
+                </span>
               </div>
             </div>
             <Button onClick={() => onOpenChange(false)} className="w-full">
@@ -331,12 +326,14 @@ export function BookingModal({
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-lg">
-            {step === 1 && "Select Appointment Type"}
-            {step === 2 && "Select a Date"}
-            {step === 3 && "Select a Time"}
-            {step === 4 && "Your Information"}
+            {step === 1 && "Select a Date"}
+            {step === 2 && "Select a Time"}
+            {step === 3 && "Your Information"}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">{projectName}</p>
+          <p className="text-xs text-muted-foreground">
+            Tour the sales centre and display suite in person
+          </p>
         </DialogHeader>
 
         {loading ? (
@@ -345,59 +342,28 @@ export function BookingModal({
           </div>
         ) : (
           <div className="py-4">
-            {/* Step 1: Appointment Type */}
+            {/* Step 1: Date Selection */}
             {step === 1 && (
-              <RadioGroup value={appointmentType} onValueChange={(v) => setAppointmentType(v as AppointmentType)}>
-                <div className="space-y-3">
-                  <Label
-                    className={cn(
-                      "flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors",
-                      appointmentType === "preview" && "border-primary bg-primary/5"
-                    )}
-                  >
-                    <RadioGroupItem value="preview" className="mt-0.5" />
-                    <div>
-                      <div className="font-medium">Book a Preview</div>
-                      <div className="text-sm text-muted-foreground">
-                        Get a presentation of floor plans, pricing, and availability
-                      </div>
-                    </div>
-                  </Label>
-                  <Label
-                    className={cn(
-                      "flex items-start gap-3 p-4 border rounded-lg cursor-pointer transition-colors",
-                      appointmentType === "showing" && "border-primary bg-primary/5"
-                    )}
-                  >
-                    <RadioGroupItem value="showing" className="mt-0.5" />
-                    <div>
-                      <div className="font-medium">Schedule a Showing</div>
-                      <div className="text-sm text-muted-foreground">
-                        Tour the sales center or display suite in person
-                      </div>
-                    </div>
-                  </Label>
+              <div>
+                <div className="flex justify-center mb-4">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={isDateDisabled}
+                    fromDate={addDays(new Date(), 1)}
+                    toDate={settings ? addDays(new Date(), settings.advance_booking_days) : undefined}
+                    className="rounded-md border"
+                  />
                 </div>
-              </RadioGroup>
-            )}
-
-            {/* Step 2: Date Selection */}
-            {step === 2 && (
-              <div className="flex justify-center">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={isDateDisabled}
-                  fromDate={addDays(new Date(), 1)}
-                  toDate={settings ? addDays(new Date(), settings.advance_booking_days) : undefined}
-                  className="rounded-md border"
-                />
+                <div className="text-xs text-center text-muted-foreground">
+                  Mon–Thu & Sat–Sun, 12:00 PM – 5:00 PM
+                </div>
               </div>
             )}
 
-            {/* Step 3: Time Selection */}
-            {step === 3 && (
+            {/* Step 2: Time Selection */}
+            {step === 2 && (
               <div className="grid grid-cols-3 gap-2">
                 {timeSlots.length === 0 ? (
                   <p className="col-span-3 text-center text-muted-foreground py-8">
@@ -419,8 +385,8 @@ export function BookingModal({
               </div>
             )}
 
-            {/* Step 4: Contact Info */}
-            {step === 4 && (
+            {/* Step 3: Contact Info */}
+            {step === 3 && (
               <div className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="name">Full Name *</Label>
@@ -496,8 +462,15 @@ export function BookingModal({
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any specific questions or requirements?"
-                    rows={3}
+                    rows={2}
                   />
+                </div>
+                
+                <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                    <span>Sales centre address will be provided upon confirmation</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -513,7 +486,7 @@ export function BookingModal({
                 Back
               </Button>
             )}
-            {step < 4 ? (
+            {step < 3 ? (
               <Button 
                 onClick={() => setStep(step + 1)} 
                 disabled={!canProceed()}
@@ -544,7 +517,7 @@ export function BookingModal({
         {/* Step indicator */}
         {!loading && (
           <div className="flex justify-center gap-1.5 pt-2">
-            {[1, 2, 3, 4].map((s) => (
+            {[1, 2, 3].map((s) => (
               <div
                 key={s}
                 className={cn(
