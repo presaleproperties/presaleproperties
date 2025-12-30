@@ -36,7 +36,8 @@ interface ProjectLead {
   phone: string | null;
   message: string | null;
   persona: string | null;
-  timeline: string | null;
+  home_size: string | null;
+  agent_status: string | null;
   created_at: string;
   project_id: string | null;
   presale_projects: {
@@ -80,7 +81,8 @@ export default function AdminLeads() {
           phone,
           message,
           persona,
-          timeline,
+          home_size,
+          agent_status,
           created_at,
           project_id,
           presale_projects (
@@ -150,10 +152,10 @@ export default function AdminLeads() {
       csvContent += "Name,Email,Phone,Persona,Home Size,Agent Status,Project,City,Submitted At\n";
       leads.forEach((lead: any) => {
         const project = lead.presale_projects;
-        const personaLabel = lead.persona === "first_time" ? "First-time Buyer" : lead.persona === "investor" ? "Investor" : lead.persona || "";
-        const homeSizeLabel = lead.timeline === "1_bed" ? "1 Bed" : lead.timeline === "2_bed" ? "2 Bed" : lead.timeline === "3_bed_plus" ? "3 Bed+" : lead.timeline || "";
-        const agentStatus = lead.message?.includes("I am a Realtor") ? "Is Agent" : lead.message?.includes("Working with agent") || lead.message?.includes("Yes") ? "Has Agent" : "No Agent";
-        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${personaLabel}","${homeSizeLabel}","${agentStatus}","${project?.name || ""}","${project?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+        const personaLabel = lead.persona === "first_time" ? "First-time Buyer" : lead.persona === "investor" ? "Investor" : lead.persona === "realtor" ? "Realtor" : lead.persona || "";
+        const homeSizeLabel = lead.home_size === "1_bed" ? "1 Bed" : lead.home_size === "2_bed" ? "2 Bed" : lead.home_size === "3_bed_plus" ? "3 Bed+" : lead.home_size || "";
+        const agentStatusLabel = lead.agent_status === "i_am_realtor" ? "Is Agent" : lead.agent_status === "yes" ? "Has Agent" : "No Agent";
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${personaLabel}","${homeSizeLabel}","${agentStatusLabel}","${project?.name || ""}","${project?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
       });
     } else {
       csvContent += "Name,Email,Phone,Message,Listing,Project,City,Submitted At\n";
@@ -287,8 +289,8 @@ export default function AdminLeads() {
                   ) : (
                     filteredProjectLeads?.map((lead) => {
                       const personaLabel = lead.persona === "first_time" ? "First-time" : lead.persona === "investor" ? "Investor" : lead.persona === "realtor" ? "Realtor" : lead.persona || "—";
-                      const homeSizeLabel = lead.timeline === "1_bed" ? "1 Bed" : lead.timeline === "2_bed" ? "2 Bed" : lead.timeline === "3_bed_plus" ? "3 Bed+" : lead.timeline || "—";
-                      const agentStatus = lead.message?.includes("I am a Realtor") ? "Is Agent" : lead.message?.includes("Working with agent") || lead.message?.includes("Yes") ? "Has Agent" : "No Agent";
+                      const homeSizeLabel = lead.home_size === "1_bed" ? "1 Bed" : lead.home_size === "2_bed" ? "2 Bed" : lead.home_size === "3_bed_plus" ? "3 Bed+" : lead.home_size || "—";
+                      const agentStatusLabel = lead.agent_status === "i_am_realtor" ? "Is Agent" : lead.agent_status === "yes" ? "Has Agent" : "No Agent";
                       
                       return (
                         <TableRow key={lead.id}>
@@ -328,8 +330,8 @@ export default function AdminLeads() {
                             <Badge variant="outline">{homeSizeLabel}</Badge>
                           </TableCell>
                           <TableCell className="hidden md:table-cell">
-                            <Badge variant={agentStatus === "Is Agent" ? "default" : agentStatus === "Has Agent" ? "secondary" : "outline"}>
-                              {agentStatus}
+                            <Badge variant={agentStatusLabel === "Is Agent" ? "default" : agentStatusLabel === "Has Agent" ? "secondary" : "outline"}>
+                              {agentStatusLabel}
                             </Badge>
                           </TableCell>
                           <TableCell className="hidden sm:table-cell text-muted-foreground">

@@ -879,10 +879,12 @@ export type Database = {
       }
       project_leads: {
         Row: {
+          agent_status: string | null
           budget: string | null
           created_at: string
           drip_sequence: string | null
           email: string
+          home_size: string | null
           id: string
           last_drip_sent: number | null
           message: string | null
@@ -894,10 +896,12 @@ export type Database = {
           timeline: string | null
         }
         Insert: {
+          agent_status?: string | null
           budget?: string | null
           created_at?: string
           drip_sequence?: string | null
           email: string
+          home_size?: string | null
           id?: string
           last_drip_sent?: number | null
           message?: string | null
@@ -909,10 +913,12 @@ export type Database = {
           timeline?: string | null
         }
         Update: {
+          agent_status?: string | null
           budget?: string | null
           created_at?: string
           drip_sequence?: string | null
           email?: string
+          home_size?: string | null
           id?: string
           last_drip_sent?: number | null
           message?: string | null

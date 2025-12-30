@@ -27,7 +27,8 @@ interface ProjectLead {
   phone: string | null;
   message: string | null;
   persona: string | null;
-  timeline: string | null;
+  home_size: string | null;
+  agent_status: string | null;
   created_at: string;
   project_id: string | null;
   presale_projects: {
@@ -73,17 +74,17 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
     ? "Investor" 
     : projectLead.persona || "Not specified";
 
-  const homeSizeLabel = projectLead.timeline === "1_bed" 
+  const homeSizeLabel = projectLead.home_size === "1_bed" 
     ? "1 Bedroom" 
-    : projectLead.timeline === "2_bed" 
+    : projectLead.home_size === "2_bed" 
     ? "2 Bedroom" 
-    : projectLead.timeline === "3_bed_plus" 
+    : projectLead.home_size === "3_bed_plus" 
     ? "3+ Bedrooms" 
-    : projectLead.timeline || "Not specified";
+    : projectLead.home_size || "Not specified";
 
-  const agentStatus = projectLead.message?.includes("I am a Realtor") 
+  const agentStatusLabel = projectLead.agent_status === "i_am_realtor" 
     ? "I am a Realtor" 
-    : projectLead.message?.includes("Working with agent") || projectLead.message?.includes("Yes") 
+    : projectLead.agent_status === "yes" 
     ? "Working with an agent" 
     : "No agent";
 
@@ -185,9 +186,9 @@ export function LeadDetailsModal({ lead, type, open, onOpenChange }: LeadDetails
                   </div>
                   <div className="space-y-1 col-span-2">
                     <p className="text-xs text-muted-foreground">Agent Status</p>
-                    <Badge variant={agentStatus === "I am a Realtor" ? "default" : agentStatus === "Working with an agent" ? "secondary" : "outline"}>
+                    <Badge variant={agentStatusLabel === "I am a Realtor" ? "default" : agentStatusLabel === "Working with an agent" ? "secondary" : "outline"}>
                       <UserCheck className="h-3 w-3 mr-1" />
-                      {agentStatus}
+                      {agentStatusLabel}
                     </Badge>
                   </div>
                 </div>
