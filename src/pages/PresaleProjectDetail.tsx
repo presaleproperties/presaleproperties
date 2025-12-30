@@ -85,6 +85,8 @@ export default function PresaleProjectDetail() {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
+  const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingType, setBookingType] = useState<"preview" | "showing">("preview");
 
   const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
 
@@ -447,16 +449,28 @@ export default function PresaleProjectDetail() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 md:gap-2.5 lg:gap-3 mt-3 md:mt-4 mb-2">
-                  <Button size="default" onClick={scrollToForm} className="font-semibold text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11">
-                    {project.status === "coming_soon" ? (
-                      <>Register Now</>
-                    ) : (
-                      <>Download Plans</>
-                    )}
+                  <Button 
+                    size="default" 
+                    onClick={() => {
+                      setBookingType("preview");
+                      setBookingOpen(true);
+                    }} 
+                    className="font-semibold text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11"
+                  >
+                    <Eye className="h-4 w-4 mr-1.5" />
+                    Book a Preview
                   </Button>
-                  <Button variant="outline" size="default" onClick={handleShare} className="text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11">
-                    <Share2 className="h-4 w-4 mr-1.5 md:mr-2" />
-                    Share
+                  <Button 
+                    variant="outline" 
+                    size="default" 
+                    onClick={() => {
+                      setBookingType("showing");
+                      setBookingOpen(true);
+                    }} 
+                    className="text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11"
+                  >
+                    <CalendarCheck className="h-4 w-4 mr-1.5" />
+                    Schedule Showing
                   </Button>
                 </div>
 
@@ -657,7 +671,22 @@ export default function PresaleProjectDetail() {
         projectName={project.name}
         status={project.status}
         startingPrice={project.starting_price}
-        onRegisterClick={scrollToForm}
+        onRegisterClick={() => {
+          setBookingType("preview");
+          setBookingOpen(true);
+        }}
+      />
+
+      {/* Booking Modal */}
+      <BookingModal
+        open={bookingOpen}
+        onOpenChange={setBookingOpen}
+        projectId={project.id}
+        projectName={project.name}
+        projectCity={project.city}
+        projectNeighborhood={project.neighborhood}
+        projectUrl={canonicalUrl}
+        initialType={bookingType}
       />
 
       {/* More Projects from Same City */}
