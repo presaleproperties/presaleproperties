@@ -78,7 +78,7 @@ export function HeroSection() {
           
           {/* Main Heading - SEO optimized H1 */}
           <h1 className="text-[20px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.2] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
-            New Presale Condos Vancouver
+            Find Presale Condos & Townhomes
             <span className="block text-primary text-[18px] sm:text-2xl md:text-4xl lg:text-5xl mt-1">Pricing, Floor Plans & VIP Access</span>
           </h1>
 
