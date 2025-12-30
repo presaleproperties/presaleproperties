@@ -12,8 +12,9 @@ import { format, addDays, isSameDay, getDay } from "date-fns";
 import { Calendar as CalendarIcon, Clock, CheckCircle, Loader2, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-type BuyerType = "first_time" | "investor" | "upgrader" | "other";
-type Timeline = "0_3_months" | "3_6_months" | "6_12_months" | "12_plus_months";
+type BuyerType = "first_time" | "investor";
+type HomeSize = "1_bed" | "2_bed" | "3_bed_plus";
+type AgentStatus = "no_agent" | "has_agent" | "is_agent";
 
 interface BookingModalProps {
   open: boolean;
@@ -49,15 +50,18 @@ interface ExistingBooking {
 const BUYER_TYPES: { value: BuyerType; label: string }[] = [
   { value: "first_time", label: "First-time buyer" },
   { value: "investor", label: "Investor" },
-  { value: "upgrader", label: "Upgrading" },
-  { value: "other", label: "Other" },
 ];
 
-const TIMELINES: { value: Timeline; label: string }[] = [
-  { value: "0_3_months", label: "0-3 months" },
-  { value: "3_6_months", label: "3-6 months" },
-  { value: "6_12_months", label: "6-12 months" },
-  { value: "12_plus_months", label: "12+ months" },
+const HOME_SIZES: { value: HomeSize; label: string }[] = [
+  { value: "1_bed", label: "1 Bed" },
+  { value: "2_bed", label: "2 Bed" },
+  { value: "3_bed_plus", label: "3 Bed+" },
+];
+
+const AGENT_STATUSES: { value: AgentStatus; label: string }[] = [
+  { value: "no_agent", label: "No agent" },
+  { value: "has_agent", label: "Working with agent" },
+  { value: "is_agent", label: "I am an agent" },
 ];
 
 export function BookingModal({
@@ -85,7 +89,8 @@ export function BookingModal({
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [buyerType, setBuyerType] = useState<BuyerType>("first_time");
-  const [timeline, setTimeline] = useState<Timeline>("0_3_months");
+  const [homeSize, setHomeSize] = useState<HomeSize>("2_bed");
+  const [agentStatus, setAgentStatus] = useState<AgentStatus>("no_agent");
   const [notes, setNotes] = useState("");
 
   // Data state
@@ -113,7 +118,8 @@ export function BookingModal({
       setEmail("");
       setPhone("");
       setBuyerType("first_time");
-      setTimeline("0_3_months");
+      setHomeSize("2_bed");
+      setAgentStatus("no_agent");
       setNotes("");
       setIsSuccess(false);
     }
@@ -222,8 +228,8 @@ export function BookingModal({
         email,
         phone,
         buyer_type: buyerType,
-        timeline,
-        notes: notes || null,
+        timeline: "0_3_months" as const,
+        notes: notes ? `Home size: ${homeSize}, Agent: ${agentStatus}. ${notes}` : `Home size: ${homeSize}, Agent: ${agentStatus}`,
         utm_source: urlParams.get("utm_source"),
         utm_medium: urlParams.get("utm_medium"),
         utm_campaign: urlParams.get("utm_campaign"),
@@ -250,7 +256,8 @@ export function BookingModal({
           project_name: projectName,
           appointment_type: "showing",
           buyer_type: buyerType,
-          timeline,
+          home_size: homeSize,
+          agent_status: agentStatus,
         });
       }
 
@@ -472,28 +479,55 @@ export function BookingModal({
                   </RadioGroup>
                 </div>
 
-                {/* Timeline to Purchase */}
+                {/* Interested in Home Size */}
                 <div>
                   <Label className="text-xs font-semibold">
-                    Timeline to Purchase <span className="text-destructive">*</span>
+                    Interested in <span className="text-destructive">*</span>
                   </Label>
                   <RadioGroup 
-                    value={timeline} 
-                    onValueChange={(v) => setTimeline(v as Timeline)}
-                    className="grid grid-cols-2 gap-2 mt-1.5"
+                    value={homeSize} 
+                    onValueChange={(v) => setHomeSize(v as HomeSize)}
+                    className="grid grid-cols-3 gap-2 mt-1.5"
                   >
-                    {TIMELINES.map((t) => (
+                    {HOME_SIZES.map((size) => (
                       <Label
-                        key={t.value}
+                        key={size.value}
                         className={cn(
                           "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
-                          timeline === t.value
+                          homeSize === size.value
                             ? "border-primary bg-primary/10 text-primary"
                             : "border-border hover:border-muted-foreground/50"
                         )}
                       >
-                        <RadioGroupItem value={t.value} className="sr-only" />
-                        {t.label}
+                        <RadioGroupItem value={size.value} className="sr-only" />
+                        {size.label}
+                      </Label>
+                    ))}
+                  </RadioGroup>
+                </div>
+
+                {/* Agent Status */}
+                <div>
+                  <Label className="text-xs font-semibold">
+                    Working with an agent? <span className="text-destructive">*</span>
+                  </Label>
+                  <RadioGroup 
+                    value={agentStatus} 
+                    onValueChange={(v) => setAgentStatus(v as AgentStatus)}
+                    className="grid grid-cols-3 gap-2 mt-1.5"
+                  >
+                    {AGENT_STATUSES.map((status) => (
+                      <Label
+                        key={status.value}
+                        className={cn(
+                          "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
+                          agentStatus === status.value
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:border-muted-foreground/50"
+                        )}
+                      >
+                        <RadioGroupItem value={status.value} className="sr-only" />
+                        {status.label}
                       </Label>
                     ))}
                   </RadioGroup>
