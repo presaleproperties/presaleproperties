@@ -100,6 +100,39 @@ export default function PresaleProjectDetail() {
     formRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const trackEvent = (eventName: string, params?: Record<string, any>) => {
+    if (typeof window !== "undefined") {
+      if ((window as any).gtag) {
+        (window as any).gtag("event", eventName, params);
+      }
+      if ((window as any).fbq && eventName === "project_view") {
+        (window as any).fbq("track", "ViewContent", {
+          content_name: params?.project_name,
+          content_category: "presale_project",
+        });
+      }
+    }
+  };
+
+  const handleGetPlansClick = () => {
+    trackEvent("click_get_plans", {
+      project_name: project?.name,
+      project_city: project?.city,
+      project_status: project?.status,
+    });
+    handleAskQuestion();
+  };
+
+  const handleScheduleTourClick = (date: Date, timePeriod: string) => {
+    trackEvent("click_schedule_tour", {
+      project_name: project?.name,
+      project_city: project?.city,
+      selected_date: date.toISOString(),
+      time_period: timePeriod,
+    });
+    handleRequestTour(date, timePeriod);
+  };
+
   const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
 
   const previewToken = searchParams.get("preview");
@@ -164,6 +197,16 @@ export default function PresaleProjectDetail() {
           faq: (Array.isArray(data.faq) ? data.faq : []) as { question: string; answer: string }[]
         });
         setSelectedImage(data.featured_image);
+        
+        // Track project view
+        trackEvent("project_view", {
+          project_id: data.id,
+          project_name: data.name,
+          project_city: data.city,
+          project_neighborhood: data.neighborhood,
+          project_status: data.status,
+          project_type: data.project_type,
+        });
       }
     } catch (error) {
       console.error("Error fetching project:", error);
@@ -463,7 +506,7 @@ export default function PresaleProjectDetail() {
                 <div className="flex flex-wrap gap-2 md:gap-2.5 lg:gap-3 mt-3 md:mt-4 mb-2">
                   <Button 
                     size="default" 
-                    onClick={handleAskQuestion}
+                    onClick={handleGetPlansClick}
                     className="font-semibold text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11"
                   >
                     <Download className="h-4 w-4 mr-1.5" />
@@ -650,8 +693,8 @@ export default function PresaleProjectDetail() {
                     projectName={project.name}
                     projectCity={project.city}
                     projectNeighborhood={project.neighborhood}
-                    onRequestTour={handleRequestTour}
-                    onAskQuestion={handleAskQuestion}
+                    onRequestTour={handleScheduleTourClick}
+                    onAskQuestion={handleGetPlansClick}
                   />
 
                   {/* Lead Form */}
