@@ -17,6 +17,7 @@ import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
 import { BookingModal } from "@/components/booking/BookingModal";
+import { InlineScheduler } from "@/components/booking/InlineScheduler";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -86,6 +87,18 @@ export default function PresaleProjectDetail() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingDate, setBookingDate] = useState<Date | undefined>();
+  const [bookingTimePeriod, setBookingTimePeriod] = useState<string | undefined>();
+
+  const handleRequestTour = (date: Date, timePeriod: string) => {
+    setBookingDate(date);
+    setBookingTimePeriod(timePeriod);
+    setBookingOpen(true);
+  };
+
+  const handleAskQuestion = () => {
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
 
@@ -628,9 +641,20 @@ export default function PresaleProjectDetail() {
                 )}
               </div>
 
-              {/* Sidebar - Contact Form */}
+              {/* Sidebar */}
               <div>
-                <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24">
+                <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24 space-y-4">
+                  {/* Inline Scheduler */}
+                  <InlineScheduler
+                    projectId={project.id}
+                    projectName={project.name}
+                    projectCity={project.city}
+                    projectNeighborhood={project.neighborhood}
+                    onRequestTour={handleRequestTour}
+                    onAskQuestion={handleAskQuestion}
+                  />
+
+                  {/* Lead Form */}
                   <ProjectLeadForm
                     projectId={project.id}
                     projectName={project.name}
@@ -639,7 +663,7 @@ export default function PresaleProjectDetail() {
                   />
                   
                   {/* Quick Actions Below Form - Tablet and Desktop */}
-                  <div className="mt-3 lg:mt-4 hidden md:flex flex-col gap-2 lg:gap-3">
+                  <div className="hidden md:flex flex-col gap-2 lg:gap-3">
                     <Button variant="outline" size="default" className="w-full h-9 lg:h-10 text-sm lg:text-base" asChild>
                       <a href="tel:+16722581100">
                         <Phone className="h-4 w-4 mr-2" />
@@ -671,6 +695,8 @@ export default function PresaleProjectDetail() {
         projectCity={project.city}
         projectNeighborhood={project.neighborhood}
         projectUrl={canonicalUrl}
+        initialDate={bookingDate}
+        initialTimePeriod={bookingTimePeriod}
       />
 
       {/* More Projects from Same City */}
