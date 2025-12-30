@@ -238,7 +238,7 @@ export function InlineScheduler({
           onClick={onAskQuestion}
           className="w-full h-12 text-sm font-bold uppercase tracking-wide border-2"
         >
-          Ask a Question
+          Download Plans and Pricing
         </Button>
       </div>
     </div>
