@@ -38,6 +38,8 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminEmailCampaigns from "./pages/admin/AdminEmailCampaigns";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
+import AdminBookings from "./pages/admin/AdminBookings";
+import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
 import AdminLogin from "./pages/admin/AdminLogin";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
@@ -107,6 +109,8 @@ const App = () => (
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
             <Route path="/admin/email-campaigns" element={<AdminProtectedRoute><AdminEmailCampaigns /></AdminProtectedRoute>} />
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
+            <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />
+            <Route path="/admin/scheduler-settings" element={<AdminProtectedRoute><AdminSchedulerSettings /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             
             {/* 404 */}

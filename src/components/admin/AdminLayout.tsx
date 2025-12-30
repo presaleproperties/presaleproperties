@@ -16,7 +16,9 @@ import {
   Users2,
   Mail,
   BookOpen,
-  ChevronDown
+  ChevronDown,
+  CalendarDays,
+  Clock
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -50,6 +52,7 @@ const navGroups = [
     items: [
       { href: "/admin/agents", label: "Agents", icon: Users },
       { href: "/admin/leads", label: "Leads", icon: Users2 },
+      { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
     ]
   },
   {
@@ -68,6 +71,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/admin/scheduler-settings", label: "Scheduler", icon: Clock },
       { href: "/admin/settings", label: "Settings", icon: Settings },
     ]
   },
