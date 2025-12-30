@@ -38,6 +38,9 @@ serve(async (req: Request): Promise<Response> => {
         email,
         phone,
         message,
+        persona,
+        home_size,
+        agent_status,
         created_at,
         project_id,
         presale_projects (
@@ -76,8 +79,11 @@ serve(async (req: Request): Promise<Response> => {
         lead_email: lead.email,
         lead_phone: lead.phone || "",
         lead_notes: lead.message || "",
-        is_realtor: lead.message?.includes("Is a realtor") ? "Yes" : "No",
-        has_realtor: lead.message?.includes("Has a realtor") ? "Yes" : "No",
+        lead_persona: lead.persona || "",
+        lead_home_size: lead.home_size || "",
+        lead_agent_status: lead.agent_status || "",
+        is_realtor: lead.agent_status === "i_am_realtor" ? "Yes" : "No",
+        has_realtor: lead.agent_status === "yes" ? "Yes" : "No",
         submitted_at: lead.created_at,
         
         // Project info
