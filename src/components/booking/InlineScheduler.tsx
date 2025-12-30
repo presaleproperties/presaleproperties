@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, isSameDay, getDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type TimePeriod = "early_afternoon" | "mid_afternoon" | "late_afternoon";
@@ -238,7 +238,8 @@ export function InlineScheduler({
           onClick={onDownloadPlans}
           className="w-full h-12 text-sm font-bold uppercase tracking-wide border-2"
         >
-          Download Plans and Pricing
+          <Download className="h-4 w-4 mr-2" />
+          Get Pricing
         </Button>
       </div>
     </div>
