@@ -694,7 +694,7 @@ export default function PresaleProjectDetail() {
                     projectCity={project.city}
                     projectNeighborhood={project.neighborhood}
                     onRequestTour={handleScheduleTourClick}
-                    onAskQuestion={handleGetPlansClick}
+                    onDownloadPlans={handleGetPlansClick}
                   />
 
                   {/* Lead Form */}
