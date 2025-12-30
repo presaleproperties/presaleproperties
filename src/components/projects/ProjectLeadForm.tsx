@@ -17,9 +17,8 @@ const leadSchema = z.object({
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   persona: z.enum(["first_time", "investor"]),
-  workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
-  timeline: z.enum(["0_3", "3_plus"]),
-  propertyType: z.enum(["condo", "townhome"]),
+  workingWithAgent: z.enum(["no", "yes", "i_am_realtor"]),
+  homeSize: z.enum(["1_bed", "2_bed", "3_bed_plus"]),
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
@@ -42,14 +41,10 @@ const AGENT_OPTIONS = [
   { value: "i_am_realtor", label: "I am a Realtor" },
 ];
 
-const TIMELINES = [
-  { value: "0_3", label: "0–3 months" },
-  { value: "3_plus", label: "3+ months" },
-];
-
-const PROPERTY_TYPES = [
-  { value: "condo", label: "Condo" },
-  { value: "townhome", label: "Townhome" },
+const HOME_SIZES = [
+  { value: "1_bed", label: "1 Bed" },
+  { value: "2_bed", label: "2 Bed" },
+  { value: "3_bed_plus", label: "3 Bed+" },
 ];
 
 export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }: ProjectLeadFormProps) {
@@ -81,8 +76,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       phone: "",
       persona: "first_time",
       workingWithAgent: "no",
-      timeline: "0_3",
-      propertyType: "condo",
+      homeSize: "2_bed",
     },
   });
 
@@ -101,8 +95,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       const messageData = [
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
-        `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
-        `Property Type: ${PROPERTY_TYPES.find(pt => pt.value === data.propertyType)?.label}`,
+        `Home Size: ${HOME_SIZES.find(h => h.value === data.homeSize)?.label}`,
       ].join(" | ");
 
       const nextDripAt = new Date().toISOString();
@@ -118,7 +111,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
           phone: data.phone,
           message: messageData,
           persona: actualPersona,
-          timeline: data.timeline,
+          timeline: data.homeSize,
           drip_sequence: dripSequence,
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
@@ -147,7 +140,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
             page_path: window.location.pathname,
             project_name: projectName,
             persona: actualPersona,
-            timeline: data.timeline,
+            home_size: data.homeSize,
             working_with_agent: data.workingWithAgent,
             source: "project_lead_form",
           });
@@ -391,57 +384,30 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
             </RadioGroup>
           </div>
 
-          {/* Timeline & Property Type side by side */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs font-semibold">
-                Timeline <span className="text-destructive">*</span>
-              </Label>
-              <RadioGroup
-                value={form.watch("timeline")}
-                onValueChange={(v) => form.setValue("timeline", v as any)}
-                className="grid grid-cols-1 gap-2 mt-1.5"
-              >
-                {TIMELINES.map((t) => (
-                  <Label
-                    key={t.value}
-                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
-                      form.watch("timeline") === t.value
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <RadioGroupItem value={t.value} className="sr-only" />
-                    {t.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-
-            <div>
-              <Label className="text-xs font-semibold">
-                Looking for <span className="text-destructive">*</span>
-              </Label>
-              <RadioGroup
-                value={form.watch("propertyType")}
-                onValueChange={(v) => form.setValue("propertyType", v as any)}
-                className="grid grid-cols-1 gap-2 mt-1.5"
-              >
-                {PROPERTY_TYPES.map((pt) => (
-                  <Label
-                    key={pt.value}
-                    className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
-                      form.watch("propertyType") === pt.value
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <RadioGroupItem value={pt.value} className="sr-only" />
-                    {pt.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
+          {/* Interested in Home Size */}
+          <div>
+            <Label className="text-xs font-semibold">
+              Interested in <span className="text-destructive">*</span>
+            </Label>
+            <RadioGroup
+              value={form.watch("homeSize")}
+              onValueChange={(v) => form.setValue("homeSize", v as any)}
+              className="grid grid-cols-3 gap-2 mt-1.5"
+            >
+              {HOME_SIZES.map((size) => (
+                <Label
+                  key={size.value}
+                  className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
+                    form.watch("homeSize") === size.value
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <RadioGroupItem value={size.value} className="sr-only" />
+                  {size.label}
+                </Label>
+              ))}
+            </RadioGroup>
           </div>
 
           {/* Submit Button */}
