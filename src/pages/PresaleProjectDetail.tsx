@@ -726,7 +726,7 @@ export default function PresaleProjectDetail() {
         projectName={project.name}
         status={project.status}
         startingPrice={project.starting_price}
-        onRegisterClick={() => setBookingOpen(true)}
+        onRegisterClick={handleGetPlansClick}
       />
 
       {/* Booking Modal */}
