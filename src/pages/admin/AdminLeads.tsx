@@ -9,9 +9,11 @@ import {
   Download,
   ExternalLink,
   Mail,
-  Phone
+  Phone,
+  Eye
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
+import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -62,6 +64,8 @@ interface ListingLead {
 export default function AdminLeads() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("project");
+  const [selectedLead, setSelectedLead] = useState<ProjectLead | ListingLead | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
 
   // Fetch project leads (exclude newsletter signups)
   const { data: projectLeads, isLoading: projectLoading } = useQuery({
@@ -335,6 +339,16 @@ export default function AdminLeads() {
                           </TableCell>
                           <TableCell className="text-right">
                             <div className="flex items-center justify-end gap-1">
+                              <Button 
+                                variant="ghost" 
+                                size="icon"
+                                onClick={() => {
+                                  setSelectedLead(lead);
+                                  setModalOpen(true);
+                                }}
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
                               <Button variant="ghost" size="icon" asChild>
                                 <a href={`mailto:${lead.email}`}>
                                   <Mail className="h-4 w-4" />
@@ -434,6 +448,16 @@ export default function AdminLeads() {
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => {
+                                setSelectedLead(lead);
+                                setModalOpen(true);
+                              }}
+                            >
+                              <Eye className="h-4 w-4" />
+                            </Button>
                             <Button variant="ghost" size="icon" asChild>
                               <a href={`mailto:${lead.email}`}>
                                 <Mail className="h-4 w-4" />
@@ -460,6 +484,13 @@ export default function AdminLeads() {
             </div>
           </TabsContent>
         </Tabs>
+
+        <LeadDetailsModal
+          lead={selectedLead}
+          type={activeTab as "project" | "listing"}
+          open={modalOpen}
+          onOpenChange={setModalOpen}
+        />
       </div>
     </AdminLayout>
   );
