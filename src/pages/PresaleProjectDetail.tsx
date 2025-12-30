@@ -461,6 +461,14 @@ export default function PresaleProjectDetail() {
 
                 {/* Action Buttons */}
                 <div className="flex flex-wrap gap-2 md:gap-2.5 lg:gap-3 mt-3 md:mt-4 mb-2">
+                  <Button 
+                    size="default" 
+                    onClick={handleAskQuestion}
+                    className="font-semibold text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11"
+                  >
+                    <Download className="h-4 w-4 mr-1.5" />
+                    Get Floor Plans
+                  </Button>
                   <Button variant="outline" size="default" onClick={handleShare} className="text-sm md:text-sm lg:text-base h-9 md:h-10 lg:h-11">
                     <Share2 className="h-4 w-4 mr-1.5 md:mr-2" />
                     Share
