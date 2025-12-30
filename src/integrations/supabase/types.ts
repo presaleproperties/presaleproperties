@@ -128,6 +128,98 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          appointment_date: string
+          appointment_time: string
+          appointment_type: Database["public"]["Enums"]["appointment_type"]
+          buyer_type: Database["public"]["Enums"]["buyer_type"]
+          cancelled_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          lead_source: string | null
+          name: string
+          notes: string | null
+          phone: string
+          project_city: string | null
+          project_id: string | null
+          project_name: string
+          project_neighborhood: string | null
+          project_url: string | null
+          referrer: string | null
+          status: Database["public"]["Enums"]["booking_status"]
+          timeline: Database["public"]["Enums"]["buyer_timeline"]
+          updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          appointment_date: string
+          appointment_time: string
+          appointment_type: Database["public"]["Enums"]["appointment_type"]
+          buyer_type: Database["public"]["Enums"]["buyer_type"]
+          cancelled_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          lead_source?: string | null
+          name: string
+          notes?: string | null
+          phone: string
+          project_city?: string | null
+          project_id?: string | null
+          project_name: string
+          project_neighborhood?: string | null
+          project_url?: string | null
+          referrer?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          timeline: Database["public"]["Enums"]["buyer_timeline"]
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          appointment_date?: string
+          appointment_time?: string
+          appointment_type?: Database["public"]["Enums"]["appointment_type"]
+          buyer_type?: Database["public"]["Enums"]["buyer_type"]
+          cancelled_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          lead_source?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string
+          project_city?: string | null
+          project_id?: string | null
+          project_name?: string
+          project_neighborhood?: string | null
+          project_url?: string | null
+          referrer?: string | null
+          status?: Database["public"]["Enums"]["booking_status"]
+          timeline?: Database["public"]["Enums"]["buyer_timeline"]
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_campaigns: {
         Row: {
           created_at: string
@@ -870,6 +962,84 @@ export type Database = {
           },
         ]
       }
+      scheduler_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_active: boolean
+          start_time: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_active?: boolean
+          start_time: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          start_time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      scheduler_blocked_dates: {
+        Row: {
+          blocked_date: string
+          created_at: string
+          id: string
+          reason: string | null
+        }
+        Insert: {
+          blocked_date: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Update: {
+          blocked_date?: string
+          created_at?: string
+          id?: string
+          reason?: string | null
+        }
+        Relationships: []
+      }
+      scheduler_settings: {
+        Row: {
+          advance_booking_days: number
+          buffer_minutes: number
+          id: string
+          max_bookings_per_slot: number
+          slot_duration_minutes: number
+          updated_at: string
+        }
+        Insert: {
+          advance_booking_days?: number
+          buffer_minutes?: number
+          id?: string
+          max_bookings_per_slot?: number
+          slot_duration_minutes?: number
+          updated_at?: string
+        }
+        Update: {
+          advance_booking_days?: number
+          buffer_minutes?: number
+          id?: string
+          max_bookings_per_slot?: number
+          slot_duration_minutes?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -922,6 +1092,14 @@ export type Database = {
     Enums: {
       agent_verification_status: "unverified" | "verified" | "rejected"
       app_role: "admin" | "moderator" | "user"
+      appointment_type: "preview" | "showing"
+      booking_status: "pending" | "confirmed" | "cancelled" | "completed"
+      buyer_timeline:
+        | "0_3_months"
+        | "3_6_months"
+        | "6_12_months"
+        | "12_plus_months"
+      buyer_type: "first_time" | "investor" | "upgrader" | "other"
       construction_status:
         | "pre_construction"
         | "under_construction"
@@ -1075,6 +1253,15 @@ export const Constants = {
     Enums: {
       agent_verification_status: ["unverified", "verified", "rejected"],
       app_role: ["admin", "moderator", "user"],
+      appointment_type: ["preview", "showing"],
+      booking_status: ["pending", "confirmed", "cancelled", "completed"],
+      buyer_timeline: [
+        "0_3_months",
+        "3_6_months",
+        "6_12_months",
+        "12_plus_months",
+      ],
+      buyer_type: ["first_time", "investor", "upgrader", "other"],
       construction_status: [
         "pre_construction",
         "under_construction",
