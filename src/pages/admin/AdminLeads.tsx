@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { Link } from "react-router-dom";
 import { 
   Users, 
   Building2, 
@@ -10,7 +11,8 @@ import {
   ExternalLink,
   Mail,
   Phone,
-  Eye
+  Eye,
+  BarChart3
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
@@ -188,6 +190,12 @@ export default function AdminLeads() {
             </p>
           </div>
           <div className="flex items-center gap-3">
+            <Button variant="outline" asChild>
+              <Link to="/admin/leads/analytics">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Analytics
+              </Link>
+            </Button>
             <Badge variant="secondary" className="text-sm py-1 px-3">
               <Users className="h-4 w-4 mr-1.5" />
               {totalLeads} Total Leads
