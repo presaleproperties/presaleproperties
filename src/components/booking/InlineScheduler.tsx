@@ -13,7 +13,7 @@ interface InlineSchedulerProps {
   projectCity?: string;
   projectNeighborhood?: string;
   onRequestTour: (date: Date, timePeriod: TimePeriod) => void;
-  onAskQuestion: () => void;
+  onDownloadPlans: () => void;
 }
 
 interface AvailabilitySlot {
@@ -35,7 +35,7 @@ export function InlineScheduler({
   projectId,
   projectName,
   onRequestTour,
-  onAskQuestion,
+  onDownloadPlans,
 }: InlineSchedulerProps) {
   const [loading, setLoading] = useState(true);
   const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
@@ -235,7 +235,7 @@ export function InlineScheduler({
 
         <Button
           variant="outline"
-          onClick={onAskQuestion}
+          onClick={onDownloadPlans}
           className="w-full h-12 text-sm font-bold uppercase tracking-wide border-2"
         >
           Download Plans and Pricing
