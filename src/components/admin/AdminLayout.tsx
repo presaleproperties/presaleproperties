@@ -14,7 +14,7 @@ import {
   X,
   Shield,
   Users2,
-  Mail,
+  
   BookOpen,
   ChevronDown,
   CalendarDays,
@@ -53,13 +53,6 @@ const navGroups = [
       { href: "/admin/agents", label: "Agents", icon: Users },
       { href: "/admin/leads", label: "Leads", icon: Users2 },
       { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
-    ]
-  },
-  {
-    label: "Marketing",
-    items: [
-      { href: "/admin/email-campaigns", label: "Email Campaigns", icon: Mail },
-      { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
     ]
   },
   {
