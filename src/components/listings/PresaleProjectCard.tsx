@@ -214,20 +214,20 @@ export function PresaleProjectCard({
 
         <CardContent className="p-3 sm:p-4">
           <div className="flex items-start justify-between gap-3">
-            {/* Left: Name, Type & Location */}
+            {/* Left: Name, Location & Type */}
             <div className="flex-1 min-w-0 space-y-1">
               <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
                 {name}
               </h3>
-              <p className="text-xs sm:text-sm text-muted-foreground">
-                {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
-              </p>
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="text-xs sm:text-sm truncate">
                   {city}
                 </span>
               </div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
+              </p>
             </div>
 
             {/* Right: Price */}
