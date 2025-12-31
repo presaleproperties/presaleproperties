@@ -6,19 +6,29 @@ import {
   Users, 
   Building2,
   Home,
-  UserCheck
+  UserCheck,
+  Download,
+  FileSpreadsheet
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { supabase } from "@/integrations/supabase/client";
 import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from "recharts";
+import { BarChart, Bar, XAxis, YAxis, PieChart, Pie, Cell, LineChart, Line, CartesianGrid } from "recharts";
+import { toast } from "sonner";
 
 interface ProjectLead {
   id: string;
@@ -176,6 +186,82 @@ export default function AdminLeadAnalytics() {
     ? Math.round(((thisWeekLeads - lastWeekLeads) / lastWeekLeads) * 100) 
     : thisWeekLeads > 0 ? 100 : 0;
 
+  // Export functions
+  const downloadCSV = (filename: string, content: string) => {
+    const encodedUri = encodeURI(content);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", filename);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    toast.success(`${filename} downloaded`);
+  };
+
+  const exportSummaryReport = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Lead Analytics Summary Report\n";
+    csvContent += `Generated: ${format(new Date(), "yyyy-MM-dd HH:mm")}\n\n`;
+    
+    csvContent += "SUMMARY METRICS\n";
+    csvContent += `Total Leads,${totalLeads}\n`;
+    csvContent += `This Week,${thisWeekLeads}\n`;
+    csvContent += `Last Week,${lastWeekLeads}\n`;
+    csvContent += `Week-over-Week Growth,${weekGrowth}%\n`;
+    csvContent += `Active Projects,${Object.keys(projectData).length}\n`;
+    csvContent += `Leads Without Agent,${agentStatusData["No Agent"] || 0}\n\n`;
+    
+    csvContent += "BY PERSONA\n";
+    csvContent += "Persona,Count,Percentage\n";
+    personaChartData.forEach(item => {
+      csvContent += `${item.name},${item.value},${item.percentage}%\n`;
+    });
+    csvContent += "\n";
+    
+    csvContent += "BY HOME SIZE\n";
+    csvContent += "Home Size,Count,Percentage\n";
+    homeSizeChartData.forEach(item => {
+      csvContent += `${item.name},${item.value},${item.percentage}%\n`;
+    });
+    csvContent += "\n";
+    
+    csvContent += "BY AGENT STATUS\n";
+    csvContent += "Status,Count,Percentage\n";
+    agentStatusChartData.forEach(item => {
+      csvContent += `${item.name},${item.value},${item.percentage}%\n`;
+    });
+    csvContent += "\n";
+    
+    csvContent += "TOP PROJECTS\n";
+    csvContent += "Project,Leads\n";
+    projectChartData.forEach(item => {
+      csvContent += `"${item.fullName}",${item.value}\n`;
+    });
+    
+    downloadCSV(`lead-analytics-summary-${format(new Date(), "yyyy-MM-dd")}.csv`, csvContent);
+  };
+
+  const exportDailyTrend = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Date,Leads\n";
+    leadsOverTime.forEach(item => {
+      csvContent += `${item.date},${item.leads}\n`;
+    });
+    downloadCSV(`lead-daily-trend-${format(new Date(), "yyyy-MM-dd")}.csv`, csvContent);
+  };
+
+  const exportByProject = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Project,Leads,Percentage\n";
+    Object.entries(projectData)
+      .sort(([, a], [, b]) => b - a)
+      .forEach(([name, count]) => {
+        const percentage = totalLeads > 0 ? Math.round((count / totalLeads) * 100) : 0;
+        csvContent += `"${name}",${count},${percentage}%\n`;
+      });
+    downloadCSV(`leads-by-project-${format(new Date(), "yyyy-MM-dd")}.csv`, csvContent);
+  };
+
   const chartConfig = {
     leads: { label: "Leads", color: COLORS.primary },
     value: { label: "Count", color: COLORS.primary },
@@ -212,10 +298,34 @@ export default function AdminLeadAnalytics() {
               Conversion metrics and lead insights
             </p>
           </div>
-          <Badge variant="secondary" className="text-sm py-1 px-3 w-fit">
-            <BarChart3 className="h-4 w-4 mr-1.5" />
-            Last 30 Days
-          </Badge>
+          <div className="flex items-center gap-3">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={exportSummaryReport}>
+                  <FileSpreadsheet className="h-4 w-4 mr-2" />
+                  Full Summary Report
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportDailyTrend}>
+                  <TrendingUp className="h-4 w-4 mr-2" />
+                  Daily Trend Data
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={exportByProject}>
+                  <Building2 className="h-4 w-4 mr-2" />
+                  Leads by Project
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Badge variant="secondary" className="text-sm py-1 px-3 w-fit">
+              <BarChart3 className="h-4 w-4 mr-1.5" />
+              Last 30 Days
+            </Badge>
+          </div>
         </div>
 
         {/* Summary Stats */}
