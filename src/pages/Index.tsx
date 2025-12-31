@@ -78,6 +78,70 @@ const Index = () => {
     }
   };
 
+  // SiteNavigationElement schema - helps Google create sitelinks
+  const siteNavigationSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "itemListElement": [
+      {
+        "@type": "SiteNavigationElement",
+        "position": 1,
+        "name": "Surrey Presale Condos",
+        "description": "Browse presale condos in Surrey BC with VIP pricing and floorplans",
+        "url": "https://presaleproperties.com/surrey-presale-condos"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 2,
+        "name": "Vancouver Presale Condos",
+        "description": "Explore new presale condos in Vancouver with pricing and incentives",
+        "url": "https://presaleproperties.com/vancouver-presale-condos"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 3,
+        "name": "Langley Presale Condos",
+        "description": "Discover presale condos in Langley with VIP access and floorplans",
+        "url": "https://presaleproperties.com/langley-presale-condos"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 4,
+        "name": "Coquitlam Presale Condos",
+        "description": "Find presale condos in Coquitlam near Evergreen Line with pricing",
+        "url": "https://presaleproperties.com/coquitlam-presale-condos"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 5,
+        "name": "Burnaby Presale Condos",
+        "description": "Browse presale condos in Burnaby near Metrotown and Brentwood",
+        "url": "https://presaleproperties.com/burnaby-presale-condos"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 6,
+        "name": "Surrey Presale Townhomes",
+        "description": "Explore presale townhomes in Surrey with VIP pricing",
+        "url": "https://presaleproperties.com/surrey-presale-townhomes"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 7,
+        "name": "Langley Presale Townhomes",
+        "description": "Browse presale townhomes in Langley with floorplans and pricing",
+        "url": "https://presaleproperties.com/langley-presale-townhomes"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 8,
+        "name": "All Presale Projects",
+        "description": "Browse all presale condos and townhomes in Metro Vancouver",
+        "url": "https://presaleproperties.com/presale-projects"
+      }
+    ]
+  };
+
   // OfferCatalog for presale services
   const offerCatalogSchema = {
     "@context": "https://schema.org",
@@ -149,6 +213,9 @@ const Index = () => {
             {JSON.stringify(organizationSchema)}
           </script>
           <script type="application/ld+json">
+            {JSON.stringify(siteNavigationSchema)}
+          </script>
+          <script type="application/ld+json">
             {JSON.stringify(offerCatalogSchema)}
           </script>
         </Helmet>
@@ -186,6 +253,9 @@ const Index = () => {
         
         <script type="application/ld+json">
           {JSON.stringify(organizationSchema)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(siteNavigationSchema)}
         </script>
         <script type="application/ld+json">
           {JSON.stringify(offerCatalogSchema)}
