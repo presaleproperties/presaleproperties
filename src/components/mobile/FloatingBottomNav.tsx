@@ -210,16 +210,16 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
             </svg>
           </button>
 
-          {/* Search Button - Primary CTA with enhanced visibility */}
+          {/* Search Button - Matching other icons style */}
           <button
             onClick={handleSearchClick}
             className={cn(
-              "flex items-center gap-2.5 rounded-full",
-              "px-6 py-3 md:px-8 md:py-3.5",
-              "bg-primary text-primary-foreground font-semibold shadow-xl",
+              "flex items-center gap-2 rounded-full",
+              "px-5 py-3 md:px-6 md:py-3.5",
+              "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl",
+              "text-white font-medium",
               "text-sm md:text-base",
-              "hover:bg-primary/90 active:scale-95 transition-all duration-150",
-              "ring-2 ring-primary/30 ring-offset-2 ring-offset-black/20"
+              "hover:bg-white/25 active:scale-95 transition-all duration-150"
             )}
           >
             <Search className="h-4 w-4 md:h-5 md:w-5" />
