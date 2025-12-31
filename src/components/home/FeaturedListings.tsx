@@ -61,7 +61,7 @@ export function FeaturedListings() {
             </p>
           </div>
           <Link to="/assignments" className="hidden sm:block shrink-0">
-            <Button variant="ghost" size="lg" className="flex items-center gap-2 group">
+            <Button variant="ghost" size="lg" className="flex items-center gap-2 group text-muted-foreground hover:text-foreground">
               View All
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Button>
