@@ -54,7 +54,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[500px] sm:min-h-[540px] md:min-h-[680px] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[560px] sm:min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden">
       {/* Background Image - High Quality */}
       <img 
         src={heroImage}
