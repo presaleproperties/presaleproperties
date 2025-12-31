@@ -118,7 +118,7 @@ export function InlineScheduler({
 
   if (loading) {
     return (
-      <div className="bg-card border border-border rounded-xl lg:rounded-2xl p-4 lg:p-5 shadow-lg">
+      <div className="bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden">
         <div className="flex items-center justify-center py-6 lg:py-8">
           <Loader2 className="h-5 w-5 lg:h-6 lg:w-6 animate-spin text-muted-foreground" />
         </div>
@@ -127,7 +127,7 @@ export function InlineScheduler({
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl lg:rounded-2xl p-5 lg:p-5 shadow-lg">
+    <div className="bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden">
       {/* Header */}
       <div className="text-center mb-4 lg:mb-4">
         <h3 className="text-lg lg:text-xl font-bold text-foreground">Schedule a tour</h3>
