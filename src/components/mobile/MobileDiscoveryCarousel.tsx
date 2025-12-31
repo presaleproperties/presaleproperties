@@ -153,7 +153,7 @@ export function MobileDiscoveryCarousel({
   return (
     <div className="space-y-3 md:space-y-4 lg:hidden">
       {/* Header - Enhanced */}
-      <div className="px-5">
+      <div className="px-6">
         {badge && (
           <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-1.5 block">
             {badge}
@@ -180,7 +180,7 @@ export function MobileDiscoveryCarousel({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pl-5 pr-6 pb-1 snap-x snap-mandatory"
+        className="flex gap-3 overflow-x-auto scrollbar-hide pl-6 pr-6 pb-1 snap-x snap-mandatory"
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start">
