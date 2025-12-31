@@ -263,27 +263,27 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
 
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-      {/* Header */}
-      <div className="bg-primary px-5 py-4 md:py-4">
+      {/* Header - Neutral dark for welcoming feel */}
+      <div className="bg-foreground px-5 py-4 md:py-4">
         <div className="flex items-center gap-2 flex-wrap mb-2">
           {content.badgeIcon && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground/90 bg-primary-foreground/15 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-background bg-background/15 px-2.5 py-1 rounded-full">
               {content.badgeIcon}
               {content.badge}
             </span>
           )}
           {brochureUrl && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground bg-green-500/90 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full">
               <Download className="h-3 w-3" />
               Brochure Available
             </span>
           )}
         </div>
-        <h3 className="text-xl font-bold text-primary-foreground leading-tight">
+        <h3 className="text-xl font-bold text-background leading-tight">
           {content.title}
-          <span className="block text-primary-foreground/90 text-lg">{content.subtitle}</span>
+          <span className="block text-background/85 text-lg">{content.subtitle}</span>
         </h3>
-        <p className="text-xs text-primary-foreground/75 mt-1">{content.description}</p>
+        <p className="text-xs text-background/70 mt-1">{content.description}</p>
       </div>
 
       {/* Form */}
