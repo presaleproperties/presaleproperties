@@ -165,7 +165,7 @@ export function MobileDiscoveryCarousel({
           <div>
             <h3 className={badge ? "text-lg font-bold text-foreground" : "text-sm font-bold text-foreground"}>{title}</h3>
             {subtitle && (
-              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+              <p className="text-xs text-muted-foreground mt-0.5 whitespace-nowrap">{subtitle}</p>
             )}
           </div>
           <Link 
