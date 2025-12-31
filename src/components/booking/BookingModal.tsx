@@ -338,8 +338,8 @@ export function BookingModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0">
-        {/* Header - Neutral dark for welcoming feel */}
-        <div className="bg-foreground px-5 py-4 rounded-t-lg">
+        {/* Header - Neutral dark gradient for welcoming feel */}
+        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 rounded-t-lg">
           <DialogTitle className="text-lg font-bold text-background">
             {step === 1 && "Select a Date"}
             {step === 2 && "Select a Time"}
