@@ -205,9 +205,12 @@ export function MobileProjectCard({
           {/* Price - Prominent */}
           <div className="pt-1">
             {startingPrice ? (
-              <p className="text-base font-bold text-foreground">
-                {formatPrice(startingPrice)}
-              </p>
+              <div>
+                <span className="text-[9px] text-muted-foreground block">Starting from</span>
+                <p className="text-lg font-bold text-foreground leading-tight">
+                  {formatPrice(startingPrice)}
+                </p>
+              </div>
             ) : (
               <span className="text-sm text-primary font-semibold">Price TBA</span>
             )}
