@@ -121,19 +121,19 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   }
 
   return (
-    <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl overflow-hidden shadow-lg">
-      {/* Header with urgency messaging */}
-      <div className="bg-primary/10 px-5 py-4 border-b border-primary/10">
+    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+      {/* Header - Neutral dark gradient for welcoming feel */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
         <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/20 px-2 py-0.5 rounded-full">
             <Sparkles className="h-3 w-3" />
             {isRestricted ? "Exclusive Assignment" : "High Interest"}
           </span>
         </div>
-        <h3 className="text-xl font-bold text-foreground">
+        <h3 className="text-xl font-bold text-background">
           {isRestricted ? "Get Full Details" : "Interested in this assignment?"}
         </h3>
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="text-sm text-background/70 mt-1">
           {isRestricted 
             ? "Some details are restricted. Submit your info to receive full assignment details."
             : "Submit your info and the agent will reach out within 24 hours."
