@@ -91,7 +91,7 @@ export function MobileHomePage() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-background md:hidden"
+      className="min-h-screen bg-background lg:hidden"
     >
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator 
@@ -107,18 +107,18 @@ export function MobileHomePage() {
         />
       </div>
 
-      {/* Mobile Hero - Enhanced welcome */}
+      {/* Hero - Responsive welcome */}
       <div 
-        className="px-4 pt-4 pb-3"
+        className="px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        <h1 className="text-lg font-bold text-foreground leading-snug">
+        <h1 className="text-lg md:text-2xl font-bold text-foreground leading-snug">
           New Presale Condos & Townhomes
         </h1>
-        <p className="text-sm text-muted-foreground mt-1 mb-4">
+        <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2 mb-4 md:mb-5">
           Metro Vancouver's latest developments
         </p>
         
@@ -161,9 +161,9 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Discovery Sections - Enhanced spacing */}
+      {/* Discovery Sections - Responsive spacing */}
       <div 
-        className="space-y-6 py-2"
+        className="space-y-6 md:space-y-8 py-2 md:py-4"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -278,18 +278,18 @@ export function MobileHomePage() {
         </CarouselSection>
       </div>
 
-      {/* Benefits Section - Mobile optimized */}
-      <div className="mt-6">
+      {/* Benefits Section - Responsive */}
+      <div className="mt-6 md:mt-8">
         <NewConstructionBenefits />
       </div>
 
       {/* Quick Links Section */}
-      <div className="mt-4">
+      <div className="mt-4 md:mt-6">
         <RelatedContent />
       </div>
 
       {/* Footer - with extra bottom padding for nav */}
-      <div className="pb-28">
+      <div className="pb-28 md:pb-32">
         <Footer />
       </div>
 

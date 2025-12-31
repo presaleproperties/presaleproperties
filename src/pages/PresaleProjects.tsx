@@ -768,7 +768,7 @@ export default function PresaleProjects() {
                   <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
                     Showing {filteredProjects.length} project{filteredProjects.length !== 1 ? "s" : ""}
                   </p>
-                  <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
                     {filteredProjects.map((project) => (
                       <PresaleProjectCard
                         key={project.id}

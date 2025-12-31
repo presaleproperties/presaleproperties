@@ -74,28 +74,28 @@ export function MobileCityQuickLinks() {
   if (cities.length === 0) return null;
 
   return (
-    <section className="py-4">
-      <div className="px-4 mb-3">
-        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-          <MapPin className="h-4 w-4 text-primary" />
+    <section className="py-4 md:py-6">
+      <div className="px-4 mb-3 md:mb-4">
+        <h2 className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
+          <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary" />
           Projects Near You
         </h2>
-        <p className="text-xs text-muted-foreground mt-0.5">
+        <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
           Explore new developments by city
         </p>
       </div>
 
-      {/* Scrollable city grid */}
+      {/* Scrollable city grid - Tablet shows more */}
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-4 px-4 pb-2">
+        <div className="flex gap-4 md:gap-6 px-4 pb-2">
           {cities.map((city) => (
             <button
               key={city.name}
               onClick={() => handleCityClick(city.name)}
-              className="flex flex-col items-center gap-2 min-w-[88px] group"
+              className="flex flex-col items-center gap-2 min-w-[88px] md:min-w-[100px] group"
             >
-              {/* Circle with city image */}
-              <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
+              {/* Circle with city image - Larger on tablet */}
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
                 <img
                   src={city.image}
                   alt={`${city.name} BC`}
@@ -104,11 +104,11 @@ export function MobileCityQuickLinks() {
                 />
               </div>
               {/* City name */}
-              <span className="text-xs font-semibold text-foreground text-center truncate w-full">
+              <span className="text-xs md:text-sm font-semibold text-foreground text-center truncate w-full">
                 {city.name}
               </span>
               {/* Project count */}
-              <span className="text-[10px] text-muted-foreground -mt-1">
+              <span className="text-[10px] md:text-xs text-muted-foreground -mt-1">
                 {city.count} project{city.count !== 1 ? "s" : ""}
               </span>
             </button>

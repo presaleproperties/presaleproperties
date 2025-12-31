@@ -11,7 +11,7 @@ import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data (helps with AI recommendations)
 const HOME_FAQS = [
@@ -34,7 +34,7 @@ const HOME_FAQS = [
 ];
 
 const Index = () => {
-  const isMobile = useIsMobile();
+  const isMobileOrTablet = useIsMobileOrTablet();
   // Primary structured data - RealEstateAgent with LocalBusiness
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -121,8 +121,8 @@ const Index = () => {
     ]
   };
 
-  // Mobile: Show Uber Eats-style discovery layout
-  if (isMobile) {
+  // Mobile & Tablet: Show discovery-style layout
+  if (isMobileOrTablet) {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Helmet>
