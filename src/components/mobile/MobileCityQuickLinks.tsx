@@ -3,23 +3,35 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { MapPin } from "lucide-react";
 
+// Import city images
+import vancouverImg from "@/assets/cities/vancouver.jpg";
+import surreyImg from "@/assets/cities/surrey.jpg";
+import burnabyImg from "@/assets/cities/burnaby.jpg";
+import coquitlamImg from "@/assets/cities/coquitlam.jpg";
+import langleyImg from "@/assets/cities/langley.jpg";
+import richmondImg from "@/assets/cities/richmond.jpg";
+import deltaImg from "@/assets/cities/delta.jpg";
+import abbotsfordImg from "@/assets/cities/abbotsford.jpg";
+import portMoodyImg from "@/assets/cities/port-moody.jpg";
+import newWestminsterImg from "@/assets/cities/new-westminster.jpg";
+
 interface CityData {
   name: string;
   count: number;
-  color: string;
+  image: string;
 }
 
-const CITY_COLORS: Record<string, string> = {
-  "Vancouver": "bg-emerald-500",
-  "Surrey": "bg-blue-500",
-  "Burnaby": "bg-purple-500",
-  "Coquitlam": "bg-orange-500",
-  "Langley": "bg-teal-500",
-  "Richmond": "bg-rose-500",
-  "Delta": "bg-indigo-500",
-  "Abbotsford": "bg-amber-500",
-  "Port Moody": "bg-cyan-500",
-  "New Westminster": "bg-pink-500",
+const CITY_IMAGES: Record<string, string> = {
+  "Vancouver": vancouverImg,
+  "Surrey": surreyImg,
+  "Burnaby": burnabyImg,
+  "Coquitlam": coquitlamImg,
+  "Langley": langleyImg,
+  "Richmond": richmondImg,
+  "Delta": deltaImg,
+  "Abbotsford": abbotsfordImg,
+  "Port Moody": portMoodyImg,
+  "New Westminster": newWestminsterImg,
 };
 
 export function MobileCityQuickLinks() {
@@ -41,10 +53,11 @@ export function MobileCityQuickLinks() {
       });
 
       const cityData: CityData[] = Array.from(cityMap.entries())
+        .filter(([name]) => CITY_IMAGES[name]) // Only include cities with images
         .map(([name, count]) => ({
           name,
           count,
-          color: CITY_COLORS[name] || "bg-slate-500",
+          image: CITY_IMAGES[name],
         }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
@@ -74,23 +87,24 @@ export function MobileCityQuickLinks() {
 
       {/* Scrollable city grid */}
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-3 px-4 pb-2">
+        <div className="flex gap-4 px-4 pb-2">
           {cities.map((city) => (
             <button
               key={city.name}
               onClick={() => handleCityClick(city.name)}
-              className="flex flex-col items-center gap-1.5 min-w-[72px] group"
+              className="flex flex-col items-center gap-2 min-w-[88px] group"
             >
-              {/* Circle with city initial or icon */}
-              <div
-                className={`w-16 h-16 rounded-full ${city.color} flex items-center justify-center shadow-md group-active:scale-95 transition-transform`}
-              >
-                <span className="text-white font-bold text-xl">
-                  {city.name.charAt(0)}
-                </span>
+              {/* Circle with city image */}
+              <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
+                <img
+                  src={city.image}
+                  alt={`${city.name} BC`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               </div>
               {/* City name */}
-              <span className="text-xs font-medium text-foreground text-center truncate w-full">
+              <span className="text-xs font-semibold text-foreground text-center truncate w-full">
                 {city.name}
               </span>
               {/* Project count */}
