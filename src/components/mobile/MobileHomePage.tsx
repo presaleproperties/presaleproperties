@@ -108,9 +108,9 @@ export function MobileHomePage() {
         isRefreshing={isRefreshing} 
       />
 
-      {/* Hero Section - Full Height with Background Image */}
+      {/* Hero Section - Compact */}
       <div 
-        className="relative min-h-[45vh] flex flex-col"
+        className="relative min-h-[32vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -124,24 +124,16 @@ export function MobileHomePage() {
             className="w-full h-full object-cover"
           />
           {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60" />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8 text-center">
-          {/* Tagline */}
-          <p className="text-white/90 text-sm font-medium tracking-wide mb-3">
-            Metro Vancouver's #1 Presale Marketplace
-          </p>
-          
-          {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-2">
-            Find Your Next{" "}
-            <span className="text-primary">Presale</span>{" "}
-            Home
+        {/* Hero Content - Single header + subheader */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-16 pb-6 text-center">
+          <h1 className="text-2xl font-bold text-white leading-tight">
+            Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
-          <p className="text-white/80 text-base mt-2">
-            Condos & Townhomes
+          <p className="text-white/80 text-sm mt-2">
+            Metro Vancouver's #1 Presale Marketplace
           </p>
         </div>
 
