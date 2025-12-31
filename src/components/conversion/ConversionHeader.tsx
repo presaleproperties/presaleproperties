@@ -77,9 +77,9 @@ export function ConversionHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        {/* Desktop: standard height, Mobile: compact */}
-        <div className="flex h-12 md:h-16 items-center justify-between px-4 md:container">
+      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
+        {/* Desktop: standard height, Mobile: enhanced compact */}
+        <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <span className="text-lg md:text-xl font-bold tracking-tight">
               presale<span className="text-primary">properties</span>
@@ -162,55 +162,55 @@ export function ConversionHeader() {
             </Button>
           </div>
 
-          {/* Mobile Menu - Compact */}
+          {/* Mobile Menu - Enhanced */}
           <div className="flex items-center lg:hidden">
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
+                <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
                   <span className="sr-only">Toggle menu</span>
                   {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </Button>
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-[280px] p-0 bg-background border-l-0 shadow-2xl"
+                className="w-[300px] p-0 bg-background border-l-0 shadow-2xl"
               >
                 <div className="flex flex-col h-full">
-                  <nav className="flex-1 pt-8 overflow-y-auto">
-                    <div className="space-y-1 px-3">
+                  <nav className="flex-1 pt-6 overflow-y-auto">
+                    <div className="space-y-1 px-4">
                       <Link
                         to="/presale-projects"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                           isActive("/presale-projects") 
                             ? "bg-primary/10 text-primary" 
                             : "text-foreground hover:bg-muted"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <Building2 className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-[15px] font-medium">Presale Projects</span>
+                          <Building2 className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                          <span className="text-base font-medium">Presale Projects</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
 
                       <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
+                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
                           <div className="flex items-center gap-3">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-[15px] font-medium">Cities</span>
+                            <MapPin className="h-5 w-5 text-muted-foreground" />
+                            <span className="text-base font-medium">Cities</span>
                           </div>
                           <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="pl-4 space-y-1 mt-1">
+                        <CollapsibleContent className="pl-5 space-y-1 mt-1">
                           {CITY_LINKS.map((city) => (
                             <Link
                               key={city.slug}
                               to={`/presale-condos/${city.slug}`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              className="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                             >
-                              <span className="text-sm">{city.name}</span>
+                              <span className="text-sm font-medium">{city.name}</span>
                             </Link>
                           ))}
                         </CollapsibleContent>
@@ -219,15 +219,15 @@ export function ConversionHeader() {
                       <Link
                         to="/assignments"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                           isActive("/assignments") 
                             ? "bg-primary/10 text-primary" 
                             : "text-foreground hover:bg-muted"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <FileStack className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-[15px] font-medium">Assignments</span>
+                          <FileStack className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                          <span className="text-base font-medium">Assignments</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
@@ -235,15 +235,15 @@ export function ConversionHeader() {
                       <Link
                         to="/blog"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
                           isActive("/blog") 
                             ? "bg-primary/10 text-primary" 
                             : "text-foreground hover:bg-muted"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <BookOpen className="h-4 w-4 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-[15px] font-medium">Blog</span>
+                          <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                          <span className="text-base font-medium">Blog</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
@@ -251,24 +251,24 @@ export function ConversionHeader() {
                       <Link
                         to="/agents"
                         onClick={() => setOpen(false)}
-                        className="flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group text-primary hover:bg-primary/5"
+                        className="flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group text-primary hover:bg-primary/5"
                       >
                         <div className="flex items-center gap-3">
-                          <Users className="h-4 w-4 text-primary" />
-                          <span className="text-[15px] font-medium">For Agents</span>
+                          <Users className="h-5 w-5 text-primary" />
+                          <span className="text-base font-medium">For Agents</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
                     </div>
                   </nav>
 
-                  <div className="p-4 space-y-2 border-t">
-                    <Button onClick={openChatNow} className="w-full h-11 font-medium">
-                      <MessageCircle className="h-4 w-4 mr-2" />
+                  <div className="p-5 space-y-3 border-t">
+                    <Button onClick={openChatNow} className="w-full h-12 font-semibold text-base">
+                      <MessageCircle className="h-5 w-5 mr-2" />
                       Chat Now
                     </Button>
-                    <Button variant="outline" onClick={openCallBack} className="w-full h-11 font-medium">
-                      <Phone className="h-4 w-4 mr-2" />
+                    <Button variant="outline" onClick={openCallBack} className="w-full h-12 font-semibold text-base">
+                      <Phone className="h-5 w-5 mr-2" />
                       Request a Call Back
                     </Button>
                   </div>

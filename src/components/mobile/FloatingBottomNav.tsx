@@ -189,50 +189,59 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
           isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
         )}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/20 to-transparent" />
+        {/* Enhanced gradient for better visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
         
-        <div className="relative flex items-center justify-center gap-2 md:gap-3 lg:gap-4 px-6 py-4 pb-6 md:pb-8 pointer-events-auto">
+        <div className="relative flex items-center justify-center gap-3 md:gap-4 px-6 py-5 pb-7 md:pb-8 pointer-events-auto">
+          {/* WhatsApp Button */}
           <button
             onClick={handleMessageClick}
             className={cn(
               "flex items-center justify-center rounded-full",
-              "h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14",
-              "bg-white/10 backdrop-blur-2xl border border-white/20 shadow-lg",
-              "hover:bg-white/20 active:scale-95 transition-all duration-150"
+              "h-12 w-12 md:h-14 md:w-14",
+              "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl",
+              "hover:bg-white/25 active:scale-95 transition-all duration-150"
             )}
+            aria-label="Chat on WhatsApp"
           >
-            <svg viewBox="0 0 24 24" className="h-5 w-5 md:h-6 md:w-6 lg:h-7 lg:w-7 text-foreground/70" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg viewBox="0 0 24 24" className="h-5 w-5 md:h-6 md:w-6 text-white" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21" />
               <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1" />
             </svg>
           </button>
 
+          {/* Search Button - Primary CTA with enhanced visibility */}
           <button
             onClick={handleSearchClick}
             className={cn(
-              "flex items-center gap-2 md:gap-2.5 rounded-full",
-              "px-4 py-2.5 md:px-6 md:py-3 lg:px-8 lg:py-3.5",
-              "bg-white/10 backdrop-blur-2xl border border-white/20 shadow-lg",
-              "text-foreground/80 font-medium text-sm md:text-base lg:text-lg",
-              "hover:bg-white/20 active:scale-95 transition-all duration-150"
+              "flex items-center gap-2.5 rounded-full",
+              "px-6 py-3 md:px-8 md:py-3.5",
+              "bg-primary text-primary-foreground font-semibold shadow-xl",
+              "text-sm md:text-base",
+              "hover:bg-primary/90 active:scale-95 transition-all duration-150",
+              "ring-2 ring-primary/30 ring-offset-2 ring-offset-black/20"
             )}
           >
-            <Search className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6" />
+            <Search className="h-4 w-4 md:h-5 md:w-5" />
             <span>Search</span>
           </button>
 
+          {/* Filter Button */}
           <button
             onClick={() => setFilterOpen(true)}
             className={cn(
               "flex items-center justify-center rounded-full relative",
-              "h-10 w-10 md:h-12 md:w-12 lg:h-14 lg:w-14",
-              "bg-white/10 backdrop-blur-2xl border border-white/20 shadow-lg",
-              "hover:bg-white/20 active:scale-95 transition-all duration-150"
+              "h-12 w-12 md:h-14 md:w-14",
+              "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl",
+              "hover:bg-white/25 active:scale-95 transition-all duration-150"
             )}
+            aria-label="Filter projects"
           >
-            <SlidersHorizontal className="h-4 w-4 md:h-5 md:w-5 lg:h-6 lg:w-6 text-foreground/80" />
+            <SlidersHorizontal className="h-5 w-5 md:h-6 md:w-6 text-white" />
             {hasActiveFilters && (
-              <span className="absolute -top-1 -right-1 h-3 w-3 bg-primary rounded-full border-2 border-background" />
+              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary rounded-full border-2 border-black/30 flex items-center justify-center text-[9px] font-bold text-primary-foreground">
+                !
+              </span>
             )}
           </button>
         </div>

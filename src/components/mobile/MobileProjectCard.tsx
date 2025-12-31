@@ -130,15 +130,15 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[280px]" : "w-[240px]"
+        isLarge ? "w-[300px]" : "w-[260px]"
       )}
     >
-      <div className="bg-card rounded-lg overflow-hidden border border-border/50 shadow-sm active:scale-[0.98] transition-all duration-150 hover:shadow-md">
+      <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-all duration-150 hover:shadow-lg hover:border-primary/30">
         {/* Image with swipe support */}
         <div 
           className={cn(
             "relative bg-muted overflow-hidden",
-            isLarge ? "aspect-[4/3]" : "aspect-[3/2]"
+            isLarge ? "aspect-[16/10]" : "aspect-[3/2]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -154,28 +154,28 @@ export function MobileProjectCard({
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <Building2 className="h-8 w-8 text-muted-foreground/50" />
+              <Building2 className="h-10 w-10 text-muted-foreground/50" />
             </div>
           )}
           
-          {/* Status Badge - compact */}
+          {/* Status Badge - Enhanced visibility */}
           {statusLabel && (
-            <Badge className="absolute top-2 left-2 bg-primary/90 text-primary-foreground px-1.5 py-0.5 text-[9px] font-medium border-0 shadow-sm backdrop-blur-sm">
+            <Badge className="absolute top-2.5 left-2.5 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-semibold border-0 shadow-md backdrop-blur-sm">
               {statusLabel}
             </Badge>
           )}
 
-          {/* Dots indicator */}
+          {/* Dots indicator - Enhanced */}
           {imageCount > 1 && (
-            <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-0.5">
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
               {allImages.slice(0, 5).map((_, idx) => (
                 <span
                   key={idx}
                   className={cn(
-                    "h-1 rounded-full transition-all",
+                    "h-1.5 rounded-full transition-all",
                     idx === currentImageIndex 
-                      ? "bg-white w-2.5" 
-                      : "bg-white/40 w-1"
+                      ? "bg-white w-3" 
+                      : "bg-white/50 w-1.5"
                   )}
                 />
               ))}
@@ -183,33 +183,33 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Compact Info Section */}
-        <div className="px-2.5 py-2 flex items-center justify-between gap-2">
-          {/* Left: Name & Meta */}
-          <div className="min-w-0 flex-1">
-            <h4 className="font-semibold text-[13px] text-foreground truncate leading-tight">{name}</h4>
-            <div className="flex items-center gap-2 mt-0.5">
-              <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
-                <MapPin className="h-2.5 w-2.5" />
-                {city}
+        {/* Enhanced Info Section */}
+        <div className="px-3 py-3 space-y-1.5">
+          {/* Name */}
+          <h4 className="font-semibold text-sm text-foreground truncate leading-tight">{name}</h4>
+          
+          {/* Meta row */}
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPin className="h-3 w-3" />
+              {city}
+            </span>
+            {completionYear && (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Calendar className="h-3 w-3" />
+                {completionYear}
               </span>
-              {completionYear && (
-                <span className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
-                  <Calendar className="h-2.5 w-2.5" />
-                  {completionYear}
-                </span>
-              )}
-            </div>
+            )}
           </div>
           
-          {/* Right: Price */}
-          <div className="text-right shrink-0">
+          {/* Price - Prominent */}
+          <div className="pt-1">
             {startingPrice ? (
-              <p className="text-sm font-bold text-foreground">
+              <p className="text-base font-bold text-foreground">
                 {formatPrice(startingPrice)}
               </p>
             ) : (
-              <span className="text-xs text-primary font-medium">TBA</span>
+              <span className="text-sm text-primary font-semibold">Price TBA</span>
             )}
           </div>
         </div>
