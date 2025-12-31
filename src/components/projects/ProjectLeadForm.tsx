@@ -267,7 +267,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 md:py-4">
         <div className="flex items-center gap-2 flex-wrap mb-2">
           {content.badgeIcon && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-background bg-background/15 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/20 px-2.5 py-1 rounded-full">
               {content.badgeIcon}
               {content.badge}
             </span>
@@ -348,7 +348,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                   key={p.value}
                   className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                     form.watch("persona") === p.value
-                      ? "border-primary bg-primary/10 text-primary"
+                      ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
@@ -374,7 +374,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                   key={a.value}
                   className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all text-center px-1 ${
                     form.watch("workingWithAgent") === a.value
-                      ? "border-primary bg-primary/10 text-primary"
+                      ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
@@ -400,7 +400,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                   key={size.value}
                   className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                     form.watch("homeSize") === size.value
-                      ? "border-primary bg-primary/10 text-primary"
+                      ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50"
                   }`}
                 >
