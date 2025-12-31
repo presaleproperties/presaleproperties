@@ -6,7 +6,6 @@ import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
-import { MobileDeveloperQuickLinks } from "./MobileDeveloperQuickLinks";
 import { FloatingBottomNav } from "./FloatingBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -197,16 +196,75 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        {/* Explore by City - Quick Links */}
+        {/* Projects Near You - City Quick Links */}
         <CarouselSection delay={125}>
           <MobileCityQuickLinks />
         </CarouselSection>
 
-        {/* Search by Developer - Quick Links */}
-        <CarouselSection delay={135}>
-          <MobileDeveloperQuickLinks />
+        {/* City-based Carousels */}
+        <CarouselSection delay={150}>
+          <MobileDiscoveryCarousel
+            type="city_vancouver"
+            title="Vancouver"
+            city={selectedCity}
+          />
         </CarouselSection>
 
+        <CarouselSection delay={200}>
+          <MobileDiscoveryCarousel
+            type="city_surrey"
+            title="Surrey"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        <CarouselSection delay={250}>
+          <MobileDiscoveryCarousel
+            type="city_burnaby"
+            title="Burnaby"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        <CarouselSection delay={300}>
+          <MobileDiscoveryCarousel
+            type="city_coquitlam"
+            title="Coquitlam"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        <CarouselSection delay={350}>
+          <MobileDiscoveryCarousel
+            type="city_langley"
+            title="Langley"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        <CarouselSection delay={400}>
+          <MobileDiscoveryCarousel
+            type="city_richmond"
+            title="Richmond"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        <CarouselSection delay={450}>
+          <MobileDiscoveryCarousel
+            type="city_delta"
+            title="Delta"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        <CarouselSection delay={500}>
+          <MobileDiscoveryCarousel
+            type="city_abbotsford"
+            title="Abbotsford"
+            city={selectedCity}
+          />
+        </CarouselSection>
       </div>
 
       {/* Benefits Section - Mobile optimized */}

@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, ArrowRight } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 // Import city images
 import vancouverImg from "@/assets/cities/vancouver.jpg";
@@ -53,14 +53,14 @@ export function MobileCityQuickLinks() {
       });
 
       const cityData: CityData[] = Array.from(cityMap.entries())
-        .filter(([name]) => CITY_IMAGES[name])
+        .filter(([name]) => CITY_IMAGES[name]) // Only include cities with images
         .map(([name, count]) => ({
           name,
           count,
           image: CITY_IMAGES[name],
         }))
         .sort((a, b) => b.count - a.count)
-        .slice(0, 6);
+        .slice(0, 10);
 
       return cityData;
     },
@@ -74,53 +74,47 @@ export function MobileCityQuickLinks() {
   if (cities.length === 0) return null;
 
   return (
-    <section className="py-6 px-4">
-      <h2 className="text-xl font-bold text-foreground mb-4">
-        Explore by City
-      </h2>
-
-      {/* 2-column grid of city cards */}
-      <div className="grid grid-cols-2 gap-3">
-        {cities.map((city) => (
-          <button
-            key={city.name}
-            onClick={() => handleCityClick(city.name)}
-            className="relative overflow-hidden rounded-xl bg-card border border-border shadow-sm group active:scale-[0.98] transition-all text-left"
-          >
-            {/* Background city image with overlay */}
-            <div className="absolute inset-0 opacity-15">
-              <img
-                src={city.image}
-                alt=""
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            
-            {/* Card content */}
-            <div className="relative p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <MapPin className="h-4 w-4 text-primary" />
-                <span className="font-semibold text-foreground">
-                  {city.name}
-                </span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                {city.count}+ projects
-              </p>
-            </div>
-          </button>
-        ))}
+    <section className="py-4">
+      <div className="px-4 mb-3">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" />
+          Projects Near You
+        </h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Explore new developments by city
+        </p>
       </div>
 
-      {/* View all link */}
-      <button
-        onClick={() => navigate("/presale-projects")}
-        className="flex items-center gap-1 text-primary font-medium mt-4 text-sm"
-      >
-        View all cities
-        <ArrowRight className="h-4 w-4" />
-      </button>
+      {/* Scrollable city grid */}
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className="flex gap-4 px-4 pb-2">
+          {cities.map((city) => (
+            <button
+              key={city.name}
+              onClick={() => handleCityClick(city.name)}
+              className="flex flex-col items-center gap-2 min-w-[88px] group"
+            >
+              {/* Circle with city image */}
+              <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
+                <img
+                  src={city.image}
+                  alt={`${city.name} BC`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              {/* City name */}
+              <span className="text-xs font-semibold text-foreground text-center truncate w-full">
+                {city.name}
+              </span>
+              {/* Project count */}
+              <span className="text-[10px] text-muted-foreground -mt-1">
+                {city.count} project{city.count !== 1 ? "s" : ""}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
