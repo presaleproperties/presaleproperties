@@ -92,9 +92,9 @@ const handler = async (req: Request): Promise<Response> => {
       htmlContent += `</ul>`;
     }
 
-    // Send email
+    // Send email - using Resend default sender until custom domain is fully verified
     const emailResponse = await resend.emails.send({
-      from: "PresaleProperties <noreply@presaleproperties.com>",
+      from: "PresaleProperties <onboarding@resend.dev>",
       to: [lead_email],
       subject: subject,
       html: htmlContent,
