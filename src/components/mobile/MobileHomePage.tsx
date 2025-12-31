@@ -99,30 +99,30 @@ export function MobileHomePage() {
         isRefreshing={isRefreshing} 
       />
 
-      {/* Category Chips - Sticky below header */}
-      <div className="sticky top-12 z-30 bg-background/95 backdrop-blur-sm">
+      {/* Category Chips - Enhanced sticky with better visibility */}
+      <div className="sticky top-14 z-30 bg-background/98 backdrop-blur-lg shadow-sm">
         <MobileCategoryChips
           selectedChip={selectedChip}
           onChipSelect={handleChipSelect}
         />
       </div>
 
-      {/* Mobile Hero - Compact welcome */}
+      {/* Mobile Hero - Enhanced welcome */}
       <div 
-        className="px-4 pt-3 pb-2"
+        className="px-4 pt-4 pb-3"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        <h1 className="text-base font-bold text-foreground">
+        <h1 className="text-lg font-bold text-foreground leading-snug">
           New Presale Condos & Townhomes
         </h1>
-        <p className="text-xs text-muted-foreground mb-3">
+        <p className="text-sm text-muted-foreground mt-1 mb-4">
           Metro Vancouver's latest developments
         </p>
         
-        {/* Compact Search Bar */}
+        {/* Compact Search Bar - Enhanced */}
         <div ref={searchContainerRef} className="relative">
           <form onSubmit={handleSearch}>
             <Input
@@ -138,12 +138,12 @@ export function MobileHomePage() {
                 setIsSearchFocused(true);
               }}
               onBlur={() => setIsSearchFocused(false)}
-              className="h-10 text-sm pl-3 pr-10 rounded-lg bg-muted/50 border-border focus:bg-background transition-colors"
+              className="h-12 text-base pl-4 pr-12 rounded-xl bg-card border-border shadow-sm focus:bg-background focus:shadow-md focus:border-primary/50 transition-all"
               autoComplete="off"
             />
             <button 
               type="submit"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full"
+              className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full bg-muted/50"
             >
               <Search className={cn(
                 "h-4 w-4 transition-all duration-300",
@@ -161,9 +161,9 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Discovery Sections */}
+      {/* Discovery Sections - Enhanced spacing */}
       <div 
-        className="space-y-4 py-1"
+        className="space-y-6 py-2"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -279,12 +279,14 @@ export function MobileHomePage() {
       </div>
 
       {/* Benefits Section - Mobile optimized */}
-      <div className="mt-4">
+      <div className="mt-6">
         <NewConstructionBenefits />
       </div>
 
       {/* Quick Links Section */}
-      <RelatedContent />
+      <div className="mt-4">
+        <RelatedContent />
+      </div>
 
       {/* Footer - with extra bottom padding for nav */}
       <div className="pb-28">
