@@ -233,21 +233,13 @@ export function PresaleProjectCard({
           </h3>
 
           {/* Compact details row */}
-          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground pt-1">
             <div className="flex items-center gap-1 min-w-0">
               <MapPin className="h-3 w-3 shrink-0" />
-              <span className="truncate">{neighborhood}</span>
+              <span className="truncate">{neighborhood}, {city}</span>
             </div>
-            <span className="shrink-0 text-[10px] sm:text-xs">{completionYear || "TBA"}</span>
-          </div>
-
-          {/* Type badge row */}
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-[10px] sm:text-xs text-muted-foreground">
-              {formatType(projectType)}
-            </span>
-            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase">
-              {city}
+            <span className="shrink-0 text-[10px] sm:text-xs">
+              {formatType(projectType)} • {completionYear || "TBA"}
             </span>
           </div>
         </CardContent>
