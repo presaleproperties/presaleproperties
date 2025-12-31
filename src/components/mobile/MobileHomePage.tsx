@@ -20,6 +20,7 @@ export function MobileHomePage() {
   const [activeFilter, setActiveFilter] = useState<CategoryChip["filter"]>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -122,15 +123,22 @@ export function MobileHomePage() {
                 setSearchQuery(e.target.value);
                 setShowSuggestions(true);
               }}
-              onFocus={() => setShowSuggestions(true)}
-              className="h-10 text-sm pl-3 pr-10 rounded-lg bg-muted/50 border-border"
+              onFocus={() => {
+                setShowSuggestions(true);
+                setIsSearchFocused(true);
+              }}
+              onBlur={() => setIsSearchFocused(false)}
+              className="h-10 text-sm pl-3 pr-10 rounded-lg bg-muted/50 border-border focus:bg-background transition-colors"
               autoComplete="off"
             />
             <button 
               type="submit"
               className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full"
             >
-              <Search className="h-4 w-4" />
+              <Search className={cn(
+                "h-4 w-4 transition-all duration-300",
+                isSearchFocused && "text-primary scale-110"
+              )} />
             </button>
           </form>
           <SearchSuggestions
