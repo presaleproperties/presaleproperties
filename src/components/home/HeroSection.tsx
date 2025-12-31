@@ -72,14 +72,14 @@ export function HeroSection() {
       <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
         <div className="max-w-3xl mx-auto text-center space-y-2.5 sm:space-y-6 md:space-y-8">
           {/* Tagline */}
-          <p className="text-white/90 text-[10px] sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
+          <p className="text-white/90 text-xs sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
             Vancouver's #1 Presale Condos & Townhomes Marketplace
           </p>
           
           {/* Main Heading - SEO optimized H1 */}
-          <h1 className="text-[20px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.2] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
+          <h1 className="text-[26px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.15] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
             Find Presale Condos & Townhomes
-            <span className="block text-primary text-[18px] sm:text-2xl md:text-4xl lg:text-5xl mt-1">Pricing, Floor Plans & VIP Access</span>
+            <span className="block text-primary text-[22px] sm:text-2xl md:text-4xl lg:text-5xl mt-1.5">Pricing, Floor Plans & VIP Access</span>
           </h1>
 
           {/* Floating Search Card - Compact on mobile */}
