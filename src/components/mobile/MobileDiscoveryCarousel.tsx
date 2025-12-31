@@ -131,6 +131,7 @@ export function MobileDiscoveryCarousel({
           <Skeleton className="h-4 w-16" />
         </div>
         <div className="flex gap-3 overflow-hidden" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
+
           {[1, 2].map((i) => (
             <div key={i} className={isLargeCarousel ? "shrink-0 w-[300px]" : "shrink-0 w-[260px]"}>
               <Skeleton className={isLargeCarousel ? "aspect-[16/10] w-full rounded-t-xl" : "aspect-[3/2] w-full rounded-t-xl"} />
@@ -181,7 +182,12 @@ export function MobileDiscoveryCarousel({
         ref={scrollRef}
         onScroll={handleScroll}
         className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory"
-        style={{ paddingLeft: '24px', paddingRight: '24px' }}
+        style={{ 
+          paddingLeft: '24px', 
+          paddingRight: '24px',
+          scrollPaddingLeft: '24px',
+          scrollPaddingRight: '24px'
+        }}
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start first:ml-0">
