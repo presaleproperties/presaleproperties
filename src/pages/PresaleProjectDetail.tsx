@@ -713,7 +713,7 @@ export default function PresaleProjectDetail() {
 
               {/* Sidebar */}
               <div>
-                <div ref={formRef} id="contact-form" className="md:sticky md:top-16 lg:top-20 space-y-3">
+                <div ref={formRef} id="contact-form" className="md:sticky md:top-16 lg:top-20 space-y-4 md:space-y-3">
                   {/* Inline Scheduler - Tablet and mobile sidebar only (hidden on lg where it's in hero) */}
                   <div className="lg:hidden">
                     <InlineScheduler

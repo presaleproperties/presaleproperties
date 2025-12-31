@@ -127,15 +127,15 @@ export function InlineScheduler({
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl lg:rounded-2xl p-4 lg:p-5 shadow-lg">
-      {/* Header - more compact on desktop in hero */}
-      <div className="text-center mb-3 lg:mb-4">
+    <div className="bg-card border border-border rounded-xl lg:rounded-2xl p-5 lg:p-5 shadow-lg">
+      {/* Header */}
+      <div className="text-center mb-4 lg:mb-4">
         <h3 className="text-lg lg:text-xl font-bold text-foreground">Schedule a tour</h3>
-        <p className="text-xs lg:text-sm text-muted-foreground mt-0.5">Tour with a buyer's agent</p>
+        <p className="text-sm lg:text-sm text-muted-foreground mt-1">Tour with a buyer's agent</p>
       </div>
 
-      {/* Date Selection - compact layout */}
-      <div className="flex items-center justify-center gap-1 mb-3 lg:mb-4">
+      {/* Date Selection */}
+      <div className="flex items-center justify-center gap-2 mb-4 lg:mb-4">
         <button
           onClick={handlePrev}
           disabled={!canGoBack}
@@ -148,27 +148,27 @@ export function InlineScheduler({
           <ChevronLeft className="h-4 w-4 lg:h-5 lg:w-5" />
         </button>
 
-        <div className="flex gap-1.5 lg:gap-2">
+        <div className="flex gap-2 lg:gap-2">
           {visibleDates.map((date) => {
             const isSelected = selectedDate && isSameDay(date, selectedDate);
             return (
               <button
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
-                className={cn(
-                  "flex flex-col items-center justify-center w-16 h-16 lg:w-20 lg:h-20 rounded-lg lg:rounded-xl border-2 transition-all",
+                  className={cn(
+                    "flex flex-col items-center justify-center w-[72px] h-[72px] lg:w-20 lg:h-20 rounded-xl lg:rounded-xl border-2 transition-all",
                   isSelected
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/50"
                 )}
               >
-                <span className="text-[9px] lg:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                <span className="text-[10px] lg:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                   {format(date, "EEE")}
                 </span>
-                <span className="text-xl lg:text-2xl font-bold text-foreground">
+                <span className="text-2xl lg:text-2xl font-bold text-foreground">
                   {format(date, "d")}
                 </span>
-                <span className="text-[9px] lg:text-[10px] font-medium text-muted-foreground uppercase">
+                <span className="text-[10px] lg:text-[10px] font-medium text-muted-foreground uppercase">
                   {format(date, "MMM")}
                 </span>
               </button>
@@ -189,8 +189,8 @@ export function InlineScheduler({
         </button>
       </div>
 
-      {/* Time Period Selection - compact */}
-      <div className="grid grid-cols-3 gap-1.5 lg:gap-2 mb-3 lg:mb-4">
+      {/* Time Period Selection */}
+      <div className="grid grid-cols-3 gap-2 lg:gap-2 mb-4 lg:mb-4">
         {TIME_PERIODS.map((period) => {
           const isSelected = selectedPeriod === period.value;
           return (
@@ -198,16 +198,16 @@ export function InlineScheduler({
               key={period.value}
               onClick={() => setSelectedPeriod(period.value)}
               className={cn(
-                "flex flex-col items-center justify-center py-2 lg:py-2.5 px-1.5 rounded-lg border-2 transition-all",
+                "flex flex-col items-center justify-center py-2.5 lg:py-2.5 px-2 rounded-xl border-2 transition-all",
                 isSelected
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-muted-foreground/50"
               )}
             >
-              <span className="text-[10px] lg:text-xs font-semibold text-foreground">
+              <span className="text-xs lg:text-xs font-semibold text-foreground">
                 {period.label}
               </span>
-              <span className="text-[8px] lg:text-[10px] text-muted-foreground mt-0.5">
+              <span className="text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">
                 {period.subLabel}
               </span>
             </button>
