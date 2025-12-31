@@ -77,7 +77,7 @@ const handler = async (req: Request): Promise<Response> => {
           .replace(/\{\{project_name\}\}/g, campaign.presale_projects?.name || "");
 
         await resend.emails.send({
-          from: "PresaleProperties <onboarding@resend.dev>",
+          from: "PresaleProperties <noreply@presaleproperties.com>",
           to: [lead.email],
           subject: subject,
           html: htmlContent,

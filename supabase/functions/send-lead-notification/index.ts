@@ -162,7 +162,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send email to agent
     const emailResponse = await resend.emails.send({
-      from: "PresaleProperties <notifications@resend.dev>",
+      from: "PresaleProperties <noreply@presaleproperties.com>",
       to: [profile.email],
       subject: `New Lead for ${listingTitle}`,
       html: `

@@ -150,7 +150,7 @@ serve(async (req: Request): Promise<Response> => {
 
       try {
         await resend.emails.send({
-          from: "AssignmentHub <notifications@resend.dev>",
+          from: "PresaleProperties <noreply@presaleproperties.com>",
           to: [agentEmail],
           subject: `${urgency}: Your listing "${listing.title}" expires in ${listing.daysUntilExpiry} day${listing.daysUntilExpiry === 1 ? "" : "s"}`,
           html: `
