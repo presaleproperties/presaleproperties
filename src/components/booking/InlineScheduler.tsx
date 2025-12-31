@@ -127,15 +127,17 @@ export function InlineScheduler({
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden">
+    <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
       {/* Header */}
-      <div className="text-center mb-4 lg:mb-4">
+      <div className="bg-muted/50 px-5 py-4 text-center border-b border-border">
         <h3 className="text-lg lg:text-xl font-bold text-foreground">Schedule a tour</h3>
-        <p className="text-sm lg:text-sm text-muted-foreground mt-1">Tour with a buyer's agent</p>
+        <p className="text-sm text-muted-foreground mt-1">Tour with a buyer's agent</p>
       </div>
 
-      {/* Date Selection */}
-      <div className="flex items-center justify-center gap-2 mb-4 lg:mb-4">
+      {/* Content */}
+      <div className="p-5">
+        {/* Date Selection */}
+        <div className="flex items-center justify-center gap-2 mb-4 lg:mb-4">
         <button
           onClick={handlePrev}
           disabled={!canGoBack}
@@ -215,14 +217,15 @@ export function InlineScheduler({
         })}
       </div>
 
-      {/* CTA Button */}
-      <Button
-        onClick={handleRequestTour}
-        disabled={!selectedDate}
-        className="w-full h-11 lg:h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
-      >
-        Request a Tour
-      </Button>
+        {/* CTA Button */}
+        <Button
+          onClick={handleRequestTour}
+          disabled={!selectedDate}
+          className="w-full h-11 lg:h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
+        >
+          Request a Tour
+        </Button>
+      </div>
     </div>
   );
 }
