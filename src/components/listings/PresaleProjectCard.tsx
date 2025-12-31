@@ -212,41 +212,37 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-2.5 md:space-y-3">
-          <div className="flex items-start gap-1.5 text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
-            <span className="text-xs sm:text-sm md:text-sm truncate">
-              {neighborhood}
-            </span>
-          </div>
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            {/* Left: Name, Location & Type */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
+                {name}
+              </h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs sm:text-sm truncate">
+                  {neighborhood}, {city}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
+              </p>
+            </div>
 
-          <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base md:text-base">
-              {name}
-            </h3>
-            <p className="text-xs sm:text-sm md:text-sm text-muted-foreground line-clamp-1">
-              {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
-            </p>
-          </div>
-
-          <div className="flex items-end justify-between pt-2 border-t border-border">
-            <div>
+            {/* Right: Price */}
+            <div className="text-right shrink-0">
               {startingPrice ? (
-                <div className="flex flex-col">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Starting from</span>
+                <>
+                  <span className="text-[10px] sm:text-xs text-muted-foreground block leading-tight">Starting from</span>
                   <span className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
                     {formatPrice(startingPrice)}
                   </span>
-                </div>
+                </>
               ) : (
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Contact for pricing
-                </p>
+                <span className="text-xs sm:text-sm text-muted-foreground">Contact for pricing</span>
               )}
             </div>
-            <span className="text-[10px] sm:text-xs md:text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {city}
-            </span>
           </div>
         </CardContent>
       </Card>
