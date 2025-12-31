@@ -74,38 +74,47 @@ export function MobileCityQuickLinks() {
   if (cities.length === 0) return null;
 
   return (
-    <section className="py-6 px-4">
-      <h2 className="text-lg font-bold text-foreground mb-4">
-        Explore by City
-      </h2>
-
-      {/* 2-column grid */}
-      <div className="grid grid-cols-2 gap-3">
-        {cities.slice(0, 6).map((city) => (
-          <button
-            key={city.name}
-            onClick={() => handleCityClick(city.name)}
-            className="bg-card rounded-xl p-4 text-left shadow-sm border border-border/50 active:scale-[0.98] transition-transform"
-          >
-            <div className="flex items-center gap-2 mb-1">
-              <MapPin className="h-4 w-4 text-primary" />
-              <span className="font-semibold text-foreground">{city.name}</span>
-            </div>
-            <span className="text-sm text-muted-foreground">
-              {city.count}+ projects
-            </span>
-          </button>
-        ))}
+    <section className="py-4">
+      <div className="px-4 mb-3">
+        <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+          <MapPin className="h-4 w-4 text-primary" />
+          Projects Near You
+        </h2>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Explore new developments by city
+        </p>
       </div>
 
-      {/* View all link */}
-      <button
-        onClick={() => navigate("/presale-projects")}
-        className="mt-4 text-primary font-medium text-sm flex items-center gap-1"
-      >
-        View all cities
-        <span className="text-primary">→</span>
-      </button>
+      {/* Scrollable city grid */}
+      <div className="overflow-x-auto scrollbar-hide">
+        <div className="flex gap-4 px-4 pb-2">
+          {cities.map((city) => (
+            <button
+              key={city.name}
+              onClick={() => handleCityClick(city.name)}
+              className="flex flex-col items-center gap-2 min-w-[88px] group"
+            >
+              {/* Circle with city image */}
+              <div className="w-20 h-20 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
+                <img
+                  src={city.image}
+                  alt={`${city.name} BC`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+              </div>
+              {/* City name */}
+              <span className="text-xs font-semibold text-foreground text-center truncate w-full">
+                {city.name}
+              </span>
+              {/* Project count */}
+              <span className="text-[10px] text-muted-foreground -mt-1">
+                {city.count} project{city.count !== 1 ? "s" : ""}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }
