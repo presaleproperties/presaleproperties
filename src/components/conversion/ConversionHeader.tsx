@@ -82,7 +82,7 @@ export function ConversionHeader() {
         <div className="flex h-12 md:h-16 items-center justify-between px-4 md:container">
           <Link to="/" className="flex items-center gap-2 shrink-0">
             <span className="text-lg md:text-xl font-bold tracking-tight">
-              presale<span className="text-primary">properties</span>
+              <span className="text-yellow-500">presale</span><span className="text-primary">properties</span>
             </span>
           </Link>
 
