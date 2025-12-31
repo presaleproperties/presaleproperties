@@ -21,38 +21,66 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const hasPhotos = photos.length > 0;
   const currentPhoto = hasPhotos ? photos[currentIndex] : null;
 
   const goToPrevious = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => (prev === 0 ? photos.length - 1 : prev - 1));
+    setSwipeOffset(0);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const goToNext = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => (prev === photos.length - 1 ? 0 : prev + 1));
+    setSwipeOffset(0);
+    setTimeout(() => setIsTransitioning(false), 300);
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
+    if (isTransitioning) return;
     touchStartX.current = e.touches[0].clientX;
+    touchEndX.current = null;
+    setSwipeOffset(0);
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (!touchStartX.current || isTransitioning) return;
     touchEndX.current = e.touches[0].clientX;
+    
+    // Calculate offset with edge resistance
+    const diff = touchEndX.current - touchStartX.current;
+    const isAtStart = currentIndex === 0 && diff > 0;
+    const isAtEnd = currentIndex === photos.length - 1 && diff < 0;
+    const resistance = isAtStart || isAtEnd ? 0.3 : 1;
+    setSwipeOffset(diff * resistance);
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
+    if (!touchStartX.current || isTransitioning) {
+      setSwipeOffset(0);
+      return;
+    }
     
-    const diff = touchStartX.current - touchEndX.current;
-    const threshold = 80; // Higher threshold for more deliberate swipes
+    const diff = touchStartX.current - (touchEndX.current || touchStartX.current);
+    const threshold = 50;
 
     if (Math.abs(diff) > threshold && photos.length > 1) {
-      if (diff > 0) {
+      if (diff > 0 && currentIndex < photos.length - 1) {
         goToNext();
-      } else {
+      } else if (diff < 0 && currentIndex > 0) {
         goToPrevious();
+      } else {
+        setSwipeOffset(0);
       }
+    } else {
+      setSwipeOffset(0);
     }
 
     touchStartX.current = null;
@@ -80,7 +108,13 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
           <img
             src={currentPhoto?.url}
             alt={`${title} - Photo ${currentIndex + 1}`}
-            className="w-full h-full object-cover cursor-pointer transition-transform hover:scale-105"
+            className="w-full h-full object-cover cursor-pointer"
+            style={{
+              transform: `translateX(${swipeOffset}px)`,
+              transition: isTransitioning || !touchStartX.current 
+                ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
+                : 'none'
+            }}
             onClick={() => setIsLightboxOpen(true)}
           />
         </div>
