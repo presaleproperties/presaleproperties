@@ -1,9 +1,8 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
-import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { FloatingBottomNav } from "./FloatingBottomNav";
@@ -15,14 +14,23 @@ import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import { cn } from "@/lib/utils";
+import heroImage from "@/assets/hero-lifestyle.jpg";
+
+const TOP_CITIES = [
+  { name: "Vancouver", slug: "vancouver" },
+  { name: "Surrey", slug: "surrey" },
+  { name: "Burnaby", slug: "burnaby" },
+  { name: "Langley", slug: "langley" },
+  { name: "Coquitlam", slug: "coquitlam" },
+  { name: "Richmond", slug: "richmond" },
+];
 
 export function MobileHomePage() {
   const [selectedCity, setSelectedCity] = useState("all");
-  const [selectedChip, setSelectedChip] = useState<string | undefined>(undefined);
-  const [activeFilter, setActiveFilter] = useState<CategoryChip["filter"]>({});
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [activeTab, setActiveTab] = useState<"presale" | "assignments">("presale");
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -42,10 +50,11 @@ export function MobileHomePage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
+    const route = activeTab === "presale" ? "/presale-projects" : "/assignments";
     if (searchQuery.trim()) {
-      navigate(`/presale-projects?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`${route}?q=${encodeURIComponent(searchQuery)}`);
     } else {
-      navigate("/presale-projects");
+      navigate(route);
     }
   };
 
@@ -60,7 +69,12 @@ export function MobileHomePage() {
     }
 
     // For other types (city, neighborhood, developer), search the directory
-    navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
+    const route = activeTab === "presale" ? "/presale-projects" : "/assignments";
+    navigate(`${route}?q=${encodeURIComponent(value)}`);
+  };
+
+  const handleCityClick = (slug: string) => {
+    navigate(`/presale-projects?city=${slug}`);
   };
 
   const handleRefresh = useCallback(async () => {
@@ -83,11 +97,6 @@ export function MobileHomePage() {
     }
   }, []);
 
-  const handleChipSelect = useCallback((chipId: string, filter: CategoryChip["filter"]) => {
-    setSelectedChip(chipId);
-    setActiveFilter(filter);
-  }, []);
-
   return (
     <div 
       ref={containerRef}
@@ -99,83 +108,149 @@ export function MobileHomePage() {
         isRefreshing={isRefreshing} 
       />
 
-      {/* Category Chips - Enhanced sticky with better visibility */}
-      <div className="sticky top-14 z-30 bg-background/98 backdrop-blur-lg shadow-sm">
-        <MobileCategoryChips
-          selectedChip={selectedChip}
-          onChipSelect={handleChipSelect}
-        />
-      </div>
-
-      {/* Hero - Responsive welcome */}
+      {/* Hero Section - Full Height with Background Image */}
       <div 
-        className="px-4 md:px-6 pt-4 md:pt-6 pb-3 md:pb-4"
+        className="relative min-h-[75vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        <h1 className="text-lg md:text-2xl font-bold text-foreground leading-snug">
-          New Presale Condos & Townhomes
-        </h1>
-        <p className="text-sm md:text-base text-muted-foreground mt-1 md:mt-2 mb-4 md:mb-5">
-          Metro Vancouver's latest developments
-        </p>
-        
-        {/* Compact Search Bar - Enhanced */}
-        <div ref={searchContainerRef} className="relative">
-          <form onSubmit={handleSearch}>
-            <Input
-              type="text"
-              placeholder="Search projects, cities..."
-              value={searchQuery}
-              onChange={(e) => {
-                setSearchQuery(e.target.value);
-                setShowSuggestions(true);
-              }}
-              onFocus={() => {
-                setShowSuggestions(true);
-                setIsSearchFocused(true);
-              }}
-              onBlur={() => setIsSearchFocused(false)}
-              className="h-12 text-base pl-4 pr-12 rounded-xl bg-card border-border shadow-sm focus:bg-background focus:shadow-md focus:border-primary/50 transition-all"
-              autoComplete="off"
-            />
-            <button 
-              type="submit"
-              className="absolute right-3 top-1/2 -translate-y-1/2 h-8 w-8 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full bg-muted/50"
-            >
-              <Search className={cn(
-                "h-4 w-4 transition-all duration-300",
-                isSearchFocused && "text-primary scale-110"
-              )} />
-            </button>
-          </form>
-          <SearchSuggestions
-            query={searchQuery}
-            onSelect={handleSuggestionSelect}
-            isVisible={showSuggestions}
-            onClose={() => setShowSuggestions(false)}
-            searchMode="projects"
+        {/* Background Image */}
+        <div className="absolute inset-0">
+          <img 
+            src={heroImage} 
+            alt="Modern home interior" 
+            className="w-full h-full object-cover"
           />
+          {/* Gradient overlay for text readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/20 to-black/50" />
+        </div>
+
+        {/* Hero Content */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8 text-center">
+          {/* Tagline */}
+          <p className="text-white/90 text-sm font-medium tracking-wide mb-3">
+            Metro Vancouver's #1 Presale Marketplace
+          </p>
+          
+          {/* Main Headline */}
+          <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight mb-2">
+            Find Your Next{" "}
+            <span className="text-primary">Presale</span>{" "}
+            Home
+          </h1>
+          <p className="text-white/80 text-base mt-2">
+            Condos & Townhomes
+          </p>
+        </div>
+
+        {/* Floating Search Card */}
+        <div className="relative px-4 -mb-16 z-10">
+          <div 
+            ref={searchContainerRef}
+            className="bg-card rounded-2xl shadow-lg border border-border p-4"
+          >
+            {/* Tabs */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex gap-1">
+                <button
+                  onClick={() => setActiveTab("presale")}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                    activeTab === "presale"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Presale
+                </button>
+                <button
+                  onClick={() => setActiveTab("assignments")}
+                  className={cn(
+                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                    activeTab === "assignments"
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  Assignments
+                </button>
+              </div>
+              
+              <button 
+                onClick={() => navigate("/presale-projects?view=map")}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <MapPin className="h-4 w-4" />
+                <span className="hidden xs:inline">Map</span>
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <form onSubmit={handleSearch} className="relative">
+              <Input
+                type="text"
+                placeholder="City, Neighbourhood, Project..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => {
+                  setShowSuggestions(true);
+                  setIsSearchFocused(true);
+                }}
+                onBlur={() => setIsSearchFocused(false)}
+                className="h-14 text-base pl-4 pr-14 rounded-xl bg-muted/50 border-border focus:bg-background focus:border-primary/50 transition-all"
+                autoComplete="off"
+              />
+              <button 
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
+              >
+                <Search className="h-5 w-5" />
+              </button>
+            </form>
+            
+            <SearchSuggestions
+              query={searchQuery}
+              onSelect={handleSuggestionSelect}
+              isVisible={showSuggestions}
+              onClose={() => setShowSuggestions(false)}
+              searchMode="projects"
+            />
+          </div>
         </div>
       </div>
 
-      {/* Discovery Sections - Responsive spacing */}
-      <div 
-        className="space-y-6 md:space-y-8 py-2 md:py-4"
-        style={{ 
-          transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
-          transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
-        }}
-      >
+      {/* Top Cities - Horizontal Scroll */}
+      <div className="pt-20 pb-4 px-4 bg-background">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
+          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
+            Top Cities
+          </span>
+          {TOP_CITIES.map((city) => (
+            <button
+              key={city.slug}
+              onClick={() => handleCityClick(city.slug)}
+              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95"
+            >
+              {city.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Discovery Sections */}
+      <div className="space-y-6 py-2">
         {/* Hot Projects - Featured Section */}
         <CarouselSection delay={0}>
           <MobileDiscoveryCarousel
             type="hot_projects"
-            title="Hottest Presale Condos"
+            title="Most Popular Projects"
             subtitle="The most in-demand presale projects"
-            badge="🔥 Don't Miss Out"
+            badge="🔥"
             city={selectedCity}
           />
         </CarouselSection>
@@ -278,18 +353,18 @@ export function MobileHomePage() {
         </CarouselSection>
       </div>
 
-      {/* Benefits Section - Responsive */}
-      <div className="mt-6 md:mt-8">
+      {/* Benefits Section */}
+      <div className="mt-6">
         <NewConstructionBenefits />
       </div>
 
       {/* Quick Links Section */}
-      <div className="mt-4 md:mt-6">
+      <div className="mt-4">
         <RelatedContent />
       </div>
 
       {/* Footer - with extra bottom padding for nav */}
-      <div className="pb-28 md:pb-32">
+      <div className="pb-28">
         <Footer />
       </div>
 
