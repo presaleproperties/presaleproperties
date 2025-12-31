@@ -245,18 +245,34 @@ export default function PresaleProjectDetail() {
   };
 
   const handleShare = async () => {
-    if (navigator.share) {
+    const shareUrl = window.location.href;
+    
+    // Try native share API first (works on mobile and some desktop browsers)
+    if (navigator.share && navigator.canShare?.({ url: shareUrl })) {
       try {
         await navigator.share({
           title: project?.name,
-          url: window.location.href,
+          url: shareUrl,
         });
+        return;
       } catch (err) {
-        // User cancelled or error
+        // User cancelled or share failed - fall through to clipboard
       }
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      toast({ title: "Link copied to clipboard" });
+    }
+    
+    // Fallback to clipboard
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast({ title: "Link copied to clipboard!" });
+    } catch (err) {
+      // Final fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = shareUrl;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      toast({ title: "Link copied to clipboard!" });
     }
   };
 
