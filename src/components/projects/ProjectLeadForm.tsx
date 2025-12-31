@@ -263,8 +263,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
 
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-      {/* Header - Neutral dark for welcoming feel */}
-      <div className="bg-foreground px-5 py-4 md:py-4">
+      {/* Header - Neutral dark gradient for welcoming feel */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 md:py-4">
         <div className="flex items-center gap-2 flex-wrap mb-2">
           {content.badgeIcon && (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-background bg-background/15 px-2.5 py-1 rounded-full">
