@@ -6,6 +6,7 @@ import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
+import { MobileDeveloperQuickLinks } from "./MobileDeveloperQuickLinks";
 import { FloatingBottomNav } from "./FloatingBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -196,9 +197,14 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        {/* Projects Near You - City Quick Links */}
+        {/* Explore by City - Quick Links */}
         <CarouselSection delay={125}>
           <MobileCityQuickLinks />
+        </CarouselSection>
+
+        {/* Search by Developer - Quick Links */}
+        <CarouselSection delay={135}>
+          <MobileDeveloperQuickLinks />
         </CarouselSection>
 
         {/* City-based Carousels */}
