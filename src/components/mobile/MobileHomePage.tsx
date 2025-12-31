@@ -169,8 +169,19 @@ export function MobileHomePage() {
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        {/* Condos */}
+        {/* Hot Projects - Featured Section */}
         <CarouselSection delay={0}>
+          <MobileDiscoveryCarousel
+            type="hot_projects"
+            title="Hottest Presale Condos"
+            subtitle="The most in-demand new developments across Metro Vancouver"
+            badge="🔥 Don't Miss Out"
+            city={selectedCity}
+          />
+        </CarouselSection>
+
+        {/* Condos */}
+        <CarouselSection delay={50}>
           <MobileDiscoveryCarousel
             type="condos"
             title="Presale Condos"
