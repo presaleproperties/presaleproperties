@@ -1,11 +1,44 @@
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 interface DeveloperData {
   name: string;
   count: number;
+  color: string;
+  initials: string;
+}
+
+// Generate a consistent brand color from developer name
+function getDeveloperColor(name: string): string {
+  const colors = [
+    "from-blue-500 to-blue-600",
+    "from-emerald-500 to-emerald-600",
+    "from-violet-500 to-violet-600",
+    "from-amber-500 to-amber-600",
+    "from-rose-500 to-rose-600",
+    "from-cyan-500 to-cyan-600",
+    "from-indigo-500 to-indigo-600",
+    "from-teal-500 to-teal-600",
+    "from-orange-500 to-orange-600",
+    "from-pink-500 to-pink-600",
+  ];
+  
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+// Get initials from developer name (max 2 chars)
+function getInitials(name: string): string {
+  const words = name.split(/\s+/).filter(w => w.length > 0);
+  if (words.length >= 2) {
+    return (words[0][0] + words[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
 }
 
 export function MobileDeveloperQuickLinks() {
@@ -33,6 +66,8 @@ export function MobileDeveloperQuickLinks() {
         .map(([name, count]) => ({
           name,
           count,
+          color: getDeveloperColor(name),
+          initials: getInitials(name),
         }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 6);
@@ -54,7 +89,7 @@ export function MobileDeveloperQuickLinks() {
         Search by Developer
       </h2>
 
-      {/* 2-column, 2-row grid of developer cards */}
+      {/* 2-column grid of developer cards */}
       <div className="grid grid-cols-2 gap-3">
         {developers.map((developer) => (
           <button
@@ -63,16 +98,23 @@ export function MobileDeveloperQuickLinks() {
             className="relative overflow-hidden rounded-xl bg-card border border-border shadow-sm group active:scale-[0.98] transition-all text-left"
           >
             {/* Card content */}
-            <div className="relative p-4">
-              <div className="flex items-center gap-2 mb-1">
-                <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="font-semibold text-foreground text-sm line-clamp-1">
-                  {developer.name}
+            <div className="relative p-3 flex items-center gap-3">
+              {/* Developer logo/initial badge */}
+              <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${developer.color} flex items-center justify-center flex-shrink-0 shadow-sm`}>
+                <span className="text-white font-bold text-sm">
+                  {developer.initials}
                 </span>
               </div>
-              <p className="text-sm text-muted-foreground">
-                {developer.count}+ projects
-              </p>
+              
+              {/* Developer info */}
+              <div className="min-w-0 flex-1">
+                <span className="font-semibold text-foreground text-sm line-clamp-1 block">
+                  {developer.name}
+                </span>
+                <p className="text-xs text-muted-foreground">
+                  {developer.count} project{developer.count !== 1 ? "s" : ""}
+                </p>
+              </div>
             </div>
           </button>
         ))}
