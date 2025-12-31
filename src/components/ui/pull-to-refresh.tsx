@@ -40,7 +40,10 @@ export function PullToRefreshIndicator({
     }
   }, [isRefreshing, wasRefreshing]);
 
-  if (pullDistance <= 10 && !isRefreshing && !showSuccess) return null;
+  // Hide indicator completely when not in use
+  const shouldShow = pullDistance > 10 || isRefreshing || showSuccess;
+  
+  if (!shouldShow) return null;
 
   const getMessage = () => {
     if (showSuccess) return "Updated!";
@@ -49,13 +52,21 @@ export function PullToRefreshIndicator({
     return "Pull to refresh";
   };
 
+  // Calculate height - collapse after showing success
+  const indicatorHeight = showSuccess 
+    ? 60 
+    : isRefreshing 
+      ? threshold 
+      : Math.max(pullDistance, 0);
+
   return (
     <div
       className="fixed left-0 right-0 flex flex-col items-center justify-center z-50 pointer-events-none"
       style={{
         top: 48,
-        height: `${Math.max(pullDistance, isRefreshing ? threshold : showSuccess ? 60 : 0)}px`,
-        transition: !isRefreshing && pullDistance === 0 ? 'height 0.3s ease-out' : undefined,
+        height: `${indicatorHeight}px`,
+        opacity: shouldShow ? 1 : 0,
+        transition: 'height 0.3s ease-out, opacity 0.3s ease-out',
       }}
     >
       {/* Animated indicator circle */}
