@@ -99,23 +99,28 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
 
   if (isSubmitted) {
     return (
-      <div className="bg-gradient-to-br from-primary/10 via-primary/5 to-background border border-primary/20 rounded-xl p-6 text-center shadow-lg">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-full mb-4">
-          <CheckCircle className="h-8 w-8 text-primary" />
+      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+        {/* Header - Neutral dark gradient */}
+        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-green-500/20 rounded-full">
+              <CheckCircle className="h-5 w-5 text-green-400" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-background">Request Sent!</h3>
+              <p className="text-sm text-background/70">The agent will contact you shortly.</p>
+            </div>
+          </div>
         </div>
-        <h3 className="text-xl font-semibold text-foreground mb-2">
-          Request Sent!
-        </h3>
-        <p className="text-muted-foreground mb-4">
-          Thank you for your interest. The agent will contact you shortly.
-        </p>
-        <Button
-          variant="outline"
-          onClick={() => setIsSubmitted(false)}
-          className="w-full"
-        >
-          Send Another Request
-        </Button>
+        <div className="p-5">
+          <Button
+            variant="outline"
+            onClick={() => setIsSubmitted(false)}
+            className="w-full"
+          >
+            Send Another Request
+          </Button>
+        </div>
       </div>
     );
   }
