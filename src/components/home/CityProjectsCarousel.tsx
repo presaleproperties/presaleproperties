@@ -129,7 +129,7 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
             </Button>
           </div>
           <Link to={`/presale-projects?city=${encodeURIComponent(city)}`}>
-            <Button variant="ghost" size="sm" className="text-primary">
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
               View All
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
