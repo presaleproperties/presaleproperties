@@ -110,7 +110,7 @@ export function MobileHomePage() {
 
       {/* Hero Section - Full Height with Background Image */}
       <div 
-        className="relative min-h-[55vh] flex flex-col"
+        className="relative min-h-[45vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -149,7 +149,7 @@ export function MobileHomePage() {
         <div className="relative px-4 -mb-16 z-10">
           <div 
             ref={searchContainerRef}
-            className="bg-card rounded-2xl shadow-lg border border-border p-4"
+            className="bg-card rounded-2xl shadow-lg border border-border p-5"
           >
             {/* Tabs */}
             <div className="flex items-center justify-between mb-4">
