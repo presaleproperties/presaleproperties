@@ -32,23 +32,34 @@ Deno.serve(async (req) => {
       { url: "/agents", priority: "0.7", changefreq: "monthly", lastmod: now },
     ];
 
-    // City landing pages
+    // City landing pages - high priority for sitelinks
     const cities = ["surrey", "langley", "coquitlam", "vancouver", "burnaby", "richmond",
       "delta", "abbotsford", "port-coquitlam", "port-moody", "new-westminster",
       "north-vancouver", "white-rock", "maple-ridge", "chilliwack"];
     
+    // Primary city landing pages
     const cityPages = cities.map(city => ({
       url: `/presale-condos/${city}`,
-      priority: "0.85",
+      priority: "0.9",
       changefreq: "daily",
       lastmod: now
     }));
 
-    // City + Product type SEO pages
-    const cityProductPages = cities.flatMap(city => [
-      { url: `/${city}-presale-condos`, priority: "0.85", changefreq: "daily", lastmod: now },
-      { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
-    ]);
+    // City + Product type SEO pages - highest priority for sitelinks after homepage
+    // These are the primary pages for Google sitelinks (e.g., "Surrey Presale Condos", "Vancouver Presale Townhomes")
+    const primaryCities = ["surrey", "vancouver", "langley", "coquitlam", "burnaby", "richmond"];
+    const cityProductPages = [
+      // Primary cities get highest priority (0.95) for better sitelink eligibility
+      ...primaryCities.flatMap(city => [
+        { url: `/${city}-presale-condos`, priority: "0.95", changefreq: "daily", lastmod: now },
+        { url: `/${city}-presale-townhomes`, priority: "0.95", changefreq: "daily", lastmod: now }
+      ]),
+      // Secondary cities get slightly lower priority
+      ...cities.filter(c => !primaryCities.includes(c)).flatMap(city => [
+        { url: `/${city}-presale-condos`, priority: "0.85", changefreq: "daily", lastmod: now },
+        { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
+      ])
+    ];
 
     // Price-based SEO pages
     const pricePoints = ["500k", "600k", "700k", "800k", "900k", "1000k"];
