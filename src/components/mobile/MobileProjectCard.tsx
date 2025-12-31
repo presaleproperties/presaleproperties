@@ -244,40 +244,39 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Info Section - Matching desktop style */}
-        <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-2.5">
-          <div className="flex items-start gap-1.5 text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
-            <span className="text-xs sm:text-sm truncate">
-              {neighborhood}
-            </span>
-          </div>
-
-          <div>
-            <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
-              {name}
-            </h4>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
-              {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
-            </p>
-          </div>
-
-          <div className="flex items-end justify-between pt-2 border-t border-border">
-            <div>
-              {startingPrice ? (
-                <div className="flex flex-col">
-                  <span className="text-[10px] sm:text-xs text-muted-foreground leading-tight">Starting from</span>
-                  <span className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-                    {formatPrice(startingPrice)}
-                  </span>
-                </div>
-              ) : (
-                <span className="text-xs sm:text-sm text-muted-foreground">Contact for pricing</span>
-              )}
-            </div>
-            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+        {/* Compact Info Section */}
+        <CardContent className="px-3 py-2.5 sm:p-3 space-y-1">
+          {/* Name */}
+          <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight">
+            {name}
+          </h4>
+          
+          {/* Location & Year row */}
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <span className="flex items-center gap-1 text-xs">
+              <MapPin className="h-3 w-3 shrink-0" />
               {city}
             </span>
+            {completionYear && (
+              <span className="flex items-center gap-1 text-xs">
+                <Calendar className="h-3 w-3 shrink-0" />
+                {completionYear}
+              </span>
+            )}
+          </div>
+
+          {/* Price - Large and prominent */}
+          <div className="pt-1">
+            {startingPrice ? (
+              <>
+                <span className="text-[10px] text-muted-foreground block leading-tight">Starting from</span>
+                <span className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                  {formatPrice(startingPrice)}
+                </span>
+              </>
+            ) : (
+              <span className="text-sm text-primary font-semibold">Price TBA</span>
+            )}
           </div>
         </CardContent>
       </Card>
