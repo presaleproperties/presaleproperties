@@ -198,7 +198,7 @@ export default function PresaleProjectDetail() {
         });
         setSelectedImage(data.featured_image);
         
-        // Track project view
+        // Track project view in analytics
         trackEvent("project_view", {
           project_id: data.id,
           project_name: data.name,
@@ -207,6 +207,9 @@ export default function PresaleProjectDetail() {
           project_status: data.status,
           project_type: data.project_type,
         });
+        
+        // Increment view count in database
+        supabase.rpc('increment_project_view', { project_id: data.id });
       }
     } catch (error) {
       console.error("Error fetching project:", error);

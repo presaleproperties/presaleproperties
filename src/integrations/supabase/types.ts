@@ -745,6 +745,7 @@ export type Database = {
           strata_fees: string | null
           unit_mix: string | null
           updated_at: string
+          view_count: number
         }
         Insert: {
           address?: string | null
@@ -793,6 +794,7 @@ export type Database = {
           strata_fees?: string | null
           unit_mix?: string | null
           updated_at?: string
+          view_count?: number
         }
         Update: {
           address?: string | null
@@ -841,6 +843,7 @@ export type Database = {
           strata_fees?: string | null
           unit_mix?: string | null
           updated_at?: string
+          view_count?: number
         }
         Relationships: []
       }
@@ -1093,6 +1096,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_project_view: {
+        Args: { project_id: string }
+        Returns: undefined
       }
     }
     Enums: {
