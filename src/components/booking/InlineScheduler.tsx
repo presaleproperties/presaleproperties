@@ -219,7 +219,7 @@ export function InlineScheduler({
       <Button
         onClick={handleRequestTour}
         disabled={!selectedDate}
-        className="w-full h-11 lg:h-12 text-sm font-bold uppercase tracking-wide bg-primary hover:bg-primary/90 text-primary-foreground"
+        className="w-full h-11 lg:h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
       >
         Request a Tour
       </Button>
