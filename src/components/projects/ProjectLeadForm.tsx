@@ -264,7 +264,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
       {/* Header */}
-      <div className="bg-primary px-5 py-4">
+      <div className="bg-primary px-5 py-4 md:py-4">
         <div className="flex items-center gap-2 flex-wrap mb-2">
           {content.badgeIcon && (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-foreground/90 bg-primary-foreground/15 px-2.5 py-1 rounded-full">
@@ -287,12 +287,12 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       </div>
 
       {/* Form */}
-      <div className="p-4 md:p-5 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-3 md:space-y-4">
-          {/* Contact Fields - single column on mobile/tablet for readability */}
-          <div className="space-y-2.5">
+      <div className="p-5 md:p-5 bg-card">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 md:space-y-4">
+          {/* Contact Fields */}
+          <div className="space-y-3">
             <div>
-              <Label htmlFor="lead-name" className="text-xs font-semibold">
+              <Label htmlFor="lead-name" className="text-xs font-semibold mb-1.5 block">
                 Name <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -300,12 +300,12 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                 placeholder="John Smith"
                 autoComplete="off"
                 {...form.register("name")}
-                className="h-11 text-sm rounded-lg"
+                className="h-12 text-base rounded-lg"
               />
             </div>
 
             <div>
-              <Label htmlFor="lead-phone" className="text-xs font-semibold">
+              <Label htmlFor="lead-phone" className="text-xs font-semibold mb-1.5 block">
                 Phone <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -314,12 +314,12 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                 placeholder="604-555-0123"
                 autoComplete="off"
                 {...form.register("phone")}
-                className="h-11 text-sm rounded-lg"
+                className="h-12 text-base rounded-lg"
               />
             </div>
 
             <div>
-              <Label htmlFor="lead-email" className="text-xs font-semibold">
+              <Label htmlFor="lead-email" className="text-xs font-semibold mb-1.5 block">
                 Email <span className="text-destructive">*</span>
               </Label>
               <Input
@@ -328,25 +328,25 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
                 placeholder="john@email.com"
                 autoComplete="off"
                 {...form.register("email")}
-                className="h-11 text-sm rounded-lg"
+                className="h-12 text-base rounded-lg"
               />
             </div>
           </div>
 
           {/* I am a... */}
           <div>
-            <Label className="text-xs font-semibold">
+            <Label className="text-xs font-semibold mb-2 block">
               I am a... <span className="text-destructive">*</span>
             </Label>
             <RadioGroup
               value={form.watch("persona")}
               onValueChange={(v) => form.setValue("persona", v as any)}
-              className="grid grid-cols-2 gap-2 mt-1.5"
+              className="grid grid-cols-2 gap-2.5"
             >
               {PERSONAS.map((p) => (
                 <Label
                   key={p.value}
-                  className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
+                  className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                     form.watch("persona") === p.value
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-muted-foreground/50"
@@ -361,18 +361,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
 
           {/* Working with agent */}
           <div>
-            <Label className="text-xs font-semibold">
+            <Label className="text-xs font-semibold mb-2 block">
               Working with a Realtor? <span className="text-destructive">*</span>
             </Label>
             <RadioGroup
               value={form.watch("workingWithAgent")}
               onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-              className="grid grid-cols-3 gap-2 mt-1.5"
+              className="grid grid-cols-3 gap-2.5"
             >
               {AGENT_OPTIONS.map((a) => (
                 <Label
                   key={a.value}
-                  className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all text-center px-1 ${
+                  className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all text-center px-1 ${
                     form.watch("workingWithAgent") === a.value
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-muted-foreground/50"
@@ -387,18 +387,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
 
           {/* Interested in Home Size */}
           <div>
-            <Label className="text-xs font-semibold">
+            <Label className="text-xs font-semibold mb-2 block">
               Interested in <span className="text-destructive">*</span>
             </Label>
             <RadioGroup
               value={form.watch("homeSize")}
               onValueChange={(v) => form.setValue("homeSize", v as any)}
-              className="grid grid-cols-3 gap-2 mt-1.5"
+              className="grid grid-cols-3 gap-2.5"
             >
               {HOME_SIZES.map((size) => (
                 <Label
                   key={size.value}
-                  className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
+                  className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                     form.watch("homeSize") === size.value
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border hover:border-muted-foreground/50"
@@ -414,7 +414,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-12 text-sm font-bold rounded-xl gap-2 shadow-lg"
+            className="w-full h-13 text-base font-bold rounded-xl gap-2 shadow-lg mt-2"
             size="lg"
             disabled={isSubmitting}
           >
@@ -432,17 +432,17 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
           </Button>
 
           {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-4 pt-1 text-[10px] text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Shield className="h-3 w-3 text-green-500" />
+          <div className="flex items-center justify-center gap-5 pt-2 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1.5">
+              <Shield className="h-3.5 w-3.5 text-green-500" />
               Secure
             </span>
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3 text-blue-500" />
+            <span className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-blue-500" />
               Instant
             </span>
-            <span className="flex items-center gap-1">
-              <Users className="h-3 w-3 text-purple-500" />
+            <span className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-purple-500" />
               Free
             </span>
           </div>
