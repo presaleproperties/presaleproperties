@@ -469,7 +469,7 @@ export function BookingModal({
                         className={cn(
                           "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
                           buyerType === type.value
-                            ? "border-primary bg-primary/10 text-primary"
+                            ? "border-foreground bg-foreground text-background"
                             : "border-border hover:border-muted-foreground/50"
                         )}
                       >
@@ -496,7 +496,7 @@ export function BookingModal({
                         className={cn(
                           "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
                           homeSize === size.value
-                            ? "border-primary bg-primary/10 text-primary"
+                            ? "border-foreground bg-foreground text-background"
                             : "border-border hover:border-muted-foreground/50"
                         )}
                       >
@@ -523,7 +523,7 @@ export function BookingModal({
                         className={cn(
                           "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
                           agentStatus === status.value
-                            ? "border-primary bg-primary/10 text-primary"
+                            ? "border-foreground bg-foreground text-background"
                             : "border-border hover:border-muted-foreground/50"
                         )}
                       >
