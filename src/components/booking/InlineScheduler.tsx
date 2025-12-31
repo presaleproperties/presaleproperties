@@ -120,24 +120,24 @@ export function InlineScheduler({
 
   if (loading) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-6 shadow-lg">
-        <div className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      <div className="bg-card border border-border rounded-xl lg:rounded-2xl p-4 lg:p-5 shadow-lg">
+        <div className="flex items-center justify-center py-6 lg:py-8">
+          <Loader2 className="h-5 w-5 lg:h-6 lg:w-6 animate-spin text-muted-foreground" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-5 md:p-6 shadow-lg">
-      {/* Header */}
-      <div className="text-center mb-5">
-        <h3 className="text-xl md:text-2xl font-bold text-foreground">Schedule a tour</h3>
-        <p className="text-sm text-muted-foreground mt-1">Tour with a buyer's agent</p>
+    <div className="bg-card border border-border rounded-xl lg:rounded-2xl p-4 lg:p-5 shadow-lg">
+      {/* Header - more compact on desktop in hero */}
+      <div className="text-center mb-3 lg:mb-4">
+        <h3 className="text-lg lg:text-xl font-bold text-foreground">Schedule a tour</h3>
+        <p className="text-xs lg:text-sm text-muted-foreground mt-0.5">Tour with a buyer's agent</p>
       </div>
 
-      {/* Date Selection */}
-      <div className="flex items-center justify-center gap-1 mb-5">
+      {/* Date Selection - compact layout */}
+      <div className="flex items-center justify-center gap-1 mb-3 lg:mb-4">
         <button
           onClick={handlePrev}
           disabled={!canGoBack}
@@ -147,10 +147,10 @@ export function InlineScheduler({
           )}
           aria-label="Previous dates"
         >
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-4 w-4 lg:h-5 lg:w-5" />
         </button>
 
-        <div className="flex gap-2">
+        <div className="flex gap-1.5 lg:gap-2">
           {visibleDates.map((date) => {
             const isSelected = selectedDate && isSameDay(date, selectedDate);
             return (
@@ -158,19 +158,19 @@ export function InlineScheduler({
                 key={date.toISOString()}
                 onClick={() => setSelectedDate(date)}
                 className={cn(
-                  "flex flex-col items-center justify-center w-20 h-20 md:w-24 md:h-24 rounded-xl border-2 transition-all",
+                  "flex flex-col items-center justify-center w-16 h-16 lg:w-20 lg:h-20 rounded-lg lg:rounded-xl border-2 transition-all",
                   isSelected
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/50"
                 )}
               >
-                <span className="text-[10px] md:text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                <span className="text-[9px] lg:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                   {format(date, "EEE")}
                 </span>
-                <span className="text-2xl md:text-3xl font-bold text-foreground">
+                <span className="text-xl lg:text-2xl font-bold text-foreground">
                   {format(date, "d")}
                 </span>
-                <span className="text-[10px] md:text-xs font-medium text-muted-foreground uppercase">
+                <span className="text-[9px] lg:text-[10px] font-medium text-muted-foreground uppercase">
                   {format(date, "MMM")}
                 </span>
               </button>
@@ -187,12 +187,12 @@ export function InlineScheduler({
           )}
           aria-label="Next dates"
         >
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5" />
         </button>
       </div>
 
-      {/* Time Period Selection */}
-      <div className="grid grid-cols-3 gap-2 mb-5">
+      {/* Time Period Selection - compact */}
+      <div className="grid grid-cols-3 gap-1.5 lg:gap-2 mb-3 lg:mb-4">
         {TIME_PERIODS.map((period) => {
           const isSelected = selectedPeriod === period.value;
           return (
@@ -200,16 +200,16 @@ export function InlineScheduler({
               key={period.value}
               onClick={() => setSelectedPeriod(period.value)}
               className={cn(
-                "flex flex-col items-center justify-center py-3 px-2 rounded-lg border-2 transition-all",
+                "flex flex-col items-center justify-center py-2 lg:py-2.5 px-1.5 rounded-lg border-2 transition-all",
                 isSelected
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-muted-foreground/50"
               )}
             >
-              <span className="text-[10px] md:text-xs font-semibold text-foreground">
+              <span className="text-[10px] lg:text-xs font-semibold text-foreground">
                 {period.label}
               </span>
-              <span className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5">
+              <span className="text-[8px] lg:text-[10px] text-muted-foreground mt-0.5">
                 {period.subLabel}
               </span>
             </button>
@@ -217,28 +217,28 @@ export function InlineScheduler({
         })}
       </div>
 
-      {/* CTA Buttons */}
-      <div className="space-y-3">
+      {/* CTA Buttons - compact */}
+      <div className="space-y-2 lg:space-y-2.5">
         <Button
           onClick={handleRequestTour}
           disabled={!selectedDate}
-          className="w-full h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
+          className="w-full h-10 lg:h-11 text-xs lg:text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
         >
           Request a Tour
         </Button>
         
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <div className="flex-1 h-px bg-border" />
-          <span className="text-xs text-muted-foreground">OR</span>
+          <span className="text-[10px] lg:text-xs text-muted-foreground">OR</span>
           <div className="flex-1 h-px bg-border" />
         </div>
 
         <Button
           variant="outline"
           onClick={onDownloadPlans}
-          className="w-full h-12 text-sm font-bold uppercase tracking-wide border-2"
+          className="w-full h-10 lg:h-11 text-xs lg:text-sm font-bold uppercase tracking-wide border-2"
         >
-          <Download className="h-4 w-4 mr-2" />
+          <Download className="h-3.5 w-3.5 lg:h-4 lg:w-4 mr-1.5" />
           Get Pricing
         </Button>
       </div>
