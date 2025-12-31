@@ -28,6 +28,8 @@ export function LightboxGallery({
   const [isDragging, setIsDragging] = useState(false);
   const [initialPinchDistance, setInitialPinchDistance] = useState<number | null>(null);
   const [initialScale, setInitialScale] = useState(1);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
   const lastTapRef = useRef<number>(0);
@@ -44,19 +46,24 @@ export function LightboxGallery({
   const resetZoom = useCallback(() => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
+    setSwipeOffset(0);
   }, []);
 
   const goToNext = useCallback(() => {
-    if (scale > 1) return; // Don't navigate when zoomed
+    if (scale > 1 || isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => (prev + 1) % images.length);
     resetZoom();
-  }, [images.length, scale, resetZoom]);
+    setTimeout(() => setIsTransitioning(false), 300);
+  }, [images.length, scale, resetZoom, isTransitioning]);
 
   const goToPrev = useCallback(() => {
-    if (scale > 1) return; // Don't navigate when zoomed
+    if (scale > 1 || isTransitioning) return;
+    setIsTransitioning(true);
     setCurrentIndex((prev) => (prev - 1 + images.length) % images.length);
     resetZoom();
-  }, [images.length, scale, resetZoom]);
+    setTimeout(() => setIsTransitioning(false), 300);
+  }, [images.length, scale, resetZoom, isTransitioning]);
 
   const goToIndex = useCallback((index: number) => {
     if (index >= 0 && index < images.length) {
@@ -130,6 +137,7 @@ export function LightboxGallery({
 
       setTouchEnd(null);
       setTouchStart({ x: e.targetTouches[0].clientX, y: e.targetTouches[0].clientY });
+      setSwipeOffset(0);
       if (scale > 1) {
         setIsDragging(true);
       }
@@ -157,6 +165,13 @@ export function LightboxGallery({
           y: prev.y + deltaY,
         }));
         setTouchStart({ x: touch.clientX, y: touch.clientY });
+      } else if (scale <= 1 && touchStart && !isTransitioning) {
+        // Calculate swipe offset with edge resistance
+        const diff = touch.clientX - touchStart.x;
+        const isAtStart = currentIndex === 0 && diff > 0;
+        const isAtEnd = currentIndex === images.length - 1 && diff < 0;
+        const resistance = isAtStart || isAtEnd ? 0.3 : 1;
+        setSwipeOffset(diff * resistance);
       }
     }
   };
@@ -166,6 +181,7 @@ export function LightboxGallery({
     setIsDragging(false);
 
     if (!touchStart || !touchEnd || scale > 1) {
+      setSwipeOffset(0);
       setTouchStart(null);
       setTouchEnd(null);
       return;
@@ -176,11 +192,16 @@ export function LightboxGallery({
 
     // Only swipe if horizontal movement is greater than vertical
     if (Math.abs(distanceX) > distanceY) {
-      if (distanceX > minSwipeDistance) {
+      if (distanceX > minSwipeDistance && currentIndex < images.length - 1) {
         goToNext();
-      } else if (distanceX < -minSwipeDistance) {
+      } else if (distanceX < -minSwipeDistance && currentIndex > 0) {
         goToPrev();
+      } else {
+        // Spring back
+        setSwipeOffset(0);
       }
+    } else {
+      setSwipeOffset(0);
     }
 
     setTouchStart(null);
@@ -285,7 +306,7 @@ export function LightboxGallery({
 
           {/* Main image - larger display with zoom support */}
           <div 
-            className="w-full h-full flex items-center justify-center px-4 py-20 md:px-16 md:py-24"
+            className="w-full h-full flex items-center justify-center px-4 py-20 md:px-16 md:py-24 overflow-hidden"
             style={{ cursor: scale > 1 ? 'grab' : 'default' }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -293,9 +314,14 @@ export function LightboxGallery({
               ref={imageRef}
               src={images[currentIndex]}
               alt={`${alt} ${currentIndex + 1}`}
-              className="max-w-full max-h-full w-auto h-auto object-contain select-none transition-transform duration-100"
+              className="max-w-full max-h-full w-auto h-auto object-contain select-none"
               style={{ 
-                transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
+                transform: scale > 1 
+                  ? `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`
+                  : `translateX(${swipeOffset}px)`,
+                transition: isTransitioning || (!touchStart && scale <= 1) 
+                  ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
+                  : 'none',
                 maxHeight: 'calc(100vh - 100px)', 
                 maxWidth: 'calc(100vw - 32px)'
               }}
@@ -379,6 +405,8 @@ export function GalleryWithLightbox({
   const [lightboxIndex, setLightboxIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [swipeOffset, setSwipeOffset] = useState(0);
+  const [isTransitioning, setIsTransitioning] = useState(false);
 
   const minSwipeDistance = 50;
 
@@ -388,26 +416,51 @@ export function GalleryWithLightbox({
   };
 
   const onTouchStart = (e: React.TouchEvent) => {
+    if (isTransitioning) return;
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
+    setSwipeOffset(0);
   };
 
   const onTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
+    if (!touchStart || isTransitioning) return;
+    const currentTouch = e.targetTouches[0].clientX;
+    setTouchEnd(currentTouch);
+    
+    // Calculate offset with resistance at edges
+    const diff = currentTouch - touchStart;
+    const isAtStart = selectedIndex === 0 && diff > 0;
+    const isAtEnd = selectedIndex === images.length - 1 && diff < 0;
+    
+    // Apply resistance at edges (divide by 3 for rubber-band effect)
+    const resistance = isAtStart || isAtEnd ? 0.3 : 1;
+    setSwipeOffset(diff * resistance);
   };
 
   const onTouchEnd = () => {
-    if (!touchStart || !touchEnd) return;
+    if (!touchStart || isTransitioning) {
+      setSwipeOffset(0);
+      return;
+    }
     
-    const distance = touchStart - touchEnd;
+    const distance = touchStart - (touchEnd || touchStart);
     const isLeftSwipe = distance > minSwipeDistance;
     const isRightSwipe = distance < -minSwipeDistance;
 
-    if (isLeftSwipe) {
-      onSelectIndex((selectedIndex + 1) % images.length);
-    } else if (isRightSwipe) {
-      onSelectIndex((selectedIndex - 1 + images.length) % images.length);
+    setIsTransitioning(true);
+    
+    if (isLeftSwipe && selectedIndex < images.length - 1) {
+      onSelectIndex(selectedIndex + 1);
+    } else if (isRightSwipe && selectedIndex > 0) {
+      onSelectIndex(selectedIndex - 1);
     }
+    
+    // Animate back to center
+    setSwipeOffset(0);
+    
+    setTimeout(() => {
+      setIsTransitioning(false);
+    }, 300);
 
     setTouchStart(null);
     setTouchEnd(null);
@@ -431,7 +484,7 @@ export function GalleryWithLightbox({
       <div className="space-y-2 md:space-y-3">
         {/* Main image with navigation arrows and swipe support */}
         <div 
-          className="relative group"
+          className="relative group overflow-hidden"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
@@ -443,7 +496,11 @@ export function GalleryWithLightbox({
             <img
               src={images[selectedIndex]}
               alt={alt}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover transition-transform duration-300 ease-out"
+              style={{ 
+                transform: `translateX(${swipeOffset}px)`,
+                transition: isTransitioning || !touchStart ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none'
+              }}
             />
           </div>
 
