@@ -2,6 +2,7 @@ import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Search } from "lucide-react";
+import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { FloatingBottomNav } from "./FloatingBottomNav";
@@ -47,9 +48,17 @@ export function MobileHomePage() {
     }
   };
 
-  const handleSuggestionSelect = (value: string, type: string) => {
+  const handleSuggestionSelect = (value: string, type: SuggestionType, slug?: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
+
+    // Navigate directly to project detail if a presale project is selected
+    if (type === "presale" && slug) {
+      navigate(`/presale-projects/${encodeURIComponent(slug)}`);
+      return;
+    }
+
+    // For other types (city, neighborhood, developer), search the directory
     navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
   };
 
