@@ -178,14 +178,6 @@ export function MobileHomePage() {
             badge="🔥 Don't Miss Out"
             city={selectedCity}
           />
-          <div className="px-4 mt-3">
-            <button
-              onClick={() => navigate("/presale-projects")}
-              className="w-full py-2.5 text-sm font-medium text-primary border border-primary/30 rounded-lg bg-primary/5 active:bg-primary/10 transition-colors"
-            >
-              View All Projects
-            </button>
-          </div>
         </CarouselSection>
 
         {/* Condos */}
