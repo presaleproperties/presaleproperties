@@ -178,11 +178,11 @@ export function Header() {
 
                 {/* Large Navigation Links - REW Style */}
                 <nav className="flex-1 pt-8 overflow-y-auto">
-                  <div className="space-y-1 px-6">
+                  <div className="space-y-0 px-6">
                     <Link
                       to="/presale-projects"
                       onClick={() => setOpen(false)}
-                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
+                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
                       Presales
                     </Link>
@@ -190,16 +190,16 @@ export function Header() {
                     <Link
                       to="/assignments"
                       onClick={() => setOpen(false)}
-                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
+                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
                       Assignments
                     </Link>
 
                     {/* Collapsible Cities Section */}
                     <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
-                      <CollapsibleTrigger className="flex items-center justify-between w-full text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4">
                         <span>Cities</span>
-                        <ChevronDown className={`h-6 w-6 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
+                        <ChevronDown className={`h-7 w-7 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                       </CollapsibleTrigger>
                       <CollapsibleContent className="pl-4 space-y-0 mt-1 mb-2">
                         {CITY_LINKS.map((city) => (
@@ -207,7 +207,7 @@ export function Header() {
                             key={city.slug}
                             to={`/presale-condos/${city.slug}`}
                             onClick={() => setOpen(false)}
-                            className="block text-xl font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                            className="block text-2xl font-semibold text-muted-foreground hover:text-foreground transition-colors py-3"
                           >
                             {city.name}
                           </Link>
@@ -218,7 +218,7 @@ export function Header() {
                     <Link
                       to="/agents"
                       onClick={() => setOpen(false)}
-                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
+                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
                       Agents
                     </Link>
@@ -226,7 +226,7 @@ export function Header() {
                     <Link
                       to="/mortgage-calculator"
                       onClick={() => setOpen(false)}
-                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
+                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
                       Mortgages
                     </Link>
@@ -234,7 +234,7 @@ export function Header() {
                     <Link
                       to="/presale-guide"
                       onClick={() => setOpen(false)}
-                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
+                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
                       The Guide
                     </Link>

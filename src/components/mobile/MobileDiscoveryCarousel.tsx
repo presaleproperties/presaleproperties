@@ -176,11 +176,11 @@ export function MobileDiscoveryCarousel({
         </div>
       </div>
 
-      {/* Scrollable Cards - Enhanced spacing */}
+      {/* Scrollable Cards - Large cards with peek */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pl-4 pr-8 pb-1 snap-x snap-mandatory"
+        className="flex gap-4 overflow-x-auto scrollbar-hide pl-4 pr-4 pb-1 snap-x snap-mandatory"
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start">
