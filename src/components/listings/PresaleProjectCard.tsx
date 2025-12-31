@@ -132,7 +132,7 @@ export function PresaleProjectCard({
         <div 
           className={cn(
             "relative overflow-hidden bg-muted",
-            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
+            size === "featured" ? "aspect-[16/10]" : size === "large" ? "aspect-[16/10]" : "aspect-[16/11]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -230,10 +230,13 @@ export function PresaleProjectCard({
           </div>
 
           <div className="flex items-end justify-between pt-2 border-t border-border">
-            <div>
+            <span className="text-[10px] sm:text-xs md:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {city}
+            </span>
+            <div className="text-right">
               {startingPrice ? (
                 <p className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-                  From {formatPrice(startingPrice)}
+                  {formatPrice(startingPrice)}
                 </p>
               ) : (
                 <p className="text-xs sm:text-sm text-muted-foreground">
@@ -241,9 +244,6 @@ export function PresaleProjectCard({
                 </p>
               )}
             </div>
-            <span className="text-[10px] sm:text-xs md:text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {city}
-            </span>
           </div>
         </CardContent>
       </Card>
