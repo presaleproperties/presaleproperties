@@ -78,6 +78,7 @@ export function FeaturedProjects() {
                 startingPrice={project.starting_price}
                 featuredImage={project.featured_image}
                 galleryImages={project.gallery_images}
+                size="large"
               />
             ))}
           </div>
