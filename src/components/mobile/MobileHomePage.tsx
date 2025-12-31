@@ -234,8 +234,8 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Discovery Sections - Optimized spacing */}
-      <div className="space-y-8 pb-6">
+      {/* Discovery Sections - Optimized spacing with dividers */}
+      <div className="pb-6">
         {/* Hot Projects - Featured Section */}
         <CarouselSection delay={0}>
           <MobileDiscoveryCarousel
@@ -247,6 +247,8 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
+        <div className="my-6 mx-6 border-t border-border/50" />
+
         {/* Condos */}
         <CarouselSection delay={50}>
           <MobileDiscoveryCarousel
@@ -255,6 +257,8 @@ export function MobileHomePage() {
             city={selectedCity}
           />
         </CarouselSection>
+
+        <div className="my-6 mx-6 border-t border-border/50" />
 
         {/* Townhomes */}
         <CarouselSection delay={50}>
@@ -265,6 +269,8 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
+        <div className="my-6 mx-6 border-t border-border/50" />
+
         {/* Single-Family / Detached */}
         <CarouselSection delay={100}>
           <MobileDiscoveryCarousel
@@ -273,6 +279,8 @@ export function MobileHomePage() {
             city={selectedCity}
           />
         </CarouselSection>
+
+        <div className="my-6 mx-6 border-t border-border/50" />
 
         {/* Projects Near You - City Quick Links */}
         <CarouselSection delay={125}>
