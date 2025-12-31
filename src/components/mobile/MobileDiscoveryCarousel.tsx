@@ -126,15 +126,15 @@ export function MobileDiscoveryCarousel({
   if (isLoading) {
     return (
       <div className="space-y-3 md:hidden">
-        <div className="flex items-center justify-between px-4">
+        <div className="flex items-center justify-between px-6">
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-4 w-16" />
         </div>
-        <div className="flex gap-3 overflow-hidden px-4">
+        <div className="flex gap-3 overflow-hidden" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
           {[1, 2].map((i) => (
             <div key={i} className={isLargeCarousel ? "shrink-0 w-[300px]" : "shrink-0 w-[260px]"}>
               <Skeleton className={isLargeCarousel ? "aspect-[16/10] w-full rounded-t-xl" : "aspect-[3/2] w-full rounded-t-xl"} />
-              <div className="px-3 py-3 bg-card rounded-b-xl border border-t-0 border-border space-y-2">
+              <div className="px-4 py-3 bg-card rounded-b-xl border border-t-0 border-border space-y-2">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-3 w-16" />
                 <Skeleton className="h-5 w-20" />
@@ -176,14 +176,15 @@ export function MobileDiscoveryCarousel({
         </div>
       </div>
 
-      {/* Scrollable Cards - Large cards with peek */}
+      {/* Scrollable Cards - Large cards with proper edge spacing */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pl-6 pr-6 pb-1 snap-x snap-mandatory"
+        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory"
+        style={{ paddingLeft: '24px', paddingRight: '24px' }}
       >
         {projects.map((project) => (
-          <div key={project.id} className="snap-start">
+          <div key={project.id} className="snap-start first:ml-0">
             <MobileProjectCard
               id={project.id}
               slug={project.slug}
