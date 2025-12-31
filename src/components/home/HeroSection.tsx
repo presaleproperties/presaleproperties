@@ -70,7 +70,7 @@ export function HeroSection() {
       
       {/* Content */}
       <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-2.5 sm:space-y-6 md:space-y-8">
+        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
           {/* Tagline */}
           <p className="text-white/90 text-xs sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
             Vancouver's #1 Presale Condos & Townhomes Marketplace
