@@ -132,7 +132,7 @@ export function PresaleProjectCard({
         <div 
           className={cn(
             "relative overflow-hidden bg-muted",
-            size === "featured" ? "aspect-[4/3]" : size === "large" ? "aspect-[5/4]" : "aspect-[1/1]"
+            size === "featured" ? "aspect-[3/4]" : size === "large" ? "aspect-[2/3]" : "aspect-[3/5]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -215,35 +215,28 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 space-y-1.5 sm:space-y-2">
-          {/* Price Hook - Immediate after image */}
+        <CardContent className="p-2 sm:p-3 space-y-0.5">
+          {/* Price Hook */}
           {startingPrice ? (
-            <div>
-              <span className="text-[10px] sm:text-xs text-muted-foreground">Starting from</span>
-              <p className="text-base sm:text-lg md:text-xl font-bold text-primary leading-tight">
+            <div className="flex items-baseline gap-1">
+              <span className="text-[9px] sm:text-[10px] text-muted-foreground">From</span>
+              <span className="text-sm sm:text-base font-bold text-primary leading-none">
                 {formatPrice(startingPrice)}
-              </p>
+              </span>
             </div>
           ) : (
-            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-              Contact for pricing
-            </p>
+            <span className="text-[10px] sm:text-xs text-muted-foreground">Contact for pricing</span>
           )}
 
           {/* Project Name */}
-          <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors text-sm sm:text-base leading-tight">
+          <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors text-xs sm:text-sm leading-tight">
             {name}
           </h3>
 
-          {/* Compact details row */}
-          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground pt-1">
-            <div className="flex items-center gap-1 min-w-0">
-              <MapPin className="h-3 w-3 shrink-0" />
-              <span className="truncate">{neighborhood}, {city}</span>
-            </div>
-            <span className="shrink-0 text-[10px] sm:text-xs">
-              {formatType(projectType)} • {completionYear || "TBA"}
-            </span>
+          {/* Single compact details line */}
+          <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
+            <span className="truncate">{neighborhood}, {city}</span>
+            <span className="shrink-0">{completionYear || "TBA"}</span>
           </div>
         </CardContent>
       </Card>
