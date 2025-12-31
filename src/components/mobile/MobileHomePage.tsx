@@ -217,8 +217,8 @@ export function MobileHomePage() {
       </div>
 
       {/* Top Cities - Horizontal Scroll */}
-      <div className="pt-20 pb-4 px-4 bg-background">
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-2">
+      <div className="pt-20 pb-6 px-6 bg-background">
+        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
           <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
           </span>
@@ -234,8 +234,8 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Discovery Sections */}
-      <div className="space-y-6 py-2">
+      {/* Discovery Sections - Optimized spacing */}
+      <div className="space-y-8 pb-6">
         {/* Hot Projects - Featured Section */}
         <CarouselSection delay={0}>
           <MobileDiscoveryCarousel
