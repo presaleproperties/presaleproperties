@@ -18,6 +18,7 @@ interface PresaleProjectCardProps {
   featuredImage?: string | null;
   galleryImages?: string[] | null;
   lastVerifiedDate?: string | null;
+  size?: "default" | "large";
 }
 
 const formatPrice = (price: number) => {
@@ -66,6 +67,7 @@ export function PresaleProjectCard({
   startingPrice,
   featuredImage,
   galleryImages,
+  size = "default",
 }: PresaleProjectCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -128,7 +130,10 @@ export function PresaleProjectCard({
     <Link to={`/presale-projects/${slug}`}>
       <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out h-full">
         <div 
-          className="relative aspect-[4/3] overflow-hidden bg-muted"
+          className={cn(
+            "relative overflow-hidden bg-muted",
+            size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
+          )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
