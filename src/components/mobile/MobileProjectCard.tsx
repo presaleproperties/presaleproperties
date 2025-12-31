@@ -119,7 +119,7 @@ export function MobileProjectCard({
     if (!touchStartX.current || !touchEndX.current) return;
     
     const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50;
+    const threshold = 80; // Higher threshold for more deliberate swipes
 
     if (Math.abs(diff) > threshold && imageCount > 1) {
       e.preventDefault();
