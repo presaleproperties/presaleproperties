@@ -82,6 +82,11 @@ export function HeroSection() {
             <span className="block text-primary text-[22px] sm:text-2xl md:text-4xl lg:text-5xl mt-1.5">Pricing, Floor Plans & VIP Access</span>
           </h1>
 
+          {/* Subheading - Value proposition */}
+          <p className="text-white/80 text-sm sm:text-base md:text-lg animate-fade-in max-w-xl mx-auto" style={{ animationDelay: "0.15s" }}>
+            Get instant access to floor plans, pricing sheets & book a private preview with our team
+          </p>
+
           {/* Floating Search Card - Compact on mobile */}
           <div 
             className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
