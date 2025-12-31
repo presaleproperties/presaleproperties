@@ -216,8 +216,8 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Top Cities - Horizontal Scroll */}
-      <div className="pt-20 pb-6 px-6 bg-background">
+      {/* Top Cities - Horizontal Scroll with adaptive padding */}
+      <div className="pt-20 pb-6 px-4 sm:px-6 bg-background">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
           <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
@@ -247,7 +247,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-6 border-t border-border/50" />
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
         {/* Condos */}
         <CarouselSection delay={50}>
@@ -258,7 +258,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-6 border-t border-border/50" />
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
         {/* Townhomes */}
         <CarouselSection delay={50}>
@@ -269,7 +269,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-6 border-t border-border/50" />
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
         {/* Single-Family / Detached */}
         <CarouselSection delay={100}>
@@ -280,7 +280,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-6 border-t border-border/50" />
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
         {/* Projects Near You - City Quick Links */}
         <CarouselSection delay={125}>
