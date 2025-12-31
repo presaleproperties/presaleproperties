@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -337,34 +337,35 @@ export function BookingModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-lg">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0">
+        {/* Header - Neutral dark for welcoming feel */}
+        <div className="bg-foreground px-5 py-4 rounded-t-lg">
+          <DialogTitle className="text-lg font-bold text-background">
             {step === 1 && "Select a Date"}
             {step === 2 && "Select a Time"}
             {step === 3 && (initialDate ? "Complete Your Booking" : "Your Information")}
           </DialogTitle>
-          <p className="text-sm text-muted-foreground">{projectName}</p>
+          <p className="text-sm text-background/80 mt-0.5">{projectName}</p>
           {initialDate && step === 3 ? (
-            <div className="text-xs text-muted-foreground space-y-0.5">
+            <div className="text-xs text-background/65 space-y-0.5 mt-1">
               <p>{format(initialDate, "EEEE, MMMM d, yyyy")}</p>
               {timePeriodDisplay && (
                 <p className="capitalize">{timePeriodDisplay} appointment</p>
               )}
             </div>
           ) : (
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-background/65 mt-1">
               Tour the sales centre and display suite in person
             </p>
           )}
-        </DialogHeader>
+        </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <div className="flex items-center justify-center py-12 px-5">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="py-4">
+          <div className="p-5">
             {/* Step 1: Date Selection */}
             {step === 1 && (
               <div>
