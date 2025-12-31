@@ -180,7 +180,7 @@ export function MobileDiscoveryCarousel({
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pl-4 pr-6 pb-1 snap-x snap-mandatory"
+        className="flex gap-3 overflow-x-auto scrollbar-hide pl-5 pr-6 pb-1 snap-x snap-mandatory"
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start">
