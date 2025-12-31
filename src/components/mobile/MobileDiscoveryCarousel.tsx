@@ -126,12 +126,11 @@ export function MobileDiscoveryCarousel({
   if (isLoading) {
     return (
       <div className="space-y-3 md:hidden">
-        <div className="flex items-center justify-between px-6">
+        <div className="flex items-center justify-between px-4 sm:px-6">
           <Skeleton className="h-6 w-32" />
           <Skeleton className="h-4 w-16" />
         </div>
-        <div className="flex gap-3 overflow-hidden" style={{ paddingLeft: '24px', paddingRight: '24px' }}>
-
+        <div className="flex gap-3 overflow-hidden px-4 sm:px-6">
           {[1, 2].map((i) => (
             <div key={i} className={isLargeCarousel ? "shrink-0 w-[300px]" : "shrink-0 w-[260px]"}>
               <Skeleton className={isLargeCarousel ? "aspect-[16/10] w-full rounded-t-xl" : "aspect-[3/2] w-full rounded-t-xl"} />
@@ -153,8 +152,8 @@ export function MobileDiscoveryCarousel({
 
   return (
     <div className="space-y-4 md:space-y-5 lg:hidden">
-      {/* Header - Optimized spacing */}
-      <div className="px-6">
+      {/* Header - Adaptive spacing */}
+      <div className="px-4 sm:px-6">
         {badge && (
           <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-2 block">
             {badge}
@@ -177,17 +176,11 @@ export function MobileDiscoveryCarousel({
         </div>
       </div>
 
-      {/* Scrollable Cards - Large cards with proper edge spacing */}
+      {/* Scrollable Cards - Adaptive edge spacing */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory"
-        style={{ 
-          paddingLeft: '24px', 
-          paddingRight: '24px',
-          scrollPaddingLeft: '24px',
-          scrollPaddingRight: '24px'
-        }}
+        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory px-4 sm:px-6 scroll-px-4 sm:scroll-px-6"
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start first:ml-0">
