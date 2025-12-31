@@ -110,7 +110,7 @@ export function MobileHomePage() {
 
       {/* Hero Section - Full Height with Background Image */}
       <div 
-        className="relative min-h-[75vh] flex flex-col"
+        className="relative min-h-[55vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
