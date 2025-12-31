@@ -213,11 +213,20 @@ export function PresaleProjectCard({
         </div>
 
         <CardContent className="p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-2.5 md:space-y-3">
-          <div className="flex items-start gap-1.5 text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
-            <span className="text-xs sm:text-sm md:text-sm truncate">
-              {neighborhood}
-            </span>
+          {/* Price Hook - Prominent placement right after image */}
+          <div className="pb-2 border-b border-border">
+            {startingPrice ? (
+              <div>
+                <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Starting from</span>
+                <p className="text-base sm:text-lg md:text-xl font-bold text-primary">
+                  {formatPrice(startingPrice)}
+                </p>
+              </div>
+            ) : (
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+                Contact for pricing
+              </p>
+            )}
           </div>
 
           <div>
@@ -229,21 +238,13 @@ export function PresaleProjectCard({
             </p>
           </div>
 
-          <div className="flex items-end justify-between pt-2 border-t border-border">
-            <div>
-              {startingPrice ? (
-                <p className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-                  From {formatPrice(startingPrice)}
-                </p>
-              ) : (
-                <p className="text-xs sm:text-sm text-muted-foreground">
-                  Contact for pricing
-                </p>
-              )}
+          <div className="flex items-center justify-between pt-1">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span className="text-xs sm:text-sm truncate">
+                {neighborhood}, {city}
+              </span>
             </div>
-            <span className="text-[10px] sm:text-xs md:text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {city}
-            </span>
           </div>
         </CardContent>
       </Card>
