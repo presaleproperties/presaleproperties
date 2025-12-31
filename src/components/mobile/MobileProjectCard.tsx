@@ -244,39 +244,41 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Compact Info Section */}
-        <CardContent className="px-3 py-2.5 sm:p-3 space-y-1">
-          {/* Name */}
-          <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight">
-            {name}
-          </h4>
-          
-          {/* Location & Year row */}
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <span className="flex items-center gap-1 text-xs">
-              <MapPin className="h-3 w-3 shrink-0" />
-              {city}
-            </span>
-            {completionYear && (
-              <span className="flex items-center gap-1 text-xs">
-                <Calendar className="h-3 w-3 shrink-0" />
-                {completionYear}
-              </span>
-            )}
-          </div>
-
-          {/* Price - Large and prominent */}
-          <div className="pt-1.5 mt-1 border-t border-border">
-            {startingPrice ? (
-              <>
-                <span className="text-[10px] text-muted-foreground block leading-tight">Starting from</span>
-                <span className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-                  {formatPrice(startingPrice)}
+        {/* Compact Info Section - Side by side layout */}
+        <CardContent className="px-3 py-2.5 sm:p-3">
+          <div className="flex items-start justify-between gap-2">
+            {/* Left: Name & Location */}
+            <div className="flex-1 min-w-0 space-y-0.5">
+              <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight">
+                {name}
+              </h4>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs">
+                  <MapPin className="h-3 w-3 shrink-0" />
+                  {city}
                 </span>
-              </>
-            ) : (
-              <span className="text-sm text-primary font-semibold">Price TBA</span>
-            )}
+                {completionYear && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <Calendar className="h-3 w-3 shrink-0" />
+                    {completionYear}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Right: Price */}
+            <div className="text-right shrink-0">
+              {startingPrice ? (
+                <>
+                  <span className="text-[10px] text-muted-foreground block leading-tight">Starting from</span>
+                  <span className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                    {formatPrice(startingPrice)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-xs text-primary font-semibold">Price TBA</span>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
