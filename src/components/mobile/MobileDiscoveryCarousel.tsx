@@ -176,32 +176,39 @@ export function MobileDiscoveryCarousel({
         </div>
       </div>
 
-      {/* Scrollable Cards - Adaptive edge spacing */}
-      <div
-        ref={scrollRef}
-        onScroll={handleScroll}
-        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory px-4 sm:px-6 scroll-px-4 sm:scroll-px-6"
-      >
-        {projects.map((project) => (
-          <div key={project.id} className="snap-start first:ml-0">
-            <MobileProjectCard
-              id={project.id}
-              slug={project.slug}
-              name={project.name}
-              city={project.city}
-              neighborhood={project.neighborhood}
-              projectType={project.project_type}
-              status={project.status}
-              completionYear={project.completion_year}
-              startingPrice={project.starting_price}
-              depositPercent={project.deposit_percent}
-              featuredImage={project.featured_image}
-              galleryImages={project.gallery_images}
-              lastVerifiedDate={project.last_verified_date}
-              size={isLargeCarousel ? "large" : "default"}
-            />
-          </div>
-        ))}
+      {/* Scrollable Cards - Adaptive edge spacing with gradient hints */}
+      <div className="relative">
+        {/* Left fade gradient */}
+        <div className="absolute left-0 top-0 bottom-1 w-4 sm:w-6 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+        {/* Right fade gradient */}
+        <div className="absolute right-0 top-0 bottom-1 w-4 sm:w-6 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+        
+        <div
+          ref={scrollRef}
+          onScroll={handleScroll}
+          className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory px-4 sm:px-6 scroll-px-4 sm:scroll-px-6"
+        >
+          {projects.map((project) => (
+            <div key={project.id} className="snap-start first:ml-0">
+              <MobileProjectCard
+                id={project.id}
+                slug={project.slug}
+                name={project.name}
+                city={project.city}
+                neighborhood={project.neighborhood}
+                projectType={project.project_type}
+                status={project.status}
+                completionYear={project.completion_year}
+                startingPrice={project.starting_price}
+                depositPercent={project.deposit_percent}
+                featuredImage={project.featured_image}
+                galleryImages={project.gallery_images}
+                lastVerifiedDate={project.last_verified_date}
+                size={isLargeCarousel ? "large" : "default"}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
