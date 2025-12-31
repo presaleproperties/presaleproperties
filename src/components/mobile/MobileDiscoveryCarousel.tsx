@@ -153,7 +153,7 @@ export function MobileDiscoveryCarousel({
   return (
     <div className="space-y-3 md:space-y-4 lg:hidden">
       {/* Header - Enhanced */}
-      <div className="px-4">
+      <div className="px-5">
         {badge && (
           <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-1.5 block">
             {badge}
