@@ -151,24 +151,24 @@ export function MobileDiscoveryCarousel({
   }
 
   return (
-    <div className="space-y-3 md:space-y-4 lg:hidden">
-      {/* Header - Enhanced */}
+    <div className="space-y-4 md:space-y-5 lg:hidden">
+      {/* Header - Optimized spacing */}
       <div className="px-6">
         {badge && (
-          <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-1.5 block">
+          <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-2 block">
             {badge}
           </span>
         )}
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className={badge ? "text-xl font-bold text-foreground" : "text-base font-bold text-foreground"}>{title}</h3>
+        <div className="flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h3 className={badge ? "text-xl font-bold text-foreground leading-tight" : "text-lg font-bold text-foreground leading-tight"}>{title}</h3>
             {subtitle && (
-              <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
+              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
             )}
           </div>
           <Link 
             to={seeAllLink}
-            className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 active:bg-primary/20 px-3 py-1.5 rounded-full transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 active:bg-primary/20 px-3 py-1.5 rounded-full transition-colors shrink-0"
           >
             See all
             <ArrowRight className="h-4 w-4" />

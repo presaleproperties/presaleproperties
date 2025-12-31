@@ -244,15 +244,15 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Compact Info Section - Side by side layout */}
-        <CardContent className="px-3 py-2.5 sm:p-3">
-          <div className="flex items-start justify-between gap-2">
+        {/* Compact Info Section - Optimized padding */}
+        <CardContent className="px-4 py-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
             {/* Left: Name & Location */}
-            <div className="flex-1 min-w-0 space-y-0.5">
+            <div className="flex-1 min-w-0 space-y-1">
               <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight">
                 {name}
               </h4>
-              <div className="flex items-center gap-2 text-muted-foreground">
+              <div className="flex items-center gap-3 text-muted-foreground">
                 <span className="flex items-center gap-1 text-xs">
                   <MapPin className="h-3 w-3 shrink-0" />
                   {city}
