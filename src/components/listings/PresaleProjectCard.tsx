@@ -212,39 +212,43 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-2.5 md:space-y-3">
-          {/* Price Hook - Prominent placement right after image */}
-          <div className="pb-2 border-b border-border">
-            {startingPrice ? (
-              <div>
-                <span className="text-[10px] sm:text-xs text-muted-foreground uppercase tracking-wide">Starting from</span>
-                <p className="text-base sm:text-lg md:text-xl font-bold text-primary">
-                  {formatPrice(startingPrice)}
-                </p>
-              </div>
-            ) : (
-              <p className="text-xs sm:text-sm text-muted-foreground font-medium">
-                Contact for pricing
+        <CardContent className="p-3 sm:p-4 space-y-1.5 sm:space-y-2">
+          {/* Price Hook - Immediate after image */}
+          {startingPrice ? (
+            <div>
+              <span className="text-[10px] sm:text-xs text-muted-foreground">Starting from</span>
+              <p className="text-base sm:text-lg md:text-xl font-bold text-primary leading-tight">
+                {formatPrice(startingPrice)}
               </p>
-            )}
-          </div>
-
-          <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base md:text-base">
-              {name}
-            </h3>
-            <p className="text-xs sm:text-sm md:text-sm text-muted-foreground line-clamp-1">
-              {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
-            </p>
-          </div>
-
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-1.5 text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="text-xs sm:text-sm truncate">
-                {neighborhood}, {city}
-              </span>
             </div>
+          ) : (
+            <p className="text-xs sm:text-sm text-muted-foreground font-medium">
+              Contact for pricing
+            </p>
+          )}
+
+          {/* Project Name */}
+          <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors text-sm sm:text-base leading-tight">
+            {name}
+          </h3>
+
+          {/* Compact details row */}
+          <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground">
+            <div className="flex items-center gap-1 min-w-0">
+              <MapPin className="h-3 w-3 shrink-0" />
+              <span className="truncate">{neighborhood}</span>
+            </div>
+            <span className="shrink-0 text-[10px] sm:text-xs">{completionYear || "TBA"}</span>
+          </div>
+
+          {/* Type badge row */}
+          <div className="flex items-center justify-between pt-1">
+            <span className="text-[10px] sm:text-xs text-muted-foreground">
+              {formatType(projectType)}
+            </span>
+            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase">
+              {city}
+            </span>
           </div>
         </CardContent>
       </Card>
