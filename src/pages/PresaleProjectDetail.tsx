@@ -549,7 +549,6 @@ export default function PresaleProjectDetail() {
                     projectCity={project.city}
                     projectNeighborhood={project.neighborhood}
                     onRequestTour={handleScheduleTourClick}
-                    onDownloadPlans={handleGetPlansClick}
                   />
                 </div>
               </div>
@@ -723,7 +722,6 @@ export default function PresaleProjectDetail() {
                       projectCity={project.city}
                       projectNeighborhood={project.neighborhood}
                       onRequestTour={handleScheduleTourClick}
-                      onDownloadPlans={handleGetPlansClick}
                     />
                   </div>
 

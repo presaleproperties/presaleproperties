@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, isSameDay, getDay } from "date-fns";
-import { ChevronLeft, ChevronRight, Loader2, Download } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type TimePeriod = "early_afternoon" | "mid_afternoon" | "late_afternoon";
@@ -13,7 +13,6 @@ interface InlineSchedulerProps {
   projectCity?: string;
   projectNeighborhood?: string;
   onRequestTour: (date: Date, timePeriod: TimePeriod) => void;
-  onDownloadPlans: () => void;
 }
 
 interface AvailabilitySlot {
@@ -35,7 +34,6 @@ export function InlineScheduler({
   projectId,
   projectName,
   onRequestTour,
-  onDownloadPlans,
 }: InlineSchedulerProps) {
   const [loading, setLoading] = useState(true);
   const [availability, setAvailability] = useState<AvailabilitySlot[]>([]);
@@ -217,31 +215,14 @@ export function InlineScheduler({
         })}
       </div>
 
-      {/* CTA Buttons - compact */}
-      <div className="space-y-2 lg:space-y-2.5">
-        <Button
-          onClick={handleRequestTour}
-          disabled={!selectedDate}
-          className="w-full h-10 lg:h-11 text-xs lg:text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
-        >
-          Request a Tour
-        </Button>
-        
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-px bg-border" />
-          <span className="text-[10px] lg:text-xs text-muted-foreground">OR</span>
-          <div className="flex-1 h-px bg-border" />
-        </div>
-
-        <Button
-          variant="outline"
-          onClick={onDownloadPlans}
-          className="w-full h-10 lg:h-11 text-xs lg:text-sm font-bold uppercase tracking-wide border-2"
-        >
-          <Download className="h-3.5 w-3.5 lg:h-4 lg:w-4 mr-1.5" />
-          Get Pricing
-        </Button>
-      </div>
+      {/* CTA Button */}
+      <Button
+        onClick={handleRequestTour}
+        disabled={!selectedDate}
+        className="w-full h-11 lg:h-12 text-sm font-bold uppercase tracking-wide bg-primary hover:bg-primary/90 text-primary-foreground"
+      >
+        Request a Tour
+      </Button>
     </div>
   );
 }
