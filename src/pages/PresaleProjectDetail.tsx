@@ -479,10 +479,18 @@ export default function PresaleProjectDetail() {
                   <div className="text-base md:text-lg text-muted-foreground mb-2 md:mb-3">Contact for pricing</div>
                 )}
 
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-2 md:mb-3">
+                {/* City/Neighborhood - shown prominently on mobile */}
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-3">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
-                  <span className="truncate">{project.address || `${project.neighborhood}, ${project.city}`}</span>
+                  <span className="font-medium text-foreground">{project.neighborhood}, {project.city}</span>
                 </div>
+                
+                {/* Full Address - shown below on mobile, hidden if same as neighborhood */}
+                {project.address && project.address !== `${project.neighborhood}, ${project.city}` && (
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2 md:hidden">
+                    <span className="ml-5 truncate">{project.address}</span>
+                  </div>
+                )}
 
                 {/* Quick Facts - visible on tablet and desktop, more compact */}
                 <div className="hidden md:block space-y-1.5 lg:space-y-2 mb-2 lg:mb-3">
