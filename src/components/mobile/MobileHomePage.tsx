@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
+import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { FloatingBottomNav } from "./FloatingBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -193,6 +194,11 @@ export function MobileHomePage() {
             title="Detached Homes"
             city={selectedCity}
           />
+        </CarouselSection>
+
+        {/* Projects Near You - City Quick Links */}
+        <CarouselSection delay={125}>
+          <MobileCityQuickLinks />
         </CarouselSection>
 
         {/* City-based Carousels */}
