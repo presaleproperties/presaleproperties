@@ -78,7 +78,7 @@ export function HeroSection() {
           
           {/* Main Heading - SEO optimized H1 */}
           <h1 className="text-[26px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.15] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
-            Find <span className="text-yellow-400">Presale</span> Condos & Townhomes
+            Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
 
           {/* Subheading - Value proposition */}
