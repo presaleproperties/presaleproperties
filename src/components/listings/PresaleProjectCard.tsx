@@ -222,7 +222,7 @@ export function PresaleProjectCard({
               <div className="flex items-center gap-1.5 text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 shrink-0" />
                 <span className="text-xs sm:text-sm truncate">
-                  {neighborhood}, {city}
+                  {city}
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground">
