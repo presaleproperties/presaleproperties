@@ -18,7 +18,7 @@ interface PresaleProjectCardProps {
   featuredImage?: string | null;
   galleryImages?: string[] | null;
   lastVerifiedDate?: string | null;
-  size?: "default" | "large";
+  size?: "default" | "large" | "featured";
 }
 
 const formatPrice = (price: number) => {
@@ -132,7 +132,7 @@ export function PresaleProjectCard({
         <div 
           className={cn(
             "relative overflow-hidden bg-muted",
-            size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
+            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
