@@ -1,5 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { Search } from "lucide-react";
 import { MobileCategoryChips, CategoryChip } from "./MobileCategoryChips";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { FloatingBottomNav } from "./FloatingBottomNav";
@@ -8,13 +10,47 @@ import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { Footer } from "@/components/layout/Footer";
+import { Input } from "@/components/ui/input";
+import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import { cn } from "@/lib/utils";
 
 export function MobileHomePage() {
   const [selectedCity, setSelectedCity] = useState("all");
   const [selectedChip, setSelectedChip] = useState<string | undefined>(undefined);
   const [activeFilter, setActiveFilter] = useState<CategoryChip["filter"]>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowSuggestions(false);
+    if (searchQuery.trim()) {
+      navigate(`/presale-projects?q=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate("/presale-projects");
+    }
+  };
+
+  const handleSuggestionSelect = (value: string, type: string) => {
+    setSearchQuery(value);
+    setShowSuggestions(false);
+    navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
+  };
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["mobile-discovery"] });
@@ -62,7 +98,7 @@ export function MobileHomePage() {
 
       {/* Mobile Hero - Compact welcome */}
       <div 
-        className="px-4 pt-3 pb-1"
+        className="px-4 pt-3 pb-2"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -71,9 +107,40 @@ export function MobileHomePage() {
         <h1 className="text-base font-bold text-foreground">
           New Presale Condos & Townhomes
         </h1>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-xs text-muted-foreground mb-3">
           Metro Vancouver's latest developments
         </p>
+        
+        {/* Compact Search Bar */}
+        <div ref={searchContainerRef} className="relative">
+          <form onSubmit={handleSearch}>
+            <Input
+              type="text"
+              placeholder="Search projects, cities..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              className="h-10 text-sm pl-3 pr-10 rounded-lg bg-muted/50 border-border"
+              autoComplete="off"
+            />
+            <button 
+              type="submit"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+          </form>
+          <SearchSuggestions
+            query={searchQuery}
+            onSelect={handleSuggestionSelect}
+            isVisible={showSuggestions}
+            onClose={() => setShowSuggestions(false)}
+            searchMode="projects"
+          />
+        </div>
       </div>
 
       {/* Discovery Sections */}
