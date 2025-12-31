@@ -466,8 +466,13 @@ export default function PresaleProjectDetail() {
                   )}
                 </div>
 
-                {/* Title and Location */}
-                <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground mb-1.5 md:mb-2 leading-tight">{project.name}</h1>
+                {/* Title and City Badge */}
+                <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{project.name}</h1>
+                  <Badge variant="secondary" className="md:hidden text-[10px] px-1.5 py-0.5 font-medium">
+                    {project.city}
+                  </Badge>
+                </div>
                 
                 {project.starting_price ? (
                   <div className="mb-2 md:mb-3">
