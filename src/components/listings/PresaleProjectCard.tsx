@@ -232,12 +232,9 @@ export function PresaleProjectCard({
           <div className="flex items-end justify-between pt-2 border-t border-border">
             <div>
               {startingPrice ? (
-                <div>
-                  <span className="text-[10px] sm:text-xs text-muted-foreground block">Starting from</span>
-                  <p className="text-base sm:text-lg md:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-200 leading-tight">
-                    {formatPrice(startingPrice)}
-                  </p>
-                </div>
+                <p className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                  From {formatPrice(startingPrice)}
+                </p>
               ) : (
                 <p className="text-xs sm:text-sm text-muted-foreground">
                   Contact for pricing

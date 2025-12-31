@@ -127,12 +127,9 @@ export function BuyerCTASection() {
                         {project.name}
                       </h3>
                       {project.starting_price && (
-                        <div className="mt-1">
-                          <span className="text-[10px] text-background/50 block">Starting from</span>
-                          <p className="text-base font-bold text-background leading-tight">
-                            {formatPrice(project.starting_price)}
-                          </p>
-                        </div>
+                        <p className="text-sm text-background/70 mt-1">
+                          From {formatPrice(project.starting_price)}
+                        </p>
                       )}
                     </div>
                   </Link>

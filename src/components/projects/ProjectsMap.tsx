@@ -242,12 +242,9 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
                     {project.neighborhood}, {project.city}
                   </p>
                   {project.starting_price && (
-                    <div>
-                      <span className="text-[10px] text-muted-foreground block">Starting from</span>
-                      <p className="text-sm font-bold leading-tight">
-                        {formatPrice(project.starting_price)}
-                      </p>
-                    </div>
+                    <p className="text-sm font-medium">
+                      From {formatPrice(project.starting_price)}
+                    </p>
                   )}
                   <Link to={`/presale-projects/${project.slug}`}>
                     <Button size="sm" className="w-full mt-2 text-xs h-8">
