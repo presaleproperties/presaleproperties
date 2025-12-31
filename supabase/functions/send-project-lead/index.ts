@@ -64,8 +64,19 @@ serve(async (req: Request): Promise<Response> => {
 
     console.log("Lead details fetched successfully:", { leadId: lead.id, projectId: lead.project_id });
 
-    // Send to Zapier webhook if configured
-    const zapierWebhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
+    // Get webhook URL from app_settings (fallback to env var for backwards compatibility)
+    let zapierWebhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
+    
+    const { data: webhookSetting } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "zapier_project_leads_webhook")
+      .single();
+    
+    if (webhookSetting?.value && typeof webhookSetting.value === "string" && webhookSetting.value.trim()) {
+      zapierWebhookUrl = webhookSetting.value;
+      console.log("Using webhook URL from app_settings");
+    }
     
     if (zapierWebhookUrl) {
       console.log("Sending lead to Zapier webhook");
