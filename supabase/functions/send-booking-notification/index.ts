@@ -38,6 +38,11 @@ const handler = async (req: Request): Promise<Response> => {
     const data: BookingNotificationRequest = await req.json();
     console.log("Processing booking notification:", data);
 
+    // Initialize Supabase client
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
     const appointmentTypeLabel = data.appointment_type === "preview" 
       ? "Preview Presentation" 
       : "On-site Showing";
@@ -49,8 +54,19 @@ const handler = async (req: Request): Promise<Response> => {
       other: "Other",
     };
 
-    // Send to Zapier webhook for Lofty CRM integration
-    const zapierWebhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
+    // Get webhook URL from app_settings (fallback to env var for backwards compatibility)
+    let zapierWebhookUrl = Deno.env.get("ZAPIER_PROJECT_LEADS_WEBHOOK");
+    
+    const { data: webhookSetting } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "zapier_bookings_webhook")
+      .single();
+    
+    if (webhookSetting?.value && typeof webhookSetting.value === "string" && webhookSetting.value.trim()) {
+      zapierWebhookUrl = webhookSetting.value;
+      console.log("Using webhook URL from app_settings");
+    }
     
     if (zapierWebhookUrl) {
       console.log("Sending booking to Zapier webhook for Lofty CRM");

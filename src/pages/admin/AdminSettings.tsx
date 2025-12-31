@@ -10,7 +10,8 @@ import {
   Settings,
   Loader2,
   Save,
-  MessageCircle
+  MessageCircle,
+  Webhook
 } from "lucide-react";
 
 interface AppSettings {
@@ -18,6 +19,9 @@ interface AppSettings {
   renewal_price: number;
   featured_price: number;
   whatsapp_number: string;
+  zapier_project_leads_webhook: string;
+  zapier_listing_leads_webhook: string;
+  zapier_bookings_webhook: string;
 }
 
 export default function AdminSettings() {
@@ -26,6 +30,9 @@ export default function AdminSettings() {
     renewal_price: 49,
     featured_price: 29,
     whatsapp_number: "",
+    zapier_project_leads_webhook: "",
+    zapier_listing_leads_webhook: "",
+    zapier_bookings_webhook: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -49,6 +56,9 @@ export default function AdminSettings() {
         if (item.key === "renewal_price") settingsMap.renewal_price = item.value as number;
         if (item.key === "featured_price") settingsMap.featured_price = item.value as number;
         if (item.key === "whatsapp_number") settingsMap.whatsapp_number = item.value as string;
+        if (item.key === "zapier_project_leads_webhook") settingsMap.zapier_project_leads_webhook = item.value as string;
+        if (item.key === "zapier_listing_leads_webhook") settingsMap.zapier_listing_leads_webhook = item.value as string;
+        if (item.key === "zapier_bookings_webhook") settingsMap.zapier_bookings_webhook = item.value as string;
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
@@ -67,6 +77,9 @@ export default function AdminSettings() {
         { key: "renewal_price", value: settings.renewal_price },
         { key: "featured_price", value: settings.featured_price },
         { key: "whatsapp_number", value: settings.whatsapp_number },
+        { key: "zapier_project_leads_webhook", value: settings.zapier_project_leads_webhook },
+        { key: "zapier_listing_leads_webhook", value: settings.zapier_listing_leads_webhook },
+        { key: "zapier_bookings_webhook", value: settings.zapier_bookings_webhook },
       ];
 
       for (const setting of settingsToSave) {
@@ -82,7 +95,7 @@ export default function AdminSettings() {
 
       toast({
         title: "Settings Saved",
-        description: "Pricing settings have been updated",
+        description: "All settings have been updated",
       });
     } catch (error) {
       console.error("Error saving settings:", error);
@@ -101,7 +114,7 @@ export default function AdminSettings() {
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Configure platform settings and pricing</p>
+          <p className="text-muted-foreground">Configure platform settings and integrations</p>
         </div>
 
         {loading ? (
@@ -110,6 +123,82 @@ export default function AdminSettings() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
+            {/* Zapier Integration */}
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Webhook className="h-5 w-5" />
+                  Zapier / Lofty CRM Integration
+                </CardTitle>
+                <CardDescription>
+                  Configure webhook URLs to send leads and bookings to your CRM
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid gap-4 md:grid-cols-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="zapier_project_leads_webhook">Project Leads Webhook</Label>
+                    <Input
+                      id="zapier_project_leads_webhook"
+                      type="url"
+                      placeholder="https://hooks.zapier.com/..."
+                      value={settings.zapier_project_leads_webhook}
+                      onChange={(e) => setSettings(prev => ({ 
+                        ...prev, 
+                        zapier_project_leads_webhook: e.target.value 
+                      }))}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Receives leads from presale project pages
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="zapier_listing_leads_webhook">Listing Leads Webhook</Label>
+                    <Input
+                      id="zapier_listing_leads_webhook"
+                      type="url"
+                      placeholder="https://hooks.zapier.com/..."
+                      value={settings.zapier_listing_leads_webhook}
+                      onChange={(e) => setSettings(prev => ({ 
+                        ...prev, 
+                        zapier_listing_leads_webhook: e.target.value 
+                      }))}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Receives leads from assignment listing pages
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="zapier_bookings_webhook">Bookings Webhook</Label>
+                    <Input
+                      id="zapier_bookings_webhook"
+                      type="url"
+                      placeholder="https://hooks.zapier.com/..."
+                      value={settings.zapier_bookings_webhook}
+                      onChange={(e) => setSettings(prev => ({ 
+                        ...prev, 
+                        zapier_bookings_webhook: e.target.value 
+                      }))}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Receives booking/appointment requests
+                    </p>
+                  </div>
+                </div>
+
+                <Button onClick={saveSettings} disabled={saving}>
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save Webhook Settings
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Pricing Settings */}
             <Card>
               <CardHeader>
