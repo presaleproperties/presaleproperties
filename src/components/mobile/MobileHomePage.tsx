@@ -74,7 +74,7 @@ export function MobileHomePage() {
   };
 
   const handleCityClick = (slug: string) => {
-    navigate(`/presale-projects?city=${slug}`);
+    navigate(`/presale-condos/${slug}`);
   };
 
   const handleRefresh = useCallback(async () => {
