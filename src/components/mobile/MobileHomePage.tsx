@@ -174,7 +174,7 @@ export function MobileHomePage() {
           <MobileDiscoveryCarousel
             type="hot_projects"
             title="Hottest Presale Condos"
-            subtitle="The most in-demand new developments across Metro Vancouver"
+            subtitle="The most in-demand presale projects"
             badge="🔥 Don't Miss Out"
             city={selectedCity}
           />
