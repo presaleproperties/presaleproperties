@@ -520,10 +520,22 @@ export default function PresaleProjectDetail() {
 
                 {/* Short description - visible on tablet and desktop */}
                 {project.short_description && (
-                  <p className="hidden md:block text-xs lg:text-sm text-muted-foreground mt-3 lg:mt-4 leading-relaxed line-clamp-3 lg:line-clamp-none">
+                  <p className="hidden md:block text-xs lg:text-sm text-muted-foreground mt-2 lg:mt-3 leading-relaxed line-clamp-2 lg:line-clamp-3">
                     {project.short_description}
                   </p>
                 )}
+
+                {/* Inline Scheduler - Desktop only, directly under project info */}
+                <div className="hidden lg:block mt-4">
+                  <InlineScheduler
+                    projectId={project.id}
+                    projectName={project.name}
+                    projectCity={project.city}
+                    projectNeighborhood={project.neighborhood}
+                    onRequestTour={handleScheduleTourClick}
+                    onDownloadPlans={handleGetPlansClick}
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -686,16 +698,18 @@ export default function PresaleProjectDetail() {
 
               {/* Sidebar */}
               <div>
-                <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24 space-y-4">
-                  {/* Inline Scheduler */}
-                  <InlineScheduler
-                    projectId={project.id}
-                    projectName={project.name}
-                    projectCity={project.city}
-                    projectNeighborhood={project.neighborhood}
-                    onRequestTour={handleScheduleTourClick}
-                    onDownloadPlans={handleGetPlansClick}
-                  />
+              <div ref={formRef} id="contact-form" className="md:sticky md:top-20 lg:top-24 space-y-4">
+                  {/* Inline Scheduler - Tablet and mobile sidebar only (hidden on lg where it's in hero) */}
+                  <div className="lg:hidden">
+                    <InlineScheduler
+                      projectId={project.id}
+                      projectName={project.name}
+                      projectCity={project.city}
+                      projectNeighborhood={project.neighborhood}
+                      onRequestTour={handleScheduleTourClick}
+                      onDownloadPlans={handleGetPlansClick}
+                    />
+                  </div>
 
                   {/* Lead Form */}
                   <ProjectLeadForm
