@@ -577,16 +577,16 @@ export default function PresaleProjectDetail() {
           <div className="container px-3 md:px-4">
             <div className="grid md:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
               {/* Main Content */}
-              <div className="md:col-span-2 space-y-3 md:space-y-4 lg:space-y-6">
+              <div className="md:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-2.5 md:mb-3">Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 md:gap-2">
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-3">
                       {project.amenities.map((a, i) => (
-                        <div key={i} className="flex items-center gap-1.5">
-                          <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                          <span className="text-xs">{a}</span>
+                        <div key={i} className="flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
+                          <span className="text-sm md:text-base text-foreground">{a}</span>
                         </div>
                       ))}
                     </div>
@@ -595,11 +595,11 @@ export default function PresaleProjectDetail() {
 
                 {/* Description */}
                 {project.full_description && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-2.5 md:mb-3">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground text-xs">
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Development Features</h2>
+                    <div className="prose prose-base max-w-none text-muted-foreground">
                       {project.full_description.split("\n").map((p, i) => (
-                        <p key={i} className="mb-2 last:mb-0">{p}</p>
+                        <p key={i} className="text-sm md:text-base leading-relaxed mb-3 last:mb-0">{p}</p>
                       ))}
                     </div>
                   </div>
@@ -607,13 +607,13 @@ export default function PresaleProjectDetail() {
 
                 {/* Highlights */}
                 {project.highlights && project.highlights.length > 0 && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-2.5 md:mb-3">Key Highlights</h2>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-1.5 md:gap-2">
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Key Highlights</h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-3">
                       {project.highlights.map((h, i) => (
-                        <li key={i} className="flex items-start gap-1.5">
-                          <CheckCircle className="h-3.5 w-3.5 text-green-500 shrink-0 mt-0.5" />
-                          <span className="text-xs">{h}</span>
+                        <li key={i} className="flex items-start gap-2">
+                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-sm md:text-base text-foreground">{h}</span>
                         </li>
                       ))}
                     </ul>
@@ -622,35 +622,35 @@ export default function PresaleProjectDetail() {
 
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-2.5 md:mb-3">Deposit & Fees</h2>
-                    <div className="space-y-2.5 md:space-y-3">
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Deposit & Fees</h2>
+                    <div className="space-y-4 md:space-y-5">
                       {project.deposit_structure && (
                         <div>
-                          <h4 className="font-medium mb-1 text-xs">Deposit Structure</h4>
-                          <p className="text-muted-foreground text-xs">{project.deposit_structure}</p>
+                          <h4 className="font-semibold text-sm md:text-base mb-1.5">Deposit Structure</h4>
+                          <p className="text-muted-foreground text-base md:text-lg">{project.deposit_structure}</p>
                         </div>
                       )}
                       {(project.strata_fees || project.assignment_fees) && (
-                        <div className="grid grid-cols-2 gap-2.5 md:gap-3">
+                        <div className="grid grid-cols-2 gap-4 md:gap-6">
                           {project.strata_fees && (
                             <div>
-                              <h4 className="font-medium mb-1 text-xs">Strata Fees (Est.)</h4>
-                              <p className="text-muted-foreground text-xs">{project.strata_fees}</p>
+                              <h4 className="font-semibold text-sm md:text-base mb-1.5">Strata Fees (Est.)</h4>
+                              <p className="text-muted-foreground text-base md:text-lg">{project.strata_fees}</p>
                             </div>
                           )}
                           {project.assignment_fees && (
                             <div>
-                              <h4 className="font-medium mb-1 text-xs">Assignment Fees</h4>
-                              <p className="text-muted-foreground text-xs">{project.assignment_fees}</p>
+                              <h4 className="font-semibold text-sm md:text-base mb-1.5">Assignment Fees</h4>
+                              <p className="text-muted-foreground text-base md:text-lg">{project.assignment_fees}</p>
                             </div>
                           )}
                         </div>
                       )}
                       {project.incentives && (
                         <div>
-                          <h4 className="font-medium mb-1 text-xs">Current Incentives</h4>
-                          <p className="text-muted-foreground text-xs">{project.incentives}</p>
+                          <h4 className="font-semibold text-sm md:text-base mb-1.5">Current Incentives</h4>
+                          <p className="text-muted-foreground text-base md:text-lg">{project.incentives}</p>
                         </div>
                       )}
                     </div>
@@ -660,21 +660,21 @@ export default function PresaleProjectDetail() {
                 {/* Downloads */}
                 {((project.floorplan_files && project.floorplan_files.length > 0) || 
                   (project.brochure_files && project.brochure_files.length > 0)) && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-2.5 md:mb-3">Downloads</h2>
-                    <div className="flex flex-wrap gap-2">
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Downloads</h2>
+                    <div className="flex flex-wrap gap-2.5">
                       {project.floorplan_files?.map((file, i) => (
-                        <Button key={i} variant="outline" size="sm" className="text-xs h-8" asChild>
+                        <Button key={i} variant="outline" size="default" className="text-sm h-10" asChild>
                           <a href={file} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-3.5 w-3.5 mr-1.5" />
+                            <Download className="h-4 w-4 mr-2" />
                             Floor Plan {i + 1}
                           </a>
                         </Button>
                       ))}
                       {project.brochure_files?.map((file, i) => (
-                        <Button key={i} variant="outline" size="sm" className="text-xs h-8" asChild>
+                        <Button key={i} variant="outline" size="default" className="text-sm h-10" asChild>
                           <a href={file} target="_blank" rel="noopener noreferrer">
-                            <Download className="h-3.5 w-3.5 mr-1.5" />
+                            <Download className="h-4 w-4 mr-2" />
                             Brochure {i + 1}
                           </a>
                         </Button>
@@ -685,23 +685,23 @@ export default function PresaleProjectDetail() {
 
                 {/* Developer Info */}
                 {project.developer_name && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-1">Developer</h2>
-                    <p className="font-medium text-xs md:text-sm">{project.developer_name}</p>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-2">Developer</h2>
+                    <p className="font-medium text-base md:text-lg text-foreground">{project.developer_name}</p>
                   </div>
                 )}
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
-                  <div className="bg-muted/30 rounded-lg p-3.5 md:p-4 lg:p-5">
-                    <h2 className="text-sm md:text-base font-semibold text-foreground mb-2.5 md:mb-3">Frequently Asked Questions</h2>
+                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Frequently Asked Questions</h2>
                     <Accordion type="single" collapsible className="w-full">
                       {project.faq.map((item, i) => (
                         <AccordionItem key={i} value={`faq-${i}`}>
-                          <AccordionTrigger className="text-left text-xs py-2">
+                          <AccordionTrigger className="text-left text-sm md:text-base py-3 font-medium">
                             {item.question}
                           </AccordionTrigger>
-                          <AccordionContent className="text-xs text-muted-foreground">
+                          <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed">
                             {item.answer}
                           </AccordionContent>
                         </AccordionItem>
