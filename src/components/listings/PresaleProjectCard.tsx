@@ -132,7 +132,7 @@ export function PresaleProjectCard({
         <div 
           className={cn(
             "relative overflow-hidden bg-muted",
-            size === "featured" ? "aspect-[3/4]" : size === "large" ? "aspect-[2/3]" : "aspect-[3/5]"
+            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -201,10 +201,7 @@ export function PresaleProjectCard({
             </div>
           )}
           
-          {/* Permanent subtle gradient at bottom for contrast */}
-          <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/40 via-black/10 to-transparent pointer-events-none" />
-          
-          {/* Additional gradient overlay on hover */}
+          {/* Gradient overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
           {/* Photo Count - Bottom Right */}
@@ -215,28 +212,38 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-2 sm:p-3 space-y-0.5">
-          {/* Price Hook */}
-          {startingPrice ? (
-            <div className="flex items-baseline gap-1">
-              <span className="text-[9px] sm:text-[10px] text-muted-foreground">From</span>
-              <span className="text-sm sm:text-base font-bold text-primary leading-none">
-                {formatPrice(startingPrice)}
-              </span>
+        <CardContent className="p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-2.5 md:space-y-3">
+          <div className="flex items-start gap-1.5 text-muted-foreground">
+            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
+            <span className="text-xs sm:text-sm md:text-sm truncate">
+              {neighborhood}
+            </span>
+          </div>
+
+          <div>
+            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base md:text-base">
+              {name}
+            </h3>
+            <p className="text-xs sm:text-sm md:text-sm text-muted-foreground line-clamp-1">
+              {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
+            </p>
+          </div>
+
+          <div className="flex items-end justify-between pt-2 border-t border-border">
+            <div>
+              {startingPrice ? (
+                <p className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                  From {formatPrice(startingPrice)}
+                </p>
+              ) : (
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Contact for pricing
+                </p>
+              )}
             </div>
-          ) : (
-            <span className="text-[10px] sm:text-xs text-muted-foreground">Contact for pricing</span>
-          )}
-
-          {/* Project Name */}
-          <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors text-xs sm:text-sm leading-tight">
-            {name}
-          </h3>
-
-          {/* Single compact details line */}
-          <div className="flex items-center justify-between text-[10px] sm:text-xs text-muted-foreground">
-            <span className="truncate">{neighborhood}, {city}</span>
-            <span className="shrink-0">{completionYear || "TBA"}</span>
+            <span className="text-[10px] sm:text-xs md:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              {city}
+            </span>
           </div>
         </CardContent>
       </Card>
