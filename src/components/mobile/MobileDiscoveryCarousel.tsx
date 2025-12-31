@@ -23,6 +23,8 @@ type CarouselType =
 interface MobileDiscoveryCarouselProps {
   type: CarouselType;
   title: string;
+  subtitle?: string;
+  badge?: string;
   city?: string;
   limit?: number;
   size?: "default" | "large";
@@ -53,7 +55,9 @@ const getCityFromType = (type: CarouselType): string | null => {
 
 export function MobileDiscoveryCarousel({ 
   type, 
-  title, 
+  title,
+  subtitle,
+  badge,
   city = "all",
   limit = 10,
   size
@@ -151,15 +155,27 @@ export function MobileDiscoveryCarousel({
   return (
     <div className="space-y-2 md:hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4">
-        <h3 className="text-sm font-bold text-foreground">{title}</h3>
-        <Link 
-          to={seeAllLink}
-          className="flex items-center gap-0.5 text-xs font-medium text-primary active:opacity-70"
-        >
-          See all
-          <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+      <div className="px-4">
+        {badge && (
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-primary mb-1 block">
+            {badge}
+          </span>
+        )}
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className={badge ? "text-lg font-bold text-foreground" : "text-sm font-bold text-foreground"}>{title}</h3>
+            {subtitle && (
+              <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
+            )}
+          </div>
+          <Link 
+            to={seeAllLink}
+            className="flex items-center gap-0.5 text-xs font-medium text-primary active:opacity-70"
+          >
+            See all
+            <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
 
       {/* Scrollable Cards */}
