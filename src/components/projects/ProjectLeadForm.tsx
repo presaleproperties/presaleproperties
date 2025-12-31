@@ -177,39 +177,46 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
 
   if (isSubmitted) {
     return (
-      <div className="bg-card border-2 border-green-500/30 rounded-2xl p-6 text-center shadow-lg">
-        <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/15 rounded-full mb-4">
-          <CheckCircle className="h-8 w-8 text-green-500" />
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+        {/* Header - Neutral dark gradient */}
+        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500/20 rounded-full">
+              <CheckCircle className="h-6 w-6 text-green-400" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-background">You're All Set!</h3>
+              <p className="text-sm text-background/70">Check your email for pricing & floor plans.</p>
+            </div>
+          </div>
         </div>
-        <h3 className="text-xl font-bold text-foreground mb-2">You're All Set!</h3>
-        <p className="text-muted-foreground mb-4">
-          Check your email for the latest pricing & floor plans.
-        </p>
         
-        {brochureUrl && (
+        <div className="p-5 space-y-3">
+          {brochureUrl && (
+            <Button
+              asChild
+              size="lg"
+              className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
+            >
+              <a href={brochureUrl} target="_blank" rel="noopener noreferrer" download>
+                <Download className="h-5 w-5 mr-2" />
+                Download Brochure
+              </a>
+            </Button>
+          )}
+          
           <Button
             asChild
             size="lg"
-            className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground mb-3"
+            variant={brochureUrl ? "outline" : "default"}
+            className={`w-full h-14 text-base font-semibold rounded-xl ${!brochureUrl ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
           >
-            <a href={brochureUrl} target="_blank" rel="noopener noreferrer" download>
-              <Download className="h-5 w-5 mr-2" />
-              Download Brochure
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="h-5 w-5 mr-2" />
+              Chat with an Agent Now
             </a>
           </Button>
-        )}
-        
-        <Button
-          asChild
-          size="lg"
-          variant={brochureUrl ? "outline" : "default"}
-          className={`w-full h-14 text-base font-semibold rounded-xl ${!brochureUrl ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
-        >
-          <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-            <MessageCircle className="h-5 w-5 mr-2" />
-            Chat with an Agent Now
-          </a>
-        </Button>
+        </div>
       </div>
     );
   }
