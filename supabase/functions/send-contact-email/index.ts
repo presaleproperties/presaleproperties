@@ -35,7 +35,7 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send notification email to the admin
     const adminEmailResponse = await resend.emails.send({
-      from: "AssignmentHub <onboarding@resend.dev>",
+      from: "PresaleProperties <noreply@presaleproperties.com>",
       to: ["info@assignmenthub.ca"],
       subject: `New Contact Form: ${subject}`,
       html: `
@@ -85,9 +85,9 @@ serve(async (req: Request): Promise<Response> => {
 
     // Send confirmation email to the user
     const userEmailResponse = await resend.emails.send({
-      from: "AssignmentHub <onboarding@resend.dev>",
+      from: "PresaleProperties <noreply@presaleproperties.com>",
       to: [email],
-      subject: "We received your message - AssignmentHub",
+      subject: "We received your message - PresaleProperties",
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #1a1a1a; font-size: 24px; margin-bottom: 20px;">Thank you for contacting us, ${name}!</h1>
