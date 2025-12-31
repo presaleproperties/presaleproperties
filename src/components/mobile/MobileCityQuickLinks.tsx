@@ -68,7 +68,8 @@ export function MobileCityQuickLinks() {
   });
 
   const handleCityClick = (city: string) => {
-    navigate(`/presale-projects?city=${encodeURIComponent(city)}`);
+    const slug = city.toLowerCase().replace(/\s+/g, '-');
+    navigate(`/presale-condos/${slug}`);
   };
 
   if (cities.length === 0) return null;
