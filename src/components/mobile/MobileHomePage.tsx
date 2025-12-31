@@ -108,9 +108,9 @@ export function MobileHomePage() {
         isRefreshing={isRefreshing} 
       />
 
-      {/* Hero Section - Compact */}
+      {/* Hero Section - Compact, above the fold */}
       <div 
-        className="relative min-h-[32vh] flex flex-col"
+        className="relative min-h-[28vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -128,28 +128,28 @@ export function MobileHomePage() {
         </div>
 
         {/* Hero Content - Single header + subheader */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-16 pb-6 text-center">
-          <h1 className="text-2xl font-bold text-white leading-tight">
+        <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
+          <h1 className="text-xl font-bold text-white leading-tight">
             Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
-          <p className="text-white/80 text-sm mt-2">
+          <p className="text-white/80 text-xs mt-1.5">
             Metro Vancouver's #1 Presale Marketplace
           </p>
         </div>
 
         {/* Floating Search Card */}
-        <div className="relative px-4 -mb-16 z-10">
+        <div className="relative px-4 -mb-14 z-10">
           <div 
             ref={searchContainerRef}
-            className="bg-card rounded-2xl shadow-lg border border-border p-5"
+            className="bg-card rounded-xl shadow-lg border border-border p-4"
           >
             {/* Tabs */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex gap-1">
                 <button
                   onClick={() => setActiveTab("presale")}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                    "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
                     activeTab === "presale"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
@@ -160,7 +160,7 @@ export function MobileHomePage() {
                 <button
                   onClick={() => setActiveTab("assignments")}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                    "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
                     activeTab === "assignments"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
