@@ -45,7 +45,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
     if (!touchStartX.current || !touchEndX.current) return;
     
     const diff = touchStartX.current - touchEndX.current;
-    const threshold = 50;
+    const threshold = 80; // Higher threshold for more deliberate swipes
 
     if (Math.abs(diff) > threshold && photos.length > 1) {
       if (diff > 0) {
