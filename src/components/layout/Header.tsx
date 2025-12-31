@@ -138,31 +138,37 @@ export function Header() {
             </SheetTrigger>
             <SheetContent 
               side="right" 
-              className="w-full max-w-full p-0 bg-background border-l-0 shadow-2xl sm:max-w-sm"
+              className="w-full max-w-full p-0 bg-background border-l-0 shadow-2xl sm:max-w-sm [&>button]:hidden"
             >
               <div className="flex flex-col h-full">
-                {/* Header with Logo and Close */}
-                <div className="flex items-center justify-between px-6 py-4">
+                {/* Header with Logo and Close Button */}
+                <div className="flex items-center justify-between px-6 py-5">
                   <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
                     <span className="text-xl font-bold tracking-tight">
                       presale<span className="text-primary">properties</span>
                     </span>
                   </Link>
-                  {/* Close button is handled by SheetContent */}
+                  {/* Custom circular close button like REW */}
+                  <button 
+                    onClick={() => setOpen(false)}
+                    className="w-11 h-11 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center hover:border-foreground transition-colors"
+                  >
+                    <X className="h-5 w-5 text-foreground" />
+                  </button>
                 </div>
 
                 {/* Sign In / Sign Up Row */}
-                <div className="flex items-center gap-4 px-6 pb-4">
+                <div className="flex items-center gap-6 px-6 pb-5">
                   <Link 
                     to="/login" 
                     onClick={() => setOpen(false)}
-                    className="text-sm font-semibold tracking-wide text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-sm font-bold tracking-widest text-muted-foreground hover:text-foreground transition-colors uppercase"
                   >
-                    SIGN-IN
+                    Sign-In
                   </Link>
                   <Link to="/contact" onClick={() => setOpen(false)} className="flex-1">
-                    <Button className="w-full h-11 font-semibold tracking-wide rounded-md">
-                      SIGN UP
+                    <Button className="w-full h-12 font-bold tracking-widest text-sm rounded-md bg-foreground text-background hover:bg-foreground/90 uppercase">
+                      Sign Up
                     </Button>
                   </Link>
                 </div>
@@ -170,38 +176,38 @@ export function Header() {
                 {/* Divider */}
                 <div className="border-t border-border mx-6" />
 
-                {/* Large Navigation Links */}
-                <nav className="flex-1 pt-6 overflow-y-auto">
-                  <div className="space-y-2 px-6">
+                {/* Large Navigation Links - REW Style */}
+                <nav className="flex-1 pt-8 overflow-y-auto">
+                  <div className="space-y-1 px-6">
                     <Link
                       to="/presale-projects"
                       onClick={() => setOpen(false)}
-                      className="block text-2xl font-bold text-foreground hover:text-primary transition-colors py-2"
+                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
                     >
-                      Presale Projects
+                      Presales
                     </Link>
 
                     <Link
                       to="/assignments"
                       onClick={() => setOpen(false)}
-                      className="block text-2xl font-bold text-foreground hover:text-primary transition-colors py-2"
+                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
                     >
                       Assignments
                     </Link>
 
                     {/* Collapsible Cities Section */}
                     <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
-                      <CollapsibleTrigger className="flex items-center justify-between w-full text-2xl font-bold text-foreground hover:text-primary transition-colors py-2">
+                      <CollapsibleTrigger className="flex items-center justify-between w-full text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3">
                         <span>Cities</span>
-                        <ChevronDown className={`h-5 w-5 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
+                        <ChevronDown className={`h-6 w-6 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                       </CollapsibleTrigger>
-                      <CollapsibleContent className="pl-4 space-y-1 mt-2">
+                      <CollapsibleContent className="pl-4 space-y-0 mt-1 mb-2">
                         {CITY_LINKS.map((city) => (
                           <Link
                             key={city.slug}
                             to={`/presale-condos/${city.slug}`}
                             onClick={() => setOpen(false)}
-                            className="block text-lg font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
+                            className="block text-xl font-medium text-muted-foreground hover:text-foreground transition-colors py-2"
                           >
                             {city.name}
                           </Link>
@@ -212,23 +218,15 @@ export function Header() {
                     <Link
                       to="/agents"
                       onClick={() => setOpen(false)}
-                      className="block text-2xl font-bold text-foreground hover:text-primary transition-colors py-2"
+                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
                     >
-                      For Agents
-                    </Link>
-
-                    <Link
-                      to="/blog"
-                      onClick={() => setOpen(false)}
-                      className="block text-2xl font-bold text-foreground hover:text-primary transition-colors py-2"
-                    >
-                      Blog
+                      Agents
                     </Link>
 
                     <Link
                       to="/mortgage-calculator"
                       onClick={() => setOpen(false)}
-                      className="block text-2xl font-bold text-foreground hover:text-primary transition-colors py-2"
+                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
                     >
                       Mortgages
                     </Link>
@@ -236,7 +234,7 @@ export function Header() {
                     <Link
                       to="/presale-guide"
                       onClick={() => setOpen(false)}
-                      className="block text-2xl font-bold text-foreground hover:text-primary transition-colors py-2"
+                      className="block text-[28px] font-bold text-foreground hover:text-primary transition-colors py-3"
                     >
                       The Guide
                     </Link>
