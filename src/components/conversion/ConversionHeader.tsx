@@ -19,15 +19,24 @@ import {
 import { AccessPackModal } from "./AccessPackModal";
 import { supabase } from "@/integrations/supabase/client";
 
-const CITY_LINKS = [
+// City links for condos (primary navigation)
+const CONDO_CITY_LINKS = [
+  { slug: "surrey", name: "Surrey" },
   { slug: "vancouver", name: "Vancouver" },
+  { slug: "langley", name: "Langley" },
+  { slug: "coquitlam", name: "Coquitlam" },
+  { slug: "burnaby", name: "Burnaby" },
+  { slug: "richmond", name: "Richmond" },
+  { slug: "delta", name: "Delta" },
+  { slug: "abbotsford", name: "Abbotsford" },
+];
+
+// City links for townhomes
+const TOWNHOME_CITY_LINKS = [
   { slug: "surrey", name: "Surrey" },
   { slug: "langley", name: "Langley" },
   { slug: "coquitlam", name: "Coquitlam" },
   { slug: "burnaby", name: "Burnaby" },
-  { slug: "delta", name: "Delta" },
-  { slug: "abbotsford", name: "Abbotsford" },
-  { slug: "richmond", name: "Richmond" },
 ];
 
 export function ConversionHeader() {
@@ -95,7 +104,7 @@ export function ConversionHeader() {
                     Presale Projects
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[400px] p-4 bg-background">
+                    <div className="w-[500px] p-4 bg-background">
                       <div className="mb-3">
                         <Link 
                           to="/presale-projects" 
@@ -108,20 +117,38 @@ export function ConversionHeader() {
                           </div>
                         </Link>
                       </div>
-                      <div className="border-t pt-3">
-                        <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">BY CITY</p>
-                        <div className="grid grid-cols-2 gap-1">
-                          {CITY_LINKS.map((city) => (
-                            <NavigationMenuLink key={city.slug} asChild>
-                              <Link
-                                to={`/presale-condos/${city.slug}`}
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
-                              >
-                                <MapPin className="h-3 w-3 text-muted-foreground" />
-                                {city.name}
-                              </Link>
-                            </NavigationMenuLink>
-                          ))}
+                      <div className="grid grid-cols-2 gap-4 border-t pt-3">
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">PRESALE CONDOS</p>
+                          <div className="space-y-0.5">
+                            {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
+                              <NavigationMenuLink key={city.slug} asChild>
+                                <Link
+                                  to={`/${city.slug}-presale-condos`}
+                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                >
+                                  <MapPin className="h-3 w-3 text-muted-foreground" />
+                                  {city.name} Condos
+                                </Link>
+                              </NavigationMenuLink>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">PRESALE TOWNHOMES</p>
+                          <div className="space-y-0.5">
+                            {TOWNHOME_CITY_LINKS.map((city) => (
+                              <NavigationMenuLink key={city.slug} asChild>
+                                <Link
+                                  to={`/${city.slug}-presale-townhomes`}
+                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                >
+                                  <MapPin className="h-3 w-3 text-muted-foreground" />
+                                  {city.name} Townhomes
+                                </Link>
+                              </NavigationMenuLink>
+                            ))}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -198,19 +225,31 @@ export function ConversionHeader() {
                         <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
                           <div className="flex items-center gap-3">
                             <MapPin className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-base font-medium">Cities</span>
+                            <span className="text-base font-medium">Browse by City</span>
                           </div>
                           <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          {CITY_LINKS.map((city) => (
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">Condos</p>
+                          {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
                             <Link
-                              key={city.slug}
-                              to={`/presale-condos/${city.slug}`}
+                              key={`condo-${city.slug}`}
+                              to={`/${city.slug}-presale-condos`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                             >
-                              <span className="text-sm font-medium">{city.name}</span>
+                              <span className="text-sm font-medium">{city.name} Condos</span>
+                            </Link>
+                          ))}
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1 pt-2">Townhomes</p>
+                          {TOWNHOME_CITY_LINKS.map((city) => (
+                            <Link
+                              key={`townhome-${city.slug}`}
+                              to={`/${city.slug}-presale-townhomes`}
+                              onClick={() => setOpen(false)}
+                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                            >
+                              <span className="text-sm font-medium">{city.name} Townhomes</span>
                             </Link>
                           ))}
                         </CollapsibleContent>

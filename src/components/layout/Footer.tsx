@@ -1,24 +1,33 @@
 import { Link } from "react-router-dom";
 import realBrokerLogo from "@/assets/real-broker-logo.avif";
 
-const CITY_LINKS = [
-  { slug: "vancouver", name: "Vancouver", label: "Presale Condos Vancouver" },
-  { slug: "surrey", name: "Surrey", label: "Surrey Presale Condos" },
-  { slug: "langley", name: "Langley", label: "Langley Presale Condos" },
-  { slug: "coquitlam", name: "Coquitlam", label: "Coquitlam Presale Condos" },
-  { slug: "burnaby", name: "Burnaby", label: "Burnaby Presale Condos" },
-  { slug: "delta", name: "Delta", label: "Delta Presale Condos" },
-  { slug: "abbotsford", name: "Abbotsford", label: "Abbotsford Presale Condos" },
-  { slug: "richmond", name: "Richmond", label: "Richmond Presale Condos" },
-  { slug: "port-coquitlam", name: "Port Coquitlam", label: "Port Coquitlam Presales" },
-  { slug: "new-westminster", name: "New Westminster", label: "New Westminster Presales" },
+// Primary cities for condos
+const CONDO_CITY_LINKS = [
+  { slug: "surrey", name: "Surrey Presale Condos" },
+  { slug: "vancouver", name: "Vancouver Presale Condos" },
+  { slug: "langley", name: "Langley Presale Condos" },
+  { slug: "coquitlam", name: "Coquitlam Presale Condos" },
+  { slug: "burnaby", name: "Burnaby Presale Condos" },
+  { slug: "richmond", name: "Richmond Presale Condos" },
+  { slug: "delta", name: "Delta Presale Condos" },
+  { slug: "abbotsford", name: "Abbotsford Presale Condos" },
+];
+
+// Primary cities for townhomes
+const TOWNHOME_CITY_LINKS = [
+  { slug: "surrey", name: "Surrey Presale Townhomes" },
+  { slug: "langley", name: "Langley Presale Townhomes" },
+  { slug: "coquitlam", name: "Coquitlam Presale Townhomes" },
+  { slug: "burnaby", name: "Burnaby Presale Townhomes" },
+  { slug: "vancouver", name: "Vancouver Presale Townhomes" },
+  { slug: "richmond", name: "Richmond Presale Townhomes" },
 ];
 
 export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-8 sm:py-12 px-4">
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-4">
+        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-5">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
             <Link to="/" className="flex items-center gap-2">
               <span className="text-lg sm:text-xl font-bold tracking-tight">
@@ -30,39 +39,59 @@ export function Footer() {
             </p>
           </div>
 
+          {/* Presale Condos by City */}
           <div className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Presale Condos by City</h4>
+            <h4 className="text-xs sm:text-sm font-semibold">Presale Condos</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
                 <Link to="/presale-projects" className="hover:text-foreground transition-colors">
                   All Presale Projects
                 </Link>
               </li>
-              {CITY_LINKS.slice(0, 4).map((city) => (
+              {CONDO_CITY_LINKS.slice(0, 5).map((city) => (
                 <li key={city.slug}>
                   <Link 
-                    to={`/presale-condos/${city.slug}`} 
+                    to={`/${city.slug}-presale-condos`} 
                     className="hover:text-foreground transition-colors"
-                    title={city.label}
+                    title={city.name}
                   >
-                    {city.label}
+                    {city.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
+          {/* More Condos + Townhomes */}
           <div className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Fraser Valley & More</h4>
+            <h4 className="text-xs sm:text-sm font-semibold">More Cities</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
-              {CITY_LINKS.slice(4).map((city) => (
+              {CONDO_CITY_LINKS.slice(5).map((city) => (
                 <li key={city.slug}>
                   <Link 
-                    to={`/presale-condos/${city.slug}`} 
+                    to={`/${city.slug}-presale-condos`} 
                     className="hover:text-foreground transition-colors"
-                    title={city.label}
+                    title={city.name}
                   >
-                    {city.label}
+                    {city.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Presale Townhomes */}
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="text-xs sm:text-sm font-semibold">Presale Townhomes</h4>
+            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+              {TOWNHOME_CITY_LINKS.map((city) => (
+                <li key={city.slug}>
+                  <Link 
+                    to={`/${city.slug}-presale-townhomes`} 
+                    className="hover:text-foreground transition-colors"
+                    title={city.name}
+                  >
+                    {city.name}
                   </Link>
                 </li>
               ))}
