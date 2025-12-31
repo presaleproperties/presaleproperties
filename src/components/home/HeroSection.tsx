@@ -82,7 +82,7 @@ export function HeroSection() {
           </h1>
 
           {/* Subheading - Value proposition */}
-          <p className="text-white text-base sm:text-lg md:text-xl animate-fade-in max-w-xl mx-auto font-medium drop-shadow-sm" style={{ animationDelay: "0.15s" }}>
+          <p className="text-white/80 text-sm sm:text-base md:text-lg animate-fade-in max-w-xl mx-auto" style={{ animationDelay: "0.15s" }}>
             Get instant access to floor plans, pricing sheets & book a private preview with our team
           </p>
 
