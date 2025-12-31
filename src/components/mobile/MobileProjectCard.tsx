@@ -266,7 +266,7 @@ export function MobileProjectCard({
           </div>
 
           {/* Price - Large and prominent */}
-          <div className="pt-1">
+          <div className="pt-1.5 mt-1 border-t border-border">
             {startingPrice ? (
               <>
                 <span className="text-[10px] text-muted-foreground block leading-tight">Starting from</span>
