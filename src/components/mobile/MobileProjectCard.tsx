@@ -130,15 +130,15 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[300px]" : "w-[260px]"
+        isLarge ? "w-[320px]" : "w-[280px]"
       )}
     >
       <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm active:scale-[0.98] transition-all duration-150 hover:shadow-lg hover:border-primary/30">
-        {/* Image with swipe support */}
+        {/* Image with swipe support - LARGER */}
         <div 
           className={cn(
             "relative bg-muted overflow-hidden",
-            isLarge ? "aspect-[16/10]" : "aspect-[3/2]"
+            isLarge ? "aspect-[4/3]" : "aspect-[16/10]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -158,14 +158,14 @@ export function MobileProjectCard({
             </div>
           )}
           
-          {/* Status Badge - Enhanced visibility */}
+          {/* Status Badge */}
           {statusLabel && (
             <Badge className="absolute top-2.5 left-2.5 bg-primary text-primary-foreground px-2 py-0.5 text-[10px] font-semibold border-0 shadow-md backdrop-blur-sm">
               {statusLabel}
             </Badge>
           )}
 
-          {/* Dots indicator - Enhanced */}
+          {/* Dots indicator */}
           {imageCount > 1 && (
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
               {allImages.slice(0, 5).map((_, idx) => (
@@ -183,36 +183,36 @@ export function MobileProjectCard({
           )}
         </div>
 
-        {/* Enhanced Info Section */}
-        <div className="px-3 py-3 space-y-1.5">
-          {/* Name */}
-          <h4 className="font-semibold text-sm text-foreground truncate leading-tight">{name}</h4>
-          
-          {/* Meta row */}
-          <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MapPin className="h-3 w-3" />
-              {city}
-            </span>
-            {completionYear && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                {completionYear}
+        {/* Compact Info Section - Price on Right */}
+        <div className="px-3 py-2.5 flex items-center justify-between gap-2">
+          {/* Left: Name + Meta */}
+          <div className="flex-1 min-w-0">
+            <h4 className="font-semibold text-sm text-foreground truncate leading-tight">{name}</h4>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <MapPin className="h-2.5 w-2.5" />
+                {city}
               </span>
-            )}
+              {completionYear && (
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                  <Calendar className="h-2.5 w-2.5" />
+                  {completionYear}
+                </span>
+              )}
+            </div>
           </div>
           
-          {/* Price - Prominent */}
-          <div className="pt-1">
+          {/* Right: Price */}
+          <div className="text-right shrink-0">
             {startingPrice ? (
               <div>
                 <span className="text-[9px] text-muted-foreground block">Starting from</span>
-                <p className="text-lg font-bold text-foreground leading-tight">
+                <p className="text-base font-bold text-foreground leading-tight">
                   {formatPrice(startingPrice)}
                 </p>
               </div>
             ) : (
-              <span className="text-sm text-primary font-semibold">Price TBA</span>
+              <span className="text-xs text-primary font-semibold">Price TBA</span>
             )}
           </div>
         </div>
