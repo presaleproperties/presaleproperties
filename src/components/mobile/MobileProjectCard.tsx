@@ -202,12 +202,12 @@ export function MobileProjectCard({
             </div>
           </div>
           
-          {/* Right: Price */}
-          <div className="text-right shrink-0">
+          {/* Right: Price with highlight */}
+          <div className="text-right shrink-0 bg-primary/5 rounded-lg px-2.5 py-1.5 border border-primary/10">
             {startingPrice ? (
               <div>
                 <span className="text-[9px] text-muted-foreground block">Starting from</span>
-                <p className="text-base font-bold text-foreground leading-tight">
+                <p className="text-base font-bold text-primary leading-tight">
                   {formatPrice(startingPrice)}
                 </p>
               </div>
