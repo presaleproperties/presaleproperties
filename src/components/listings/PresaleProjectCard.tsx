@@ -132,7 +132,7 @@ export function PresaleProjectCard({
         <div 
           className={cn(
             "relative overflow-hidden bg-muted",
-            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
+            size === "featured" ? "aspect-[4/3]" : size === "large" ? "aspect-[5/4]" : "aspect-[1/1]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
