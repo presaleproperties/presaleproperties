@@ -696,17 +696,6 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Location */}
-                {project.address && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-2">Location</h2>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary shrink-0 mt-0.5" />
-                      <p className="font-medium text-base md:text-lg text-foreground">{project.address}</p>
-                    </div>
-                  </div>
-                )}
-
                 {/* Developer Info */}
                 {project.developer_name && (
                   <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
