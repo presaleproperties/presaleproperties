@@ -168,7 +168,7 @@ export function MobileDiscoveryCarousel({
           </div>
           <Link 
             to={seeAllLink}
-            className="flex items-center gap-1 text-sm font-semibold text-primary active:opacity-70 px-2 py-1 rounded-lg hover:bg-primary/5 transition-colors"
+            className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 active:bg-primary/20 px-3 py-1.5 rounded-full transition-colors"
           >
             See all
             <ArrowRight className="h-4 w-4" />
