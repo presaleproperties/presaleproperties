@@ -53,38 +53,38 @@ export function MobileHomePage() {
       />
 
       {/* Category Chips - Sticky below header */}
-      <div className="sticky top-12 z-30 bg-background">
+      <div className="sticky top-12 z-30 bg-background/95 backdrop-blur-sm">
         <MobileCategoryChips
           selectedChip={selectedChip}
           onChipSelect={handleChipSelect}
         />
       </div>
 
-      {/* Mobile Hero - Brief welcome message */}
+      {/* Mobile Hero - Compact welcome */}
       <div 
-        className="px-4 pt-4 pb-2"
+        className="px-4 pt-3 pb-1"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        <h1 className="text-lg font-bold text-foreground">
+        <h1 className="text-base font-bold text-foreground">
           New Presale Condos & Townhomes
         </h1>
-        <p className="text-sm text-muted-foreground">
-          Browse Metro Vancouver's latest developments
+        <p className="text-xs text-muted-foreground">
+          Metro Vancouver's latest developments
         </p>
       </div>
 
       {/* Discovery Sections */}
       <div 
-        className="space-y-6 py-2"
+        className="space-y-4 py-1"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}
       >
-        {/* Condos - Large Cards */}
+        {/* Condos */}
         <CarouselSection delay={0}>
           <MobileDiscoveryCarousel
             type="condos"
@@ -93,7 +93,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        {/* Townhomes - Large Cards */}
+        {/* Townhomes */}
         <CarouselSection delay={50}>
           <MobileDiscoveryCarousel
             type="townhomes"
@@ -102,7 +102,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        {/* Single-Family / Detached - Large Cards */}
+        {/* Single-Family / Detached */}
         <CarouselSection delay={100}>
           <MobileDiscoveryCarousel
             type="single_family"
