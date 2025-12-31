@@ -74,8 +74,8 @@ export function MobileDiscoveryCarousel({
 
       // Apply type-specific filters
       if (type === "hot_projects") {
-        // Hot projects - featured or recently published active projects
-        query = query.eq("status", "active").order("published_at", { ascending: false });
+        // Hot projects - most viewed projects
+        query = query.order("view_count", { ascending: false });
       } else if (type === "condos") {
         // Condos only
         query = query.eq("project_type", "condo").order("published_at", { ascending: false });
