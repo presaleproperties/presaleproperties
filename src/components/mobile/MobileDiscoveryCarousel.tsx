@@ -151,7 +151,7 @@ export function MobileDiscoveryCarousel({
   }
 
   return (
-    <div className="space-y-3 md:hidden">
+    <div className="space-y-3 md:space-y-4 lg:hidden">
       {/* Header - Enhanced */}
       <div className="px-4">
         {badge && (

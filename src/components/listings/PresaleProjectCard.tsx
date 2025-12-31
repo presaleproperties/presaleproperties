@@ -212,19 +212,19 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
+        <CardContent className="p-3 sm:p-4 md:p-4 space-y-2 sm:space-y-2.5 md:space-y-3">
           <div className="flex items-start gap-1.5 text-muted-foreground">
             <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
-            <span className="text-xs sm:text-sm truncate">
+            <span className="text-xs sm:text-sm md:text-sm truncate">
               {neighborhood}
             </span>
           </div>
 
           <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
+            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base md:text-base">
               {name}
             </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+            <p className="text-xs sm:text-sm md:text-sm text-muted-foreground line-clamp-1">
               {formatType(projectType)} • {completionYear ? `Move in ${completionYear}` : "Coming Soon"}
             </p>
           </div>
@@ -232,7 +232,7 @@ export function PresaleProjectCard({
           <div className="flex items-end justify-between pt-2 border-t border-border">
             <div>
               {startingPrice ? (
-                <p className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                <p className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
                   From {formatPrice(startingPrice)}
                 </p>
               ) : (
@@ -241,7 +241,7 @@ export function PresaleProjectCard({
                 </p>
               )}
             </div>
-            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <span className="text-[10px] sm:text-xs md:text-xs font-medium text-muted-foreground uppercase tracking-wide">
               {city}
             </span>
           </div>
