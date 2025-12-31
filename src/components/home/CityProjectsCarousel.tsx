@@ -128,11 +128,12 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <Link to={`/presale-projects?city=${encodeURIComponent(city)}`}>
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              View All
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Button>
+          <Link 
+            to={`/presale-projects?city=${encodeURIComponent(city)}`}
+            className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
+          >
+            View All
+            <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
       </div>

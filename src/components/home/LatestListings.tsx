@@ -59,11 +59,12 @@ export function LatestListings() {
               Recently added to the marketplace
             </p>
           </div>
-          <Link to="/assignments" className="hidden sm:block shrink-0">
-            <Button variant="ghost" size="lg" className="flex items-center gap-2 group text-muted-foreground hover:text-foreground">
-              View All
-              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Button>
+          <Link 
+            to="/assignments" 
+            className="hidden sm:flex items-center gap-2 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-4 py-2 rounded-full transition-colors shrink-0 group"
+          >
+            View All
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
 
