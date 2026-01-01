@@ -242,7 +242,6 @@ export function MobileHomePage() {
             type="hot_projects"
             title="Most Popular Projects"
             subtitle="The most in-demand presale projects"
-            badge="🔥"
             city={selectedCity}
           />
         </CarouselSection>
