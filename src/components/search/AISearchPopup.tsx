@@ -506,93 +506,127 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] sm:pt-[20vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] sm:pt-[18vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60 backdrop-blur-md"
         onClick={() => onOpenChange(false)}
       />
 
-      {/* Compact Search Container */}
+      {/* Rich Search Container */}
       <div
         ref={containerRef}
         className={cn(
-          "relative z-10 w-full mx-4 bg-background rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col",
+          "relative z-10 w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-300 flex flex-col",
+          "bg-gradient-to-b from-background via-background to-background/95",
+          "rounded-3xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.4)]",
+          "border border-border/50",
           conversation.length === 0 ? "max-w-xl" : "max-w-2xl max-h-[70vh]"
         )}
       >
         {conversation.length === 0 && !isLoading ? (
-          <div className="p-4">
-            {/* Header Text */}
-            <h3 className="text-base font-semibold text-foreground text-center mb-3">
-              Let's find you a presale
-            </h3>
+          <div className="p-6">
+            {/* Decorative Header with Icon */}
+            <div className="flex flex-col items-center mb-5">
+              <div className="p-3 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 mb-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground text-center">
+                Let's find you a presale
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Describe your dream home in plain English
+              </p>
+            </div>
             
-            {/* Search Input - Minimal Style */}
-            <div className="relative flex items-center">
-              <input
-                ref={inputRef}
-                type="text"
-                value={isListening ? query + interimTranscript : query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
-                placeholder="What are you looking for?"
-                className={cn(
-                  "w-full pl-4 pr-24 py-4 rounded-2xl border-0 bg-muted/50 text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-0 transition-all text-base",
-                  isListening && "bg-red-50/50 dark:bg-red-950/20"
-                )}
-                disabled={isLoading}
-              />
-              
-              <div className="absolute right-2 flex items-center gap-1">
-                {/* Voice Button */}
-                {isSpeechSupported && (
+            {/* Premium Search Input */}
+            <div className="relative">
+              <div className={cn(
+                "relative flex items-center rounded-2xl transition-all duration-300",
+                "bg-gradient-to-r from-muted/80 to-muted/40",
+                "border border-border/50",
+                "shadow-inner",
+                "focus-within:border-primary/50 focus-within:shadow-[0_0_0_3px_hsl(var(--primary)/0.1)]",
+                isListening && "border-red-500/50 bg-red-50/30 dark:bg-red-950/20"
+              )}>
+                <Search className="absolute left-4 h-5 w-5 text-muted-foreground/60" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={isListening ? query + interimTranscript : query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
+                  placeholder="What are you looking for?"
+                  className={cn(
+                    "w-full pl-12 pr-24 py-4 rounded-2xl bg-transparent text-foreground",
+                    "placeholder:text-muted-foreground/50 focus:outline-none text-base"
+                  )}
+                  disabled={isLoading}
+                />
+                
+                <div className="absolute right-2 flex items-center gap-1.5">
+                  {/* Voice Button */}
+                  {isSpeechSupported && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={toggleVoiceInput}
+                      disabled={isLoading}
+                      className={cn(
+                        "h-10 w-10 rounded-xl text-muted-foreground hover:text-foreground hover:bg-background/80",
+                        isListening && "text-red-500 bg-red-100 dark:bg-red-900/30 animate-pulse"
+                      )}
+                    >
+                      {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
+                    </Button>
+                  )}
+                  
+                  {/* Search/Send Button */}
                   <Button
-                    type="button"
                     size="icon"
-                    variant="ghost"
-                    onClick={toggleVoiceInput}
-                    disabled={isLoading}
+                    onClick={() => handleSearch()}
+                    disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
                     className={cn(
-                      "h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted",
-                      isListening && "text-red-500 animate-pulse"
+                      "h-10 w-10 rounded-xl transition-all duration-200",
+                      "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground",
+                      "hover:shadow-lg hover:shadow-primary/30 hover:scale-105",
+                      "disabled:opacity-40 disabled:hover:scale-100"
                     )}
                   >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    <ArrowRight className="h-5 w-5" />
                   </Button>
-                )}
-                
-                {/* Search/Send Button */}
-                <Button
-                  size="icon"
-                  onClick={() => handleSearch()}
-                  disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
-                  className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                </div>
               </div>
+
+              {/* Listening indicator */}
+              {isListening && (
+                <p className="text-xs text-red-600 dark:text-red-400 mt-3 flex items-center justify-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  Listening... speak now
+                </p>
+              )}
             </div>
 
-            {/* Listening indicator */}
-            {isListening && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center justify-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                Listening...
-              </p>
-            )}
-
             {/* Example Search Chips */}
-            <div className="flex flex-wrap gap-2 mt-4 justify-center">
-              {["2 bed in Langley", "Under $600k", "Townhouse in Surrey", "Near SkyTrain"].map((example) => (
-                <button
-                  key={example}
-                  onClick={() => handleSearch(example)}
-                  className="px-3 py-1.5 text-xs rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {example}
-                </button>
-              ))}
+            <div className="mt-5">
+              <p className="text-xs text-muted-foreground/70 text-center mb-3">Try asking</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {["2 bed in Langley", "Under $600k", "Townhouse in Surrey", "Near SkyTrain"].map((example) => (
+                  <button
+                    key={example}
+                    onClick={() => handleSearch(example)}
+                    className={cn(
+                      "px-4 py-2 text-sm rounded-xl transition-all duration-200",
+                      "bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground",
+                      "border border-transparent hover:border-border/50",
+                      "hover:shadow-sm hover:-translate-y-0.5"
+                    )}
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
