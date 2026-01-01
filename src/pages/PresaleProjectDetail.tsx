@@ -22,6 +22,7 @@ import { InlineScheduler } from "@/components/booking/InlineScheduler";
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useLoftyProjectTracking } from "@/hooks/useLoftyTracking";
 import { 
   MapPin,
   Calendar,
@@ -89,6 +90,9 @@ export default function PresaleProjectDetail() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingDate, setBookingDate] = useState<Date | undefined>();
   const [bookingTimePeriod, setBookingTimePeriod] = useState<string | undefined>();
+
+  // Track project view to Lofty CRM
+  useLoftyProjectTracking(project);
 
   const handleRequestTour = (date: Date, timePeriod: string) => {
     setBookingDate(date);
