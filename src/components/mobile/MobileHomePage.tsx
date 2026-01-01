@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Sparkles } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
@@ -13,6 +13,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
+import { AISearchButton } from "@/components/search/AISearchButton";
 import { cn } from "@/lib/utils";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
@@ -170,13 +171,16 @@ export function MobileHomePage() {
                 </button>
               </div>
               
-              <button 
-                onClick={() => navigate("/presale-projects?view=map")}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <MapPin className="h-4 w-4" />
-                <span className="hidden xs:inline">Map</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <AISearchButton variant="compact" />
+                <button 
+                  onClick={() => navigate("/presale-projects?view=map")}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MapPin className="h-4 w-4" />
+                  <span className="hidden xs:inline">Map</span>
+                </button>
+              </div>
             </div>
 
             {/* Search Input */}
