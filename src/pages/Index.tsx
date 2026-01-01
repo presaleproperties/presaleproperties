@@ -299,7 +299,7 @@ const Index = () => {
           <BuyerCTASection />
         </ScrollReveal>
       </main>
-      <FloatingBottomNav />
+      
       <Footer />
     </div>
   );

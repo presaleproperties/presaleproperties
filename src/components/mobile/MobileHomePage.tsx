@@ -367,8 +367,6 @@ export function MobileHomePage() {
         <Footer />
       </div>
 
-      {/* Bottom Navigation */}
-      <FloatingBottomNav />
     </div>
   );
 }
