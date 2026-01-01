@@ -1,9 +1,10 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, ArrowRight, RotateCcw, MessageSquare } from "lucide-react";
+import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, ArrowRight, RotateCcw, MessageSquare, Mic, MicOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AISearchPopupProps {
   open: boolean;
@@ -54,6 +55,50 @@ interface SearchResult {
   conversation_context?: string;
 }
 
+// Web Speech API types
+interface SpeechRecognitionEvent extends Event {
+  results: SpeechRecognitionResultList;
+  resultIndex: number;
+}
+
+interface SpeechRecognitionResultList {
+  length: number;
+  item(index: number): SpeechRecognitionResult;
+  [index: number]: SpeechRecognitionResult;
+}
+
+interface SpeechRecognitionResult {
+  isFinal: boolean;
+  length: number;
+  item(index: number): SpeechRecognitionAlternative;
+  [index: number]: SpeechRecognitionAlternative;
+}
+
+interface SpeechRecognitionAlternative {
+  transcript: string;
+  confidence: number;
+}
+
+declare global {
+  interface Window {
+    SpeechRecognition: new () => SpeechRecognition;
+    webkitSpeechRecognition: new () => SpeechRecognition;
+  }
+}
+
+interface SpeechRecognition extends EventTarget {
+  continuous: boolean;
+  interimResults: boolean;
+  lang: string;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onerror: ((event: Event & { error: string }) => void) | null;
+  onend: (() => void) | null;
+  onstart: (() => void) | null;
+}
+
 const EXAMPLE_QUERIES = [
   "1 bedroom condo in Langley under $600k",
   "Townhouse for a family in Surrey",
@@ -70,13 +115,112 @@ const FOLLOWUP_SUGGESTIONS = [
 
 export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [isListening, setIsListening] = useState(false);
+  const [interimTranscript, setInterimTranscript] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Check if speech recognition is supported
+  const isSpeechSupported = typeof window !== "undefined" && 
+    (window.SpeechRecognition || window.webkitSpeechRecognition);
+
+  // Initialize speech recognition
+  const initSpeechRecognition = useCallback(() => {
+    if (!isSpeechSupported) return null;
+    
+    const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognitionAPI();
+    
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+    
+    recognition.onstart = () => {
+      setIsListening(true);
+      setInterimTranscript("");
+    };
+    
+    recognition.onresult = (event: SpeechRecognitionEvent) => {
+      let interim = "";
+      let final = "";
+      
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          final += transcript;
+        } else {
+          interim += transcript;
+        }
+      }
+      
+      if (final) {
+        setQuery(prev => prev + final);
+        setInterimTranscript("");
+      } else {
+        setInterimTranscript(interim);
+      }
+    };
+    
+    recognition.onerror = (event) => {
+      console.error("Speech recognition error:", event.error);
+      setIsListening(false);
+      setInterimTranscript("");
+      
+      if (event.error === "not-allowed") {
+        toast({
+          title: "Microphone access denied",
+          description: "Please allow microphone access to use voice search.",
+          variant: "destructive",
+        });
+      } else if (event.error !== "aborted") {
+        toast({
+          title: "Voice input error",
+          description: "Could not understand. Please try again.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    recognition.onend = () => {
+      setIsListening(false);
+      setInterimTranscript("");
+    };
+    
+    return recognition;
+  }, [isSpeechSupported, toast]);
+
+  // Toggle voice input
+  const toggleVoiceInput = useCallback(() => {
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+    
+    if (!recognitionRef.current) {
+      recognitionRef.current = initSpeechRecognition();
+    }
+    
+    if (recognitionRef.current) {
+      try {
+        recognitionRef.current.start();
+        
+        // Track voice search usage
+        if (typeof window !== "undefined" && (window as any).gtag) {
+          (window as any).gtag("event", "ai_voice_search_started");
+        }
+      } catch (err) {
+        console.error("Failed to start speech recognition:", err);
+      }
+    }
+  }, [isListening, initSpeechRecognition]);
 
   useEffect(() => {
     if (open) {
@@ -85,8 +229,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     } else {
       setQuery("");
       setError(null);
+      // Stop listening when modal closes
+      if (isListening) {
+        recognitionRef.current?.stop();
+        setIsListening(false);
+      }
     }
-  }, [open]);
+  }, [open, isListening]);
 
   // Scroll to bottom when conversation updates
   useEffect(() => {
@@ -103,6 +252,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     if (open) window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [open, onOpenChange]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort();
+    };
+  }, []);
 
   const handleSearch = async (searchQuery?: string) => {
     const q = searchQuery || query;
@@ -455,20 +611,49 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             <input
               ref={inputRef}
               type="text"
-              value={query}
+              value={isListening ? query + interimTranscript : query}
               onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSearch()}
-              placeholder={conversation.length > 0 
-                ? "Refine your search (e.g., 'show me cheaper options')..." 
-                : "e.g., 1 bedroom condo around $500k in Langley..."
+              onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
+              placeholder={isListening 
+                ? "Listening..." 
+                : conversation.length > 0 
+                  ? "Refine your search (e.g., 'show me cheaper options')..." 
+                  : "e.g., 1 bedroom condo around $500k in Langley..."
               }
-              className="w-full pl-4 pr-12 py-3 rounded-xl border border-border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary"
+              className={cn(
+                "w-full pl-4 pr-24 py-3 rounded-xl border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors",
+                isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
+              )}
               disabled={isLoading}
             />
+            
+            {/* Voice Input Button */}
+            {isSpeechSupported && (
+              <Button
+                type="button"
+                size="icon"
+                variant={isListening ? "destructive" : "ghost"}
+                onClick={toggleVoiceInput}
+                disabled={isLoading}
+                className={cn(
+                  "absolute right-11 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg",
+                  isListening && "animate-pulse"
+                )}
+                title={isListening ? "Stop listening" : "Voice search"}
+              >
+                {isListening ? (
+                  <MicOff className="h-4 w-4" />
+                ) : (
+                  <Mic className="h-4 w-4" />
+                )}
+              </Button>
+            )}
+            
+            {/* Search Button */}
             <Button
               size="icon"
               onClick={() => handleSearch()}
-              disabled={isLoading || query.length < 3}
+              disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
               className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg"
             >
               {isLoading ? (
@@ -478,6 +663,14 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
               )}
             </Button>
           </div>
+          
+          {/* Listening indicator */}
+          {isListening && (
+            <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              Listening... speak your search query
+            </p>
+          )}
         </div>
 
         {/* Footer */}
