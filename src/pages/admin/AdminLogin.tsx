@@ -59,18 +59,57 @@ export default function AdminLogin() {
   });
 
   useEffect(() => {
-    // Check if this is a password reset callback
     const type = searchParams.get("type");
+
+    // Password reset callback
     if (type === "recovery") {
       setViewMode("reset");
-      setCheckingAuth(false);
+
+      const initRecoverySession = async () => {
+        try {
+          // 1) PKCE flow (code in query)
+          const url = new URL(window.location.href);
+          const code = url.searchParams.get("code");
+          if (code) {
+            const { error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+            if (error) throw error;
+          }
+
+          // 2) Implicit flow (tokens in hash)
+          const hash = window.location.hash?.replace(/^#/, "") ?? "";
+          const hashParams = new URLSearchParams(hash);
+          const access_token = hashParams.get("access_token");
+          const refresh_token = hashParams.get("refresh_token");
+          if (access_token && refresh_token) {
+            const { error } = await supabase.auth.setSession({ access_token, refresh_token });
+            if (error) throw error;
+          }
+
+          // Verify we actually have a session before allowing password update
+          const { data: { session } } = await supabase.auth.getSession();
+          if (!session) {
+            throw new Error("Reset link is invalid or expired. Please request a new one.");
+          }
+        } catch (err: any) {
+          toast({
+            title: "Reset link error",
+            description: err?.message || "Reset link is invalid or expired. Please request a new one.",
+            variant: "destructive",
+          });
+          setViewMode("forgot");
+        } finally {
+          setCheckingAuth(false);
+        }
+      };
+
+      initRecoverySession();
       return;
     }
 
     // Check if already logged in as admin
     const checkExistingSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      
+
       if (session?.user) {
         const { data: roleData } = await supabase
           .from("user_roles")
@@ -78,7 +117,7 @@ export default function AdminLogin() {
           .eq("user_id", session.user.id)
           .eq("role", "admin")
           .maybeSingle();
-        
+
         if (roleData) {
           navigate("/admin");
           return;
@@ -88,7 +127,7 @@ export default function AdminLogin() {
     };
 
     checkExistingSession();
-  }, [navigate, searchParams]);
+  }, [navigate, searchParams, toast]);
 
   const handleLogin = async (data: LoginFormData) => {
     setIsLoading(true);
