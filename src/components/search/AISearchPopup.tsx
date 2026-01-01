@@ -1,11 +1,19 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, ArrowRight, RotateCcw, MessageSquare, Mic, MicOff, Check, Scale } from "lucide-react";
+import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, ArrowRight, RotateCcw, MessageSquare, Mic, MicOff, Check, Scale, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { AICompareModal } from "./AICompareModal";
+
+interface TypeaheadSuggestion {
+  type: "project" | "city" | "neighborhood";
+  label: string;
+  sublabel?: string;
+  slug?: string;
+  city?: string;
+}
 
 interface AISearchPopupProps {
   open: boolean;
@@ -166,10 +174,15 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
   const [selectedListings, setSelectedListings] = useState<Listing[]>([]);
   const [showCompare, setShowCompare] = useState(false);
+  const [typeaheadSuggestions, setTypeaheadSuggestions] = useState<TypeaheadSuggestion[]>([]);
+  const [isLoadingTypeahead, setIsLoadingTypeahead] = useState(false);
+  const [showTypeahead, setShowTypeahead] = useState(false);
+  const [selectedSuggestionIndex, setSelectedSuggestionIndex] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+  const typeaheadDebounceRef = useRef<NodeJS.Timeout | null>(null);
 
   // Check if speech recognition is supported
   const isSpeechSupported = typeof window !== "undefined" && 
@@ -301,8 +314,158 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   useEffect(() => {
     return () => {
       recognitionRef.current?.abort();
+      if (typeaheadDebounceRef.current) {
+        clearTimeout(typeaheadDebounceRef.current);
+      }
     };
   }, []);
+
+  // Available cities for typeahead
+  const availableCities = useMemo(() => [
+    "Vancouver", "Burnaby", "Surrey", "South Surrey", "Langley", 
+    "Coquitlam", "Richmond", "New Westminster", "Port Moody", 
+    "Delta", "Abbotsford", "North Vancouver", "Whiterock"
+  ], []);
+
+  // Fetch typeahead suggestions
+  const fetchTypeahead = useCallback(async (searchTerm: string) => {
+    if (searchTerm.length < 2) {
+      setTypeaheadSuggestions([]);
+      setShowTypeahead(false);
+      return;
+    }
+
+    setIsLoadingTypeahead(true);
+    
+    try {
+      const suggestions: TypeaheadSuggestion[] = [];
+      const lowerSearch = searchTerm.toLowerCase();
+
+      // Match cities
+      const matchedCities = availableCities.filter(city => 
+        city.toLowerCase().includes(lowerSearch) ||
+        city.toLowerCase().startsWith(lowerSearch)
+      );
+      
+      matchedCities.slice(0, 3).forEach(city => {
+        suggestions.push({
+          type: "city",
+          label: city,
+          sublabel: "City",
+          city
+        });
+      });
+
+      // Fetch matching projects from database
+      const { data: projects, error } = await supabase
+        .from("presale_projects")
+        .select("name, slug, city, neighborhood")
+        .eq("is_published", true)
+        .or(`name.ilike.%${searchTerm}%,neighborhood.ilike.%${searchTerm}%`)
+        .limit(5);
+
+      if (!error && projects) {
+        // Add project suggestions
+        projects.forEach(project => {
+          suggestions.push({
+            type: "project",
+            label: project.name,
+            sublabel: `${project.neighborhood}, ${project.city}`,
+            slug: project.slug,
+            city: project.city
+          });
+        });
+
+        // Extract unique neighborhoods
+        const neighborhoods = [...new Set(projects.map(p => p.neighborhood))];
+        neighborhoods.slice(0, 2).forEach(neighborhood => {
+          if (neighborhood.toLowerCase().includes(lowerSearch)) {
+            const project = projects.find(p => p.neighborhood === neighborhood);
+            if (project && !suggestions.some(s => s.type === "neighborhood" && s.label === neighborhood)) {
+              suggestions.push({
+                type: "neighborhood",
+                label: neighborhood,
+                sublabel: `Neighborhood in ${project.city}`,
+                city: project.city
+              });
+            }
+          }
+        });
+      }
+
+      setTypeaheadSuggestions(suggestions.slice(0, 6));
+      setShowTypeahead(suggestions.length > 0);
+      setSelectedSuggestionIndex(-1);
+    } catch (err) {
+      console.error("Typeahead error:", err);
+    } finally {
+      setIsLoadingTypeahead(false);
+    }
+  }, [availableCities]);
+
+  // Debounced typeahead
+  useEffect(() => {
+    if (typeaheadDebounceRef.current) {
+      clearTimeout(typeaheadDebounceRef.current);
+    }
+
+    if (query.length >= 2 && conversation.length === 0) {
+      typeaheadDebounceRef.current = setTimeout(() => {
+        fetchTypeahead(query);
+      }, 150);
+    } else {
+      setTypeaheadSuggestions([]);
+      setShowTypeahead(false);
+    }
+  }, [query, conversation.length, fetchTypeahead]);
+
+  // Handle typeahead suggestion click
+  const handleSuggestionClick = (suggestion: TypeaheadSuggestion) => {
+    setShowTypeahead(false);
+    
+    if (suggestion.type === "project" && suggestion.slug) {
+      // Navigate directly to project
+      onOpenChange(false);
+      navigate(`/presale-projects/${suggestion.slug}`);
+    } else if (suggestion.type === "city") {
+      // Search for projects in this city
+      handleSearch(`projects in ${suggestion.label}`);
+    } else if (suggestion.type === "neighborhood") {
+      // Search for projects in this neighborhood
+      handleSearch(`projects in ${suggestion.label}`);
+    }
+  };
+
+  // Handle keyboard navigation in typeahead
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showTypeahead || typeaheadSuggestions.length === 0) {
+      if (e.key === "Enter" && !isListening) {
+        handleSearch();
+      }
+      return;
+    }
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prev => 
+        prev < typeaheadSuggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedSuggestionIndex(prev => prev > 0 ? prev - 1 : -1);
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (selectedSuggestionIndex >= 0) {
+        handleSuggestionClick(typeaheadSuggestions[selectedSuggestionIndex]);
+      } else if (!isListening) {
+        setShowTypeahead(false);
+        handleSearch();
+      }
+    } else if (e.key === "Escape") {
+      setShowTypeahead(false);
+    }
+  };
+
 
   const handleSearch = async (searchQuery?: string) => {
     const q = searchQuery || query;
@@ -532,51 +695,100 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
               </h3>
             </div>
             
-            {/* Compact Search Input */}
-            <div className={cn(
-              "relative flex items-center rounded-xl transition-all",
-              "bg-muted/50 border border-border/50",
-              "focus-within:border-primary/50 focus-within:bg-muted/70",
-              isListening && "border-red-500/50 bg-red-50/30 dark:bg-red-950/20"
-            )}>
-              <Search className="absolute left-3 h-4 w-4 text-muted-foreground/50" />
-              <input
-                ref={inputRef}
-                type="text"
-                value={isListening ? query + interimTranscript : query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
-                placeholder="What are you looking for?"
-                className="w-full pl-9 pr-20 py-3 rounded-xl bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
-                disabled={isLoading}
-              />
-              
-              <div className="absolute right-1.5 flex items-center gap-1">
-                {isSpeechSupported && (
-                  <Button
-                    type="button"
-                    size="icon"
-                    variant="ghost"
-                    onClick={toggleVoiceInput}
-                    disabled={isLoading}
-                    className={cn(
-                      "h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground",
-                      isListening && "text-red-500 animate-pulse"
-                    )}
-                  >
-                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                  </Button>
-                )}
+            {/* Compact Search Input with Typeahead */}
+            <div className="relative">
+              <div className={cn(
+                "relative flex items-center rounded-xl transition-all",
+                "bg-muted/50 border border-border/50",
+                "focus-within:border-primary/50 focus-within:bg-muted/70",
+                isListening && "border-red-500/50 bg-red-50/30 dark:bg-red-950/20",
+                showTypeahead && "rounded-b-none border-b-0"
+              )}>
+                <Search className="absolute left-3 h-4 w-4 text-muted-foreground/50" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={isListening ? query + interimTranscript : query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleInputKeyDown}
+                  onFocus={() => query.length >= 2 && typeaheadSuggestions.length > 0 && setShowTypeahead(true)}
+                  onBlur={() => setTimeout(() => setShowTypeahead(false), 200)}
+                  placeholder="Search projects, cities..."
+                  className="w-full pl-9 pr-20 py-3 rounded-xl bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+                  disabled={isLoading}
+                  autoComplete="off"
+                />
                 
-                <Button
-                  size="icon"
-                  onClick={() => handleSearch()}
-                  disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
-                  className="h-8 w-8 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
-                >
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
+                <div className="absolute right-1.5 flex items-center gap-1">
+                  {isLoadingTypeahead && (
+                    <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+                  )}
+                  {isSpeechSupported && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={toggleVoiceInput}
+                      disabled={isLoading}
+                      className={cn(
+                        "h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground",
+                        isListening && "text-red-500 animate-pulse"
+                      )}
+                    >
+                      {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                    </Button>
+                  )}
+                  
+                  <Button
+                    size="icon"
+                    onClick={() => { setShowTypeahead(false); handleSearch(); }}
+                    disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
+                    className="h-8 w-8 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                  >
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
+
+              {/* Typeahead Suggestions Dropdown */}
+              {showTypeahead && typeaheadSuggestions.length > 0 && (
+                <div className="absolute left-0 right-0 bg-background/95 backdrop-blur-lg border border-t-0 border-border/50 rounded-b-xl shadow-lg z-50 overflow-hidden">
+                  {typeaheadSuggestions.map((suggestion, index) => (
+                    <button
+                      key={`${suggestion.type}-${suggestion.label}-${index}`}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                      className={cn(
+                        "w-full px-3 py-2.5 flex items-center gap-3 text-left transition-colors",
+                        "hover:bg-muted/70",
+                        selectedSuggestionIndex === index && "bg-muted"
+                      )}
+                    >
+                      {suggestion.type === "project" && (
+                        <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
+                      )}
+                      {suggestion.type === "city" && (
+                        <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                      )}
+                      {suggestion.type === "neighborhood" && (
+                        <Home className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">
+                          {suggestion.label}
+                        </p>
+                        {suggestion.sublabel && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {suggestion.sublabel}
+                          </p>
+                        )}
+                      </div>
+                      {suggestion.type === "project" && (
+                        <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {isListening && (
