@@ -367,11 +367,8 @@ export function MobileHomePage() {
         <Footer />
       </div>
 
-      {/* Bottom Navigation with Location Picker */}
-      <FloatingBottomNav 
-        selectedCity={selectedCity}
-        onCityChange={handleCityChange}
-      />
+      {/* Bottom Navigation */}
+      <FloatingBottomNav />
     </div>
   );
 }
