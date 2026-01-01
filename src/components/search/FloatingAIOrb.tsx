@@ -18,13 +18,14 @@ export function FloatingAIOrb() {
           "shadow-lg shadow-primary/30",
           "flex items-center justify-center",
           "transition-all duration-300 ease-out",
-          "hover:scale-110 hover:shadow-xl hover:shadow-primary/40",
+          "hover:scale-110 hover:shadow-xl hover:shadow-primary/50",
           "active:scale-95",
-          // Pulsing animation
-          "before:absolute before:inset-0 before:rounded-full before:bg-primary/40 before:animate-ping before:opacity-75",
-          // Glow effect
-          "after:absolute after:inset-[-4px] after:rounded-full after:bg-gradient-to-br after:from-primary/30 after:to-transparent after:blur-md after:-z-10"
+          // Subtle breathing glow
+          "animate-[glow-pulse_3s_ease-in-out_infinite]"
         )}
+        style={{
+          boxShadow: "0 0 20px hsl(var(--primary) / 0.4), 0 0 40px hsl(var(--primary) / 0.2), 0 4px 12px rgba(0,0,0,0.15)"
+        }}
         aria-label="AI Search"
       >
         <Sparkles className="h-6 w-6 text-primary-foreground relative z-10" />
