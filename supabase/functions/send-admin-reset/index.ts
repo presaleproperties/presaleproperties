@@ -6,8 +6,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
+
 interface Body {
   email: string;
+}
+
+async function getSenderEmail(supabase: any): Promise<string> {
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "email_sender")
+    .maybeSingle();
+  
+  if (data?.value && typeof data.value === "string" && data.value.trim()) {
+    return data.value.trim();
+  }
+  return DEFAULT_SENDER;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -26,6 +41,10 @@ serve(async (req: Request): Promise<Response> => {
     const { Resend } = await import("https://esm.sh/resend@2.0.0");
     const resend = new Resend(resendApiKey);
 
+    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
+      auth: { persistSession: false },
+    });
+
     const { email }: Body = await req.json();
 
     const normalizedEmail = String(email ?? "").trim().toLowerCase();
@@ -39,10 +58,6 @@ serve(async (req: Request): Promise<Response> => {
     const origin = req.headers.get("origin") || "";
     const redirectTo = origin ? `${origin}/admin/login?type=recovery` : undefined;
 
-    const supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
-      auth: { persistSession: false },
-    });
-
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "recovery",
       email: normalizedEmail,
@@ -54,8 +69,10 @@ serve(async (req: Request): Promise<Response> => {
     const actionLink = data?.properties?.action_link;
     if (!actionLink) throw new Error("Failed to generate reset link");
 
+    const senderEmail = await getSenderEmail(supabaseAdmin);
+
     const emailResponse = await resend.emails.send({
-      from: "PresaleProperties <onboarding@resend.dev>",
+      from: senderEmail,
       to: [normalizedEmail],
       subject: "Admin password reset",
       html: `
@@ -65,7 +82,7 @@ serve(async (req: Request): Promise<Response> => {
           <p style="margin: 24px 0;">
             <a href="${actionLink}" target="_blank" style="display: inline-block; padding: 12px 16px; border-radius: 10px; background: #111827; color: #ffffff; text-decoration: none; font-weight: 600;">Reset Password</a>
           </p>
-          <p style="color: #6a6a6a; font-size: 12px; line-height: 1.6;">If you didn’t request this, you can ignore this email.</p>
+          <p style="color: #6a6a6a; font-size: 12px; line-height: 1.6;">If you didn't request this, you can ignore this email.</p>
         </div>
       `,
     });

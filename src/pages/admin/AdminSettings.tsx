@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -11,7 +12,11 @@ import {
   Loader2,
   Save,
   MessageCircle,
-  Webhook
+  Webhook,
+  Mail,
+  CheckCircle2,
+  AlertCircle,
+  ExternalLink
 } from "lucide-react";
 
 interface AppSettings {
@@ -23,7 +28,11 @@ interface AppSettings {
   zapier_listing_leads_webhook: string;
   zapier_bookings_webhook: string;
   lofty_tracking_webhook: string;
+  email_sender: string;
+  email_domain_verified: boolean;
 }
+
+const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<AppSettings>({
@@ -35,6 +44,8 @@ export default function AdminSettings() {
     zapier_listing_leads_webhook: "",
     zapier_bookings_webhook: "",
     lofty_tracking_webhook: "",
+    email_sender: DEFAULT_SENDER,
+    email_domain_verified: false,
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,6 +73,8 @@ export default function AdminSettings() {
         if (item.key === "zapier_listing_leads_webhook") settingsMap.zapier_listing_leads_webhook = item.value as string;
         if (item.key === "zapier_bookings_webhook") settingsMap.zapier_bookings_webhook = item.value as string;
         if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
+        if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
+        if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
@@ -84,6 +97,8 @@ export default function AdminSettings() {
         { key: "zapier_listing_leads_webhook", value: settings.zapier_listing_leads_webhook },
         { key: "zapier_bookings_webhook", value: settings.zapier_bookings_webhook },
         { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
+        { key: "email_sender", value: settings.email_sender },
+        { key: "email_domain_verified", value: settings.email_domain_verified },
       ];
 
       for (const setting of settingsToSave) {
@@ -113,6 +128,8 @@ export default function AdminSettings() {
     }
   };
 
+  const isUsingCustomDomain = settings.email_sender !== DEFAULT_SENDER && !settings.email_sender.includes("resend.dev");
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -127,6 +144,128 @@ export default function AdminSettings() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
+            {/* Email Sender Configuration */}
+            <Card className="md:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Mail className="h-5 w-5" />
+                  Email Sender Configuration
+                </CardTitle>
+                <CardDescription>
+                  Configure the sender address for all outbound emails (leads, bookings, password resets)
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid gap-6 md:grid-cols-2">
+                  {/* Sender Email Input */}
+                  <div className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email_sender">Email Sender Address</Label>
+                      <Input
+                        id="email_sender"
+                        type="text"
+                        placeholder="Brand Name <noreply@yourdomain.com>"
+                        value={settings.email_sender}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          email_sender: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Format: <code className="bg-muted px-1 py-0.5 rounded">Brand Name &lt;email@domain.com&gt;</code>
+                      </p>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                      {isUsingCustomDomain ? (
+                        settings.email_domain_verified ? (
+                          <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                        ) : (
+                          <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
+                        )
+                      ) : (
+                        <Mail className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+                      )}
+                      <div className="text-sm">
+                        {isUsingCustomDomain ? (
+                          settings.email_domain_verified ? (
+                            <p className="text-green-700 font-medium">Custom domain verified and active</p>
+                          ) : (
+                            <p className="text-amber-700">Custom domain not yet verified — emails may fail to send</p>
+                          )
+                        ) : (
+                          <p className="text-muted-foreground">Using default Resend sender (recommended for testing)</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Domain Verification Checklist */}
+                  <div className="space-y-4">
+                    <Label className="text-base">Domain Verification Checklist</Label>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex items-start gap-3">
+                        <Checkbox
+                          id="step1"
+                          checked={settings.email_domain_verified}
+                          onCheckedChange={(checked) => setSettings(prev => ({
+                            ...prev,
+                            email_domain_verified: !!checked
+                          }))}
+                        />
+                        <label htmlFor="step1" className="leading-tight cursor-pointer">
+                          <span className="font-medium">Domain added & verified in Resend</span>
+                          <p className="text-muted-foreground text-xs mt-0.5">
+                            Add your domain at resend.com/domains and add the required DNS records
+                          </p>
+                        </label>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <Checkbox id="step2" disabled />
+                        <label htmlFor="step2" className="leading-tight text-muted-foreground">
+                          <span className="font-medium">SPF record configured</span>
+                          <p className="text-xs mt-0.5">Resend provides TXT record for SPF</p>
+                        </label>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <Checkbox id="step3" disabled />
+                        <label htmlFor="step3" className="leading-tight text-muted-foreground">
+                          <span className="font-medium">DKIM record configured</span>
+                          <p className="text-xs mt-0.5">Resend provides CNAME records for DKIM</p>
+                        </label>
+                      </div>
+
+                      <div className="flex items-start gap-3">
+                        <Checkbox id="step4" disabled />
+                        <label htmlFor="step4" className="leading-tight text-muted-foreground">
+                          <span className="font-medium">DMARC record (optional)</span>
+                          <p className="text-xs mt-0.5">Recommended for improved deliverability</p>
+                        </label>
+                      </div>
+                    </div>
+
+                    <Button variant="outline" size="sm" className="mt-2" asChild>
+                      <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer">
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Open Resend Domains
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+
+                <Button onClick={saveSettings} disabled={saving}>
+                  {saving ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Save className="h-4 w-4 mr-2" />
+                  )}
+                  Save Email Settings
+                </Button>
+              </CardContent>
+            </Card>
+
             {/* Zapier Integration */}
             <Card className="md:col-span-2">
               <CardHeader>
