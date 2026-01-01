@@ -47,3 +47,6 @@ verify_jwt = false
 
 [functions.send-booking-status-update]
 verify_jwt = false
+
+[functions.send-admin-reset]
+verify_jwt = false
