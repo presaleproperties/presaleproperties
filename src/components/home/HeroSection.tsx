@@ -4,6 +4,7 @@ import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
+import { AISearchButton } from "@/components/search/AISearchButton";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
 const projectCities = ["Surrey", "Langley", "Coquitlam", "Abbotsford"];
@@ -117,14 +118,17 @@ export function HeroSection() {
                   Assignments
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/assignments")}
-                className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <MapPin className="h-4 w-4" />
-                Browse All
-              </button>
+              <div className="hidden sm:flex items-center gap-2">
+                <AISearchButton variant="hero" />
+                <button
+                  type="button"
+                  onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/assignments")}
+                  className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <MapPin className="h-4 w-4" />
+                  Browse All
+                </button>
+              </div>
             </div>
 
             {/* Search Input */}
