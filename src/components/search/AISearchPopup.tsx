@@ -28,16 +28,36 @@ interface Project {
   match_reasons: string[];
 }
 
+interface Listing {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  property_type: string;
+  unit_type: string;
+  beds: number;
+  baths: number;
+  interior_sqft: number | null;
+  assignment_price: number;
+  completion_year: number | null;
+  featured_image: string | null;
+  match_reasons: string[];
+}
+
 interface ParsedFilters {
   city?: string;
   neighborhood?: string;
   project_type?: string;
+  property_type?: string;
   unit_type?: string;
   max_price?: number;
   min_price?: number;
   max_deposit_percent?: number;
   completion_year?: number;
   near_skytrain?: boolean;
+  beds?: number;
+  min_sqft?: number;
 }
 
 interface ConversationMessage {
@@ -45,15 +65,20 @@ interface ConversationMessage {
   content: string;
   filters?: ParsedFilters;
   projects?: Project[];
+  listings?: Listing[];
 }
 
 interface SearchResult {
-  projects: Project[];
+  projects?: Project[];
+  listings?: Listing[];
   explanation: string;
   filters_applied: ParsedFilters;
   clarification_needed?: string;
   conversation_context?: string;
+  search_mode: "projects" | "assignments";
 }
+
+type SearchMode = "projects" | "assignments";
 
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
@@ -99,18 +124,32 @@ interface SpeechRecognition extends EventTarget {
   onstart: (() => void) | null;
 }
 
-const EXAMPLE_QUERIES = [
+const PROJECT_EXAMPLE_QUERIES = [
   "1 bedroom condo in Langley under $600k",
   "Townhouse for a family in Surrey",
   "Investment condo near SkyTrain with 10% deposit",
   "2 bed in Burnaby completing in 2026",
 ];
 
-const FOLLOWUP_SUGGESTIONS = [
+const ASSIGNMENT_EXAMPLE_QUERIES = [
+  "2 bedroom condo in Surrey under $700k",
+  "1 bed assignment in Langley",
+  "Large condo over 800 sqft in Burnaby",
+  "Townhouse assignment in Coquitlam",
+];
+
+const PROJECT_FOLLOWUP_SUGGESTIONS = [
   "Show me cheaper options",
   "Only near SkyTrain",
   "What about townhouses?",
   "In Surrey instead",
+];
+
+const ASSIGNMENT_FOLLOWUP_SUGGESTIONS = [
+  "Show me cheaper options",
+  "What about 2 bedrooms?",
+  "Larger units please",
+  "In Vancouver instead",
 ];
 
 export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
@@ -119,6 +158,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
+  const [searchMode, setSearchMode] = useState<SearchMode>("projects");
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
@@ -291,7 +331,8 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       const { data, error: fnError } = await supabase.functions.invoke("ai-project-search", {
         body: { 
           query: q,
-          conversation: conversationHistory
+          conversation: conversationHistory,
+          searchMode
         },
       });
 
@@ -310,17 +351,24 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
         role: "assistant",
         content: result.explanation,
         filters: result.filters_applied,
-        projects: result.projects
+        projects: result.projects,
+        listings: result.listings
       };
       setConversation(prev => [...prev, assistantMessage]);
 
       // Track results
+      const resultCount = searchMode === "projects" 
+        ? (result.projects?.length || 0)
+        : (result.listings?.length || 0);
+      
       if (typeof window !== "undefined" && (window as any).gtag) {
         (window as any).gtag("event", "ai_filters_extracted", {
           filters: JSON.stringify(result.filters_applied),
+          search_mode: searchMode
         });
-        (window as any).gtag("event", result.projects?.length > 0 ? "ai_results_count" : "ai_no_results", {
-          count: result.projects?.length || 0,
+        (window as any).gtag("event", resultCount > 0 ? "ai_results_count" : "ai_no_results", {
+          count: resultCount,
+          search_mode: searchMode
         });
       }
     } catch (err: any) {
@@ -334,7 +382,6 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   };
 
   const handleProjectClick = (project: Project) => {
-    // Track click
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "ai_project_click", {
         project_id: project.id,
@@ -343,6 +390,26 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     }
     onOpenChange(false);
     navigate(`/presale-projects/${project.slug}`);
+  };
+
+  const handleListingClick = (listing: Listing) => {
+    if (typeof window !== "undefined" && (window as any).gtag) {
+      (window as any).gtag("event", "ai_listing_click", {
+        listing_id: listing.id,
+        listing_title: listing.title,
+      });
+    }
+    onOpenChange(false);
+    navigate(`/assignments/${listing.id}`);
+  };
+
+  const handleModeChange = (mode: SearchMode) => {
+    if (mode !== searchMode) {
+      setSearchMode(mode);
+      setConversation([]);
+      setError(null);
+      setQuery("");
+    }
   };
 
   const handleNewSearch = () => {
@@ -368,7 +435,12 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   };
 
   const lastAssistantMessage = [...conversation].reverse().find(m => m.role === "assistant");
-  const hasResults = lastAssistantMessage?.projects && lastAssistantMessage.projects.length > 0;
+  const hasResults = searchMode === "projects" 
+    ? (lastAssistantMessage?.projects && lastAssistantMessage.projects.length > 0)
+    : (lastAssistantMessage?.listings && lastAssistantMessage.listings.length > 0);
+
+  const exampleQueries = searchMode === "projects" ? PROJECT_EXAMPLE_QUERIES : ASSIGNMENT_EXAMPLE_QUERIES;
+  const followupSuggestions = searchMode === "projects" ? PROJECT_FOLLOWUP_SUGGESTIONS : ASSIGNMENT_FOLLOWUP_SUGGESTIONS;
 
   if (!open) return null;
 
@@ -386,38 +458,66 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
         className="relative z-10 w-full max-w-2xl mx-4 bg-background rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300 flex flex-col max-h-[85vh]"
       >
         {/* Header */}
-        <div className="flex items-center gap-3 p-4 border-b border-border bg-gradient-to-r from-primary/5 to-accent/5 flex-shrink-0">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Sparkles className="h-5 w-5 text-primary" />
-          </div>
-          <div className="flex-1">
-            <h2 className="font-semibold text-foreground">AI Search</h2>
-            <p className="text-xs text-muted-foreground">
-              {conversation.length > 0 
-                ? "Refine your search with follow-up questions" 
-                : "Describe what you're looking for in plain English"
-              }
-            </p>
-          </div>
-          {conversation.length > 0 && (
+        <div className="flex flex-col border-b border-border bg-gradient-to-r from-primary/5 to-accent/5 flex-shrink-0">
+          <div className="flex items-center gap-3 p-4">
+            <div className="p-2 rounded-lg bg-primary/10">
+              <Sparkles className="h-5 w-5 text-primary" />
+            </div>
+            <div className="flex-1">
+              <h2 className="font-semibold text-foreground">AI Search</h2>
+              <p className="text-xs text-muted-foreground">
+                {conversation.length > 0 
+                  ? "Refine your search with follow-up questions" 
+                  : "Describe what you're looking for in plain English"
+                }
+              </p>
+            </div>
+            {conversation.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleNewSearch}
+                className="gap-1.5 text-muted-foreground hover:text-foreground"
+              >
+                <RotateCcw className="h-4 w-4" />
+                New Search
+              </Button>
+            )}
             <Button
               variant="ghost"
-              size="sm"
-              onClick={handleNewSearch}
-              className="gap-1.5 text-muted-foreground hover:text-foreground"
+              size="icon"
+              onClick={() => onOpenChange(false)}
+              className="h-8 w-8"
             >
-              <RotateCcw className="h-4 w-4" />
-              New Search
+              <X className="h-4 w-4" />
             </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onOpenChange(false)}
-            className="h-8 w-8"
-          >
-            <X className="h-4 w-4" />
-          </Button>
+          </div>
+          
+          {/* Mode Toggle */}
+          <div className="px-4 pb-3 flex gap-2">
+            <button
+              onClick={() => handleModeChange("projects")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                searchMode === "projects"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Presale Projects
+            </button>
+            <button
+              onClick={() => handleModeChange("assignments")}
+              className={cn(
+                "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
+                searchMode === "assignments"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Assignments
+            </button>
+          </div>
         </div>
 
         {/* Conversation Area */}
@@ -427,7 +527,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             <div className="p-6">
               <p className="text-sm text-muted-foreground mb-4">Try searching for:</p>
               <div className="flex flex-wrap gap-2">
-                {EXAMPLE_QUERIES.map((eq) => (
+                {exampleQueries.map((eq) => (
                   <button
                     key={eq}
                     onClick={() => {
@@ -461,12 +561,54 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   {/* Explanation */}
                   <div className={cn(
                     "p-3 rounded-lg",
-                    message.projects && message.projects.length > 0 
+                    (message.projects && message.projects.length > 0) || (message.listings && message.listings.length > 0)
                       ? "bg-green-500/10 text-green-700 dark:text-green-400" 
                       : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
                   )}>
                     <p className="text-sm">{message.content}</p>
                   </div>
+
+                  {/* Listing Cards (Assignments mode) */}
+                  {message.listings && message.listings.length > 0 && (
+                    <div className="space-y-2">
+                      {message.listings.slice(0, 6).map((listing) => (
+                        <button
+                          key={listing.id}
+                          onClick={() => handleListingClick(listing)}
+                          className="w-full text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors group"
+                        >
+                          <div className="flex gap-3">
+                            {listing.featured_image && (
+                              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                <img src={listing.featured_image} alt={listing.title} className="w-full h-full object-cover" />
+                              </div>
+                            )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between gap-2">
+                                <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                                  {listing.title}
+                                </h3>
+                                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                              </div>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}</span>
+                                <span>{listing.beds} bed • {listing.baths} bath</span>
+                                <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(listing.assignment_price)}</span>
+                              </div>
+                              <div className="mt-1.5 flex flex-wrap gap-1">
+                                {listing.match_reasons.slice(0, 2).map((reason, ridx) => (
+                                  <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                      {message.listings.length > 6 && (
+                        <p className="text-xs text-muted-foreground text-center py-2">+{message.listings.length - 6} more. Refine your search.</p>
+                      )}
+                    </div>
+                  )}
 
                   {/* Project Cards */}
                   {message.projects && message.projects.length > 0 && (
@@ -589,7 +731,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
           <div className="px-4 py-2 border-t border-border bg-muted/30 flex-shrink-0">
             <p className="text-xs text-muted-foreground mb-2">Refine your search:</p>
             <div className="flex flex-wrap gap-1.5">
-              {FOLLOWUP_SUGGESTIONS.map((suggestion) => (
+              {followupSuggestions.map((suggestion) => (
                 <button
                   key={suggestion}
                   onClick={() => {
