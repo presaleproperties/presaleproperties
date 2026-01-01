@@ -68,61 +68,100 @@ serve(async (req) => {
 
     const isAssignments = searchMode === "assignments";
     
-    // Different system prompts for projects vs assignments
+    // Comprehensive system prompts with fuzzy matching instructions
     const systemPrompt = isAssignments 
       ? `You are a real estate search assistant for BC presale assignment listings. Parse user queries into structured filters.
 
-Available cities: Vancouver, Burnaby, Surrey, Langley, Coquitlam, Richmond, New Westminster, Port Moody, Delta, Abbotsford
+CITIES (handle common typos and variations):
+- Vancouver (van, vancover, vancuver, vanc)
+- Burnaby (burnby, burnabee, burnabay)
+- Surrey (surrey, surry, sury, surey)
+- South Surrey (south surrey, south surry, s surrey)
+- Langley (langely, lanley, langly, langey)
+- Coquitlam (coquitlam, coquitlem, coq, coqutilam)
+- Richmond (richmond, richmod, richmnd)
+- New Westminster (new west, newwest, new westminster, newwestminster)
+- Port Moody (port moody, portmoody, port mooy)
+- Delta (delta, deta)
+- Abbotsford (abbotsford, abby, abottsford, abbostford)
+- North Vancouver (north van, north vancouver, n vancouver)
+- Whiterock (white rock, whiterock, white rok)
+
+NEIGHBORHOODS (handle typos):
+- Jericho (jeriko, jerico, jericho)
+- Kitsilano (kits, kitsalano)
+- Metrotown (metro town, metrotawn)
+- Brentwood (brentwood, brentwod)
+- Willoughby (willoughby, wiloughby, willowby)
+- Clayton (clayton, clayon)
+- Walnut Grove (walnut grove, walnutgrove)
+- Yorkson (yorkson, yorckson)
+
+SPELLING CORRECTION RULES:
+1. ALWAYS try to match misspelled words to the closest city/neighborhood
+2. Be lenient - "langely" → Langley, "jeriko" → Jericho (neighborhood)
+3. If unsure, pick the most likely match rather than asking for clarification
+4. Price shortcuts: "600k" = 600000, "1m" = 1000000, "1.5m" = 1500000
+
 Property types: condo, townhouse, other
 Unit types: studio, 1bed, 1bed_den, 2bed, 2bed_den, 3bed, penthouse
 
-CONVERSATION CONTEXT:
-You may receive previous conversation history. Users often refine their search with follow-up queries like:
-- "show me cheaper options" → reduce max_price from previous search
-- "what about 2 bedrooms" → change beds filter
-- "in Surrey instead" → change city while keeping other criteria
-- "larger units" → increase min_sqft
+Extract filters from the user's query. Be generous in interpretation.
+For prices: "under 600k" = max_price: 600000
+For bedrooms: "2 bed" = beds: 2
 
-When processing follow-ups:
-1. INHERIT filters from previous searches unless explicitly changed
-2. Interpret relative terms ("cheaper", "bigger") based on previous context
-3. If user says "cheaper", reduce max_price by ~20% from previous value
-
-Extract filters from the user's query. If the query is too vague AND there's no prior context, suggest a clarifying question.
-For prices, interpret "around $X" as ±15% range. "Under $X" means max_price = X.
-For bedrooms, interpret "2 bed" or "2 bedroom" as beds = 2.
-
-IMPORTANT: Only extract information explicitly mentioned OR inferred from conversation context. Do not invent data.`
+IMPORTANT: Always try to understand user intent. If they mention a place name, try to match it even if misspelled.`
       : `You are a real estate search assistant for BC presale properties. Parse user queries into structured filters.
 
-Available cities: Vancouver, Burnaby, Surrey, Langley, Coquitlam, Richmond, New Westminster, Port Moody, Delta, Abbotsford
+CITIES (handle common typos and variations):
+- Vancouver (van, vancover, vancuver, vanc)
+- Burnaby (burnby, burnabee, burnabay)
+- Surrey (surrey, surry, sury, surey)
+- South Surrey (south surrey, south surry, s surrey)
+- Langley (langely, lanley, langly, langey)
+- Coquitlam (coquitlam, coquitlem, coq, coqutilam)
+- Richmond (richmond, richmod, richmnd)
+- New Westminster (new west, newwest, new westminster, newwestminster)
+- Port Moody (port moody, portmoody, port mooy)
+- Delta (delta, deta)
+- Abbotsford (abbotsford, abby, abottsford, abbostford)
+- North Vancouver (north van, north vancouver, n vancouver)
+- Whiterock (white rock, whiterock, white rok)
+
+NEIGHBORHOODS (handle typos):
+- Jericho (jeriko, jerico, jericho) - in Vancouver
+- Kitsilano (kits, kitsalano) - in Vancouver
+- Metrotown (metro town, metrotawn) - in Burnaby
+- Brentwood (brentwood, brentwod) - in Burnaby
+- Willoughby (willoughby, wiloughby, willowby) - in Langley
+- Clayton (clayton, clayon) - in Surrey
+- Walnut Grove (walnut grove, walnutgrove) - in Langley
+- Yorkson (yorkson, yorckson) - in Langley
+- Murrayville (murrayville, murayville) - in Langley
+
+SPELLING CORRECTION RULES:
+1. ALWAYS try to match misspelled words to the closest city/neighborhood
+2. Be lenient - "langely" → Langley, "2 bed langly" → city: Langley + beds: 2
+3. If unsure, pick the most likely match rather than asking for clarification
+4. Price shortcuts: "600k" = 600000, "under 600k" = max_price: 600000, "1m" = 1000000
+
 Project types: condo, townhouse
 Unit types: studio, 1bed, 2bed, 3bed, 4bed+
 
-CONVERSATION CONTEXT:
-You may receive previous conversation history. Users often refine their search with follow-up queries like:
-- "show me cheaper options" → reduce max_price from previous search
-- "only near SkyTrain" → add near_skytrain filter while keeping other filters
-- "what about townhouses instead" → change project_type to townhouse
-- "in Surrey instead" → change city while keeping other criteria
+EXTRACT THESE PATTERNS:
+- "2 bed in Langley" → city: Langley, unit_type: 2bed
+- "under 600k" → max_price: 600000
+- "townhouse" → project_type: townhouse
+- "near skytrain" → near_skytrain: true
+- "10% deposit" → max_deposit_percent: 10
 
-When processing follow-ups:
-1. INHERIT filters from previous searches unless explicitly changed
-2. Interpret relative terms ("cheaper", "bigger", "closer") based on previous context
-3. If user says "cheaper", reduce max_price by ~20% from previous value
-4. If user says "more expensive" or "higher budget", increase max_price by ~30%
-
-Extract filters from the user's query. If the query is too vague AND there's no prior context, suggest a clarifying question.
-For prices, interpret "around $X" as ±15% range. "Under $X" means max_price = X.
-For deposits, "10% deposit" means max_deposit_percent = 10.
-
-IMPORTANT: Only extract information explicitly mentioned OR inferred from conversation context. Do not invent data.`;
+IMPORTANT: Always try to understand user intent. If they mention a place name, try to match it even if misspelled. Never ask for clarification if you can make a reasonable guess.`;
 
     // Different filter parameters for projects vs assignments
     const filterProperties = isAssignments
       ? {
-          city: { type: "string", description: "City name (e.g., Langley, Vancouver)" },
-          neighborhood: { type: "string", description: "Specific neighborhood if mentioned" },
+          city: { type: "string", description: "City name - correct any spelling mistakes to closest match" },
+          neighborhood: { type: "string", description: "Specific neighborhood - correct spelling mistakes" },
           property_type: { type: "string", enum: ["condo", "townhouse", "other"] },
           beds: { type: "number", description: "Number of bedrooms (0 for studio, 1, 2, 3, etc.)" },
           max_price: { type: "number", description: "Maximum assignment price in dollars" },
@@ -132,11 +171,11 @@ IMPORTANT: Only extract information explicitly mentioned OR inferred from conver
           buyer_intent: { type: "string", description: "Buyer type: first-time, investor, family" }
         }
       : {
-          city: { type: "string", description: "City name (e.g., Langley, Vancouver)" },
-          neighborhood: { type: "string", description: "Specific neighborhood if mentioned" },
+          city: { type: "string", description: "City name - correct any spelling mistakes to closest match" },
+          neighborhood: { type: "string", description: "Specific neighborhood - correct spelling mistakes" },
           project_type: { type: "string", enum: ["condo", "townhouse"] },
           unit_type: { type: "string", enum: ["studio", "1bed", "2bed", "3bed", "4bed+"] },
-          max_price: { type: "number", description: "Maximum price in dollars" },
+          max_price: { type: "number", description: "Maximum price in dollars (e.g., 600000 for 600k)" },
           min_price: { type: "number", description: "Minimum price in dollars" },
           max_deposit_percent: { type: "number", description: "Maximum deposit percentage (e.g., 10 for 10%)" },
           completion_year: { type: "number", description: "Expected completion year" },
@@ -169,7 +208,7 @@ IMPORTANT: Only extract information explicitly mentioned OR inferred from conver
             type: "function",
             function: {
               name: "extract_search_filters",
-              description: "Extract structured search filters from natural language query, considering conversation history",
+              description: "Extract structured search filters from natural language query. Be lenient with spelling - always try to match to closest city/neighborhood.",
               parameters: {
                 type: "object",
                 properties: {
@@ -184,11 +223,11 @@ IMPORTANT: Only extract information explicitly mentioned OR inferred from conver
                   },
                   clarification_needed: { 
                     type: "string", 
-                    description: "If query is too vague and no prior context, ask ONE clarifying question" 
+                    description: "ONLY ask if query is completely unrelated to real estate. Try to interpret first." 
                   },
                   search_summary: {
                     type: "string",
-                    description: "Brief summary of what the user is looking for, mentioning if it's a refinement"
+                    description: "Brief summary of what the user is looking for"
                   }
                 },
                 required: ["filters", "search_summary"],
