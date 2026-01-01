@@ -521,85 +521,62 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
           conversation.length === 0 ? "max-w-xl" : "max-w-2xl max-h-[70vh]"
         )}
       >
-        {/* Initial State: Clean Compact Search Bar */}
+        {/* Initial State: Clean Minimal Search Bar */}
         {conversation.length === 0 && !isLoading ? (
-          <div className="p-4">
-            {/* CTA Label above input */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <div className="p-1.5 rounded-lg bg-primary/10">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-sm font-medium text-foreground">
-                  Find your perfect home with AI
-                </span>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => onOpenChange(false)}
-                className="h-7 w-7 -mr-1"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative">
+          <div className="p-3">
+            {/* Search Input - Minimal Style */}
+            <div className="relative flex items-center">
               <input
                 ref={inputRef}
                 type="text"
                 value={isListening ? query + interimTranscript : query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
-                placeholder="2 bed condo in Langley under $700k..."
+                placeholder="Ask anything..."
                 className={cn(
-                  "w-full pl-4 pr-20 py-3.5 rounded-xl border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm",
-                  isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
+                  "w-full pl-4 pr-24 py-4 rounded-2xl border-0 bg-muted/50 text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-0 transition-all text-base",
+                  isListening && "bg-red-50/50 dark:bg-red-950/20"
                 )}
                 disabled={isLoading}
               />
               
-              {/* Voice Button */}
-              {isSpeechSupported && (
+              <div className="absolute right-2 flex items-center gap-1">
+                {/* Voice Button */}
+                {isSpeechSupported && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant="ghost"
+                    onClick={toggleVoiceInput}
+                    disabled={isLoading}
+                    className={cn(
+                      "h-9 w-9 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted",
+                      isListening && "text-red-500 animate-pulse"
+                    )}
+                  >
+                    {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  </Button>
+                )}
+                
+                {/* Search/Send Button */}
                 <Button
-                  type="button"
                   size="icon"
-                  variant={isListening ? "destructive" : "ghost"}
-                  onClick={toggleVoiceInput}
-                  disabled={isLoading}
-                  className={cn(
-                    "absolute right-11 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg",
-                    isListening && "animate-pulse"
-                  )}
+                  onClick={() => handleSearch()}
+                  disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
+                  className="h-9 w-9 rounded-full bg-foreground text-background hover:bg-foreground/90"
                 >
-                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
-              )}
-              
-              {/* Search Button */}
-              <Button
-                size="icon"
-                onClick={() => handleSearch()}
-                disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg"
-              >
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              </div>
             </div>
 
             {/* Listening indicator */}
             {isListening && (
-              <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center gap-1.5">
+              <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center justify-center gap-1.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                 Listening...
               </p>
             )}
-
-            {/* Subtle hint */}
-            <p className="text-xs text-muted-foreground mt-3 text-center">
-              Describe what you're looking for in plain English
-            </p>
           </div>
         ) : (
           /* Expanded State: With Results */
