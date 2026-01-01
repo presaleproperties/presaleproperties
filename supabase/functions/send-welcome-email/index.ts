@@ -1,13 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
 
 interface WelcomeEmailRequest {
   lead_id: string;
@@ -16,15 +15,34 @@ interface WelcomeEmailRequest {
   lead_email: string;
 }
 
+async function getSenderEmail(supabase: any): Promise<string> {
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "email_sender")
+    .maybeSingle();
+  
+  if (data?.value && typeof data.value === "string" && data.value.trim()) {
+    return data.value.trim();
+  }
+  return DEFAULT_SENDER;
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendApiKey) throw new Error("Email service not configured");
+
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { Resend } = await import("https://esm.sh/resend@2.0.0");
+    const resend = new Resend(resendApiKey);
 
     const { lead_id, project_id, lead_name, lead_email }: WelcomeEmailRequest = await req.json();
 
@@ -92,9 +110,11 @@ const handler = async (req: Request): Promise<Response> => {
       htmlContent += `</ul>`;
     }
 
-    // Send email - using Resend default sender until custom domain is fully verified
+    const senderEmail = await getSenderEmail(supabase);
+
+    // Send email
     const emailResponse = await resend.emails.send({
-      from: "PresaleProperties <onboarding@resend.dev>",
+      from: senderEmail,
       to: [lead_email],
       subject: subject,
       html: htmlContent,

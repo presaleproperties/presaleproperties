@@ -6,8 +6,23 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
+
 interface LeadNotificationRequest {
   leadId: string;
+}
+
+async function getSenderEmail(supabase: any): Promise<string> {
+  const { data } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "email_sender")
+    .maybeSingle();
+  
+  if (data?.value && typeof data.value === "string" && data.value.trim()) {
+    return data.value.trim();
+  }
+  return DEFAULT_SENDER;
 }
 
 serve(async (req: Request): Promise<Response> => {
@@ -160,9 +175,12 @@ serve(async (req: Request): Promise<Response> => {
     const projectName = listing?.project_name || "";
     const city = listing?.city || "";
 
+    // Get sender email from settings
+    const senderEmail = await getSenderEmail(supabase);
+
     // Send email to agent
     const emailResponse = await resend.emails.send({
-      from: "PresaleProperties <noreply@presaleproperties.com>",
+      from: senderEmail,
       to: [profile.email],
       subject: `New Lead for ${listingTitle}`,
       html: `
