@@ -13,24 +13,40 @@ import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 
-// Homepage FAQs for structured data (helps with AI recommendations)
+// Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
   {
-    question: "What are presale condos?",
-    answer: "Presale condos are properties sold before construction is complete. Buyers purchase at today's prices with a deposit, then pay the balance when the building is finished, typically 2-4 years later."
+    question: "What is a presale?",
+    answer: "A presale is a real estate purchase where you buy a property before it is built. You sign a contract and pay a deposit to secure a unit in a development that is still under construction. The full purchase price is paid when the building is completed, typically 2-4 years later."
   },
   {
-    question: "What is the difference between presale and assignment?",
-    answer: "A presale is buying directly from the developer before completion. An assignment is when an original presale buyer sells their purchase contract to a new buyer before the building is finished."
+    question: "How do presales work?",
+    answer: "Presales work in 5 steps: First, register with the developer to receive pricing and floor plans. Second, select your unit and sign a purchase agreement. Third, pay a deposit (typically 15-20%) in installments over 12-18 months. Fourth, wait for construction to complete (usually 2-4 years). Fifth, pay the remaining balance and take possession of your new home."
+  },
+  {
+    question: "What is the difference between a presale and an assignment?",
+    answer: "A presale is purchased directly from the developer before construction is complete. An assignment is when the original presale buyer sells their contract to a new buyer before the building is finished. With an assignment, you take over the original buyer's purchase agreement and pay the remaining deposit and closing costs."
+  },
+  {
+    question: "How much deposit do I need for a presale in BC?",
+    answer: "Presale deposits in British Columbia typically range from 15% to 20% of the purchase price, paid in installments over 12-18 months. A common deposit structure is 5% at signing, 5% at 90 days, 5% at 180 days, and 5% at 12 months or foundation completion."
+  },
+  {
+    question: "What is the benefit of buying presale?",
+    answer: "Buying presale allows you to lock in today's prices while the development is built, often with lower deposit requirements than resale properties. Presales typically appreciate in value by completion, meaning you may have built-in equity before moving in. You also get a brand new home with modern finishes and full warranty coverage."
+  },
+  {
+    question: "Can I rent out a presale condo after completion?",
+    answer: "Rental policies vary by development. Some presale projects have no rental restrictions, while others may limit rentals for the first 1-2 years or require owner occupancy. Always check the disclosure statement for rental restrictions before purchasing a presale unit as an investment property."
   },
   {
     question: "Where can I find presale condos in Vancouver?",
-    answer: "PresaleProperties.com lists presale condos and townhomes across Metro Vancouver including Vancouver, Surrey, Burnaby, Coquitlam, Langley, Richmond, and other cities."
+    answer: "PresaleProperties.com lists presale condos and townhomes across Metro Vancouver including Vancouver, Surrey, Burnaby, Coquitlam, Langley, Richmond, Delta, and Abbotsford. Register for VIP access to get early pricing, floor plans, and exclusive incentives."
   },
   {
-    question: "How much deposit do I need for a presale?",
-    answer: "Presale deposits typically range from 15-20% of the purchase price, paid in installments over 12-18 months. Some developers offer lower deposits or extended schedules."
-  },
+    question: "What happens if a presale project is delayed or cancelled?",
+    answer: "If a presale project is delayed, your completion date will be extended. If cancelled, your deposit is returned in full as it is held in trust by a lawyer. British Columbia has strong consumer protections for presale buyers, and developers must provide regular updates on construction progress."
+  }
 ];
 
 const Index = () => {
