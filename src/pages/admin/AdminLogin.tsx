@@ -188,7 +188,21 @@ export default function AdminLogin() {
         body: { email: data.email.trim() },
       });
 
-      if (fnError) throw fnError;
+      if (fnError) {
+        // Try to surface the JSON error from the function (instead of the generic “non-2xx”).
+        let message = fnError.message || "Failed to send reset email";
+        const contextBody = (fnError as any)?.context?.body;
+        if (typeof contextBody === "string") {
+          try {
+            const parsed = JSON.parse(contextBody);
+            if (parsed?.error) message = String(parsed.error);
+          } catch {
+            // ignore
+          }
+        }
+        throw new Error(message);
+      }
+
       if ((fnData as any)?.error) throw new Error((fnData as any).error);
 
       setResetEmailSent(true);
@@ -352,9 +366,14 @@ export default function AdminLogin() {
                 <CardDescription>
                   {resetEmailSent 
                     ? "Check your email for the reset link"
-                    : "Enter your email to receive a reset link"
+                    : "Enter the admin account email to receive a reset link"
                   }
                 </CardDescription>
+                {!resetEmailSent && (
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    Note: while email domain verification is in progress, reset emails are delivered to the verified testing inbox.
+                  </p>
+                )}
               </CardHeader>
               
               <CardContent>

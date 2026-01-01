@@ -96,9 +96,22 @@ serve(async (req: Request): Promise<Response> => {
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   } catch (error: any) {
-    console.error("Error in send-admin-reset:", error);
-    return new Response(JSON.stringify({ error: error?.message || "Failed to send reset email" }), {
-      status: 500,
+    // Normalize common errors so the client gets a helpful message.
+    const status = Number(error?.status ?? error?.statusCode ?? 500);
+    const message = String(error?.message || "Failed to send reset email");
+
+    console.error("Error in send-admin-reset:", { status, message, code: error?.code });
+
+    // If the email isn't registered, return 404 instead of 500.
+    if (status === 404 || error?.code === "user_not_found") {
+      return new Response(JSON.stringify({ error: "User with this email not found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: message }), {
+      status,
       headers: { "Content-Type": "application/json", ...corsHeaders },
     });
   }
