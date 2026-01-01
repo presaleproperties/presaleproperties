@@ -10,6 +10,7 @@ interface ParsedFilters {
   city?: string;
   neighborhood?: string;
   project_type?: "condo" | "townhouse";
+  property_type?: "condo" | "townhouse" | "other";
   unit_type?: string;
   max_price?: number;
   min_price?: number;
@@ -17,6 +18,8 @@ interface ParsedFilters {
   completion_year?: number;
   buyer_intent?: string;
   near_skytrain?: boolean;
+  beds?: number;
+  min_sqft?: number;
 }
 
 interface ConversationMessage {
@@ -26,11 +29,13 @@ interface ConversationMessage {
 }
 
 interface SearchResult {
-  projects: any[];
+  projects?: any[];
+  listings?: any[];
   explanation: string;
   filters_applied: ParsedFilters;
   clarification_needed?: string;
   conversation_context?: string;
+  search_mode: "projects" | "assignments";
 }
 
 serve(async (req) => {
@@ -39,7 +44,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query, conversation = [] } = await req.json();
+    const { query, conversation = [], searchMode = "projects" } = await req.json();
     
     if (!query || typeof query !== "string" || query.trim().length < 3) {
       return new Response(
@@ -61,19 +66,34 @@ serve(async (req) => {
         : msg.content
     }));
 
-    // Step 1: Use AI to parse the natural language query with conversation context
-    const parseResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          {
-            role: "system",
-            content: `You are a real estate search assistant for BC presale properties. Parse user queries into structured filters.
+    const isAssignments = searchMode === "assignments";
+    
+    // Different system prompts for projects vs assignments
+    const systemPrompt = isAssignments 
+      ? `You are a real estate search assistant for BC presale assignment listings. Parse user queries into structured filters.
+
+Available cities: Vancouver, Burnaby, Surrey, Langley, Coquitlam, Richmond, New Westminster, Port Moody, Delta, Abbotsford
+Property types: condo, townhouse, other
+Unit types: studio, 1bed, 1bed_den, 2bed, 2bed_den, 3bed, penthouse
+
+CONVERSATION CONTEXT:
+You may receive previous conversation history. Users often refine their search with follow-up queries like:
+- "show me cheaper options" → reduce max_price from previous search
+- "what about 2 bedrooms" → change beds filter
+- "in Surrey instead" → change city while keeping other criteria
+- "larger units" → increase min_sqft
+
+When processing follow-ups:
+1. INHERIT filters from previous searches unless explicitly changed
+2. Interpret relative terms ("cheaper", "bigger") based on previous context
+3. If user says "cheaper", reduce max_price by ~20% from previous value
+
+Extract filters from the user's query. If the query is too vague AND there's no prior context, suggest a clarifying question.
+For prices, interpret "around $X" as ±15% range. "Under $X" means max_price = X.
+For bedrooms, interpret "2 bed" or "2 bedroom" as beds = 2.
+
+IMPORTANT: Only extract information explicitly mentioned OR inferred from conversation context. Do not invent data.`
+      : `You are a real estate search assistant for BC presale properties. Parse user queries into structured filters.
 
 Available cities: Vancouver, Burnaby, Surrey, Langley, Coquitlam, Richmond, New Westminster, Port Moody, Delta, Abbotsford
 Project types: condo, townhouse
@@ -96,7 +116,47 @@ Extract filters from the user's query. If the query is too vague AND there's no 
 For prices, interpret "around $X" as ±15% range. "Under $X" means max_price = X.
 For deposits, "10% deposit" means max_deposit_percent = 10.
 
-IMPORTANT: Only extract information explicitly mentioned OR inferred from conversation context. Do not invent data.`
+IMPORTANT: Only extract information explicitly mentioned OR inferred from conversation context. Do not invent data.`;
+
+    // Different filter parameters for projects vs assignments
+    const filterProperties = isAssignments
+      ? {
+          city: { type: "string", description: "City name (e.g., Langley, Vancouver)" },
+          neighborhood: { type: "string", description: "Specific neighborhood if mentioned" },
+          property_type: { type: "string", enum: ["condo", "townhouse", "other"] },
+          beds: { type: "number", description: "Number of bedrooms (0 for studio, 1, 2, 3, etc.)" },
+          max_price: { type: "number", description: "Maximum assignment price in dollars" },
+          min_price: { type: "number", description: "Minimum assignment price in dollars" },
+          min_sqft: { type: "number", description: "Minimum interior square footage" },
+          completion_year: { type: "number", description: "Expected completion year" },
+          buyer_intent: { type: "string", description: "Buyer type: first-time, investor, family" }
+        }
+      : {
+          city: { type: "string", description: "City name (e.g., Langley, Vancouver)" },
+          neighborhood: { type: "string", description: "Specific neighborhood if mentioned" },
+          project_type: { type: "string", enum: ["condo", "townhouse"] },
+          unit_type: { type: "string", enum: ["studio", "1bed", "2bed", "3bed", "4bed+"] },
+          max_price: { type: "number", description: "Maximum price in dollars" },
+          min_price: { type: "number", description: "Minimum price in dollars" },
+          max_deposit_percent: { type: "number", description: "Maximum deposit percentage (e.g., 10 for 10%)" },
+          completion_year: { type: "number", description: "Expected completion year" },
+          near_skytrain: { type: "boolean", description: "Must be near SkyTrain" },
+          buyer_intent: { type: "string", description: "Buyer type: first-time, investor, family" }
+        };
+
+    // Step 1: Use AI to parse the natural language query with conversation context
+    const parseResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt
           },
           ...conversationContext,
           {
@@ -115,18 +175,7 @@ IMPORTANT: Only extract information explicitly mentioned OR inferred from conver
                 properties: {
                   filters: {
                     type: "object",
-                    properties: {
-                      city: { type: "string", description: "City name (e.g., Langley, Vancouver)" },
-                      neighborhood: { type: "string", description: "Specific neighborhood if mentioned" },
-                      project_type: { type: "string", enum: ["condo", "townhouse"] },
-                      unit_type: { type: "string", enum: ["studio", "1bed", "2bed", "3bed", "4bed+"] },
-                      max_price: { type: "number", description: "Maximum price in dollars" },
-                      min_price: { type: "number", description: "Minimum price in dollars" },
-                      max_deposit_percent: { type: "number", description: "Maximum deposit percentage (e.g., 10 for 10%)" },
-                      completion_year: { type: "number", description: "Expected completion year" },
-                      near_skytrain: { type: "boolean", description: "Must be near SkyTrain" },
-                      buyer_intent: { type: "string", description: "Buyer type: first-time, investor, family" }
-                    },
+                    properties: filterProperties,
                     additionalProperties: false
                   },
                   is_followup: {
@@ -187,10 +236,12 @@ IMPORTANT: Only extract information explicitly mentioned OR inferred from conver
       return new Response(
         JSON.stringify({
           projects: [],
+          listings: [],
           explanation: clarificationNeeded,
           filters_applied: filters,
           clarification_needed: clarificationNeeded,
-          conversation_context: searchSummary
+          conversation_context: searchSummary,
+          search_mode: searchMode
         } as SearchResult),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -201,121 +252,237 @@ IMPORTANT: Only extract information explicitly mentioned OR inferred from conver
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    let dbQuery = supabase
-      .from("presale_projects")
-      .select("id, name, slug, city, neighborhood, project_type, starting_price, deposit_percent, completion_year, completion_month, status, featured_image, short_description, near_skytrain, unit_mix")
-      .eq("is_published", true)
-      .order("view_count", { ascending: false });
-
-    // Apply filters
-    if (filters.city) {
-      dbQuery = dbQuery.ilike("city", `%${filters.city}%`);
-    }
-    if (filters.neighborhood) {
-      dbQuery = dbQuery.ilike("neighborhood", `%${filters.neighborhood}%`);
-    }
-    if (filters.project_type) {
-      dbQuery = dbQuery.eq("project_type", filters.project_type);
-    }
-    if (filters.max_price) {
-      dbQuery = dbQuery.lte("starting_price", filters.max_price);
-    }
-    if (filters.min_price) {
-      dbQuery = dbQuery.gte("starting_price", filters.min_price);
-    }
-    if (filters.max_deposit_percent) {
-      dbQuery = dbQuery.lte("deposit_percent", filters.max_deposit_percent);
-    }
-    if (filters.completion_year) {
-      dbQuery = dbQuery.eq("completion_year", filters.completion_year);
-    }
-    if (filters.near_skytrain) {
-      dbQuery = dbQuery.eq("near_skytrain", true);
-    }
-
-    const { data: projects, error: dbError } = await dbQuery.limit(12);
-
-    if (dbError) {
-      console.error("Database error:", dbError);
-      throw new Error("Failed to search projects");
-    }
-
-    // Step 3: Generate explanation
     let explanation = "";
-    const projectCount = projects?.length || 0;
+    let resultsWithReasons: any[] = [];
 
-    if (projectCount === 0) {
-      // Build explanation for no results
-      const constraints: string[] = [];
-      if (filters.city) constraints.push(`in ${filters.city}`);
-      if (filters.project_type) constraints.push(`${filters.project_type}s`);
-      if (filters.max_price) constraints.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
-      if (filters.max_deposit_percent) constraints.push(`with ${filters.max_deposit_percent}% deposit or less`);
-      if (filters.completion_year) constraints.push(`completing in ${filters.completion_year}`);
-      if (filters.near_skytrain) constraints.push(`near SkyTrain`);
+    if (isAssignments) {
+      // Query listings table for assignments
+      let dbQuery = supabase
+        .from("listings")
+        .select(`
+          id, title, project_name, developer_name, city, neighborhood, 
+          property_type, unit_type, beds, baths, interior_sqft, exterior_sqft,
+          assignment_price, original_price, deposit_paid, 
+          completion_year, completion_month, status,
+          listing_photos (url, sort_order)
+        `)
+        .eq("status", "published")
+        .order("created_at", { ascending: false });
 
-      explanation = isFollowup 
-        ? `No projects match your refined criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `
-        : `No projects currently match all your criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `;
-      
-      // Suggest relaxing constraints
-      if (filters.max_deposit_percent && filters.max_deposit_percent <= 10) {
-        explanation += "Most presale projects require 15-20% deposits. Try increasing your deposit budget. ";
+      // Apply filters for assignments
+      if (filters.city) {
+        dbQuery = dbQuery.ilike("city", `%${filters.city}%`);
+      }
+      if (filters.neighborhood) {
+        dbQuery = dbQuery.ilike("neighborhood", `%${filters.neighborhood}%`);
+      }
+      if (filters.property_type) {
+        dbQuery = dbQuery.eq("property_type", filters.property_type);
+      }
+      if (filters.beds !== undefined) {
+        dbQuery = dbQuery.eq("beds", filters.beds);
       }
       if (filters.max_price) {
-        explanation += "Consider expanding your price range for more options.";
+        dbQuery = dbQuery.lte("assignment_price", filters.max_price);
+      }
+      if (filters.min_price) {
+        dbQuery = dbQuery.gte("assignment_price", filters.min_price);
+      }
+      if (filters.min_sqft) {
+        dbQuery = dbQuery.gte("interior_sqft", filters.min_sqft);
+      }
+      if (filters.completion_year) {
+        dbQuery = dbQuery.eq("completion_year", filters.completion_year);
+      }
+
+      const { data: listings, error: dbError } = await dbQuery.limit(12);
+
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error("Failed to search assignments");
+      }
+
+      const resultCount = listings?.length || 0;
+
+      if (resultCount === 0) {
+        const constraints: string[] = [];
+        if (filters.city) constraints.push(`in ${filters.city}`);
+        if (filters.property_type) constraints.push(`${filters.property_type}s`);
+        if (filters.beds !== undefined) constraints.push(`${filters.beds} bedroom${filters.beds !== 1 ? "s" : ""}`);
+        if (filters.max_price) constraints.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
+        if (filters.min_sqft) constraints.push(`${filters.min_sqft}+ sqft`);
+
+        explanation = isFollowup 
+          ? `No assignments match your refined criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `
+          : `No assignments currently match all your criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `;
+        
+        if (filters.max_price) {
+          explanation += "Consider expanding your price range for more options.";
+        }
+      } else {
+        const parts: string[] = [];
+        if (filters.city) parts.push(`in ${filters.city}`);
+        if (filters.property_type) parts.push(`${filters.property_type}s`);
+        if (filters.beds !== undefined) parts.push(`${filters.beds} bed${filters.beds !== 1 ? "s" : ""}`);
+        if (filters.max_price) parts.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
+
+        const prefix = isFollowup ? "Updated results: " : "";
+        explanation = `${prefix}Showing ${resultCount} assignment${resultCount > 1 ? "s" : ""} ${parts.length > 0 ? parts.join(" ") : "matching your search"}.`;
+      }
+
+      // Add match reasons to each listing
+      resultsWithReasons = (listings || []).map((listing: any) => {
+        const reasons: string[] = [];
+        
+        if (filters.city && listing.city?.toLowerCase().includes(filters.city.toLowerCase())) {
+          reasons.push(`Located in ${listing.city}`);
+        }
+        if (filters.max_price && listing.assignment_price) {
+          reasons.push(`$${(listing.assignment_price / 1000).toFixed(0)}K`);
+        }
+        if (filters.beds !== undefined && listing.beds === filters.beds) {
+          reasons.push(`${listing.beds} bed${listing.beds !== 1 ? "s" : ""}`);
+        }
+        if (listing.interior_sqft) {
+          reasons.push(`${listing.interior_sqft} sqft`);
+        }
+
+        // Get first photo
+        const photos = listing.listing_photos?.sort((a: any, b: any) => (a.sort_order || 0) - (b.sort_order || 0)) || [];
+        const featured_image = photos[0]?.url || null;
+
+        return {
+          ...listing,
+          featured_image,
+          match_reasons: reasons.length > 0 ? reasons : ["Matches your search criteria"]
+        };
+      });
+
+      const result: SearchResult = {
+        listings: resultsWithReasons,
+        explanation,
+        filters_applied: filters,
+        clarification_needed: clarificationNeeded,
+        conversation_context: searchSummary,
+        search_mode: "assignments"
+      };
+
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    } else {
+      // Query presale_projects table for projects
+      let dbQuery = supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, project_type, starting_price, deposit_percent, completion_year, completion_month, status, featured_image, short_description, near_skytrain, unit_mix")
+        .eq("is_published", true)
+        .order("view_count", { ascending: false });
+
+      // Apply filters
+      if (filters.city) {
+        dbQuery = dbQuery.ilike("city", `%${filters.city}%`);
+      }
+      if (filters.neighborhood) {
+        dbQuery = dbQuery.ilike("neighborhood", `%${filters.neighborhood}%`);
+      }
+      if (filters.project_type) {
+        dbQuery = dbQuery.eq("project_type", filters.project_type);
+      }
+      if (filters.max_price) {
+        dbQuery = dbQuery.lte("starting_price", filters.max_price);
+      }
+      if (filters.min_price) {
+        dbQuery = dbQuery.gte("starting_price", filters.min_price);
+      }
+      if (filters.max_deposit_percent) {
+        dbQuery = dbQuery.lte("deposit_percent", filters.max_deposit_percent);
+      }
+      if (filters.completion_year) {
+        dbQuery = dbQuery.eq("completion_year", filters.completion_year);
       }
       if (filters.near_skytrain) {
-        explanation += "Try removing the SkyTrain requirement for more options.";
-      }
-    } else {
-      // Build success explanation
-      const parts: string[] = [];
-      if (filters.city) parts.push(`in ${filters.city}`);
-      if (filters.project_type) parts.push(`${filters.project_type}s`);
-      if (filters.max_price) parts.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
-      if (filters.max_deposit_percent) parts.push(`with ${filters.max_deposit_percent}% deposit or less`);
-      if (filters.near_skytrain) parts.push(`near SkyTrain`);
-
-      const prefix = isFollowup ? "Updated results: " : "";
-      explanation = `${prefix}Showing ${projectCount} project${projectCount > 1 ? "s" : ""} ${parts.length > 0 ? parts.join(" ") : "matching your search"}.`;
-    }
-
-    // Add match reasons to each project
-    const projectsWithReasons = (projects || []).map((project: any) => {
-      const reasons: string[] = [];
-      
-      if (filters.city && project.city?.toLowerCase().includes(filters.city.toLowerCase())) {
-        reasons.push(`Located in ${project.city}`);
-      }
-      if (filters.max_price && project.starting_price) {
-        reasons.push(`Starting from $${(project.starting_price / 1000).toFixed(0)}K`);
-      }
-      if (filters.max_deposit_percent && project.deposit_percent) {
-        reasons.push(`${project.deposit_percent}% deposit`);
-      }
-      if (project.near_skytrain && filters.near_skytrain) {
-        reasons.push("Near SkyTrain");
+        dbQuery = dbQuery.eq("near_skytrain", true);
       }
 
-      return {
-        ...project,
-        match_reasons: reasons.length > 0 ? reasons : ["Matches your search criteria"]
+      const { data: projects, error: dbError } = await dbQuery.limit(12);
+
+      if (dbError) {
+        console.error("Database error:", dbError);
+        throw new Error("Failed to search projects");
+      }
+
+      const projectCount = projects?.length || 0;
+
+      if (projectCount === 0) {
+        const constraints: string[] = [];
+        if (filters.city) constraints.push(`in ${filters.city}`);
+        if (filters.project_type) constraints.push(`${filters.project_type}s`);
+        if (filters.max_price) constraints.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
+        if (filters.max_deposit_percent) constraints.push(`with ${filters.max_deposit_percent}% deposit or less`);
+        if (filters.completion_year) constraints.push(`completing in ${filters.completion_year}`);
+        if (filters.near_skytrain) constraints.push(`near SkyTrain`);
+
+        explanation = isFollowup 
+          ? `No projects match your refined criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `
+          : `No projects currently match all your criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `;
+        
+        if (filters.max_deposit_percent && filters.max_deposit_percent <= 10) {
+          explanation += "Most presale projects require 15-20% deposits. Try increasing your deposit budget. ";
+        }
+        if (filters.max_price) {
+          explanation += "Consider expanding your price range for more options.";
+        }
+        if (filters.near_skytrain) {
+          explanation += "Try removing the SkyTrain requirement for more options.";
+        }
+      } else {
+        const parts: string[] = [];
+        if (filters.city) parts.push(`in ${filters.city}`);
+        if (filters.project_type) parts.push(`${filters.project_type}s`);
+        if (filters.max_price) parts.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
+        if (filters.max_deposit_percent) parts.push(`with ${filters.max_deposit_percent}% deposit or less`);
+        if (filters.near_skytrain) parts.push(`near SkyTrain`);
+
+        const prefix = isFollowup ? "Updated results: " : "";
+        explanation = `${prefix}Showing ${projectCount} project${projectCount > 1 ? "s" : ""} ${parts.length > 0 ? parts.join(" ") : "matching your search"}.`;
+      }
+
+      // Add match reasons to each project
+      resultsWithReasons = (projects || []).map((project: any) => {
+        const reasons: string[] = [];
+        
+        if (filters.city && project.city?.toLowerCase().includes(filters.city.toLowerCase())) {
+          reasons.push(`Located in ${project.city}`);
+        }
+        if (filters.max_price && project.starting_price) {
+          reasons.push(`Starting from $${(project.starting_price / 1000).toFixed(0)}K`);
+        }
+        if (filters.max_deposit_percent && project.deposit_percent) {
+          reasons.push(`${project.deposit_percent}% deposit`);
+        }
+        if (project.near_skytrain && filters.near_skytrain) {
+          reasons.push("Near SkyTrain");
+        }
+
+        return {
+          ...project,
+          match_reasons: reasons.length > 0 ? reasons : ["Matches your search criteria"]
+        };
+      });
+
+      const result: SearchResult = {
+        projects: resultsWithReasons,
+        explanation,
+        filters_applied: filters,
+        clarification_needed: clarificationNeeded,
+        conversation_context: searchSummary,
+        search_mode: "projects"
       };
-    });
 
-    const result: SearchResult = {
-      projects: projectsWithReasons,
-      explanation,
-      filters_applied: filters,
-      clarification_needed: clarificationNeeded,
-      conversation_context: searchSummary
-    };
-
-    return new Response(JSON.stringify(result), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-
+      return new Response(JSON.stringify(result), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
   } catch (error: any) {
     console.error("AI search error:", error);
     
