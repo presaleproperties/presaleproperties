@@ -581,6 +581,19 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                 Listening...
               </p>
             )}
+
+            {/* Example Search Chips */}
+            <div className="flex flex-wrap gap-2 mt-4 justify-center">
+              {["2 bed in Langley", "Under $600k", "Townhouse in Surrey", "Near SkyTrain"].map((example) => (
+                <button
+                  key={example}
+                  onClick={() => handleSearch(example)}
+                  className="px-3 py-1.5 text-xs rounded-full bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {example}
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           /* Expanded State: With Results */
