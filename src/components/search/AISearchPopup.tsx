@@ -506,413 +506,455 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-8 sm:pt-16">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] sm:pt-[20vh]">
       {/* Backdrop */}
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
         onClick={() => onOpenChange(false)}
       />
 
-      {/* Modal */}
+      {/* Compact Search Container */}
       <div
         ref={containerRef}
-        className="relative z-10 w-full max-w-2xl mx-4 bg-background rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in slide-in-from-top-4 duration-300 flex flex-col max-h-[85vh]"
+        className={cn(
+          "relative z-10 w-full mx-4 bg-background rounded-2xl shadow-2xl border border-border overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col",
+          conversation.length === 0 ? "max-w-xl" : "max-w-2xl max-h-[70vh]"
+        )}
       >
-        {/* Header */}
-        <div className="flex flex-col border-b border-border bg-gradient-to-r from-primary/5 to-accent/5 flex-shrink-0">
-          <div className="flex items-center gap-3 p-4">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Sparkles className="h-5 w-5 text-primary" />
+        {/* Initial State: Compact Search Bar */}
+        {conversation.length === 0 && !isLoading ? (
+          <div className="p-4">
+            {/* CTA Label above input */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-foreground">
+                  {searchMode === "projects" ? "Find your perfect presale" : "Search assignments"}
+                </span>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="h-7 w-7 -mr-1"
+              >
+                <X className="h-4 w-4" />
+              </Button>
             </div>
-            <div className="flex-1">
-              <h2 className="font-semibold text-foreground">AI Search</h2>
-              <p className="text-xs text-muted-foreground">
-                {conversation.length > 0 
-                  ? "Refine your search with follow-up questions" 
-                  : "Describe what you're looking for in plain English"
+
+            {/* Mode Toggle Pills */}
+            <div className="flex gap-1.5 mb-3">
+              <button
+                onClick={() => handleModeChange("projects")}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                  searchMode === "projects"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Presales
+              </button>
+              <button
+                onClick={() => handleModeChange("assignments")}
+                className={cn(
+                  "px-3 py-1 rounded-full text-xs font-medium transition-colors",
+                  searchMode === "assignments"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Assignments
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="relative">
+              <input
+                ref={inputRef}
+                type="text"
+                value={isListening ? query + interimTranscript : query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
+                placeholder={searchMode === "projects" 
+                  ? "2 bed condo in Langley under $700k..." 
+                  : "1 bed assignment in Surrey..."
                 }
-              </p>
+                className={cn(
+                  "w-full pl-4 pr-20 py-3 rounded-xl border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm",
+                  isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
+                )}
+                disabled={isLoading}
+              />
+              
+              {/* Voice Button */}
+              {isSpeechSupported && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant={isListening ? "destructive" : "ghost"}
+                  onClick={toggleVoiceInput}
+                  disabled={isLoading}
+                  className={cn(
+                    "absolute right-10 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg",
+                    isListening && "animate-pulse"
+                  )}
+                >
+                  {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                </Button>
+              )}
+              
+              {/* Search Button */}
+              <Button
+                size="icon"
+                onClick={() => handleSearch()}
+                disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg"
+              >
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Button>
             </div>
-            {conversation.length > 0 && (
+
+            {/* Listening indicator */}
+            {isListening && (
+              <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+                Listening...
+              </p>
+            )}
+          </div>
+        ) : (
+          /* Expanded State: With Results */
+          <>
+            {/* Header */}
+            <div className="flex items-center gap-3 p-3 border-b border-border bg-muted/30 flex-shrink-0">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-foreground flex-1">AI Search</span>
+              
+              {/* Mode Toggle */}
+              <div className="flex gap-1">
+                <button
+                  onClick={() => handleModeChange("projects")}
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
+                    searchMode === "projects"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  Presales
+                </button>
+                <button
+                  onClick={() => handleModeChange("assignments")}
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
+                    searchMode === "assignments"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  Assignments
+                </button>
+              </div>
+              
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleNewSearch}
-                className="gap-1.5 text-muted-foreground hover:text-foreground"
+                className="h-7 px-2 text-xs gap-1"
               >
-                <RotateCcw className="h-4 w-4" />
-                New Search
+                <RotateCcw className="h-3 w-3" />
+                New
               </Button>
-            )}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => onOpenChange(false)}
-              className="h-8 w-8"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          
-          {/* Mode Toggle */}
-          <div className="px-4 pb-3 flex gap-2">
-            <button
-              onClick={() => handleModeChange("projects")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                searchMode === "projects"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Presale Projects
-            </button>
-            <button
-              onClick={() => handleModeChange("assignments")}
-              className={cn(
-                "px-3 py-1.5 rounded-full text-xs font-medium transition-colors",
-                searchMode === "assignments"
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Assignments
-            </button>
-          </div>
-        </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => onOpenChange(false)}
+                className="h-7 w-7"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
 
-        {/* Conversation Area */}
-        <div ref={resultsRef} className="flex-1 overflow-y-auto">
-          {/* Empty state with examples */}
-          {conversation.length === 0 && !isLoading && (
-            <div className="p-6">
-              <p className="text-sm text-muted-foreground mb-4">Try searching for:</p>
-              <div className="flex flex-wrap gap-2">
-                {exampleQueries.map((eq) => (
-                  <button
-                    key={eq}
-                    onClick={() => {
-                      setQuery(eq);
-                      handleSearch(eq);
-                    }}
-                    className="text-sm px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground hover:text-foreground transition-colors text-left"
+            {/* Conversation Area */}
+            <div ref={resultsRef} className="flex-1 overflow-y-auto">
+              {/* Conversation Messages */}
+              {conversation.map((message, idx) => (
+                <div key={idx} className={cn(
+                  "px-4 py-3",
+                  message.role === "user" ? "bg-muted/30" : "bg-background"
+                )}>
+                  {message.role === "user" ? (
+                    <div className="flex items-start gap-3">
+                      <div className="p-1.5 rounded-full bg-foreground/10 flex-shrink-0">
+                        <MessageSquare className="h-4 w-4 text-foreground" />
+                      </div>
+                      <p className="text-sm text-foreground pt-0.5">{message.content}</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* Explanation */}
+                      <div className={cn(
+                        "p-3 rounded-lg",
+                        (message.projects && message.projects.length > 0) || (message.listings && message.listings.length > 0)
+                          ? "bg-green-500/10 text-green-700 dark:text-green-400" 
+                          : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
+                      )}>
+                        <p className="text-sm">{message.content}</p>
+                      </div>
+
+                      {/* Listing Cards (Assignments mode) */}
+                      {message.listings && message.listings.length > 0 && (
+                        <div className="space-y-2">
+                          {message.listings.slice(0, 6).map((listing) => {
+                            const isSelected = selectedListings.some(l => l.id === listing.id);
+                            return (
+                              <div
+                                key={listing.id}
+                                className={cn(
+                                  "relative w-full text-left p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
+                                  isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
+                                )}
+                              >
+                                <button
+                                  onClick={(e) => toggleListingSelection(listing, e)}
+                                  className={cn(
+                                    "absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                                    isSelected 
+                                      ? "bg-primary border-primary text-primary-foreground" 
+                                      : "border-muted-foreground/50 hover:border-primary"
+                                  )}
+                                >
+                                  {isSelected && <Check className="h-3 w-3" />}
+                                </button>
+                                
+                                <button
+                                  onClick={() => handleListingClick(listing)}
+                                  className="w-full text-left"
+                                >
+                                  <div className="flex gap-3 pr-6">
+                                    {listing.featured_image && (
+                                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                        <img src={listing.featured_image} alt={listing.title} className="w-full h-full object-cover" />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                                          {listing.title}
+                                        </h3>
+                                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                      </div>
+                                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+                                        <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}</span>
+                                        <span>{listing.beds} bed • {listing.baths} bath</span>
+                                        <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(listing.assignment_price)}</span>
+                                      </div>
+                                      <div className="mt-1.5 flex flex-wrap gap-1">
+                                        {listing.match_reasons.slice(0, 2).map((reason, ridx) => (
+                                          <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </button>
+                              </div>
+                            );
+                          })}
+                          {message.listings.length > 6 && (
+                            <p className="text-xs text-muted-foreground text-center py-2">+{message.listings.length - 6} more. Refine your search.</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Project Cards */}
+                      {message.projects && message.projects.length > 0 && (
+                        <div className="space-y-2">
+                          {message.projects.slice(0, 6).map((project) => {
+                            const isSelected = selectedProjects.some(p => p.id === project.id);
+                            return (
+                              <div
+                                key={project.id}
+                                className={cn(
+                                  "relative w-full text-left p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
+                                  isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
+                                )}
+                              >
+                                <button
+                                  onClick={(e) => toggleProjectSelection(project, e)}
+                                  className={cn(
+                                    "absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                                    isSelected 
+                                      ? "bg-primary border-primary text-primary-foreground" 
+                                      : "border-muted-foreground/50 hover:border-primary"
+                                  )}
+                                >
+                                  {isSelected && <Check className="h-3 w-3" />}
+                                </button>
+                                
+                                <button
+                                  onClick={() => handleProjectClick(project)}
+                                  className="w-full text-left"
+                                >
+                                  <div className="flex gap-3 pr-6">
+                                    {project.featured_image && (
+                                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                        <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
+                                      </div>
+                                    )}
+                                    <div className="flex-1 min-w-0">
+                                      <div className="flex items-start justify-between gap-2">
+                                        <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                                          {project.name}
+                                        </h3>
+                                        <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                      </div>
+                                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+                                        <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{project.city}</span>
+                                        <span className="flex items-center gap-1"><Building2 className="h-3 w-3" />{project.project_type === "townhouse" ? "Townhouse" : "Condo"}</span>
+                                        <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(project.starting_price)}</span>
+                                        {project.deposit_percent && <span>{project.deposit_percent}% dep</span>}
+                                      </div>
+                                      <div className="mt-1.5 flex flex-wrap gap-1">
+                                        {project.match_reasons.slice(0, 2).map((reason, ridx) => (
+                                          <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </button>
+                              </div>
+                            );
+                          })}
+                          {message.projects.length > 6 && (
+                            <p className="text-xs text-muted-foreground text-center py-2">+{message.projects.length - 6} more. Refine your search.</p>
+                          )}
+                        </div>
+                      )}
+
+                      {/* No results suggestions */}
+                      {((message.projects && message.projects.length === 0) || (message.listings && message.listings.length === 0)) && (
+                        <div className="text-center py-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              onOpenChange(false);
+                              navigate(searchMode === "projects" ? "/presale-projects" : "/assignments");
+                            }}
+                          >
+                            Browse All {searchMode === "projects" ? "Projects" : "Assignments"}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {/* Loading State */}
+              {isLoading && (
+                <div className="px-4 py-6 text-center">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
+                  <p className="mt-2 text-sm text-muted-foreground">Searching...</p>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && (
+                <div className="px-4 py-4 text-center">
+                  <p className="text-sm text-destructive">{error}</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleSearch(query || conversation[conversation.length - 1]?.content)}
+                    className="mt-2"
                   >
-                    "{eq}"
-                  </button>
-                ))}
+                    Try Again
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {/* Follow-up Suggestions */}
+            {hasResults && !isLoading && (
+              <div className="px-3 py-2 border-t border-border bg-muted/30 flex-shrink-0">
+                <div className="flex flex-wrap gap-1.5">
+                  {followupSuggestions.map((suggestion) => (
+                    <button
+                      key={suggestion}
+                      onClick={() => {
+                        setQuery(suggestion);
+                        handleSearch(suggestion);
+                      }}
+                      className="text-xs px-2.5 py-1 rounded-full bg-background border border-border hover:border-primary hover:text-primary transition-colors"
+                    >
+                      {suggestion}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Input Area */}
+            <div className="p-3 border-t border-border bg-background flex-shrink-0">
+              <div className="relative">
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={isListening ? query + interimTranscript : query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
+                  placeholder="Refine: show me cheaper, larger units..."
+                  className={cn(
+                    "w-full pl-4 pr-20 py-2.5 rounded-xl border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors text-sm",
+                    isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
+                  )}
+                  disabled={isLoading}
+                />
+                
+                {isSpeechSupported && (
+                  <Button
+                    type="button"
+                    size="icon"
+                    variant={isListening ? "destructive" : "ghost"}
+                    onClick={toggleVoiceInput}
+                    disabled={isLoading}
+                    className={cn(
+                      "absolute right-10 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg",
+                      isListening && "animate-pulse"
+                    )}
+                  >
+                    {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                  </Button>
+                )}
+                
+                <Button
+                  size="icon"
+                  onClick={() => handleSearch()}
+                  disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg"
+                >
+                  {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <ArrowRight className="h-3.5 w-3.5" />}
+                </Button>
               </div>
             </div>
-          )}
 
-          {/* Conversation Messages */}
-          {conversation.map((message, idx) => (
-            <div key={idx} className={cn(
-              "px-4 py-3",
-              message.role === "user" ? "bg-muted/30" : "bg-background"
-            )}>
-              {message.role === "user" ? (
-                <div className="flex items-start gap-3">
-                  <div className="p-1.5 rounded-full bg-foreground/10 flex-shrink-0">
-                    <MessageSquare className="h-4 w-4 text-foreground" />
-                  </div>
-                  <p className="text-sm text-foreground pt-0.5">{message.content}</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {/* Explanation */}
-                  <div className={cn(
-                    "p-3 rounded-lg",
-                    (message.projects && message.projects.length > 0) || (message.listings && message.listings.length > 0)
-                      ? "bg-green-500/10 text-green-700 dark:text-green-400" 
-                      : "bg-amber-500/10 text-amber-700 dark:text-amber-400"
-                  )}>
-                    <p className="text-sm">{message.content}</p>
-                  </div>
-
-                  {/* Listing Cards (Assignments mode) */}
-                  {message.listings && message.listings.length > 0 && (
-                    <div className="space-y-2">
-                      {message.listings.slice(0, 6).map((listing) => {
-                        const isSelected = selectedListings.some(l => l.id === listing.id);
-                        return (
-                          <div
-                            key={listing.id}
-                            className={cn(
-                              "relative w-full text-left p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
-                              isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
-                            )}
-                          >
-                            {/* Selection checkbox */}
-                            <button
-                              onClick={(e) => toggleListingSelection(listing, e)}
-                              className={cn(
-                                "absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
-                                isSelected 
-                                  ? "bg-primary border-primary text-primary-foreground" 
-                                  : "border-muted-foreground/50 hover:border-primary"
-                              )}
-                            >
-                              {isSelected && <Check className="h-3 w-3" />}
-                            </button>
-                            
-                            <button
-                              onClick={() => handleListingClick(listing)}
-                              className="w-full text-left"
-                            >
-                              <div className="flex gap-3 pr-6">
-                                {listing.featured_image && (
-                                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                                    <img src={listing.featured_image} alt={listing.title} className="w-full h-full object-cover" />
-                                  </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                                      {listing.title}
-                                    </h3>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                                  </div>
-                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}</span>
-                                    <span>{listing.beds} bed • {listing.baths} bath</span>
-                                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(listing.assignment_price)}</span>
-                                  </div>
-                                  <div className="mt-1.5 flex flex-wrap gap-1">
-                                    {listing.match_reasons.slice(0, 2).map((reason, ridx) => (
-                                      <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </button>
-                          </div>
-                        );
-                      })}
-                      {message.listings.length > 6 && (
-                        <p className="text-xs text-muted-foreground text-center py-2">+{message.listings.length - 6} more. Refine your search.</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Project Cards */}
-                  {message.projects && message.projects.length > 0 && (
-                    <div className="space-y-2">
-                      {message.projects.slice(0, 6).map((project) => {
-                        const isSelected = selectedProjects.some(p => p.id === project.id);
-                        return (
-                          <div
-                            key={project.id}
-                            className={cn(
-                              "relative w-full text-left p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
-                              isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
-                            )}
-                          >
-                            {/* Selection checkbox */}
-                            <button
-                              onClick={(e) => toggleProjectSelection(project, e)}
-                              className={cn(
-                                "absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
-                                isSelected 
-                                  ? "bg-primary border-primary text-primary-foreground" 
-                                  : "border-muted-foreground/50 hover:border-primary"
-                              )}
-                            >
-                              {isSelected && <Check className="h-3 w-3" />}
-                            </button>
-                            
-                            <button
-                              onClick={() => handleProjectClick(project)}
-                              className="w-full text-left"
-                            >
-                              <div className="flex gap-3 pr-6">
-                                {project.featured_image && (
-                                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                                    <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
-                                  </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-start justify-between gap-2">
-                                    <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                                      {project.name}
-                                    </h3>
-                                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                                  </div>
-                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{project.city}</span>
-                                    <span className="flex items-center gap-1"><Building2 className="h-3 w-3" />{project.project_type === "townhouse" ? "Townhouse" : "Condo"}</span>
-                                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(project.starting_price)}</span>
-                                    {project.deposit_percent && <span>{project.deposit_percent}% dep</span>}
-                                  </div>
-                                  <div className="mt-1.5 flex flex-wrap gap-1">
-                                    {project.match_reasons.slice(0, 2).map((reason, ridx) => (
-                                      <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </button>
-                          </div>
-                        );
-                      })}
-                      {message.projects.length > 6 && (
-                        <p className="text-xs text-muted-foreground text-center py-2">+{message.projects.length - 6} more. Refine your search.</p>
-                      )}
-                    </div>
-                  )}
-
-                  {/* No results suggestions */}
-                  {message.projects && message.projects.length === 0 && (
-                    <div className="text-center py-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          onOpenChange(false);
-                          navigate("/presale-projects");
-                        }}
-                      >
-                        Browse All Projects
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
-
-          {/* Loading State */}
-          {isLoading && (
-            <div className="px-4 py-6 text-center">
-              <Loader2 className="h-6 w-6 animate-spin mx-auto text-primary" />
-              <p className="mt-2 text-sm text-muted-foreground">Searching projects...</p>
-            </div>
-          )}
-
-          {/* Error State */}
-          {error && (
-            <div className="px-4 py-4 text-center">
-              <p className="text-sm text-destructive">{error}</p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleSearch(query || conversation[conversation.length - 1]?.content)}
-                className="mt-2"
-              >
-                Try Again
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* Follow-up Suggestions */}
-        {hasResults && !isLoading && (
-          <div className="px-4 py-2 border-t border-border bg-muted/30 flex-shrink-0">
-            <p className="text-xs text-muted-foreground mb-2">Refine your search:</p>
-            <div className="flex flex-wrap gap-1.5">
-              {followupSuggestions.map((suggestion) => (
-                <button
-                  key={suggestion}
-                  onClick={() => {
-                    setQuery(suggestion);
-                    handleSearch(suggestion);
-                  }}
-                  className="text-xs px-2.5 py-1.5 rounded-full bg-background border border-border hover:border-primary hover:text-primary transition-colors"
+            {/* Floating Compare Button */}
+            {((searchMode === "projects" && selectedProjects.length >= 2) || 
+              (searchMode === "assignments" && selectedListings.length >= 2)) && (
+              <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20">
+                <Button
+                  onClick={() => setShowCompare(true)}
+                  className="shadow-lg gap-2 rounded-full px-4 h-9"
+                  size="sm"
                 >
-                  {suggestion}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Input Area */}
-        <div className="p-4 border-t border-border bg-background flex-shrink-0">
-          <div className="relative">
-            <input
-              ref={inputRef}
-              type="text"
-              value={isListening ? query + interimTranscript : query}
-              onChange={(e) => setQuery(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
-              placeholder={isListening 
-                ? "Listening..." 
-                : conversation.length > 0 
-                  ? "Refine your search (e.g., 'show me cheaper options')..." 
-                  : "e.g., 1 bedroom condo around $500k in Langley..."
-              }
-              className={cn(
-                "w-full pl-4 pr-24 py-3 rounded-xl border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-colors",
-                isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
-              )}
-              disabled={isLoading}
-            />
-            
-            {/* Voice Input Button */}
-            {isSpeechSupported && (
-              <Button
-                type="button"
-                size="icon"
-                variant={isListening ? "destructive" : "ghost"}
-                onClick={toggleVoiceInput}
-                disabled={isLoading}
-                className={cn(
-                  "absolute right-11 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg",
-                  isListening && "animate-pulse"
-                )}
-                title={isListening ? "Stop listening" : "Voice search"}
-              >
-                {isListening ? (
-                  <MicOff className="h-4 w-4" />
-                ) : (
-                  <Mic className="h-4 w-4" />
-                )}
-              </Button>
+                  <Scale className="h-3.5 w-3.5" />
+                  Compare ({searchMode === "projects" ? selectedProjects.length : selectedListings.length})
+                </Button>
+              </div>
             )}
-            
-            {/* Search Button */}
-            <Button
-              size="icon"
-              onClick={() => handleSearch()}
-              disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg"
-            >
-              {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Search className="h-4 w-4" />
-              )}
-            </Button>
-          </div>
-          
-          {/* Listening indicator */}
-          {isListening && (
-            <p className="text-xs text-red-600 dark:text-red-400 mt-2 flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-              Listening... speak your search query
-            </p>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="p-2 border-t border-border bg-muted/30 text-center flex-shrink-0">
-          <p className="text-xs text-muted-foreground">
-            <Sparkles className="h-3 w-3 inline mr-1" />
-            AI-powered search • Results from verified BC presale projects only
-          </p>
-        </div>
-
-        {/* Floating Compare Button */}
-        {((searchMode === "projects" && selectedProjects.length >= 2) || 
-          (searchMode === "assignments" && selectedListings.length >= 2)) && (
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
-            <Button
-              onClick={() => setShowCompare(true)}
-              className="shadow-lg gap-2 rounded-full px-5"
-            >
-              <Scale className="h-4 w-4" />
-              Compare ({searchMode === "projects" ? selectedProjects.length : selectedListings.length})
-            </Button>
-          </div>
+          </>
         )}
       </div>
 
