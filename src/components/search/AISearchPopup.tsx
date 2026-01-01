@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, ArrowRight, RotateCcw, MessageSquare, Mic, MicOff } from "lucide-react";
+import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, ArrowRight, RotateCcw, MessageSquare, Mic, MicOff, Check, Scale } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import { AICompareModal } from "./AICompareModal";
 
 interface AISearchPopupProps {
   open: boolean;
@@ -162,6 +163,9 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const [error, setError] = useState<string | null>(null);
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
+  const [selectedProjects, setSelectedProjects] = useState<Project[]>([]);
+  const [selectedListings, setSelectedListings] = useState<Listing[]>([]);
+  const [showCompare, setShowCompare] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -409,6 +413,8 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       setConversation([]);
       setError(null);
       setQuery("");
+      setSelectedProjects([]);
+      setSelectedListings([]);
     }
   };
 
@@ -416,7 +422,62 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
     setConversation([]);
     setError(null);
     setQuery("");
+    setSelectedProjects([]);
+    setSelectedListings([]);
     inputRef.current?.focus();
+  };
+
+  const toggleProjectSelection = (project: Project, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedProjects(prev => {
+      const isSelected = prev.some(p => p.id === project.id);
+      if (isSelected) {
+        return prev.filter(p => p.id !== project.id);
+      }
+      if (prev.length >= 4) {
+        toast({ title: "Maximum 4 items", description: "Remove one to add another", variant: "destructive" });
+        return prev;
+      }
+      return [...prev, project];
+    });
+  };
+
+  const toggleListingSelection = (listing: Listing, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedListings(prev => {
+      const isSelected = prev.some(l => l.id === listing.id);
+      if (isSelected) {
+        return prev.filter(l => l.id !== listing.id);
+      }
+      if (prev.length >= 4) {
+        toast({ title: "Maximum 4 items", description: "Remove one to add another", variant: "destructive" });
+        return prev;
+      }
+      return [...prev, listing];
+    });
+  };
+
+  const handleRemoveFromCompare = (id: string) => {
+    if (searchMode === "projects") {
+      setSelectedProjects(prev => prev.filter(p => p.id !== id));
+    } else {
+      setSelectedListings(prev => prev.filter(l => l.id !== id));
+    }
+    if ((searchMode === "projects" ? selectedProjects.length : selectedListings.length) <= 2) {
+      setShowCompare(false);
+    }
+  };
+
+  const handleCompareViewProject = (slug: string) => {
+    setShowCompare(false);
+    onOpenChange(false);
+    navigate(`/presale-projects/${slug}`);
+  };
+
+  const handleCompareViewListing = (id: string) => {
+    setShowCompare(false);
+    onOpenChange(false);
+    navigate(`/assignments/${id}`);
   };
 
   const formatPrice = (price: number | null) => {
@@ -571,39 +632,62 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   {/* Listing Cards (Assignments mode) */}
                   {message.listings && message.listings.length > 0 && (
                     <div className="space-y-2">
-                      {message.listings.slice(0, 6).map((listing) => (
-                        <button
-                          key={listing.id}
-                          onClick={() => handleListingClick(listing)}
-                          className="w-full text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors group"
-                        >
-                          <div className="flex gap-3">
-                            {listing.featured_image && (
-                              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                                <img src={listing.featured_image} alt={listing.title} className="w-full h-full object-cover" />
-                              </div>
+                      {message.listings.slice(0, 6).map((listing) => {
+                        const isSelected = selectedListings.some(l => l.id === listing.id);
+                        return (
+                          <div
+                            key={listing.id}
+                            className={cn(
+                              "relative w-full text-left p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
+                              isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
                             )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                                  {listing.title}
-                                </h3>
-                                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                          >
+                            {/* Selection checkbox */}
+                            <button
+                              onClick={(e) => toggleListingSelection(listing, e)}
+                              className={cn(
+                                "absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                                isSelected 
+                                  ? "bg-primary border-primary text-primary-foreground" 
+                                  : "border-muted-foreground/50 hover:border-primary"
+                              )}
+                            >
+                              {isSelected && <Check className="h-3 w-3" />}
+                            </button>
+                            
+                            <button
+                              onClick={() => handleListingClick(listing)}
+                              className="w-full text-left"
+                            >
+                              <div className="flex gap-3 pr-6">
+                                {listing.featured_image && (
+                                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                    <img src={listing.featured_image} alt={listing.title} className="w-full h-full object-cover" />
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                                      {listing.title}
+                                    </h3>
+                                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+                                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}</span>
+                                    <span>{listing.beds} bed • {listing.baths} bath</span>
+                                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(listing.assignment_price)}</span>
+                                  </div>
+                                  <div className="mt-1.5 flex flex-wrap gap-1">
+                                    {listing.match_reasons.slice(0, 2).map((reason, ridx) => (
+                                      <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{listing.city}</span>
-                                <span>{listing.beds} bed • {listing.baths} bath</span>
-                                <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(listing.assignment_price)}</span>
-                              </div>
-                              <div className="mt-1.5 flex flex-wrap gap-1">
-                                {listing.match_reasons.slice(0, 2).map((reason, ridx) => (
-                                  <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
-                                ))}
-                              </div>
-                            </div>
+                            </button>
                           </div>
-                        </button>
-                      ))}
+                        );
+                      })}
                       {message.listings.length > 6 && (
                         <p className="text-xs text-muted-foreground text-center py-2">+{message.listings.length - 6} more. Refine your search.</p>
                       )}
@@ -613,71 +697,65 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   {/* Project Cards */}
                   {message.projects && message.projects.length > 0 && (
                     <div className="space-y-2">
-                      {message.projects.slice(0, 6).map((project) => (
-                        <button
-                          key={project.id}
-                          onClick={() => handleProjectClick(project)}
-                          className="w-full text-left p-3 rounded-xl border border-border bg-card hover:bg-muted/50 transition-colors group"
-                        >
-                          <div className="flex gap-3">
-                            {/* Image */}
-                            {project.featured_image && (
-                              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                                <img
-                                  src={project.featured_image}
-                                  alt={project.name}
-                                  className="w-full h-full object-cover"
-                                />
-                              </div>
+                      {message.projects.slice(0, 6).map((project) => {
+                        const isSelected = selectedProjects.some(p => p.id === project.id);
+                        return (
+                          <div
+                            key={project.id}
+                            className={cn(
+                              "relative w-full text-left p-3 rounded-xl border bg-card hover:bg-muted/50 transition-colors group",
+                              isSelected ? "border-primary ring-2 ring-primary/20" : "border-border"
                             )}
-
-                            {/* Content */}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
-                                  {project.name}
-                                </h3>
-                                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                              </div>
-
-                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="h-3 w-3" />
-                                  {project.city}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Building2 className="h-3 w-3" />
-                                  {project.project_type === "townhouse" ? "Townhouse" : "Condo"}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <DollarSign className="h-3 w-3" />
-                                  {formatPrice(project.starting_price)}
-                                </span>
-                                {project.deposit_percent && (
-                                  <span>{project.deposit_percent}% dep</span>
+                          >
+                            {/* Selection checkbox */}
+                            <button
+                              onClick={(e) => toggleProjectSelection(project, e)}
+                              className={cn(
+                                "absolute top-2 right-2 z-10 w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+                                isSelected 
+                                  ? "bg-primary border-primary text-primary-foreground" 
+                                  : "border-muted-foreground/50 hover:border-primary"
+                              )}
+                            >
+                              {isSelected && <Check className="h-3 w-3" />}
+                            </button>
+                            
+                            <button
+                              onClick={() => handleProjectClick(project)}
+                              className="w-full text-left"
+                            >
+                              <div className="flex gap-3 pr-6">
+                                {project.featured_image && (
+                                  <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                                    <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
+                                  </div>
                                 )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <h3 className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                                      {project.name}
+                                    </h3>
+                                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                                  </div>
+                                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-muted-foreground">
+                                    <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{project.city}</span>
+                                    <span className="flex items-center gap-1"><Building2 className="h-3 w-3" />{project.project_type === "townhouse" ? "Townhouse" : "Condo"}</span>
+                                    <span className="flex items-center gap-1"><DollarSign className="h-3 w-3" />{formatPrice(project.starting_price)}</span>
+                                    {project.deposit_percent && <span>{project.deposit_percent}% dep</span>}
+                                  </div>
+                                  <div className="mt-1.5 flex flex-wrap gap-1">
+                                    {project.match_reasons.slice(0, 2).map((reason, ridx) => (
+                                      <span key={ridx} className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary">{reason}</span>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
-
-                              {/* Match reasons */}
-                              <div className="mt-1.5 flex flex-wrap gap-1">
-                                {project.match_reasons.slice(0, 2).map((reason, ridx) => (
-                                  <span
-                                    key={ridx}
-                                    className="text-[10px] px-1.5 py-0.5 rounded bg-primary/10 text-primary"
-                                  >
-                                    {reason}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
+                            </button>
                           </div>
-                        </button>
-                      ))}
-                      
+                        );
+                      })}
                       {message.projects.length > 6 && (
-                        <p className="text-xs text-muted-foreground text-center py-2">
-                          +{message.projects.length - 6} more projects. Refine your search for better results.
-                        </p>
+                        <p className="text-xs text-muted-foreground text-center py-2">+{message.projects.length - 6} more. Refine your search.</p>
                       )}
                     </div>
                   )}
@@ -822,7 +900,33 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             AI-powered search • Results from verified BC presale projects only
           </p>
         </div>
+
+        {/* Floating Compare Button */}
+        {((searchMode === "projects" && selectedProjects.length >= 2) || 
+          (searchMode === "assignments" && selectedListings.length >= 2)) && (
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
+            <Button
+              onClick={() => setShowCompare(true)}
+              className="shadow-lg gap-2 rounded-full px-5"
+            >
+              <Scale className="h-4 w-4" />
+              Compare ({searchMode === "projects" ? selectedProjects.length : selectedListings.length})
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Compare Modal */}
+      <AICompareModal
+        open={showCompare}
+        onClose={() => setShowCompare(false)}
+        projects={selectedProjects}
+        listings={selectedListings}
+        mode={searchMode}
+        onViewProject={handleCompareViewProject}
+        onViewListing={handleCompareViewListing}
+        onRemove={handleRemoveFromCompare}
+      />
     </div>
   );
 }
