@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { SearchPopup } from "@/components/conversion/SearchPopup";
+import { AISearchPopup } from "@/components/search/AISearchPopup";
 import { supabase } from "@/integrations/supabase/client";
 import {
   Sheet,
@@ -247,7 +247,7 @@ export function FloatingBottomNav({ selectedCity = "any", onCityChange }: Floati
         </div>
       </div>
 
-      <SearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
+      <AISearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
 
       <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
         <SheetContent side="bottom" className="rounded-t-2xl px-5 pb-6 pt-3">
