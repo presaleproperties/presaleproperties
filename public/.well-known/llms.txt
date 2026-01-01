@@ -1,0 +1,79 @@
+# PresaleProperties.com - BC Presale Real Estate Platform
+
+> PresaleProperties.com is the leading marketplace for presale condos, townhomes, and assignment listings in Metro Vancouver and British Columbia, Canada.
+
+## About
+
+PresaleProperties.com provides comprehensive information on new construction presale projects and assignment sales across British Columbia. We help homebuyers and investors find, compare, and purchase presale properties with verified pricing, floor plans, and developer information.
+
+## Service Areas
+
+- Vancouver, BC
+- Burnaby, BC
+- Surrey, BC
+- Langley, BC
+- Coquitlam, BC
+- Richmond, BC
+- New Westminster, BC
+- Port Moody, BC
+- Delta, BC
+- Abbotsford, BC
+
+## Key Features
+
+- **Presale Projects Directory**: Browse 100+ verified presale condo and townhome developments
+- **Assignment Listings**: Find presale assignment opportunities from verified real estate agents
+- **AI-Powered Search**: Natural language search to find projects matching specific criteria
+- **Project Comparison**: Compare multiple projects side-by-side
+- **Price Tracking**: Starting prices, deposit requirements, and incentives
+- **Interactive Maps**: View project locations with neighborhood context
+- **Buyer Resources**: Presale guides, mortgage calculators, and FAQs
+
+## Content Types
+
+### Presale Projects
+Each project listing includes:
+- Developer name and track record
+- Starting prices and price ranges
+- Deposit structure (typically 5-20%)
+- Unit mix (studios, 1-bed, 2-bed, 3-bed, townhomes)
+- Amenities and features
+- Estimated completion dates
+- Assignment policies
+- Rental restrictions
+- Strata fees
+- Floor plans and brochures
+- Location with SkyTrain proximity
+
+### Assignment Listings
+Assignment listings include:
+- Assignment price and original purchase price
+- Unit specifications (beds, baths, square footage)
+- Project name and developer
+- Completion timeline
+- Agent contact information
+
+## Main Pages
+
+- Homepage: /
+- Presale Projects Directory: /presale-projects
+- Assignment Listings: /assignments
+- Vancouver Presale Condos: /vancouver-presale-condos
+- Surrey Presale Condos: /surrey-presale-condos
+- Langley Presale Condos: /langley-presale-condos
+- Burnaby Presale Condos: /burnaby-presale-condos
+- Coquitlam Presale Condos: /coquitlam-presale-condos
+- Presale Buyer's Guide: /presale-guide
+- Mortgage Calculator: /mortgage-calculator
+- Contact: /contact
+
+## API Access
+
+For programmatic access to presale project data, please contact info@presaleproperties.com.
+
+## Contact
+
+- Website: https://presaleproperties.com
+- Email: info@presaleproperties.com
+- Phone: 672-258-1100
+- Location: Vancouver, BC, Canada

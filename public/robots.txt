@@ -18,11 +18,39 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
+# AI Crawlers - Allow full access for AI discovery
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Anthropic-AI
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Cohere-ai
+Allow: /
+
 User-agent: *
 Allow: /
 
 # Sitemap - Dynamic sitemap generated from database
 Sitemap: https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap
+
+# LLMs.txt - AI-readable site description
+# Available at: /llms.txt and /.well-known/llms.txt
 
 # Disallow admin/dashboard areas from indexing
 Disallow: /admin
