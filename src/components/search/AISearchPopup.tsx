@@ -669,42 +669,50 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] sm:pt-[20vh]">
+    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] sm:pt-[15vh]">
       {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-md"
         onClick={() => onOpenChange(false)}
       />
 
-      {/* Compact Search Container */}
+      {/* Mobile-Optimized Search Container */}
       <div
         ref={containerRef}
         className={cn(
-          "relative z-10 w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col",
-          "bg-background/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10",
-          conversation.length === 0 ? "max-w-md" : "max-w-2xl max-h-[70vh]"
+          "relative z-10 w-full mx-3 sm:mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col",
+          "bg-background/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10",
+          conversation.length === 0 ? "max-w-md" : "max-w-2xl max-h-[80vh] sm:max-h-[70vh]"
         )}
       >
         {conversation.length === 0 && !isLoading ? (
-          <div className="p-4">
+          <div className="p-4 sm:p-5">
+            {/* Close button for mobile */}
+            <button
+              onClick={() => onOpenChange(false)}
+              className="absolute top-3 right-3 p-1.5 rounded-full bg-muted/50 hover:bg-muted transition-colors sm:hidden"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+            
             {/* Compact Header */}
-            <div className="flex items-center justify-center gap-2 mb-3">
-              <Sparkles className="h-4 w-4 text-primary" />
-              <h3 className="text-sm font-medium text-foreground">
-                Let's find you a presale
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h3 className="text-base font-medium text-foreground">
+                Find your presale
               </h3>
             </div>
             
-            {/* Compact Search Input with Typeahead */}
+            {/* Mobile-Optimized Search Input with Typeahead */}
             <div className="relative">
               <div className={cn(
                 "relative flex items-center rounded-xl transition-all",
-                "bg-muted/50 border border-border/50",
-                "focus-within:border-primary/50 focus-within:bg-muted/70",
+                "bg-muted/60 border border-border/50",
+                "focus-within:border-primary/50 focus-within:bg-muted/80",
                 isListening && "border-red-500/50 bg-red-50/30 dark:bg-red-950/20",
                 showTypeahead && "rounded-b-none border-b-0"
               )}>
-                <Search className="absolute left-3 h-4 w-4 text-muted-foreground/50" />
+                <Search className="absolute left-3.5 h-5 w-5 text-muted-foreground/60" />
                 <input
                   ref={inputRef}
                   type="text"
@@ -713,10 +721,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   onKeyDown={handleInputKeyDown}
                   onFocus={() => query.length >= 2 && typeaheadSuggestions.length > 0 && setShowTypeahead(true)}
                   onBlur={() => setTimeout(() => setShowTypeahead(false), 200)}
-                  placeholder="Search projects, cities..."
-                  className="w-full pl-9 pr-20 py-3 rounded-xl bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
+                  placeholder="Try 'Langley' or '2 bed under 600k'"
+                  className="w-full pl-11 pr-24 py-3.5 sm:py-3 rounded-xl bg-transparent text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
                   disabled={isLoading}
                   autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  spellCheck="false"
                 />
                 
                 <div className="absolute right-1.5 flex items-center gap-1">
@@ -731,11 +742,11 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                       onClick={toggleVoiceInput}
                       disabled={isLoading}
                       className={cn(
-                        "h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground",
+                        "h-10 w-10 sm:h-8 sm:w-8 rounded-lg text-muted-foreground hover:text-foreground touch-manipulation",
                         isListening && "text-red-500 animate-pulse"
                       )}
                     >
-                      {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
+                      {isListening ? <MicOff className="h-5 w-5 sm:h-4 sm:w-4" /> : <Mic className="h-5 w-5 sm:h-4 sm:w-4" />}
                     </Button>
                   )}
                   
@@ -743,34 +754,40 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                     size="icon"
                     onClick={() => { setShowTypeahead(false); handleSearch(); }}
                     disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
-                    className="h-8 w-8 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="h-10 w-10 sm:h-8 sm:w-8 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 touch-manipulation"
                   >
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-5 w-5 sm:h-4 sm:w-4" />
                   </Button>
                 </div>
               </div>
 
               {/* Typeahead Suggestions Dropdown */}
               {showTypeahead && typeaheadSuggestions.length > 0 && (
-                <div className="absolute left-0 right-0 bg-background/95 backdrop-blur-lg border border-t-0 border-border/50 rounded-b-xl shadow-lg z-50 overflow-hidden">
+                <div className="absolute left-0 right-0 bg-background/98 backdrop-blur-lg border border-t-0 border-border/50 rounded-b-xl shadow-lg z-50 overflow-hidden max-h-64 overflow-y-auto">
                   {typeaheadSuggestions.map((suggestion, index) => (
                     <button
                       key={`${suggestion.type}-${suggestion.label}-${index}`}
                       onClick={() => handleSuggestionClick(suggestion)}
                       className={cn(
-                        "w-full px-3 py-2.5 flex items-center gap-3 text-left transition-colors",
-                        "hover:bg-muted/70",
+                        "w-full px-4 py-3.5 sm:py-2.5 flex items-center gap-3 text-left transition-colors touch-manipulation active:bg-muted",
+                        "hover:bg-muted/70 border-b border-border/30 last:border-b-0",
                         selectedSuggestionIndex === index && "bg-muted"
                       )}
                     >
                       {suggestion.type === "project" && (
-                        <Building2 className="h-4 w-4 text-primary flex-shrink-0" />
+                        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                          <Building2 className="h-4 w-4 text-primary" />
+                        </div>
                       )}
                       {suggestion.type === "city" && (
-                        <MapPin className="h-4 w-4 text-blue-500 flex-shrink-0" />
+                        <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                          <MapPin className="h-4 w-4 text-blue-500" />
+                        </div>
                       )}
                       {suggestion.type === "neighborhood" && (
-                        <Home className="h-4 w-4 text-green-500 flex-shrink-0" />
+                        <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                          <Home className="h-4 w-4 text-green-500" />
+                        </div>
                       )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-foreground truncate">
@@ -783,7 +800,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                         )}
                       </div>
                       {suggestion.type === "project" && (
-                        <ArrowRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                        <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                       )}
                     </button>
                   ))}
@@ -792,23 +809,26 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             </div>
 
             {isListening && (
-              <p className="text-xs text-red-500 mt-2 flex items-center justify-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
+              <p className="text-sm text-red-500 mt-3 flex items-center justify-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 Listening...
               </p>
             )}
 
-            {/* Compact Chips */}
-            <div className="flex flex-wrap gap-1.5 mt-3 justify-center">
-              {["2 bed in Langley", "Under $600k", "Townhouse", "Near SkyTrain"].map((example) => (
-                <button
-                  key={example}
-                  onClick={() => handleSearch(example)}
-                  className="px-2.5 py-1 text-xs rounded-full bg-muted/70 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  {example}
-                </button>
-              ))}
+            {/* Quick Search Chips - Scrollable on mobile */}
+            <div className="mt-4">
+              <p className="text-xs text-muted-foreground text-center mb-2">Quick searches</p>
+              <div className="flex flex-wrap gap-2 justify-center">
+                {["2 bed Langley", "Under $600k", "Townhouse", "Surrey"].map((example) => (
+                  <button
+                    key={example}
+                    onClick={() => handleSearch(example)}
+                    className="px-3 py-2 text-sm rounded-full bg-muted/80 hover:bg-muted active:bg-muted text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                  >
+                    {example}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         ) : (
