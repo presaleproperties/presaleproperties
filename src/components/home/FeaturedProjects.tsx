@@ -32,7 +32,7 @@ export function FeaturedProjects() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
           <div className="space-y-2 sm:space-y-3">
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
-              🔥 Don't Miss Out
+              Don't Miss Out
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
               Hottest Presale Condos
