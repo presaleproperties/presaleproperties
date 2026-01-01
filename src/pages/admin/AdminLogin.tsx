@@ -184,11 +184,12 @@ export default function AdminLogin() {
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(data.email, {
-        redirectTo: `${window.location.origin}/admin/login?type=recovery`,
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("send-admin-reset", {
+        body: { email: data.email.trim() },
       });
 
-      if (error) throw error;
+      if (fnError) throw fnError;
+      if ((fnData as any)?.error) throw new Error((fnData as any).error);
 
       setResetEmailSent(true);
       toast({
