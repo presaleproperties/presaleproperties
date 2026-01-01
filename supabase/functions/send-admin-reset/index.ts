@@ -55,7 +55,7 @@ serve(async (req: Request): Promise<Response> => {
     if (!actionLink) throw new Error("Failed to generate reset link");
 
     const emailResponse = await resend.emails.send({
-      from: "PresaleProperties <noreply@presaleproperties.com>",
+      from: "PresaleProperties <onboarding@resend.dev>",
       to: [normalizedEmail],
       subject: "Admin password reset",
       html: `
