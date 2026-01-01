@@ -532,7 +532,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                 value={isListening ? query + interimTranscript : query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
-                placeholder="Ask anything..."
+                placeholder="What are you looking for?"
                 className={cn(
                   "w-full pl-4 pr-24 py-4 rounded-2xl border-0 bg-muted/50 text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-0 transition-all text-base",
                   isListening && "bg-red-50/50 dark:bg-red-950/20"
