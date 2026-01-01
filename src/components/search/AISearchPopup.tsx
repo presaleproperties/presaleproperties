@@ -518,7 +518,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
         ref={containerRef}
         className={cn(
           "relative z-10 w-full mx-4 overflow-hidden animate-in fade-in zoom-in-95 duration-200 flex flex-col",
-          "bg-background rounded-2xl shadow-2xl border border-border/50",
+          "bg-background/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-white/10",
           conversation.length === 0 ? "max-w-md" : "max-w-2xl max-h-[70vh]"
         )}
       >
