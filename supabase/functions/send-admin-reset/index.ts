@@ -71,10 +71,12 @@ serve(async (req: Request): Promise<Response> => {
 
     const senderEmail = await getSenderEmail(supabaseAdmin);
 
+    // TEMPORARY: Send to verified testing inbox for end-to-end testing
+    const testingInbox = "marketing@meetuzair.com";
     const emailResponse = await resend.emails.send({
       from: senderEmail,
-      to: [normalizedEmail],
-      subject: "Admin password reset",
+      to: [testingInbox],
+      subject: `Admin password reset (for ${normalizedEmail})`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <h1 style="color: #1a1a1a; font-size: 22px; margin-bottom: 12px;">Reset your admin password</h1>
