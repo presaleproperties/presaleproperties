@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
+import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -17,6 +17,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AccessPackModal } from "./AccessPackModal";
+import { AISearchButton } from "@/components/search/AISearchButton";
 import { supabase } from "@/integrations/supabase/client";
 
 // City links for condos (primary navigation)
@@ -179,6 +180,7 @@ export function ConversionHeader() {
 
           {/* Desktop CTAs */}
           <div className="hidden lg:flex items-center gap-2">
+            <AISearchButton variant="default" />
             <Button variant="outline" size="sm" onClick={openCallBack}>
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
@@ -190,7 +192,8 @@ export function ConversionHeader() {
           </div>
 
           {/* Mobile Menu - Enhanced */}
-          <div className="flex items-center lg:hidden">
+          <div className="flex items-center gap-1 lg:hidden">
+            <AISearchButton variant="compact" />
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
