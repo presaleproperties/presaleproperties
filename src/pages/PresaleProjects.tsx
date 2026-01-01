@@ -795,7 +795,7 @@ export default function PresaleProjects() {
         </main>
 
         <NewConstructionBenefits />
-        <FloatingBottomNav />
+        
         <Footer />
       </PullToRefresh>
     </>
