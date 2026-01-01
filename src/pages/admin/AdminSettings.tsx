@@ -22,6 +22,7 @@ interface AppSettings {
   zapier_project_leads_webhook: string;
   zapier_listing_leads_webhook: string;
   zapier_bookings_webhook: string;
+  lofty_tracking_webhook: string;
 }
 
 export default function AdminSettings() {
@@ -33,6 +34,7 @@ export default function AdminSettings() {
     zapier_project_leads_webhook: "",
     zapier_listing_leads_webhook: "",
     zapier_bookings_webhook: "",
+    lofty_tracking_webhook: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -59,6 +61,7 @@ export default function AdminSettings() {
         if (item.key === "zapier_project_leads_webhook") settingsMap.zapier_project_leads_webhook = item.value as string;
         if (item.key === "zapier_listing_leads_webhook") settingsMap.zapier_listing_leads_webhook = item.value as string;
         if (item.key === "zapier_bookings_webhook") settingsMap.zapier_bookings_webhook = item.value as string;
+        if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
@@ -80,6 +83,7 @@ export default function AdminSettings() {
         { key: "zapier_project_leads_webhook", value: settings.zapier_project_leads_webhook },
         { key: "zapier_listing_leads_webhook", value: settings.zapier_listing_leads_webhook },
         { key: "zapier_bookings_webhook", value: settings.zapier_bookings_webhook },
+        { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
       ];
 
       for (const setting of settingsToSave) {
@@ -131,60 +135,85 @@ export default function AdminSettings() {
                   Zapier / Lofty CRM Integration
                 </CardTitle>
                 <CardDescription>
-                  Configure webhook URLs to send leads and bookings to your CRM
+                  Configure webhook URLs to send leads, bookings, and behavioral tracking to your CRM
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid gap-4 md:grid-cols-3">
+              <CardContent className="space-y-6">
+                {/* Behavioral Tracking */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm">Behavioral Tracking</h4>
                   <div className="space-y-2">
-                    <Label htmlFor="zapier_project_leads_webhook">Project Leads Webhook</Label>
+                    <Label htmlFor="lofty_tracking_webhook">Page View Tracking Webhook</Label>
                     <Input
-                      id="zapier_project_leads_webhook"
+                      id="lofty_tracking_webhook"
                       type="url"
                       placeholder="https://hooks.zapier.com/..."
-                      value={settings.zapier_project_leads_webhook}
+                      value={settings.lofty_tracking_webhook}
                       onChange={(e) => setSettings(prev => ({ 
                         ...prev, 
-                        zapier_project_leads_webhook: e.target.value 
+                        lofty_tracking_webhook: e.target.value 
                       }))}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Receives leads from presale project pages
+                      Tracks page views, property views, and visitor behavior. Includes visitor ID, session ID, page URL, and project details.
                     </p>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="zapier_listing_leads_webhook">Listing Leads Webhook</Label>
-                    <Input
-                      id="zapier_listing_leads_webhook"
-                      type="url"
-                      placeholder="https://hooks.zapier.com/..."
-                      value={settings.zapier_listing_leads_webhook}
-                      onChange={(e) => setSettings(prev => ({ 
-                        ...prev, 
-                        zapier_listing_leads_webhook: e.target.value 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Receives leads from assignment listing pages
-                    </p>
-                  </div>
+                {/* Lead & Booking Webhooks */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm">Lead & Booking Webhooks</h4>
+                  <div className="grid gap-4 md:grid-cols-3">
+                    <div className="space-y-2">
+                      <Label htmlFor="zapier_project_leads_webhook">Project Leads Webhook</Label>
+                      <Input
+                        id="zapier_project_leads_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.zapier_project_leads_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          zapier_project_leads_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Receives leads from presale project pages
+                      </p>
+                    </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="zapier_bookings_webhook">Bookings Webhook</Label>
-                    <Input
-                      id="zapier_bookings_webhook"
-                      type="url"
-                      placeholder="https://hooks.zapier.com/..."
-                      value={settings.zapier_bookings_webhook}
-                      onChange={(e) => setSettings(prev => ({ 
-                        ...prev, 
-                        zapier_bookings_webhook: e.target.value 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Receives booking/appointment requests
-                    </p>
+                    <div className="space-y-2">
+                      <Label htmlFor="zapier_listing_leads_webhook">Listing Leads Webhook</Label>
+                      <Input
+                        id="zapier_listing_leads_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.zapier_listing_leads_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          zapier_listing_leads_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Receives leads from assignment listing pages
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="zapier_bookings_webhook">Bookings Webhook</Label>
+                      <Input
+                        id="zapier_bookings_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.zapier_bookings_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          zapier_bookings_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Receives booking/appointment requests
+                      </p>
+                    </div>
                   </div>
                 </div>
 
