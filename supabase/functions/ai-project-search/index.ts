@@ -19,11 +19,18 @@ interface ParsedFilters {
   near_skytrain?: boolean;
 }
 
+interface ConversationMessage {
+  role: "user" | "assistant";
+  content: string;
+  filters?: ParsedFilters;
+}
+
 interface SearchResult {
   projects: any[];
   explanation: string;
   filters_applied: ParsedFilters;
   clarification_needed?: string;
+  conversation_context?: string;
 }
 
 serve(async (req) => {
@@ -32,7 +39,7 @@ serve(async (req) => {
   }
 
   try {
-    const { query } = await req.json();
+    const { query, conversation = [] } = await req.json();
     
     if (!query || typeof query !== "string" || query.trim().length < 3) {
       return new Response(
@@ -46,7 +53,15 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Step 1: Use AI to parse the natural language query into structured filters
+    // Build conversation context for the AI
+    const conversationContext = conversation.map((msg: ConversationMessage) => ({
+      role: msg.role,
+      content: msg.role === "assistant" 
+        ? `Previous search: ${msg.content}${msg.filters ? ` [Filters: ${JSON.stringify(msg.filters)}]` : ""}`
+        : msg.content
+    }));
+
+    // Step 1: Use AI to parse the natural language query with conversation context
     const parseResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -64,12 +79,26 @@ Available cities: Vancouver, Burnaby, Surrey, Langley, Coquitlam, Richmond, New 
 Project types: condo, townhouse
 Unit types: studio, 1bed, 2bed, 3bed, 4bed+
 
-Extract filters from the user's query. If the query is too vague, suggest a clarifying question.
+CONVERSATION CONTEXT:
+You may receive previous conversation history. Users often refine their search with follow-up queries like:
+- "show me cheaper options" → reduce max_price from previous search
+- "only near SkyTrain" → add near_skytrain filter while keeping other filters
+- "what about townhouses instead" → change project_type to townhouse
+- "in Surrey instead" → change city while keeping other criteria
+
+When processing follow-ups:
+1. INHERIT filters from previous searches unless explicitly changed
+2. Interpret relative terms ("cheaper", "bigger", "closer") based on previous context
+3. If user says "cheaper", reduce max_price by ~20% from previous value
+4. If user says "more expensive" or "higher budget", increase max_price by ~30%
+
+Extract filters from the user's query. If the query is too vague AND there's no prior context, suggest a clarifying question.
 For prices, interpret "around $X" as ±15% range. "Under $X" means max_price = X.
 For deposits, "10% deposit" means max_deposit_percent = 10.
 
-IMPORTANT: Only extract information explicitly mentioned. Do not assume or invent data.`
+IMPORTANT: Only extract information explicitly mentioned OR inferred from conversation context. Do not invent data.`
           },
+          ...conversationContext,
           {
             role: "user",
             content: query
@@ -80,7 +109,7 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
             type: "function",
             function: {
               name: "extract_search_filters",
-              description: "Extract structured search filters from natural language query",
+              description: "Extract structured search filters from natural language query, considering conversation history",
               parameters: {
                 type: "object",
                 properties: {
@@ -100,13 +129,17 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
                     },
                     additionalProperties: false
                   },
+                  is_followup: {
+                    type: "boolean",
+                    description: "True if this query refines a previous search"
+                  },
                   clarification_needed: { 
                     type: "string", 
-                    description: "If query is too vague, ask ONE clarifying question" 
+                    description: "If query is too vague and no prior context, ask ONE clarifying question" 
                   },
                   search_summary: {
                     type: "string",
-                    description: "Brief summary of what the user is looking for"
+                    description: "Brief summary of what the user is looking for, mentioning if it's a refinement"
                   }
                 },
                 required: ["filters", "search_summary"],
@@ -143,8 +176,10 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
     const filters: ParsedFilters = parsed.filters || {};
     const clarificationNeeded = parsed.clarification_needed;
     const searchSummary = parsed.search_summary || "your search";
+    const isFollowup = parsed.is_followup || false;
 
     console.log("Parsed filters:", filters);
+    console.log("Is followup:", isFollowup);
     console.log("Clarification:", clarificationNeeded);
 
     // If clarification is needed and no concrete filters, return early
@@ -154,7 +189,8 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
           projects: [],
           explanation: clarificationNeeded,
           filters_applied: filters,
-          clarification_needed: clarificationNeeded
+          clarification_needed: clarificationNeeded,
+          conversation_context: searchSummary
         } as SearchResult),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -216,8 +252,11 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
       if (filters.max_price) constraints.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
       if (filters.max_deposit_percent) constraints.push(`with ${filters.max_deposit_percent}% deposit or less`);
       if (filters.completion_year) constraints.push(`completing in ${filters.completion_year}`);
+      if (filters.near_skytrain) constraints.push(`near SkyTrain`);
 
-      explanation = `No projects currently match all your criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `;
+      explanation = isFollowup 
+        ? `No projects match your refined criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `
+        : `No projects currently match all your criteria${constraints.length > 0 ? ` (${constraints.join(", ")})` : ""}. `;
       
       // Suggest relaxing constraints
       if (filters.max_deposit_percent && filters.max_deposit_percent <= 10) {
@@ -226,6 +265,9 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
       if (filters.max_price) {
         explanation += "Consider expanding your price range for more options.";
       }
+      if (filters.near_skytrain) {
+        explanation += "Try removing the SkyTrain requirement for more options.";
+      }
     } else {
       // Build success explanation
       const parts: string[] = [];
@@ -233,8 +275,10 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
       if (filters.project_type) parts.push(`${filters.project_type}s`);
       if (filters.max_price) parts.push(`under $${(filters.max_price / 1000).toFixed(0)}K`);
       if (filters.max_deposit_percent) parts.push(`with ${filters.max_deposit_percent}% deposit or less`);
+      if (filters.near_skytrain) parts.push(`near SkyTrain`);
 
-      explanation = `Showing ${projectCount} project${projectCount > 1 ? "s" : ""} ${parts.length > 0 ? parts.join(" ") : "matching your search"}.`;
+      const prefix = isFollowup ? "Updated results: " : "";
+      explanation = `${prefix}Showing ${projectCount} project${projectCount > 1 ? "s" : ""} ${parts.length > 0 ? parts.join(" ") : "matching your search"}.`;
     }
 
     // Add match reasons to each project
@@ -264,7 +308,8 @@ IMPORTANT: Only extract information explicitly mentioned. Do not assume or inven
       projects: projectsWithReasons,
       explanation,
       filters_applied: filters,
-      clarification_needed: clarificationNeeded
+      clarification_needed: clarificationNeeded,
+      conversation_context: searchSummary
     };
 
     return new Response(JSON.stringify(result), {
