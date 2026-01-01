@@ -521,15 +521,17 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
           conversation.length === 0 ? "max-w-xl" : "max-w-2xl max-h-[70vh]"
         )}
       >
-        {/* Initial State: Compact Search Bar */}
+        {/* Initial State: Clean Compact Search Bar */}
         {conversation.length === 0 && !isLoading ? (
           <div className="p-4">
             {/* CTA Label above input */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
+                <div className="p-1.5 rounded-lg bg-primary/10">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                </div>
                 <span className="text-sm font-medium text-foreground">
-                  {searchMode === "projects" ? "Find your perfect presale" : "Search assignments"}
+                  Find your perfect home with AI
                 </span>
               </div>
               <Button
@@ -542,32 +544,6 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
               </Button>
             </div>
 
-            {/* Mode Toggle Pills */}
-            <div className="flex gap-1.5 mb-3">
-              <button
-                onClick={() => handleModeChange("projects")}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-medium transition-colors",
-                  searchMode === "projects"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Presales
-              </button>
-              <button
-                onClick={() => handleModeChange("assignments")}
-                className={cn(
-                  "px-3 py-1 rounded-full text-xs font-medium transition-colors",
-                  searchMode === "assignments"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:text-foreground"
-                )}
-              >
-                Assignments
-              </button>
-            </div>
-
             {/* Search Input */}
             <div className="relative">
               <input
@@ -576,12 +552,9 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                 value={isListening ? query + interimTranscript : query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !isListening && handleSearch()}
-                placeholder={searchMode === "projects" 
-                  ? "2 bed condo in Langley under $700k..." 
-                  : "1 bed assignment in Surrey..."
-                }
+                placeholder="2 bed condo in Langley under $700k..."
                 className={cn(
-                  "w-full pl-4 pr-20 py-3 rounded-xl border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm",
+                  "w-full pl-4 pr-20 py-3.5 rounded-xl border bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm",
                   isListening ? "border-red-500 bg-red-50/50 dark:bg-red-950/20" : "border-border"
                 )}
                 disabled={isLoading}
@@ -596,11 +569,11 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   onClick={toggleVoiceInput}
                   disabled={isLoading}
                   className={cn(
-                    "absolute right-10 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg",
+                    "absolute right-11 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg",
                     isListening && "animate-pulse"
                   )}
                 >
-                  {isListening ? <MicOff className="h-3.5 w-3.5" /> : <Mic className="h-3.5 w-3.5" />}
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
                 </Button>
               )}
               
@@ -609,9 +582,9 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                 size="icon"
                 onClick={() => handleSearch()}
                 disabled={isLoading || (query + interimTranscript).length < 3 || isListening}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7 rounded-lg"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg"
               >
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowRight className="h-4 w-4" />
               </Button>
             </div>
 
@@ -622,6 +595,11 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                 Listening...
               </p>
             )}
+
+            {/* Subtle hint */}
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              Describe what you're looking for in plain English
+            </p>
           </div>
         ) : (
           /* Expanded State: With Results */
@@ -630,32 +608,6 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
             <div className="flex items-center gap-3 p-3 border-b border-border bg-muted/30 flex-shrink-0">
               <Sparkles className="h-4 w-4 text-primary" />
               <span className="text-sm font-medium text-foreground flex-1">AI Search</span>
-              
-              {/* Mode Toggle */}
-              <div className="flex gap-1">
-                <button
-                  onClick={() => handleModeChange("projects")}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
-                    searchMode === "projects"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  Presales
-                </button>
-                <button
-                  onClick={() => handleModeChange("assignments")}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
-                    searchMode === "assignments"
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  )}
-                >
-                  Assignments
-                </button>
-              </div>
               
               <Button
                 variant="ghost"
