@@ -521,9 +521,13 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
           conversation.length === 0 ? "max-w-xl" : "max-w-2xl max-h-[70vh]"
         )}
       >
-        {/* Initial State: Clean Minimal Search Bar */}
         {conversation.length === 0 && !isLoading ? (
-          <div className="p-3">
+          <div className="p-4">
+            {/* Header Text */}
+            <h3 className="text-base font-semibold text-foreground text-center mb-3">
+              Let's find you a presale
+            </h3>
+            
             {/* Search Input - Minimal Style */}
             <div className="relative flex items-center">
               <input

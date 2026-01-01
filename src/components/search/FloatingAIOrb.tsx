@@ -12,7 +12,7 @@ export function FloatingAIOrb() {
       <div className="fixed bottom-6 right-6 z-40 flex flex-col items-center gap-2">
         {/* Floating Label */}
         <div className="bg-foreground text-background text-xs font-medium px-3 py-1.5 rounded-full shadow-lg whitespace-nowrap animate-fade-in">
-          Let's find your presale
+          Search with AI
         </div>
         
         {/* Orb Button */}
