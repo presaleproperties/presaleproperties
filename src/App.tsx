@@ -48,6 +48,7 @@ import CityProductPage from "./pages/CityProductPage";
 import PriceBasedPage from "./pages/PriceBasedPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import { FloatingAIOrb } from "@/components/search/FloatingAIOrb";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,7 @@ const App = () => (
         <BrowserRouter>
           <SwipeNavigationProvider>
             <ScrollToTop />
+            <FloatingAIOrb />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
