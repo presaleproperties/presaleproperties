@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -102,6 +103,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       const dripSequence = data.persona === "investor" ? "investor" : "buyer";
       const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona;
 
+      // Get UTM tracking data
+      const utmData = getUtmDataForSubmission();
+
       const { data: insertedLead, error } = await supabase
         .from("project_leads")
         .insert({
@@ -116,6 +120,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
           drip_sequence: dripSequence,
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
+          utm_source: utmData.utm_source,
+          utm_medium: utmData.utm_medium,
+          utm_campaign: utmData.utm_campaign,
+          utm_content: utmData.utm_content,
+          utm_term: utmData.utm_term,
+          referrer: utmData.referrer,
+          landing_page: utmData.landing_page,
         })
         .select("id")
         .maybeSingle();

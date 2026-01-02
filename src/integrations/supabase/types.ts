@@ -620,10 +620,15 @@ export type Database = {
           email: string
           id: string
           is_active: boolean
+          landing_page: string | null
           preferred_city: string | null
           price_range: string | null
+          referrer: string | null
           source: string | null
           unsubscribed_at: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           wants_assignments: boolean
           wants_projects: boolean
         }
@@ -632,10 +637,15 @@ export type Database = {
           email: string
           id?: string
           is_active?: boolean
+          landing_page?: string | null
           preferred_city?: string | null
           price_range?: string | null
+          referrer?: string | null
           source?: string | null
           unsubscribed_at?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           wants_assignments?: boolean
           wants_projects?: boolean
         }
@@ -644,10 +654,15 @@ export type Database = {
           email?: string
           id?: string
           is_active?: boolean
+          landing_page?: string | null
           preferred_city?: string | null
           price_range?: string | null
+          referrer?: string | null
           source?: string | null
           unsubscribed_at?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           wants_assignments?: boolean
           wants_projects?: boolean
         }
@@ -889,6 +904,7 @@ export type Database = {
           email: string
           home_size: string | null
           id: string
+          landing_page: string | null
           last_drip_sent: number | null
           message: string | null
           name: string
@@ -896,7 +912,13 @@ export type Database = {
           persona: string | null
           phone: string | null
           project_id: string | null
+          referrer: string | null
           timeline: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
         }
         Insert: {
           agent_status?: string | null
@@ -906,6 +928,7 @@ export type Database = {
           email: string
           home_size?: string | null
           id?: string
+          landing_page?: string | null
           last_drip_sent?: number | null
           message?: string | null
           name: string
@@ -913,7 +936,13 @@ export type Database = {
           persona?: string | null
           phone?: string | null
           project_id?: string | null
+          referrer?: string | null
           timeline?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Update: {
           agent_status?: string | null
@@ -923,6 +952,7 @@ export type Database = {
           email?: string
           home_size?: string | null
           id?: string
+          landing_page?: string | null
           last_drip_sent?: number | null
           message?: string | null
           name?: string
@@ -930,7 +960,13 @@ export type Database = {
           persona?: string | null
           phone?: string | null
           project_id?: string | null
+          referrer?: string | null
           timeline?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
         }
         Relationships: [
           {

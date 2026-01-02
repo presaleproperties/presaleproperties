@@ -15,6 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Bell, Loader2, CheckCircle } from "lucide-react";
+import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 
 const CITIES = [
   "Any City",
@@ -75,6 +76,9 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
 
   const onSubmit = async (data: FormData) => {
     try {
+      // Get UTM tracking data
+      const utmData = getUtmDataForSubmission();
+
       const { error } = await supabase.from("newsletter_subscribers").insert({
         email: data.email,
         preferred_city: data.city === "Any City" ? null : data.city,
@@ -82,6 +86,11 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
         wants_assignments: data.wantsAssignments,
         wants_projects: data.wantsProjects,
         source,
+        utm_source: utmData.utm_source,
+        utm_medium: utmData.utm_medium,
+        utm_campaign: utmData.utm_campaign,
+        referrer: utmData.referrer,
+        landing_page: utmData.landing_page,
       });
 
       if (error) {
