@@ -259,8 +259,30 @@ export default function BlogPost() {
                       {tag}
                     </Badge>
                   ))}
-                </div>
+            </div>
+
+            {/* Internal Links CTA */}
+            <div className="mt-12 p-6 bg-primary/5 rounded-xl border border-primary/10">
+              <h3 className="font-semibold text-lg mb-3">Ready to Start Your Presale Journey?</h3>
+              <p className="text-muted-foreground mb-4">
+                Browse the latest presale condos and townhomes across Metro Vancouver.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Link to="/presale-projects">
+                  <Button size="sm">Browse All Projects</Button>
+                </Link>
+                <Link to="/surrey-presale-condos">
+                  <Button size="sm" variant="outline">Surrey Presales</Button>
+                </Link>
+                <Link to="/langley-presale-condos">
+                  <Button size="sm" variant="outline">Langley Presales</Button>
+                </Link>
+                <Link to="/presale-guide">
+                  <Button size="sm" variant="outline">Buyer's Guide</Button>
+                </Link>
               </div>
+            </div>
+          </div>
             )}
           </div>
         </article>
