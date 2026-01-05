@@ -88,15 +88,23 @@ Deno.serve(async (req) => {
     // Fetch blog posts
     const { data: posts } = await supabase
       .from("blog_posts")
-      .select("slug, updated_at")
+      .select("slug, updated_at, category")
       .eq("is_published", true);
 
-    const blogPages = (posts || []).map(p => ({
-      url: `/blog/${p.slug}`,
-      lastmod: p.updated_at?.split("T")[0] || now,
-      priority: "0.7",
-      changefreq: "monthly"
-    }));
+    // Blog posts - higher priority for educational and city-focused content
+    const blogPages = (posts || []).map(p => {
+      // City-focused and educational posts get higher priority
+      const isHighPriority = p.slug?.includes('presale-condos-') || 
+                             p.slug?.includes('first-time-buyer') ||
+                             p.slug?.includes('presale-vs-resale') ||
+                             p.category === 'Buyer Education';
+      return {
+        url: `/blog/${p.slug}`,
+        lastmod: p.updated_at?.split("T")[0] || now,
+        priority: isHighPriority ? "0.8" : "0.7",
+        changefreq: "monthly"
+      };
+    });
 
     // Fetch assignment listings
     const { data: listings } = await supabase
