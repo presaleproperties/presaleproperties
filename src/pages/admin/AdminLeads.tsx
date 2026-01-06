@@ -21,6 +21,13 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Table,
   TableBody,
   TableCell,
@@ -70,6 +77,7 @@ export default function AdminLeads() {
   const [activeTab, setActiveTab] = useState("project");
   const [selectedLead, setSelectedLead] = useState<ProjectLead | ListingLead | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [sourceFilter, setSourceFilter] = useState<string>("all");
 
   // Fetch project leads (exclude newsletter signups)
   const { data: projectLeads, isLoading: projectLoading } = useQuery({
@@ -130,13 +138,20 @@ export default function AdminLeads() {
     },
   });
 
-  // Filter leads based on search
-  const filteredProjectLeads = projectLeads?.filter(
-    (lead) =>
+  // Filter leads based on search and source
+  const filteredProjectLeads = projectLeads?.filter((lead) => {
+    const matchesSearch =
       lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      lead.presale_projects?.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+      lead.presale_projects?.name.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesSource =
+      sourceFilter === "all" ||
+      (sourceFilter === "floor_plan_request" && (lead.lead_source === "floor_plan_request" || !lead.lead_source)) ||
+      lead.lead_source === sourceFilter;
+    
+    return matchesSearch && matchesSource;
+  });
 
   const filteredListingLeads = listingLeads?.filter(
     (lead) =>
@@ -242,6 +257,19 @@ export default function AdminLeads() {
             </TabsList>
 
             <div className="flex items-center gap-2">
+              {activeTab === "project" && (
+                <Select value={sourceFilter} onValueChange={setSourceFilter}>
+                  <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="All Sources" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sources</SelectItem>
+                    <SelectItem value="floor_plan_request">Floor Plans</SelectItem>
+                    <SelectItem value="scheduler">Tour Requests</SelectItem>
+                    <SelectItem value="general_inquiry">General</SelectItem>
+                  </SelectContent>
+                </Select>
+              )}
               <div className="relative flex-1 sm:w-64">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
