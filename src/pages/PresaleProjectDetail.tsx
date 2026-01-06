@@ -617,9 +617,9 @@ export default function PresaleProjectDetail() {
                 {project.full_description && (
                   <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
                     <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Development Features</h2>
-                    <div className="prose prose-base max-w-none text-muted-foreground">
+                    <div className="prose prose-sm max-w-none text-muted-foreground">
                       {project.full_description.split("\n").map((p, i) => (
-                        <p key={i} className="text-sm md:text-base leading-relaxed mb-3 last:mb-0">{p}</p>
+                        <p key={i} className="text-sm lg:text-base leading-relaxed mb-3 last:mb-0">{p}</p>
                       ))}
                     </div>
                   </div>
