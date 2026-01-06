@@ -448,9 +448,9 @@ export default function PresaleProjectDetail() {
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-3 py-3 md:px-4 md:py-5 lg:py-6">
-            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-5 lg:gap-6">
-              {/* Gallery - Takes half on tablet, 3 columns on desktop */}
-              <div className="md:col-span-1 lg:col-span-3">
+            <div className="grid lg:grid-cols-5 gap-3 md:gap-5 lg:gap-6">
+              {/* Gallery - Full width on mobile/tablet, 3 columns on desktop */}
+              <div className="lg:col-span-3">
                 <GalleryWithLightbox
                   images={allImages}
                   selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
@@ -460,8 +460,8 @@ export default function PresaleProjectDetail() {
                 />
               </div>
 
-              {/* Project Info - Takes half on tablet, 2 columns on desktop */}
-              <div className="md:col-span-1 lg:col-span-2 flex flex-col">
+              {/* Project Info - Full width on mobile/tablet, 2 columns on desktop */}
+              <div className="lg:col-span-2 flex flex-col">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
