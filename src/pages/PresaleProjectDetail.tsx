@@ -600,6 +600,31 @@ export default function PresaleProjectDetail() {
         {/* Details Grid */}
         <section className="py-3 md:py-5 lg:py-8">
           <div className="container px-3 md:px-4">
+            {/* Tablet: Show forms first in a centered, compact layout */}
+            <div className="hidden md:block lg:hidden mb-6">
+              <div className="max-w-md mx-auto space-y-4">
+                <InlineScheduler
+                  projectId={project.id}
+                  projectName={project.name}
+                  projectCity={project.city}
+                  projectNeighborhood={project.neighborhood}
+                  onRequestTour={handleScheduleTourClick}
+                />
+                <ProjectLeadForm
+                  projectId={project.id}
+                  projectName={project.name}
+                  status={project.status}
+                  brochureUrl={project.brochure_files?.[0] || null}
+                />
+                <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm" asChild>
+                  <a href="tel:+16722581100">
+                    <Phone className="h-4 w-4 mr-1.5" />
+                    Call Now
+                  </a>
+                </Button>
+              </div>
+            </div>
+            
             <div className="grid lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
@@ -736,24 +761,13 @@ export default function PresaleProjectDetail() {
                 )}
               </div>
 
-              {/* Sidebar */}
-              <div className="lg:col-span-1">
+              {/* Sidebar - Desktop only (tablet forms are shown above) */}
+              <div className="hidden lg:block lg:col-span-1">
                 <div
                   ref={formRef}
                   id="contact-form"
-                  className="w-full md:max-w-[520px] md:mx-auto lg:max-w-none lg:sticky lg:top-20 space-y-4 md:space-y-3"
+                  className="w-full lg:sticky lg:top-20 space-y-4"
                 >
-                  {/* Inline Scheduler - Tablet and mobile sidebar only (hidden on lg where it's in hero) */}
-                  <div className="lg:hidden">
-                    <InlineScheduler
-                      projectId={project.id}
-                      projectName={project.name}
-                      projectCity={project.city}
-                      projectNeighborhood={project.neighborhood}
-                      onRequestTour={handleScheduleTourClick}
-                    />
-                  </div>
-
                   {/* Lead Form */}
                   <ProjectLeadForm
                     projectId={project.id}
@@ -762,15 +776,36 @@ export default function PresaleProjectDetail() {
                     brochureUrl={project.brochure_files?.[0] || null}
                   />
                   
-                  {/* Quick Actions Below Form - Tablet and Desktop */}
-                  <div className="hidden md:flex flex-col gap-2">
-                    <Button variant="outline" size="default" className="w-full justify-center h-9 md:h-10 text-sm" asChild>
-                      <a href="tel:+16722581100">
-                        <Phone className="h-4 w-4 mr-1.5" />
-                        Call Now
-                      </a>
-                    </Button>
-                  </div>
+                  {/* Quick Actions Below Form */}
+                  <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm" asChild>
+                    <a href="tel:+16722581100">
+                      <Phone className="h-4 w-4 mr-1.5" />
+                      Call Now
+                    </a>
+                  </Button>
+                </div>
+              </div>
+              
+              {/* Mobile-only sidebar section */}
+              <div className="md:hidden">
+                <div
+                  ref={formRef}
+                  id="contact-form-mobile"
+                  className="w-full space-y-4"
+                >
+                  <InlineScheduler
+                    projectId={project.id}
+                    projectName={project.name}
+                    projectCity={project.city}
+                    projectNeighborhood={project.neighborhood}
+                    onRequestTour={handleScheduleTourClick}
+                  />
+                  <ProjectLeadForm
+                    projectId={project.id}
+                    projectName={project.name}
+                    status={project.status}
+                    brochureUrl={project.brochure_files?.[0] || null}
+                  />
                 </div>
               </div>
             </div>
