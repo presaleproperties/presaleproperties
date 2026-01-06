@@ -906,6 +906,7 @@ export type Database = {
           id: string
           landing_page: string | null
           last_drip_sent: number | null
+          lead_source: string | null
           message: string | null
           name: string
           next_drip_at: string | null
@@ -930,6 +931,7 @@ export type Database = {
           id?: string
           landing_page?: string | null
           last_drip_sent?: number | null
+          lead_source?: string | null
           message?: string | null
           name: string
           next_drip_at?: string | null
@@ -954,6 +956,7 @@ export type Database = {
           id?: string
           landing_page?: string | null
           last_drip_sent?: number | null
+          lead_source?: string | null
           message?: string | null
           name?: string
           next_drip_at?: string | null
