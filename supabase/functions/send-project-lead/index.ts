@@ -91,17 +91,47 @@ serve(async (req: Request): Promise<Response> => {
       
       const project = lead.presale_projects as any;
       
-      // Map lead_source to human-readable form type
+      // Map lead_source to human-readable descriptions for Lofty
       const getFormType = (leadSource: string | null) => {
         switch (leadSource) {
           case "scheduler":
-            return "Tour Request";
+            return "Schedule a Preview";
           case "floor_plan_request":
             return "Floor Plan Request";
+          case "callback_request":
+            return "Request a Callback";
           case "general_inquiry":
             return "General Inquiry";
+          case "newsletter":
+            return "Newsletter Signup";
           default:
             return "Floor Plan Request";
+        }
+      };
+
+      // Determine if this is a tour/preview request
+      const isTourRequest = lead.lead_source === "scheduler";
+      const isFloorPlanRequest = lead.lead_source === "floor_plan_request" || !lead.lead_source;
+      const isCallbackRequest = lead.lead_source === "callback_request";
+
+      // Extract page location from landing_page URL
+      const getFormLocation = (landingPage: string | null) => {
+        if (!landingPage) return "Unknown";
+        try {
+          const url = new URL(landingPage);
+          if (url.pathname.includes("/presale-projects/")) {
+            return "Project Detail Page";
+          } else if (url.pathname === "/" || url.pathname === "") {
+            return "Homepage";
+          } else if (url.pathname.includes("/presale-projects")) {
+            return "Projects Listing Page";
+          } else if (url.pathname.includes("/blog")) {
+            return "Blog";
+          } else {
+            return "Other Page";
+          }
+        } catch {
+          return "Unknown";
         }
       };
 
@@ -130,10 +160,16 @@ serve(async (req: Request): Promise<Response> => {
         project_price_range: project?.price_range || "",
         project_url: project?.slug ? `https://presaleproperties.com/presale-projects/${project.slug}` : "",
         
-        // Source tracking - use these in Lofty to differentiate
+        // Lead type flags - use in Lofty for easy filtering
+        is_floor_plan_request: isFloorPlanRequest ? "Yes" : "No",
+        is_tour_request: isTourRequest ? "Yes" : "No",
+        is_callback_request: isCallbackRequest ? "Yes" : "No",
+        
+        // Source tracking
         source: "PresaleProperties.com",
         lead_source: lead.lead_source || "floor_plan_request",
         form_type: getFormType(lead.lead_source),
+        form_location: getFormLocation(lead.landing_page),
         lead_type: "project",
         
         // UTM & Attribution tracking
