@@ -42,6 +42,13 @@ serve(async (req: Request): Promise<Response> => {
         home_size,
         agent_status,
         lead_source,
+        utm_source,
+        utm_medium,
+        utm_campaign,
+        utm_content,
+        utm_term,
+        referrer,
+        landing_page,
         created_at,
         project_id,
         presale_projects (
@@ -128,6 +135,15 @@ serve(async (req: Request): Promise<Response> => {
         lead_source: lead.lead_source || "floor_plan_request",
         form_type: getFormType(lead.lead_source),
         lead_type: "project",
+        
+        // UTM & Attribution tracking
+        utm_source: lead.utm_source || "",
+        utm_medium: lead.utm_medium || "",
+        utm_campaign: lead.utm_campaign || "",
+        utm_content: lead.utm_content || "",
+        utm_term: lead.utm_term || "",
+        referrer: lead.referrer || "",
+        landing_page: lead.landing_page || "",
       };
 
       console.log("Webhook payload:", JSON.stringify(webhookPayload));
