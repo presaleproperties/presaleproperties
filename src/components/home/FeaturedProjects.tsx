@@ -8,14 +8,13 @@ import { supabase } from "@/integrations/supabase/client";
 
 export function FeaturedProjects() {
   const { data: projects, isLoading } = useQuery({
-    queryKey: ["featured-projects"],
+    queryKey: ["most-viewed-projects"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, view_count")
         .eq("is_published", true)
-        .eq("is_featured", true)
-        .order("published_at", { ascending: false })
+        .order("view_count", { ascending: false })
         .limit(6);
 
       if (error) throw error;
