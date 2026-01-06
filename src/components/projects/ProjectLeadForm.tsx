@@ -29,6 +29,7 @@ interface ProjectLeadFormProps {
   projectName: string;
   status: "coming_soon" | "registering" | "active" | "sold_out";
   brochureUrl?: string | null;
+  leadSource?: "floor_plan_request" | "general_inquiry" | "scheduler";
 }
 
 const PERSONAS = [
@@ -48,7 +49,7 @@ const HOME_SIZES = [
   { value: "3_bed_plus", label: "3 Bed+" },
 ];
 
-export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }: ProjectLeadFormProps) {
+export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, leadSource = "floor_plan_request" }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
@@ -132,6 +133,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
             utm_term: utmData.utm_term,
             referrer: utmData.referrer,
             landing_page: utmData.landing_page,
+            lead_source: leadSource,
           },
         ]);
 
