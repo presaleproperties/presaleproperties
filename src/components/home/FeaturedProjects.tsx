@@ -35,7 +35,7 @@ export function FeaturedProjects() {
               Don't Miss Out
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              Hottest Presale Condos
+              Hottest Presale Projects
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
               The most in-demand new developments across Metro Vancouver
