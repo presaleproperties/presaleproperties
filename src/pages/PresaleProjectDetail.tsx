@@ -600,9 +600,9 @@ export default function PresaleProjectDetail() {
         {/* Details Grid */}
         <section className="py-3 md:py-5 lg:py-8">
           <div className="container px-3 md:px-4">
-            {/* Tablet: Show forms first in a centered, compact layout */}
+            {/* Tablet: Show forms in a side-by-side two-column layout */}
             <div className="hidden md:block lg:hidden mb-6">
-              <div className="max-w-md mx-auto space-y-4">
+              <div className="grid grid-cols-2 gap-4 items-start">
                 <InlineScheduler
                   projectId={project.id}
                   projectName={project.name}
@@ -610,18 +610,20 @@ export default function PresaleProjectDetail() {
                   projectNeighborhood={project.neighborhood}
                   onRequestTour={handleScheduleTourClick}
                 />
-                <ProjectLeadForm
-                  projectId={project.id}
-                  projectName={project.name}
-                  status={project.status}
-                  brochureUrl={project.brochure_files?.[0] || null}
-                />
-                <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm" asChild>
-                  <a href="tel:+16722581100">
-                    <Phone className="h-4 w-4 mr-1.5" />
-                    Call Now
-                  </a>
-                </Button>
+                <div className="space-y-3">
+                  <ProjectLeadForm
+                    projectId={project.id}
+                    projectName={project.name}
+                    status={project.status}
+                    brochureUrl={project.brochure_files?.[0] || null}
+                  />
+                  <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm" asChild>
+                    <a href="tel:+16722581100">
+                      <Phone className="h-4 w-4 mr-1.5" />
+                      Call Now
+                    </a>
+                  </Button>
+                </div>
               </div>
             </div>
             
