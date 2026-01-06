@@ -763,10 +763,10 @@ export default function PresaleProjectDetail() {
                   />
                   
                   {/* Quick Actions Below Form - Tablet and Desktop */}
-                  <div className="hidden md:flex flex-col gap-2 lg:gap-3">
-                    <Button variant="outline" size="default" className="w-full h-9 lg:h-10 text-sm lg:text-base" asChild>
+                  <div className="hidden md:flex flex-col gap-2">
+                    <Button variant="outline" size="default" className="w-full justify-center h-9 md:h-10 text-sm" asChild>
                       <a href="tel:+16722581100">
-                        <Phone className="h-4 w-4 mr-2" />
+                        <Phone className="h-4 w-4 mr-1.5" />
                         Call Now
                       </a>
                     </Button>
