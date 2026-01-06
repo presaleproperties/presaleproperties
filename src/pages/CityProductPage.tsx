@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
+import NotFound from "./NotFound";
 import { Helmet } from "react-helmet-async";
 import { ChevronRight, Building2, Home, MapPin, Shield, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -253,12 +254,34 @@ const CITY_PRODUCT_CONFIG: Record<string, Record<string, {
 };
 
 export default function CityProductPage() {
-  const { citySlug, productType } = useParams<{ citySlug: string; productType: string }>();
+  const params = useParams<{ cityProductSlug: string }>();
   const [sortBy, setSortBy] = useState("newest");
+
+  // Parse cityProductSlug which contains "surrey-presale-condos" format
+  const parsedData = useMemo(() => {
+    const slug = params.cityProductSlug || "";
+    // Match pattern: {city}-presale-{condos|townhomes}
+    const condoMatch = slug.match(/^(.+)-presale-condos$/);
+    const townhomeMatch = slug.match(/^(.+)-presale-townhomes$/);
+    
+    if (condoMatch) {
+      return { citySlug: condoMatch[1], productType: "condos" };
+    }
+    if (townhomeMatch) {
+      return { citySlug: townhomeMatch[1], productType: "townhomes" };
+    }
+    return { citySlug: null, productType: null };
+  }, [params.cityProductSlug]);
+
+  const { citySlug, productType } = parsedData;
 
   // Get page configuration
   const config = citySlug && productType ? CITY_PRODUCT_CONFIG[citySlug]?.[productType] : null;
 
+  // If URL doesn't match expected pattern, show 404
+  if (!citySlug || !productType || !config) {
+    return <NotFound />;
+  }
   // Fetch projects filtered by city and product type
   const { data: projects, isLoading } = useQuery({
     queryKey: ["city-product-projects", citySlug, productType],

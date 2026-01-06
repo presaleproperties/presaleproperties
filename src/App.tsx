@@ -70,8 +70,7 @@ const App = () => (
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
-            <Route path="/:citySlug-presale-condos" element={<CityProductPage />} />
-            <Route path="/:citySlug-presale-townhomes" element={<CityProductPage />} />
+            
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
             <Route path="/presale-townhomes-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
             <Route path="/blog" element={<Blog />} />
@@ -114,6 +113,9 @@ const App = () => (
             <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />
             <Route path="/admin/scheduler-settings" element={<AdminProtectedRoute><AdminSchedulerSettings /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+            
+            {/* SEO City Product Pages - must be before 404 */}
+            <Route path="/:cityProductSlug" element={<CityProductPage />} />
             
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
