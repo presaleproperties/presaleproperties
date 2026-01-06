@@ -373,11 +373,17 @@ export function BookingModal({
                   <Calendar
                     mode="single"
                     selected={selectedDate}
-                    onSelect={setSelectedDate}
+                    onSelect={(date) => {
+                      setSelectedDate(date);
+                      // Auto-advance to time selection when date is selected
+                      if (date) {
+                        setStep(2);
+                      }
+                    }}
                     disabled={isDateDisabled}
                     fromDate={addDays(new Date(), 1)}
                     toDate={settings ? addDays(new Date(), settings.advance_booking_days) : undefined}
-                    className="rounded-md border"
+                    className="rounded-md border pointer-events-auto"
                   />
                 </div>
                 <div className="text-xs text-center text-muted-foreground">
@@ -399,7 +405,11 @@ export function BookingModal({
                       key={time}
                       variant={selectedTime === time ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setSelectedTime(time)}
+                      onClick={() => {
+                        setSelectedTime(time);
+                        // Auto-advance to contact info when time is selected
+                        setStep(3);
+                      }}
                       className="text-sm"
                     >
                       {formatTimeDisplay(time)}
