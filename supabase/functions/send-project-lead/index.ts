@@ -41,6 +41,7 @@ serve(async (req: Request): Promise<Response> => {
         persona,
         home_size,
         agent_status,
+        lead_source,
         created_at,
         project_id,
         presale_projects (
@@ -83,6 +84,20 @@ serve(async (req: Request): Promise<Response> => {
       
       const project = lead.presale_projects as any;
       
+      // Map lead_source to human-readable form type
+      const getFormType = (leadSource: string | null) => {
+        switch (leadSource) {
+          case "scheduler":
+            return "Tour Request";
+          case "floor_plan_request":
+            return "Floor Plan Request";
+          case "general_inquiry":
+            return "General Inquiry";
+          default:
+            return "Floor Plan Request";
+        }
+      };
+
       const webhookPayload = {
         // Lead info
         lead_id: lead.id,
@@ -108,9 +123,10 @@ serve(async (req: Request): Promise<Response> => {
         project_price_range: project?.price_range || "",
         project_url: project?.slug ? `https://presaleproperties.com/presale-projects/${project.slug}` : "",
         
-        // Source
+        // Source tracking - use these in Lofty to differentiate
         source: "PresaleProperties.com",
-        form_type: "Project Lead Form",
+        lead_source: lead.lead_source || "floor_plan_request",
+        form_type: getFormType(lead.lead_source),
         lead_type: "project",
       };
 
