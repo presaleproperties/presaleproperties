@@ -556,7 +556,7 @@ export default function PresaleProjectDetail() {
 
                 {/* Short description - visible on all screen sizes */}
                 {project.short_description && (
-                  <p className="text-sm md:text-base lg:text-lg text-muted-foreground mt-2 md:mt-3 leading-relaxed">
+                  <p className="text-sm md:text-sm lg:text-base text-muted-foreground mt-2 md:mt-3 leading-relaxed">
                     {project.short_description}
                   </p>
                 )}
