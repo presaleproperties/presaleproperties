@@ -106,43 +106,44 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl }:
       // Get UTM tracking data
       const utmData = getUtmDataForSubmission();
 
-      const { data: insertedLead, error } = await supabase
+      // Avoid selecting the inserted row (keeps lead data private under RLS)
+      const leadId = crypto.randomUUID();
+
+      const { error } = await supabase
         .from("project_leads")
-        .insert({
-          project_id: projectId,
-          name: data.name,
-          email: data.email,
-          phone: data.phone,
-          message: messageData,
-          persona: actualPersona,
-          home_size: data.homeSize,
-          agent_status: data.workingWithAgent,
-          drip_sequence: dripSequence,
-          last_drip_sent: 0,
-          next_drip_at: nextDripAt,
-          utm_source: utmData.utm_source,
-          utm_medium: utmData.utm_medium,
-          utm_campaign: utmData.utm_campaign,
-          utm_content: utmData.utm_content,
-          utm_term: utmData.utm_term,
-          referrer: utmData.referrer,
-          landing_page: utmData.landing_page,
-        })
-        .select("id")
-        .maybeSingle();
+        .insert([
+          {
+            id: leadId,
+            project_id: projectId,
+            name: data.name,
+            email: data.email,
+            phone: data.phone,
+            message: messageData,
+            persona: actualPersona,
+            home_size: data.homeSize,
+            agent_status: data.workingWithAgent,
+            drip_sequence: dripSequence,
+            last_drip_sent: 0,
+            next_drip_at: nextDripAt,
+            utm_source: utmData.utm_source,
+            utm_medium: utmData.utm_medium,
+            utm_campaign: utmData.utm_campaign,
+            utm_content: utmData.utm_content,
+            utm_term: utmData.utm_term,
+            referrer: utmData.referrer,
+            landing_page: utmData.landing_page,
+          },
+        ]);
 
       if (error) throw error;
 
-      if (insertedLead?.id) {
-        supabase.functions
-          .invoke("send-project-lead", { body: { leadId: insertedLead.id } })
-          .catch(console.error);
+      supabase.functions
+        .invoke("send-project-lead", { body: { leadId } })
+        .catch(console.error);
 
-        supabase.functions
-          .invoke("send-drip-email", {})
-          .catch(console.error);
-      }
-
+      supabase.functions
+        .invoke("send-drip-email", {})
+        .catch(console.error);
       localStorage.setItem("presale_persona", actualPersona);
 
       // Analytics tracking
