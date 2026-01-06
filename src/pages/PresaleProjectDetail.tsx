@@ -554,9 +554,9 @@ export default function PresaleProjectDetail() {
                   </Button>
                 </div>
 
-                {/* Short description - visible on larger desktop only */}
+                {/* Short description - visible on all screen sizes */}
                 {project.short_description && (
-                  <p className="hidden xl:block text-xs text-muted-foreground mt-2 leading-relaxed line-clamp-2">
+                  <p className="text-sm md:text-base lg:text-lg text-muted-foreground mt-2 md:mt-3 leading-relaxed">
                     {project.short_description}
                   </p>
                 )}
