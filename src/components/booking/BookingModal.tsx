@@ -121,13 +121,19 @@ export function BookingModal({
     }
   }, [open]);
 
-  // Reset form when modal closes
+  // Set initial state when modal OPENS with initialDate
   useEffect(() => {
-    if (!open) {
+    if (open) {
       setStep(initialDate ? 2 : 1);
       setSelectedDate(initialDate);
       setSelectedTime(getTimeFromPeriod(initialTimePeriod));
       setTimePeriodDisplay(initialTimePeriod || "");
+    }
+  }, [open, initialDate, initialTimePeriod]);
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!open) {
       setName("");
       setEmail("");
       setPhone("");
@@ -137,7 +143,7 @@ export function BookingModal({
       setNotes("");
       setIsSuccess(false);
     }
-  }, [open, initialDate, initialTimePeriod]);
+  }, [open]);
 
   const fetchSchedulerData = async () => {
     setLoading(true);
