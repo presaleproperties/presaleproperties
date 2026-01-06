@@ -91,43 +91,9 @@ export default function BlogPost() {
     });
   };
 
-  // Simple markdown-like rendering
-  const renderContent = (content: string) => {
-    const lines = content.split("\n");
-    return lines.map((line, i) => {
-      // Headers
-      if (line.startsWith("## ")) {
-        return <h2 key={i} className="text-2xl font-bold mt-8 mb-4">{line.substring(3)}</h2>;
-      }
-      if (line.startsWith("### ")) {
-        return <h3 key={i} className="text-xl font-semibold mt-6 mb-3">{line.substring(4)}</h3>;
-      }
-      // Bullet points
-      if (line.startsWith("- ")) {
-        return <li key={i} className="ml-6 mb-2">{line.substring(2)}</li>;
-      }
-      // Numbered lists
-      if (/^\d+\.\s/.test(line)) {
-        return <li key={i} className="ml-6 mb-2 list-decimal">{line.replace(/^\d+\.\s/, "")}</li>;
-      }
-      // Bold text
-      if (line.includes("**")) {
-        const parts = line.split(/\*\*(.*?)\*\*/g);
-        return (
-          <p key={i} className="mb-4">
-            {parts.map((part, j) => 
-              j % 2 === 1 ? <strong key={j}>{part}</strong> : part
-            )}
-          </p>
-        );
-      }
-      // Empty lines
-      if (line.trim() === "") {
-        return <br key={i} />;
-      }
-      // Regular paragraphs
-      return <p key={i} className="mb-4">{line}</p>;
-    });
+  // Check if content contains HTML tags
+  const isHtmlContent = (content: string) => {
+    return /<[a-z][\s\S]*>/i.test(content);
   };
 
   if (loading) {
@@ -243,8 +209,14 @@ export default function BlogPost() {
 
           {/* Content */}
           <div className="container max-w-4xl py-8">
-            <div className="prose prose-lg max-w-none">
-              {post.content ? renderContent(post.content) : (
+            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:ml-6 prose-ol:ml-6 prose-li:mb-2 prose-strong:font-semibold">
+              {post.content ? (
+                isHtmlContent(post.content) ? (
+                  <div dangerouslySetInnerHTML={{ __html: post.content }} />
+                ) : (
+                  <div className="whitespace-pre-wrap">{post.content}</div>
+                )
+              ) : (
                 <p className="text-muted-foreground">No content available.</p>
               )}
             </div>
