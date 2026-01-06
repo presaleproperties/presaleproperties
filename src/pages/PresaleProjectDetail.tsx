@@ -595,9 +595,9 @@ export default function PresaleProjectDetail() {
         {/* Details Grid */}
         <section className="py-3 md:py-5 lg:py-8">
           <div className="container px-3 md:px-4">
-            <div className="grid md:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+            <div className="grid lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
               {/* Main Content */}
-              <div className="md:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
+              <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
                   <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
@@ -733,7 +733,7 @@ export default function PresaleProjectDetail() {
 
               {/* Sidebar */}
               <div>
-                <div ref={formRef} id="contact-form" className="md:sticky md:top-16 lg:top-20 space-y-4 md:space-y-3">
+                <div ref={formRef} id="contact-form" className="lg:sticky lg:top-20 space-y-4 md:space-y-3">
                   {/* Inline Scheduler - Tablet and mobile sidebar only (hidden on lg where it's in hero) */}
                   <div className="lg:hidden">
                     <InlineScheduler
