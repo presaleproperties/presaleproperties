@@ -135,15 +135,14 @@ export function FloatingMapButton() {
       to={buildMapUrl()}
       className={cn(
         "fixed bottom-6 right-4 z-50",
-        "flex items-center gap-2 px-4 py-3",
-        "rounded-full",
+        "flex items-center justify-center",
+        "w-12 h-12 rounded-full",
         "bg-foreground text-background",
         "shadow-[0_4px_20px_rgba(0,0,0,0.25)]",
         "hover:shadow-[0_6px_28px_rgba(0,0,0,0.35)]",
         "active:scale-95",
         "transition-all duration-300",
         "lg:right-6",
-        "backdrop-blur-sm",
         isVisible 
           ? "translate-y-0 opacity-100" 
           : "translate-y-20 opacity-0 pointer-events-none"
@@ -151,7 +150,6 @@ export function FloatingMapButton() {
       aria-label={`View ${mapContext.city || "all"} projects on map`}
     >
       <Map className="h-5 w-5" />
-      <span className="text-sm font-semibold">Map</span>
     </Link>
   );
 }
