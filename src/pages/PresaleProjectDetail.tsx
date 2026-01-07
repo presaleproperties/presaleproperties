@@ -738,28 +738,6 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Tablet-only Lead Form - positioned after deposits & developer */}
-                <div className="hidden md:block lg:hidden">
-                  <Separator className="my-2" />
-                  <div className="text-center mb-4">
-                    <h2 className="text-lg font-bold text-foreground">Get Floor Plans & Pricing</h2>
-                    <p className="text-sm text-muted-foreground mt-1">Submit your info to receive detailed information</p>
-                  </div>
-                  <div className="bg-background border rounded-xl p-5 shadow-sm">
-                    <ProjectLeadForm
-                      projectId={project.id}
-                      projectName={project.name}
-                      status={project.status}
-                      brochureUrl={project.brochure_files?.[0] || null}
-                    />
-                    <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm mt-3" asChild>
-                      <a href="tel:+16722581100">
-                        <Phone className="h-4 w-4 mr-1.5" />
-                        Call Now
-                      </a>
-                    </Button>
-                  </div>
-                </div>
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
