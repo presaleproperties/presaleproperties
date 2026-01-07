@@ -3,11 +3,9 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Calculator } from "lucide-react";
 import { ROIInputs, ROIResults } from "@/types/roi";
-import { PurchaseStep } from "./steps/PurchaseStep";
-import { FinancingStep } from "./steps/FinancingStep";
-import { RentalIncomeStep } from "./steps/RentalIncomeStep";
-import { OperatingExpensesStep } from "./steps/OperatingExpensesStep";
-import { ExitAssumptionsStep } from "./steps/ExitAssumptionsStep";
+import { PropertyFinancingStep } from "./steps/PropertyFinancingStep";
+import { IncomeExpensesStep } from "./steps/IncomeExpensesStep";
+import { ClosingExitStep } from "./steps/ClosingExitStep";
 import { ROIResultsDisplay } from "./ROIResultsDisplay";
 import { SavedAnalysis } from "@/hooks/useSavedAnalyses";
 
@@ -30,12 +28,10 @@ interface ROIWizardProps {
 }
 
 const STEPS = [
-  { id: 1, title: "Purchase", shortTitle: "Purchase" },
-  { id: 2, title: "Financing", shortTitle: "Finance" },
-  { id: 3, title: "Rental Income", shortTitle: "Rental" },
-  { id: 4, title: "Expenses", shortTitle: "Costs" },
-  { id: 5, title: "Exit", shortTitle: "Exit" },
-  { id: 6, title: "Results", shortTitle: "Results" },
+  { id: 1, title: "Property & Financing", shortTitle: "Property" },
+  { id: 2, title: "Income & Expenses", shortTitle: "Income" },
+  { id: 3, title: "Closing & Exit", shortTitle: "Exit" },
+  { id: 4, title: "Results", shortTitle: "Results" },
 ];
 
 export function ROIWizard({
@@ -61,7 +57,7 @@ export function ROIWizard({
   const handleNext = () => {
     if (currentStep < STEPS.length) {
       setCurrentStep(currentStep + 1);
-      if (currentStep === 5) {
+      if (currentStep === 3) {
         onTrackEvent?.("roi_calc_completed");
       }
     }
@@ -81,42 +77,31 @@ export function ROIWizard({
     switch (currentStep) {
       case 1:
         return (
-          <PurchaseStep
+          <PropertyFinancingStep
             purchase={inputs.purchase}
-            updateInputs={(field, value) => updateInputs("purchase", field, value)}
+            financing={inputs.financing}
+            updatePurchase={(field, value) => updateInputs("purchase", field, value)}
+            updateFinancing={(field, value) => updateInputs("financing", field, value)}
           />
         );
       case 2:
         return (
-          <FinancingStep
-            financing={inputs.financing}
-            purchasePrice={inputs.purchase.purchasePrice}
-            updateInputs={(field, value) => updateInputs("financing", field, value)}
+          <IncomeExpensesStep
+            rental={inputs.rental}
+            expenses={inputs.expenses}
+            updateRental={(field, value) => updateInputs("rental", field, value)}
+            updateExpenses={(field, value) => updateInputs("expenses", field, value)}
           />
         );
       case 3:
         return (
-          <RentalIncomeStep
-            rental={inputs.rental}
-            updateInputs={(field, value) => updateInputs("rental", field, value)}
-          />
-        );
-      case 4:
-        return (
-          <OperatingExpensesStep
-            expenses={inputs.expenses}
-            updateInputs={(field, value) => updateInputs("expenses", field, value)}
-          />
-        );
-      case 5:
-        return (
-          <ExitAssumptionsStep
+          <ClosingExitStep
             exit={inputs.exit}
             purchasePrice={inputs.purchase.purchasePrice}
             updateInputs={(field, value) => updateInputs("exit", field, value)}
           />
         );
-      case 6:
+      case 4:
         return (
           <ROIResultsDisplay
             inputs={inputs}
@@ -171,7 +156,7 @@ export function ROIWizard({
       </div>
 
       {/* Navigation buttons */}
-      {currentStep < 6 && (
+      {currentStep < 4 && (
         <div className="flex justify-between gap-4 pt-4 border-t">
           <Button
             variant="outline"
@@ -187,7 +172,7 @@ export function ROIWizard({
             onClick={handleNext}
             className="flex items-center gap-2"
           >
-            {currentStep === 5 ? (
+            {currentStep === 3 ? (
               <>
                 <Calculator className="h-4 w-4" />
                 Calculate ROI
@@ -202,7 +187,7 @@ export function ROIWizard({
         </div>
       )}
 
-      {currentStep === 6 && (
+      {currentStep === 4 && (
         <div className="flex justify-center pt-4 border-t">
           <Button
             variant="outline"
