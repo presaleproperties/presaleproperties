@@ -39,32 +39,26 @@ export function FloorPlanModal({
           <X className="h-5 w-5" />
         </button>
         
-        {/* Ultra-compact form for iPhone SE compatibility - keep input text at 16px to prevent iOS zoom */}
+        {/* Compact styling for modal - preserves 16px input text to prevent iOS zoom */}
         <div className="
           [&>div]:border-0 
           [&>div]:shadow-none 
           [&>div]:rounded-none
           [&>div>div:first-child]:px-4
-          [&>div>div:first-child]:py-2.5
-          [&>div>div:first-child_.mb-2]:mb-1
-          [&>div>div:last-child]:p-3
-          [&>div>div:last-child]:pt-2.5
-          [&_input]:h-10
-          [&_.space-y-3]:space-y-1.5
-          [&_.space-y-4]:space-y-2
+          [&>div>div:first-child]:py-3
+          [&>div>div:last-child]:p-4
+          [&>div>div:last-child]:pt-3
+          [&_.space-y-3]:space-y-2
           [&_h3]:text-base
-          [&_h3]:leading-tight
-          [&_h3>span]:text-sm
-          [&_.h-11]:h-9
-          [&_.h-14]:h-11
-          [&_.rounded-xl]:rounded-lg
-          [&_.gap-2\\.5]:gap-1.5
-          [&_.mb-2]:mb-1
-          [&_.mb-1\\.5]:mb-1
-          [&_.pt-2]:hidden
-          [&_.mt-2]:mt-1.5
-          [&_.text-xs]:text-[11px]
-          [&_label.text-xs]:text-[11px]
+          [&_.h-11]:h-10
+          [&_.h-12]:h-11
+          [&_.h-10]:h-9
+          [&_.rounded-2xl]:rounded-xl
+          [&_.rounded-lg]:rounded-md
+          [&_.gap-3]:gap-2
+          [&_.gap-2]:gap-1.5
+          [&_.pt-1]:pt-0.5
+          [&_.text-\\[10px\\]]:text-[9px]
         ">
           <ProjectLeadForm
             projectId={projectId}

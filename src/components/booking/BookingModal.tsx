@@ -100,7 +100,8 @@ export function BookingModal({
   // Form state
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(initialDate);
   const [selectedTime, setSelectedTime] = useState<string>(getTimeFromPeriod(initialTimePeriod));
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [buyerType, setBuyerType] = useState<BuyerType>("first_time");
@@ -135,7 +136,8 @@ export function BookingModal({
   // Reset form when modal closes
   useEffect(() => {
     if (!open) {
-      setName("");
+      setFirstName("");
+      setLastName("");
       setEmail("");
       setPhone("");
       setBuyerType("first_time");
@@ -235,6 +237,7 @@ export function BookingModal({
     try {
       // Get UTM params and referrer
       const urlParams = new URLSearchParams(window.location.search);
+      const fullName = `${firstName} ${lastName}`.trim();
       
       const bookingData = {
         appointment_type: "showing" as const,
@@ -245,7 +248,7 @@ export function BookingModal({
         project_url: projectUrl || window.location.href,
         project_city: projectCity,
         project_neighborhood: projectNeighborhood,
-        name,
+        name: fullName,
         email,
         phone,
         buyer_type: buyerType,
@@ -315,7 +318,7 @@ export function BookingModal({
       case 2:
         return !!selectedTime;
       case 3:
-        return name.trim() && email.trim() && phone.trim();
+        return firstName.trim() && lastName.trim() && email.trim() && phone.trim();
       default:
         return false;
     }
@@ -448,18 +451,50 @@ export function BookingModal({
             {/* Step 3: Contact Info - Optimized for mobile */}
             {step === 3 && (
               <div className="space-y-2">
+                {/* First Name & Last Name - side by side */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="name" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                      Name <span className="text-destructive">*</span>
+                    <Label htmlFor="firstName" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      First Name <span className="text-destructive">*</span>
                     </Label>
                     <Input
-                      id="name"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="John Smith"
-                      autoComplete="name"
-                      className="h-9 text-sm rounded-lg"
+                      id="firstName"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      placeholder="John"
+                      autoComplete="given-name"
+                      className="h-9 text-base rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Last Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="lastName"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      placeholder="Smith"
+                      autoComplete="family-name"
+                      className="h-9 text-base rounded-lg"
+                    />
+                  </div>
+                </div>
+                
+                {/* Email & Phone - side by side */}
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="email" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                      Email <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="john@email.com"
+                      autoComplete="email"
+                      className="h-9 text-base rounded-lg"
                     />
                   </div>
                   <div>
@@ -473,23 +508,9 @@ export function BookingModal({
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="604-555-0123"
                       autoComplete="tel"
-                      className="h-9 text-sm rounded-lg"
+                      className="h-9 text-base rounded-lg"
                     />
                   </div>
-                </div>
-                <div>
-                  <Label htmlFor="email" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
-                    Email <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="john@email.com"
-                    autoComplete="email"
-                    className="h-9 text-sm rounded-lg"
-                  />
                 </div>
 
                 {/* I am a... */}
@@ -587,12 +608,19 @@ export function BookingModal({
                   />
                 </div>
                 
-                <div className="bg-muted/50 rounded-lg p-2 text-[10px] text-muted-foreground">
+                <div className="bg-muted/50 rounded-lg p-2 text-[10px] text-muted-foreground space-y-1">
                   <div className="flex items-center gap-1.5">
                     <MapPin className="h-3 w-3 shrink-0" />
                     <span>Sales centre address provided upon confirmation</span>
                   </div>
                 </div>
+                
+                {/* Disclaimer */}
+                <p className="text-[9px] leading-relaxed text-muted-foreground text-center">
+                  By submitting, you agree to receive communications from PresaleProperties about this listing. 
+                  This is not a condition of purchase. View our{" "}
+                  <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
+                </p>
               </div>
             )}
           </div>

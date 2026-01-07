@@ -15,7 +15,8 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
 const formSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100),
+  firstName: z.string().trim().min(1, "First name is required").max(50),
+  lastName: z.string().trim().min(1, "Last name is required").max(50),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   persona: z.enum(["first_time", "investor"]),
@@ -92,7 +93,8 @@ export function AccessPackModal({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       persona: "first_time",
@@ -123,11 +125,13 @@ export function AccessPackModal({
       const dripSequence = data.persona === "investor" ? "investor" : "buyer";
       const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona;
 
+      const fullName = `${data.firstName} ${data.lastName}`.trim();
+      
       const { data: lead, error } = await supabase
         .from("project_leads")
         .insert({
           project_id: projectId || null,
-          name: data.name,
+          name: fullName,
           email: data.email,
           phone: data.phone,
           message: messageData,
@@ -230,18 +234,46 @@ export function AccessPackModal({
             </div>
 
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5 sm:space-y-4">
-              {/* Contact Info - stacked rows */}
+              {/* Contact Info - First/Last Name side by side */}
               <div className="space-y-2 sm:space-y-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label htmlFor="firstName" className="text-xs sm:text-sm">
+                      First Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="firstName"
+                      placeholder="John"
+                      autoComplete="given-name"
+                      {...form.register("firstName")}
+                      className="h-9 sm:h-11 mt-0.5 text-base"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName" className="text-xs sm:text-sm">
+                      Last Name <span className="text-destructive">*</span>
+                    </Label>
+                    <Input
+                      id="lastName"
+                      placeholder="Smith"
+                      autoComplete="family-name"
+                      {...form.register("lastName")}
+                      className="h-9 sm:h-11 mt-0.5 text-base"
+                    />
+                  </div>
+                </div>
+
                 <div>
-                  <Label htmlFor="name" className="text-xs sm:text-sm">
-                    Name <span className="text-destructive">*</span>
+                  <Label htmlFor="email" className="text-xs sm:text-sm">
+                    Email <span className="text-destructive">*</span>
                   </Label>
                   <Input
-                    id="name"
-                    placeholder="John"
-                    autoComplete="name"
-                    {...form.register("name")}
-                    className="h-9 sm:h-11 mt-0.5 text-sm"
+                    id="email"
+                    type="email"
+                    placeholder="john@email.com"
+                    autoComplete="email"
+                    {...form.register("email")}
+                    className="h-9 sm:h-11 mt-0.5 text-base"
                   />
                 </div>
 
@@ -255,21 +287,7 @@ export function AccessPackModal({
                     placeholder="604-555-0123"
                     autoComplete="tel"
                     {...form.register("phone")}
-                    className="h-9 sm:h-11 mt-0.5 text-sm"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="email" className="text-xs sm:text-sm">
-                    Email <span className="text-destructive">*</span>
-                  </Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="john@email.com"
-                    autoComplete="email"
-                    {...form.register("email")}
-                    className="h-9 sm:h-11 mt-0.5 text-sm"
+                    className="h-9 sm:h-11 mt-0.5 text-base"
                   />
                 </div>
               </div>
@@ -393,9 +411,10 @@ export function AccessPackModal({
                 )}
               </Button>
 
-              <p className="text-[10px] sm:text-xs text-center text-muted-foreground flex items-center justify-center gap-1">
-                <Shield className="h-3 w-3" />
-                No spam. Unsubscribe anytime.
+              <p className="text-[9px] sm:text-[10px] text-center text-muted-foreground leading-relaxed">
+                By submitting, you agree to receive communications from PresaleProperties. 
+                This is not a condition of purchase. View our{" "}
+                <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
               </p>
             </form>
           </div>
