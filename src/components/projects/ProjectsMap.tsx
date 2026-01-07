@@ -368,26 +368,26 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
           onClick={handleLocate}
           disabled={isLocating}
           title="Zoom to my location"
-          className="w-9 h-9 rounded-lg bg-white/95 backdrop-blur-sm shadow-md border border-border/50 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-50"
+          className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/30 flex items-center justify-center hover:bg-background transition-colors disabled:opacity-50"
         >
-          {isLocating ? <Loader2 className="h-4 w-4 animate-spin text-foreground" /> : <Navigation className="h-4 w-4 text-foreground" />}
+          {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" /> : <Navigation className="h-3.5 w-3.5 text-muted-foreground" />}
         </button>
         
         {/* Zoom controls */}
-        <div className="flex flex-col rounded-lg overflow-hidden bg-white/95 backdrop-blur-sm shadow-md border border-border/50">
+        <div className="flex flex-col rounded-full overflow-hidden bg-background/80 backdrop-blur-sm shadow-sm border border-border/30">
           <button
             onClick={() => mapRef.current?.zoomIn()}
-            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted transition-colors border-b border-border/50"
+            className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             title="Zoom in"
           >
-            <span className="text-lg font-medium">+</span>
+            <span className="text-sm font-medium">+</span>
           </button>
           <button
             onClick={() => mapRef.current?.zoomOut()}
-            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted transition-colors"
+            className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             title="Zoom out"
           >
-            <span className="text-lg font-medium">−</span>
+            <span className="text-sm font-medium">−</span>
           </button>
         </div>
       </div>

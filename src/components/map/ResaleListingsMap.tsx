@@ -268,28 +268,30 @@ export function ResaleListingsMap({
       <div ref={mapRef} className="w-full h-full" />
       
       {/* Custom Controls */}
-      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
+      <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-1.5">
         <button
           onClick={handleLocateUser}
-          className="p-2 bg-background rounded-lg shadow-md border border-border hover:bg-muted transition-colors"
+          className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/30 flex items-center justify-center hover:bg-background transition-colors"
           aria-label="Find my location"
         >
-          <Crosshair className="h-5 w-5 text-foreground" />
+          <Crosshair className="h-3.5 w-3.5 text-muted-foreground" />
         </button>
-        <button
-          onClick={handleZoomIn}
-          className="p-2 bg-background rounded-lg shadow-md border border-border hover:bg-muted transition-colors"
-          aria-label="Zoom in"
-        >
-          <Plus className="h-5 w-5 text-foreground" />
-        </button>
-        <button
-          onClick={handleZoomOut}
-          className="p-2 bg-background rounded-lg shadow-md border border-border hover:bg-muted transition-colors"
-          aria-label="Zoom out"
-        >
-          <Minus className="h-5 w-5 text-foreground" />
-        </button>
+        <div className="flex flex-col rounded-full overflow-hidden bg-background/80 backdrop-blur-sm shadow-sm border border-border/30">
+          <button
+            onClick={handleZoomIn}
+            className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            aria-label="Zoom in"
+          >
+            <Plus className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={handleZoomOut}
+            className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            aria-label="Zoom out"
+          >
+            <Minus className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
     </div>
   );
