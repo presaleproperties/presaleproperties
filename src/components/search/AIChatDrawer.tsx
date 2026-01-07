@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Sparkles, Send, Loader2, MapPin, DollarSign, 
-  ArrowRight, Mic, MicOff, X
+  ArrowRight, Mic, MicOff, X, Minus, Maximize2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,6 +87,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
   const [isListening, setIsListening] = useState(false);
   const [focused, setFocused] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -171,6 +172,40 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
 
   // Desktop: Right-side panel that doesn't block scrolling
   if (!isMobileOrTablet) {
+    // Minimized state - just a header bar
+    if (isMinimized) {
+      return (
+        <div className="fixed right-4 bottom-4 z-50 w-[360px] bg-background rounded-2xl shadow-2xl border border-border animate-in slide-in-from-bottom duration-200">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <span className="font-medium text-sm">Find your presale</span>
+              {conversation.length > 0 && (
+                <span className="text-xs text-muted-foreground">({conversation.length} messages)</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              <button 
+                onClick={() => setIsMinimized(false)} 
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+                aria-label="Expand chat"
+              >
+                <Maximize2 className="h-4 w-4 text-muted-foreground" />
+              </button>
+              <button 
+                onClick={() => onOpenChange(false)} 
+                className="p-1.5 rounded-full hover:bg-muted transition-colors"
+                aria-label="Close chat"
+              >
+                <X className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Full desktop panel
     return (
       <div className="fixed right-4 top-20 bottom-4 z-50 w-[360px] bg-background rounded-2xl shadow-2xl border border-border flex flex-col animate-in slide-in-from-right duration-300">
         {/* Header */}
@@ -179,9 +214,22 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
             <Sparkles className="h-5 w-5 text-primary" />
             <span className="font-medium text-sm">Find your presale</span>
           </div>
-          <button onClick={() => onOpenChange(false)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
-            <X className="h-4 w-4 text-muted-foreground" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button 
+              onClick={() => setIsMinimized(true)} 
+              className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              aria-label="Minimize chat"
+            >
+              <Minus className="h-4 w-4 text-muted-foreground" />
+            </button>
+            <button 
+              onClick={() => onOpenChange(false)} 
+              className="p-1.5 rounded-full hover:bg-muted transition-colors"
+              aria-label="Close chat"
+            >
+              <X className="h-4 w-4 text-muted-foreground" />
+            </button>
+          </div>
         </div>
 
         {/* Messages */}
