@@ -128,10 +128,10 @@ export default function AdminProjectForm() {
   const { toast } = useToast();
 
   // Geocode address using OpenStreetMap Nominatim API
-  const geocodeAddress = async (address: string, city: string, neighborhood: string) => {
-    if (!address && !city) return;
+  // Returns coordinates or null if not found
+  const geocodeAddressAsync = async (address: string, city: string, neighborhood: string): Promise<{ lat: string; lng: string } | null> => {
+    if (!address && !city) return null;
     
-    setIsGeocoding(true);
     try {
       // Build search query from available location info
       const searchParts = [address, neighborhood, city, "BC", "Canada"].filter(Boolean);
@@ -151,15 +151,32 @@ export default function AdminProjectForm() {
       const data = await response.json();
       
       if (data && data.length > 0) {
-        const { lat, lon } = data[0];
+        return { lat: data[0].lat, lng: data[0].lon };
+      }
+      return null;
+    } catch (error) {
+      console.error('Geocoding error:', error);
+      return null;
+    }
+  };
+
+  // Manual geocode with UI feedback
+  const geocodeAddress = async (address: string, city: string, neighborhood: string) => {
+    if (!address && !city) return;
+    
+    setIsGeocoding(true);
+    try {
+      const coords = await geocodeAddressAsync(address, city, neighborhood);
+      
+      if (coords) {
         setFormData(prev => ({
           ...prev,
-          map_lat: lat,
-          map_lng: lon,
+          map_lat: coords.lat,
+          map_lng: coords.lng,
         }));
         toast({
           title: "Coordinates Found",
-          description: `Location: ${parseFloat(lat).toFixed(4)}, ${parseFloat(lon).toFixed(4)}`,
+          description: `Location: ${parseFloat(coords.lat).toFixed(4)}, ${parseFloat(coords.lng).toFixed(4)}`,
         });
       } else {
         toast({
@@ -395,6 +412,31 @@ export default function AdminProjectForm() {
     }
 
     setSaving(true);
+    
+    // Auto-geocode if coordinates are missing and we have location info
+    let finalLat = formData.map_lat;
+    let finalLng = formData.map_lng;
+    
+    if (!finalLat || !finalLng) {
+      const hasLocationInfo = formData.address || formData.city || formData.neighborhood;
+      if (hasLocationInfo) {
+        toast({
+          title: "Auto-geocoding",
+          description: "Finding coordinates for this project...",
+        });
+        
+        const coords = await geocodeAddressAsync(formData.address, formData.city, formData.neighborhood);
+        if (coords) {
+          finalLat = coords.lat;
+          finalLng = coords.lng;
+          toast({
+            title: "Coordinates Found",
+            description: `Auto-located: ${parseFloat(coords.lat).toFixed(4)}, ${parseFloat(coords.lng).toFixed(4)}`,
+          });
+        }
+      }
+    }
+
     try {
       const projectData = {
         name: formData.name,
@@ -416,8 +458,8 @@ export default function AdminProjectForm() {
         incentives: formData.incentives || null,
         incentives_available: formData.incentives_available,
         near_skytrain: formData.near_skytrain,
-        map_lat: formData.map_lat ? parseFloat(formData.map_lat) : null,
-        map_lng: formData.map_lng ? parseFloat(formData.map_lng) : null,
+        map_lat: finalLat ? parseFloat(finalLat) : null,
+        map_lng: finalLng ? parseFloat(finalLng) : null,
         completion_month: formData.completion_month ? parseInt(formData.completion_month) : null,
         completion_year: formData.completion_year ? parseInt(formData.completion_year) : null,
         occupancy_estimate: formData.occupancy_estimate || null,
