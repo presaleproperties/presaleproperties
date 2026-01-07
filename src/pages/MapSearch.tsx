@@ -77,6 +77,7 @@ export default function MapSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
+  const [showCarousel, setShowCarousel] = useState(true);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [visibleProjectIds, setVisibleProjectIds] = useState<string[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -346,66 +347,90 @@ export default function MapSearch() {
               </Suspense>
             </SafeMapWrapper>
 
-            {/* Bottom Carousel - Shows on mobile and tablet only, hidden on desktop (lg+) */}
-            {visibleProjects.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-4 lg:hidden">
-                {/* Header row - visible on tablet and desktop */}
-                <div className="hidden sm:flex items-center justify-between px-4 md:px-6 pb-3">
-                  <span className="text-sm font-medium text-foreground">
-                    {visibleProjects.length} Project{visibleProjects.length !== 1 ? "s" : ""} in view
-                  </span>
-                  <Link to="/presale-projects">
-                    <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
-                  </Link>
+            {/* Bottom Carousel Toggle + Carousel - Shows on mobile and tablet only */}
+            <div className="absolute bottom-4 left-0 right-0 z-[1000] lg:hidden">
+              {/* Toggle button when carousel is hidden */}
+              {!showCarousel && visibleProjects.length > 0 && (
+                <div className="flex justify-center">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => setShowCarousel(true)}
+                    className="shadow-lg gap-2"
+                  >
+                    <LayoutGrid className="h-4 w-4" />
+                    Show {visibleProjects.length} Projects
+                  </Button>
                 </div>
-                <div 
-                  ref={carouselRef}
-                  className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                >
-                  {visibleProjects.slice(0, 30).map((project) => (
-                    <Link 
-                      key={project.id} 
-                      to={`/presale-projects/${project.slug}`}
-                      data-project-id={project.id}
-                      className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
+              )}
+
+              {/* Carousel */}
+              {showCarousel && visibleProjects.length > 0 && (
+                <div className="bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-2">
+                  {/* Header row */}
+                  <div className="flex items-center justify-between px-4 md:px-6 pb-3">
+                    <span className="text-sm font-medium text-foreground">
+                      {visibleProjects.length} Project{visibleProjects.length !== 1 ? "s" : ""} in view
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowCarousel(false)}
+                      className="text-sm text-muted-foreground gap-1"
                     >
-                      <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
-                        selectedProjectId === project.id 
-                          ? 'border-primary ring-2 ring-primary/20' 
-                          : 'border-border hover:border-primary/50'
-                      }`}>
-                        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
-                          {project.featured_image ? (
-                            <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Building2 className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                          )}
-                          <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
-                            {project.status === 'active' ? 'Selling Now' : project.status === 'registering' ? 'Registering' : 'Coming Soon'}
-                          </Badge>
-                        </div>
-                        <div className="p-2.5 sm:p-3">
-                          <h4 className="font-semibold text-foreground text-sm truncate">{project.name}</h4>
-                          <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            <span className="text-xs truncate">{project.city}</span>
-                          </div>
-                          <div className="flex items-center justify-between mt-2">
-                            <span className="font-bold text-foreground text-sm">{formatPrice(project.starting_price)}</span>
-                            {project.completion_year && (
-                              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">{project.completion_year}</span>
+                      <X className="h-3 w-3" />
+                      Hide
+                    </Button>
+                  </div>
+                  <div 
+                    ref={carouselRef}
+                    className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {visibleProjects.slice(0, 30).map((project) => (
+                      <Link 
+                        key={project.id} 
+                        to={`/presale-projects/${project.slug}`}
+                        data-project-id={project.id}
+                        className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
+                      >
+                        <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
+                          selectedProjectId === project.id 
+                            ? 'border-primary ring-2 ring-primary/20' 
+                            : 'border-border hover:border-primary/50'
+                        }`}>
+                          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
+                            {project.featured_image ? (
+                              <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Building2 className="h-6 w-6 text-muted-foreground" />
+                              </div>
                             )}
+                            <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
+                              {project.status === 'active' ? 'Selling Now' : project.status === 'registering' ? 'Registering' : 'Coming Soon'}
+                            </Badge>
+                          </div>
+                          <div className="p-2.5 sm:p-3">
+                            <h4 className="font-semibold text-foreground text-sm truncate">{project.name}</h4>
+                            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                              <MapPin className="h-3 w-3" />
+                              <span className="text-xs truncate">{project.city}</span>
+                            </div>
+                            <div className="flex items-center justify-between mt-2">
+                              <span className="font-bold text-foreground text-sm">{formatPrice(project.starting_price)}</span>
+                              {project.completion_year && (
+                                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">{project.completion_year}</span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Desktop List Panel - Shows projects visible in map viewport */}
