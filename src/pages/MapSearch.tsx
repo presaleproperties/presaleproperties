@@ -4,7 +4,7 @@ import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   Search, SlidersHorizontal, X, Map, LayoutGrid, 
-  MapPin, Building2, ArrowLeft 
+  MapPin, Building2, ArrowLeft, ChevronDown, ChevronUp
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -352,35 +352,33 @@ export default function MapSearch() {
               {/* Toggle button when carousel is hidden */}
               {!showCarousel && visibleProjects.length > 0 && (
                 <div className="flex justify-center">
-                  <Button
-                    variant="secondary"
-                    size="sm"
+                  <button
                     onClick={() => setShowCarousel(true)}
-                    className="shadow-lg gap-2"
+                    className="p-2 rounded-full bg-background/90 shadow-lg border border-border hover:bg-muted transition-colors"
+                    aria-label="Show projects"
                   >
-                    <LayoutGrid className="h-4 w-4" />
-                    Show {visibleProjects.length} Projects
-                  </Button>
+                    <ChevronUp className="h-5 w-5 text-foreground" />
+                  </button>
                 </div>
               )}
 
               {/* Carousel */}
               {showCarousel && visibleProjects.length > 0 && (
                 <div className="bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-2">
-                  {/* Header row */}
-                  <div className="flex items-center justify-between px-4 md:px-6 pb-3">
-                    <span className="text-sm font-medium text-foreground">
-                      {visibleProjects.length} Project{visibleProjects.length !== 1 ? "s" : ""} in view
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
+                  {/* Header row with minimalist hide button */}
+                  <div className="flex items-center justify-center pb-2">
+                    <button
                       onClick={() => setShowCarousel(false)}
-                      className="text-sm text-muted-foreground gap-1"
+                      className="p-1.5 rounded-full bg-muted/80 hover:bg-muted transition-colors"
+                      aria-label="Hide projects"
                     >
-                      <X className="h-3 w-3" />
-                      Hide
-                    </Button>
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                  <div className="px-4 md:px-6 pb-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {visibleProjects.length} project{visibleProjects.length !== 1 ? "s" : ""} in view
+                    </span>
                   </div>
                   <div 
                     ref={carouselRef}
