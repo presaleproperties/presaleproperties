@@ -99,7 +99,7 @@ export function HeroSection() {
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  Presale Projects
+                  Presale
                 </button>
                 <button
                   type="button"
