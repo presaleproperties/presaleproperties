@@ -83,6 +83,12 @@ export default function MapSearch() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
 
+  // Read initial map position from URL params (for deep-linking from project pages)
+  const initialLat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined;
+  const initialLng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined;
+  const initialZoom = searchParams.get("zoom") ? parseInt(searchParams.get("zoom")!) : undefined;
+  const initialProjectSlug = searchParams.get("project") || undefined;
+
   const handleProjectSelect = useCallback((projectId: string) => {
     setSelectedProjectId(projectId);
     // Show carousel if hidden (mobile/tablet)
@@ -387,6 +393,9 @@ export default function MapSearch() {
                       isLoading={false} 
                       onProjectSelect={handleProjectSelect}
                       onVisibleProjectsChange={handleVisibleProjectsChange}
+                      initialCenter={initialLat && initialLng ? [initialLat, initialLng] : undefined}
+                      initialZoom={initialZoom}
+                      initialProjectSlug={initialProjectSlug}
                     />
                   )}
                 </Suspense>
