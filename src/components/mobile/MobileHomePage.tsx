@@ -108,9 +108,9 @@ export function MobileHomePage() {
         isRefreshing={isRefreshing} 
       />
 
-      {/* Hero Section - Compact, above the fold */}
+      {/* Hero Section - Larger, immersive */}
       <div 
-        className="relative min-h-[28vh] flex flex-col"
+        className="relative min-h-[50vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -124,66 +124,66 @@ export function MobileHomePage() {
             className="w-full h-full object-cover"
           />
           {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/50" />
         </div>
 
-        {/* Hero Content - Single header + subheader */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
-          <h1 className="text-xl font-bold text-white leading-tight">
-            Find <span className="text-primary">Presale</span> Condos & Townhomes
-          </h1>
-          <p className="text-white/80 text-xs mt-1.5">
+        {/* Hero Content - Larger text */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-16 pb-8 text-center">
+          <p className="text-white/80 text-sm mb-2 tracking-wide">
             Metro Vancouver's #1 Presale Marketplace
           </p>
+          <h1 className="text-3xl font-bold text-white leading-tight">
+            Made for <span className="text-primary">presale</span> buyers
+          </h1>
         </div>
 
-        {/* Floating Search Card */}
-        <div className="relative px-4 -mb-14 z-10">
+        {/* Floating Search Card - Larger with more padding */}
+        <div className="relative px-5 -mb-20 z-10">
           <div 
             ref={searchContainerRef}
-            className="bg-card rounded-xl shadow-lg border border-border p-4"
+            className="bg-card rounded-2xl shadow-xl border border-border p-5"
           >
-            {/* Tabs */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex gap-1">
+            {/* Tabs Row */}
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex gap-2">
                 <button
                   onClick={() => setActiveTab("presale")}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
+                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
                     activeTab === "presale"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Presale
+                  PRESALE
                 </button>
                 <button
                   onClick={() => setActiveTab("assignments")}
                   className={cn(
-                    "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
+                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
                     activeTab === "assignments"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Assignments
+                  ASSIGNMENTS
                 </button>
               </div>
               
               <button 
-                onClick={() => navigate("/presale-projects?view=map")}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => navigate("/map-search")}
+                className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
-                <span className="hidden xs:inline">Map</span>
+                <span className="uppercase tracking-wide text-xs">Search by Map</span>
               </button>
             </div>
 
-            {/* Search Input */}
+            {/* Search Input - Larger */}
             <form onSubmit={handleSearch} className="relative">
               <Input
                 type="text"
-                placeholder="City, Neighbourhood, Project..."
+                placeholder="City, Neighbourhood, Address, Project..."
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -194,12 +194,12 @@ export function MobileHomePage() {
                   setIsSearchFocused(true);
                 }}
                 onBlur={() => setIsSearchFocused(false)}
-                className="h-14 text-base pl-4 pr-14 rounded-xl bg-muted/50 border-border focus:bg-background focus:border-primary/50 transition-all"
+                className="h-14 text-base pl-5 pr-14 rounded-xl bg-muted/30 border-border focus:bg-background focus:border-primary/50 transition-all"
                 autoComplete="off"
               />
               <button 
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-11 w-11 flex items-center justify-center rounded-xl bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -216,26 +216,26 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Top Cities - Horizontal Scroll with adaptive padding */}
-      <div className="pt-20 pb-6 px-4 sm:px-6 bg-background">
+      {/* Top Cities - Horizontal Scroll with larger gaps */}
+      <div className="pt-28 pb-8 px-5 sm:px-6 bg-background">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
-          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
+          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0 font-medium">
             Top Cities
           </span>
           {TOP_CITIES.map((city) => (
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95"
+              className="px-5 py-2.5 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95"
             >
-              {city.name}
+              {city.name.toUpperCase()}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Discovery Sections - Optimized spacing with dividers */}
-      <div className="pb-6">
+      {/* Discovery Sections - Larger spacing with dividers */}
+      <div className="pb-8">
         {/* Hot Projects - Featured Section */}
         <CarouselSection delay={0}>
           <MobileDiscoveryCarousel
@@ -246,7 +246,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+        <div className="my-8 mx-5 sm:mx-6 border-t border-border/50" />
 
         {/* Condos */}
         <CarouselSection delay={50}>
@@ -257,7 +257,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+        <div className="my-8 mx-5 sm:mx-6 border-t border-border/50" />
 
         {/* Townhomes */}
         <CarouselSection delay={50}>
@@ -268,7 +268,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+        <div className="my-8 mx-5 sm:mx-6 border-t border-border/50" />
 
         {/* Single-Family / Detached */}
         <CarouselSection delay={100}>
@@ -279,7 +279,7 @@ export function MobileHomePage() {
           />
         </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+        <div className="my-8 mx-5 sm:mx-6 border-t border-border/50" />
 
         {/* Projects Near You - City Quick Links */}
         <CarouselSection delay={125}>
