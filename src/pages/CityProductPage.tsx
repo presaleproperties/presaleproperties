@@ -400,61 +400,75 @@ export default function CityProductPage() {
 
       <main className="flex-grow">
         {/* Breadcrumbs */}
-        <div className="container px-4 pt-4">
-          <nav className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
-            <ChevronRight className="h-4 w-4" />
-            <Link to="/presale-projects" className="hover:text-foreground transition-colors">Presale Projects</Link>
-            <ChevronRight className="h-4 w-4" />
-            <Link to={`/presale-condos/${citySlug}`} className="hover:text-foreground transition-colors">{config.cityName}</Link>
-            <ChevronRight className="h-4 w-4" />
-            <span className="text-foreground">{productType === "condos" ? "Condos" : "Townhomes"}</span>
+        <div className="px-4 sm:px-6 pt-4 pb-2">
+          <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">Home</Link>
+            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Link to="/presale-projects" className="text-foreground hover:text-primary transition-colors font-medium">Presale Projects</Link>
+            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <Link to={`/presale-condos/${citySlug}`} className="text-foreground hover:text-primary transition-colors font-medium">{config.cityName}</Link>
+            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-muted-foreground">{productType === "condos" ? "Condos" : "Townhomes"}</span>
           </nav>
         </div>
 
         {/* Hero Section */}
-        <section className="container px-4 py-8 md:py-12">
-          <div className="flex items-center gap-3 mb-4">
+        <section className="px-4 sm:px-6 py-6 md:py-10">
+          <div className="flex items-start gap-3 mb-4">
             {config.productType === "condo" ? (
-              <Building2 className="h-8 w-8 text-primary" />
+              <Building2 className="h-8 w-8 md:h-10 md:w-10 text-primary flex-shrink-0 mt-1" />
             ) : (
-              <Home className="h-8 w-8 text-primary" />
+              <Home className="h-8 w-8 md:h-10 md:w-10 text-primary flex-shrink-0 mt-1" />
             )}
-            <h1 className="text-3xl md:text-4xl font-bold">{config.h1}</h1>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold leading-tight">{config.h1}</h1>
           </div>
-          <p className="text-lg text-muted-foreground max-w-3xl mb-6">
+          <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mb-8 leading-relaxed">
             {config.intro}
           </p>
           
-          {/* Product type switcher */}
-          <div className="flex gap-2 mb-8">
+          {/* Product type switcher - pill style */}
+          <div className="flex gap-3 mb-8">
             <Link to={`/${citySlug}-presale-condos`}>
-              <Button variant={productType === "condos" ? "default" : "outline"} size="sm">
-                <Building2 className="h-4 w-4 mr-2" />
+              <button 
+                className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all ${
+                  productType === "condos" 
+                    ? "bg-primary text-primary-foreground shadow-md" 
+                    : "bg-background border-2 border-border text-foreground hover:border-primary/50"
+                }`}
+              >
+                <Building2 className="h-4 w-4" />
                 {config.cityName} Condos
-              </Button>
+              </button>
             </Link>
             <Link to={`/${citySlug}-presale-townhomes`}>
-              <Button variant={productType === "townhomes" ? "default" : "outline"} size="sm">
-                <Home className="h-4 w-4 mr-2" />
+              <button 
+                className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all ${
+                  productType === "townhomes" 
+                    ? "bg-primary text-primary-foreground shadow-md" 
+                    : "bg-background border-2 border-border text-foreground hover:border-primary/50"
+                }`}
+              >
+                <Home className="h-4 w-4" />
                 {config.cityName} Townhomes
-              </Button>
+              </button>
             </Link>
           </div>
 
           {/* Sort controls */}
-          <div className="flex items-center gap-4 mb-6">
-            <span className="text-sm text-muted-foreground">Sort by:</span>
-            <select 
-              value={sortBy} 
-              onChange={(e) => setSortBy(e.target.value)}
-              className="text-sm border rounded px-3 py-1.5 bg-background"
-            >
-              <option value="newest">Newest</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-              <option value="completion">Completion Soonest</option>
-            </select>
+          <div className="flex flex-wrap items-center gap-3 mb-6">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Sort by:</span>
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value)}
+                className="text-sm border rounded-lg px-4 py-2 bg-background min-w-[140px] focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
+              >
+                <option value="newest">Newest</option>
+                <option value="price-low">Price: Low to High</option>
+                <option value="price-high">Price: High to Low</option>
+                <option value="completion">Completion Soonest</option>
+              </select>
+            </div>
             <span className="text-sm text-muted-foreground ml-auto">
               {sortedProjects.length} project{sortedProjects.length !== 1 ? "s" : ""} found
             </span>
@@ -462,15 +476,15 @@ export default function CityProductPage() {
         </section>
 
         {/* Project Grid */}
-        <section className="container px-4 pb-12">
+        <section className="px-4 sm:px-6 pb-12">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <Skeleton key={i} className="h-[360px] rounded-xl" />
               ))}
             </div>
           ) : sortedProjects.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {sortedProjects.map((project) => (
                 <PresaleProjectCard
                   key={project.id}
@@ -504,7 +518,7 @@ export default function CityProductPage() {
         </section>
 
         {/* Buyer Protection Section */}
-        <section className="container px-4 py-12">
+        <section className="px-4 sm:px-6 py-12">
           <div className="bg-muted/30 rounded-xl p-6 md:p-8">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
@@ -543,7 +557,7 @@ export default function CityProductPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="container px-4 py-12">
+        <section className="px-4 sm:px-6 py-12">
           <h2 className="text-2xl font-bold mb-6">
             Frequently Asked Questions: {config.cityName} Presale {productType === "condos" ? "Condos" : "Townhomes"}
           </h2>
@@ -560,7 +574,7 @@ export default function CityProductPage() {
         </section>
 
         {/* Internal Links Section */}
-        <section className="container px-4 py-12 border-t">
+        <section className="px-4 sm:px-6 py-12 border-t">
           <h2 className="text-xl font-semibold mb-6">Explore More Presale Projects</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link to={`/presale-condos/${citySlug}`} className="text-sm text-primary hover:underline">
