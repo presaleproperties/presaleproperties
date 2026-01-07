@@ -418,41 +418,35 @@ export default function MapSearch() {
                     <p>No projects match your filters</p>
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-3">
                     {filteredProjects.slice(0, 30).map((project) => (
                       <Link key={project.id} to={`/presale-projects/${project.slug}`} className="block">
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
                           selectedProjectId === project.id ? 'ring-2 ring-primary border-primary' : 'border-border'
                         }`}>
-                          <div className="flex">
-                            <div className="w-28 h-24 shrink-0 bg-muted">
-                              {project.featured_image ? (
-                                <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Building2 className="h-6 w-6 text-muted-foreground" />
-                                </div>
-                              )}
+                          <div className="relative w-full aspect-[4/3] bg-muted">
+                            {project.featured_image ? (
+                              <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Building2 className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )}
+                            <Badge className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground">
+                              {project.status === 'active' ? 'Selling' : project.status === 'registering' ? 'Reg' : 'Soon'}
+                            </Badge>
+                          </div>
+                          <div className="p-2.5">
+                            <h4 className="font-semibold text-sm text-foreground truncate">{project.name}</h4>
+                            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="text-xs truncate">{project.city}</span>
                             </div>
-                            <div className="flex-1 p-3 min-w-0">
-                              <div className="flex items-start justify-between gap-2">
-                                <div className="min-w-0">
-                                  <h4 className="font-semibold text-sm text-foreground truncate">{project.name}</h4>
-                                  <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                                    <MapPin className="h-3 w-3 shrink-0" />
-                                    <span className="text-xs truncate">{project.city}</span>
-                                  </div>
-                                </div>
-                                <Badge variant="secondary" className="shrink-0 text-[10px] px-1.5 py-0.5 bg-primary/10 text-primary">
-                                  {project.status === 'active' ? 'Selling' : project.status === 'registering' ? 'Reg' : 'Soon'}
-                                </Badge>
-                              </div>
-                              <div className="flex items-center justify-between mt-2">
-                                <span className="font-bold text-sm text-foreground">{formatPrice(project.starting_price)}</span>
-                                {project.completion_year && (
-                                  <span className="text-xs text-muted-foreground">{project.completion_year}</span>
-                                )}
-                              </div>
+                            <div className="flex items-center justify-between mt-1.5">
+                              <span className="font-bold text-sm text-foreground">{formatPrice(project.starting_price)}</span>
+                              {project.completion_year && (
+                                <span className="text-[10px] text-muted-foreground">{project.completion_year}</span>
+                              )}
                             </div>
                           </div>
                         </div>
