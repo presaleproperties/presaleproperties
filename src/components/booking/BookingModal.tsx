@@ -458,6 +458,7 @@ export function BookingModal({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Smith"
+                      autoComplete="name"
                       className="h-9 text-sm rounded-lg"
                     />
                   </div>
@@ -471,6 +472,7 @@ export function BookingModal({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="604-555-0123"
+                      autoComplete="tel"
                       className="h-9 text-sm rounded-lg"
                     />
                   </div>
@@ -485,6 +487,7 @@ export function BookingModal({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="john@email.com"
+                    autoComplete="email"
                     className="h-9 text-sm rounded-lg"
                   />
                 </div>

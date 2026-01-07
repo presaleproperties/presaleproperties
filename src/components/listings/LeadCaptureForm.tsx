@@ -154,6 +154,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             <Input
               id="name"
               placeholder="Your full name"
+              autoComplete="name"
               {...register("name")}
               className={`h-11 ${errors.name ? "border-destructive" : ""}`}
             />
@@ -168,6 +169,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               id="email"
               type="email"
               placeholder="your@email.com"
+              autoComplete="email"
               {...register("email")}
               className={`h-11 ${errors.email ? "border-destructive" : ""}`}
             />
@@ -182,6 +184,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               id="phone"
               type="tel"
               placeholder="(604) 555-0123"
+              autoComplete="tel"
               {...register("phone")}
               className={`h-11 ${errors.phone ? "border-destructive" : ""}`}
             />
