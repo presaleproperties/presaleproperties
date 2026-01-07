@@ -53,7 +53,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[75vh] md:min-h-[80vh] flex flex-col justify-center overflow-hidden">
+    <section className="relative flex flex-col overflow-hidden">
       {/* Background Image - Full Bleed */}
       <img 
         src={heroImage}
@@ -67,8 +67,8 @@ export function HeroSection() {
       {/* Gradient Overlay - Darker for better text contrast */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
       
-      {/* Content - Centered */}
-      <div className="container relative z-10 px-4">
+      {/* Content - Centered with proper padding for cities bar */}
+      <div className="container relative z-10 px-4 py-20 md:py-28 lg:py-32">
         <div className="max-w-3xl mx-auto text-center">
           {/* Tagline */}
           <p className="text-primary text-sm md:text-base font-medium tracking-wide mb-4 md:mb-5">
@@ -164,8 +164,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Top Cities - Below hero on white bg */}
-      <div className="absolute bottom-0 left-0 right-0 bg-background py-4 md:py-5">
+      {/* Top Cities - Static below hero content */}
+      <div className="relative z-10 bg-background py-4 md:py-5 border-b border-border/50">
         <div className="container px-4">
           <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
             <span className="text-sm text-muted-foreground font-medium whitespace-nowrap">
