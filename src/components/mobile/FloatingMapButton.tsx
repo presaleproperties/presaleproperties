@@ -34,7 +34,7 @@ export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButto
     <Link
       to={href}
       className={cn(
-        "fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-foreground text-background px-5 py-3 rounded-full shadow-lg hover:bg-foreground/90 transition-all duration-300",
+        "fixed bottom-24 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 bg-foreground text-background px-5 py-3 rounded-full shadow-lg hover:bg-foreground/90 transition-all duration-300",
         "lg:hidden", // Hide on desktop
         isVisible 
           ? "translate-y-0 opacity-100" 
