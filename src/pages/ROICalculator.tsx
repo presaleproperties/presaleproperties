@@ -171,57 +171,81 @@ export default function ROICalculator() {
       <Header />
 
       <main className="min-h-screen bg-background">
-        {/* Hero Section - Enhanced */}
-        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-12 md:py-16">
-          {/* Decorative elements */}
-          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+        {/* Hero Section - Premium Design */}
+        <section className="relative overflow-hidden bg-foreground text-white py-16 md:py-20">
+          {/* Animated gradient background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-black via-foreground to-black" />
           
-          <div className="container px-4 relative">
+          {/* Grid pattern overlay */}
+          <div 
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
+              backgroundSize: '40px 40px'
+            }}
+          />
+          
+          {/* Glowing orbs */}
+          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[120px]" />
+          <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]" />
+          
+          <div className="container px-4 relative z-10">
             {/* Breadcrumbs */}
-            <div className="max-w-2xl mx-auto mb-6">
+            <div className="max-w-3xl mx-auto mb-8">
               <Breadcrumbs 
                 items={[
                   { label: "Home", href: "/" },
                   { label: "ROI Calculator" }
                 ]} 
-                className="text-white/60"
+                className="text-white/50"
               />
             </div>
 
-            <div className="max-w-2xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-medium mb-5 border border-white/10">
-                <Calculator className="h-4 w-4 text-amber-400" />
+            <div className="max-w-3xl mx-auto text-center">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md text-white px-5 py-2 rounded-full text-sm font-medium mb-6 border border-white/10 shadow-lg">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
                 Free Investment Analysis Tool
               </div>
               
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
-                Presale <span className="text-amber-400">ROI</span> Calculator
+              {/* Main heading with gradient */}
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 tracking-tight leading-tight">
+                <span className="bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
+                  Presale
+                </span>{" "}
+                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
+                  ROI
+                </span>{" "}
+                <span className="bg-gradient-to-r from-white/80 via-white to-white bg-clip-text text-transparent">
+                  Calculator
+                </span>
               </h1>
               
-              <p className="text-white/70 text-base md:text-lg max-w-xl mx-auto mb-8">
+              <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
                 Model your 5-year investment returns on presale condos and townhomes 
-                in Vancouver & Fraser Valley
+                in <span className="text-white/80 font-medium">Vancouver</span> & <span className="text-white/80 font-medium">Fraser Valley</span>
               </p>
 
-              {/* Trust indicators */}
-              <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
-                <div className="flex items-center gap-1.5">
+              {/* Trust indicators - pill style */}
+              <div className="flex flex-wrap justify-center gap-3">
+                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
                   <CheckCircle2 className="h-4 w-4 text-green-400" />
-                  <span>100% Free</span>
+                  <span className="text-sm text-white/70">100% Free</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
                   <CheckCircle2 className="h-4 w-4 text-green-400" />
-                  <span>No Sign-up Required</span>
+                  <span className="text-sm text-white/70">No Sign-up</span>
                 </div>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
                   <CheckCircle2 className="h-4 w-4 text-green-400" />
-                  <span>BC-Specific Calculations</span>
+                  <span className="text-sm text-white/70">BC-Specific</span>
                 </div>
               </div>
             </div>
           </div>
+          
+          {/* Bottom fade */}
+          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
         </section>
 
         {/* Features Strip */}
