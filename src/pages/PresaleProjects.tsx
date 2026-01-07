@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useLocation, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -605,28 +605,40 @@ export default function PresaleProjects() {
         <ConversionHeader />
         <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
           <div className="container px-4">
+            {/* Breadcrumbs */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+              <Link to="/" className="hover:text-foreground transition-colors shrink-0">
+                <Home className="h-3.5 w-3.5" />
+              </Link>
+              <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
+              <Link to="/presale-projects" className="hover:text-foreground transition-colors shrink-0">
+                Presale Projects
+              </Link>
+              {filters.city !== "any" && (
+                <>
+                  <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-foreground font-medium shrink-0">{filters.city}</span>
+                </>
+              )}
+            </nav>
+
             <div className="max-w-3xl">
               <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
                 {filters.city !== "any" 
                   ? `Presale Projects in ${filters.city}` 
                   : "New & Pre-Construction Homes in Metro Vancouver"}
               </h1>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-2 sm:mb-4 line-clamp-2 sm:line-clamp-none">
-                {filters.city !== "any"
-                  ? `Browse new construction condos, townhomes & developments in ${filters.city}. View floor plans, pricing & register for VIP access.`
-                  : "Search presale condos & townhomes in Vancouver, Surrey, Langley, Coquitlam, Burnaby, Delta & Abbotsford. VIP pricing & floor plans."}
-              </p>
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
                 <span className="font-medium text-foreground">{totalCount}</span>
-                {" "}projects available
+                <span>projects available</span>
                 {activeFilterCount > 0 && (
                   <>
-                    {" · "}
+                    <span className="text-border">•</span>
                     <button 
                       onClick={clearAllFilters}
                       className="text-primary hover:underline"
                     >
-                      Clear filters
+                      Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
                     </button>
                   </>
                 )}
