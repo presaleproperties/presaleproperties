@@ -620,6 +620,291 @@ export type Database = {
         }
         Relationships: []
       }
+      mls_listings: {
+        Row: {
+          appliances: string[] | null
+          association_fee: number | null
+          association_fee_frequency: string | null
+          bathrooms_full: number | null
+          bathrooms_half: number | null
+          bathrooms_total: number | null
+          bedrooms_total: number | null
+          buyer_agent_key: string | null
+          buyer_agent_name: string | null
+          buyer_office_name: string | null
+          city: string
+          close_date: string | null
+          close_price: number | null
+          community_features: string[] | null
+          cooling: string[] | null
+          country: string | null
+          created_at: string
+          cumulative_days_on_market: number | null
+          days_on_market: number | null
+          directions: string | null
+          expiration_date: string | null
+          exterior_features: string[] | null
+          garage_spaces: number | null
+          heating: string[] | null
+          id: string
+          interior_features: string[] | null
+          last_synced_at: string
+          latitude: number | null
+          list_agent_email: string | null
+          list_agent_key: string | null
+          list_agent_mls_id: string | null
+          list_agent_name: string | null
+          list_agent_phone: string | null
+          list_date: string | null
+          list_office_key: string | null
+          list_office_mls_id: string | null
+          list_office_name: string | null
+          list_office_phone: string | null
+          listing_contract_date: string | null
+          listing_id: string
+          listing_key: string
+          listing_price: number
+          living_area: number | null
+          living_area_units: string | null
+          longitude: number | null
+          lot_size_area: number | null
+          lot_size_units: string | null
+          mls_status: string
+          modification_timestamp: string | null
+          neighborhood: string | null
+          original_list_price: number | null
+          parking_total: number | null
+          photos: Json | null
+          photos_change_timestamp: string | null
+          pool_yn: boolean | null
+          postal_code: string | null
+          private_remarks: string | null
+          property_sub_type: string | null
+          property_type: string
+          public_remarks: string | null
+          raw_data: Json | null
+          standard_status: string | null
+          state_or_province: string | null
+          stories: number | null
+          street_name: string | null
+          street_number: string | null
+          street_suffix: string | null
+          subdivision_name: string | null
+          sync_status: string | null
+          tax_annual_amount: number | null
+          tax_year: number | null
+          unit_number: string | null
+          unparsed_address: string | null
+          updated_at: string
+          video_url: string | null
+          view: string[] | null
+          virtual_tour_url: string | null
+          waterfront_yn: boolean | null
+          year_built: number | null
+        }
+        Insert: {
+          appliances?: string[] | null
+          association_fee?: number | null
+          association_fee_frequency?: string | null
+          bathrooms_full?: number | null
+          bathrooms_half?: number | null
+          bathrooms_total?: number | null
+          bedrooms_total?: number | null
+          buyer_agent_key?: string | null
+          buyer_agent_name?: string | null
+          buyer_office_name?: string | null
+          city: string
+          close_date?: string | null
+          close_price?: number | null
+          community_features?: string[] | null
+          cooling?: string[] | null
+          country?: string | null
+          created_at?: string
+          cumulative_days_on_market?: number | null
+          days_on_market?: number | null
+          directions?: string | null
+          expiration_date?: string | null
+          exterior_features?: string[] | null
+          garage_spaces?: number | null
+          heating?: string[] | null
+          id?: string
+          interior_features?: string[] | null
+          last_synced_at?: string
+          latitude?: number | null
+          list_agent_email?: string | null
+          list_agent_key?: string | null
+          list_agent_mls_id?: string | null
+          list_agent_name?: string | null
+          list_agent_phone?: string | null
+          list_date?: string | null
+          list_office_key?: string | null
+          list_office_mls_id?: string | null
+          list_office_name?: string | null
+          list_office_phone?: string | null
+          listing_contract_date?: string | null
+          listing_id: string
+          listing_key: string
+          listing_price: number
+          living_area?: number | null
+          living_area_units?: string | null
+          longitude?: number | null
+          lot_size_area?: number | null
+          lot_size_units?: string | null
+          mls_status?: string
+          modification_timestamp?: string | null
+          neighborhood?: string | null
+          original_list_price?: number | null
+          parking_total?: number | null
+          photos?: Json | null
+          photos_change_timestamp?: string | null
+          pool_yn?: boolean | null
+          postal_code?: string | null
+          private_remarks?: string | null
+          property_sub_type?: string | null
+          property_type: string
+          public_remarks?: string | null
+          raw_data?: Json | null
+          standard_status?: string | null
+          state_or_province?: string | null
+          stories?: number | null
+          street_name?: string | null
+          street_number?: string | null
+          street_suffix?: string | null
+          subdivision_name?: string | null
+          sync_status?: string | null
+          tax_annual_amount?: number | null
+          tax_year?: number | null
+          unit_number?: string | null
+          unparsed_address?: string | null
+          updated_at?: string
+          video_url?: string | null
+          view?: string[] | null
+          virtual_tour_url?: string | null
+          waterfront_yn?: boolean | null
+          year_built?: number | null
+        }
+        Update: {
+          appliances?: string[] | null
+          association_fee?: number | null
+          association_fee_frequency?: string | null
+          bathrooms_full?: number | null
+          bathrooms_half?: number | null
+          bathrooms_total?: number | null
+          bedrooms_total?: number | null
+          buyer_agent_key?: string | null
+          buyer_agent_name?: string | null
+          buyer_office_name?: string | null
+          city?: string
+          close_date?: string | null
+          close_price?: number | null
+          community_features?: string[] | null
+          cooling?: string[] | null
+          country?: string | null
+          created_at?: string
+          cumulative_days_on_market?: number | null
+          days_on_market?: number | null
+          directions?: string | null
+          expiration_date?: string | null
+          exterior_features?: string[] | null
+          garage_spaces?: number | null
+          heating?: string[] | null
+          id?: string
+          interior_features?: string[] | null
+          last_synced_at?: string
+          latitude?: number | null
+          list_agent_email?: string | null
+          list_agent_key?: string | null
+          list_agent_mls_id?: string | null
+          list_agent_name?: string | null
+          list_agent_phone?: string | null
+          list_date?: string | null
+          list_office_key?: string | null
+          list_office_mls_id?: string | null
+          list_office_name?: string | null
+          list_office_phone?: string | null
+          listing_contract_date?: string | null
+          listing_id?: string
+          listing_key?: string
+          listing_price?: number
+          living_area?: number | null
+          living_area_units?: string | null
+          longitude?: number | null
+          lot_size_area?: number | null
+          lot_size_units?: string | null
+          mls_status?: string
+          modification_timestamp?: string | null
+          neighborhood?: string | null
+          original_list_price?: number | null
+          parking_total?: number | null
+          photos?: Json | null
+          photos_change_timestamp?: string | null
+          pool_yn?: boolean | null
+          postal_code?: string | null
+          private_remarks?: string | null
+          property_sub_type?: string | null
+          property_type?: string
+          public_remarks?: string | null
+          raw_data?: Json | null
+          standard_status?: string | null
+          state_or_province?: string | null
+          stories?: number | null
+          street_name?: string | null
+          street_number?: string | null
+          street_suffix?: string | null
+          subdivision_name?: string | null
+          sync_status?: string | null
+          tax_annual_amount?: number | null
+          tax_year?: number | null
+          unit_number?: string | null
+          unparsed_address?: string | null
+          updated_at?: string
+          video_url?: string | null
+          view?: string[] | null
+          virtual_tour_url?: string | null
+          waterfront_yn?: boolean | null
+          year_built?: number | null
+        }
+        Relationships: []
+      }
+      mls_sync_logs: {
+        Row: {
+          completed_at: string | null
+          error_message: string | null
+          id: string
+          listings_created: number | null
+          listings_deleted: number | null
+          listings_fetched: number | null
+          listings_updated: number | null
+          started_at: string
+          status: string
+          sync_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          listings_created?: number | null
+          listings_deleted?: number | null
+          listings_fetched?: number | null
+          listings_updated?: number | null
+          started_at?: string
+          status?: string
+          sync_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          listings_created?: number | null
+          listings_deleted?: number | null
+          listings_fetched?: number | null
+          listings_updated?: number | null
+          started_at?: string
+          status?: string
+          sync_type?: string
+        }
+        Relationships: []
+      }
       newsletter_subscribers: {
         Row: {
           created_at: string
