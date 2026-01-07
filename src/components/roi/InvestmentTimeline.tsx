@@ -37,7 +37,10 @@ export function InvestmentTimeline({ inputs, results }: InvestmentTimelineProps)
   const currentMonth = now.getMonth() + 1;
 
   const { purchase, financing } = inputs;
-  const completionSeason = SEASON_MONTHS[purchase.closingSeason];
+  
+  // Fallback to 'fall' if closingSeason is undefined (for backwards compatibility)
+  const season = purchase.closingSeason || 'fall';
+  const completionSeason = SEASON_MONTHS[season];
   
   // Calculate timeline events
   const deposit1Date = new Date();
