@@ -212,6 +212,13 @@
     display: none !important;
   }
 
+  /* Hide map attribution on mobile and tablet */
+  @media (max-width: 1023px) {
+    .leaflet-control-attribution {
+      display: none !important;
+    }
+  }
+
   /* Custom marker styling */
   .custom-marker {
     background: transparent;
