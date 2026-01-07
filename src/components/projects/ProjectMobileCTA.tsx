@@ -83,7 +83,7 @@ export function ProjectMobileCTA({
           {/* Primary CTA */}
           <Button 
             size="lg"
-            className="flex-1 h-12 rounded-xl font-semibold gap-2"
+            className="flex-1 h-12 rounded-xl font-semibold gap-2 bg-foreground hover:bg-foreground/90 text-background"
             onClick={onRegisterClick}
           >
             {buttonContent.icon}
