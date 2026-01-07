@@ -15,6 +15,7 @@ import {
   Calendar,
   GitCompare,
   BarChart3,
+  Landmark,
 } from "lucide-react";
 import { ROIInputs, ROIResults, DEFAULT_SCENARIOS } from "@/types/roi";
 import { ROICharts } from "./ROICharts";
@@ -24,6 +25,7 @@ import { SavedAnalysesPanel } from "./SavedAnalysesPanel";
 import { SavedAnalysis } from "@/hooks/useSavedAnalyses";
 import { InvestmentTimeline } from "./InvestmentTimeline";
 import { MortgageVsCash } from "./MortgageVsCash";
+import { AmortizationSchedule } from "./AmortizationSchedule";
 
 interface ROIResultsDisplayProps {
   inputs: ROIInputs;
@@ -196,14 +198,18 @@ export function ROIResultsDisplay({
 
       {/* Visual Analysis Tabs */}
       <Tabs defaultValue="timeline" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 h-auto">
+        <TabsList className="grid w-full grid-cols-5 h-auto">
           <TabsTrigger value="timeline" className="flex flex-col items-center gap-1 py-2 text-xs">
             <Calendar className="h-4 w-4" />
             <span className="hidden sm:inline">Timeline</span>
           </TabsTrigger>
           <TabsTrigger value="comparison" className="flex flex-col items-center gap-1 py-2 text-xs">
             <GitCompare className="h-4 w-4" />
-            <span className="hidden sm:inline">Mortgage vs Cash</span>
+            <span className="hidden sm:inline">Cash vs Mtg</span>
+          </TabsTrigger>
+          <TabsTrigger value="amortization" className="flex flex-col items-center gap-1 py-2 text-xs">
+            <Landmark className="h-4 w-4" />
+            <span className="hidden sm:inline">Amortization</span>
           </TabsTrigger>
           <TabsTrigger value="charts" className="flex flex-col items-center gap-1 py-2 text-xs">
             <BarChart3 className="h-4 w-4" />
@@ -219,6 +225,9 @@ export function ROIResultsDisplay({
         </TabsContent>
         <TabsContent value="comparison" className="mt-4">
           <MortgageVsCash inputs={inputs} results={results} />
+        </TabsContent>
+        <TabsContent value="amortization" className="mt-4">
+          <AmortizationSchedule inputs={inputs} results={results} />
         </TabsContent>
         <TabsContent value="charts" className="mt-4">
           <ROICharts results={results} />
