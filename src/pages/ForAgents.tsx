@@ -20,11 +20,12 @@ export default function ForAgents() {
   return (
     <>
       <Helmet>
-        <title>For Agents | List Your Assignment | AssignmentHub Vancouver</title>
+        <title>For Agents | List Your Assignment | PresaleProperties Vancouver</title>
         <meta 
           name="description" 
           content="A dedicated marketplace for licensed real estate agents to list presale condo assignments in Vancouver. Developer-compliant, searchable, and built for serious agents." 
         />
+        <link rel="canonical" href="https://presaleproperties.com/agents" />
       </Helmet>
 
       <ConversionHeader />
@@ -110,7 +111,7 @@ export default function ForAgents() {
             </div>
             <div className="prose prose-lg text-muted-foreground ml-14">
               <p>
-                AssignmentHub Vancouver was built specifically for presale assignments — not MLS, not social media.
+                PresaleProperties was built specifically for presale assignments — not MLS, not social media.
               </p>
               <p>
                 It gives assignments a permanent, searchable home where buyers actually come to look.
@@ -134,7 +135,7 @@ export default function ForAgents() {
                 This is common and expected in presales.
               </p>
               <p>
-                AssignmentHub Vancouver supports two listing types:
+                PresaleProperties supports two listing types:
               </p>
               <div className="grid sm:grid-cols-2 gap-4 not-prose mt-6">
                 <div className="p-4 rounded-lg border bg-background">
@@ -313,7 +314,7 @@ export default function ForAgents() {
           <div className="container max-w-3xl">
             <p className="text-sm text-muted-foreground text-center">
               All assignments are submitted by licensed real estate agents and reviewed prior to publication. 
-              AssignmentHub Vancouver does not represent developers and does not facilitate transactions.
+              PresaleProperties does not represent developers and does not facilitate transactions.
             </p>
           </div>
         </section>

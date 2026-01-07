@@ -231,7 +231,9 @@ export default function BlogPost() {
                       {tag}
                     </Badge>
                   ))}
-            </div>
+                </div>
+              </div>
+            )}
 
             {/* Internal Links CTA */}
             <div className="mt-12 p-6 bg-primary/5 rounded-xl border border-primary/10">
@@ -254,8 +256,6 @@ export default function BlogPost() {
                 </Link>
               </div>
             </div>
-          </div>
-            )}
           </div>
         </article>
 
