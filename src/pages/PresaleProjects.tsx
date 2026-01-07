@@ -728,6 +728,15 @@ export default function PresaleProjects() {
               />
             </div>
             <div className="flex gap-2">
+              {/* Map Button */}
+              <Button 
+                variant="outline" 
+                className="h-10 px-3"
+                onClick={() => window.location.href = '/map-search'}
+              >
+                <Map className="h-4 w-4 mr-2" />
+                <span className="text-sm">Map</span>
+              </Button>
               {/* Mobile Filters */}
               <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                 <SheetTrigger asChild>
