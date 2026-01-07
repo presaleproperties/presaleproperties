@@ -460,24 +460,18 @@ export default function ResaleMapSearch() {
                             {listing.mls_status}
                           </Badge>
                         </div>
-                        <div className="p-3">
-                          <p className="font-bold text-sm text-foreground">{formatPrice(listing.listing_price)}</p>
-                          <p className="text-xs text-muted-foreground truncate">{getAddress(listing)}</p>
-                          <p className="text-xs text-muted-foreground">{listing.city}</p>
-                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                            {listing.bedrooms_total && (
-                              <span className="flex items-center gap-0.5">
-                                <Bed className="h-3 w-3" /> {listing.bedrooms_total}
-                              </span>
-                            )}
-                            {listing.bathrooms_total && (
-                              <span className="flex items-center gap-0.5">
-                                <Bath className="h-3 w-3" /> {listing.bathrooms_total}
-                              </span>
-                            )}
-                            {listing.living_area && (
-                              <span>{listing.living_area} sqft</span>
-                            )}
+                        <div className="p-2.5 sm:p-3">
+                          <h4 className="font-semibold text-foreground text-sm truncate">{getAddress(listing)}</h4>
+                          <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                            <MapPin className="h-3 w-3" />
+                            <span className="text-xs truncate">{listing.city}</span>
+                          </div>
+                          <div className="flex items-center justify-between mt-2">
+                            <span className="font-bold text-foreground text-sm">{formatPrice(listing.listing_price)}</span>
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded flex items-center gap-1">
+                              {listing.bedrooms_total && <><Bed className="h-3 w-3" /> {listing.bedrooms_total}</>}
+                              {listing.bathrooms_total && <><Bath className="h-3 w-3 ml-1" /> {listing.bathrooms_total}</>}
+                            </span>
                           </div>
                         </div>
                       </div>
