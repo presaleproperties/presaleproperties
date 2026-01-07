@@ -1,4 +1,3 @@
-import { lazy, Suspense } from "react";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -13,9 +12,6 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
-
-// Lazy load the map section for performance
-const HomeMapSection = lazy(() => import("@/components/map/HomeMapSection").then(m => ({ default: m.HomeMapSection })));
 
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
@@ -299,11 +295,6 @@ const Index = () => {
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
         </ScrollReveal>
-        <Suspense fallback={null}>
-          <ScrollReveal animation="fade-up" delay={100}>
-            <HomeMapSection />
-          </ScrollReveal>
-        </Suspense>
         <ScrollReveal animation="scale" delay={100}>
           <BuyerCTASection />
         </ScrollReveal>

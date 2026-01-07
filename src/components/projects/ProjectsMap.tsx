@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useRef, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
@@ -124,12 +124,12 @@ const getStatusColor = (status: string) => {
   }
 };
 
-// Component to fit bounds when projects change - must be child of MapContainer
-function FitBoundsControl({ projects }: { projects: Array<{ lat: number; lng: number; city: string; map_lat?: number | null; map_lng?: number | null }> }) {
+// Component to fit bounds when projects change
+function FitBoundsControl({ projects }: { projects: Project[] }) {
   const map = useMap();
   
   useEffect(() => {
-    if (!map || projects.length === 0) return;
+    if (projects.length === 0) return;
     
     const validProjects = projects.filter(p => p.map_lat && p.map_lng);
     
@@ -157,12 +157,7 @@ function FitBoundsControl({ projects }: { projects: Array<{ lat: number; lng: nu
 
 export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
-  const [isMounted, setIsMounted] = useState(false);
   
-  // Ensure component is mounted before rendering map (fixes SSR/hydration issues)
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
   // Get projects with coordinates (use city center as fallback)
   const mappedProjects = useMemo(() => {
     return projects.map(project => {
@@ -180,7 +175,7 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
     });
   }, [projects]);
   
-  if (isLoading || !isMounted) {
+  if (isLoading) {
     return (
       <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
         <div className="text-center text-muted-foreground">
@@ -203,7 +198,7 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
   }
   
   return (
-    <div className="h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border relative">
+    <div className="h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
       <MapContainer
         center={DEFAULT_CENTER}
         zoom={DEFAULT_ZOOM}
@@ -226,15 +221,15 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
               click: () => setSelectedProject(project.id),
             }}
           >
-            <Popup maxWidth={280}>
-              <div className="p-1 project-popup-content">
-                {project.featured_image ? (
+            <Popup maxWidth={280} className="project-popup">
+              <div className="p-1">
+                {project.featured_image && (
                   <img
                     src={project.featured_image}
                     alt={project.name}
                     className="w-full h-32 object-cover rounded-md mb-2"
                   />
-                ) : null}
+                )}
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
@@ -246,11 +241,11 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
                     <MapPin className="h-3 w-3" />
                     {project.neighborhood}, {project.city}
                   </p>
-                  {project.starting_price ? (
+                  {project.starting_price && (
                     <p className="text-sm font-medium">
                       From {formatPrice(project.starting_price)}
                     </p>
-                  ) : null}
+                  )}
                   <Link to={`/presale-projects/${project.slug}`}>
                     <Button size="sm" className="w-full mt-2 text-xs h-8">
                       View Project

@@ -518,8 +518,6 @@ export type Database = {
           id: string
           interior_sqft: number | null
           is_featured: boolean | null
-          map_lat: number | null
-          map_lng: number | null
           neighborhood: string | null
           occupancy_date: string | null
           original_price: number | null
@@ -560,8 +558,6 @@ export type Database = {
           id?: string
           interior_sqft?: number | null
           is_featured?: boolean | null
-          map_lat?: number | null
-          map_lng?: number | null
           neighborhood?: string | null
           occupancy_date?: string | null
           original_price?: number | null
@@ -602,8 +598,6 @@ export type Database = {
           id?: string
           interior_sqft?: number | null
           is_featured?: boolean | null
-          map_lat?: number | null
-          map_lng?: number | null
           neighborhood?: string | null
           occupancy_date?: string | null
           original_price?: number | null

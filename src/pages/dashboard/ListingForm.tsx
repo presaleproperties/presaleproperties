@@ -22,29 +22,9 @@ import {
   Image as ImageIcon,
   FileText,
   Save,
-  ArrowLeft,
-  MapPin
+  ArrowLeft
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-// Geocoding helper using OpenStreetMap Nominatim API (free, no API key)
-const geocodeAddress = async (address: string, city: string): Promise<{ lat: number; lng: number } | null> => {
-  try {
-    const query = encodeURIComponent(`${address}, ${city}, BC, Canada`);
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`,
-      { headers: { 'User-Agent': 'PresaleProperties/1.0' } }
-    );
-    const data = await response.json();
-    if (data && data.length > 0) {
-      return { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
-    }
-    return null;
-  } catch (error) {
-    console.error('Geocoding error:', error);
-    return null;
-  }
-};
 
 const CITIES = [
   "Vancouver",
@@ -155,9 +135,6 @@ export default function ListingForm() {
   const [floorplans, setFloorplans] = useState<UploadedFile[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingFloorplans, setUploadingFloorplans] = useState(false);
-  const [mapLat, setMapLat] = useState<number | null>(null);
-  const [mapLng, setMapLng] = useState<number | null>(null);
-  const [geocoding, setGeocoding] = useState(false);
 
   const form = useForm<ListingFormData>({
     resolver: zodResolver(listingSchema),
@@ -246,12 +223,6 @@ export default function ListingForm() {
         description: listing.description || "",
         visibility_mode: (listing as any).visibility_mode || "public",
       });
-
-      // Set map coordinates if available
-      if ((listing as any).map_lat && (listing as any).map_lng) {
-        setMapLat((listing as any).map_lat);
-        setMapLng((listing as any).map_lng);
-      }
 
       // Fetch photos
       const { data: photoData } = await supabase
@@ -361,7 +332,7 @@ export default function ListingForm() {
     setSaving(true);
 
     try {
-      const listingData: Record<string, any> = {
+      const listingData = {
         agent_id: user.id,
         title: data.title,
         project_name: data.project_name,
@@ -389,8 +360,6 @@ export default function ListingForm() {
         has_storage: data.has_storage,
         description: data.description || null,
         visibility_mode: data.visibility_mode,
-        map_lat: mapLat,
-        map_lng: mapLng,
       };
 
       let listingId = id;
@@ -403,10 +372,9 @@ export default function ListingForm() {
         
         if (error) throw error;
       } else {
-        listingData.status = "draft";
         const { data: newListing, error } = await supabase
           .from("listings")
-          .insert(listingData as any)
+          .insert({ ...listingData, status: "draft" })
           .select("id")
           .single();
         
@@ -629,52 +597,9 @@ export default function ListingForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Address</FormLabel>
-                      <div className="flex gap-2">
-                        <FormControl>
-                          <Input placeholder="e.g. 1234 Main Street" {...field} className="flex-1" />
-                        </FormControl>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          disabled={geocoding || !field.value || !form.watch("city")}
-                          onClick={async () => {
-                            if (!field.value || !form.watch("city")) return;
-                            setGeocoding(true);
-                            const coords = await geocodeAddress(field.value, form.watch("city"));
-                            if (coords) {
-                              setMapLat(coords.lat);
-                              setMapLng(coords.lng);
-                              toast({
-                                title: "Coordinates found",
-                                description: `Location: ${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`,
-                              });
-                            } else {
-                              toast({
-                                title: "Could not find location",
-                                description: "Try entering a more specific address.",
-                                variant: "destructive",
-                              });
-                            }
-                            setGeocoding(false);
-                          }}
-                          title="Get map coordinates"
-                        >
-                          {geocoding ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <MapPin className="h-4 w-4" />
-                          )}
-                        </Button>
-                      </div>
-                      <FormDescription>
-                        Enter the building address and click the pin icon to get map coordinates.
-                        {mapLat && mapLng && (
-                          <span className="block text-green-600 dark:text-green-400 mt-1">
-                            ✓ Coordinates set: {mapLat.toFixed(5)}, {mapLng.toFixed(5)}
-                          </span>
-                        )}
-                      </FormDescription>
+                      <FormControl>
+                        <Input placeholder="Optional - building address" {...field} />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

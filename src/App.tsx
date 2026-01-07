@@ -51,7 +51,6 @@ import BlogPost from "./pages/BlogPost";
 import { FloatingAIOrb } from "@/components/search/FloatingAIOrb";
 import { UtmTracker } from "@/components/UtmTracker";
 import ROICalculator from "./pages/ROICalculator";
-import MapSearch from "./pages/MapSearch";
 
 const queryClient = new QueryClient();
 
@@ -86,7 +85,6 @@ const App = () => (
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
-            <Route path="/map-search" element={<MapSearch />} />
             <Route path="/login" element={<Login />} />
             
             {/* Agent Dashboard Routes */}

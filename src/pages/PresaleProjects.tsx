@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map as MapIcon, LayoutGrid, Flame } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -127,20 +127,7 @@ export default function PresaleProjects() {
   const location = useLocation();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "map">(
-    searchParams.get("view") === "map" ? "map" : "grid"
-  );
-
-  const setView = useCallback(
-    (mode: "grid" | "map") => {
-      setViewMode(mode);
-      const next = new URLSearchParams(searchParams);
-      if (mode === "map") next.set("view", "map");
-      else next.delete("view");
-      setSearchParams(next);
-    },
-    [searchParams, setSearchParams]
-  );
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   // Get filter values from URL params
   const filters = {
@@ -782,7 +769,7 @@ export default function PresaleProjects() {
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   className="rounded-none h-10 px-3"
-                  onClick={() => setView("grid")}
+                  onClick={() => setViewMode("grid")}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </Button>
@@ -790,9 +777,9 @@ export default function PresaleProjects() {
                   variant={viewMode === "map" ? "default" : "ghost"}
                   size="sm"
                   className="rounded-none h-10 px-3"
-                  onClick={() => setView("map")}
+                  onClick={() => setViewMode("map")}
                 >
-                  <MapIcon className="h-4 w-4" />
+                  <Map className="h-4 w-4" />
                 </Button>
               </div>
             </div>
@@ -860,7 +847,7 @@ export default function PresaleProjects() {
                   <Suspense fallback={
                     <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
                       <div className="text-center text-muted-foreground">
-                        <MapIcon className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+                        <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
                         <p>Loading map...</p>
                       </div>
                     </div>

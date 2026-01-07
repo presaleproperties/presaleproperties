@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, lazy, Suspense } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, LayoutGrid, Map as MapIcon } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -29,9 +29,6 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { supabase } from "@/integrations/supabase/client";
-
-// Lazy load the map for better performance
-const ListingsMap = lazy(() => import("@/components/listings/ListingsMap").then(m => ({ default: m.ListingsMap })));
 
 const ITEMS_PER_PAGE = 12;
 
@@ -90,9 +87,6 @@ export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "map">(
-    searchParams.get("view") === "map" ? "map" : "grid"
-  );
 
   // Get filter values from URL params
   const filters = {
@@ -140,9 +134,7 @@ export default function Assignments() {
         .from("listings")
         .select(`
           *,
-          listing_photos (url, sort_order),
-          map_lat,
-          map_lng
+          listing_photos (url, sort_order)
         `)
         .eq("status", "published");
 
@@ -502,26 +494,6 @@ export default function Assignments() {
                 ))}
               </SelectContent>
             </Select>
-
-            {/* View Mode Toggle */}
-            <div className="hidden sm:flex border rounded-lg overflow-hidden">
-              <Button
-                variant={viewMode === "grid" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("grid")}
-                className="rounded-none h-10 px-3"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === "map" ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setViewMode("map")}
-                className="rounded-none h-10 px-3"
-              >
-                <MapIcon className="h-4 w-4" />
-              </Button>
-            </div>
           </div>
         </div>
 
@@ -572,84 +544,54 @@ export default function Assignments() {
             </div>
           </aside>
 
-          {/* Listings Content */}
+          {/* Listings Grid */}
           <div className="flex-1">
             {isLoading ? (
-              viewMode === "grid" ? (
-                <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="space-y-3">
-                      <Skeleton className="aspect-[4/3] rounded-lg" />
-                      <Skeleton className="h-4 w-2/3" />
-                      <Skeleton className="h-4 w-1/2" />
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <Skeleton className="h-[500px] lg:h-[600px] rounded-xl" />
-              )
+              <div className="grid gap-4 md:gap-6 grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+                {[...Array(6)].map((_, i) => (
+                  <div key={i} className="space-y-3">
+                    <Skeleton className="aspect-[4/3] rounded-lg" />
+                    <Skeleton className="h-4 w-2/3" />
+                    <Skeleton className="h-4 w-1/2" />
+                  </div>
+                ))}
+              </div>
             ) : filteredListings && filteredListings.length > 0 ? (
               <>
                 <p className="text-xs md:text-sm text-muted-foreground mb-3 md:mb-4">
                   Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, totalCount)} of {totalCount} assignment{totalCount !== 1 ? "s" : ""}
                 </p>
-                
-                {viewMode === "grid" ? (
-                  <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-                    {filteredListings.map((listing) => (
-                      <ListingCard
-                        key={listing.id}
-                        id={listing.id}
-                        title={listing.title}
-                        projectName={listing.project_name}
-                        address={listing.address || undefined}
-                        city={listing.city}
-                        neighborhood={listing.neighborhood || undefined}
-                        propertyType={listing.property_type}
-                        unitType={listing.unit_type}
-                        beds={listing.beds}
-                        baths={listing.baths}
-                        interiorSqft={listing.interior_sqft || undefined}
-                        assignmentPrice={Number(listing.assignment_price)}
-                        completionYear={listing.completion_year || undefined}
-                        completionMonth={listing.completion_month || undefined}
-                        isFeatured={listing.is_featured || false}
-                        imageUrl={listing.listing_photos?.[0]?.url}
-                        photoCount={listing.listing_photos?.length || 0}
-                        visibilityMode={(listing as any).visibility_mode || "public"}
-                        agent={{
-                          name: listing.agentProfile?.full_name || undefined,
-                          avatarUrl: listing.agentProfile?.avatar_url || undefined,
-                          brokerage: listing.agentInfo?.brokerage_name || undefined,
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <Suspense fallback={<Skeleton className="h-[500px] lg:h-[600px] rounded-xl" />}>
-                    <ListingsMap 
-                      listings={filteredListings.map(l => ({
-                        id: l.id,
-                        title: l.title,
-                        project_name: l.project_name,
-                        city: l.city,
-                        neighborhood: l.neighborhood,
-                        address: l.address,
-                        assignment_price: Number(l.assignment_price),
-                        beds: l.beds,
-                        baths: l.baths,
-                        interior_sqft: l.interior_sqft,
-                        is_featured: l.is_featured,
-                        map_lat: (l as any).map_lat,
-                        map_lng: (l as any).map_lng,
-                        listing_photos: l.listing_photos,
-                      }))} 
-                      isLoading={isLoading} 
+                <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+                  {filteredListings.map((listing) => (
+                    <ListingCard
+                      key={listing.id}
+                      id={listing.id}
+                      title={listing.title}
+                      projectName={listing.project_name}
+                      address={listing.address || undefined}
+                      city={listing.city}
+                      neighborhood={listing.neighborhood || undefined}
+                      propertyType={listing.property_type}
+                      unitType={listing.unit_type}
+                      beds={listing.beds}
+                      baths={listing.baths}
+                      interiorSqft={listing.interior_sqft || undefined}
+                      assignmentPrice={Number(listing.assignment_price)}
+                      completionYear={listing.completion_year || undefined}
+                      completionMonth={listing.completion_month || undefined}
+                      isFeatured={listing.is_featured || false}
+                      imageUrl={listing.listing_photos?.[0]?.url}
+                      photoCount={listing.listing_photos?.length || 0}
+                      visibilityMode={(listing as any).visibility_mode || "public"}
+                      agent={{
+                        name: listing.agentProfile?.full_name || undefined,
+                        avatarUrl: listing.agentProfile?.avatar_url || undefined,
+                        brokerage: listing.agentInfo?.brokerage_name || undefined,
+                      }}
                     />
-                  </Suspense>
-                )}
-                
-                {viewMode === "grid" && <PaginationControls />}
+                  ))}
+                </div>
+                <PaginationControls />
               </>
             ) : (
               <div className="text-center py-16 bg-muted/30 rounded-xl">
