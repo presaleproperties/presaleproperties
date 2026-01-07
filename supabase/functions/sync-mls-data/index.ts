@@ -92,6 +92,7 @@ Deno.serve(async (req) => {
   try {
     const DDF_USERNAME = Deno.env.get("DDF_USERNAME");
     const DDF_PASSWORD = Deno.env.get("DDF_PASSWORD");
+    const DDF_FEED_URL = Deno.env.get("DDF_FEED_URL"); // Custom feed URL from CREA
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -100,6 +101,22 @@ Deno.serve(async (req) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // Check for request body with custom URL (for testing)
+    let apiUrl = DDF_FEED_URL;
+    try {
+      const body = await req.json();
+      if (body?.feedUrl) {
+        apiUrl = body.feedUrl;
+      }
+    } catch {
+      // No body or invalid JSON, use default
+    }
+
+    // Default CREA DDF RESO Web API endpoint
+    if (!apiUrl) {
+      apiUrl = "https://data.crea.ca/Feed/Property";
+    }
 
     // Log sync start
     const { data: syncLog, error: logError } = await supabase
@@ -117,18 +134,13 @@ Deno.serve(async (req) => {
 
     const syncLogId = syncLog?.id;
 
-    // Build DDF API URL - RESO Web API format
-    // The DDF feed URL format: https://data.crea.ca/Feed/{FeedId}
-    // We'll use the RESO Web API endpoint
-    const DDF_API_URL = "https://data.crea.ca/api/v1/Property";
-    
     // Create Basic Auth header
     const authHeader = btoa(`${DDF_USERNAME}:${DDF_PASSWORD}`);
 
-    console.log("Fetching listings from DDF API...");
+    console.log("Fetching listings from DDF API:", apiUrl);
 
     // Fetch listings from DDF
-    const response = await fetch(DDF_API_URL, {
+    const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
         "Authorization": `Basic ${authHeader}`,
