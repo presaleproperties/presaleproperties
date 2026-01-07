@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { format, addDays, isSameDay, getDay } from "date-fns";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackCTAClick } from "@/hooks/useLoftyTracking";
 
 type TimePeriod = "early_afternoon" | "mid_afternoon" | "late_afternoon";
 
@@ -112,6 +113,14 @@ export function InlineScheduler({
 
   const handleRequestTour = () => {
     if (selectedDate) {
+      // Track CTA click
+      trackCTAClick({
+        cta_type: "request_tour",
+        cta_label: "Request a Tour",
+        cta_location: "inline_scheduler",
+        project_id: projectId,
+        project_name: projectName,
+      });
       onRequestTour(selectedDate, selectedPeriod);
     }
   };

@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { format, addDays, isSameDay, getDay } from "date-fns";
 import { Calendar as CalendarIcon, Clock, CheckCircle, Loader2, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { trackCTAClick } from "@/hooks/useLoftyTracking";
 
 type BuyerType = "first_time" | "investor";
 type HomeSize = "1_bed" | "2_bed" | "3_bed_plus";
@@ -269,7 +270,16 @@ export function BookingModal({
         },
       });
 
-      // Track analytics
+      // Track Lofty CTA click
+      trackCTAClick({
+        cta_type: "booking_submitted",
+        cta_label: "Schedule Preview",
+        cta_location: "booking_modal",
+        project_id: projectId,
+        project_name: projectName,
+      });
+
+      // Track Google Analytics
       if (typeof window !== "undefined" && (window as any).gtag) {
         (window as any).gtag("event", "booking_completed", {
           event_category: "engagement",

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface PageViewData {
@@ -27,6 +27,16 @@ interface ListingViewData extends PageViewData {
   listing_price: number;
   listing_beds: number;
   listing_baths: number;
+}
+
+interface CTAClickData {
+  cta_type: string;
+  cta_label: string;
+  cta_location: string;
+  project_id?: string;
+  project_name?: string;
+  listing_id?: string;
+  listing_address?: string;
 }
 
 type TrackingData = PageViewData | ProjectViewData | ListingViewData;
@@ -64,17 +74,28 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
+// Get cached webhook URL to avoid repeated DB calls
+let cachedWebhookUrl: string | null = null;
+let webhookUrlFetched = false;
+
+const getWebhookUrl = async (): Promise<string | null> => {
+  if (webhookUrlFetched) return cachedWebhookUrl;
+  
+  const { data: settingData } = await supabase
+    .from("app_settings")
+    .select("value")
+    .eq("key", "lofty_tracking_webhook")
+    .maybeSingle();
+
+  cachedWebhookUrl = settingData?.value as string | null;
+  webhookUrlFetched = true;
+  return cachedWebhookUrl;
+};
+
 // Track page view to Lofty via Zapier webhook
 const sendToLofty = async (data: TrackingData) => {
   try {
-    // Fetch the Lofty tracking webhook URL from app_settings
-    const { data: settingData } = await supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "lofty_tracking_webhook")
-      .maybeSingle();
-
-    const webhookUrl = settingData?.value as string | null;
+    const webhookUrl = await getWebhookUrl();
     
     if (!webhookUrl) {
       console.log("Lofty tracking webhook not configured");
@@ -94,7 +115,6 @@ const sendToLofty = async (data: TrackingData) => {
 
     console.log("Sending Lofty tracking event:", payload);
 
-    // Use no-cors mode for Zapier webhooks
     await fetch(webhookUrl, {
       method: "POST",
       headers: {
@@ -107,6 +127,49 @@ const sendToLofty = async (data: TrackingData) => {
     console.log("Lofty tracking event sent successfully");
   } catch (error) {
     console.error("Error sending Lofty tracking event:", error);
+  }
+};
+
+// Track CTA clicks to Lofty
+const trackCTAClick = async (data: CTAClickData) => {
+  try {
+    const webhookUrl = await getWebhookUrl();
+    
+    if (!webhookUrl) {
+      console.log("Lofty tracking webhook not configured");
+      return;
+    }
+
+    // Get UTM parameters from session storage
+    const utmSource = sessionStorage.getItem("utm_source") || undefined;
+    const utmMedium = sessionStorage.getItem("utm_medium") || undefined;
+    const utmCampaign = sessionStorage.getItem("utm_campaign") || undefined;
+
+    const payload = {
+      event_type: "cta_click",
+      timestamp: new Date().toISOString(),
+      visitor_id: getVisitorId(),
+      session_id: getSessionId(),
+      page_url: window.location.href,
+      page_path: window.location.pathname,
+      utm_source: utmSource,
+      utm_medium: utmMedium,
+      utm_campaign: utmCampaign,
+      ...data,
+    };
+
+    console.log("Sending Lofty CTA click event:", payload);
+
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      mode: "no-cors",
+      body: JSON.stringify(payload),
+    });
+  } catch (error) {
+    console.error("Error sending CTA click event:", error);
   }
 };
 
@@ -192,5 +255,29 @@ export function useLoftyPageTracking(pageTitle: string) {
   }, [pageTitle]);
 }
 
-// Export the raw tracking function for form submissions
-export { sendToLofty, getVisitorId, getSessionId };
+// Hook for CTA click tracking with memoized callback
+export function useLoftyCTATracking() {
+  const trackClick = useCallback((
+    ctaType: string,
+    ctaLabel: string,
+    ctaLocation: string,
+    context?: {
+      project_id?: string;
+      project_name?: string;
+      listing_id?: string;
+      listing_address?: string;
+    }
+  ) => {
+    trackCTAClick({
+      cta_type: ctaType,
+      cta_label: ctaLabel,
+      cta_location: ctaLocation,
+      ...context,
+    });
+  }, []);
+
+  return { trackClick };
+}
+
+// Export the raw tracking functions
+export { sendToLofty, trackCTAClick, getVisitorId, getSessionId };

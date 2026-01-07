@@ -10,6 +10,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
+import { trackCTAClick } from "@/hooks/useLoftyTracking";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -92,6 +93,15 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
+
+    // Track form submission CTA click
+    trackCTAClick({
+      cta_type: "lead_form_submit",
+      cta_label: leadSource === "floor_plan_request" ? "Get Pricing & Floor Plans" : "Submit Inquiry",
+      cta_location: "project_lead_form",
+      project_id: projectId,
+      project_name: projectName,
+    });
 
     try {
       const messageData = [

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackCTAClick } from "@/hooks/useLoftyTracking";
 
 export function FloatingWhatsApp() {
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
@@ -20,6 +21,13 @@ export function FloatingWhatsApp() {
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in learning about presale projects. Can you help me?")}`;
 
   const handleClick = () => {
+    // Track Lofty CTA click
+    trackCTAClick({
+      cta_type: "whatsapp_click",
+      cta_label: "Chat on WhatsApp",
+      cta_location: "floating_button",
+    });
+
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "click_whatsapp_float", {
         page_path: window.location.pathname,
