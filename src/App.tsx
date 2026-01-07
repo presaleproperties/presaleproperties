@@ -45,6 +45,7 @@ import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
 import CityPresalePage from "./pages/CityPresalePage";
 import CityProductPage from "./pages/CityProductPage";
+import NeighbourhoodProductPage from "./pages/NeighbourhoodProductPage";
 import PriceBasedPage from "./pages/PriceBasedPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
