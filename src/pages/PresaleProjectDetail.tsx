@@ -566,8 +566,8 @@ export default function PresaleProjectDetail() {
                   </p>
                 )}
 
-                {/* Inline Scheduler - Desktop only, directly under project info */}
-                <div className="hidden lg:block mt-3">
+                {/* Inline Scheduler - Tablet and Desktop, directly under project info */}
+                <div className="hidden md:block mt-4 lg:mt-3">
                   <InlineScheduler
                     projectId={project.id}
                     projectName={project.name}
@@ -600,33 +600,6 @@ export default function PresaleProjectDetail() {
         {/* Details Grid */}
         <section className="py-3 md:py-5 lg:py-8">
           <div className="container px-3 md:px-4">
-            {/* Tablet: Show forms in a side-by-side two-column layout */}
-            <div className="hidden md:block lg:hidden mb-6">
-              <div className="grid grid-cols-2 gap-4 items-start">
-                <InlineScheduler
-                  projectId={project.id}
-                  projectName={project.name}
-                  projectCity={project.city}
-                  projectNeighborhood={project.neighborhood}
-                  onRequestTour={handleScheduleTourClick}
-                />
-                <div className="space-y-3">
-                  <ProjectLeadForm
-                    projectId={project.id}
-                    projectName={project.name}
-                    status={project.status}
-                    brochureUrl={project.brochure_files?.[0] || null}
-                  />
-                  <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm" asChild>
-                    <a href="tel:+16722581100">
-                      <Phone className="h-4 w-4 mr-1.5" />
-                      Call Now
-                    </a>
-                  </Button>
-                </div>
-              </div>
-            </div>
-            
             <div className="grid lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
@@ -671,6 +644,24 @@ export default function PresaleProjectDetail() {
                     </ul>
                   </div>
                 )}
+
+                {/* Tablet-only Lead Form - positioned after highlights for better distribution */}
+                <div className="hidden md:block lg:hidden">
+                  <div className="bg-background border rounded-xl p-5 shadow-sm">
+                    <ProjectLeadForm
+                      projectId={project.id}
+                      projectName={project.name}
+                      status={project.status}
+                      brochureUrl={project.brochure_files?.[0] || null}
+                    />
+                    <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm mt-3" asChild>
+                      <a href="tel:+16722581100">
+                        <Phone className="h-4 w-4 mr-1.5" />
+                        Call Now
+                      </a>
+                    </Button>
+                  </div>
+                </div>
 
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
