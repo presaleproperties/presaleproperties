@@ -26,9 +26,9 @@ const QUICK_LINKS = [
     icon: Building2 
   },
   { 
-    title: "Assignment Guide", 
-    description: "Learn about assignment purchases",
-    href: "/buyers-guide",
+    title: "Resale Listings", 
+    description: "Browse active MLS listings",
+    href: "/resale",
     icon: BookOpen 
   },
   { 

@@ -30,7 +30,7 @@ export function MobileHomePage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const [activeTab, setActiveTab] = useState<"presale" | "assignments">("presale");
+  const [activeTab, setActiveTab] = useState<"presale" | "resale">("presale");
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -50,7 +50,7 @@ export function MobileHomePage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
-    const route = activeTab === "presale" ? "/presale-projects" : "/assignments";
+    const route = activeTab === "presale" ? "/presale-projects" : "/resale";
     if (searchQuery.trim()) {
       navigate(`${route}?q=${encodeURIComponent(searchQuery)}`);
     } else {
@@ -69,7 +69,7 @@ export function MobileHomePage() {
     }
 
     // For other types (city, neighborhood, developer), search the directory
-    const route = activeTab === "presale" ? "/presale-projects" : "/assignments";
+    const route = activeTab === "presale" ? "/presale-projects" : "/resale";
     navigate(`${route}?q=${encodeURIComponent(value)}`);
   };
 
@@ -158,15 +158,15 @@ export function MobileHomePage() {
                   Presale
                 </button>
                 <button
-                  onClick={() => setActiveTab("assignments")}
+                  onClick={() => setActiveTab("resale")}
                   className={cn(
                     "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
-                    activeTab === "assignments"
+                    activeTab === "resale"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  Assignments
+                  Resale
                 </button>
               </div>
               
@@ -210,7 +210,7 @@ export function MobileHomePage() {
               onSelect={handleSuggestionSelect}
               isVisible={showSuggestions}
               onClose={() => setShowSuggestions(false)}
-              searchMode="projects"
+              searchMode={activeTab === "presale" ? "projects" : "resale"}
             />
           </div>
         </div>

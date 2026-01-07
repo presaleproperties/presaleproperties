@@ -36,7 +36,7 @@ interface AICompareModalProps {
   onClose: () => void;
   projects: Project[];
   listings: Listing[];
-  mode: "projects" | "assignments";
+  mode: "projects" | "resale";
   onViewProject: (slug: string) => void;
   onViewListing: (id: string) => void;
   onRemove: (id: string) => void;
@@ -80,7 +80,7 @@ export function AICompareModal({
         <div className="flex items-center justify-between p-4 border-b border-border bg-muted/30">
           <div>
             <h2 className="font-semibold text-lg text-foreground">
-              Compare {mode === "projects" ? "Projects" : "Assignments"}
+              Compare {mode === "projects" ? "Projects" : "Resale"}
             </h2>
             <p className="text-sm text-muted-foreground">
               {items.length} {items.length === 1 ? "item" : "items"} selected
