@@ -1,8 +1,8 @@
-import { useState, useMemo, useCallback, lazy, Suspense } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Home } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -27,10 +27,6 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
-import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
-
-// Lazy load map component
-const ResaleMap = lazy(() => import("@/components/resale/ResaleMap").then(m => ({ default: m.ResaleMap })));
 
 const ITEMS_PER_PAGE = 16;
 
@@ -133,7 +129,7 @@ export default function ResaleListings() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
+  
 
   const filters = {
     city: searchParams.get("city") || "any",
@@ -489,24 +485,12 @@ export default function ResaleListings() {
                   </SelectContent>
                 </Select>
 
-                <div className="hidden md:flex items-center border rounded-lg p-1">
-                  <Button
-                    variant={viewMode === "grid" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("grid")}
-                    className="h-8 px-3"
-                  >
-                    <LayoutGrid className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant={viewMode === "map" ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setViewMode("map")}
-                    className="h-8 px-3"
-                  >
+                <Link to="/resale-map">
+                  <Button variant="outline" size="sm" className="h-9 gap-2">
                     <Map className="h-4 w-4" />
+                    <span className="hidden sm:inline">View on Map</span>
                   </Button>
-                </div>
+                </Link>
 
                 <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                   <SheetTrigger asChild>
@@ -545,14 +529,6 @@ export default function ResaleListings() {
               <div className="flex-1 min-w-0">
                 {isLoading ? (
                   <LoadingSkeleton />
-                ) : viewMode === "map" ? (
-                  <div className="h-[600px] rounded-xl overflow-hidden border">
-                    <SafeMapWrapper height="h-full">
-                      <Suspense fallback={<div className="h-full bg-muted animate-pulse" />}>
-                        <ResaleMap listings={filteredListings} />
-                      </Suspense>
-                    </SafeMapWrapper>
-                  </div>
                 ) : filteredListings.length === 0 ? (
                   <div className="text-center py-16">
                     <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
