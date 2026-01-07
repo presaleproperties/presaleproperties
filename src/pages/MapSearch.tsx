@@ -25,7 +25,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
+
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { supabase } from "@/integrations/supabase/client";
@@ -342,9 +342,13 @@ export default function MapSearch() {
         </div>
 
         {/* Main Content - Map & List */}
-        <div className="flex-1 flex flex-col md:flex-row">
-          {/* Map Section */}
-          <div className={`${showList ? "md:w-1/2 lg:w-3/5" : "w-full"} h-[50vh] md:h-auto md:flex-1 relative`}>
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
+          {/* Map Section - Full height on mobile when list hidden */}
+          <div className={`
+            ${isMobile && showList ? "h-[40vh]" : "flex-1"} 
+            ${!isMobile && showList ? "lg:w-3/5" : "w-full"} 
+            relative min-h-[300px]
+          `}>
             <SafeMapWrapper height="h-full">
               <Suspense fallback={<LoadingMap />}>
                 {isLoading ? (
@@ -367,10 +371,13 @@ export default function MapSearch() {
             </SafeMapWrapper>
           </div>
 
-          {/* List Section (collapsible on desktop) */}
+          {/* List Section */}
           {showList && (
-            <div className="md:w-1/2 lg:w-2/5 border-t md:border-t-0 md:border-l border-border overflow-y-auto max-h-[50vh] md:max-h-none">
-              <div className="p-4">
+            <div className={`
+              ${isMobile ? "flex-1 overflow-y-auto" : "lg:w-2/5"} 
+              border-t lg:border-t-0 lg:border-l border-border
+            `}>
+              <div className="p-4 pb-24 lg:pb-4">
                 <h3 className="font-semibold text-foreground mb-4">
                   {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
                 </h3>
@@ -414,21 +421,21 @@ export default function MapSearch() {
             </div>
           )}
 
-          {/* Mobile List Toggle */}
+          {/* Mobile List Toggle - Fixed at bottom */}
           {isMobile && (
-            <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
               <Button
                 onClick={() => setShowList(!showList)}
-                className="shadow-lg gap-2"
+                className="shadow-lg gap-2 h-12 px-6 rounded-full"
               >
                 {showList ? (
                   <>
-                    <Map className="h-4 w-4" />
+                    <Map className="h-5 w-5" />
                     Map Only
                   </>
                 ) : (
                   <>
-                    <LayoutGrid className="h-4 w-4" />
+                    <LayoutGrid className="h-5 w-5" />
                     Show List
                   </>
                 )}
@@ -436,8 +443,6 @@ export default function MapSearch() {
             </div>
           )}
         </div>
-
-        <FloatingBottomNav />
       </div>
     </>
   );
