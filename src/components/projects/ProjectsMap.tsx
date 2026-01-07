@@ -79,9 +79,10 @@ const createPricePillIcon = (project: Project) => {
     className: "price-pill-marker",
     html: `
       <div style="
+        display: inline-block;
         background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
         color: white;
-        padding: 6px 10px;
+        padding: 6px 12px;
         border-radius: 20px;
         font-size: 12px;
         font-weight: 700;
@@ -89,12 +90,11 @@ const createPricePillIcon = (project: Project) => {
         box-shadow: 0 2px 8px rgba(0,0,0,0.25);
         border: 2px solid white;
         cursor: pointer;
-        transform: translateX(-50%);
       ">${priceText}</div>
     `,
-    iconSize: [0, 0],
-    iconAnchor: [0, 16],
-    popupAnchor: [0, -20],
+    iconSize: [80, 28],
+    iconAnchor: [40, 14],
+    popupAnchor: [0, -14],
   });
 };
 
