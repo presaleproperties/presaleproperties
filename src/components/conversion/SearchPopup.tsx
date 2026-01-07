@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { SearchSuggestions, SuggestionType } from "@/components/home/SearchSuggestions";
 import { cn } from "@/lib/utils";
 
-type SearchTab = "projects" | "assignments";
+type SearchTab = "projects" | "resale";
 
 interface SearchPopupProps {
   open: boolean;
@@ -32,7 +32,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     if (searchQuery.trim()) {
       navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
     } else {
@@ -51,7 +51,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
       return;
     }
 
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
     onOpenChange(false);
   };
@@ -94,15 +94,15 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
               </button>
               <button
                 type="button"
-                onClick={() => setActiveTab("assignments")}
+                onClick={() => setActiveTab("resale")}
                 className={cn(
                   "px-4 py-2 rounded-full text-sm font-semibold transition-all border",
-                  activeTab === "assignments"
+                  activeTab === "resale"
                     ? "bg-white text-foreground shadow-lg border-transparent"
                     : "bg-white/10 text-white hover:bg-white/20 border-white/20"
                 )}
               >
-                Assignments
+                Resale
               </button>
             </div>
 
@@ -115,7 +115,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
                     type="text"
                     placeholder={activeTab === "projects" 
                       ? "City, Developer, Project..." 
-                      : "Project, City..."
+                      : "City, Address, Neighbourhood..."
                     }
                     value={searchQuery}
                     onChange={(e) => {
