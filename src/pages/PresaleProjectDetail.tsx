@@ -12,6 +12,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Separator } from "@/components/ui/separator";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
@@ -719,6 +720,11 @@ export default function PresaleProjectDetail() {
 
                 {/* Tablet-only Lead Form - positioned after deposits & developer */}
                 <div className="hidden md:block lg:hidden">
+                  <Separator className="my-2" />
+                  <div className="text-center mb-4">
+                    <h2 className="text-lg font-bold text-foreground">Get Floor Plans & Pricing</h2>
+                    <p className="text-sm text-muted-foreground mt-1">Submit your info to receive detailed information</p>
+                  </div>
                   <div className="bg-background border rounded-xl p-5 shadow-sm">
                     <ProjectLeadForm
                       projectId={project.id}
