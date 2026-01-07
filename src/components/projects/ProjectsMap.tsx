@@ -54,6 +54,9 @@ interface ProjectsMapProps {
   isLoading?: boolean;
   onProjectSelect?: (projectId: string) => void;
   onVisibleProjectsChange?: (projectIds: string[]) => void;
+  initialCenter?: [number, number];
+  initialZoom?: number;
+  initialProjectSlug?: string;
 }
 
 const formatPrice = (price: number) => {
@@ -156,7 +159,7 @@ function popupHtml(project: Project) {
   `;
 }
 
-export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisibleProjectsChange }: ProjectsMapProps) {
+export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisibleProjectsChange, initialCenter, initialZoom, initialProjectSlug }: ProjectsMapProps) {
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -164,6 +167,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
   const userCircleRef = useRef<L.Circle | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const mappedProjectsRef = useRef<Array<Project & { lat: number; lng: number }>>([]);
+  const hasInitializedRef = useRef(false);
 
   // Function to calculate visible projects within map bounds
   const updateVisibleProjects = useCallback(() => {
@@ -189,13 +193,31 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     return mapped;
   }, [projects]);
 
-  // Auto-locate user on mount and setup viewport change listener
+  // Auto-select initial project when projects load
+  useEffect(() => {
+    if (initialProjectSlug && mappedProjects.length > 0 && !hasInitializedRef.current) {
+      const project = mappedProjects.find(p => p.slug === initialProjectSlug);
+      if (project && onProjectSelect) {
+        hasInitializedRef.current = true;
+        // Small delay to ensure map is ready
+        setTimeout(() => {
+          onProjectSelect(project.id);
+        }, 300);
+      }
+    }
+  }, [initialProjectSlug, mappedProjects, onProjectSelect]);
+
+  // Initialize map
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
+    // Use initial center/zoom if provided, otherwise defaults
+    const startCenter = initialCenter || DEFAULT_CENTER;
+    const startZoom = initialZoom || DEFAULT_ZOOM;
+
     const map = L.map(containerRef.current, {
-      center: DEFAULT_CENTER,
-      zoom: DEFAULT_ZOOM,
+      center: startCenter,
+      zoom: startZoom,
       zoomControl: false,
     });
 
@@ -221,8 +243,8 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     map.on('moveend', updateVisibleProjects);
     map.on('zoomend', updateVisibleProjects);
 
-    // Auto-locate user on mount
-    if (navigator.geolocation) {
+    // Only auto-locate if no initial center was provided
+    if (!initialCenter && navigator.geolocation) {
       setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -253,7 +275,8 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     } else {
       setTimeout(updateVisibleProjects, 100);
     }
-  }, [updateVisibleProjects]);
+  }, [updateVisibleProjects, initialCenter, initialZoom]);
+
 
   // Update markers when projects change
   useEffect(() => {
