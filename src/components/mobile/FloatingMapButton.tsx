@@ -23,6 +23,7 @@ const CITY_SLUG_MAP: Record<string, string> = {
 export function FloatingMapButton() {
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(true);
+  const [isPulsing, setIsPulsing] = useState(true);
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
   
@@ -107,6 +108,14 @@ export function FloatingMapButton() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  // Stop pulsing after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPulsing(false);
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, []);
   
   if (isMapPage) return null;
   
@@ -151,7 +160,11 @@ export function FloatingMapButton() {
       )}
       aria-label={`View ${mapContext.city || "all"} projects on map`}
     >
-      <Map className="h-5 w-5" />
+      {/* Pulse ring animation */}
+      {isPulsing && (
+        <span className="absolute inset-0 rounded-full animate-ping bg-foreground/40" />
+      )}
+      <Map className="h-5 w-5 relative z-10" />
     </Link>
   );
 }
