@@ -256,15 +256,6 @@ export function ROIResultsDisplay({
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded-full bg-green-500" />
-                <span className="text-sm">Cashflow (cumulative)</span>
-              </div>
-              <span className={`text-sm font-medium ${results.cashflowReturn >= 0 ? "" : "text-red-600"}`}>
-                {formatCurrency(results.cashflowReturn)}
-              </span>
-            </div>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
                 <div className="w-3 h-3 rounded-full bg-purple-500" />
                 <span className="text-sm">Principal Paydown</span>
               </div>
