@@ -368,14 +368,14 @@ export default function MapSearch() {
                       key={project.id} 
                       to={`/presale-projects/${project.slug}`}
                       data-project-id={project.id}
-                      className="snap-start shrink-0 w-[260px] sm:w-[280px] md:w-[320px] lg:w-[360px]"
+                      className="snap-start shrink-0 w-[200px] sm:w-[260px] md:w-[300px]"
                     >
                       <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                         selectedProjectId === project.id 
                           ? 'border-primary ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/50'
                       }`}>
-                        <div className="relative w-full aspect-[16/10] bg-muted">
+                        <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
                           {project.featured_image ? (
                             <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
                           ) : (
