@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Sparkles } from "lucide-react";
-import { AISearchPopup } from "./AISearchPopup";
+import { AIChatDrawer } from "./AIChatDrawer";
 import { cn } from "@/lib/utils";
 
 export function FloatingAIOrb() {
@@ -8,11 +8,11 @@ export function FloatingAIOrb() {
 
   return (
     <>
-      {/* Floating Orb Button with "Ask AI" Label and Pulse Badge */}
+      {/* Floating Chat Button with "Ask AI" Label */}
       <div className="fixed bottom-6 right-4 z-40">
         {/* Pulsing ring animation behind the button */}
-        <div className="absolute inset-0 rounded-full bg-primary/40 animate-ping" style={{ animationDuration: '2s' }} />
-        <div className="absolute -inset-1 rounded-full bg-primary/20 animate-pulse" />
+        <div className="absolute inset-0 rounded-full bg-primary/30 animate-ping" style={{ animationDuration: '2.5s' }} />
+        <div className="absolute -inset-1 rounded-full bg-primary/15 animate-pulse" />
         
         {/* "New" badge */}
         <div className="absolute -top-2 -right-1 z-10">
@@ -27,24 +27,24 @@ export function FloatingAIOrb() {
         <button
           onClick={() => setOpen(true)}
           className={cn(
-            "relative flex items-center gap-2 px-4 py-3 rounded-full",
+            "relative flex items-center gap-2.5 px-5 py-3.5 rounded-full",
             "bg-gradient-to-r from-primary to-primary/90",
-            "shadow-lg shadow-primary/30",
+            "shadow-lg shadow-primary/25",
             "transition-all duration-300 ease-out",
-            "hover:scale-105 hover:shadow-xl hover:shadow-primary/40",
+            "hover:scale-105 hover:shadow-xl hover:shadow-primary/35",
             "active:scale-95"
           )}
           style={{
-            boxShadow: "0 0 20px hsl(var(--primary) / 0.3), 0 4px 12px rgba(0,0,0,0.15)"
+            boxShadow: "0 0 25px hsl(var(--primary) / 0.25), 0 4px 15px rgba(0,0,0,0.12)"
           }}
-          aria-label="Ask AI to find properties"
+          aria-label="Chat with AI to find properties"
         >
           <Sparkles className="h-5 w-5 text-primary-foreground" />
           <span className="text-primary-foreground font-semibold text-sm">Ask AI</span>
         </button>
       </div>
 
-      <AISearchPopup open={open} onOpenChange={setOpen} />
+      <AIChatDrawer open={open} onOpenChange={setOpen} />
     </>
   );
 }
