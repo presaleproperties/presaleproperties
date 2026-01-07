@@ -423,7 +423,7 @@ export default function MapSearch() {
                         >
                           <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                             selectedProjectId === project.id 
-                              ? 'border-primary ring-2 ring-primary/20' 
+                              ? 'border-primary ring-2 ring-primary/20 animate-selection-pulse'
                               : 'border-border hover:border-primary/50'
                           }`}>
                             <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
@@ -487,7 +487,7 @@ export default function MapSearch() {
                     {visibleProjects.slice(0, 30).map((project) => (
                       <Link key={project.id} to={`/presale-projects/${project.slug}`} className="block" data-project-id={project.id}>
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
-                          selectedProjectId === project.id ? 'ring-2 ring-primary border-primary' : 'border-border'
+                          selectedProjectId === project.id ? 'ring-2 ring-primary border-primary animate-selection-pulse' : 'border-border'
                         }`}>
                           <div className="relative w-full aspect-[4/3] bg-muted">
                             {project.featured_image ? (

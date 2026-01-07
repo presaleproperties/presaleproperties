@@ -463,7 +463,7 @@ export default function ResaleMapSearch() {
                       >
                         <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                           selectedListingId === listing.id 
-                            ? 'border-primary ring-2 ring-primary/20' 
+                            ? 'border-primary ring-2 ring-primary/20 animate-selection-pulse' 
                             : 'border-border hover:border-primary/50'
                         }`}>
                           <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
@@ -528,7 +528,7 @@ export default function ResaleMapSearch() {
                     {visibleListings.slice(0, 30).map((listing) => (
                       <Link key={listing.id} to={`/resale/${listing.listing_key}`} className="block" data-listing-id={listing.id}>
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
-                          selectedListingId === listing.id ? 'ring-2 ring-primary border-primary' : 'border-border'
+                          selectedListingId === listing.id ? 'ring-2 ring-primary border-primary animate-selection-pulse' : 'border-border'
                         }`}>
                           <div className="relative w-full aspect-[4/3] bg-muted">
                             {getPhoto(listing) ? (
