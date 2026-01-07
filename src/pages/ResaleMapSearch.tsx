@@ -96,13 +96,18 @@ export default function ResaleMapSearch() {
 
   const handleListingSelect = useCallback((listingId: string) => {
     setSelectedListingId(listingId);
+    // Show carousel if hidden and scroll to the selected listing
+    setShowCarousel(true);
     
-    if (carouselRef.current) {
-      const cardElement = carouselRef.current.querySelector(`[data-listing-id="${listingId}"]`);
-      if (cardElement) {
-        cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    // Small delay to ensure carousel is rendered before scrolling
+    setTimeout(() => {
+      if (carouselRef.current) {
+        const cardElement = carouselRef.current.querySelector(`[data-listing-id="${listingId}"]`);
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
       }
-    }
+    }, 100);
   }, []);
 
   const handleVisibleListingsChange = useCallback((listingIds: string[]) => {
