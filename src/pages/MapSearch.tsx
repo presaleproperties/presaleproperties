@@ -335,13 +335,12 @@ export default function MapSearch() {
                     Presale
                   </Button>
                 </Link>
-                <Link to="/resale">
+                <Link to="/resale-map">
                   <Button
                     variant="ghost"
                     size="sm"
                     className="rounded-full px-4"
                   >
-                    Resale
                   </Button>
                 </Link>
               </div>
