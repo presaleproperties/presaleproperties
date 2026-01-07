@@ -9,6 +9,7 @@ import { RentalIncomeStep } from "./steps/RentalIncomeStep";
 import { OperatingExpensesStep } from "./steps/OperatingExpensesStep";
 import { ExitAssumptionsStep } from "./steps/ExitAssumptionsStep";
 import { ROIResultsDisplay } from "./ROIResultsDisplay";
+import { SavedAnalysis } from "@/hooks/useSavedAnalyses";
 
 interface ROIWizardProps {
   inputs: ROIInputs;
@@ -18,6 +19,14 @@ interface ROIWizardProps {
   applyScenario: (scenario: 'conservative' | 'base' | 'aggressive') => void;
   resetInputs: () => void;
   onTrackEvent?: (event: string) => void;
+  // Compare feature props
+  savedAnalyses?: SavedAnalysis[];
+  canSave?: boolean;
+  canCompare?: boolean;
+  maxSaved?: number;
+  onSaveAnalysis?: (inputs: ROIInputs, results: ROIResults) => { success: boolean; error?: string };
+  onDeleteAnalysis?: (id: string) => void;
+  onCompare?: () => void;
 }
 
 const STEPS = [
@@ -37,6 +46,13 @@ export function ROIWizard({
   applyScenario,
   resetInputs,
   onTrackEvent,
+  savedAnalyses,
+  canSave,
+  canCompare,
+  maxSaved,
+  onSaveAnalysis,
+  onDeleteAnalysis,
+  onCompare,
 }: ROIWizardProps) {
   const [currentStep, setCurrentStep] = useState(1);
 
@@ -108,6 +124,13 @@ export function ROIWizard({
             activeScenario={activeScenario}
             applyScenario={applyScenario}
             onTrackEvent={onTrackEvent}
+            savedAnalyses={savedAnalyses}
+            canSave={canSave}
+            canCompare={canCompare}
+            maxSaved={maxSaved}
+            onSaveAnalysis={onSaveAnalysis}
+            onDeleteAnalysis={onDeleteAnalysis}
+            onCompare={onCompare}
           />
         );
       default:

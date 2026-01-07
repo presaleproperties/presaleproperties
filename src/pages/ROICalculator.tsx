@@ -3,7 +3,9 @@ import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ROIWizard } from "@/components/roi/ROIWizard";
+import { CompareAnalyses } from "@/components/roi/CompareAnalyses";
 import { useROICalculator } from "@/hooks/useROICalculator";
+import { useSavedAnalyses } from "@/hooks/useSavedAnalyses";
 import { Calculator } from "lucide-react";
 
 declare global {
@@ -23,6 +25,17 @@ export default function ROICalculator() {
     resetInputs,
   } = useROICalculator();
 
+  const {
+    savedAnalyses,
+    saveAnalysis,
+    deleteAnalysis,
+    canSave,
+    canCompare,
+    compareMode,
+    setCompareMode,
+    maxSaved,
+  } = useSavedAnalyses();
+
   useEffect(() => {
     // Track page view
     trackEvent("roi_calc_started");
@@ -40,6 +53,38 @@ export default function ROICalculator() {
       window.fbq("trackCustom", event);
     }
   };
+
+  // If in compare mode, show the comparison view
+  if (compareMode && savedAnalyses.length >= 2) {
+    return (
+      <>
+        <Helmet>
+          <title>Compare Properties | ROI Calculator | PresaleProperties.com</title>
+          <meta 
+            name="description" 
+            content="Compare ROI analyses for multiple presale properties side by side." 
+          />
+          <meta name="robots" content="noindex" />
+        </Helmet>
+
+        <Header />
+
+        <main className="min-h-screen bg-background py-8 md:py-12">
+          <div className="container px-4">
+            <div className="max-w-4xl mx-auto">
+              <CompareAnalyses
+                analyses={savedAnalyses}
+                onBack={() => setCompareMode(false)}
+                onDelete={deleteAnalysis}
+              />
+            </div>
+          </div>
+        </main>
+
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -87,6 +132,13 @@ export default function ROICalculator() {
                 applyScenario={applyScenario}
                 resetInputs={resetInputs}
                 onTrackEvent={trackEvent}
+                savedAnalyses={savedAnalyses}
+                canSave={canSave}
+                canCompare={canCompare}
+                maxSaved={maxSaved}
+                onSaveAnalysis={saveAnalysis}
+                onDeleteAnalysis={deleteAnalysis}
+                onCompare={() => setCompareMode(true)}
               />
             </div>
           </div>
