@@ -244,10 +244,16 @@ export default function ResaleMapSearch() {
         <div className="border-b border-border bg-background z-40 shrink-0">
           <div className="px-4 lg:px-6 py-3">
             <div className="flex items-center gap-2 md:gap-4">
-              <Link to="/resale">
+              {/* List View Button - Icon only on mobile/tablet */}
+              <Link to="/resale" className="lg:hidden">
+                <button className="p-2 rounded-md bg-background border border-border/50 hover:bg-muted transition-colors" aria-label="View all listings">
+                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </Link>
+              <Link to="/resale" className="hidden lg:block">
                 <Button variant="ghost" size="sm" className="gap-1">
                   <ArrowLeft className="h-4 w-4" />
-                  <span className="hidden sm:inline">Back</span>
+                  <span>Back</span>
                 </Button>
               </Link>
 
