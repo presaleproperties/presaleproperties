@@ -119,11 +119,11 @@ export function HeroSection() {
               </div>
               <button
                 type="button"
-                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/assignments")}
+                onClick={() => navigate(activeTab === "projects" ? "/presale-projects?view=map" : "/assignments?view=map")}
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <Map className="h-4 w-4" />
-                Browse All
+                Map Search
               </button>
             </div>
 
