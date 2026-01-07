@@ -84,13 +84,18 @@ export default function MapSearch() {
 
   const handleProjectSelect = useCallback((projectId: string) => {
     setSelectedProjectId(projectId);
+    // Show carousel if hidden and scroll to the selected project
+    setShowCarousel(true);
     
-    if (carouselRef.current) {
-      const cardElement = carouselRef.current.querySelector(`[data-project-id="${projectId}"]`);
-      if (cardElement) {
-        cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    // Small delay to ensure carousel is rendered before scrolling
+    setTimeout(() => {
+      if (carouselRef.current) {
+        const cardElement = carouselRef.current.querySelector(`[data-project-id="${projectId}"]`);
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
       }
-    }
+    }, 100);
   }, []);
 
   const handleVisibleProjectsChange = useCallback((projectIds: string[]) => {
