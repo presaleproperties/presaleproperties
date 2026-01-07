@@ -82,6 +82,12 @@ export function ProjectHighlights({
 
   return (
     <div className="bg-gradient-to-br from-muted/60 to-muted/30 rounded-2xl p-5 border border-border/50">
+      <div className="flex items-center gap-2 mb-4">
+        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <Building2 className="h-4 w-4 text-primary" />
+        </div>
+        <h2 className="text-lg font-bold text-foreground">Project Details</h2>
+      </div>
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {highlights.map((item, index) => (
           <div 
