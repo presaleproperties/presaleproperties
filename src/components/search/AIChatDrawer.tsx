@@ -101,16 +101,68 @@ interface SpeechRecognition extends EventTarget {
   onstart: (() => void) | null;
 }
 
+// Typewriter animation examples
+const TYPEWRITER_EXAMPLES = [
+  "2 bedroom condo in Surrey under $600k",
+  "Townhouse with low deposit in Langley",
+  "Investment property near SkyTrain",
+  "Family home completing in 2026",
+  "Condo in Burnaby under $500k",
+];
+
 const GREETING_MESSAGE: ConversationMessage = {
   role: "assistant",
-  content: "Hey there! 👋 I'm your presale helper. Tell me what you're looking for — like \"2 bedroom in Surrey under $600k\" — and I'll find the perfect matches for you!",
+  content: "Hey! 👋 I'm here to help you find your perfect presale. Just tell me what you're looking for — I understand things like location, budget, bedrooms, deposit, and move-in date!",
   timestamp: new Date()
 };
+
+// Custom hook for typewriter effect
+function useTypewriter(texts: string[], typingSpeed = 50, deletingSpeed = 30, pauseDuration = 2000) {
+  const [displayText, setDisplayText] = useState("");
+  const [textIndex, setTextIndex] = useState(0);
+  const [isTyping, setIsTyping] = useState(true);
+  const [isPaused, setIsPaused] = useState(false);
+
+  useEffect(() => {
+    const currentText = texts[textIndex];
+    
+    if (isPaused) {
+      const pauseTimeout = setTimeout(() => {
+        setIsPaused(false);
+        setIsTyping(false);
+      }, pauseDuration);
+      return () => clearTimeout(pauseTimeout);
+    }
+
+    if (isTyping) {
+      if (displayText.length < currentText.length) {
+        const timeout = setTimeout(() => {
+          setDisplayText(currentText.slice(0, displayText.length + 1));
+        }, typingSpeed);
+        return () => clearTimeout(timeout);
+      } else {
+        setIsPaused(true);
+      }
+    } else {
+      if (displayText.length > 0) {
+        const timeout = setTimeout(() => {
+          setDisplayText(displayText.slice(0, -1));
+        }, deletingSpeed);
+        return () => clearTimeout(timeout);
+      } else {
+        setTextIndex((prev) => (prev + 1) % texts.length);
+        setIsTyping(true);
+      }
+    }
+  }, [displayText, isTyping, isPaused, textIndex, texts, typingSpeed, deletingSpeed, pauseDuration]);
+
+  return displayText;
+}
 
 const QUICK_SUGGESTIONS = [
   "2 bed condo in Surrey",
   "Townhouse under $900k",
-  "Low deposit projects",
+  "Low deposit options",
   "Completing in 2026"
 ];
 
@@ -127,9 +179,14 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
   const [conversation, setConversation] = useState<ConversationMessage[]>([GREETING_MESSAGE]);
   const [isListening, setIsListening] = useState(false);
   const [interimTranscript, setInterimTranscript] = useState("");
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
+
+  // Typewriter animation for placeholder
+  const typewriterText = useTypewriter(TYPEWRITER_EXAMPLES, 60, 40, 1500);
+  const showTypewriter = !isFocused && message.length === 0 && !isListening;
 
   const isSpeechSupported = typeof window !== "undefined" && 
     (window.SpeechRecognition || window.webkitSpeechRecognition);
@@ -143,6 +200,8 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 300);
+    } else {
+      setIsFocused(false);
     }
   }, [open]);
 
@@ -452,20 +511,33 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
           </div>
         )}
 
-        {/* Input Area */}
+        {/* Input Area with Typewriter Animation */}
         <div className="border-t border-border p-4 bg-background">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
+              {/* Typewriter placeholder overlay */}
+              {showTypewriter && (
+                <div className="absolute inset-0 flex items-center pl-4 pr-12 pointer-events-none">
+                  <span className="text-sm text-muted-foreground/70">
+                    {typewriterText}
+                    <span className="animate-pulse ml-0.5 inline-block w-0.5 h-4 bg-primary/60 align-middle" />
+                  </span>
+                </div>
+              )}
+              
               <input
                 ref={inputRef}
                 type="text"
                 value={isListening ? message + interimTranscript : message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type your message..."
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                placeholder={isFocused ? "Tell me what you're looking for..." : ""}
                 className={cn(
-                  "w-full pl-4 pr-12 py-3 rounded-full border bg-muted/50 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all text-sm",
-                  isListening && "border-red-500 bg-red-50/30 dark:bg-red-950/20"
+                  "w-full pl-4 pr-12 py-3.5 rounded-full border bg-muted/50 text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:bg-background transition-all text-sm",
+                  isListening && "border-red-500 bg-red-50/30 dark:bg-red-950/20",
+                  showTypewriter && "bg-muted/30"
                 )}
                 disabled={isLoading}
               />
@@ -491,7 +563,7 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
               size="icon"
               onClick={() => handleSend()}
               disabled={isLoading || (message + interimTranscript).length < 3 || isListening}
-              className="h-11 w-11 rounded-full flex-shrink-0"
+              className="h-12 w-12 rounded-full flex-shrink-0 shadow-md"
             >
               {isLoading ? (
                 <Loader2 className="h-5 w-5 animate-spin" />
