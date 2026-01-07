@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, ShieldCheck, Lock, ArrowLeft, Mail, KeyRound } from "lucide-react";
+import { Loader2, ShieldCheck, Lock, ArrowLeft, Mail, KeyRound, Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Please enter a valid email address"),
@@ -40,6 +40,9 @@ export default function AdminLogin() {
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>("login");
   const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -325,12 +328,27 @@ export default function AdminLogin() {
                             </Button>
                           </div>
                           <FormControl>
-                            <Input 
-                              placeholder="••••••••" 
-                              type="password" 
-                              autoComplete="current-password"
-                              {...field} 
-                            />
+                            <div className="relative">
+                              <Input 
+                                placeholder="••••••••" 
+                                type={showPassword ? "text" : "password"} 
+                                autoComplete="current-password"
+                                {...field} 
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                                onClick={() => setShowPassword(!showPassword)}
+                              >
+                                {showPassword ? (
+                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </Button>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -465,12 +483,27 @@ export default function AdminLogin() {
                         <FormItem>
                           <FormLabel>New Password</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="••••••••" 
-                              type="password" 
-                              autoComplete="new-password"
-                              {...field} 
-                            />
+                            <div className="relative">
+                              <Input 
+                                placeholder="••••••••" 
+                                type={showNewPassword ? "text" : "password"} 
+                                autoComplete="new-password"
+                                {...field} 
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                                onClick={() => setShowNewPassword(!showNewPassword)}
+                              >
+                                {showNewPassword ? (
+                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </Button>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -484,12 +517,27 @@ export default function AdminLogin() {
                         <FormItem>
                           <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
-                            <Input 
-                              placeholder="••••••••" 
-                              type="password" 
-                              autoComplete="new-password"
-                              {...field} 
-                            />
+                            <div className="relative">
+                              <Input 
+                                placeholder="••••••••" 
+                                type={showConfirmPassword ? "text" : "password"} 
+                                autoComplete="new-password"
+                                {...field} 
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                              >
+                                {showConfirmPassword ? (
+                                  <EyeOff className="h-4 w-4 text-muted-foreground" />
+                                ) : (
+                                  <Eye className="h-4 w-4 text-muted-foreground" />
+                                )}
+                              </Button>
+                            </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
