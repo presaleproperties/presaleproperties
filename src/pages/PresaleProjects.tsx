@@ -27,6 +27,9 @@ import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
+import { BuyerCTASection } from "@/components/home/BuyerCTASection";
+import { RelatedContent } from "@/components/home/RelatedContent";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
 
 // Lazy load map component
@@ -795,9 +798,20 @@ export default function PresaleProjects() {
           </div>
         </main>
 
-        <NewConstructionBenefits />
+        <ScrollReveal animation="fade-up">
+          <NewConstructionBenefits />
+        </ScrollReveal>
+        
+        <ScrollReveal animation="fade-up" delay={100}>
+          <RelatedContent />
+        </ScrollReveal>
+        
+        <ScrollReveal animation="scale" delay={100}>
+          <BuyerCTASection />
+        </ScrollReveal>
         
         <Footer />
+        <FloatingBottomNav />
       </PullToRefresh>
     </>
   );
