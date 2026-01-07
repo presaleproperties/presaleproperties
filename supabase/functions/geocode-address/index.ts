@@ -21,9 +21,9 @@ serve(async (req) => {
       );
     }
 
-    const { address, action } = await req.json();
+    const { address, action, placeId } = await req.json();
 
-    if (!address) {
+    if (!address && action !== "placeDetails") {
       return new Response(
         JSON.stringify({ error: "Address is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -31,36 +31,51 @@ serve(async (req) => {
     }
 
     if (action === "autocomplete") {
-      // Google Places Autocomplete API
+      // Google Places API (New) - Autocomplete
       const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(address)}&types=address&components=country:ca&key=${GOOGLE_MAPS_API_KEY}`
+        "https://places.googleapis.com/v1/places:autocomplete",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+          },
+          body: JSON.stringify({
+            input: address,
+            includedPrimaryTypes: ["street_address", "premise", "subpremise"],
+            includedRegionCodes: ["ca"],
+            locationBias: {
+              rectangle: {
+                low: { latitude: 48.3, longitude: -139.1 },
+                high: { latitude: 60.0, longitude: -114.0 },
+              },
+            },
+          }),
+        }
       );
 
       if (!response.ok) {
-        throw new Error(`Google API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.status !== "OK" && data.status !== "ZERO_RESULTS") {
-        console.error("Google Places API error:", data);
+        const errorData = await response.json();
+        console.error("Google Places API error:", errorData);
         return new Response(
-          JSON.stringify({ error: data.error_message || "Failed to fetch suggestions" }),
+          JSON.stringify({ error: errorData.error?.message || "Failed to fetch suggestions" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      const predictions = data.predictions?.map((p: any) => ({
-        description: p.description,
-        placeId: p.place_id,
-      })) || [];
+      const data = await response.json();
+
+      const predictions = data.suggestions?.map((s: any) => ({
+        description: s.placePrediction?.text?.text || "",
+        placeId: s.placePrediction?.placeId || "",
+      })).filter((p: any) => p.description && p.placeId) || [];
 
       return new Response(
         JSON.stringify({ predictions }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else if (action === "geocode") {
-      // Google Geocoding API
+      // Use Geocoding API (still supported as separate API)
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`
       );
@@ -107,38 +122,49 @@ serve(async (req) => {
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else if (action === "placeDetails") {
-      // Get place details by place_id
-      const { placeId } = await req.json();
-      
-      const response = await fetch(
-        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=geometry,formatted_address,address_components&key=${GOOGLE_MAPS_API_KEY}`
-      );
-
-      if (!response.ok) {
-        throw new Error(`Google API error: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.status !== "OK") {
+      // Google Places API (New) - Place Details
+      if (!placeId) {
         return new Response(
-          JSON.stringify({ error: data.error_message || "Failed to get place details" }),
+          JSON.stringify({ error: "Place ID is required for placeDetails" }),
           { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
 
-      const result = data.result;
-      const location = result?.geometry?.location;
-      const addressComponents = result.address_components || [];
+      const response = await fetch(
+        `https://places.googleapis.com/v1/places/${placeId}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+            "X-Goog-FieldMask": "location,formattedAddress,addressComponents",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Google Places Details API error:", errorData);
+        return new Response(
+          JSON.stringify({ error: errorData.error?.message || "Failed to get place details" }),
+          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      const data = await response.json();
+      const location = data.location;
+      const addressComponents = data.addressComponents || [];
       
-      const getComponent = (type: string) => 
-        addressComponents.find((c: any) => c.types.includes(type))?.long_name || "";
+      const getComponent = (type: string) => {
+        const component = addressComponents.find((c: any) => c.types?.includes(type));
+        return component?.longText || "";
+      };
 
       return new Response(
         JSON.stringify({
-          lat: location?.lat,
-          lng: location?.lng,
-          formattedAddress: result.formatted_address,
+          lat: location?.latitude,
+          lng: location?.longitude,
+          formattedAddress: data.formattedAddress,
           city: getComponent("locality") || getComponent("administrative_area_level_2"),
           neighborhood: getComponent("neighborhood") || getComponent("sublocality"),
         }),
@@ -151,10 +177,11 @@ serve(async (req) => {
       { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error in geocode-address function:", error);
+    const errorMessage = error instanceof Error ? error.message : "Internal server error";
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
