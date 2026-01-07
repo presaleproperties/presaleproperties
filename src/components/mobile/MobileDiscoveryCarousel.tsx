@@ -151,9 +151,9 @@ export function MobileDiscoveryCarousel({
   }
 
   return (
-    <div className="space-y-5 md:space-y-6 lg:hidden">
-      {/* Header - Larger text, adaptive spacing */}
-      <div className="px-5 sm:px-6">
+    <div className="space-y-4 md:space-y-5 lg:hidden">
+      {/* Header - Adaptive spacing */}
+      <div className="px-4 sm:px-6">
         {badge && (
           <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-2 block">
             {badge}
@@ -161,9 +161,9 @@ export function MobileDiscoveryCarousel({
         )}
         <div className="flex items-center justify-between gap-4">
           <div className="min-w-0">
-            <h3 className={badge ? "text-2xl font-bold text-foreground leading-tight" : "text-xl font-bold text-foreground leading-tight"}>{title}</h3>
+            <h3 className={badge ? "text-xl font-bold text-foreground leading-tight" : "text-lg font-bold text-foreground leading-tight"}>{title}</h3>
             {subtitle && (
-              <p className="text-sm text-muted-foreground mt-1.5">{subtitle}</p>
+              <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>
             )}
           </div>
           <Link 
@@ -176,11 +176,11 @@ export function MobileDiscoveryCarousel({
         </div>
       </div>
 
-      {/* Scrollable Cards - Larger gaps, adaptive edge spacing */}
+      {/* Scrollable Cards - Adaptive edge spacing */}
       <div
         ref={scrollRef}
         onScroll={handleScroll}
-        className="flex gap-4 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory px-5 sm:px-6 scroll-px-5 sm:scroll-px-6"
+        className="flex gap-3 overflow-x-auto scrollbar-hide pb-1 snap-x snap-mandatory px-4 sm:px-6 scroll-px-4 sm:scroll-px-6"
       >
         {projects.map((project) => (
           <div key={project.id} className="snap-start first:ml-0">
