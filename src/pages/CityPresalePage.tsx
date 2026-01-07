@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
@@ -1009,6 +1010,7 @@ export default function CityPresalePage() {
       </main>
 
       <Footer />
+      <FloatingMapButton city={cityName} />
     </>
   );
 }

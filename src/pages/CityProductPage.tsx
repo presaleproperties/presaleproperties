@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/accordion";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -565,6 +566,7 @@ export default function CityProductPage() {
       </main>
 
       <Footer />
+      <FloatingMapButton city={config.cityName} />
     </div>
   );
 }
