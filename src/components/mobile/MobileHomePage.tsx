@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Search, MapPin } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
+import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { FloatingBottomNav } from "./FloatingBottomNav";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
@@ -171,7 +172,7 @@ export function MobileHomePage() {
               </div>
               
               <button 
-                onClick={() => navigate("/presale-projects?view=map")}
+                onClick={() => navigate(activeTab === "presale" ? "/map-search" : "/resale-map")}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
@@ -236,120 +237,134 @@ export function MobileHomePage() {
 
       {/* Discovery Sections - Optimized spacing with dividers */}
       <div className="pb-6">
-        {/* Hot Projects - Featured Section */}
-        <CarouselSection delay={0}>
-          <MobileDiscoveryCarousel
-            type="hot_projects"
-            title="Most Popular Projects"
-            subtitle="The most in-demand presale projects"
-            city={selectedCity}
-          />
-        </CarouselSection>
+        {activeTab === "presale" ? (
+          <>
+            {/* Hot Projects - Featured Section */}
+            <CarouselSection delay={0}>
+              <MobileDiscoveryCarousel
+                type="hot_projects"
+                title="Most Popular Projects"
+                subtitle="The most in-demand presale projects"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Condos */}
-        <CarouselSection delay={50}>
-          <MobileDiscoveryCarousel
-            type="condos"
-            title="Presale Condos"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* Condos */}
+            <CarouselSection delay={50}>
+              <MobileDiscoveryCarousel
+                type="condos"
+                title="Presale Condos"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Townhomes */}
-        <CarouselSection delay={50}>
-          <MobileDiscoveryCarousel
-            type="townhomes"
-            title="Presale Townhomes"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* Townhomes */}
+            <CarouselSection delay={50}>
+              <MobileDiscoveryCarousel
+                type="townhomes"
+                title="Presale Townhomes"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Single-Family / Detached */}
-        <CarouselSection delay={100}>
-          <MobileDiscoveryCarousel
-            type="single_family"
-            title="Detached Homes"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* Single-Family / Detached */}
+            <CarouselSection delay={100}>
+              <MobileDiscoveryCarousel
+                type="single_family"
+                title="Detached Homes"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Projects Near You - City Quick Links */}
-        <CarouselSection delay={125}>
-          <MobileCityQuickLinks />
-        </CarouselSection>
+            {/* Projects Near You - City Quick Links */}
+            <CarouselSection delay={125}>
+              <MobileCityQuickLinks />
+            </CarouselSection>
 
-        {/* City-based Carousels */}
-        <CarouselSection delay={150}>
-          <MobileDiscoveryCarousel
-            type="city_vancouver"
-            title="Vancouver"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* City-based Carousels */}
+            <CarouselSection delay={150}>
+              <MobileDiscoveryCarousel
+                type="city_vancouver"
+                title="Vancouver"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={200}>
-          <MobileDiscoveryCarousel
-            type="city_surrey"
-            title="Surrey"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={200}>
+              <MobileDiscoveryCarousel
+                type="city_surrey"
+                title="Surrey"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={250}>
-          <MobileDiscoveryCarousel
-            type="city_burnaby"
-            title="Burnaby"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={250}>
+              <MobileDiscoveryCarousel
+                type="city_burnaby"
+                title="Burnaby"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={300}>
-          <MobileDiscoveryCarousel
-            type="city_coquitlam"
-            title="Coquitlam"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={300}>
+              <MobileDiscoveryCarousel
+                type="city_coquitlam"
+                title="Coquitlam"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={350}>
-          <MobileDiscoveryCarousel
-            type="city_langley"
-            title="Langley"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={350}>
+              <MobileDiscoveryCarousel
+                type="city_langley"
+                title="Langley"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={400}>
-          <MobileDiscoveryCarousel
-            type="city_richmond"
-            title="Richmond"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={400}>
+              <MobileDiscoveryCarousel
+                type="city_richmond"
+                title="Richmond"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={450}>
-          <MobileDiscoveryCarousel
-            type="city_delta"
-            title="Delta"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={450}>
+              <MobileDiscoveryCarousel
+                type="city_delta"
+                title="Delta"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={500}>
-          <MobileDiscoveryCarousel
-            type="city_abbotsford"
-            title="Abbotsford"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={500}>
+              <MobileDiscoveryCarousel
+                type="city_abbotsford"
+                title="Abbotsford"
+                city={selectedCity}
+              />
+            </CarouselSection>
+          </>
+        ) : (
+          <>
+            {/* Resale Listings */}
+            <CarouselSection delay={0}>
+              <MobileResaleCarousel
+                title="Newest Listings"
+                subtitle="Just listed resale properties"
+              />
+            </CarouselSection>
+          </>
+        )}
       </div>
 
       {/* Benefits Section */}
