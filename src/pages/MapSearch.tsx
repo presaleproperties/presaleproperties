@@ -377,9 +377,9 @@ export default function MapSearch() {
             </SafeMapWrapper>
           </div>
 
-          {/* Desktop List Section */}
-          {showList && !isMobile && (
-            <div className="lg:w-2/5 border-l border-border overflow-y-auto">
+          {/* Desktop List Section - Only on lg+ */}
+          {showList && (
+            <div className="hidden lg:block lg:w-2/5 border-l border-border overflow-y-auto">
               <div className="p-4">
                 <h3 className="font-semibold text-foreground mb-4">
                   {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
@@ -424,9 +424,9 @@ export default function MapSearch() {
             </div>
           )}
 
-          {/* Mobile Bottom Carousel */}
-          {isMobile && filteredProjects.length > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 z-40 pb-4">
+          {/* Mobile & Tablet Bottom Carousel */}
+          {filteredProjects.length > 0 && (
+            <div className="lg:hidden absolute bottom-0 left-0 right-0 z-40 pb-4">
               <div 
                 ref={carouselRef}
                 className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
