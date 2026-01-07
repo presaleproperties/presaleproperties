@@ -61,8 +61,8 @@ export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButto
         "bg-foreground text-background",
         "shadow-lg hover:bg-foreground/90",
         "hover:scale-110 active:scale-95",
-        "lg:hidden", // Hide on desktop
         "transition-all duration-300",
+        "lg:right-6", // Slightly more padding on desktop
         isVisible 
           ? "translate-y-0 opacity-100" 
           : "translate-y-20 opacity-0 pointer-events-none"
