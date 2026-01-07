@@ -515,16 +515,18 @@ export default function PresaleProjectDetail() {
                 )}
 
                 {/* Quick Action Buttons - Map, Street View, Share */}
-                <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
+                <div className="inline-flex items-center bg-muted/40 rounded-xl p-1 gap-1 mb-3 md:mb-4">
                   {project.map_lat && project.map_lng && (
                     <a
                       href={`https://www.google.com/maps?q=${project.map_lat},${project.map_lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all hover:shadow-sm"
+                      className="group flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg hover:bg-background text-muted-foreground hover:text-foreground transition-all"
                     >
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span>Map</span>
+                      <div className="w-8 h-8 rounded-full bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                        <MapPin className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="text-[10px] font-medium">Map</span>
                     </a>
                   )}
                   {project.map_lat && project.map_lng && (
@@ -532,18 +534,22 @@ export default function PresaleProjectDetail() {
                       href={`https://www.google.com/maps?layer=c&cbll=${project.map_lat},${project.map_lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all hover:shadow-sm"
+                      className="group flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg hover:bg-background text-muted-foreground hover:text-foreground transition-all"
                     >
-                      <Eye className="h-3.5 w-3.5" />
-                      <span>Street View</span>
+                      <div className="w-8 h-8 rounded-full bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                        <Eye className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="text-[10px] font-medium">Street</span>
                     </a>
                   )}
                   <button
                     onClick={handleShare}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all hover:shadow-sm"
+                    className="group flex flex-col items-center gap-0.5 px-4 py-2 rounded-lg hover:bg-background text-muted-foreground hover:text-foreground transition-all"
                   >
-                    <Share2 className="h-3.5 w-3.5" />
-                    <span>Share</span>
+                    <div className="w-8 h-8 rounded-full bg-primary/10 group-hover:bg-primary/20 flex items-center justify-center transition-colors">
+                      <Share2 className="h-4 w-4 text-primary" />
+                    </div>
+                    <span className="text-[10px] font-medium">Share</span>
                   </button>
                 </div>
 
