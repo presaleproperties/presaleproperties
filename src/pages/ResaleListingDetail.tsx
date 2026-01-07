@@ -14,7 +14,8 @@ import {
   Home,
   DollarSign,
   Clock,
-  Layers
+  Layers,
+  ChevronRight
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -183,27 +184,88 @@ export default function ResaleListingDetail() {
   const address = getAddress();
   const pageTitle = `${address} | ${listing.city} | PresaleProperties`;
   const pageDescription = `${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${formatPropertyType(listing.property_type)} for sale in ${listing.city}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''}`;
+  const canonicalUrl = `https://presaleproperties.com/resale/${listing.listing_key}`;
+
+  // JSON-LD Structured Data
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": address,
+    "description": listing.public_remarks || pageDescription,
+    "url": canonicalUrl,
+    "image": photos[0]?.url,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": address,
+      "addressLocality": listing.city,
+      "addressRegion": "BC",
+      "postalCode": listing.postal_code,
+      "addressCountry": "CA"
+    },
+    "geo": listing.latitude && listing.longitude ? {
+      "@type": "GeoCoordinates",
+      "latitude": listing.latitude,
+      "longitude": listing.longitude
+    } : undefined,
+    "offers": {
+      "@type": "Offer",
+      "price": listing.listing_price,
+      "priceCurrency": "CAD",
+      "availability": listing.mls_status === "Active" ? "https://schema.org/InStock" : "https://schema.org/SoldOut"
+    },
+    "numberOfRooms": listing.bedrooms_total,
+    "numberOfBathroomsTotal": listing.bathrooms_total,
+    "floorSize": listing.living_area ? {
+      "@type": "QuantitativeValue",
+      "value": listing.living_area,
+      "unitCode": "FTK"
+    } : undefined
+  };
+
+  const breadcrumbData = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
+      { "@type": "ListItem", "position": 2, "name": "For Sale", "item": "https://presaleproperties.com/resale" },
+      { "@type": "ListItem", "position": 3, "name": listing.city, "item": `https://presaleproperties.com/resale?city=${listing.city}` },
+      { "@type": "ListItem", "position": 4, "name": address }
+    ]
+  };
 
   return (
     <div className="min-h-screen bg-background">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
         {photos[0] && <meta property="og:image" content={photos[0].url} />}
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
+        <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>
       <ConversionHeader />
       
       <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
-        {/* Back Button */}
-        <Link 
-          to="/resale" 
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4 md:mb-6 transition-colors"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Resale Listings
-        </Link>
+        {/* Breadcrumbs */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+          <Link to="/" className="hover:text-foreground transition-colors shrink-0">
+            <Home className="h-3.5 w-3.5" />
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
+            For Sale
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <Link to={`/resale?city=${listing.city}`} className="hover:text-foreground transition-colors shrink-0">
+            {listing.city}
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
+          <span className="text-foreground font-medium truncate max-w-[200px]">{address}</span>
+        </nav>
 
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Images & Details */}
