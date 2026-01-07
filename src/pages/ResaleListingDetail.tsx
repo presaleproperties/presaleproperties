@@ -25,7 +25,7 @@ import { Footer } from "@/components/layout/Footer";
 import { ShareButtons } from "@/components/listings/ShareButtons";
 import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
-import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
+import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -481,16 +481,12 @@ export default function ResaleListingDetail() {
           {/* Right Column - Contact Form & Calculator */}
           <div className="space-y-6">
             <div ref={formRef} className="sticky top-24">
-              {/* Contact Form */}
+              {/* Schedule Tour Form */}
               <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm mb-6">
-                <h3 className="text-lg font-semibold text-foreground mb-4">
-                  Interested in this property?
-                </h3>
-                <ProjectLeadForm 
-                  projectId={listing.id}
-                  projectName={`Resale: ${address} - ${listing.city}`}
-                  status="active"
-                  leadSource="general_inquiry"
+                <ResaleScheduleForm 
+                  listingId={listing.id}
+                  listingAddress={address}
+                  listingCity={listing.city}
                 />
               </div>
 
