@@ -11,7 +11,7 @@ interface SearchSuggestionsProps {
   onSelect: (value: string, type: SuggestionType, slug?: string) => void;
   isVisible: boolean;
   onClose: () => void;
-  searchMode?: "assignments" | "projects";
+  searchMode?: "projects" | "resale";
   glassStyle?: boolean;
 }
 
@@ -77,32 +77,25 @@ export function SearchSuggestions({
             results.push({ value: city, type: "city", count });
           });
       } else {
-        // Get listings data for assignments
+        // Get MLS listings data for resale
         const { data: listings } = await supabase
-          .from("listings")
-          .select("project_name, neighborhood, city, developer_name")
-          .eq("status", "published");
+          .from("mls_listings")
+          .select("city, neighborhood")
+          .eq("mls_status", "Active")
+          .limit(100);
 
-        const projectCounts = new Map<string, number>();
         const cityCounts = new Map<string, number>();
 
         listings?.forEach((listing) => {
-          projectCounts.set(listing.project_name, (projectCounts.get(listing.project_name) || 0) + 1);
-          cityCounts.set(listing.city, (cityCounts.get(listing.city) || 0) + 1);
+          if (listing.city) {
+            cityCounts.set(listing.city, (cityCounts.get(listing.city) || 0) + 1);
+          }
         });
-
-        // Top projects
-        Array.from(projectCounts.entries())
-          .sort((a, b) => b[1] - a[1])
-          .slice(0, 4)
-          .forEach(([project, count]) => {
-            results.push({ value: project, type: "project", count });
-          });
 
         // Top cities
         Array.from(cityCounts.entries())
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 3)
+          .slice(0, 5)
           .forEach(([city, count]) => {
             results.push({ value: city, type: "city", count });
           });
@@ -163,43 +156,30 @@ export function SearchSuggestions({
           results.push({ value, type: "developer", count });
         });
       } else {
-        // Search listings for assignments
+        // Search MLS listings for resale
         const { data: listings } = await supabase
-          .from("listings")
-          .select("project_name, neighborhood, city, developer_name")
-          .eq("status", "published");
+          .from("mls_listings")
+          .select("city, neighborhood, street_name")
+          .eq("mls_status", "Active")
+          .limit(200);
 
-        const projectCounts = new Map<string, number>();
         const neighborhoodCounts = new Map<string, number>();
         const cityCounts = new Map<string, number>();
-        const developerCounts = new Map<string, number>();
 
         listings?.forEach((listing) => {
-          if (listing.project_name.toLowerCase().includes(lowerQuery)) {
-            projectCounts.set(listing.project_name, (projectCounts.get(listing.project_name) || 0) + 1);
-          }
           if (listing.neighborhood?.toLowerCase().includes(lowerQuery)) {
             neighborhoodCounts.set(listing.neighborhood, (neighborhoodCounts.get(listing.neighborhood) || 0) + 1);
           }
-          if (listing.city.toLowerCase().includes(lowerQuery)) {
+          if (listing.city?.toLowerCase().includes(lowerQuery)) {
             cityCounts.set(listing.city, (cityCounts.get(listing.city) || 0) + 1);
-          }
-          if (listing.developer_name?.toLowerCase().includes(lowerQuery)) {
-            developerCounts.set(listing.developer_name, (developerCounts.get(listing.developer_name) || 0) + 1);
           }
         });
 
-        projectCounts.forEach((count, value) => {
-          results.push({ value, type: "project", count });
-        });
         neighborhoodCounts.forEach((count, value) => {
           results.push({ value, type: "neighborhood", count });
         });
         cityCounts.forEach((count, value) => {
           results.push({ value, type: "city", count });
-        });
-        developerCounts.forEach((count, value) => {
-          results.push({ value, type: "developer", count });
         });
       }
 

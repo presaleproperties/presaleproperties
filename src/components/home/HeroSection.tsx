@@ -7,9 +7,9 @@ import { SearchSuggestions } from "./SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
-const assignmentCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
+const resaleCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 
-type SearchTab = "projects" | "assignments";
+type SearchTab = "projects" | "resale";
 
 export function HeroSection() {
   const [activeTab, setActiveTab] = useState<SearchTab>("projects");
@@ -33,7 +33,7 @@ export function HeroSection() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     if (searchQuery.trim()) {
       navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
     } else {
@@ -44,12 +44,12 @@ export function HeroSection() {
   const handleSuggestionSelect = (value: string, type: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
   };
 
   const handleCityClick = (city: string) => {
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     navigate(`${basePath}?city=${encodeURIComponent(city)}`);
   };
 
@@ -103,14 +103,14 @@ export function HeroSection() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("assignments")}
+                  onClick={() => setActiveTab("resale")}
                   className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
-                    activeTab === "assignments"
+                    activeTab === "resale"
                       ? "bg-foreground text-background shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  Assignments
+                  Resale
                 </button>
               </div>
               <button
@@ -130,7 +130,7 @@ export function HeroSection() {
                   type="text"
                   placeholder={activeTab === "projects" 
                     ? "City, Neighbourhood, Developer..." 
-                    : "Project, Neighbourhood, City..."
+                    : "City, Address, Neighbourhood..."
                   }
                   value={searchQuery}
                   onChange={(e) => {
@@ -164,7 +164,7 @@ export function HeroSection() {
               Top Cities
             </span>
             <div className="flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3">
-              {(activeTab === "projects" ? projectCities : assignmentCities).map((city) => (
+              {(activeTab === "projects" ? projectCities : resaleCities).map((city) => (
                 <Button
                   key={city}
                   variant="outline"
