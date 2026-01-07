@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import { Search, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
@@ -119,11 +119,11 @@ export function HeroSection() {
               </div>
               <button
                 type="button"
-                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/assignments")}
+                onClick={() => navigate(activeTab === "projects" ? "/presale-projects?view=map" : "/assignments?view=map")}
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                <MapPin className="h-4 w-4" />
-                Browse All
+                <Map className="h-4 w-4" />
+                Map Search
               </button>
             </div>
 
