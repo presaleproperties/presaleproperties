@@ -300,6 +300,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
         }).addTo(map);
 
         setIsLocating(false);
+        toast({ title: "Location found", description: "Map centered on your location" });
       },
       (err) => {
         setIsLocating(false);

@@ -23,8 +23,6 @@ const TOP_CITIES = [
   { name: "Langley", slug: "langley" },
   { name: "Coquitlam", slug: "coquitlam" },
   { name: "Richmond", slug: "richmond" },
-  { name: "Abbotsford", slug: "abbotsford" },
-  { name: "Delta", slug: "delta" },
 ];
 
 export function MobileHomePage() {
@@ -110,9 +108,9 @@ export function MobileHomePage() {
         isRefreshing={isRefreshing} 
       />
 
-      {/* Hero Section - Taller, immersive */}
+      {/* Hero Section - Compact, above the fold */}
       <div 
-        className="relative min-h-[65vh] flex flex-col justify-center"
+        className="relative min-h-[28vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -126,38 +124,32 @@ export function MobileHomePage() {
             className="w-full h-full object-cover"
           />
           {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60" />
         </div>
 
-        {/* Hero Content - Centered */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8 text-center">
-          {/* Tagline */}
-          <p className="text-primary text-xs font-medium tracking-wide mb-2">
-            Metro Vancouver's #1 Presale Marketplace
-          </p>
-          
-          {/* Main Heading */}
-          <h1 className="text-2xl font-bold text-white leading-tight mb-2">
+        {/* Hero Content - Single header + subheader */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
+          <h1 className="text-xl font-bold text-white leading-tight">
             Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
-          
-          {/* Subheading */}
-          <p className="text-white/80 text-xs mb-6 max-w-xs">
-            Get instant access to floor plans, pricing & book a preview
+          <p className="text-white/80 text-xs mt-1.5">
+            Metro Vancouver's #1 Presale Marketplace
           </p>
+        </div>
 
-          {/* Floating Search Card */}
+        {/* Floating Search Card */}
+        <div className="relative px-4 -mb-14 z-10">
           <div 
             ref={searchContainerRef}
-            className="w-full max-w-md bg-card rounded-2xl shadow-2xl overflow-hidden"
+            className="bg-card rounded-xl shadow-lg border border-border p-4"
           >
             {/* Tabs */}
-            <div className="flex items-center justify-between px-4 py-3">
-              <div className="flex gap-1.5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex gap-1">
                 <button
                   onClick={() => setActiveTab("presale")}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                    "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
                     activeTab === "presale"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
@@ -168,7 +160,7 @@ export function MobileHomePage() {
                 <button
                   onClick={() => setActiveTab("assignments")}
                   className={cn(
-                    "px-4 py-2 rounded-full text-sm font-semibold transition-all",
+                    "px-3 py-1.5 rounded-full text-sm font-semibold transition-all",
                     activeTab === "assignments"
                       ? "bg-primary text-primary-foreground"
                       : "text-muted-foreground hover:text-foreground"
@@ -179,40 +171,38 @@ export function MobileHomePage() {
               </div>
               
               <button 
-                onClick={() => navigate("/map-search")}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+                onClick={() => navigate("/presale-projects?view=map")}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
-                Map
+                <span className="hidden xs:inline">Map</span>
               </button>
             </div>
 
             {/* Search Input */}
-            <form onSubmit={handleSearch} className="px-4 pb-4">
-              <div className="relative">
-                <Input
-                  type="text"
-                  placeholder="City, Neighbourhood, Project..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => {
-                    setShowSuggestions(true);
-                    setIsSearchFocused(true);
-                  }}
-                  onBlur={() => setIsSearchFocused(false)}
-                  className="h-14 text-base pl-4 pr-14 rounded-xl bg-muted/30 border-border focus:bg-background focus:border-primary/50 transition-all"
-                  autoComplete="off"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-full text-muted-foreground hover:text-foreground transition-all"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-              </div>
+            <form onSubmit={handleSearch} className="relative">
+              <Input
+                type="text"
+                placeholder="City, Neighbourhood, Project..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => {
+                  setShowSuggestions(true);
+                  setIsSearchFocused(true);
+                }}
+                onBlur={() => setIsSearchFocused(false)}
+                className="h-14 text-base pl-4 pr-14 rounded-xl bg-muted/50 border-border focus:bg-background focus:border-primary/50 transition-all"
+                autoComplete="off"
+              />
+              <button 
+                type="submit"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
+              >
+                <Search className="h-5 w-5" />
+              </button>
             </form>
             
             <SearchSuggestions
@@ -226,10 +216,10 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Top Cities - Horizontal Scroll */}
-      <div className="py-5 px-4 sm:px-6 bg-background border-b border-border/50">
+      {/* Top Cities - Horizontal Scroll with adaptive padding */}
+      <div className="pt-20 pb-6 px-4 sm:px-6 bg-background">
         <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
-          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0 font-medium">
+          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
           </span>
           {TOP_CITIES.map((city) => (
