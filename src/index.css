@@ -265,8 +265,9 @@
 }
 
 /* Hide map attribution on mobile and tablet - outside layer for specificity */
-@media (max-width: 1023px) {
-  .leaflet-control-attribution {
+@media (max-width: 1024px) {
+  .leaflet-control-attribution,
+  .leaflet-control-attribution.leaflet-control {
     display: none !important;
   }
 }
