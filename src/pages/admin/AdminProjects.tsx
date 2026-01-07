@@ -163,25 +163,29 @@ export default function AdminProjects() {
     await fetchProjectsForGeocoding();
   };
 
-  // Geocode a single address using OpenStreetMap Nominatim
+  // Geocode a single address using Google Maps API via edge function
   const geocodeAddress = async (address: string, neighborhood: string, city: string): Promise<{ lat: number; lng: number } | null> => {
-    const query = [address, neighborhood, city, "British Columbia", "Canada"]
+    const query = [address, neighborhood, city, "BC", "Canada"]
       .filter(Boolean)
       .join(", ");
     
     try {
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
-        { headers: { "User-Agent": "PresaleProperties-Admin" } }
-      );
+      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
+      const supabaseUrl = publicUrl.split('/storage/')[0];
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: query, action: 'geocode' }),
+      });
       
       if (!response.ok) return null;
       
       const data = await response.json();
-      if (data && data.length > 0) {
+      if (data.lat && data.lng) {
         return {
-          lat: parseFloat(data[0].lat),
-          lng: parseFloat(data[0].lon)
+          lat: data.lat,
+          lng: data.lng
         };
       }
       return null;
@@ -211,9 +215,9 @@ export default function AdminProjects() {
         continue;
       }
       
-      // Rate limit: wait 1 second between requests (Nominatim policy)
+      // Small delay to avoid overwhelming the API
       if (i > 0) {
-        await new Promise(resolve => setTimeout(resolve, 1100));
+        await new Promise(resolve => setTimeout(resolve, 300));
       }
       
       const coords = await geocodeAddress(
