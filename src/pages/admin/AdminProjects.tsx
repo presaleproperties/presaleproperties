@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -22,6 +23,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { 
@@ -37,7 +45,11 @@ import {
   Pencil,
   Copy,
   Trash2,
-  Upload
+  Upload,
+  MapPinned,
+  CheckCircle2,
+  XCircle,
+  AlertCircle
 } from "lucide-react";
 
 type Project = {
@@ -53,6 +65,23 @@ type Project = {
   updated_at: string;
 };
 
+type ProjectForGeocoding = {
+  id: string;
+  name: string;
+  address: string | null;
+  city: string;
+  neighborhood: string;
+  map_lat: number | null;
+  map_lng: number | null;
+};
+
+type GeocodingResult = {
+  id: string;
+  name: string;
+  status: 'pending' | 'success' | 'failed' | 'skipped';
+  message?: string;
+};
+
 export default function AdminProjects() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
@@ -64,6 +93,14 @@ export default function AdminProjects() {
   const [deleteProject, setDeleteProject] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
+
+  // Bulk geocoding state
+  const [geocodingModalOpen, setGeocodingModalOpen] = useState(false);
+  const [projectsToGeocode, setProjectsToGeocode] = useState<ProjectForGeocoding[]>([]);
+  const [geocodingResults, setGeocodingResults] = useState<GeocodingResult[]>([]);
+  const [geocodingInProgress, setGeocodingInProgress] = useState(false);
+  const [geocodingProgress, setGeocodingProgress] = useState(0);
+  const [geocodingComplete, setGeocodingComplete] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -88,6 +125,133 @@ export default function AdminProjects() {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Fetch projects missing coordinates
+  const fetchProjectsForGeocoding = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("id, name, address, city, neighborhood, map_lat, map_lng")
+        .or("map_lat.is.null,map_lng.is.null")
+        .order("name");
+
+      if (error) throw error;
+      setProjectsToGeocode(data || []);
+      setGeocodingResults(
+        (data || []).map(p => ({
+          id: p.id,
+          name: p.name,
+          status: 'pending' as const
+        }))
+      );
+    } catch (error) {
+      console.error("Error fetching projects for geocoding:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load projects for geocoding",
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Open geocoding modal
+  const openGeocodingModal = async () => {
+    setGeocodingModalOpen(true);
+    setGeocodingComplete(false);
+    setGeocodingProgress(0);
+    await fetchProjectsForGeocoding();
+  };
+
+  // Geocode a single address using OpenStreetMap Nominatim
+  const geocodeAddress = async (address: string, neighborhood: string, city: string): Promise<{ lat: number; lng: number } | null> => {
+    const query = [address, neighborhood, city, "British Columbia", "Canada"]
+      .filter(Boolean)
+      .join(", ");
+    
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`,
+        { headers: { "User-Agent": "PresaleProperties-Admin" } }
+      );
+      
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon)
+        };
+      }
+      return null;
+    } catch (error) {
+      console.error("Geocoding error:", error);
+      return null;
+    }
+  };
+
+  // Run bulk geocoding
+  const runBulkGeocoding = async () => {
+    setGeocodingInProgress(true);
+    setGeocodingComplete(false);
+    
+    const results = [...geocodingResults];
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (let i = 0; i < projectsToGeocode.length; i++) {
+      const project = projectsToGeocode[i];
+      
+      // Skip if no address available
+      if (!project.address && !project.neighborhood) {
+        results[i] = { ...results[i], status: 'skipped', message: 'No address or neighborhood' };
+        setGeocodingResults([...results]);
+        setGeocodingProgress(((i + 1) / projectsToGeocode.length) * 100);
+        continue;
+      }
+      
+      // Rate limit: wait 1 second between requests (Nominatim policy)
+      if (i > 0) {
+        await new Promise(resolve => setTimeout(resolve, 1100));
+      }
+      
+      const coords = await geocodeAddress(
+        project.address || "",
+        project.neighborhood,
+        project.city
+      );
+      
+      if (coords) {
+        // Update database
+        const { error } = await supabase
+          .from("presale_projects")
+          .update({ map_lat: coords.lat, map_lng: coords.lng })
+          .eq("id", project.id);
+        
+        if (error) {
+          results[i] = { ...results[i], status: 'failed', message: 'Database update failed' };
+          failCount++;
+        } else {
+          results[i] = { ...results[i], status: 'success', message: `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}` };
+          successCount++;
+        }
+      } else {
+        results[i] = { ...results[i], status: 'failed', message: 'Coordinates not found' };
+        failCount++;
+      }
+      
+      setGeocodingResults([...results]);
+      setGeocodingProgress(((i + 1) / projectsToGeocode.length) * 100);
+    }
+    
+    setGeocodingInProgress(false);
+    setGeocodingComplete(true);
+    
+    toast({
+      title: "Bulk Geocoding Complete",
+      description: `${successCount} succeeded, ${failCount} failed, ${projectsToGeocode.length - successCount - failCount} skipped`,
+    });
   };
 
   const handleDelete = async () => {
@@ -247,7 +411,11 @@ export default function AdminProjects() {
             <h1 className="text-2xl font-bold">Presale Projects</h1>
             <p className="text-muted-foreground">Manage presale projects</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={openGeocodingModal} className="gap-2">
+              <MapPinned className="h-4 w-4" />
+              Bulk Geocode
+            </Button>
             <Button variant="outline" onClick={() => navigate("/admin/projects/import")} className="gap-2">
               <Upload className="h-4 w-4" />
               Import CSV
@@ -437,6 +605,131 @@ export default function AdminProjects() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Bulk Geocoding Modal */}
+      <Dialog open={geocodingModalOpen} onOpenChange={setGeocodingModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MapPinned className="h-5 w-5" />
+              Bulk Geocoding Tool
+            </DialogTitle>
+            <DialogDescription>
+              Automatically fetch coordinates for projects missing latitude/longitude data.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-hidden flex flex-col gap-4">
+            {projectsToGeocode.length === 0 ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">All projects have coordinates!</h3>
+                  <p className="text-muted-foreground">
+                    There are no projects missing map coordinates.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">
+                      {projectsToGeocode.length} projects missing coordinates
+                    </CardTitle>
+                    <CardDescription>
+                      Uses OpenStreetMap Nominatim API (1 request/second rate limit)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {geocodingInProgress && (
+                      <div className="space-y-2">
+                        <Progress value={geocodingProgress} className="h-2" />
+                        <p className="text-sm text-muted-foreground text-center">
+                          Processing... {Math.round(geocodingProgress)}%
+                        </p>
+                      </div>
+                    )}
+                    
+                    {!geocodingInProgress && !geocodingComplete && (
+                      <Button onClick={runBulkGeocoding} className="w-full gap-2">
+                        <MapPinned className="h-4 w-4" />
+                        Start Geocoding ({projectsToGeocode.length} projects)
+                      </Button>
+                    )}
+
+                    {geocodingComplete && (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setGeocodingModalOpen(false)} 
+                          className="flex-1"
+                        >
+                          Close
+                        </Button>
+                        <Button 
+                          onClick={() => {
+                            setGeocodingComplete(false);
+                            fetchProjectsForGeocoding();
+                          }} 
+                          className="flex-1 gap-2"
+                        >
+                          <Loader2 className="h-4 w-4" />
+                          Retry Failed
+                        </Button>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <div className="flex-1 overflow-y-auto border rounded-lg">
+                  <div className="divide-y">
+                    {geocodingResults.map((result, index) => (
+                      <div 
+                        key={result.id} 
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm"
+                      >
+                        <div className="shrink-0">
+                          {result.status === 'pending' && (
+                            <div className="h-5 w-5 rounded-full border-2 border-muted-foreground/30" />
+                          )}
+                          {result.status === 'success' && (
+                            <CheckCircle2 className="h-5 w-5 text-green-500" />
+                          )}
+                          {result.status === 'failed' && (
+                            <XCircle className="h-5 w-5 text-destructive" />
+                          )}
+                          {result.status === 'skipped' && (
+                            <AlertCircle className="h-5 w-5 text-yellow-500" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{result.name}</p>
+                          {result.message && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {result.message}
+                            </p>
+                          )}
+                        </div>
+                        <Badge 
+                          variant={
+                            result.status === 'success' ? 'default' :
+                            result.status === 'failed' ? 'destructive' :
+                            result.status === 'skipped' ? 'secondary' : 'outline'
+                          }
+                          className="shrink-0"
+                        >
+                          {result.status}
+                        </Badge>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </AdminLayout>
   );
 }
