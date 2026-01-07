@@ -90,9 +90,7 @@ export default function Assignments() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "map">(
-    searchParams.get("view") === "map" ? "map" : "grid"
-  );
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
 
   // Get filter values from URL params
   const filters = {
