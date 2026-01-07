@@ -323,6 +323,30 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative">
           {/* Map Section */}
           <div className={`relative transition-all duration-300 h-full ${showList ? "lg:w-3/5" : "w-full"} w-full`}>
+            {/* Presale/Resale Toggle - Top Center of Map */}
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
+              <div className="flex bg-background/95 backdrop-blur-sm rounded-full p-1 shadow-lg border border-border">
+                <Link to="/map-search">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full px-4 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                  >
+                    Presale
+                  </Button>
+                </Link>
+                <Link to="/resale">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full px-4"
+                  >
+                    Resale
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
             <SafeMapWrapper height="h-full">
               <Suspense fallback={<LoadingMap />}>
                 {isLoading ? (
