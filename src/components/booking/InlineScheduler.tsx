@@ -137,100 +137,100 @@ export function InlineScheduler({
 
   return (
     <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
-      {/* Header */}
-      <div className="bg-muted/50 px-5 py-4 text-center border-b border-border">
-        <h3 className="text-lg lg:text-xl font-bold text-foreground">Schedule a tour</h3>
-        <p className="text-sm text-muted-foreground mt-1">Tour with a buyer's agent</p>
+      {/* Header - More compact on mobile */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 md:px-5 md:py-4 text-center">
+        <h3 className="text-base md:text-lg lg:text-xl font-bold text-background">Schedule a Tour</h3>
+        <p className="text-xs md:text-sm text-background/70 mt-0.5">Tour with a buyer's agent</p>
       </div>
 
-      {/* Content */}
-      <div className="p-5">
-        {/* Date Selection */}
-        <div className="flex items-center justify-center gap-2 mb-4 lg:mb-4">
-        <button
-          onClick={handlePrev}
-          disabled={!canGoBack}
-          className={cn(
-            "p-1 rounded-full transition-colors",
-            canGoBack ? "hover:bg-muted text-foreground" : "text-muted-foreground/30 cursor-not-allowed"
-          )}
-          aria-label="Previous dates"
-        >
-          <ChevronLeft className="h-4 w-4 lg:h-5 lg:w-5" />
-        </button>
+      {/* Content - Optimized spacing for mobile */}
+      <div className="p-4 md:p-5">
+        {/* Date Selection - Larger touch targets on mobile */}
+        <div className="flex items-center justify-center gap-1.5 md:gap-2 mb-3 md:mb-4">
+          <button
+            onClick={handlePrev}
+            disabled={!canGoBack}
+            className={cn(
+              "p-2 rounded-full transition-colors",
+              canGoBack ? "hover:bg-muted text-foreground active:bg-muted/80" : "text-muted-foreground/30 cursor-not-allowed"
+            )}
+            aria-label="Previous dates"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
 
-        <div className="flex gap-2 lg:gap-2">
-          {visibleDates.map((date) => {
-            const isSelected = selectedDate && isSameDay(date, selectedDate);
+          <div className="flex gap-1.5 md:gap-2">
+            {visibleDates.map((date) => {
+              const isSelected = selectedDate && isSameDay(date, selectedDate);
+              return (
+                <button
+                  key={date.toISOString()}
+                  onClick={() => setSelectedDate(date)}
+                  className={cn(
+                    "flex flex-col items-center justify-center w-[68px] h-[68px] md:w-[72px] md:h-[72px] lg:w-20 lg:h-20 rounded-xl border-2 transition-all active:scale-95",
+                    isSelected
+                      ? "border-foreground bg-foreground/5"
+                      : "border-border hover:border-muted-foreground/50"
+                  )}
+                >
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+                    {format(date, "EEE")}
+                  </span>
+                  <span className="text-xl md:text-2xl font-bold text-foreground">
+                    {format(date, "d")}
+                  </span>
+                  <span className="text-[10px] font-medium text-muted-foreground uppercase">
+                    {format(date, "MMM")}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={handleNext}
+            disabled={!canGoForward}
+            className={cn(
+              "p-2 rounded-full transition-colors",
+              canGoForward ? "hover:bg-muted text-foreground active:bg-muted/80" : "text-muted-foreground/30 cursor-not-allowed"
+            )}
+            aria-label="Next dates"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Time Period Selection - Better mobile spacing */}
+        <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-3 md:mb-4">
+          {TIME_PERIODS.map((period) => {
+            const isSelected = selectedPeriod === period.value;
             return (
               <button
-                key={date.toISOString()}
-                onClick={() => setSelectedDate(date)}
-                  className={cn(
-                    "flex flex-col items-center justify-center w-[72px] h-[72px] lg:w-20 lg:h-20 rounded-xl lg:rounded-xl border-2 transition-all",
+                key={period.value}
+                onClick={() => setSelectedPeriod(period.value)}
+                className={cn(
+                  "flex flex-col items-center justify-center py-2 md:py-2.5 px-1 md:px-2 rounded-xl border-2 transition-all active:scale-95",
                   isSelected
-                    ? "border-primary bg-primary/5"
+                    ? "border-foreground bg-foreground/5"
                     : "border-border hover:border-muted-foreground/50"
                 )}
               >
-                <span className="text-[10px] lg:text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
-                  {format(date, "EEE")}
+                <span className="text-xs font-semibold text-foreground">
+                  {period.label}
                 </span>
-                <span className="text-2xl lg:text-2xl font-bold text-foreground">
-                  {format(date, "d")}
-                </span>
-                <span className="text-[10px] lg:text-[10px] font-medium text-muted-foreground uppercase">
-                  {format(date, "MMM")}
+                <span className="text-[9px] text-muted-foreground mt-0.5">
+                  {period.subLabel}
                 </span>
               </button>
             );
           })}
         </div>
 
-        <button
-          onClick={handleNext}
-          disabled={!canGoForward}
-          className={cn(
-            "p-1 rounded-full transition-colors",
-            canGoForward ? "hover:bg-muted text-foreground" : "text-muted-foreground/30 cursor-not-allowed"
-          )}
-          aria-label="Next dates"
-        >
-          <ChevronRight className="h-4 w-4 lg:h-5 lg:w-5" />
-        </button>
-      </div>
-
-      {/* Time Period Selection */}
-      <div className="grid grid-cols-3 gap-2 lg:gap-2 mb-4 lg:mb-4">
-        {TIME_PERIODS.map((period) => {
-          const isSelected = selectedPeriod === period.value;
-          return (
-            <button
-              key={period.value}
-              onClick={() => setSelectedPeriod(period.value)}
-              className={cn(
-                "flex flex-col items-center justify-center py-2.5 lg:py-2.5 px-2 rounded-xl border-2 transition-all",
-                isSelected
-                  ? "border-primary bg-primary/5"
-                  : "border-border hover:border-muted-foreground/50"
-              )}
-            >
-              <span className="text-xs lg:text-xs font-semibold text-foreground">
-                {period.label}
-              </span>
-              <span className="text-[9px] lg:text-[10px] text-muted-foreground mt-0.5">
-                {period.subLabel}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-        {/* CTA Button */}
+        {/* CTA Button - Full height for better touch */}
         <Button
           onClick={handleRequestTour}
           disabled={!selectedDate}
-          className="w-full h-11 lg:h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
+          className="w-full h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
         >
           Request a Tour
         </Button>

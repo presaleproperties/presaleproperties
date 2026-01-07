@@ -19,6 +19,7 @@ import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
 import { BookingModal } from "@/components/booking/BookingModal";
 import { InlineScheduler } from "@/components/booking/InlineScheduler";
+import { FloorPlanModal } from "@/components/projects/FloorPlanModal";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +92,7 @@ export default function PresaleProjectDetail() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingDate, setBookingDate] = useState<Date | undefined>();
   const [bookingTimePeriod, setBookingTimePeriod] = useState<string | undefined>();
+  const [floorPlanModalOpen, setFloorPlanModalOpen] = useState(false);
 
   // Track project view to Lofty CRM
   useLoftyProjectTracking(project);
@@ -125,7 +127,12 @@ export default function PresaleProjectDetail() {
       project_city: project?.city,
       project_status: project?.status,
     });
-    handleAskQuestion();
+    // On mobile, open modal instead of scrolling
+    if (window.innerWidth < 1024) {
+      setFloorPlanModalOpen(true);
+    } else {
+      handleAskQuestion();
+    }
   };
 
   const handleScheduleTourClick = (date: Date, timePeriod: string) => {
@@ -718,8 +725,8 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Mobile & Tablet Lead Form - positioned after deposits & developer */}
-                <div className="lg:hidden">
+                {/* Tablet-only Lead Form - positioned after deposits & developer */}
+                <div className="hidden md:block lg:hidden">
                   <Separator className="my-2" />
                   <div className="text-center mb-4">
                     <h2 className="text-lg font-bold text-foreground">Get Floor Plans & Pricing</h2>
@@ -828,7 +835,16 @@ export default function PresaleProjectDetail() {
         initialTimePeriod={bookingTimePeriod}
       />
 
-      {/* More Projects from Same City */}
+      {/* Floor Plan Modal - Mobile only */}
+      <FloorPlanModal
+        open={floorPlanModalOpen}
+        onOpenChange={setFloorPlanModalOpen}
+        projectId={project.id}
+        projectName={project.name}
+        status={project.status}
+        brochureUrl={project.brochure_files?.[0] || null}
+      />
+
       <section className="bg-muted/30 py-8 md:py-12">
         <div className="container px-4">
           <CityProjectsCarousel
