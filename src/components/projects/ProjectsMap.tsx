@@ -179,8 +179,11 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
     const map = L.map(containerRef.current, {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
-      zoomControl: true,
+      zoomControl: false, // Disable default, we'll add custom
     });
+
+    // Add custom zoom control on the right
+    L.control.zoom({ position: 'topright' }).addTo(map);
 
     L.tileLayer(TILE_URL, {
       attribution: TILE_ATTRIBUTION,
