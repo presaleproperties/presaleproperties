@@ -426,10 +426,10 @@ export default function MapSearch() {
 
           {/* Mobile & Tablet Bottom Carousel */}
           {filteredProjects.length > 0 && (
-            <div className="lg:hidden absolute bottom-0 left-0 right-0 z-40 pb-4">
+            <div className="lg:hidden absolute bottom-0 left-0 right-0 z-40 bg-gradient-to-t from-background via-background/95 to-transparent pt-8 pb-4">
               <div 
                 ref={carouselRef}
-                className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
+                className="flex gap-3 overflow-x-auto px-4 pb-2 pt-2 snap-x snap-mandatory scrollbar-hide"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
                 {filteredProjects.slice(0, 20).map((project) => (
