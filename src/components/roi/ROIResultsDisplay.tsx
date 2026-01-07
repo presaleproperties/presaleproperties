@@ -12,6 +12,9 @@ import {
   Mail,
   ArrowUpRight,
   ArrowDownRight,
+  Calendar,
+  GitCompare,
+  BarChart3,
 } from "lucide-react";
 import { ROIInputs, ROIResults, DEFAULT_SCENARIOS } from "@/types/roi";
 import { ROICharts } from "./ROICharts";
@@ -19,6 +22,8 @@ import { ProformaTable } from "./ProformaTable";
 import { ROILeadCapture } from "./ROILeadCapture";
 import { SavedAnalysesPanel } from "./SavedAnalysesPanel";
 import { SavedAnalysis } from "@/hooks/useSavedAnalyses";
+import { InvestmentTimeline } from "./InvestmentTimeline";
+import { MortgageVsCash } from "./MortgageVsCash";
 
 interface ROIResultsDisplayProps {
   inputs: ROIInputs;
@@ -189,18 +194,32 @@ export function ROIResultsDisplay({
         </CardContent>
       </Card>
 
-      {/* Charts & Table Tabs */}
-      <Tabs defaultValue="charts" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="charts" className="flex items-center gap-2">
-            <PieChart className="h-4 w-4" />
-            Charts
+      {/* Visual Analysis Tabs */}
+      <Tabs defaultValue="timeline" className="w-full">
+        <TabsList className="grid w-full grid-cols-4 h-auto">
+          <TabsTrigger value="timeline" className="flex flex-col items-center gap-1 py-2 text-xs">
+            <Calendar className="h-4 w-4" />
+            <span className="hidden sm:inline">Timeline</span>
           </TabsTrigger>
-          <TabsTrigger value="proforma" className="flex items-center gap-2">
+          <TabsTrigger value="comparison" className="flex flex-col items-center gap-1 py-2 text-xs">
+            <GitCompare className="h-4 w-4" />
+            <span className="hidden sm:inline">Mortgage vs Cash</span>
+          </TabsTrigger>
+          <TabsTrigger value="charts" className="flex flex-col items-center gap-1 py-2 text-xs">
+            <BarChart3 className="h-4 w-4" />
+            <span className="hidden sm:inline">Charts</span>
+          </TabsTrigger>
+          <TabsTrigger value="proforma" className="flex flex-col items-center gap-1 py-2 text-xs">
             <TableIcon className="h-4 w-4" />
-            5-Year Proforma
+            <span className="hidden sm:inline">Proforma</span>
           </TabsTrigger>
         </TabsList>
+        <TabsContent value="timeline" className="mt-4">
+          <InvestmentTimeline inputs={inputs} results={results} />
+        </TabsContent>
+        <TabsContent value="comparison" className="mt-4">
+          <MortgageVsCash inputs={inputs} results={results} />
+        </TabsContent>
         <TabsContent value="charts" className="mt-4">
           <ROICharts results={results} />
         </TabsContent>
