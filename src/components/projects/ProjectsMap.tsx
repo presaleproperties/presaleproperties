@@ -83,8 +83,8 @@ const createPricePillIcon = (project: Project) => {
     html: `
       <div style="
         display: inline-block;
-        background: #1e3a5f;
-        color: white;
+        background: #F5C243;
+        color: #1a1a1a;
         padding: 4px 8px;
         border-radius: 4px;
         font-size: 11px;
@@ -112,8 +112,8 @@ const createClusterIcon = (cluster: L.MarkerCluster) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #1e3a5f;
-        color: white;
+        background: #F5C243;
+        color: #1a1a1a;
         width: 36px;
         height: 36px;
         border-radius: 50%;
