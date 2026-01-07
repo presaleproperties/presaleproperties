@@ -166,7 +166,7 @@ export function ResaleListingsMap({
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
       zoomControl: false,
-      attributionControl: false,
+      attributionControl: true,
     });
 
     L.tileLayer(TILE_URL, { 
