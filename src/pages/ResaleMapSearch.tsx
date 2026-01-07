@@ -483,59 +483,65 @@ export default function ResaleMapSearch() {
           </div>
 
           {/* Desktop List Panel */}
-          <div className={`hidden lg:block border-l border-border overflow-y-auto bg-background transition-all duration-300 ease-out ${
+          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
             showList ? "w-2/5 opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
-              <div className="p-4 border-b border-border sticky top-0 bg-background z-10">
-                <p className="font-medium text-foreground">
-                  {visibleListings.length} listing{visibleListings.length !== 1 ? "s" : ""} in view
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 p-4">
-                {visibleListings.slice(0, 50).map((listing) => (
-                  <Link 
-                    key={listing.id} 
-                    to={`/resale/${listing.listing_key}`}
-                    className="group"
-                  >
-                    <div className={`bg-card rounded-xl border overflow-hidden transition-all hover:shadow-lg ${
-                      selectedListingId === listing.id ? 'border-primary ring-2 ring-primary/20' : 'border-border'
-                    }`}>
-                      <div className="relative w-full aspect-[16/10] bg-muted">
-                        {getPhoto(listing) ? (
-                          <img src={getPhoto(listing)!} alt={getAddress(listing)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Home className="h-8 w-8 text-muted-foreground" />
-                          </div>
-                        )}
-                        <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
-                          {listing.mls_status}
-                        </Badge>
-                      </div>
-                      <div className="p-3">
-                        <p className="font-bold text-foreground">{formatPrice(listing.listing_price)}</p>
-                        <p className="text-sm text-muted-foreground truncate">{getAddress(listing)}</p>
-                        <p className="text-sm text-muted-foreground">{listing.city}</p>
-                        <div className="flex items-center gap-3 mt-2 text-sm text-muted-foreground">
-                          {listing.bedrooms_total && (
-                            <span className="flex items-center gap-1">
-                              <Bed className="h-4 w-4" /> {listing.bedrooms_total}
-                            </span>
-                          )}
-                          {listing.bathrooms_total && (
-                            <span className="flex items-center gap-1">
-                              <Bath className="h-4 w-4" /> {listing.bathrooms_total}
-                            </span>
-                          )}
-                          {listing.living_area && (
-                            <span>{listing.living_area} sqft</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
+              <div className="shrink-0 px-4 py-3 border-b border-border">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-foreground">
+                    {visibleListings.length} Listing{visibleListings.length !== 1 ? "s" : ""} in view
+                  </h3>
+                  <Link to="/resale">
+                    <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
                   </Link>
-                ))}
+                </div>
+              </div>
+              
+              <div className="flex-1 overflow-y-auto p-4">
+                {visibleListings.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Home className="h-10 w-10 mx-auto mb-2" />
+                    <p>No listings in current view</p>
+                    <p className="text-xs mt-1">Zoom out to see more</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {visibleListings.slice(0, 30).map((listing) => (
+                      <Link key={listing.id} to={`/resale/${listing.listing_key}`} className="block">
+                        <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
+                          selectedListingId === listing.id ? 'ring-2 ring-primary border-primary' : 'border-border'
+                        }`}>
+                          <div className="relative w-full aspect-[4/3] bg-muted">
+                            {getPhoto(listing) ? (
+                              <img src={getPhoto(listing)!} alt={getAddress(listing)} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Home className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )}
+                            <Badge className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground">
+                              {listing.mls_status}
+                            </Badge>
+                          </div>
+                          <div className="p-2.5">
+                            <h4 className="font-semibold text-sm text-foreground truncate">{getAddress(listing)}</h4>
+                            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                              <MapPin className="h-3 w-3 shrink-0" />
+                              <span className="text-xs truncate">{listing.city}</span>
+                            </div>
+                            <div className="flex items-center justify-between mt-1.5">
+                              <span className="font-bold text-sm text-foreground">{formatPrice(listing.listing_price)}</span>
+                              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                {listing.bedrooms_total && <><Bed className="h-3 w-3" />{listing.bedrooms_total}</>}
+                                {listing.bathrooms_total && <><Bath className="h-3 w-3 ml-1" />{listing.bathrooms_total}</>}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
         </div>
