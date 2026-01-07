@@ -368,7 +368,7 @@ export default function MapSearch() {
                       key={project.id} 
                       to={`/presale-projects/${project.slug}`}
                       data-project-id={project.id}
-                      className="snap-start shrink-0 w-[200px] sm:w-[260px] md:w-[300px]"
+                      className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
                     >
                       <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                         selectedProjectId === project.id 
