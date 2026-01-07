@@ -277,6 +277,18 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     }
   }, [updateVisibleProjects, initialCenter, initialZoom]);
 
+  // Handle initial center/zoom changes after mount (for deep-linking)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !initialCenter) return;
+    
+    // Fly to the specified location
+    map.flyTo(initialCenter, initialZoom || 16, { 
+      animate: true,
+      duration: 1 
+    });
+  }, [initialCenter, initialZoom]);
+
 
   // Update markers when projects change
   useEffect(() => {
@@ -297,12 +309,14 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
       clusterGroup.addLayer(marker);
     });
 
-    // Only fit bounds if user location circle isn't showing (meaning we didn't auto-locate)
-    if (mappedProjects.length > 0 && !userCircleRef.current) {
+    // Only fit bounds if:
+    // 1. User location circle isn't showing (meaning we didn't auto-locate)
+    // 2. No initial center was provided (meaning we're not deep-linking to a specific project)
+    if (mappedProjects.length > 0 && !userCircleRef.current && !initialCenter) {
       const bounds = L.latLngBounds(mappedProjects.map((p) => [p.lat, p.lng] as [number, number]));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
-  }, [mappedProjects, onProjectSelect]);
+  }, [mappedProjects, onProjectSelect, initialCenter]);
 
   useEffect(() => {
     return () => {
