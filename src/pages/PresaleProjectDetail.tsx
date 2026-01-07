@@ -590,17 +590,6 @@ export default function PresaleProjectDetail() {
                   )}
                 </div>
 
-                {/* Action Buttons - Desktop only */}
-                <div className="hidden md:block mb-2">
-                  <Button
-                    size="default"
-                    onClick={handleGetPlansClick}
-                    className="w-full justify-center font-semibold text-sm h-10"
-                  >
-                    <Download className="h-4 w-4 mr-1.5" />
-                    Get Floor Plans
-                  </Button>
-                </div>
 
                 {/* Short description - visible on all screen sizes */}
                 {project.short_description && (
