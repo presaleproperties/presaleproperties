@@ -5,8 +5,7 @@ import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
-const projectCities = ["Vancouver", "Surrey", "Burnaby", "Langley", "Coquitlam", "Richmond", "Abbotsford", "Delta"];
-const assignmentCities = ["Vancouver", "Surrey", "Burnaby", "Langley", "Coquitlam", "Richmond", "Abbotsford", "Delta"];
+const topCities = ["Vancouver", "Surrey", "Burnaby", "Langley", "Coquitlam"];
 
 type SearchTab = "projects" | "assignments";
 
@@ -53,7 +52,7 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative flex flex-col overflow-hidden">
+    <section className="relative min-h-[70vh] md:min-h-[75vh] flex flex-col justify-center overflow-hidden">
       {/* Background Image - Full Bleed */}
       <img 
         src={heroImage}
@@ -67,8 +66,8 @@ export function HeroSection() {
       {/* Gradient Overlay - Darker for better text contrast */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
       
-      {/* Content - Centered with proper padding for cities bar */}
-      <div className="container relative z-10 px-4 py-20 md:py-28 lg:py-32">
+      {/* Content - Centered */}
+      <div className="container relative z-10 px-4">
         <div className="max-w-3xl mx-auto text-center">
           {/* Tagline */}
           <p className="text-primary text-sm md:text-base font-medium tracking-wide mb-4 md:mb-5">
@@ -160,26 +159,20 @@ export function HeroSection() {
                 />
               </div>
             </form>
-          </div>
-        </div>
-      </div>
 
-      {/* Top Cities - Static below hero content */}
-      <div className="relative z-10 bg-background py-4 md:py-5 border-b border-border/50">
-        <div className="container px-4">
-          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
-            <span className="text-sm text-muted-foreground font-medium whitespace-nowrap">
-              Top Cities
-            </span>
-            {(activeTab === "projects" ? projectCities : assignmentCities).map((city) => (
-              <button
-                key={city}
-                onClick={() => handleCityClick(city)}
-                className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all"
-              >
-                {city}
-              </button>
-            ))}
+            {/* Glass Cities Bar - Under search card */}
+            <div className="mt-4 md:mt-5 flex items-center justify-center gap-2 md:gap-3 flex-wrap">
+              <span className="text-white/70 text-xs md:text-sm font-medium">Top Cities:</span>
+              {topCities.map((city) => (
+                <button
+                  key={city}
+                  onClick={() => handleCityClick(city)}
+                  className="px-3 py-1.5 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-medium text-white/90 bg-white/10 backdrop-blur-md border border-white/20 hover:bg-white/20 hover:border-white/40 transition-all"
+                >
+                  {city}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
