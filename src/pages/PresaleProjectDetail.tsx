@@ -519,9 +519,9 @@ export default function PresaleProjectDetail() {
                   {project.map_lat && project.map_lng && (
                     <Link
                       to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16&project=${project.slug}`}
-                      className="inline-flex items-center gap-1 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-border bg-background hover:bg-muted text-[11px] md:text-xs font-medium text-foreground transition-colors shadow-sm"
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full border border-border bg-background hover:bg-muted text-[10px] md:text-xs font-medium text-foreground transition-colors"
                     >
-                      <MapPin className="h-3 w-3 md:h-3.5 md:w-3.5 text-primary" />
+                      <MapPin className="h-2.5 w-2.5 md:h-3 md:w-3 text-primary" />
                       <span>Map</span>
                     </Link>
                   )}
@@ -530,17 +530,17 @@ export default function PresaleProjectDetail() {
                       href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-border bg-background hover:bg-muted text-[11px] md:text-xs font-medium text-foreground transition-colors shadow-sm"
+                      className="inline-flex items-center gap-1 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full border border-border bg-background hover:bg-muted text-[10px] md:text-xs font-medium text-foreground transition-colors"
                     >
-                      <Eye className="h-3 w-3 md:h-3.5 md:w-3.5 text-primary" />
+                      <Eye className="h-2.5 w-2.5 md:h-3 md:w-3 text-primary" />
                       <span>Street View</span>
                     </a>
                   )}
                   <button
                     onClick={handleShare}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 md:px-3 md:py-1.5 rounded-full border border-border bg-background hover:bg-muted text-[11px] md:text-xs font-medium text-foreground transition-colors shadow-sm"
+                    className="inline-flex items-center gap-1 px-2.5 py-0.5 md:px-3 md:py-1 rounded-full border border-border bg-background hover:bg-muted text-[10px] md:text-xs font-medium text-foreground transition-colors"
                   >
-                    <Share2 className="h-3 w-3 md:h-3.5 md:w-3.5 text-primary" />
+                    <Share2 className="h-2.5 w-2.5 md:h-3 md:w-3 text-primary" />
                     <span>Share</span>
                   </button>
                 </div>
