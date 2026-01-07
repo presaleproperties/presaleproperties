@@ -17,6 +17,7 @@ import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
+import { NeighborhoodProjectsCarousel } from "@/components/home/NeighborhoodProjectsCarousel";
 import { BookingModal } from "@/components/booking/BookingModal";
 import { InlineScheduler } from "@/components/booking/InlineScheduler";
 import { FloorPlanModal } from "@/components/projects/FloorPlanModal";
@@ -845,7 +846,21 @@ export default function PresaleProjectDetail() {
         brochureUrl={project.brochure_files?.[0] || null}
       />
 
+      {/* More Projects in Same Neighborhood */}
       <section className="bg-muted/30 py-8 md:py-12">
+        <div className="container px-4">
+          <NeighborhoodProjectsCarousel
+            neighborhood={project.neighborhood}
+            city={project.city}
+            title={`More in ${project.neighborhood}`}
+            subtitle={`Explore presales in ${project.neighborhood}, ${project.city}`}
+            excludeSlug={project.slug}
+          />
+        </div>
+      </section>
+
+      {/* More Projects in Same City */}
+      <section className="py-8 md:py-12">
         <div className="container px-4">
           <CityProjectsCarousel
             city={project.city}
