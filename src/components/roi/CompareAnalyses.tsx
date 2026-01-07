@@ -160,11 +160,14 @@ export function CompareAnalyses({ analyses, onBack, onDelete }: CompareAnalysesP
                   </div>
                 ))}
               </div>
-              <MetricRow
-                label="Completion Year"
-                getValue={(a) => a.inputs.purchase.closingYear}
-                format="text"
-              />
+              <div className="grid gap-2" style={{ gridTemplateColumns: `140px repeat(${analyses.length}, 1fr)` }}>
+                <div className="text-sm text-muted-foreground py-2">Completion</div>
+                {analyses.map((a) => (
+                  <div key={a.id} className="py-2 px-3 text-sm text-center capitalize">
+                    {a.inputs.purchase.closingSeason} {a.inputs.purchase.closingYear}
+                  </div>
+                ))}
+              </div>
             </CardContent>
           </Card>
 

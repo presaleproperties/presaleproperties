@@ -3,12 +3,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Building2, MapPin, Calendar, Ruler } from "lucide-react";
-import { PurchaseDetails, BC_CITIES } from "@/types/roi";
+import { PurchaseDetails, BC_CITIES, CompletionSeason } from "@/types/roi";
 
 interface PurchaseStepProps {
   purchase: PurchaseDetails;
   updateInputs: (field: string, value: number | string | null) => void;
 }
+
+const SEASONS: { value: CompletionSeason; label: string; months: string }[] = [
+  { value: 'spring', label: 'Spring', months: 'Mar - May' },
+  { value: 'summer', label: 'Summer', months: 'Jun - Aug' },
+  { value: 'fall', label: 'Fall', months: 'Sep - Nov' },
+  { value: 'winter', label: 'Winter', months: 'Dec - Feb' },
+];
 
 export function PurchaseStep({ purchase, updateInputs }: PurchaseStepProps) {
   const formatCurrency = (value: number) => {
@@ -26,6 +33,31 @@ export function PurchaseStep({ purchase, updateInputs }: PurchaseStepProps) {
 
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 6 }, (_, i) => currentYear + i);
+
+  // Calculate months until completion
+  const getMonthsUntilCompletion = () => {
+    const now = new Date();
+    const currentMonth = now.getMonth(); // 0-11
+    
+    const seasonStartMonth: Record<CompletionSeason, number> = {
+      spring: 2, // March
+      summer: 5, // June
+      fall: 8,   // September
+      winter: 11, // December
+    };
+    
+    const targetMonth = seasonStartMonth[purchase.closingSeason];
+    const targetYear = purchase.closingYear;
+    
+    const monthsRemaining = 
+      (targetYear - now.getFullYear()) * 12 + (targetMonth - currentMonth);
+    
+    return Math.max(0, monthsRemaining);
+  };
+
+  const monthsUntil = getMonthsUntilCompletion();
+  const yearsUntil = Math.floor(monthsUntil / 12);
+  const remainingMonths = monthsUntil % 12;
 
   return (
     <Card>
@@ -103,27 +135,78 @@ export function PurchaseStep({ purchase, updateInputs }: PurchaseStepProps) {
           </Select>
         </div>
 
-        {/* Closing Year */}
-        <div className="space-y-2">
-          <Label htmlFor="closingYear" className="flex items-center gap-2">
+        {/* Completion Timeline */}
+        <div className="space-y-3">
+          <Label className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            Expected Completion Year *
+            Expected Completion *
           </Label>
-          <Select
-            value={purchase.closingYear.toString()}
-            onValueChange={(value) => updateInputs("closingYear", parseInt(value))}
-          >
-            <SelectTrigger id="closingYear">
-              <SelectValue placeholder="Select year" />
-            </SelectTrigger>
-            <SelectContent>
-              {years.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {/* Season */}
+            <div className="space-y-1">
+              <Label htmlFor="closingSeason" className="text-xs text-muted-foreground">
+                Season
+              </Label>
+              <Select
+                value={purchase.closingSeason}
+                onValueChange={(value) => updateInputs("closingSeason", value)}
+              >
+                <SelectTrigger id="closingSeason">
+                  <SelectValue placeholder="Select season" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEASONS.map((season) => (
+                    <SelectItem key={season.value} value={season.value}>
+                      <span className="flex items-center gap-2">
+                        {season.label}
+                        <span className="text-xs text-muted-foreground">({season.months})</span>
+                      </span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Year */}
+            <div className="space-y-1">
+              <Label htmlFor="closingYear" className="text-xs text-muted-foreground">
+                Year
+              </Label>
+              <Select
+                value={purchase.closingYear.toString()}
+                onValueChange={(value) => updateInputs("closingYear", parseInt(value))}
+              >
+                <SelectTrigger id="closingYear">
+                  <SelectValue placeholder="Select year" />
+                </SelectTrigger>
+                <SelectContent>
+                  {years.map((year) => (
+                    <SelectItem key={year} value={year.toString()}>
+                      {year}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Time until completion indicator */}
+          {monthsUntil > 0 && (
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Time until completion:</span>
+                <span className="font-medium text-primary">
+                  {yearsUntil > 0 && `${yearsUntil} yr${yearsUntil > 1 ? 's' : ''}`}
+                  {yearsUntil > 0 && remainingMonths > 0 && ', '}
+                  {remainingMonths > 0 && `${remainingMonths} mo${remainingMonths > 1 ? 's' : ''}`}
+                </span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">
+                Deposits due during this period. Full down payment at completion.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Unit Size */}
