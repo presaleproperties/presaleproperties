@@ -307,13 +307,13 @@ export default function MapSearch() {
 
               {/* Toggle List Button */}
               <Button
-                variant="outline"
+                variant={showList ? "outline" : "default"}
                 size="sm"
                 className="hidden lg:flex gap-2"
                 onClick={() => setShowList(!showList)}
               >
                 {showList ? <Map className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-                {showList ? "Hide List" : "Show List"}
+                {showList ? "Expand Map" : "Show List"}
               </Button>
             </div>
           </div>
@@ -322,7 +322,7 @@ export default function MapSearch() {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative">
           {/* Map Section */}
-          <div className={`relative transition-all duration-300 h-full ${showList ? "lg:w-3/5" : "w-full"} w-full`}>
+          <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/5" : "lg:w-full"}`}>
             {/* Presale/Resale Toggle - Minimal pill style */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
               <div className="flex bg-background/90 backdrop-blur-sm rounded-full p-0.5 shadow-md border border-border/50 text-xs">
