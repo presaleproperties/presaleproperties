@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
-
+import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 interface Project {
   id: string;
   name: string;
@@ -81,6 +81,7 @@ interface AIChatDrawerProps {
 export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobileOrTablet = useIsMobileOrTablet();
   const [message, setMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [conversation, setConversation] = useState<ConversationMessage[]>([]);
@@ -168,6 +169,131 @@ export function AIChatDrawer({ open, onOpenChange }: AIChatDrawerProps) {
 
   if (!open) return null;
 
+  // Desktop: Right-side panel that doesn't block scrolling
+  if (!isMobileOrTablet) {
+    return (
+      <div className="fixed right-4 top-20 bottom-4 z-50 w-[360px] bg-background rounded-2xl shadow-2xl border border-border flex flex-col animate-in slide-in-from-right duration-300">
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-border">
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="font-medium text-sm">Find your presale</span>
+          </div>
+          <button onClick={() => onOpenChange(false)} className="p-1.5 rounded-full hover:bg-muted transition-colors">
+            <X className="h-4 w-4 text-muted-foreground" />
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+          {conversation.length === 0 && !isLoading && (
+            <p className="text-sm text-muted-foreground text-center py-4">
+              Tell me what you're looking for
+            </p>
+          )}
+          
+          {conversation.map((msg, i) => (
+            <div key={i} className={cn("flex", msg.role === "user" ? "justify-end" : "justify-start")}>
+              <div className={cn(
+                "max-w-[85%] rounded-2xl px-3 py-2 text-sm",
+                msg.role === "user" 
+                  ? "bg-primary text-primary-foreground" 
+                  : "bg-muted"
+              )}>
+                <p>{msg.content}</p>
+                
+                {msg.projects && msg.projects.length > 0 && (
+                  <div className="mt-2 space-y-1.5">
+                    {msg.projects.slice(0, 4).map((p) => (
+                      <button
+                        key={p.id}
+                        onClick={() => { onOpenChange(false); navigate(`/presale-projects/${p.slug}`); }}
+                        className="w-full flex items-center gap-2 p-2 rounded-lg bg-background border border-border hover:border-primary transition-colors text-left"
+                      >
+                        {p.featured_image && (
+                          <img src={p.featured_image} alt="" className="w-10 h-10 rounded-md object-cover" />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-xs text-foreground truncate">{p.name}</p>
+                          <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                            <span className="flex items-center gap-0.5"><MapPin className="h-2.5 w-2.5" />{p.city}</span>
+                            <span className="flex items-center gap-0.5"><DollarSign className="h-2.5 w-2.5" />{formatPrice(p.starting_price)}</span>
+                          </div>
+                        </div>
+                        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
+                      </button>
+                    ))}
+                    {msg.projects.length > 4 && (
+                      <p className="text-[10px] text-muted-foreground text-center">+{msg.projects.length - 4} more</p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+
+          {isLoading && (
+            <div className="flex justify-start">
+              <div className="bg-muted rounded-2xl px-3 py-2 flex items-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Searching...</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Input */}
+        <div className="p-3 border-t border-border">
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              {showTypewriter && (
+                <div className="absolute inset-0 flex items-center pl-3 pointer-events-none">
+                  <span className="text-sm text-muted-foreground/60">
+                    {typewriterText}<span className="animate-pulse ml-0.5 inline-block w-0.5 h-4 bg-primary/50" />
+                  </span>
+                </div>
+              )}
+              <input
+                ref={inputRef}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                onFocus={() => setFocused(true)}
+                onBlur={() => setFocused(false)}
+                placeholder={focused ? "e.g. 2 bed condo in Surrey..." : ""}
+                className={cn(
+                  "w-full pl-3 pr-10 py-2.5 rounded-full border text-sm bg-muted/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all",
+                  isListening && "border-red-500"
+                )}
+                disabled={isLoading}
+              />
+              {isSpeechSupported && (
+                <button
+                  onClick={toggleVoice}
+                  className={cn(
+                    "absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-muted transition-colors",
+                    isListening && "text-red-500 animate-pulse"
+                  )}
+                >
+                  {isListening ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4 text-muted-foreground" />}
+                </button>
+              )}
+            </div>
+            <Button
+              size="icon"
+              onClick={() => handleSend()}
+              disabled={isLoading || message.length < 3}
+              className="h-10 w-10 rounded-full"
+            >
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Mobile/Tablet: Bottom sheet with backdrop
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center">
       {/* Backdrop */}
