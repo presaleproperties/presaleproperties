@@ -148,7 +148,7 @@ export const DEFAULT_SCENARIOS: Record<string, Scenario> = {
 
 export const DEFAULT_INPUTS: ROIInputs = {
   purchase: {
-    purchasePrice: 650000,
+    purchasePrice: 499000,
     closingYear: 2027,
     closingSeason: 'fall',
     city: 'Vancouver',
