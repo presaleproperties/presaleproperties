@@ -125,38 +125,108 @@ export default function AdminProjectForm() {
   const [driveUrl, setDriveUrl] = useState("");
   const [isImportingDrive, setIsImportingDrive] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
+  const [addressSuggestions, setAddressSuggestions] = useState<{ description: string; placeId: string }[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const { toast } = useToast();
 
-  // Geocode address using OpenStreetMap Nominatim API
-  // Returns coordinates or null if not found
+  // Geocode address using Google Maps API via edge function
   const geocodeAddressAsync = async (address: string, city: string, neighborhood: string): Promise<{ lat: string; lng: string } | null> => {
     if (!address && !city) return null;
     
     try {
-      // Build search query from available location info
       const searchParts = [address, neighborhood, city, "BC", "Canada"].filter(Boolean);
       const searchQuery = searchParts.join(", ");
       
-      const response = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}&limit=1`,
-        {
-          headers: {
-            'User-Agent': 'PresaleListingsApp/1.0'
-          }
-        }
-      );
+      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
+      const supabaseUrl = publicUrl.split('/storage/')[0];
       
-      if (!response.ok) throw new Error('Geocoding failed');
+      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: searchQuery, action: 'geocode' }),
+      });
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Geocoding failed');
+      }
       
       const data = await response.json();
-      
-      if (data && data.length > 0) {
-        return { lat: data[0].lat, lng: data[0].lon };
-      }
-      return null;
+      return { lat: data.lat.toString(), lng: data.lng.toString() };
     } catch (error) {
       console.error('Geocoding error:', error);
       return null;
+    }
+  };
+
+  // Fetch address suggestions from Google Places
+  const fetchAddressSuggestions = async (input: string) => {
+    if (input.length < 3) {
+      setAddressSuggestions([]);
+      return;
+    }
+    
+    setIsLoadingSuggestions(true);
+    try {
+      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
+      const supabaseUrl = publicUrl.split('/storage/')[0];
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: input, action: 'autocomplete' }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAddressSuggestions(data.predictions || []);
+        setShowAddressSuggestions(true);
+      }
+    } catch (error) {
+      console.error('Address suggestions error:', error);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Handle selecting an address suggestion
+  const handleSelectAddress = async (suggestion: { description: string; placeId: string }) => {
+    setFormData(prev => ({ ...prev, address: suggestion.description }));
+    setShowAddressSuggestions(false);
+    setAddressSuggestions([]);
+    
+    // Auto-geocode the selected address
+    setIsGeocoding(true);
+    try {
+      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
+      const supabaseUrl = publicUrl.split('/storage/')[0];
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: suggestion.description, action: 'geocode' }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setFormData(prev => ({
+          ...prev,
+          address: suggestion.description,
+          map_lat: data.lat.toString(),
+          map_lng: data.lng.toString(),
+          city: data.city || prev.city,
+          neighborhood: data.neighborhood || prev.neighborhood,
+        }));
+        toast({
+          title: "Address Found",
+          description: `Coordinates: ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`,
+        });
+      }
+    } catch (error) {
+      console.error('Geocoding selected address error:', error);
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -402,10 +472,10 @@ export default function AdminProjectForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.city || !formData.neighborhood) {
+    if (!formData.name || !formData.city || !formData.neighborhood || !formData.address) {
       toast({
         title: "Validation Error",
-        description: "Please fill in all required fields",
+        description: "Please fill in all required fields (Name, City, Neighborhood, Address)",
         variant: "destructive",
       });
       return;
@@ -886,14 +956,53 @@ export default function AdminProjectForm() {
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address (optional)</Label>
-                  <Input
-                    id="address"
-                    value={formData.address}
-                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-                    placeholder="e.g., 123 Main Street"
-                  />
+                <div className="space-y-2 relative">
+                  <Label htmlFor="address">Address * <span className="text-xs text-muted-foreground">(Google Maps powered)</span></Label>
+                  <div className="relative">
+                    <Input
+                      id="address"
+                      value={formData.address}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, address: e.target.value }));
+                        fetchAddressSuggestions(e.target.value);
+                      }}
+                      onFocus={() => {
+                        if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
+                      }}
+                      onBlur={() => {
+                        // Delay hiding to allow click on suggestions
+                        setTimeout(() => setShowAddressSuggestions(false), 200);
+                      }}
+                      placeholder="Start typing an address..."
+                      required
+                      autoComplete="off"
+                    />
+                    {isLoadingSuggestions && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  {showAddressSuggestions && addressSuggestions.length > 0 && (
+                    <div className="absolute z-50 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                      {addressSuggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0"
+                          onClick={() => handleSelectAddress(suggestion)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="truncate">{suggestion.description}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Search for an address to auto-fill coordinates and location details
+                  </p>
                 </div>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
