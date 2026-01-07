@@ -9,14 +9,29 @@ import heroImage from "@/assets/hero-lifestyle.jpg";
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 const resaleCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 
-type SearchTab = "projects" | "resale";
+export type SearchTab = "projects" | "resale";
 
-export function HeroSection() {
-  const [activeTab, setActiveTab] = useState<SearchTab>("projects");
+interface HeroSectionProps {
+  activeTab?: SearchTab;
+  onTabChange?: (tab: SearchTab) => void;
+}
+
+export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSectionProps) {
+  const [internalTab, setInternalTab] = useState<SearchTab>("projects");
+  const activeTab = controlledTab ?? internalTab;
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+
+  const handleTabChange = (tab: SearchTab) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    } else {
+      setInternalTab(tab);
+    }
+  };
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -92,7 +107,7 @@ export function HeroSection() {
               <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={() => setActiveTab("projects")}
+                  onClick={() => handleTabChange("projects")}
                   className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
                     activeTab === "projects"
                       ? "bg-foreground text-background shadow-sm"
@@ -103,7 +118,7 @@ export function HeroSection() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setActiveTab("resale")}
+                  onClick={() => handleTabChange("resale")}
                   className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
                     activeTab === "resale"
                       ? "bg-foreground text-background shadow-sm"
@@ -115,7 +130,7 @@ export function HeroSection() {
               </div>
               <button
                 type="button"
-                onClick={() => navigate("/map-search")}
+                onClick={() => navigate(activeTab === "projects" ? "/map-search" : "/resale-map")}
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
