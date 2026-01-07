@@ -46,8 +46,8 @@ Allow: /
 User-agent: *
 Allow: /
 
-# Sitemap - Dynamic sitemap generated from database
-Sitemap: https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/generate-sitemap
+# Sitemap
+Sitemap: https://presaleproperties.com/sitemap.xml
 
 # LLMs.txt - AI-readable site description
 # Available at: /llms.txt and /.well-known/llms.txt
