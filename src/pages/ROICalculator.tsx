@@ -171,36 +171,37 @@ export default function ROICalculator() {
       <Header />
 
       <main className="min-h-screen bg-background">
-        {/* Hero Section - Compact on Mobile */}
-        <section className="relative overflow-hidden bg-foreground text-white py-6 md:py-16">
-          {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-black via-foreground to-black" />
-          <div className="hidden md:block absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[120px]" />
-          
-          <div className="container px-4 relative z-10">
+        {/* Hero Section - Light theme matching site design */}
+        <section className="bg-gradient-to-b from-muted/50 to-background border-b py-6 md:py-12">
+          <div className="container px-4">
             <div className="max-w-3xl mx-auto text-center">
-              {/* Mobile: Ultra compact */}
-              <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-5 tracking-tight">
-                Presale <span className="text-amber-400">ROI</span> Calculator
+              {/* Badge - desktop only */}
+              <div className="hidden md:inline-flex items-center gap-2 bg-primary/10 text-foreground px-4 py-1.5 rounded-full text-sm font-medium mb-4 border border-primary/20">
+                <Calculator className="h-4 w-4 text-primary" />
+                Free Investment Tool
+              </div>
+              
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold mb-2 md:mb-4 tracking-tight text-foreground">
+                Presale <span className="text-primary">ROI</span> Calculator
               </h1>
               
-              <p className="text-white/60 text-sm md:text-xl max-w-2xl mx-auto mb-3 md:mb-8">
-                5-year investment returns for Vancouver & Fraser Valley presales
+              <p className="text-muted-foreground text-sm md:text-lg max-w-xl mx-auto mb-4 md:mb-6">
+                Model 5-year investment returns for Vancouver & Fraser Valley presales
               </p>
 
-              {/* Trust indicators - hidden on mobile, shown on desktop */}
-              <div className="hidden md:flex flex-wrap justify-center gap-3">
-                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
-                  <CheckCircle2 className="h-4 w-4 text-green-400" />
-                  <span className="text-sm text-white/70">100% Free</span>
+              {/* Trust indicators - desktop only */}
+              <div className="hidden md:flex flex-wrap justify-center gap-3 text-sm text-muted-foreground">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <span>100% Free</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
-                  <CheckCircle2 className="h-4 w-4 text-green-400" />
-                  <span className="text-sm text-white/70">No Sign-up</span>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <span>No Sign-up Required</span>
                 </div>
-                <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
-                  <CheckCircle2 className="h-4 w-4 text-green-400" />
-                  <span className="text-sm text-white/70">BC-Specific</span>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <span>BC-Specific Calculations</span>
                 </div>
               </div>
             </div>
