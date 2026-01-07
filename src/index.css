@@ -207,6 +207,46 @@
     font-family: inherit;
   }
 
+  /* Custom zoom controls - smaller and styled */
+  .leaflet-control-zoom {
+    border: none !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+  }
+  
+  .leaflet-control-zoom a {
+    width: 32px !important;
+    height: 32px !important;
+    line-height: 32px !important;
+    font-size: 16px !important;
+    font-weight: 600 !important;
+    background: hsl(0 0% 100% / 0.95) !important;
+    color: hsl(220 20% 20%) !important;
+    border: none !important;
+    backdrop-filter: blur(8px);
+  }
+  
+  .leaflet-control-zoom a:hover {
+    background: hsl(0 0% 100%) !important;
+    color: hsl(220 20% 10%) !important;
+  }
+  
+  .leaflet-control-zoom-in {
+    border-radius: 8px 8px 0 0 !important;
+    border-bottom: 1px solid hsl(220 13% 91%) !important;
+  }
+  
+  .leaflet-control-zoom-out {
+    border-radius: 0 0 8px 8px !important;
+  }
+  
+  /* Position zoom control below the locate button */
+  .leaflet-top.leaflet-right .leaflet-control-zoom {
+    margin-top: 52px;
+    margin-right: 16px;
+  }
+
   /* Custom marker styling */
   .custom-marker {
     background: transparent;
