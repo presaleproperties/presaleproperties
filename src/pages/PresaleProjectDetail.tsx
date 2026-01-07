@@ -718,8 +718,8 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Tablet-only Lead Form - positioned after deposits & developer */}
-                <div className="hidden md:block lg:hidden">
+                {/* Mobile & Tablet Lead Form - positioned after deposits & developer */}
+                <div className="lg:hidden">
                   <Separator className="my-2" />
                   <div className="text-center mb-4">
                     <h2 className="text-lg font-bold text-foreground">Get Floor Plans & Pricing</h2>
@@ -786,12 +786,12 @@ export default function PresaleProjectDetail() {
                 </div>
               </div>
               
-              {/* Mobile-only sidebar section */}
+              {/* Mobile-only InlineScheduler - positioned after FAQ for separation */}
               <div className="md:hidden">
                 <div
                   ref={formRef}
                   id="contact-form-mobile"
-                  className="w-full space-y-4"
+                  className="w-full"
                 >
                   <InlineScheduler
                     projectId={project.id}
@@ -799,12 +799,6 @@ export default function PresaleProjectDetail() {
                     projectCity={project.city}
                     projectNeighborhood={project.neighborhood}
                     onRequestTour={handleScheduleTourClick}
-                  />
-                  <ProjectLeadForm
-                    projectId={project.id}
-                    projectName={project.name}
-                    status={project.status}
-                    brochureUrl={project.brochure_files?.[0] || null}
                   />
                 </div>
               </div>
