@@ -645,23 +645,6 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Tablet-only Lead Form - positioned after highlights for better distribution */}
-                <div className="hidden md:block lg:hidden">
-                  <div className="bg-background border rounded-xl p-5 shadow-sm">
-                    <ProjectLeadForm
-                      projectId={project.id}
-                      projectName={project.name}
-                      status={project.status}
-                      brochureUrl={project.brochure_files?.[0] || null}
-                    />
-                    <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm mt-3" asChild>
-                      <a href="tel:+16722581100">
-                        <Phone className="h-4 w-4 mr-1.5" />
-                        Call Now
-                      </a>
-                    </Button>
-                  </div>
-                </div>
 
                 {/* Deposit & Incentives */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
@@ -733,6 +716,24 @@ export default function PresaleProjectDetail() {
                     <p className="font-medium text-base md:text-lg text-foreground">{project.developer_name}</p>
                   </div>
                 )}
+
+                {/* Tablet-only Lead Form - positioned after deposits & developer */}
+                <div className="hidden md:block lg:hidden">
+                  <div className="bg-background border rounded-xl p-5 shadow-sm">
+                    <ProjectLeadForm
+                      projectId={project.id}
+                      projectName={project.name}
+                      status={project.status}
+                      brochureUrl={project.brochure_files?.[0] || null}
+                    />
+                    <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm mt-3" asChild>
+                      <a href="tel:+16722581100">
+                        <Phone className="h-4 w-4 mr-1.5" />
+                        Call Now
+                      </a>
+                    </Button>
+                  </div>
+                </div>
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
