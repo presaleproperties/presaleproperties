@@ -191,7 +191,7 @@ export const DEFAULT_INPUTS: ROIInputs = {
     pttAmount: 11000,
     mortgageFees: 500,
     annualPriceGrowthPercent: 4,
-    sellingCostPercent: 5,
+    sellingCostPercent: 3.5,
     showTaxEstimate: false,
     marginalTaxRate: 40,
   },
