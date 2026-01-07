@@ -51,6 +51,7 @@ import BlogPost from "./pages/BlogPost";
 import { FloatingAIOrb } from "@/components/search/FloatingAIOrb";
 import { UtmTracker } from "@/components/UtmTracker";
 import ROICalculator from "./pages/ROICalculator";
+import MapSearch from "./pages/MapSearch";
 
 const queryClient = new QueryClient();
 
@@ -70,6 +71,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
+            <Route path="/map-search" element={<MapSearch />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />

@@ -11,6 +11,7 @@ import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
+import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
@@ -291,6 +292,9 @@ const Index = () => {
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <NewConstructionBenefits />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <HomeMapSection />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
