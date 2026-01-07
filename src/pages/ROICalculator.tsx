@@ -6,7 +6,17 @@ import { ROIWizard } from "@/components/roi/ROIWizard";
 import { CompareAnalyses } from "@/components/roi/CompareAnalyses";
 import { useROICalculator } from "@/hooks/useROICalculator";
 import { useSavedAnalyses } from "@/hooks/useSavedAnalyses";
-import { Calculator } from "lucide-react";
+import { 
+  Calculator, 
+  TrendingUp, 
+  PiggyBank, 
+  BarChart3, 
+  Shield,
+  CheckCircle2,
+  ChevronRight,
+} from "lucide-react";
+import { FAQSchema } from "@/components/seo/FAQSchema";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 
 declare global {
   interface Window {
@@ -14,6 +24,29 @@ declare global {
     fbq?: (...args: unknown[]) => void;
   }
 }
+
+const ROI_FAQS = [
+  {
+    question: "How accurate is this presale ROI calculator?",
+    answer: "Our calculator uses industry-standard formulas for mortgage amortization, property transfer tax, and GST calculations specific to BC. While results are estimates based on your inputs, the underlying math reflects real-world scenarios for Vancouver and Fraser Valley presale investments."
+  },
+  {
+    question: "What is a good ROI on a presale condo in Vancouver?",
+    answer: "A good 5-year total return on a Vancouver presale typically ranges from 30-60%, combining appreciation, rental income, and mortgage principal paydown. However, returns vary significantly based on location, market conditions, and your financing structure."
+  },
+  {
+    question: "Should I buy a presale as an investment property?",
+    answer: "Presales can be attractive investments due to lower initial capital requirements (deposits only during construction) and potential appreciation before completion. However, they carry risks including construction delays, market changes, and financing challenges at completion."
+  },
+  {
+    question: "How much deposit do I need for a presale in BC?",
+    answer: "Most BC presales require 10-20% deposits, typically structured as 5% at signing and another 5-15% over 6-12 months. The full down payment is required at completion, which could be 2-4 years from purchase."
+  },
+  {
+    question: "What closing costs should I expect on a presale?",
+    answer: "Presale closing costs in BC include 5% GST on new construction (with potential rebates), Property Transfer Tax (1-3% depending on price), legal fees ($1,500-2,500), and mortgage arrangement fees. Budget approximately 7-10% of purchase price for all closing costs."
+  },
+];
 
 export default function ROICalculator() {
   const {
@@ -37,38 +70,57 @@ export default function ROICalculator() {
   } = useSavedAnalyses();
 
   useEffect(() => {
-    // Track page view
     trackEvent("roi_calc_started");
   }, []);
 
   const trackEvent = (event: string) => {
-    // GA4
     if (window.gtag) {
       window.gtag("event", event, {
         event_category: "roi_calculator",
       });
     }
-    // Meta Pixel
     if (window.fbq) {
       window.fbq("trackCustom", event);
     }
   };
 
-  // If in compare mode, show the comparison view
+  // Schema.org structured data for the calculator
+  const calculatorSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Presale ROI Calculator",
+    "description": "Free investment calculator for presale condos and townhomes in Vancouver and Fraser Valley. Calculate 5-year returns, cashflow projections, and compare scenarios.",
+    "url": "https://presaleproperties.com/roi-calculator",
+    "applicationCategory": "FinanceApplication",
+    "operatingSystem": "Web Browser",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CAD"
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "PresaleProperties.com"
+    },
+    "featureList": [
+      "5-year investment proforma",
+      "Mortgage amortization schedule",
+      "Cashflow projections",
+      "Scenario analysis (Conservative, Base, Aggressive)",
+      "BC Property Transfer Tax calculator",
+      "GST calculator for new construction"
+    ]
+  };
+
   if (compareMode && savedAnalyses.length >= 2) {
     return (
       <>
         <Helmet>
           <title>Compare Properties | ROI Calculator | PresaleProperties.com</title>
-          <meta 
-            name="description" 
-            content="Compare ROI analyses for multiple presale properties side by side." 
-          />
+          <meta name="description" content="Compare ROI analyses for multiple presale properties side by side." />
           <meta name="robots" content="noindex" />
         </Helmet>
-
         <Header />
-
         <main className="min-h-screen bg-background py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-4xl mx-auto">
@@ -80,7 +132,6 @@ export default function ROICalculator() {
             </div>
           </div>
         </main>
-
         <Footer />
       </>
     );
@@ -89,39 +140,118 @@ export default function ROICalculator() {
   return (
     <>
       <Helmet>
-        <title>Presale ROI Calculator | 5-Year Investment Proforma | PresaleProperties.com</title>
+        <title>Presale ROI Calculator Vancouver | Free 5-Year Investment Proforma</title>
         <meta 
           name="description" 
-          content="Calculate your potential ROI on presale condos and townhomes in Vancouver & Fraser Valley. 5-year proforma with cashflow projections, equity growth, and scenario analysis." 
+          content="Free presale ROI calculator for Vancouver & Fraser Valley. Calculate 5-year returns, cashflow projections, mortgage amortization, and compare investment scenarios on condos and townhomes." 
         />
         <meta name="robots" content="index, follow" />
         <link rel="canonical" href="https://presaleproperties.com/roi-calculator" />
+        
+        {/* Open Graph */}
+        <meta property="og:title" content="Presale ROI Calculator | Free 5-Year Investment Analysis" />
+        <meta property="og:description" content="Calculate your potential returns on presale condos and townhomes in Metro Vancouver. Free investment proforma with cashflow projections." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://presaleproperties.com/roi-calculator" />
+        
+        {/* Twitter Card */}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Presale ROI Calculator | Free Investment Analysis" />
+        <meta name="twitter:description" content="Calculate 5-year returns on Vancouver presales. Free cashflow and equity projections." />
+        
+        {/* Additional SEO */}
+        <meta name="keywords" content="presale ROI calculator, vancouver condo investment, presale investment calculator, BC real estate ROI, condo cashflow calculator, presale proforma" />
+        
+        {/* Schema.org */}
+        <script type="application/ld+json">
+          {JSON.stringify(calculatorSchema)}
+        </script>
       </Helmet>
 
       <Header />
 
       <main className="min-h-screen bg-background">
-        {/* Hero Section */}
-        <section className="bg-gradient-to-b from-primary/5 to-background py-8 md:py-12">
-          <div className="container px-4">
+        {/* Hero Section - Enhanced */}
+        <section className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-12 md:py-16">
+          {/* Decorative elements */}
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          
+          <div className="container px-4 relative">
+            {/* Breadcrumbs */}
+            <div className="max-w-2xl mx-auto mb-6">
+              <Breadcrumbs 
+                items={[
+                  { label: "Home", href: "/" },
+                  { label: "ROI Calculator" }
+                ]} 
+                className="text-white/60"
+              />
+            </div>
+
             <div className="max-w-2xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium mb-4">
-                <Calculator className="h-4 w-4" />
-                Investment Analysis Tool
+              <div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white px-4 py-1.5 rounded-full text-sm font-medium mb-5 border border-white/10">
+                <Calculator className="h-4 w-4 text-amber-400" />
+                Free Investment Analysis Tool
               </div>
-              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-3">
-                Presale ROI Calculator
+              
+              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">
+                Presale <span className="text-amber-400">ROI</span> Calculator
               </h1>
-              <p className="text-muted-foreground text-sm md:text-base">
+              
+              <p className="text-white/70 text-base md:text-lg max-w-xl mx-auto mb-8">
                 Model your 5-year investment returns on presale condos and townhomes 
-                in Vancouver & Fraser Valley. Understand cashflow, equity growth, and total returns.
+                in Vancouver & Fraser Valley
               </p>
+
+              {/* Trust indicators */}
+              <div className="flex flex-wrap justify-center gap-4 text-sm text-white/60">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
+                  <span>100% Free</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
+                  <span>No Sign-up Required</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
+                  <span>BC-Specific Calculations</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Features Strip */}
+        <section className="border-b bg-muted/30">
+          <div className="container px-4">
+            <div className="max-w-4xl mx-auto py-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                <div className="flex flex-col items-center gap-1.5 p-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium">5-Year Proforma</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 p-2">
+                  <BarChart3 className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium">Amortization Schedule</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 p-2">
+                  <PiggyBank className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium">Cashflow Projections</span>
+                </div>
+                <div className="flex flex-col items-center gap-1.5 p-2">
+                  <Shield className="h-5 w-5 text-primary" />
+                  <span className="text-xs font-medium">Scenario Analysis</span>
+                </div>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Calculator Section */}
-        <section className="py-6 md:py-10">
+        <section className="py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-2xl mx-auto">
               <ROIWizard
@@ -144,49 +274,109 @@ export default function ROICalculator() {
           </div>
         </section>
 
-        {/* Info Section */}
-        <section className="py-8 md:py-12 bg-muted/30">
+        {/* How It Works Section - Enhanced */}
+        <section className="py-10 md:py-14 bg-muted/30">
           <div className="container px-4">
-            <div className="max-w-2xl mx-auto space-y-6">
-              <h2 className="text-xl font-semibold text-center">How This Calculator Works</h2>
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                  How This Calculator Works
+                </h2>
+                <p className="text-muted-foreground">
+                  Built specifically for Metro Vancouver presale investments
+                </p>
+              </div>
               
               <div className="grid gap-4 md:grid-cols-2">
-                <div className="bg-background rounded-lg p-4 border">
-                  <h3 className="font-medium mb-2">Realistic Defaults</h3>
+                <div className="bg-background rounded-xl p-5 border shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <Calculator className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Realistic BC Defaults</h3>
                   <p className="text-sm text-muted-foreground">
-                    We've pre-loaded typical values for Metro Vancouver presales, but you can 
-                    adjust every input to match your specific property and expectations.
+                    Pre-loaded with typical Metro Vancouver values including PTT rates, 
+                    GST on new construction, and current mortgage rates.
                   </p>
                 </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <h3 className="font-medium mb-2">Scenario Analysis</h3>
+                
+                <div className="bg-background rounded-xl p-5 border shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <BarChart3 className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Scenario Analysis</h3>
                   <p className="text-sm text-muted-foreground">
-                    Toggle between Conservative, Base, and Aggressive scenarios to see how 
-                    different market conditions affect your returns.
+                    Toggle between Conservative, Base, and Aggressive scenarios to stress-test 
+                    your investment under different market conditions.
                   </p>
                 </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <h3 className="font-medium mb-2">Complete 5-Year View</h3>
+                
+                <div className="bg-background rounded-xl p-5 border shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <TrendingUp className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Complete 5-Year View</h3>
                   <p className="text-sm text-muted-foreground">
-                    See year-by-year projections including cashflow, expenses, mortgage paydown, 
-                    and equity growth in a detailed proforma table.
+                    Year-by-year projections including cashflow, expenses, mortgage paydown, 
+                    equity growth, and full amortization schedule.
                   </p>
                 </div>
-                <div className="bg-background rounded-lg p-4 border">
-                  <h3 className="font-medium mb-2">Return Breakdown</h3>
+                
+                <div className="bg-background rounded-xl p-5 border shadow-sm hover:shadow-md transition-shadow">
+                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3">
+                    <PiggyBank className="h-5 w-5 text-primary" />
+                  </div>
+                  <h3 className="font-semibold mb-2">Return Breakdown</h3>
                   <p className="text-sm text-muted-foreground">
-                    Understand exactly where your returns come from: appreciation, 
-                    rental cashflow, and mortgage principal paydown.
+                    Understand exactly where your returns come from: property appreciation, 
+                    rental income, and mortgage principal paydown.
                   </p>
                 </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ Section for SEO */}
+        <section className="py-10 md:py-14">
+          <div className="container px-4">
+            <div className="max-w-3xl mx-auto">
+              <div className="text-center mb-8">
+                <h2 className="text-2xl md:text-3xl font-bold mb-3">
+                  Frequently Asked Questions
+                </h2>
+                <p className="text-muted-foreground">
+                  Common questions about presale investments in BC
+                </p>
               </div>
 
-              <div className="text-center text-xs text-muted-foreground pt-4 border-t">
-                <strong>Important:</strong> This calculator provides estimates only and is not 
-                financial, legal, or tax advice. Market conditions, interest rates, and rental 
-                demand can change significantly. Always consult with licensed professionals 
-                before making investment decisions.
+              <div className="space-y-4">
+                {ROI_FAQS.map((faq, index) => (
+                  <div key={index} className="bg-muted/30 rounded-lg p-5 border">
+                    <h3 className="font-semibold mb-2 flex items-start gap-2">
+                      <ChevronRight className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      {faq.question}
+                    </h3>
+                    <p className="text-sm text-muted-foreground pl-7">
+                      {faq.answer}
+                    </p>
+                  </div>
+                ))}
               </div>
+
+              {/* FAQ Schema */}
+              <FAQSchema faqs={ROI_FAQS} />
+            </div>
+          </div>
+        </section>
+
+        {/* Disclaimer */}
+        <section className="py-6 border-t bg-muted/20">
+          <div className="container px-4">
+            <div className="max-w-2xl mx-auto text-center text-xs text-muted-foreground">
+              <strong>Disclaimer:</strong> This calculator provides estimates only and is not 
+              financial, legal, or tax advice. Market conditions, interest rates, and rental 
+              demand can change significantly. Always consult with licensed professionals 
+              before making investment decisions.
             </div>
           </div>
         </section>
