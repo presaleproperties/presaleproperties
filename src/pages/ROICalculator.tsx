@@ -171,63 +171,25 @@ export default function ROICalculator() {
       <Header />
 
       <main className="min-h-screen bg-background">
-        {/* Hero Section - Premium Design */}
-        <section className="relative overflow-hidden bg-foreground text-white py-16 md:py-20">
-          {/* Animated gradient background */}
+        {/* Hero Section - Compact on Mobile */}
+        <section className="relative overflow-hidden bg-foreground text-white py-6 md:py-16">
+          {/* Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-black via-foreground to-black" />
-          
-          {/* Grid pattern overlay */}
-          <div 
-            className="absolute inset-0 opacity-[0.03]"
-            style={{
-              backgroundImage: `linear-gradient(rgba(255,255,255,.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.1) 1px, transparent 1px)`,
-              backgroundSize: '40px 40px'
-            }}
-          />
-          
-          {/* Glowing orbs */}
-          <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 left-1/3 w-[400px] h-[400px] bg-blue-500/5 rounded-full blur-[100px]" />
+          <div className="hidden md:block absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-amber-500/5 rounded-full blur-[120px]" />
           
           <div className="container px-4 relative z-10">
-            {/* Breadcrumbs */}
-            <div className="max-w-3xl mx-auto mb-8">
-              <Breadcrumbs 
-                items={[
-                  { label: "Home", href: "/" },
-                  { label: "ROI Calculator" }
-                ]} 
-                className="text-white/50"
-              />
-            </div>
-
             <div className="max-w-3xl mx-auto text-center">
-              {/* Badge */}
-              <div className="inline-flex items-center gap-2 bg-white/5 backdrop-blur-md text-white px-5 py-2 rounded-full text-sm font-medium mb-6 border border-white/10 shadow-lg">
-                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
-                Free Investment Analysis Tool
-              </div>
-              
-              {/* Main heading with gradient */}
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-5 tracking-tight leading-tight">
-                <span className="bg-gradient-to-r from-white via-white to-white/80 bg-clip-text text-transparent">
-                  Presale
-                </span>{" "}
-                <span className="bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 bg-clip-text text-transparent">
-                  ROI
-                </span>{" "}
-                <span className="bg-gradient-to-r from-white/80 via-white to-white bg-clip-text text-transparent">
-                  Calculator
-                </span>
+              {/* Mobile: Ultra compact */}
+              <h1 className="text-2xl md:text-5xl lg:text-6xl font-bold mb-2 md:mb-5 tracking-tight">
+                Presale <span className="text-amber-400">ROI</span> Calculator
               </h1>
               
-              <p className="text-white/60 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
-                Model your 5-year investment returns on presale condos and townhomes 
-                in <span className="text-white/80 font-medium">Vancouver</span> & <span className="text-white/80 font-medium">Fraser Valley</span>
+              <p className="text-white/60 text-sm md:text-xl max-w-2xl mx-auto mb-3 md:mb-8">
+                5-year investment returns for Vancouver & Fraser Valley presales
               </p>
 
-              {/* Trust indicators - pill style */}
-              <div className="flex flex-wrap justify-center gap-3">
+              {/* Trust indicators - hidden on mobile, shown on desktop */}
+              <div className="hidden md:flex flex-wrap justify-center gap-3">
                 <div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm px-4 py-2 rounded-full border border-white/10">
                   <CheckCircle2 className="h-4 w-4 text-green-400" />
                   <span className="text-sm text-white/70">100% Free</span>
@@ -243,16 +205,13 @@ export default function ROICalculator() {
               </div>
             </div>
           </div>
-          
-          {/* Bottom fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent" />
         </section>
 
-        {/* Features Strip */}
-        <section className="border-b bg-muted/30">
+        {/* Features Strip - Desktop only */}
+        <section className="hidden md:block border-b bg-muted/30">
           <div className="container px-4">
             <div className="max-w-4xl mx-auto py-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+              <div className="grid grid-cols-4 gap-4 text-center">
                 <div className="flex flex-col items-center gap-1.5 p-2">
                   <TrendingUp className="h-5 w-5 text-primary" />
                   <span className="text-xs font-medium">5-Year Proforma</span>
@@ -275,7 +234,7 @@ export default function ROICalculator() {
         </section>
 
         {/* Calculator Section */}
-        <section className="py-8 md:py-12">
+        <section className="py-4 md:py-12">
           <div className="container px-4">
             <div className="max-w-2xl mx-auto">
               <ROIWizard
