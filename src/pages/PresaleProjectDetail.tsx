@@ -514,7 +514,7 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
-                {/* Quick Action Buttons - Map, Street View, Favourite, Share */}
+                {/* Quick Action Buttons - Map, Street View, Share */}
                 <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
                   {project.map_lat && project.map_lng && (
                     <a
@@ -538,15 +538,6 @@ export default function PresaleProjectDetail() {
                       <span>Street View</span>
                     </a>
                   )}
-                  <button
-                    onClick={() => {
-                      toast({ title: "Saved to favourites!" });
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all hover:shadow-sm"
-                  >
-                    <Star className="h-3.5 w-3.5" />
-                    <span>Save</span>
-                  </button>
                   <button
                     onClick={handleShare}
                     className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-muted/50 hover:bg-muted border border-border/50 text-muted-foreground hover:text-foreground text-xs font-medium transition-all hover:shadow-sm"
