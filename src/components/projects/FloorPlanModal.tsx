@@ -39,7 +39,7 @@ export function FloorPlanModal({
           <X className="h-5 w-5" />
         </button>
         
-        {/* Ultra-compact form for iPhone SE compatibility */}
+        {/* Ultra-compact form for iPhone SE compatibility - keep input text at 16px to prevent iOS zoom */}
         <div className="
           [&>div]:border-0 
           [&>div]:shadow-none 
@@ -49,14 +49,13 @@ export function FloorPlanModal({
           [&>div>div:first-child_.mb-2]:mb-1
           [&>div>div:last-child]:p-3
           [&>div>div:last-child]:pt-2.5
-          [&_input]:h-9
-          [&_input]:text-sm
+          [&_input]:h-10
           [&_.space-y-3]:space-y-1.5
           [&_.space-y-4]:space-y-2
           [&_h3]:text-base
           [&_h3]:leading-tight
           [&_h3>span]:text-sm
-          [&_.h-11]:h-8
+          [&_.h-11]:h-9
           [&_.h-14]:h-11
           [&_.rounded-xl]:rounded-lg
           [&_.gap-2\\.5]:gap-1.5
