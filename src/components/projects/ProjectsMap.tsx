@@ -226,15 +226,15 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
               click: () => setSelectedProject(project.id),
             }}
           >
-            <Popup maxWidth={280} className="project-popup">
-              <div className="p-1">
-                {project.featured_image && (
+            <Popup maxWidth={280}>
+              <div className="p-1 project-popup-content">
+                {project.featured_image ? (
                   <img
                     src={project.featured_image}
                     alt={project.name}
                     className="w-full h-32 object-cover rounded-md mb-2"
                   />
-                )}
+                ) : null}
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
@@ -246,11 +246,11 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
                     <MapPin className="h-3 w-3" />
                     {project.neighborhood}, {project.city}
                   </p>
-                  {project.starting_price && (
+                  {project.starting_price ? (
                     <p className="text-sm font-medium">
                       From {formatPrice(project.starting_price)}
                     </p>
-                  )}
+                  ) : null}
                   <Link to={`/presale-projects/${project.slug}`}>
                     <Button size="sm" className="w-full mt-2 text-xs h-8">
                       View Project
