@@ -45,11 +45,12 @@ export function FloatingBottomNav() {
           "transition-all duration-300 ease-out",
           isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
         )}
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)' }}
       >
         {/* Enhanced gradient for better visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
         
-        <div className="relative flex items-center justify-center px-6 py-5 pb-7 md:pb-8 pointer-events-auto">
+        <div className="relative flex items-center justify-center px-6 py-5 pb-5 pointer-events-auto">
           {/* Search Button */}
           <button
             onClick={handleSearchClick}
