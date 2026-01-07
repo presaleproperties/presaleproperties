@@ -84,10 +84,10 @@ interface SearchResult {
   filters_applied: ParsedFilters;
   clarification_needed?: string;
   conversation_context?: string;
-  search_mode: "projects" | "assignments";
+  search_mode: "projects" | "resale";
 }
 
-type SearchMode = "projects" | "assignments";
+type SearchMode = "projects" | "resale";
 
 // Web Speech API types
 interface SpeechRecognitionEvent extends Event {
@@ -567,7 +567,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       });
     }
     onOpenChange(false);
-    navigate(`/assignments/${listing.id}`);
+    navigate(`/resale/${listing.id}`);
   };
 
   const handleModeChange = (mode: SearchMode) => {
@@ -640,7 +640,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const handleCompareViewListing = (id: string) => {
     setShowCompare(false);
     onOpenChange(false);
-    navigate(`/assignments/${id}`);
+    navigate(`/resale/${id}`);
   };
 
   const formatPrice = (price: number | null) => {
@@ -1037,10 +1037,10 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                             size="sm"
                             onClick={() => {
                               onOpenChange(false);
-                              navigate(searchMode === "projects" ? "/presale-projects" : "/assignments");
+                              navigate(searchMode === "projects" ? "/presale-projects" : "/resale");
                             }}
                           >
-                            Browse All {searchMode === "projects" ? "Projects" : "Assignments"}
+                            Browse All {searchMode === "projects" ? "Projects" : "Resale"}
                           </Button>
                         </div>
                       )}
@@ -1139,7 +1139,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
 
             {/* Floating Compare Button */}
             {((searchMode === "projects" && selectedProjects.length >= 2) || 
-              (searchMode === "assignments" && selectedListings.length >= 2)) && (
+              (searchMode === "resale" && selectedListings.length >= 2)) && (
               <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20">
                 <Button
                   onClick={() => setShowCompare(true)}
