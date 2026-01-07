@@ -364,21 +364,19 @@ export default function MapSearch() {
 
               {/* Carousel */}
               {showCarousel && visibleProjects.length > 0 && (
-                <div className="bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-2">
-                  {/* Header row with minimalist hide button */}
-                  <div className="flex items-center justify-center pb-2">
+                <div className="bg-gradient-to-t from-background via-background/90 to-transparent pt-4 pb-2">
+                  {/* Header row with project count and minimalist hide button */}
+                  <div className="flex items-center justify-between px-4 md:px-6 pb-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {visibleProjects.length} project{visibleProjects.length !== 1 ? "s" : ""} in view
+                    </span>
                     <button
                       onClick={() => setShowCarousel(false)}
-                      className="p-1.5 rounded-full bg-muted/80 hover:bg-muted transition-colors"
+                      className="p-1 rounded-full hover:bg-muted/80 transition-colors"
                       aria-label="Hide projects"
                     >
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </button>
-                  </div>
-                  <div className="px-4 md:px-6 pb-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {visibleProjects.length} project{visibleProjects.length !== 1 ? "s" : ""} in view
-                    </span>
                   </div>
                   <div 
                     ref={carouselRef}
