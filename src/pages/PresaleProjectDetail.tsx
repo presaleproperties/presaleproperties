@@ -641,12 +641,6 @@ export default function PresaleProjectDetail() {
                           <p className="font-semibold text-foreground">{project.developer_name}</p>
                         </div>
                       )}
-                      {project.deposit_structure && (
-                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
-                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Deposit</p>
-                          <p className="font-semibold text-foreground">{project.deposit_structure}</p>
-                        </div>
-                      )}
                       {project.strata_fees && (
                         <div className="bg-background/70 rounded-xl p-4 border border-border/30">
                           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Strata Fees</p>
