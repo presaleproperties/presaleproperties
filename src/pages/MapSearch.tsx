@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, lazy, Suspense, useEffect } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense, useEffect, useRef } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -81,6 +81,20 @@ export default function MapSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(!isMobile);
+  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to selected project in carousel
+  const handleProjectSelect = useCallback((projectId: string) => {
+    setSelectedProjectId(projectId);
+    
+    if (isMobile && carouselRef.current) {
+      const cardElement = carouselRef.current.querySelector(`[data-project-id="${projectId}"]`);
+      if (cardElement) {
+        cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      }
+    }
+  }, [isMobile]);
 
   const filters = {
     city: searchParams.get("city") || "any",
@@ -364,7 +378,11 @@ export default function MapSearch() {
                   </div>
                 ) : (
                   <div className="h-full w-full">
-                    <ProjectsMap projects={mapProjects as any} isLoading={false} />
+                    <ProjectsMap 
+                      projects={mapProjects as any} 
+                      isLoading={false} 
+                      onProjectSelect={handleProjectSelect}
+                    />
                   </div>
                 )}
               </Suspense>
@@ -422,6 +440,7 @@ export default function MapSearch() {
           {isMobile && filteredProjects.length > 0 && (
             <div className="absolute bottom-0 left-0 right-0 z-40 pb-4">
               <div 
+                ref={carouselRef}
                 className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
@@ -429,9 +448,14 @@ export default function MapSearch() {
                   <Link 
                     key={project.id} 
                     to={`/presale/${project.slug}`}
+                    data-project-id={project.id}
                     className="snap-start flex-shrink-0 w-[280px]"
                   >
-                    <div className="bg-card rounded-xl shadow-lg border border-border overflow-hidden">
+                    <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all ${
+                      selectedProjectId === project.id 
+                        ? 'border-primary ring-2 ring-primary/20' 
+                        : 'border-border'
+                    }`}>
                       {/* Image */}
                       <div className="relative h-32 bg-muted">
                         {project.featured_image ? (

@@ -52,6 +52,7 @@ interface Project {
 interface ProjectsMapProps {
   projects: Project[];
   isLoading?: boolean;
+  onProjectSelect?: (projectId: string) => void;
 }
 
 const formatPrice = (price: number) => {
@@ -154,7 +155,7 @@ function popupHtml(project: Project) {
   `;
 }
 
-export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
+export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMapProps) {
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -209,6 +210,12 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
     mappedProjects.forEach((p) => {
       const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon(p) });
       marker.bindPopup(popupHtml(p), { maxWidth: 280 });
+      
+      // Trigger callback when marker is clicked
+      marker.on('click', () => {
+        onProjectSelect?.(p.id);
+      });
+      
       clusterGroup.addLayer(marker);
     });
 
