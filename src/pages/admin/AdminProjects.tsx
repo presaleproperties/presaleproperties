@@ -101,6 +101,7 @@ export default function AdminProjects() {
   const [geocodingInProgress, setGeocodingInProgress] = useState(false);
   const [geocodingProgress, setGeocodingProgress] = useState(0);
   const [geocodingComplete, setGeocodingComplete] = useState(false);
+  const [geocodeAllProjects, setGeocodeAllProjects] = useState(false);
 
   useEffect(() => {
     fetchProjects();
@@ -127,14 +128,19 @@ export default function AdminProjects() {
     }
   };
 
-  // Fetch projects missing coordinates
-  const fetchProjectsForGeocoding = async () => {
+  // Fetch projects for geocoding (missing only or all)
+  const fetchProjectsForGeocoding = async (includeAll: boolean = false) => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from("presale_projects")
         .select("id, name, address, city, neighborhood, map_lat, map_lng")
-        .or("map_lat.is.null,map_lng.is.null")
         .order("name");
+      
+      if (!includeAll) {
+        query = query.or("map_lat.is.null,map_lng.is.null");
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
       setProjectsToGeocode(data || []);
@@ -156,11 +162,12 @@ export default function AdminProjects() {
   };
 
   // Open geocoding modal
-  const openGeocodingModal = async () => {
+  const openGeocodingModal = async (regeocodeAll: boolean = false) => {
+    setGeocodeAllProjects(regeocodeAll);
     setGeocodingModalOpen(true);
     setGeocodingComplete(false);
     setGeocodingProgress(0);
-    await fetchProjectsForGeocoding();
+    await fetchProjectsForGeocoding(regeocodeAll);
   };
 
   // Geocode a single address using Google Maps API via edge function
@@ -416,9 +423,13 @@ export default function AdminProjects() {
             <p className="text-muted-foreground">Manage presale projects</p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={openGeocodingModal} className="gap-2">
+            <Button variant="outline" onClick={() => openGeocodingModal(false)} className="gap-2">
               <MapPinned className="h-4 w-4" />
               Bulk Geocode
+            </Button>
+            <Button variant="outline" onClick={() => openGeocodingModal(true)} className="gap-2">
+              <MapPinned className="h-4 w-4" />
+              Re-geocode All
             </Button>
             <Button variant="outline" onClick={() => navigate("/admin/projects/import")} className="gap-2">
               <Upload className="h-4 w-4" />
@@ -616,10 +627,12 @@ export default function AdminProjects() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <MapPinned className="h-5 w-5" />
-              Bulk Geocoding Tool
+              {geocodeAllProjects ? "Re-geocode All Projects" : "Bulk Geocoding Tool"}
             </DialogTitle>
             <DialogDescription>
-              Automatically fetch coordinates for projects missing latitude/longitude data.
+              {geocodeAllProjects 
+                ? "Re-fetch coordinates for all projects using Google Maps API."
+                : "Automatically fetch coordinates for projects missing latitude/longitude data."}
             </DialogDescription>
           </DialogHeader>
 
@@ -628,9 +641,13 @@ export default function AdminProjects() {
               <Card>
                 <CardContent className="py-8 text-center">
                   <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">All projects have coordinates!</h3>
+                  <h3 className="text-lg font-medium mb-2">
+                    {geocodeAllProjects ? "No projects found" : "All projects have coordinates!"}
+                  </h3>
                   <p className="text-muted-foreground">
-                    There are no projects missing map coordinates.
+                    {geocodeAllProjects 
+                      ? "There are no projects in the database."
+                      : "There are no projects missing map coordinates."}
                   </p>
                 </CardContent>
               </Card>
@@ -639,10 +656,12 @@ export default function AdminProjects() {
                 <Card>
                   <CardHeader className="pb-3">
                     <CardTitle className="text-base">
-                      {projectsToGeocode.length} projects missing coordinates
+                      {geocodeAllProjects 
+                        ? `${projectsToGeocode.length} total projects`
+                        : `${projectsToGeocode.length} projects missing coordinates`}
                     </CardTitle>
                     <CardDescription>
-                      Uses OpenStreetMap Nominatim API (1 request/second rate limit)
+                      Uses Google Maps Geocoding API
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-3">
@@ -674,7 +693,7 @@ export default function AdminProjects() {
                         <Button 
                           onClick={() => {
                             setGeocodingComplete(false);
-                            fetchProjectsForGeocoding();
+                            fetchProjectsForGeocoding(geocodeAllProjects);
                           }} 
                           className="flex-1 gap-2"
                         >
