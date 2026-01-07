@@ -1,12 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
 import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building2, MapPin, ExternalLink } from "lucide-react";
+import { Building2, MapPin, ExternalLink, Navigation, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 // Fix Leaflet default marker icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -180,8 +181,80 @@ function FitBoundsControl({ projects }: { projects: Project[] }) {
   return null;
 }
 
+// Geolocation control component
+function GeolocationControl({ 
+  onLocationFound 
+}: { 
+  onLocationFound: (lat: number, lng: number) => void 
+}) {
+  const map = useMap();
+  const { toast } = useToast();
+  const [isLocating, setIsLocating] = useState(false);
+
+  const handleLocate = useCallback(() => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLocating(true);
+    
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        map.setView([latitude, longitude], 13, { animate: true });
+        onLocationFound(latitude, longitude);
+        setIsLocating(false);
+        toast({
+          title: "Location found",
+          description: "Map centered on your location",
+        });
+      },
+      (error) => {
+        setIsLocating(false);
+        let message = "Unable to get your location.";
+        if (error.code === error.PERMISSION_DENIED) {
+          message = "Location permission denied. Please enable location access.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          message = "Location information unavailable.";
+        } else if (error.code === error.TIMEOUT) {
+          message = "Location request timed out.";
+        }
+        toast({
+          title: "Location error",
+          description: message,
+          variant: "destructive",
+        });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }, [map, onLocationFound, toast]);
+
+  return (
+    <Button
+      variant="outline"
+      size="icon"
+      className="absolute top-4 right-4 z-[1000] bg-background/95 backdrop-blur-sm shadow-lg h-10 w-10"
+      onClick={handleLocate}
+      disabled={isLocating}
+      title="Zoom to my location"
+    >
+      {isLocating ? (
+        <Loader2 className="h-5 w-5 animate-spin" />
+      ) : (
+        <Navigation className="h-5 w-5" />
+      )}
+    </Button>
+  );
+}
+
 export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   
   // Get projects with coordinates (use city center as fallback)
   const mappedProjects = useMemo(() => {
@@ -236,7 +309,21 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
         />
         
         <FitBoundsControl projects={mappedProjects} />
+        <GeolocationControl onLocationFound={(lat, lng) => setUserLocation({ lat, lng })} />
         
+        {/* User location circle */}
+        {userLocation && (
+          <Circle
+            center={[userLocation.lat, userLocation.lng]}
+            radius={500}
+            pathOptions={{
+              color: "hsl(43 96% 56%)",
+              fillColor: "hsl(43 96% 56%)",
+              fillOpacity: 0.15,
+              weight: 2,
+            }}
+          />
+        )}
         <MarkerClusterGroup
           chunkedLoading
           iconCreateFunction={createClusterCustomIcon}
