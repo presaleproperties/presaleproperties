@@ -483,10 +483,10 @@ export default function PresaleProjects() {
   };
 
   const LoadingSkeleton = () => (
-    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
       {[...Array(6)].map((_, i) => (
         <div key={i} className="rounded-xl overflow-hidden border border-border">
-          <Skeleton className="aspect-[16/10] w-full" />
+          <Skeleton className="aspect-[16/11] w-full" />
           <div className="p-4 space-y-3">
             <Skeleton className="h-5 w-3/4" />
             <Skeleton className="h-4 w-1/2" />
@@ -768,7 +768,7 @@ export default function PresaleProjects() {
                   <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
                     Showing {filteredProjects.length} project{filteredProjects.length !== 1 ? "s" : ""}
                   </p>
-                  <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
                     {filteredProjects.map((project) => (
                       <PresaleProjectCard
                         key={project.id}
@@ -783,6 +783,7 @@ export default function PresaleProjects() {
                         startingPrice={project.starting_price}
                         featuredImage={project.featured_image}
                         galleryImages={project.gallery_images}
+                        size="large"
                       />
                     ))}
                   </div>
