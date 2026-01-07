@@ -109,7 +109,14 @@ export function AccessPackModal({
     setIsSubmitting(true);
 
     try {
-      const utmParams = new URLSearchParams(window.location.search);
+      // Get UTM from sessionStorage (populated by UtmTracker)
+      const utmSource = sessionStorage.getItem("utm_source") || null;
+      const utmMedium = sessionStorage.getItem("utm_medium") || null;
+      const utmCampaign = sessionStorage.getItem("utm_campaign") || null;
+      const utmContent = sessionStorage.getItem("utm_content") || null;
+      const utmTerm = sessionStorage.getItem("utm_term") || null;
+      const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
+      const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
       
       const messageData = [
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
@@ -117,7 +124,6 @@ export function AccessPackModal({
         `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
         `Property Type: ${PROPERTY_TYPES.find(pt => pt.value === data.propertyType)?.label}`,
         `Source: ${source}`,
-        `UTM: ${utmParams.get("utm_source") || "direct"} / ${utmParams.get("utm_medium") || ""} / ${utmParams.get("utm_campaign") || ""}`,
         data.message ? `\n\nMessage: ${data.message}` : "",
       ].filter(Boolean).join(" | ");
 
@@ -127,9 +133,13 @@ export function AccessPackModal({
 
       const fullName = `${data.firstName} ${data.lastName}`.trim();
       
-      const { data: lead, error } = await supabase
+      // Use client-side generated ID to avoid RLS read issues
+      const leadId = crypto.randomUUID();
+      
+      const { error } = await supabase
         .from("project_leads")
         .insert({
+          id: leadId,
           project_id: projectId || null,
           name: fullName,
           email: data.email,
@@ -140,21 +150,26 @@ export function AccessPackModal({
           drip_sequence: dripSequence,
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
-        })
-        .select("id")
-        .maybeSingle();
+          lead_source: source === "fit_call" ? "callback_request" : "general_inquiry",
+          utm_source: utmSource,
+          utm_medium: utmMedium,
+          utm_campaign: utmCampaign,
+          utm_content: utmContent,
+          utm_term: utmTerm,
+          referrer: referrer,
+          landing_page: landingPage,
+        });
 
       if (error) throw error;
 
-      if (lead?.id) {
-        supabase.functions
-          .invoke("send-project-lead", { body: { leadId: lead.id } })
-          .catch(console.error);
+      // Trigger edge function for Zapier webhook
+      supabase.functions
+        .invoke("send-project-lead", { body: { leadId } })
+        .catch(console.error);
 
-        supabase.functions
-          .invoke("send-drip-email", {})
-          .catch(console.error);
-      }
+      supabase.functions
+        .invoke("send-drip-email", {})
+        .catch(console.error);
 
       localStorage.setItem("presale_persona", actualPersona);
 

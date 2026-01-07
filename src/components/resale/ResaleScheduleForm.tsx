@@ -94,41 +94,62 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
           evening: "17:00",
         };
 
-        await supabase.from("bookings").insert({
+        const buyerType: "first_time" | "investor" | "other" | "upgrader" = formData.hasAgent === "yes" ? "other" : "first_time";
+        
+        const bookingData = {
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
           project_name: `Resale: ${listingAddress}`,
           project_city: listingCity,
+          project_url: window.location.href,
           appointment_date: format(selectedDate, "yyyy-MM-dd"),
           appointment_time: selectedTimeSlot ? timeSlotMap[selectedTimeSlot] : "14:00",
-          appointment_type: "showing",
-          buyer_type: formData.hasAgent === "yes" ? "other" : "first_time",
-          timeline: "0_3_months",
+          appointment_type: "showing" as const,
+          buyer_type: buyerType,
+          timeline: "0_3_months" as const,
           notes: `Time preference: ${selectedTimeSlot || "Flexible"}. Working with agent: ${formData.hasAgent || "Not specified"}`,
           lead_source: "resale_tour_request",
           utm_source: utmSource,
           utm_medium: utmMedium,
           utm_campaign: utmCampaign,
-        });
+        };
+
+        await supabase.from("bookings").insert([bookingData]);
+
+        // Trigger Zapier webhook for booking
+        await supabase.functions.invoke("send-booking-notification", {
+          body: {
+            ...bookingData,
+            formattedDate: format(selectedDate, "EEEE, MMMM d, yyyy"),
+            formattedTime: selectedTimeSlot ? TIME_SLOTS.find(s => s.value === selectedTimeSlot)?.time : "Flexible",
+          },
+        }).catch(console.error);
 
         toast.success("Tour request submitted! We'll confirm your appointment soon.");
       } else {
         // Submit as general inquiry
+        const leadId = crypto.randomUUID();
+        
         await supabase.from("project_leads").insert({
-          id: crypto.randomUUID(),
+          id: leadId,
           name: formData.name,
           phone: formData.phone,
           email: formData.email,
           message: formData.message,
           lead_source: "resale_inquiry",
-          agent_status: formData.hasAgent === "yes" ? "Working with agent" : formData.hasAgent === "no" ? "No agent" : null,
+          agent_status: formData.hasAgent === "yes" ? "yes" : formData.hasAgent === "no" ? "no" : null,
           landing_page: window.location.pathname,
           referrer: document.referrer || null,
           utm_source: utmSource,
           utm_medium: utmMedium,
           utm_campaign: utmCampaign,
         });
+
+        // Trigger Zapier webhook for lead
+        await supabase.functions.invoke("send-project-lead", {
+          body: { leadId },
+        }).catch(console.error);
 
         toast.success("Question submitted! We'll get back to you soon.");
       }
