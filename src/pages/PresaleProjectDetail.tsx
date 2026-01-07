@@ -616,6 +616,7 @@ export default function PresaleProjectDetail() {
               incentives={project.incentives}
               developerName={project.developer_name}
               strataFees={project.strata_fees}
+              assignmentFees={project.assignment_fees}
             />
           </div>
         </section>
@@ -644,7 +645,7 @@ export default function PresaleProjectDetail() {
                         </div>
                       )}
                       {project.assignment_fees && (
-                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                        <div className="hidden md:block bg-background/70 rounded-xl p-4 border border-border/30">
                           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Assignment</p>
                           <p className="font-semibold text-foreground">{project.assignment_fees}</p>
                         </div>
