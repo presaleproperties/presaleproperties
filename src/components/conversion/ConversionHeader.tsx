@@ -183,15 +183,11 @@ export function ConversionHeader() {
             </Link>
           </nav>
 
-          {/* Desktop CTAs */}
-          <div className="hidden lg:flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={openCallBack}>
+          {/* Desktop CTA */}
+          <div className="hidden lg:flex items-center">
+            <Button size="sm" onClick={openCallBack} className="shadow-sm">
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
-            </Button>
-            <Button size="sm" onClick={openChatNow} className="shadow-lg">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Chat Now
             </Button>
           </div>
 
