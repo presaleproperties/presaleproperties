@@ -437,59 +437,55 @@ export default function MapSearch() {
                     key={project.id} 
                     to={`/presale/${project.slug}`}
                     data-project-id={project.id}
-                    className="snap-start flex-shrink-0 w-[280px]"
+                    className="snap-start flex-shrink-0 w-[300px]"
                   >
                     <div className={`bg-card rounded-lg shadow-lg border-2 overflow-hidden transition-all ${
                       selectedProjectId === project.id 
                         ? 'border-primary ring-2 ring-primary/20' 
                         : 'border-border'
                     }`}>
-                      {/* Compact horizontal layout */}
-                      <div className="flex">
-                        {/* Image */}
-                        <div className="relative w-24 h-20 flex-shrink-0 bg-muted">
-                          {project.featured_image ? (
-                            <img
-                              src={project.featured_image}
-                              alt={project.name}
-                              className="w-full h-full object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Building2 className="h-6 w-6 text-muted-foreground" />
-                            </div>
-                          )}
-                        </div>
-                        {/* Content */}
-                        <div className="p-2 flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-1">
-                            <h4 className="font-semibold text-foreground text-xs truncate flex-1">
-                              {project.name}
-                            </h4>
-                            <Badge 
-                              variant="secondary" 
-                              className="text-[10px] px-1.5 py-0 h-4 flex-shrink-0"
-                            >
-                              {project.status === 'coming_soon' ? 'Soon' : 
-                               project.status === 'registering' ? 'Reg' : 
-                               project.status === 'active' ? 'Selling' : 'Sold'}
-                            </Badge>
+                      {/* Wide image on top */}
+                      <div className="relative w-full h-28 bg-muted">
+                        {project.featured_image ? (
+                          <img
+                            src={project.featured_image}
+                            alt={project.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Building2 className="h-6 w-6 text-muted-foreground" />
                           </div>
-                          <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                            {project.neighborhood}, {project.city}
-                          </p>
-                          <div className="flex items-center justify-between mt-1">
-                            <span className="text-xs font-semibold text-primary">
-                              {project.starting_price 
-                                ? `From $${(project.starting_price / 1000).toFixed(0)}K`
-                                : 'TBA'}
+                        )}
+                        {/* Status Badge */}
+                        <Badge 
+                          variant="secondary" 
+                          className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 bg-background/90 backdrop-blur-sm"
+                        >
+                          {project.status === 'coming_soon' ? 'Coming Soon' : 
+                           project.status === 'registering' ? 'Registering' : 
+                           project.status === 'active' ? 'Selling' : 'Sold Out'}
+                        </Badge>
+                      </div>
+                      {/* Content */}
+                      <div className="p-2.5">
+                        <h4 className="font-semibold text-foreground text-sm truncate">
+                          {project.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground truncate mt-0.5">
+                          {project.neighborhood}, {project.city}
+                        </p>
+                        <div className="flex items-center justify-between mt-1.5">
+                          <span className="text-sm font-semibold text-primary">
+                            {project.starting_price 
+                              ? `From $${(project.starting_price / 1000).toFixed(0)}K`
+                              : 'TBA'}
+                          </span>
+                          {project.completion_year && (
+                            <span className="text-xs text-muted-foreground">
+                              {project.completion_year}
                             </span>
-                            {project.completion_year && (
-                              <span className="text-[10px] text-muted-foreground">
-                                {project.completion_year}
-                              </span>
-                            )}
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
