@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import NotFound from "./NotFound";
+import NeighbourhoodProductPage from "./NeighbourhoodProductPage";
 import { Helmet } from "react-helmet-async";
 import { ChevronRight, Building2, Home, MapPin, Shield, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -265,15 +266,29 @@ export default function CityProductPage() {
     const townhomeMatch = slug.match(/^(.+)-presale-townhomes$/);
     
     if (condoMatch) {
-      return { citySlug: condoMatch[1], productType: "condos" };
+      return { citySlug: condoMatch[1], productType: "condos", isNeighbourhood: false };
     }
     if (townhomeMatch) {
-      return { citySlug: townhomeMatch[1], productType: "townhomes" };
+      return { citySlug: townhomeMatch[1], productType: "townhomes", isNeighbourhood: false };
     }
-    return { citySlug: null, productType: null };
+    
+    // Check for neighbourhood patterns: {city}-{neighbourhood}-presale or {city}-{neighbourhood}-resale
+    const neighbourhoodPresaleMatch = slug.match(/^([a-z]+)-([a-z-]+)-presale$/);
+    const neighbourhoodResaleMatch = slug.match(/^([a-z]+)-([a-z-]+)-resale$/);
+    
+    if (neighbourhoodPresaleMatch || neighbourhoodResaleMatch) {
+      return { citySlug: null, productType: null, isNeighbourhood: true };
+    }
+    
+    return { citySlug: null, productType: null, isNeighbourhood: false };
   }, [params.cityProductSlug]);
 
-  const { citySlug, productType } = parsedData;
+  const { citySlug, productType, isNeighbourhood } = parsedData;
+
+  // If this is a neighbourhood page, delegate to NeighbourhoodProductPage
+  if (isNeighbourhood) {
+    return <NeighbourhoodProductPage />;
+  }
 
   // Get page configuration
   const config = citySlug && productType ? CITY_PRODUCT_CONFIG[citySlug]?.[productType] : null;
