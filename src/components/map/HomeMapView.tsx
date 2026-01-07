@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +16,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-const DEFAULT_CENTER: [number, number] = [49.2500, -122.9000];
+const DEFAULT_CENTER: [number, number] = [49.25, -122.9];
 const DEFAULT_ZOOM = 10;
 
 interface Project {
@@ -39,80 +39,61 @@ interface HomeMapViewProps {
 }
 
 const formatPrice = (price: number) => {
-  if (price >= 1000000) {
-    return `$${(price / 1000000).toFixed(1)}M`;
-  }
+  if (price >= 1_000_000) return `$${(price / 1_000_000).toFixed(1)}M`;
   return `$${(price / 1000).toFixed(0)}K`;
 };
 
 const getStatusLabel = (status: string) => {
   switch (status) {
-    case "active": return "Selling Now";
-    case "registering": return "Registering";
-    case "coming_soon": return "Coming Soon";
-    case "sold_out": return "Sold Out";
-    default: return null;
+    case "active":
+      return "Selling Now";
+    case "registering":
+      return "Registering";
+    case "coming_soon":
+      return "Coming Soon";
+    case "sold_out":
+      return "Sold Out";
+    default:
+      return null;
   }
 };
 
 const getStatusColor = (status: string) => {
   switch (status) {
-    case "active": return "bg-green-500";
-    case "registering": return "bg-purple-500";
-    case "coming_soon": return "bg-blue-500";
-    case "sold_out": return "bg-gray-500";
-    default: return "bg-blue-500";
+    case "active":
+      return "bg-green-500";
+    case "registering":
+      return "bg-purple-500";
+    case "coming_soon":
+      return "bg-blue-500";
+    case "sold_out":
+      return "bg-gray-500";
+    default:
+      return "bg-blue-500";
   }
 };
 
-// Component to fit bounds
-function FitBoundsControl({ projects }: { projects: Project[] }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (!map || projects.length === 0) return;
-    
-    const validProjects = projects.filter(p => p.map_lat && p.map_lng);
-    if (validProjects.length === 0) return;
-    
-    const bounds = L.latLngBounds(
-      validProjects.map(p => L.latLng(p.map_lat!, p.map_lng!))
-    );
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
-  }, [projects, map]);
-  
-  return null;
-}
-
-// Reset map button
-function ResetMapButton() {
-  const map = useMap();
-  
-  const handleReset = () => {
-    map.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
-  };
-  
-  return (
-    <button
-      onClick={handleReset}
-      className="absolute top-3 right-3 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg p-2 border shadow-md hover:bg-muted transition-colors"
-      title="Reset map view"
-    >
-      <RotateCcw className="h-4 w-4" />
-    </button>
-  );
-}
-
 export function HomeMapView({ projects, isLoading }: HomeMapViewProps) {
   const [isMounted, setIsMounted] = useState(false);
-  
+  const [map, setMap] = useState<L.Map | null>(null);
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
 
-  const validProjects = useMemo(() => {
-    return projects.filter(p => p.map_lat && p.map_lng);
-  }, [projects]);
+  const validProjects = useMemo(() => projects.filter((p) => p.map_lat && p.map_lng), [projects]);
+
+  useEffect(() => {
+    if (!map) return;
+    if (validProjects.length === 0) return;
+
+    const bounds = L.latLngBounds(validProjects.map((p) => L.latLng(p.map_lat!, p.map_lng!)));
+    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12 });
+  }, [map, validProjects]);
+
+  const handleReset = useCallback(() => {
+    map?.setView(DEFAULT_CENTER, DEFAULT_ZOOM);
+  }, [map]);
 
   if (isLoading || !isMounted) {
     return (
@@ -143,15 +124,13 @@ export function HomeMapView({ projects, isLoading }: HomeMapViewProps) {
         zoom={DEFAULT_ZOOM}
         className="h-full w-full"
         scrollWheelZoom={true}
+        ref={setMap}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        
-        <FitBoundsControl projects={validProjects} />
-        <ResetMapButton />
-        
+
         {validProjects.map((project) => (
           <Marker
             key={project.id}
@@ -167,6 +146,7 @@ export function HomeMapView({ projects, isLoading }: HomeMapViewProps) {
                     className="w-full h-28 object-cover rounded-md mb-2"
                   />
                 ) : null}
+
                 <div className="space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
@@ -174,14 +154,18 @@ export function HomeMapView({ projects, isLoading }: HomeMapViewProps) {
                       {getStatusLabel(project.status)}
                     </Badge>
                   </div>
+
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <MapPin className="h-3 w-3" />
                     {project.neighborhood}, {project.city}
                   </p>
+
                   {project.starting_price ? (
                     <p className="text-sm font-medium">From {formatPrice(project.starting_price)}</p>
                   ) : null}
+
                   <p className="text-xs text-muted-foreground capitalize">{project.project_type}</p>
+
                   <Link to={`/presale-projects/${project.slug}`}>
                     <Button size="sm" className="w-full mt-2 text-xs h-8">
                       View Project
@@ -194,21 +178,27 @@ export function HomeMapView({ projects, isLoading }: HomeMapViewProps) {
           </Marker>
         ))}
       </MapContainer>
-      
-      {/* Legend */}
+
+      <button
+        onClick={handleReset}
+        className="absolute top-3 right-3 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg p-2 border shadow-md hover:bg-muted transition-colors"
+        title="Reset map view"
+        type="button"
+      >
+        <RotateCcw className="h-4 w-4" />
+      </button>
+
       <div className="absolute bottom-3 left-3 z-[1000] bg-background/95 backdrop-blur-sm rounded-lg p-2.5 border shadow-md text-xs">
         <p className="font-medium mb-1.5">Status</p>
         <div className="space-y-1">
-          {[
-            { status: "active", label: "Selling" },
-            { status: "registering", label: "Registering" },
-            { status: "coming_soon", label: "Coming" },
-          ].map(({ status, label }) => (
-            <div key={status} className="flex items-center gap-1.5">
-              <span className={`w-2.5 h-2.5 rounded-full ${getStatusColor(status)}`} />
-              <span>{label}</span>
-            </div>
-          ))}
+          {[{ status: "active", label: "Selling" }, { status: "registering", label: "Registering" }, { status: "coming_soon", label: "Coming" }].map(
+            ({ status, label }) => (
+              <div key={status} className="flex items-center gap-1.5">
+                <span className={`w-2.5 h-2.5 rounded-full ${getStatusColor(status)}`} />
+                <span>{label}</span>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>
