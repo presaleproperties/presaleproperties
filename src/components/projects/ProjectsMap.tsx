@@ -265,9 +265,8 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
 
     mappedProjects.forEach((p) => {
       const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon(p) });
-      marker.bindPopup(popupHtml(p), { maxWidth: 280 });
       
-      // Trigger callback when marker is clicked
+      // Only trigger carousel selection, no popup
       marker.on('click', () => {
         onProjectSelect?.(p.id);
       });

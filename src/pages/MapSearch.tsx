@@ -323,26 +323,18 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative">
           {/* Map Section */}
           <div className={`relative transition-all duration-300 h-full ${showList ? "lg:w-3/5" : "w-full"} w-full`}>
-            {/* Presale/Resale Toggle - Top Center of Map */}
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
-              <div className="flex bg-background/95 backdrop-blur-sm rounded-full p-1 shadow-lg border border-border">
+            {/* Presale/Resale Toggle - Minimal pill style */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
+              <div className="flex bg-background/90 backdrop-blur-sm rounded-full p-0.5 shadow-md border border-border/50 text-xs">
                 <Link to="/map-search">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full px-4 bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
-                  >
+                  <button className="px-3 py-1.5 rounded-full font-medium bg-foreground text-background">
                     Presale
-                  </Button>
+                  </button>
                 </Link>
                 <Link to="/resale-map">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full px-4"
-                  >
+                  <button className="px-3 py-1.5 rounded-full font-medium text-muted-foreground hover:text-foreground transition-colors">
                     Resale
-                  </Button>
+                  </button>
                 </Link>
               </div>
             </div>
