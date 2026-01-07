@@ -81,18 +81,27 @@ export default function MapSearch() {
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
   const [visibleProjectIds, setVisibleProjectIds] = useState<string[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const desktopListRef = useRef<HTMLDivElement>(null);
 
   const handleProjectSelect = useCallback((projectId: string) => {
     setSelectedProjectId(projectId);
-    // Show carousel if hidden and scroll to the selected project
+    // Show carousel if hidden (mobile/tablet)
     setShowCarousel(true);
     
-    // Small delay to ensure carousel is rendered before scrolling
+    // Small delay to ensure elements are rendered before scrolling
     setTimeout(() => {
+      // Scroll carousel (mobile/tablet)
       if (carouselRef.current) {
         const cardElement = carouselRef.current.querySelector(`[data-project-id="${projectId}"]`);
         if (cardElement) {
           cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+      // Scroll desktop list
+      if (desktopListRef.current) {
+        const cardElement = desktopListRef.current.querySelector(`[data-project-id="${projectId}"]`);
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }, 100);
@@ -466,7 +475,7 @@ export default function MapSearch() {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-4">
+              <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
                 {visibleProjects.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Building2 className="h-10 w-10 mx-auto mb-2" />
@@ -476,7 +485,7 @@ export default function MapSearch() {
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {visibleProjects.slice(0, 30).map((project) => (
-                      <Link key={project.id} to={`/presale-projects/${project.slug}`} className="block">
+                      <Link key={project.id} to={`/presale-projects/${project.slug}`} className="block" data-project-id={project.id}>
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
                           selectedProjectId === project.id ? 'ring-2 ring-primary border-primary' : 'border-border'
                         }`}>
