@@ -165,7 +165,7 @@ export function SafeMapWrapper({
   );
 
   return (
-    <div className="relative">
+    <div className={`relative ${height}`}>
       <MapErrorBoundary 
         fallback={ErrorFallback} 
         onError={(error) => handleError(error)}
