@@ -23,6 +23,8 @@ const TOP_CITIES = [
   { name: "Langley", slug: "langley" },
   { name: "Coquitlam", slug: "coquitlam" },
   { name: "Richmond", slug: "richmond" },
+  { name: "Abbotsford", slug: "abbotsford" },
+  { name: "Delta", slug: "delta" },
 ];
 
 export function MobileHomePage() {
