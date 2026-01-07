@@ -1,4 +1,6 @@
 import { Helmet } from "react-helmet-async";
+import { Link } from "react-router-dom";
+import { Map } from "lucide-react";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
@@ -12,6 +14,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
 import { HomeMapSection } from "@/components/home/HomeMapSection";
+import { Button } from "@/components/ui/button";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
@@ -303,6 +306,20 @@ const Index = () => {
           <BuyerCTASection />
         </ScrollReveal>
       </main>
+      
+      {/* Floating Map Button */}
+      <Link 
+        to="/map-search"
+        className="fixed bottom-6 right-6 z-50 md:bottom-8 md:right-8"
+      >
+        <Button 
+          size="lg" 
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+        >
+          <Map className="h-6 w-6" />
+          <span className="sr-only">View Map</span>
+        </Button>
+      </Link>
       
       <Footer />
     </div>
