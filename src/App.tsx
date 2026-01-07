@@ -51,6 +51,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { UtmTracker } from "@/components/UtmTracker";
+import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
@@ -69,6 +70,7 @@ const App = () => (
           <SwipeNavigationProvider>
             <ScrollToTop />
             <UtmTracker />
+            <LoftyPageTracker />
             <FloatingMapButton />
           <Routes>
             {/* Public Routes */}
