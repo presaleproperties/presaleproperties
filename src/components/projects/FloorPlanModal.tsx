@@ -23,7 +23,7 @@ export function FloorPlanModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md p-0 overflow-hidden bg-card border-0 max-h-[80vh] overflow-y-auto rounded-2xl shadow-2xl [&>button]:hidden mx-3"
+        className="w-[calc(100%-24px)] max-w-md p-0 overflow-hidden bg-card border-0 max-h-[80vh] overflow-y-auto rounded-2xl shadow-2xl [&>button]:hidden"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <VisuallyHidden>
