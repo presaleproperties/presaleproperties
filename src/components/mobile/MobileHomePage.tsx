@@ -132,16 +132,19 @@ export function MobileHomePage() {
         {/* Hero Content - Centered */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8 text-center">
           {/* Tagline */}
-          <p className="text-white/90 text-xs font-medium tracking-wide mb-3">
+          <p className="text-primary text-xs font-medium tracking-wide mb-2">
             Metro Vancouver's #1 Presale Marketplace
           </p>
           
-          {/* Main Heading - Bold and impactful */}
-          <h1 className="text-3xl font-bold text-white leading-tight mb-8">
-            Made for{" "}
-            <span className="text-primary">presale</span>{" "}
-            people
+          {/* Main Heading */}
+          <h1 className="text-2xl font-bold text-white leading-tight mb-2">
+            Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
+          
+          {/* Subheading */}
+          <p className="text-white/80 text-xs mb-6 max-w-xs">
+            Get instant access to floor plans, pricing & book a preview
+          </p>
 
           {/* Floating Search Card */}
           <div 
