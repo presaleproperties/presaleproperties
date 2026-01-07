@@ -347,7 +347,7 @@ export default function MapSearch() {
             </SafeMapWrapper>
 
             {/* Bottom Carousel - Shows on mobile, tablet, AND desktop when list is hidden */}
-            {visibleProjects.length > 0 && (!showList || isMobile) && (
+            {visibleProjects.length > 0 && isMobile && (
               <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-4 lg:pb-6">
                 {/* Header row - visible on tablet and desktop */}
                 <div className="hidden sm:flex items-center justify-between px-4 md:px-6 pb-3">
