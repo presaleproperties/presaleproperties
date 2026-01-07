@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Sparkles, Download, MessageCircle, Shield, Clock, Users, ArrowRight } from "lucide-react";
+import { Send, CheckCircle, Download, MessageCircle, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +15,8 @@ import { trackCTAClick } from "@/hooks/useLoftyTracking";
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
 const leadSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100),
+  firstName: z.string().trim().min(1, "First name is required").max(50),
+  lastName: z.string().trim().min(1, "Last name is required").max(50),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   persona: z.enum(["first_time", "investor"]),
@@ -41,7 +42,7 @@ const PERSONAS = [
 const AGENT_OPTIONS = [
   { value: "no", label: "No" },
   { value: "yes", label: "Yes" },
-  { value: "i_am_realtor", label: "I am a Realtor" },
+  { value: "i_am_realtor", label: "I'm a Realtor" },
 ];
 
 const HOME_SIZES = [
@@ -74,7 +75,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const form = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
     defaultValues: {
-      name: "",
+      firstName: "",
+      lastName: "",
       email: "",
       phone: "",
       persona: "first_time",
@@ -85,8 +87,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
   const onInvalid = () => {
     toast({
-      title: "Please check the form",
-      description: "Name, email, and phone number are required.",
+      title: "Please complete the form",
+      description: "All fields are required.",
       variant: "destructive",
     });
   };
@@ -104,6 +106,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     });
 
     try {
+      const fullName = `${data.firstName} ${data.lastName}`.trim();
       const messageData = [
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
@@ -126,7 +129,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           {
             id: leadId,
             project_id: projectId,
-            name: data.name,
+            name: fullName,
             email: data.email,
             phone: data.phone,
             message: messageData,
@@ -202,7 +205,6 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   if (isSubmitted) {
     return (
       <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-        {/* Header - Neutral dark gradient */}
         <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
           <div className="flex items-center gap-3">
             <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500/20 rounded-full">
@@ -249,43 +251,23 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     switch (status) {
       case "coming_soon":
         return {
-          badge: "Coming Soon",
-          badgeIcon: <Sparkles className="h-3 w-3" />,
-          title: "Get Early Access",
-          subtitle: "Floor Plans & Pricing",
-          description: "Be the first to receive exclusive pricing and floor plans.",
+          title: "Get Early Access to Floor Plans & Pricing",
           buttonText: "Get Early Access",
-          buttonIcon: <ArrowRight className="h-5 w-5" />,
         };
       case "registering":
         return {
-          badge: "Registering",
-          badgeIcon: <Sparkles className="h-3 w-3" />,
-          title: "Register Now",
-          subtitle: "Priority Access",
-          description: "Register for VIP access to pricing and floor plans.",
+          title: "Register for VIP Access",
           buttonText: "Register Now",
-          buttonIcon: <ArrowRight className="h-5 w-5" />,
         };
       case "active":
         return {
-          badge: "Instant Access",
-          badgeIcon: <Download className="h-3 w-3" />,
-          title: "Get Floor Plans",
-          subtitle: "& Pricing Instantly",
-          description: "Access all floor plans, pricing, and current incentives.",
+          title: "Get Floor Plans & Pricing",
           buttonText: "Get Instant Access",
-          buttonIcon: <ArrowRight className="h-5 w-5" />,
         };
       default:
         return {
-          badge: "Sold Out",
-          badgeIcon: null,
-          title: "Get Notified",
-          subtitle: "of Similar Projects",
-          description: "Be first to know about similar upcoming projects.",
+          title: "Get Notified of Similar Projects",
           buttonText: "Notify Me",
-          buttonIcon: <Send className="h-5 w-5" />,
         };
     }
   };
@@ -294,15 +276,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
   return (
     <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-      {/* Header - Neutral dark gradient for welcoming feel */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 md:py-4">
-        <div className="flex items-center gap-2 flex-wrap mb-2">
-          {content.badgeIcon && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary bg-primary/20 px-2.5 py-1 rounded-full">
-              {content.badgeIcon}
-              {content.badge}
-            </span>
-          )}
+      {/* Header */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
+        <div className="flex items-center gap-2 flex-wrap mb-1">
           {brochureUrl && (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full">
               <Download className="h-3 w-3" />
@@ -310,74 +286,86 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </span>
           )}
         </div>
-        <h3 className="text-xl font-bold text-background leading-tight">
+        <h3 className="text-lg font-bold text-background leading-snug">
           {content.title}
-          <span className="block text-background/85 text-lg">{content.subtitle}</span>
         </h3>
-        <p className="text-xs text-background/70 mt-1">{content.description}</p>
       </div>
 
-      {/* Form */}
-      <div className="p-5 md:p-5 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-4 md:space-y-4">
-          {/* Contact Fields */}
-          <div className="space-y-3">
+      {/* Form - optimized for conversion */}
+      <div className="p-4 bg-card">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-3">
+          {/* First Name & Last Name - side by side */}
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="lead-name" className="text-xs font-semibold mb-1.5 block">
-                Name <span className="text-destructive">*</span>
+              <Label htmlFor="lead-firstName" className="text-xs font-medium text-muted-foreground mb-1 block">
+                First Name
               </Label>
               <Input
-                id="lead-name"
-                placeholder="John Smith"
-                autoComplete="name"
-                {...form.register("name")}
-                className="h-12 text-base rounded-lg"
+                id="lead-firstName"
+                placeholder="John"
+                autoComplete="given-name"
+                {...form.register("firstName")}
+                className="h-11 text-base rounded-lg border-border"
               />
             </div>
-
             <div>
-              <Label htmlFor="lead-phone" className="text-xs font-semibold mb-1.5 block">
-                Phone <span className="text-destructive">*</span>
+              <Label htmlFor="lead-lastName" className="text-xs font-medium text-muted-foreground mb-1 block">
+                Last Name
               </Label>
               <Input
-                id="lead-phone"
-                type="tel"
-                placeholder="604-555-0123"
-                autoComplete="tel"
-                {...form.register("phone")}
-                className="h-12 text-base rounded-lg"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="lead-email" className="text-xs font-semibold mb-1.5 block">
-                Email <span className="text-destructive">*</span>
-              </Label>
-              <Input
-                id="lead-email"
-                type="email"
-                placeholder="john@email.com"
-                autoComplete="email"
-                {...form.register("email")}
-                className="h-12 text-base rounded-lg"
+                id="lead-lastName"
+                placeholder="Smith"
+                autoComplete="family-name"
+                {...form.register("lastName")}
+                className="h-11 text-base rounded-lg border-border"
               />
             </div>
           </div>
 
+          {/* Email */}
+          <div>
+            <Label htmlFor="lead-email" className="text-xs font-medium text-muted-foreground mb-1 block">
+              Email
+            </Label>
+            <Input
+              id="lead-email"
+              type="email"
+              placeholder="john@email.com"
+              autoComplete="email"
+              {...form.register("email")}
+              className="h-11 text-base rounded-lg border-border"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <Label htmlFor="lead-phone" className="text-xs font-medium text-muted-foreground mb-1 block">
+              Phone
+            </Label>
+            <Input
+              id="lead-phone"
+              type="tel"
+              placeholder="604-555-0123"
+              autoComplete="tel"
+              {...form.register("phone")}
+              className="h-11 text-base rounded-lg border-border"
+            />
+          </div>
+
           {/* I am a... */}
           <div>
-            <Label className="text-xs font-semibold mb-2 block">
-              I am a... <span className="text-destructive">*</span>
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              I am a...
             </Label>
             <RadioGroup
               value={form.watch("persona")}
               onValueChange={(v) => form.setValue("persona", v as any)}
-              className="grid grid-cols-2 gap-2.5"
+              className="grid grid-cols-2 gap-2"
             >
               {PERSONAS.map((p) => (
                 <Label
                   key={p.value}
-                  className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center h-10 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
                     form.watch("persona") === p.value
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50"
@@ -392,18 +380,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Working with agent */}
           <div>
-            <Label className="text-xs font-semibold mb-2 block">
-              Working with a Realtor? <span className="text-destructive">*</span>
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Working with a Realtor?
             </Label>
             <RadioGroup
               value={form.watch("workingWithAgent")}
               onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-              className="grid grid-cols-3 gap-2.5"
+              className="grid grid-cols-3 gap-2"
             >
               {AGENT_OPTIONS.map((a) => (
                 <Label
                   key={a.value}
-                  className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all text-center px-1 ${
+                  className={`flex items-center justify-center h-10 rounded-lg border cursor-pointer text-xs font-medium transition-all text-center px-1 ${
                     form.watch("workingWithAgent") === a.value
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50"
@@ -418,18 +406,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Interested in Home Size */}
           <div>
-            <Label className="text-xs font-semibold mb-2 block">
-              Interested in <span className="text-destructive">*</span>
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Home Size
             </Label>
             <RadioGroup
               value={form.watch("homeSize")}
               onValueChange={(v) => form.setValue("homeSize", v as any)}
-              className="grid grid-cols-3 gap-2.5"
+              className="grid grid-cols-3 gap-2"
             >
               {HOME_SIZES.map((size) => (
                 <Label
                   key={size.value}
-                  className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center h-10 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
                     form.watch("homeSize") === size.value
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50"
@@ -445,7 +433,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-14 text-base font-bold rounded-xl gap-2 shadow-lg mt-2"
+            className="w-full h-12 text-base font-bold rounded-lg gap-2 shadow-md"
             size="lg"
             disabled={isSubmitting}
           >
@@ -457,26 +445,20 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             ) : (
               <>
                 {content.buttonText}
-                {content.buttonIcon}
+                <ArrowRight className="h-4 w-4" />
               </>
             )}
           </Button>
 
-          {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-5 pt-2 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1.5">
-              <Shield className="h-3.5 w-3.5 text-green-500" />
-              Secure
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5 text-blue-500" />
-              Instant
-            </span>
-            <span className="flex items-center gap-1.5">
-              <Users className="h-3.5 w-3.5 text-purple-500" />
-              Free
-            </span>
-          </div>
+          {/* Optimized Disclaimer */}
+          <p className="text-[10px] leading-relaxed text-muted-foreground text-center pt-1">
+            By submitting, you agree to receive communications from PresaleProperties about this listing and similar properties. 
+            This is not a condition of purchase. Message and data rates may apply. 
+            View our{" "}
+            <a href="/privacy" className="underline hover:text-foreground">
+              Privacy Policy
+            </a>.
+          </p>
         </form>
       </div>
     </div>
