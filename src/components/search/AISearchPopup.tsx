@@ -695,12 +695,25 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
               <X className="h-4 w-4 text-muted-foreground" />
             </button>
             
-            {/* Compact Header */}
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <h3 className="text-base font-medium text-foreground">
-                Find your presale
+            {/* Friendly Welcome Header */}
+            <div className="text-center mb-5">
+              <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 mb-3">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="text-lg font-semibold text-foreground mb-1">
+                Hi! I'm your AI helper 👋
               </h3>
+              <p className="text-sm text-muted-foreground">
+                Just tell me what you're looking for — like talking to a friend!
+              </p>
+            </div>
+            
+            {/* Simple Instructions */}
+            <div className="bg-muted/40 rounded-xl p-3 mb-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                <span className="font-medium text-foreground">How it works:</span>{" "}
+                Type what you want (like "2 bedroom in Surrey") and I'll find matching homes for you.
+              </p>
             </div>
             
             {/* Mobile-Optimized Search Input with Typeahead */}
@@ -721,7 +734,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                   onKeyDown={handleInputKeyDown}
                   onFocus={() => query.length >= 2 && typeaheadSuggestions.length > 0 && setShowTypeahead(true)}
                   onBlur={() => setTimeout(() => setShowTypeahead(false), 200)}
-                  placeholder="Try 'Langley' or '2 bed under 600k'"
+                  placeholder="What are you looking for?"
                   className="w-full pl-11 pr-24 py-3.5 sm:py-3 rounded-xl bg-transparent text-base sm:text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
                   disabled={isLoading}
                   autoComplete="off"
@@ -817,13 +830,15 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
 
             {/* Quick Search Chips - Scrollable on mobile */}
             <div className="mt-4">
-              <p className="text-xs text-muted-foreground text-center mb-2">Quick searches</p>
+              <p className="text-xs text-muted-foreground text-center mb-2.5">
+                Or tap one of these to get started:
+              </p>
               <div className="flex flex-wrap gap-2 justify-center">
-                {["2 bed Langley", "Under $600k", "Townhouse", "Surrey"].map((example) => (
+                {["2 bedroom in Langley", "Under $600k", "Townhouse", "Surrey condos"].map((example) => (
                   <button
                     key={example}
                     onClick={() => handleSearch(example)}
-                    className="px-3 py-2 text-sm rounded-full bg-muted/80 hover:bg-muted active:bg-muted text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                    className="px-3.5 py-2.5 text-sm rounded-full bg-primary/10 hover:bg-primary/20 active:bg-primary/25 text-primary font-medium transition-colors touch-manipulation"
                   >
                     {example}
                   </button>
