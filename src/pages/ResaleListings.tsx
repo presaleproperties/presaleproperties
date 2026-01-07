@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -24,9 +24,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
+
+// Lazy load map component
+const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
 
 const ITEMS_PER_PAGE = 16;
 
@@ -605,7 +607,36 @@ export default function ResaleListings() {
             </div>
           </main>
 
-          <BuyerCTASection />
+          {/* Map Section */}
+          <section className="py-12 bg-muted/30">
+            <div className="container">
+              <div className="text-center mb-6">
+                <h2 className="text-2xl font-bold text-foreground mb-2">Explore on Map</h2>
+                <p className="text-muted-foreground">Find resale properties near you</p>
+              </div>
+              <Suspense fallback={
+                <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+                    <p>Loading map...</p>
+                  </div>
+                </div>
+              }>
+                <div className="rounded-xl overflow-hidden border border-border">
+                  <ResaleListingsMap listings={filteredListings} isLoading={isLoading} />
+                </div>
+              </Suspense>
+              <div className="text-center mt-4">
+                <Link to="/resale-map">
+                  <Button variant="outline" className="gap-2">
+                    <Map className="h-4 w-4" />
+                    Open Full Map Search
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </section>
+
           <Footer />
         </div>
       </PullToRefresh>

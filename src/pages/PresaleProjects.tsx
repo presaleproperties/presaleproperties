@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, useLocation } from "react-router-dom";
+import { useSearchParams, useLocation, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,6 @@ import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
@@ -898,16 +897,42 @@ export default function PresaleProjects() {
           </div>
         </main>
 
+        {/* Map Section */}
+        <section className="py-12 bg-muted/30">
+          <div className="container">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-foreground mb-2">Explore on Map</h2>
+              <p className="text-muted-foreground">Find presale projects near you</p>
+            </div>
+            <Suspense fallback={
+              <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+                  <p>Loading map...</p>
+                </div>
+              </div>
+            }>
+              <div className="rounded-xl overflow-hidden border border-border">
+                <ProjectsMap projects={filteredProjects} isLoading={isLoading} />
+              </div>
+            </Suspense>
+            <div className="text-center mt-4">
+              <Link to="/map-search">
+                <Button variant="outline" className="gap-2">
+                  <Map className="h-4 w-4" />
+                  Open Full Map Search
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
+
         <ScrollReveal animation="fade-up">
           <NewConstructionBenefits />
         </ScrollReveal>
         
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
-        </ScrollReveal>
-        
-        <ScrollReveal animation="scale" delay={100}>
-          <BuyerCTASection />
         </ScrollReveal>
         
         <Footer />

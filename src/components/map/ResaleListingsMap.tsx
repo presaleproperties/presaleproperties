@@ -19,7 +19,7 @@ interface MLSListing {
   neighborhood: string | null;
   street_number: string | null;
   street_name: string | null;
-  street_suffix: string | null;
+  street_suffix?: string | null;
   property_type: string;
   property_sub_type: string | null;
   bedrooms_total: number | null;
@@ -33,6 +33,7 @@ interface MLSListing {
 
 interface ResaleListingsMapProps {
   listings: MLSListing[];
+  isLoading?: boolean;
   onListingSelect?: (listingId: string) => void;
   onVisibleListingsChange?: (listingIds: string[]) => void;
 }
