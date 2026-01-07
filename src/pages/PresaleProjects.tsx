@@ -620,6 +620,35 @@ export default function PresaleProjects() {
                 )}
               </p>
             </div>
+            
+            {/* Quick City Filter Chips */}
+            <div className="mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 pb-1">
+                <button
+                  onClick={() => updateFilter("city", "any")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    filters.city === "any"
+                      ? "bg-foreground text-background"
+                      : "bg-muted hover:bg-muted/80 text-foreground"
+                  }`}
+                >
+                  All Cities
+                </button>
+                {["Surrey", "Langley", "Coquitlam", "Burnaby", "Vancouver", "Richmond", "Delta", "Abbotsford"].map((city) => (
+                  <button
+                    key={city}
+                    onClick={() => updateFilter("city", city)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                      filters.city === city
+                        ? "bg-foreground text-background"
+                        : "bg-muted hover:bg-muted/80 text-foreground"
+                    }`}
+                  >
+                    {city}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
         </section>
 
