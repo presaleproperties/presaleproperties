@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { Map } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useRef, useMemo } from "react";
 
@@ -134,20 +134,24 @@ export function FloatingMapButton() {
     <Link
       to={buildMapUrl()}
       className={cn(
-        "fixed bottom-6 right-4 z-50 flex items-center justify-center",
-        "w-14 h-14 rounded-full",
+        "fixed bottom-6 right-4 z-50",
+        "flex items-center gap-2 px-4 py-3",
+        "rounded-full",
         "bg-foreground text-background",
-        "shadow-lg hover:bg-foreground/90",
-        "hover:scale-110 active:scale-95",
+        "shadow-[0_4px_20px_rgba(0,0,0,0.25)]",
+        "hover:shadow-[0_6px_28px_rgba(0,0,0,0.35)]",
+        "active:scale-95",
         "transition-all duration-300",
-        "lg:right-6", // Slightly more padding on desktop
+        "lg:right-6",
+        "backdrop-blur-sm",
         isVisible 
           ? "translate-y-0 opacity-100" 
           : "translate-y-20 opacity-0 pointer-events-none"
       )}
       aria-label={`View ${mapContext.city || "all"} projects on map`}
     >
-      <MapPin className="h-6 w-6" />
+      <Map className="h-5 w-5" />
+      <span className="text-sm font-semibold">Map</span>
     </Link>
   );
 }
