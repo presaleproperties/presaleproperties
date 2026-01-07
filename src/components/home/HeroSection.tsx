@@ -81,10 +81,6 @@ export function HeroSection() {
             Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
 
-          {/* Subheading - Value proposition */}
-          <p className="text-white/80 text-sm sm:text-base md:text-lg animate-fade-in max-w-xl mx-auto" style={{ animationDelay: "0.15s" }}>
-            Get instant access to floor plans, pricing sheets & book a private preview with our team
-          </p>
 
           {/* Floating Search Card - Compact on mobile */}
           <div 
