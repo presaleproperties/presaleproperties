@@ -358,7 +358,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
   }
 
   return (
-    <div className="relative h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
+    <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full" />
 
       {/* Custom controls - stacked on right */}
