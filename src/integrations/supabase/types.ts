@@ -220,6 +220,48 @@ export type Database = {
           },
         ]
       }
+      developers: {
+        Row: {
+          city: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          logo_url: string | null
+          name: string
+          project_count: number | null
+          slug: string
+          updated_at: string
+          website_url: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name: string
+          project_count?: number | null
+          slug: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          logo_url?: string | null
+          name?: string
+          project_count?: number | null
+          slug?: string
+          updated_at?: string
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       email_campaigns: {
         Row: {
           created_at: string
@@ -1016,6 +1058,7 @@ export type Database = {
           created_at: string
           deposit_percent: number | null
           deposit_structure: string | null
+          developer_id: string | null
           developer_name: string | null
           faq: Json | null
           featured_image: string | null
@@ -1065,6 +1108,7 @@ export type Database = {
           created_at?: string
           deposit_percent?: number | null
           deposit_structure?: string | null
+          developer_id?: string | null
           developer_name?: string | null
           faq?: Json | null
           featured_image?: string | null
@@ -1114,6 +1158,7 @@ export type Database = {
           created_at?: string
           deposit_percent?: number | null
           deposit_structure?: string | null
+          developer_id?: string | null
           developer_name?: string | null
           faq?: Json | null
           featured_image?: string | null
@@ -1151,7 +1196,15 @@ export type Database = {
           updated_at?: string
           view_count?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "presale_projects_developer_id_fkey"
+            columns: ["developer_id"]
+            isOneToOne: false
+            referencedRelation: "developers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
