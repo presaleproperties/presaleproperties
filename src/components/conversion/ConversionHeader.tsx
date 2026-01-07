@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Calculator } from "lucide-react";
+import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Calculator, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -192,7 +192,20 @@ export function ConversionHeader() {
           </div>
 
           {/* Mobile Menu */}
-          <div className="flex items-center gap-1 lg:hidden">
+          <div className="flex items-center gap-0.5 lg:hidden">
+            {/* Mobile Home Button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 shrink-0" 
+              asChild
+            >
+              <Link to="/">
+                <Home className="h-5 w-5" />
+                <span className="sr-only">Home</span>
+              </Link>
+            </Button>
+            
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
