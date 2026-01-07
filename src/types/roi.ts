@@ -168,7 +168,7 @@ export const DEFAULT_INPUTS: ROIInputs = {
   },
   rental: {
     monthlyRentStart: 2400,
-    annualRentGrowthPercent: 3,
+    annualRentGrowthPercent: 2.5,
     vacancyPercent: 3,
     otherIncomeMonthly: 0,
     managementPercent: 0,
