@@ -132,10 +132,13 @@ export default function MapSearch() {
     );
   }, [allProjects, searchQuery]);
 
-  // Projects with valid coordinates for map
-  const mapProjects = useMemo(() => {
-    return filteredProjects.filter(p => p.map_lat && p.map_lng);
+  // Projects with valid coordinates (used for stats only)
+  const projectsWithCoords = useMemo(() => {
+    return filteredProjects.filter((p) => p.map_lat && p.map_lng);
   }, [filteredProjects]);
+
+  // Projects to render on map (falls back to city centers when coordinates are missing)
+  const mapProjects = filteredProjects;
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -327,9 +330,11 @@ export default function MapSearch() {
             <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="h-4 w-4" />
               <span>
-                {mapProjects.length} projects on map
-                {filteredProjects.length > mapProjects.length && (
-                  <span className="text-xs"> ({filteredProjects.length - mapProjects.length} without coordinates)</span>
+                {filteredProjects.length} projects found
+                {projectsWithCoords.length !== filteredProjects.length && (
+                  <span className="text-xs">
+                    {" "}({filteredProjects.length - projectsWithCoords.length} without coordinates)
+                  </span>
                 )}
               </span>
             </div>

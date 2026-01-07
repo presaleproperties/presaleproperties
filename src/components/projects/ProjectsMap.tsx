@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap, Circle } from "react-leaflet";
-import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Building2, MapPin, ExternalLink, Navigation, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Fix Leaflet default marker icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
@@ -253,9 +251,8 @@ function GeolocationControl({
 }
 
 export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
-  const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  
+
   // Get projects with coordinates (use city center as fallback)
   const mappedProjects = useMemo(() => {
     return projects.map(project => {
@@ -324,60 +321,51 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
             }}
           />
         )}
-        <MarkerClusterGroup
-          chunkedLoading
-          iconCreateFunction={createClusterCustomIcon}
-          maxClusterRadius={60}
-          spiderfyOnMaxZoom={true}
-          showCoverageOnHover={false}
-          disableClusteringAtZoom={15}
-        >
-          {mappedProjects.map((project) => (
-            <Marker
-              key={project.id}
-              position={[project.lat, project.lng]}
-              icon={createCustomIcon(project.status)}
-              eventHandlers={{
-                click: () => setSelectedProject(project.id),
-              }}
-            >
-              <Popup maxWidth={280} className="project-popup">
-                <div className="p-1">
-                  {project.featured_image && (
-                    <img
-                      src={project.featured_image}
-                      alt={project.name}
-                      className="w-full h-32 object-cover rounded-md mb-2"
-                    />
-                  )}
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
-                      <Badge className={`${getStatusColor(project.status)} text-[10px] px-1.5 py-0.5 shrink-0`}>
-                        {getStatusLabel(project.status)}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {project.neighborhood}, {project.city}
-                    </p>
-                    {project.starting_price && (
-                      <p className="text-sm font-medium">
-                        From {formatPrice(project.starting_price)}
-                      </p>
-                    )}
-                    <Link to={`/presale-projects/${project.slug}`}>
-                      <Button size="sm" className="w-full mt-2 text-xs h-8">
-                        View Project
-                        <ExternalLink className="h-3 w-3 ml-1" />
-                      </Button>
-                    </Link>
+        {mappedProjects.map((project) => (
+          <Marker
+            key={project.id}
+            position={[project.lat, project.lng]}
+            icon={createCustomIcon(project.status)}
+            eventHandlers={{
+              click: () => {
+                // no-op (kept for future selection logic)
+              },
+            }}
+          >
+            <Popup maxWidth={280} className="project-popup">
+              <div className="p-1">
+                {project.featured_image && (
+                  <img
+                    src={project.featured_image}
+                    alt={project.name}
+                    className="w-full h-32 object-cover rounded-md mb-2"
+                  />
+                )}
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
+                    <Badge className={`${getStatusColor(project.status)} text-[10px] px-1.5 py-0.5 shrink-0`}>
+                      {getStatusLabel(project.status)}
+                    </Badge>
                   </div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {project.neighborhood}, {project.city}
+                  </p>
+                  {project.starting_price && (
+                    <p className="text-sm font-medium">From {formatPrice(project.starting_price)}</p>
+                  )}
+                  <Link to={`/presale-projects/${project.slug}`}>
+                    <Button size="sm" className="w-full mt-2 text-xs h-8">
+                      View Project
+                      <ExternalLink className="h-3 w-3 ml-1" />
+                    </Button>
+                  </Link>
                 </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
       
       {/* Legend */}
