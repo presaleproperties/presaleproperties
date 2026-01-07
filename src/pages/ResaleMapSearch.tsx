@@ -405,15 +405,15 @@ export default function ResaleMapSearch() {
               </SafeMapWrapper>
             </div>
 
-            {/* Toggle button when carousel is hidden */}
+            {/* Toggle button when carousel is hidden - right side, minimal */}
             {!showCarousel && visibleListings.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1100] flex justify-center pb-6 safe-bottom lg:hidden">
+              <div className="absolute bottom-4 right-4 z-[1100] safe-bottom lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
-                  className="p-2.5 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/50 hover:bg-background transition-colors"
+                  className="p-1.5 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/30 hover:bg-background transition-colors"
                   aria-label="Show listings"
                 >
-                  <ChevronUp className="h-5 w-5 text-foreground" />
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>
             )}
@@ -421,22 +421,19 @@ export default function ResaleMapSearch() {
             {/* Bottom Carousel - Mobile/Tablet */}
             {showCarousel && visibleListings.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1100] lg:hidden">
-                {/* Floating toggle button */}
-                <div className="flex justify-center pb-2">
-                  <button
-                    onClick={() => setShowCarousel(false)}
-                    className="p-2 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/50 hover:bg-background transition-colors"
-                    aria-label="Hide listings"
-                  >
-                    <ChevronDown className="h-4 w-4 text-foreground" />
-                  </button>
-                </div>
-                {/* Carousel with count */}
+                {/* Carousel with count and minimal toggle on right */}
                 <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 pt-2 pb-2 safe-bottom">
                   <div className="flex items-center justify-between px-4 md:px-6 pb-2">
                     <span className="text-xs font-medium text-muted-foreground">
                       {visibleListings.length} listing{visibleListings.length !== 1 ? "s" : ""} in view
                     </span>
+                    <button
+                      onClick={() => setShowCarousel(false)}
+                      className="p-1 rounded-full hover:bg-muted/50 transition-colors"
+                      aria-label="Hide listings"
+                    >
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
                   </div>
                   <div 
                     ref={carouselRef}
