@@ -17,6 +17,8 @@ import { ROIInputs, ROIResults, DEFAULT_SCENARIOS } from "@/types/roi";
 import { ROICharts } from "./ROICharts";
 import { ProformaTable } from "./ProformaTable";
 import { ROILeadCapture } from "./ROILeadCapture";
+import { SavedAnalysesPanel } from "./SavedAnalysesPanel";
+import { SavedAnalysis } from "@/hooks/useSavedAnalyses";
 
 interface ROIResultsDisplayProps {
   inputs: ROIInputs;
@@ -24,6 +26,14 @@ interface ROIResultsDisplayProps {
   activeScenario: 'conservative' | 'base' | 'aggressive';
   applyScenario: (scenario: 'conservative' | 'base' | 'aggressive') => void;
   onTrackEvent?: (event: string) => void;
+  // Compare feature props
+  savedAnalyses?: SavedAnalysis[];
+  canSave?: boolean;
+  canCompare?: boolean;
+  maxSaved?: number;
+  onSaveAnalysis?: (inputs: ROIInputs, results: ROIResults) => { success: boolean; error?: string };
+  onDeleteAnalysis?: (id: string) => void;
+  onCompare?: () => void;
 }
 
 export function ROIResultsDisplay({
@@ -32,6 +42,13 @@ export function ROIResultsDisplay({
   activeScenario,
   applyScenario,
   onTrackEvent,
+  savedAnalyses = [],
+  canSave = true,
+  canCompare = false,
+  maxSaved = 3,
+  onSaveAnalysis,
+  onDeleteAnalysis,
+  onCompare,
 }: ROIResultsDisplayProps) {
   const [showLeadCapture, setShowLeadCapture] = useState(false);
 
@@ -228,6 +245,21 @@ export function ROIResultsDisplay({
           </div>
         </CardContent>
       </Card>
+
+      {/* Compare Properties Panel */}
+      {onSaveAnalysis && onDeleteAnalysis && onCompare && (
+        <SavedAnalysesPanel
+          savedAnalyses={savedAnalyses}
+          canSave={canSave}
+          canCompare={canCompare}
+          maxSaved={maxSaved}
+          currentInputs={inputs}
+          currentResults={results}
+          onSave={onSaveAnalysis}
+          onDelete={onDeleteAnalysis}
+          onCompare={onCompare}
+        />
+      )}
 
       {/* Lead Capture */}
       {showLeadCapture ? (
