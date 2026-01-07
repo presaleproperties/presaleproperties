@@ -23,6 +23,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
+import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
@@ -911,6 +912,7 @@ export default function PresaleProjects() {
         </ScrollReveal>
         
         <Footer />
+        <FloatingMapButton />
         <FloatingBottomNav />
       </PullToRefresh>
     </>
