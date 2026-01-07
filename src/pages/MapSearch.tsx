@@ -342,10 +342,10 @@ export default function MapSearch() {
         </div>
 
         {/* Main Content - Map & List */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-          {/* Map Section - Full height on mobile when list hidden */}
+        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
+          {/* Map Section - Full height on mobile */}
           <div className={`
-            ${isMobile && showList ? "h-[40vh]" : "flex-1"} 
+            flex-1
             ${!isMobile && showList ? "lg:w-3/5" : "w-full"} 
             relative min-h-[300px]
           `}>
@@ -371,13 +371,10 @@ export default function MapSearch() {
             </SafeMapWrapper>
           </div>
 
-          {/* List Section */}
-          {showList && (
-            <div className={`
-              ${isMobile ? "flex-1 overflow-y-auto" : "lg:w-2/5"} 
-              border-t lg:border-t-0 lg:border-l border-border
-            `}>
-              <div className="p-4 pb-24 lg:pb-4">
+          {/* Desktop List Section */}
+          {showList && !isMobile && (
+            <div className="lg:w-2/5 border-l border-border overflow-y-auto">
+              <div className="p-4">
                 <h3 className="font-semibold text-foreground mb-4">
                   {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
                 </h3>
@@ -421,25 +418,70 @@ export default function MapSearch() {
             </div>
           )}
 
-          {/* Mobile List Toggle - Fixed at bottom */}
-          {isMobile && (
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-              <Button
-                onClick={() => setShowList(!showList)}
-                className="shadow-lg gap-2 h-12 px-6 rounded-full"
+          {/* Mobile Bottom Carousel */}
+          {isMobile && filteredProjects.length > 0 && (
+            <div className="absolute bottom-0 left-0 right-0 z-40 pb-4">
+              <div 
+                className="flex gap-3 overflow-x-auto px-4 pb-2 snap-x snap-mandatory scrollbar-hide"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {showList ? (
-                  <>
-                    <Map className="h-5 w-5" />
-                    Map Only
-                  </>
-                ) : (
-                  <>
-                    <LayoutGrid className="h-5 w-5" />
-                    Show List
-                  </>
-                )}
-              </Button>
+                {filteredProjects.slice(0, 20).map((project) => (
+                  <Link 
+                    key={project.id} 
+                    to={`/presale/${project.slug}`}
+                    className="snap-start flex-shrink-0 w-[280px]"
+                  >
+                    <div className="bg-card rounded-xl shadow-lg border border-border overflow-hidden">
+                      {/* Image */}
+                      <div className="relative h-32 bg-muted">
+                        {project.featured_image ? (
+                          <img
+                            src={project.featured_image}
+                            alt={project.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Building2 className="h-8 w-8 text-muted-foreground" />
+                          </div>
+                        )}
+                        {/* Status Badge */}
+                        <div className="absolute top-2 left-2">
+                          <Badge 
+                            variant="secondary" 
+                            className="text-xs bg-background/90 backdrop-blur-sm"
+                          >
+                            {project.status === 'coming_soon' ? 'Coming Soon' : 
+                             project.status === 'registering' ? 'Registering' : 
+                             project.status === 'active' ? 'Selling Now' : 'Sold Out'}
+                          </Badge>
+                        </div>
+                      </div>
+                      {/* Content */}
+                      <div className="p-3">
+                        <h4 className="font-semibold text-foreground text-sm truncate">
+                          {project.name}
+                        </h4>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {project.neighborhood}, {project.city}
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm font-semibold text-primary">
+                            {project.starting_price 
+                              ? `From $${(project.starting_price / 1000).toFixed(0)}K`
+                              : 'TBA'}
+                          </span>
+                          {project.completion_year && (
+                            <span className="text-xs text-muted-foreground">
+                              {project.completion_year}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
             </div>
           )}
         </div>
