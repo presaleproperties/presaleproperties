@@ -14,11 +14,11 @@ import {
   X,
   Shield,
   Users2,
-  
   BookOpen,
   ChevronDown,
   CalendarDays,
-  Clock
+  Clock,
+  Landmark
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -43,6 +43,7 @@ const navGroups = [
     label: "Content",
     items: [
       { href: "/admin/projects", label: "Projects", icon: Building2 },
+      { href: "/admin/developers", label: "Developers", icon: Landmark },
       { href: "/admin/listings", label: "Assignments", icon: FileStack },
       { href: "/admin/blogs", label: "Blog Posts", icon: BookOpen },
     ]

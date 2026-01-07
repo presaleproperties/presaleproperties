@@ -57,6 +57,8 @@ import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import ResaleMapSearch from "./pages/ResaleMapSearch";
+import Developers from "./pages/Developers";
+import AdminDevelopers from "./pages/admin/AdminDevelopers";
 
 const queryClient = new QueryClient();
 
@@ -97,6 +99,7 @@ const App = () => (
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
+            <Route path="/developers" element={<Developers />} />
             <Route path="/login" element={<Login />} />
             
             {/* Agent Dashboard Routes */}
@@ -126,6 +129,7 @@ const App = () => (
             <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
             <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />
             <Route path="/admin/scheduler-settings" element={<AdminProtectedRoute><AdminSchedulerSettings /></AdminProtectedRoute>} />
+            <Route path="/admin/developers" element={<AdminProtectedRoute><AdminDevelopers /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             
             {/* SEO City Product Pages - must be before 404 */}
