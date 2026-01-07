@@ -445,7 +445,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-13 text-base font-bold rounded-xl gap-2 shadow-lg mt-2"
+            className="w-full h-14 text-base font-bold rounded-xl gap-2 shadow-lg mt-2"
             size="lg"
             disabled={isSubmitting}
           >
