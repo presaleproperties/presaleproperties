@@ -341,6 +341,7 @@ export default function MapSearch() {
                     size="sm"
                     className="rounded-full px-4"
                   >
+                    Resale
                   </Button>
                 </Link>
               </div>
