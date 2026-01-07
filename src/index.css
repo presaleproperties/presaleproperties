@@ -212,12 +212,6 @@
     display: none !important;
   }
 
-  /* Hide map attribution on mobile and tablet */
-  @media (max-width: 1023px) {
-    .leaflet-control-attribution {
-      display: none !important;
-    }
-  }
 
   /* Custom marker styling */
   .custom-marker {
@@ -267,5 +261,12 @@
   .custom-cluster-marker:hover .cluster-icon {
     transform: scale(1.1);
     transition: transform 0.2s ease;
+  }
+}
+
+/* Hide map attribution on mobile and tablet - outside layer for specificity */
+@media (max-width: 1023px) {
+  .leaflet-control-attribution {
+    display: none !important;
   }
 }
