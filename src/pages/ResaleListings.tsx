@@ -289,7 +289,9 @@ export default function ResaleListings() {
   const getFirstPhoto = (listing: MLSListing) => {
     if (!listing.photos) return null;
     if (Array.isArray(listing.photos) && listing.photos.length > 0) {
-      return listing.photos[0]?.url || listing.photos[0];
+      const photo = listing.photos[0];
+      // Handle different photo formats: {MediaURL}, {url}, or direct string
+      return photo?.MediaURL || photo?.url || (typeof photo === 'string' ? photo : null);
     }
     return null;
   };
