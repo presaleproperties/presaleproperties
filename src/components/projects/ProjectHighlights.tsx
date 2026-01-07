@@ -57,7 +57,7 @@ export function ProjectHighlights({
       icon: <Layers className="h-5 w-5" />,
     },
     completionYear && {
-      label: "Completion",
+      label: "Est. Completion",
       value: completionMonth ? `${getMonthName(completionMonth)} ${completionYear}` : completionYear.toString(),
       icon: <Calendar className="h-5 w-5" />,
     },
