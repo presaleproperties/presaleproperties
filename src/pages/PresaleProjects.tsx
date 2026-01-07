@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -141,6 +141,22 @@ export default function PresaleProjects() {
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
+  // Featured/Hot projects query
+  const { data: hotProjects } = useQuery({
+    queryKey: ["hot-projects-carousel"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, view_count")
+        .eq("is_published", true)
+        .order("view_count", { ascending: false })
+        .limit(8);
+
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["presale-projects", filters, currentPage],
     queryFn: async () => {
@@ -163,7 +179,6 @@ export default function PresaleProjects() {
       }
       if (filters.depositPercent !== "any") {
         const depositVal = parseInt(filters.depositPercent);
-        // Filter for projects with deposit <= selected value (e.g., "5%" shows 5% or less)
         countQuery = countQuery.lte("deposit_percent", depositVal);
       }
       if (filters.completionYear !== "any") {
@@ -196,7 +211,6 @@ export default function PresaleProjects() {
       }
       if (filters.depositPercent !== "any") {
         const depositVal = parseInt(filters.depositPercent);
-        // Filter for projects with deposit <= selected value (e.g., "5%" shows 5% or less)
         query = query.lte("deposit_percent", depositVal);
       }
       if (filters.completionYear !== "any") {
@@ -226,7 +240,6 @@ export default function PresaleProjects() {
           query = query.order("deposit_percent", { ascending: true, nullsFirst: false });
           break;
         case "investor":
-          // Investor-friendly: assignments allowed, no rental restrictions, lower deposit
           query = query
             .order("deposit_percent", { ascending: true, nullsFirst: false })
             .order("starting_price", { ascending: true, nullsFirst: false });
@@ -651,6 +664,46 @@ export default function PresaleProjects() {
             </div>
           </div>
         </section>
+
+        {/* Hot Projects Carousel - only show when no filters active */}
+        {activeFilterCount === 0 && hotProjects && hotProjects.length > 0 && (
+          <section className="py-6 md:py-8 bg-muted/30 border-b border-border">
+            <div className="container px-4">
+              <div className="flex items-center gap-2 mb-4">
+                <Flame className="h-5 w-5 text-orange-500" />
+                <h2 className="text-lg md:text-xl font-semibold text-foreground">
+                  Hottest Projects Right Now
+                </h2>
+              </div>
+              <div className="-mx-4 px-4 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-3 md:gap-4 pb-2" style={{ scrollSnapType: 'x mandatory' }}>
+                  {hotProjects.map((project) => (
+                    <div 
+                      key={project.id} 
+                      className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
+                      style={{ scrollSnapAlign: 'start' }}
+                    >
+                      <PresaleProjectCard
+                        id={project.id}
+                        slug={project.slug}
+                        name={project.name}
+                        city={project.city}
+                        neighborhood={project.neighborhood}
+                        projectType={project.project_type}
+                        status={project.status}
+                        completionYear={project.completion_year}
+                        startingPrice={project.starting_price}
+                        featuredImage={project.featured_image}
+                        galleryImages={project.gallery_images}
+                        size="default"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
         <main className="container px-4 py-4 md:py-8">
 
