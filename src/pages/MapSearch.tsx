@@ -230,10 +230,10 @@ export default function MapSearch() {
                 </Button>
               </Link>
 
-              {/* Desktop Presale/Resale Toggle */}
-              <div className="hidden lg:flex bg-muted/50 rounded-md text-sm border border-border/30">
-                <span className="px-3 py-1.5 bg-foreground text-background rounded-l-md font-medium">Presale</span>
-                <Link to="/resale-map" className="px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-r-md">
+              {/* Desktop Presale/Resale Toggle - Thin pill style */}
+              <div className="hidden lg:flex bg-background/80 backdrop-blur-sm rounded-md shadow-sm border border-border/30 text-[11px]">
+                <span className="px-2.5 py-1 font-medium bg-foreground text-background rounded-l-md">Presale</span>
+                <Link to="/resale-map" className="px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground transition-colors rounded-r-md">
                   Resale
                 </Link>
               </div>

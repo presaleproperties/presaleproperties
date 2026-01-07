@@ -257,12 +257,12 @@ export default function ResaleMapSearch() {
                 </Button>
               </Link>
 
-              {/* Desktop Presale/Resale Toggle */}
-              <div className="hidden lg:flex bg-muted/50 rounded-md text-sm border border-border/30">
-                <Link to="/map-search" className="px-3 py-1.5 text-muted-foreground hover:text-foreground transition-colors rounded-l-md">
+              {/* Desktop Presale/Resale Toggle - Thin pill style */}
+              <div className="hidden lg:flex bg-background/80 backdrop-blur-sm rounded-md shadow-sm border border-border/30 text-[11px]">
+                <Link to="/map-search" className="px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground transition-colors rounded-l-md">
                   Presale
                 </Link>
-                <span className="px-3 py-1.5 bg-foreground text-background rounded-r-md font-medium">Resale</span>
+                <span className="px-2.5 py-1 font-medium bg-foreground text-background rounded-r-md">Resale</span>
               </div>
 
               <div className="relative flex-1 max-w-md">
