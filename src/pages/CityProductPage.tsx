@@ -18,6 +18,72 @@ import { Footer } from "@/components/layout/Footer";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
 
+// Neighborhoods configuration per city (top neighborhoods with most projects)
+const CITY_NEIGHBORHOODS: Record<string, { name: string; slug: string }[]> = {
+  surrey: [
+    { name: "Whalley", slug: "whalley" },
+    { name: "Surrey Central", slug: "surrey-central" },
+    { name: "Fleetwood", slug: "fleetwood" },
+    { name: "Newton", slug: "newton" },
+    { name: "Guildford", slug: "guildford" },
+    { name: "South Surrey", slug: "south-surrey" },
+  ],
+  langley: [
+    { name: "Willoughby", slug: "willoughby" },
+    { name: "Willoughby Heights", slug: "willoughby-heights" },
+    { name: "Brookswood", slug: "brookswood" },
+    { name: "Yorkson", slug: "yorkson" },
+    { name: "Latimer", slug: "latimer" },
+  ],
+  coquitlam: [
+    { name: "Burquitlam", slug: "burquitlam" },
+    { name: "West Coquitlam", slug: "west-coquitlam" },
+    { name: "Burke Mountain", slug: "burke-mountain" },
+    { name: "Maillardville", slug: "maillardville" },
+    { name: "Coquitlam Centre", slug: "coquitlam-centre" },
+  ],
+  burnaby: [
+    { name: "Metrotown", slug: "metrotown" },
+    { name: "Brentwood", slug: "brentwood" },
+    { name: "Lougheed", slug: "lougheed" },
+    { name: "Edmonds", slug: "edmonds" },
+  ],
+  vancouver: [
+    { name: "Mount Pleasant", slug: "mount-pleasant" },
+    { name: "Cambie", slug: "cambie" },
+    { name: "Oakridge", slug: "oakridge" },
+    { name: "River District", slug: "river-district" },
+    { name: "UBC", slug: "ubc" },
+  ],
+  richmond: [
+    { name: "City Centre", slug: "city-centre" },
+    { name: "Brighouse", slug: "brighouse" },
+    { name: "Steveston", slug: "steveston" },
+    { name: "Hamilton", slug: "hamilton" },
+  ],
+  delta: [
+    { name: "North Delta", slug: "north-delta" },
+    { name: "Ladner", slug: "ladner" },
+    { name: "Tsawwassen", slug: "tsawwassen" },
+  ],
+  abbotsford: [
+    { name: "Downtown", slug: "downtown" },
+    { name: "Central Abbotsford", slug: "central-abbotsford" },
+    { name: "Clearbrook", slug: "clearbrook" },
+    { name: "Sumas Mountain", slug: "sumas-mountain" },
+  ],
+  "port-moody": [
+    { name: "Inlet Centre", slug: "inlet-centre" },
+    { name: "Newport Village", slug: "newport-village" },
+    { name: "Seaview", slug: "seaview" },
+  ],
+  "new-westminster": [
+    { name: "Downtown", slug: "downtown" },
+    { name: "Sapperton", slug: "sapperton" },
+    { name: "Quayside", slug: "quayside" },
+  ],
+};
+
 // SEO Configuration for city+product combinations
 const CITY_PRODUCT_CONFIG: Record<string, Record<string, {
   metaTitle: string;
@@ -427,7 +493,7 @@ export default function CityProductPage() {
           </p>
           
           {/* Product type switcher - pill style */}
-          <div className="flex gap-3 mb-8">
+          <div className="flex flex-wrap gap-3 mb-6">
             <Link to={`/${citySlug}-presale-condos`}>
               <button 
                 className={`inline-flex items-center gap-2 px-5 py-3 rounded-full text-sm font-semibold transition-all ${
@@ -453,6 +519,26 @@ export default function CityProductPage() {
               </button>
             </Link>
           </div>
+
+          {/* Neighborhoods navigation */}
+          {citySlug && CITY_NEIGHBORHOODS[citySlug] && CITY_NEIGHBORHOODS[citySlug].length > 0 && (
+            <div className="mb-8">
+              <h2 className="text-sm font-medium text-muted-foreground mb-3">Browse by Neighbourhood</h2>
+              <div className="flex flex-wrap gap-2">
+                {CITY_NEIGHBORHOODS[citySlug].map((neighborhood) => (
+                  <Link 
+                    key={neighborhood.slug} 
+                    to={`/${citySlug}-${neighborhood.slug}-presale`}
+                  >
+                    <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-medium bg-muted/50 hover:bg-muted text-foreground transition-colors border border-border/50 hover:border-border">
+                      <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                      {neighborhood.name}
+                    </button>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Sort controls */}
           <div className="flex flex-wrap items-center gap-3 mb-6">
