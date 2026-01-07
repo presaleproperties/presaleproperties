@@ -282,11 +282,9 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     const map = mapRef.current;
     if (!map || !initialCenter) return;
     
-    // Fly to the specified location
-    map.flyTo(initialCenter, initialZoom || 16, { 
-      animate: true,
-      duration: 1 
-    });
+    // Use setView with no animation to prevent shaking/jitter
+    // The clusters re-rendering during flyTo causes visual shaking
+    map.setView(initialCenter, initialZoom || 16, { animate: false });
   }, [initialCenter, initialZoom]);
 
 
