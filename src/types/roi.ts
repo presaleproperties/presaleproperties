@@ -1,8 +1,11 @@
 // ROI Calculator Types
 
+export type CompletionSeason = 'spring' | 'summer' | 'fall' | 'winter';
+
 export interface PurchaseDetails {
   purchasePrice: number;
   closingYear: number;
+  closingSeason: CompletionSeason;
   city: string;
   propertyType: 'condo' | 'townhome';
   unitSizeSqft: number | null;
@@ -147,6 +150,7 @@ export const DEFAULT_INPUTS: ROIInputs = {
   purchase: {
     purchasePrice: 650000,
     closingYear: 2027,
+    closingSeason: 'fall',
     city: 'Vancouver',
     propertyType: 'condo',
     unitSizeSqft: 550,

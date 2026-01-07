@@ -12,6 +12,10 @@ const formatCurrency = (value: number) => {
 
 const formatPercent = (value: number) => `${value.toFixed(1)}%`;
 
+const formatSeason = (season: string) => {
+  return season.charAt(0).toUpperCase() + season.slice(1);
+};
+
 export function generateROIPdf(inputs: ROIInputs, results: ROIResults): void {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
@@ -52,7 +56,7 @@ export function generateROIPdf(inputs: ROIInputs, results: ROIResults): void {
       ["Purchase Price", formatCurrency(inputs.purchase.purchasePrice)],
       ["City", inputs.purchase.city],
       ["Property Type", inputs.purchase.propertyType === "condo" ? "Condo" : "Townhome"],
-      ["Completion Year", inputs.purchase.closingYear.toString()],
+      ["Expected Completion", `${formatSeason(inputs.purchase.closingSeason)} ${inputs.purchase.closingYear}`],
       ["Unit Size", inputs.purchase.unitSizeSqft ? `${inputs.purchase.unitSizeSqft} sq ft` : "N/A"],
     ],
     theme: "plain",
