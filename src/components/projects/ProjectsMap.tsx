@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet.markercluster/dist/MarkerCluster.css";
+import "leaflet.markercluster/dist/MarkerCluster.Default.css";
+import "leaflet.markercluster";
 import { Button } from "@/components/ui/button";
 import { Building2, Loader2, MapPin, Navigation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -28,9 +31,9 @@ const CITY_CENTERS: Record<string, [number, number]> = {
 const DEFAULT_CENTER: [number, number] = [49.25, -122.9];
 const DEFAULT_ZOOM = 10;
 
-// Mapbox Streets tiles - clean, premium style
+// Mapbox Light tiles - minimal, clean style
 const MAPBOX_TOKEN = "pk.eyJ1IjoicHJlc2FsZXByb3BlcnRpZXMiLCJhIjoiY21rM3FxNG9kMHVlNjNlb281cjc1eW41MyJ9.m9bmUbXwLDv0N0GjJDzymw";
-const TILE_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
+const TILE_URL = `https://api.mapbox.com/styles/v1/mapbox/light-v11/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 interface Project {
@@ -70,7 +73,7 @@ const getStatusLabel = (status: Project["status"]) => {
   }
 };
 
-// Price pill marker (like the reference image)
+// Smaller, refined price pill marker
 const createPricePillIcon = (project: Project) => {
   const priceText = project.starting_price
     ? formatPrice(project.starting_price)
@@ -81,45 +84,73 @@ const createPricePillIcon = (project: Project) => {
     html: `
       <div style="
         display: inline-block;
-        background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+        background: #1e3a5f;
         color: white;
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 11px;
+        font-weight: 600;
         white-space: nowrap;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        border: 2px solid white;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        border: 1.5px solid white;
         cursor: pointer;
+        font-family: system-ui, -apple-system, sans-serif;
       ">${priceText}</div>
     `,
-    iconSize: [80, 28],
-    iconAnchor: [40, 14],
-    popupAnchor: [0, -14],
+    iconSize: [60, 22],
+    iconAnchor: [30, 11],
+    popupAnchor: [0, -11],
+  });
+};
+
+// Custom cluster icon
+const createClusterIcon = (cluster: L.MarkerCluster) => {
+  const count = cluster.getChildCount();
+  return L.divIcon({
+    className: "custom-cluster-icon",
+    html: `
+      <div style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #1e3a5f;
+        color: white;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        border: 2px solid white;
+        font-family: system-ui, -apple-system, sans-serif;
+      ">${count}</div>
+    `,
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
 };
 
 function popupHtml(project: Project) {
   const img = project.featured_image
-    ? `<img src="${project.featured_image}" alt="${project.name}" style="width:100%;height:128px;object-fit:cover;border-radius:12px;margin-bottom:10px;" />`
+    ? `<img src="${project.featured_image}" alt="${project.name}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />`
     : "";
 
   const price = project.starting_price
-    ? `<div style="margin-top:6px;font-weight:600;">From ${formatPrice(project.starting_price)}</div>`
+    ? `<div style="margin-top:4px;font-weight:600;font-size:14px;">From ${formatPrice(project.starting_price)}</div>`
     : "";
 
   const statusLabel = getStatusLabel(project.status);
 
   return `
-    <div style="padding:4px;max-width:260px;">
+    <div style="padding:2px;max-width:240px;font-family:system-ui,-apple-system,sans-serif;">
       ${img}
-      <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-        <div style="font-weight:700;line-height:1.2;">${project.name}</div>
-        <div style="font-size:11px;opacity:.7;white-space:nowrap;">${statusLabel}</div>
+      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+        <div style="font-weight:600;font-size:13px;line-height:1.3;">${project.name}</div>
+        <div style="font-size:10px;color:#666;white-space:nowrap;">${statusLabel}</div>
       </div>
-      <div style="margin-top:6px;font-size:12px;opacity:.75;">${project.neighborhood}, ${project.city}</div>
+      <div style="margin-top:4px;font-size:11px;color:#888;">${project.neighborhood}, ${project.city}</div>
       ${price}
-      <a href="/presale-projects/${project.slug}" style="display:block;margin-top:10px;text-align:center;background:#1e3a5f;color:#fff;text-decoration:none;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;">View Project</a>
+      <a href="/presale-projects/${project.slug}" style="display:block;margin-top:8px;text-align:center;background:#1e3a5f;color:#fff;text-decoration:none;padding:6px 8px;border-radius:6px;font-size:11px;font-weight:600;">View Project</a>
     </div>
   `;
 }
@@ -128,7 +159,7 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
-  const markersLayerRef = useRef<L.LayerGroup | null>(null);
+  const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
   const userCircleRef = useRef<L.Circle | null>(null);
   const [isLocating, setIsLocating] = useState(false);
 
@@ -158,22 +189,30 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
         zoomOffset: -1,
       }).addTo(map);
 
-      markersLayerRef.current = L.layerGroup().addTo(map);
-      mapRef.current = map;
+      // Create marker cluster group
+      clusterGroupRef.current = L.markerClusterGroup({
+        iconCreateFunction: createClusterIcon,
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        disableClusteringAtZoom: 15,
+      });
+      map.addLayer(clusterGroupRef.current);
 
+      mapRef.current = map;
       setTimeout(() => map.invalidateSize(), 0);
     }
 
     const map = mapRef.current;
-    const layer = markersLayerRef.current;
-    if (!map || !layer) return;
+    const clusterGroup = clusterGroupRef.current;
+    if (!map || !clusterGroup) return;
 
-    layer.clearLayers();
+    clusterGroup.clearLayers();
 
     mappedProjects.forEach((p) => {
       const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon(p) });
-      marker.bindPopup(popupHtml(p), { maxWidth: 300 });
-      marker.addTo(layer);
+      marker.bindPopup(popupHtml(p), { maxWidth: 280 });
+      clusterGroup.addLayer(marker);
     });
 
     if (mappedProjects.length > 0) {
@@ -186,7 +225,7 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
     return () => {
       mapRef.current?.remove();
       mapRef.current = null;
-      markersLayerRef.current = null;
+      clusterGroupRef.current = null;
       userCircleRef.current = null;
     };
   }, []);
