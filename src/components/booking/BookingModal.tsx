@@ -369,33 +369,29 @@ export function BookingModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto p-0">
         {/* Header - Neutral dark gradient for welcoming feel */}
-        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 rounded-t-lg">
-          <DialogTitle className="text-lg font-bold text-background">
+        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 rounded-t-lg">
+          <DialogTitle className="text-base font-bold text-background">
             {step === 1 && "Select a Date"}
             {step === 2 && "Select a Time"}
             {step === 3 && (initialDate ? "Complete Your Booking" : "Your Information")}
           </DialogTitle>
-          <p className="text-sm text-background/80 mt-0.5">{projectName}</p>
+          <p className="text-xs text-background/80">{projectName}</p>
           {initialDate && step >= 2 ? (
-            <div className="text-xs text-background/65 space-y-0.5 mt-1">
-              <p>{format(selectedDate || initialDate, "EEEE, MMMM d, yyyy")}</p>
+            <div className="text-[10px] text-background/65 mt-0.5">
+              <span>{format(selectedDate || initialDate, "EEE, MMM d")}</span>
               {timePeriodDisplay && (
-                <p className="capitalize">{timePeriodDisplay.split("_").join(" ")}</p>
+                <span className="capitalize"> • {timePeriodDisplay.split("_").join(" ")}</span>
               )}
             </div>
-          ) : (
-            <p className="text-xs text-background/65 mt-1">
-              Tour the sales centre and display suite in person
-            </p>
-          )}
+          ) : null}
         </div>
 
         {loading ? (
-          <div className="flex items-center justify-center py-12 px-5">
-            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          <div className="flex items-center justify-center py-10 px-4">
+            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
         ) : (
-          <div className="p-5">
+          <div className="p-4">
             {/* Step 1: Date Selection */}
             {step === 1 && (
               <div>
@@ -449,12 +445,12 @@ export function BookingModal({
               </div>
             )}
 
-            {/* Step 3: Contact Info */}
+            {/* Step 3: Contact Info - Optimized for mobile */}
             {step === 3 && (
-              <div className="space-y-3">
-                <div className="space-y-2.5">
+              <div className="space-y-2">
+                <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <Label htmlFor="name" className="text-xs font-semibold">
+                    <Label htmlFor="name" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                       Name <span className="text-destructive">*</span>
                     </Label>
                     <Input
@@ -462,11 +458,11 @@ export function BookingModal({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Smith"
-                      className="h-11 text-sm rounded-lg"
+                      className="h-9 text-sm rounded-lg"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phone" className="text-xs font-semibold">
+                    <Label htmlFor="phone" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                       Phone <span className="text-destructive">*</span>
                     </Label>
                     <Input
@@ -475,39 +471,39 @@ export function BookingModal({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="604-555-0123"
-                      className="h-11 text-sm rounded-lg"
+                      className="h-9 text-sm rounded-lg"
                     />
                   </div>
-                  <div>
-                    <Label htmlFor="email" className="text-xs font-semibold">
-                      Email <span className="text-destructive">*</span>
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="john@email.com"
-                      className="h-11 text-sm rounded-lg"
-                    />
-                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="email" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Email <span className="text-destructive">*</span>
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="john@email.com"
+                    className="h-9 text-sm rounded-lg"
+                  />
                 </div>
 
                 {/* I am a... */}
                 <div>
-                  <Label className="text-xs font-semibold">
+                  <Label className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                     I am a... <span className="text-destructive">*</span>
                   </Label>
                   <RadioGroup 
                     value={buyerType} 
                     onValueChange={(v) => setBuyerType(v as BuyerType)}
-                    className="grid grid-cols-2 gap-2 mt-1.5"
+                    className="grid grid-cols-2 gap-1.5 mt-1"
                   >
                     {BUYER_TYPES.map((type) => (
                       <Label
                         key={type.value}
                         className={cn(
-                          "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
+                          "flex items-center justify-center h-8 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
                           buyerType === type.value
                             ? "border-foreground bg-foreground text-background"
                             : "border-border hover:border-muted-foreground/50"
@@ -522,19 +518,19 @@ export function BookingModal({
 
                 {/* Interested in Home Size */}
                 <div>
-                  <Label className="text-xs font-semibold">
+                  <Label className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Interested in <span className="text-destructive">*</span>
                   </Label>
                   <RadioGroup 
                     value={homeSize} 
                     onValueChange={(v) => setHomeSize(v as HomeSize)}
-                    className="grid grid-cols-3 gap-2 mt-1.5"
+                    className="grid grid-cols-3 gap-1.5 mt-1"
                   >
                     {HOME_SIZES.map((size) => (
                       <Label
                         key={size.value}
                         className={cn(
-                          "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
+                          "flex items-center justify-center h-8 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
                           homeSize === size.value
                             ? "border-foreground bg-foreground text-background"
                             : "border-border hover:border-muted-foreground/50"
@@ -549,19 +545,19 @@ export function BookingModal({
 
                 {/* Agent Status */}
                 <div>
-                  <Label className="text-xs font-semibold">
+                  <Label className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Working with an agent? <span className="text-destructive">*</span>
                   </Label>
                   <RadioGroup 
                     value={agentStatus} 
                     onValueChange={(v) => setAgentStatus(v as AgentStatus)}
-                    className="grid grid-cols-3 gap-2 mt-1.5"
+                    className="grid grid-cols-3 gap-1.5 mt-1"
                   >
                     {AGENT_STATUSES.map((status) => (
                       <Label
                         key={status.value}
                         className={cn(
-                          "flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
+                          "flex items-center justify-center h-8 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all",
                           agentStatus === status.value
                             ? "border-foreground bg-foreground text-background"
                             : "border-border hover:border-muted-foreground/50"
@@ -574,25 +570,24 @@ export function BookingModal({
                   </RadioGroup>
                 </div>
 
-                {/* Notes */}
-                <div>
-                  <Label htmlFor="notes" className="text-xs font-semibold">
+                {/* Notes - hidden on very small screens */}
+                <div className="hidden sm:block">
+                  <Label htmlFor="notes" className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
                     Notes (optional)
                   </Label>
-                  <Textarea
+                  <Input
                     id="notes"
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
                     placeholder="Any specific questions?"
-                    rows={2}
-                    className="text-sm rounded-lg resize-none"
+                    className="h-9 text-sm rounded-lg"
                   />
                 </div>
                 
-                <div className="bg-muted/50 rounded-lg p-3 text-xs text-muted-foreground">
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                    <span>Sales centre address will be provided upon confirmation</span>
+                <div className="bg-muted/50 rounded-lg p-2 text-[10px] text-muted-foreground">
+                  <div className="flex items-center gap-1.5">
+                    <MapPin className="h-3 w-3 shrink-0" />
+                    <span>Sales centre address provided upon confirmation</span>
                   </div>
                 </div>
               </div>
@@ -602,31 +597,33 @@ export function BookingModal({
 
         {/* Navigation */}
         {!loading && (
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-2 px-4 pb-3">
             {step > 1 && (
-              <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1">
-                <ArrowLeft className="h-4 w-4 mr-2" />
+              <Button variant="outline" size="sm" onClick={() => setStep(step - 1)} className="flex-1 h-9">
+                <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
                 Back
               </Button>
             )}
             {step < 3 ? (
               <Button 
+                size="sm"
                 onClick={() => setStep(step + 1)} 
                 disabled={!canProceed()}
-                className="flex-1"
+                className="flex-1 h-9"
               >
                 Continue
-                <ArrowRight className="h-4 w-4 ml-2" />
+                <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
               </Button>
             ) : (
               <Button 
+                size="sm"
                 onClick={handleSubmit} 
                 disabled={!canProceed() || isSubmitting}
-                className="flex-1"
+                className="flex-1 h-9"
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                     Submitting...
                   </>
                 ) : (
@@ -639,12 +636,12 @@ export function BookingModal({
 
         {/* Step indicator */}
         {!loading && (
-          <div className="flex justify-center gap-1.5 pt-2">
+          <div className="flex justify-center gap-1 pb-3">
             {[1, 2, 3].map((s) => (
               <div
                 key={s}
                 className={cn(
-                  "w-2 h-2 rounded-full transition-colors",
+                  "w-1.5 h-1.5 rounded-full transition-colors",
                   s === step ? "bg-primary" : s < step ? "bg-primary/50" : "bg-muted-foreground/30"
                 )}
               />
