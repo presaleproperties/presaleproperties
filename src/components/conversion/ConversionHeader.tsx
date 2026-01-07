@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/collapsible";
 import { AccessPackModal } from "./AccessPackModal";
 import { supabase } from "@/integrations/supabase/client";
+import { trackCTAClick } from "@/hooks/useLoftyTracking";
 
 // City links for condos (primary navigation)
 const CONDO_CITY_LINKS = [
@@ -64,6 +65,11 @@ export function ConversionHeader() {
 
   const openChatNow = () => {
     setOpen(false);
+    trackCTAClick({
+      cta_type: "whatsapp_click",
+      cta_label: "Chat Now",
+      cta_location: "header",
+    });
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "click_chat_now", {
         page_path: window.location.pathname,
@@ -76,6 +82,11 @@ export function ConversionHeader() {
   const openCallBack = () => {
     setModalOpen(true);
     setOpen(false);
+    trackCTAClick({
+      cta_type: "callback_request",
+      cta_label: "Request a Call Back",
+      cta_location: "header",
+    });
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "click_request_callback", {
         page_path: window.location.pathname,
