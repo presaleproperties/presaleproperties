@@ -182,8 +182,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
       zoomControl: false, // Disable default, we'll add custom
     });
 
-    // Add custom zoom control on the right
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    // Don't add default zoom control - we use custom buttons
 
     L.tileLayer(TILE_URL, {
       attribution: TILE_ATTRIBUTION,
@@ -341,16 +340,36 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
     <div className="relative h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
       <div ref={containerRef} className="h-full w-full" />
 
-      <Button
-        variant="outline"
-        size="icon"
-        className="absolute top-4 right-4 z-[1000] bg-background/95 backdrop-blur-sm shadow-lg h-10 w-10"
-        onClick={handleLocate}
-        disabled={isLocating}
-        title="Zoom to my location"
-      >
-        {isLocating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Navigation className="h-5 w-5" />}
-      </Button>
+      {/* Custom controls - stacked on right */}
+      <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-2">
+        {/* Locate button */}
+        <button
+          onClick={handleLocate}
+          disabled={isLocating}
+          title="Zoom to my location"
+          className="w-9 h-9 rounded-lg bg-white/95 backdrop-blur-sm shadow-md border border-border/50 flex items-center justify-center hover:bg-white transition-colors disabled:opacity-50"
+        >
+          {isLocating ? <Loader2 className="h-4 w-4 animate-spin text-foreground" /> : <Navigation className="h-4 w-4 text-foreground" />}
+        </button>
+        
+        {/* Zoom controls */}
+        <div className="flex flex-col rounded-lg overflow-hidden bg-white/95 backdrop-blur-sm shadow-md border border-border/50">
+          <button
+            onClick={() => mapRef.current?.zoomIn()}
+            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted transition-colors border-b border-border/50"
+            title="Zoom in"
+          >
+            <span className="text-lg font-medium">+</span>
+          </button>
+          <button
+            onClick={() => mapRef.current?.zoomOut()}
+            className="w-9 h-9 flex items-center justify-center text-foreground hover:bg-muted transition-colors"
+            title="Zoom out"
+          >
+            <span className="text-lg font-medium">−</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
