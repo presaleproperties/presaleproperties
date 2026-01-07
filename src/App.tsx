@@ -48,7 +48,7 @@ import CityProductPage from "./pages/CityProductPage";
 import PriceBasedPage from "./pages/PriceBasedPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
-import { FloatingAIOrb } from "@/components/search/FloatingAIOrb";
+import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { UtmTracker } from "@/components/UtmTracker";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
@@ -65,7 +65,7 @@ const App = () => (
           <SwipeNavigationProvider>
             <ScrollToTop />
             <UtmTracker />
-            <FloatingAIOrb />
+            <FloatingMapButton />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
