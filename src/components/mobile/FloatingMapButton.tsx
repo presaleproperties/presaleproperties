@@ -20,10 +20,15 @@ const CITY_SLUG_MAP: Record<string, string> = {
   "white-rock": "White Rock",
 };
 
+const MAP_BUTTON_PULSE_KEY = "map_button_pulse_shown";
+
 export function FloatingMapButton() {
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(true);
-  const [isPulsing, setIsPulsing] = useState(true);
+  const [isPulsing, setIsPulsing] = useState(() => {
+    // Only pulse if not shown before in this session
+    return !sessionStorage.getItem(MAP_BUTTON_PULSE_KEY);
+  });
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
   
@@ -109,13 +114,16 @@ export function FloatingMapButton() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Stop pulsing after 3 seconds
+  // Stop pulsing after 3 seconds and mark as shown
   useEffect(() => {
+    if (!isPulsing) return;
+    
     const timer = setTimeout(() => {
       setIsPulsing(false);
+      sessionStorage.setItem(MAP_BUTTON_PULSE_KEY, "true");
     }, 3000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isPulsing]);
   
   if (isMapPage) return null;
   
