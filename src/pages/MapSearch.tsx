@@ -319,8 +319,8 @@ export default function MapSearch() {
           </div>
         </div>
 
-        {/* Main Content */}
-        <div className="flex-1 flex overflow-hidden relative">
+        {/* Main Content - isolate creates stacking context to contain map z-indexes */}
+        <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/5" : "lg:w-full"}`}>
             {/* Presale/Resale Toggle - Minimal pill style */}
