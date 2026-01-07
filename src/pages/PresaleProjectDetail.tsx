@@ -624,6 +624,57 @@ export default function PresaleProjectDetail() {
             <div className="grid lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
+                {/* Deposit, Fees & Developer - Combined section */}
+                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && (
+                  <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-2xl p-5 md:p-6 border border-border/40">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Building2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <h2 className="text-lg font-bold text-foreground">Project Details</h2>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                      {project.developer_name && (
+                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Developer</p>
+                          <p className="font-semibold text-foreground">{project.developer_name}</p>
+                        </div>
+                      )}
+                      {project.deposit_structure && (
+                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Deposit</p>
+                          <p className="font-semibold text-foreground">{project.deposit_structure}</p>
+                        </div>
+                      )}
+                      {project.strata_fees && (
+                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Strata Fees</p>
+                          <p className="font-semibold text-foreground">{project.strata_fees}</p>
+                        </div>
+                      )}
+                      {project.assignment_fees && (
+                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Assignment</p>
+                          <p className="font-semibold text-foreground">{project.assignment_fees}</p>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {project.incentives && (
+                      <div className="mt-3 bg-green-50 dark:bg-green-950/30 rounded-xl p-4 border border-green-200/50 dark:border-green-800/30">
+                        <div className="flex items-start gap-2">
+                          <Gift className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                          <div>
+                            <p className="text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-1">Current Incentives</p>
+                            <p className="text-sm text-green-800 dark:text-green-300">{project.incentives}</p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
                   <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
@@ -663,72 +714,6 @@ export default function PresaleProjectDetail() {
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-
-
-                {/* Deposit & Fees + Developer - Combined modern layout */}
-                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && (
-                  <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-2xl p-5 md:p-6 border border-border/40">
-                    <div className="grid gap-6">
-                      {/* Deposit & Fees Section */}
-                      {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives) && (
-                        <div>
-                          <div className="flex items-center gap-2 mb-4">
-                            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                              <DollarSign className="h-4 w-4 text-primary" />
-                            </div>
-                            <h2 className="text-lg font-bold text-foreground">Deposit & Fees</h2>
-                          </div>
-                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                            {project.deposit_structure && (
-                              <div className="bg-background/70 rounded-xl p-4 border border-border/30">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Deposit</p>
-                                <p className="font-semibold text-foreground">{project.deposit_structure}</p>
-                              </div>
-                            )}
-                            {project.strata_fees && (
-                              <div className="bg-background/70 rounded-xl p-4 border border-border/30">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Strata Fees</p>
-                                <p className="font-semibold text-foreground">{project.strata_fees}</p>
-                              </div>
-                            )}
-                            {project.assignment_fees && (
-                              <div className="bg-background/70 rounded-xl p-4 border border-border/30">
-                                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Assignment</p>
-                                <p className="font-semibold text-foreground">{project.assignment_fees}</p>
-                              </div>
-                            )}
-                          </div>
-                          {project.incentives && (
-                            <div className="mt-3 bg-green-50 dark:bg-green-950/30 rounded-xl p-4 border border-green-200/50 dark:border-green-800/30">
-                              <div className="flex items-start gap-2">
-                                <Gift className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
-                                <div>
-                                  <p className="text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-1">Current Incentives</p>
-                                  <p className="text-sm text-green-800 dark:text-green-300">{project.incentives}</p>
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {/* Developer Section */}
-                      {project.developer_name && (
-                        <div className="pt-4 border-t border-border/40">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                              <Building2 className="h-5 w-5 text-primary" />
-                            </div>
-                            <div>
-                              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Developer</p>
-                              <p className="font-bold text-foreground">{project.developer_name}</p>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 )}
 
