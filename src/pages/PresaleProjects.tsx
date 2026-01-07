@@ -131,6 +131,17 @@ export default function PresaleProjects() {
     searchParams.get("view") === "map" ? "map" : "grid"
   );
 
+  const setView = useCallback(
+    (mode: "grid" | "map") => {
+      setViewMode(mode);
+      const next = new URLSearchParams(searchParams);
+      if (mode === "map") next.set("view", "map");
+      else next.delete("view");
+      setSearchParams(next);
+    },
+    [searchParams, setSearchParams]
+  );
+
   // Get filter values from URL params
   const filters = {
     city: searchParams.get("city") || "any",
@@ -771,7 +782,7 @@ export default function PresaleProjects() {
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
                   className="rounded-none h-10 px-3"
-                  onClick={() => setViewMode("grid")}
+                  onClick={() => setView("grid")}
                 >
                   <LayoutGrid className="h-4 w-4" />
                 </Button>
@@ -779,7 +790,7 @@ export default function PresaleProjects() {
                   variant={viewMode === "map" ? "default" : "ghost"}
                   size="sm"
                   className="rounded-none h-10 px-3"
-                  onClick={() => setViewMode("map")}
+                  onClick={() => setView("map")}
                 >
                   <MapIcon className="h-4 w-4" />
                 </Button>
