@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { Helmet } from "react-helmet-async";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ROIWizard } from "@/components/roi/ROIWizard";
 import { CompareAnalyses } from "@/components/roi/CompareAnalyses";
@@ -120,7 +120,7 @@ export default function ROICalculator() {
           <meta name="description" content="Compare ROI analyses for multiple presale properties side by side." />
           <meta name="robots" content="noindex" />
         </Helmet>
-        <Header />
+        <ConversionHeader />
         <main className="min-h-screen bg-background py-8 md:py-12">
           <div className="container px-4">
             <div className="max-w-4xl mx-auto">
@@ -168,7 +168,7 @@ export default function ROICalculator() {
         </script>
       </Helmet>
 
-      <Header />
+      <ConversionHeader />
 
       <main className="min-h-screen bg-background">
         {/* Hero Section - Light theme matching site design */}
