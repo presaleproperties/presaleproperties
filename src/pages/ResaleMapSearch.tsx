@@ -350,13 +350,13 @@ export default function ResaleMapSearch() {
 
               {/* Toggle List Button */}
               <Button
-                variant="outline"
+                variant={showList ? "outline" : "default"}
                 size="sm"
                 className="hidden lg:flex gap-2"
                 onClick={() => setShowList(!showList)}
               >
                 {showList ? <Map className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-                {showList ? "Hide List" : "Show List"}
+                {showList ? "Expand Map" : "Show List"}
               </Button>
             </div>
           </div>
