@@ -489,8 +489,9 @@ export default function ResaleMapSearch() {
           </div>
 
           {/* Desktop List Panel */}
-          {showList && (
-            <div className="hidden lg:block w-2/5 border-l border-border overflow-y-auto bg-background">
+          <div className={`hidden lg:block border-l border-border overflow-y-auto bg-background transition-all duration-300 ease-out ${
+            showList ? "w-2/5 opacity-100" : "w-0 opacity-0 overflow-hidden"
+          }`}>
               <div className="p-4 border-b border-border sticky top-0 bg-background z-10">
                 <p className="font-medium text-foreground">
                   {visibleListings.length} listing{visibleListings.length !== 1 ? "s" : ""} in view
@@ -543,7 +544,6 @@ export default function ResaleMapSearch() {
                 ))}
               </div>
             </div>
-          )}
         </div>
       </div>
     </>

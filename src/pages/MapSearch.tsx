@@ -443,8 +443,9 @@ export default function MapSearch() {
           </div>
 
           {/* Desktop List Panel - Shows projects visible in map viewport */}
-          {showList && (
-            <div className="hidden lg:flex lg:w-2/5 flex-col border-l border-border bg-background">
+          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
+            showList ? "lg:w-2/5 opacity-100" : "lg:w-0 opacity-0 overflow-hidden"
+          }`}>
               <div className="shrink-0 px-4 py-3 border-b border-border">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-foreground">
@@ -502,7 +503,6 @@ export default function MapSearch() {
                 )}
               </div>
             </div>
-          )}
         </div>
       </div>
     </>
