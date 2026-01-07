@@ -1,16 +1,26 @@
 import { Link, useLocation } from "react-router-dom";
 import { MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 
-interface FloatingMapButtonProps {
-  /** URL to navigate to when clicked */
-  to?: string;
-  /** Optional city filter to pass to map */
-  city?: string;
-}
+// City slug to display name mapping
+const CITY_SLUG_MAP: Record<string, string> = {
+  surrey: "Surrey",
+  langley: "Langley",
+  coquitlam: "Coquitlam",
+  burnaby: "Burnaby",
+  vancouver: "Vancouver",
+  richmond: "Richmond",
+  delta: "Delta",
+  abbotsford: "Abbotsford",
+  "port-moody": "Port Moody",
+  "new-westminster": "New Westminster",
+  "north-vancouver": "North Vancouver",
+  "west-vancouver": "West Vancouver",
+  "white-rock": "White Rock",
+};
 
-export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButtonProps) {
+export function FloatingMapButton() {
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(true);
   const lastScrollY = useRef(0);
@@ -18,6 +28,56 @@ export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButto
   
   // Hide on map search pages
   const isMapPage = location.pathname === "/map-search" || location.pathname === "/resale-map";
+  
+  // Parse current route to extract context (city, type, neighborhood)
+  const mapContext = useMemo(() => {
+    const path = location.pathname;
+    
+    // Check for resale pages first
+    if (path.startsWith("/resale")) {
+      return { isResale: true, city: null, type: null, neighborhood: null };
+    }
+    
+    // Pattern: /:citySlug-presale-condos or /:citySlug-presale-townhomes
+    const cityProductMatch = path.match(/^\/([a-z-]+)-presale-(condos|townhomes)$/);
+    if (cityProductMatch) {
+      const citySlug = cityProductMatch[1];
+      const productType = cityProductMatch[2] === "condos" ? "condo" : "townhome";
+      const cityName = CITY_SLUG_MAP[citySlug];
+      if (cityName) {
+        return { isResale: false, city: cityName, type: productType, neighborhood: null };
+      }
+    }
+    
+    // Pattern: /:citySlug-:neighborhood-presale (neighborhood pages)
+    const neighborhoodMatch = path.match(/^\/([a-z-]+)-([a-z-]+)-presale$/);
+    if (neighborhoodMatch) {
+      const citySlug = neighborhoodMatch[1];
+      const cityName = CITY_SLUG_MAP[citySlug];
+      if (cityName) {
+        // We can filter by city at least
+        return { isResale: false, city: cityName, type: null, neighborhood: neighborhoodMatch[2] };
+      }
+    }
+    
+    // Pattern: /presale-condos/:citySlug (old format)
+    const oldFormatMatch = path.match(/^\/presale-condos\/([a-z-]+)$/);
+    if (oldFormatMatch) {
+      const citySlug = oldFormatMatch[1];
+      const cityName = CITY_SLUG_MAP[citySlug];
+      if (cityName) {
+        return { isResale: false, city: cityName, type: null, neighborhood: null };
+      }
+    }
+    
+    // Pattern: /presale-projects (all projects)
+    if (path === "/presale-projects") {
+      return { isResale: false, city: null, type: null, neighborhood: null };
+    }
+    
+    // Default - no specific context
+    return { isResale: false, city: null, type: null, neighborhood: null };
+  }, [location.pathname]);
   
   useEffect(() => {
     const handleScroll = () => {
@@ -50,11 +110,29 @@ export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButto
   
   if (isMapPage) return null;
   
-  const href = city ? `${to}?city=${encodeURIComponent(city)}` : to;
+  // Build the map URL with context-aware params
+  const buildMapUrl = () => {
+    // For resale pages, link to resale map
+    if (mapContext.isResale) {
+      return "/resale-map";
+    }
+    
+    const params = new URLSearchParams();
+    
+    if (mapContext.city) {
+      params.set("city", mapContext.city);
+    }
+    if (mapContext.type) {
+      params.set("type", mapContext.type);
+    }
+    
+    const queryString = params.toString();
+    return queryString ? `/map-search?${queryString}` : "/map-search";
+  };
 
   return (
     <Link
-      to={href}
+      to={buildMapUrl()}
       className={cn(
         "fixed bottom-6 right-4 z-50 flex items-center justify-center",
         "w-14 h-14 rounded-full",
@@ -67,7 +145,7 @@ export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButto
           ? "translate-y-0 opacity-100" 
           : "translate-y-20 opacity-0 pointer-events-none"
       )}
-      aria-label="View projects on map"
+      aria-label={`View ${mapContext.city || "all"} projects on map`}
     >
       <MapPin className="h-6 w-6" />
     </Link>
