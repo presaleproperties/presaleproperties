@@ -598,7 +598,6 @@ export default function AdminProjectForm() {
         title: isEdit ? "Project Updated" : "Project Created",
         description: `"${formData.name}" has been ${isEdit ? "updated" : "created"}`,
       });
-      navigate("/admin/projects");
     } catch (error: any) {
       console.error("Error saving project:", error);
       toast({
