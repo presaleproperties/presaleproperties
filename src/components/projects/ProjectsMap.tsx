@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -53,6 +53,7 @@ interface ProjectsMapProps {
   projects: Project[];
   isLoading?: boolean;
   onProjectSelect?: (projectId: string) => void;
+  onVisibleProjectsChange?: (projectIds: string[]) => void;
 }
 
 const formatPrice = (price: number) => {
@@ -155,34 +156,48 @@ function popupHtml(project: Project) {
   `;
 }
 
-export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMapProps) {
+export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisibleProjectsChange }: ProjectsMapProps) {
   const { toast } = useToast();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
   const userCircleRef = useRef<L.Circle | null>(null);
   const [isLocating, setIsLocating] = useState(false);
+  const mappedProjectsRef = useRef<Array<Project & { lat: number; lng: number }>>([]);
+
+  // Function to calculate visible projects within map bounds
+  const updateVisibleProjects = useCallback(() => {
+    const map = mapRef.current;
+    if (!map || !onVisibleProjectsChange) return;
+    
+    const bounds = map.getBounds();
+    const visibleIds = mappedProjectsRef.current
+      .filter(p => bounds.contains([p.lat, p.lng]))
+      .map(p => p.id);
+    
+    onVisibleProjectsChange(visibleIds);
+  }, [onVisibleProjectsChange]);
 
   const mappedProjects = useMemo(() => {
-    return projects.map((p) => {
+    const mapped = projects.map((p) => {
       if (p.map_lat && p.map_lng) return { ...p, lat: p.map_lat, lng: p.map_lng };
       const center = CITY_CENTERS[p.city] || DEFAULT_CENTER;
       const offset = (Math.random() - 0.5) * 0.02;
       return { ...p, lat: center[0] + offset, lng: center[1] + offset };
     });
+    mappedProjectsRef.current = mapped;
+    return mapped;
   }, [projects]);
 
-  // Auto-locate user on mount
+  // Auto-locate user on mount and setup viewport change listener
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
 
     const map = L.map(containerRef.current, {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
-      zoomControl: false, // Disable default, we'll add custom
+      zoomControl: false,
     });
-
-    // Don't add default zoom control - we use custom buttons
 
     L.tileLayer(TILE_URL, {
       attribution: TILE_ATTRIBUTION,
@@ -202,6 +217,10 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
     mapRef.current = map;
     setTimeout(() => map.invalidateSize(), 0);
 
+    // Listen for map viewport changes
+    map.on('moveend', updateVisibleProjects);
+    map.on('zoomend', updateVisibleProjects);
+
     // Auto-locate user on mount
     if (navigator.geolocation) {
       setIsLocating(true);
@@ -209,7 +228,6 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
         (pos) => {
           const { latitude, longitude } = pos.coords;
           
-          // Only center on user if they're in the general BC area
           if (latitude > 48 && latitude < 51 && longitude > -125 && longitude < -120) {
             map.setView([latitude, longitude], 12, { animate: true });
             
@@ -223,15 +241,19 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
             }).addTo(map);
           }
           setIsLocating(false);
+          // Update visible projects after initial location
+          setTimeout(updateVisibleProjects, 100);
         },
         () => {
-          // Silently fail - just use default view
           setIsLocating(false);
+          setTimeout(updateVisibleProjects, 100);
         },
         { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
       );
+    } else {
+      setTimeout(updateVisibleProjects, 100);
     }
-  }, []);
+  }, [updateVisibleProjects]);
 
   // Update markers when projects change
   useEffect(() => {
