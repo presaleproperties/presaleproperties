@@ -93,18 +93,27 @@ export default function ResaleMapSearch() {
   const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
   const [visibleListingIds, setVisibleListingIds] = useState<string[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const desktopListRef = useRef<HTMLDivElement>(null);
 
   const handleListingSelect = useCallback((listingId: string) => {
     setSelectedListingId(listingId);
-    // Show carousel if hidden and scroll to the selected listing
+    // Show carousel if hidden (mobile/tablet)
     setShowCarousel(true);
     
-    // Small delay to ensure carousel is rendered before scrolling
+    // Small delay to ensure elements are rendered before scrolling
     setTimeout(() => {
+      // Scroll carousel (mobile/tablet)
       if (carouselRef.current) {
         const cardElement = carouselRef.current.querySelector(`[data-listing-id="${listingId}"]`);
         if (cardElement) {
           cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
+      // Scroll desktop list
+      if (desktopListRef.current) {
+        const cardElement = desktopListRef.current.querySelector(`[data-listing-id="${listingId}"]`);
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
     }, 100);
@@ -507,7 +516,7 @@ export default function ResaleMapSearch() {
                 </div>
               </div>
               
-              <div className="flex-1 overflow-y-auto p-4">
+              <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
                 {visibleListings.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Home className="h-10 w-10 mx-auto mb-2" />
@@ -517,7 +526,7 @@ export default function ResaleMapSearch() {
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {visibleListings.slice(0, 30).map((listing) => (
-                      <Link key={listing.id} to={`/resale/${listing.listing_key}`} className="block">
+                      <Link key={listing.id} to={`/resale/${listing.listing_key}`} className="block" data-listing-id={listing.id}>
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
                           selectedListingId === listing.id ? 'ring-2 ring-primary border-primary' : 'border-border'
                         }`}>
