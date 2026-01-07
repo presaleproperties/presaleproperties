@@ -1,17 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
-import { useRef, useState, useEffect } from "react";
 
 export function FeaturedProjects() {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
-
   const { data: projects, isLoading } = useQuery({
     queryKey: ["most-viewed-projects"],
     queryFn: async () => {
@@ -26,33 +21,6 @@ export function FeaturedProjects() {
       return data;
     },
   });
-
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setCanScrollLeft(scrollLeft > 0);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
-    }
-  };
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      el.addEventListener("scroll", checkScroll);
-      checkScroll();
-      return () => el.removeEventListener("scroll", checkScroll);
-    }
-  }, [projects]);
-
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const cardWidth = 480; // Approximate width of large card + gap
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -cardWidth : cardWidth,
-        behavior: "smooth",
-      });
-    }
-  };
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-muted/20 relative">
@@ -72,74 +40,45 @@ export function FeaturedProjects() {
               The most in-demand new developments across Metro Vancouver
             </p>
           </div>
-          <div className="hidden sm:flex items-center gap-2">
-            {/* Desktop scroll buttons */}
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-10 w-10 rounded-full"
-              onClick={() => scroll("left")}
-              disabled={!canScrollLeft}
-            >
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-10 w-10 rounded-full"
-              onClick={() => scroll("right")}
-              disabled={!canScrollRight}
-            >
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-            <Button variant="outline" size="lg" asChild className="ml-2 group">
-              <Link to="/presale-projects">
-                View All Projects
-                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
+          <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">
+            <Link to="/presale-projects">
+              View All Projects
+              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
         </div>
 
         {isLoading ? (
-          <div className="flex gap-4 overflow-hidden">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[calc(100vw-48px)] sm:w-[420px] lg:w-[460px] bg-card rounded-xl overflow-hidden border">
-                <Skeleton className="h-56 sm:h-64 lg:h-72 w-full" />
-                <div className="p-5 sm:p-6 space-y-3">
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-5 w-1/2" />
-                  <Skeleton className="h-5 w-full" />
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-card rounded-xl overflow-hidden border">
+                <Skeleton className="h-40 sm:h-48 w-full" />
+                <div className="p-4 sm:p-5 space-y-3">
+                  <Skeleton className="h-5 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-full" />
                 </div>
               </div>
             ))}
           </div>
         ) : projects && projects.length > 0 ? (
-          <div
-            ref={scrollRef}
-            className="flex gap-4 lg:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pb-4"
-            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-          >
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             {projects.map((project) => (
-              <div 
-                key={project.id} 
-                className="flex-shrink-0 w-[calc(100vw-48px)] sm:w-[420px] lg:w-[460px] snap-start"
-              >
-                <PresaleProjectCard
-                  id={project.id}
-                  slug={project.slug}
-                  name={project.name}
-                  city={project.city}
-                  neighborhood={project.neighborhood}
-                  projectType={project.project_type}
-                  status={project.status}
-                  completionYear={project.completion_year}
-                  startingPrice={project.starting_price}
-                  featuredImage={project.featured_image}
-                  galleryImages={project.gallery_images}
-                  size="featured"
-                />
-              </div>
+              <PresaleProjectCard
+                key={project.id}
+                id={project.id}
+                slug={project.slug}
+                name={project.name}
+                city={project.city}
+                neighborhood={project.neighborhood}
+                projectType={project.project_type}
+                status={project.status}
+                completionYear={project.completion_year}
+                startingPrice={project.starting_price}
+                featuredImage={project.featured_image}
+                galleryImages={project.gallery_images}
+                size="featured"
+              />
             ))}
           </div>
         ) : (
