@@ -321,7 +321,7 @@ export default function MapSearch() {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative">
           {/* Map Section */}
-          <div className={`relative transition-all duration-300 ${showList ? "lg:w-3/5" : "w-full"} w-full`}>
+          <div className={`relative transition-all duration-300 h-full ${showList ? "lg:w-3/5" : "w-full"} w-full`}>
             <SafeMapWrapper height="h-full">
               <Suspense fallback={<LoadingMap />}>
                 {isLoading ? (
@@ -348,7 +348,7 @@ export default function MapSearch() {
 
             {/* Bottom Carousel - Shows on mobile, tablet, AND desktop when list is hidden */}
             {visibleProjects.length > 0 && (!showList || isMobile) && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-gradient-to-t from-background via-background/95 to-transparent pt-6 pb-4 lg:pb-6">
+              <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-gradient-to-t from-background via-background/90 to-transparent pt-8 pb-4 lg:pb-6">
                 {/* Header row - visible on tablet and desktop */}
                 <div className="hidden sm:flex items-center justify-between px-4 md:px-6 pb-3">
                   <span className="text-sm font-medium text-foreground">
@@ -368,14 +368,14 @@ export default function MapSearch() {
                       key={project.id} 
                       to={`/presale-projects/${project.slug}`}
                       data-project-id={project.id}
-                      className="snap-start shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
+                      className="snap-start shrink-0 w-[260px] sm:w-[280px] md:w-[320px] lg:w-[360px]"
                     >
                       <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                         selectedProjectId === project.id 
                           ? 'border-primary ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/50'
                       }`}>
-                        <div className="relative w-full h-28 sm:h-32 bg-muted">
+                        <div className="relative w-full aspect-[16/10] bg-muted">
                           {project.featured_image ? (
                             <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
                           ) : (
