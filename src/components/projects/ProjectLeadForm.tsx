@@ -281,10 +281,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+          className="absolute right-3 top-3 z-10 p-1 text-white/70 hover:text-white transition-colors"
           aria-label="Close"
         >
-          <X className="h-4 w-4" />
+          <X className="h-5 w-5" />
         </button>
       )}
       
