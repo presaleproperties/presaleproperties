@@ -71,16 +71,19 @@ export function HeroSection() {
       <div className="container relative z-10 px-4">
         <div className="max-w-3xl mx-auto text-center">
           {/* Tagline */}
-          <p className="text-white/90 text-sm md:text-base font-medium tracking-wide mb-4 md:mb-5">
+          <p className="text-primary text-sm md:text-base font-medium tracking-wide mb-4 md:mb-5">
             Vancouver's #1 Presale Condos & Townhomes Marketplace
           </p>
           
-          {/* Main Heading - Larger, bolder */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-8 md:mb-12">
-            Made for{" "}
-            <span className="text-primary">presale</span>{" "}
-            people
+          {/* Main Heading - SEO optimized */}
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-[1.15] mb-4 md:mb-6">
+            Find <span className="text-primary">Presale</span> Condos & Townhomes
           </h1>
+          
+          {/* Subheading */}
+          <p className="text-white/80 text-sm sm:text-base md:text-lg mb-8 md:mb-10 max-w-xl mx-auto">
+            Get instant access to floor plans, pricing sheets & book a private preview
+          </p>
 
           {/* Floating Search Card - Overlapping style */}
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl mx-auto overflow-hidden">
