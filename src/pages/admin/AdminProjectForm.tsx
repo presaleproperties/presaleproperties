@@ -17,6 +17,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIProjectUploadWizard } from "@/components/admin/AIProjectUploadWizard";
+import { ClickableMapPreview } from "@/components/admin/ClickableMapPreview";
 import { 
   ArrowLeft,
   Loader2,
@@ -1229,24 +1230,19 @@ export default function AdminProjectForm() {
                   </div>
                 </div>
                 
-                {/* Map Preview */}
+                {/* Interactive Map Preview */}
                 {formData.map_lat && formData.map_lng && (
-                  <div className="space-y-2">
-                    <Label>Preview</Label>
-                    <div className="h-48 rounded-lg overflow-hidden border relative">
-                      <iframe
-                        title="Map Preview"
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0 }}
-                        loading="lazy"
-                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${parseFloat(formData.map_lng) - 0.01},${parseFloat(formData.map_lat) - 0.008},${parseFloat(formData.map_lng) + 0.01},${parseFloat(formData.map_lat) + 0.008}&layer=mapnik&marker=${formData.map_lat},${formData.map_lng}`}
-                      />
-                      <div className="absolute bottom-2 right-2 bg-background/90 backdrop-blur-sm rounded px-2 py-1 text-xs text-muted-foreground">
-                        {parseFloat(formData.map_lat).toFixed(5)}, {parseFloat(formData.map_lng).toFixed(5)}
-                      </div>
-                    </div>
-                  </div>
+                  <ClickableMapPreview
+                    lat={parseFloat(formData.map_lat)}
+                    lng={parseFloat(formData.map_lng)}
+                    onLocationChange={(lat, lng) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        map_lat: lat.toString(),
+                        map_lng: lng.toString(),
+                      }));
+                    }}
+                  />
                 )}
                 
                 <Button
