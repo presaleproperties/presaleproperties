@@ -115,11 +115,11 @@ export function HeroSection() {
               </div>
               <button
                 type="button"
-                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/assignments")}
+                onClick={() => navigate("/map-search")}
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
-                Browse All
+                Open Map
               </button>
             </div>
 
