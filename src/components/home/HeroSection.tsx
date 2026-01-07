@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
@@ -54,8 +53,8 @@ export function HeroSection() {
   };
 
   return (
-    <section className="relative min-h-[560px] sm:min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden">
-      {/* Background Image - High Quality */}
+    <section className="relative min-h-[75vh] md:min-h-[80vh] flex flex-col justify-center overflow-hidden">
+      {/* Background Image - Full Bleed */}
       <img 
         src={heroImage}
         alt="Luxury presale homes"
@@ -65,92 +64,90 @@ export function HeroSection() {
         fetchPriority="high"
       />
       
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 sm:from-black/50 sm:via-black/40 sm:to-black/60" />
+      {/* Gradient Overlay - Darker for better text contrast */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/50 to-black/70" />
       
-      {/* Content */}
-      <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
+      {/* Content - Centered */}
+      <div className="container relative z-10 px-4">
+        <div className="max-w-3xl mx-auto text-center">
           {/* Tagline */}
-          <p className="text-primary text-xs sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
+          <p className="text-white/90 text-sm md:text-base font-medium tracking-wide mb-4 md:mb-5">
             Vancouver's #1 Presale Condos & Townhomes Marketplace
           </p>
           
-          {/* Main Heading - SEO optimized H1 */}
-          <h1 className="text-[26px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.15] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
-            Find <span className="text-primary">Presale</span> Condos & Townhomes
+          {/* Main Heading - Larger, bolder */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-white leading-[1.1] mb-8 md:mb-12">
+            Made for{" "}
+            <span className="text-primary">presale</span>{" "}
+            people
           </h1>
 
-          {/* Subheading - Value proposition */}
-          <p className="text-white/80 text-sm sm:text-base md:text-lg animate-fade-in max-w-xl mx-auto" style={{ animationDelay: "0.15s" }}>
-            Get instant access to floor plans, pricing sheets & book a private preview with our team
-          </p>
-
-          {/* Floating Search Card - Compact on mobile */}
-          <div 
-            className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
-            style={{ animationDelay: "0.2s" }}
-          >
-            {/* Tabs */}
-            <div className="flex items-center justify-between border-b border-border px-2.5 sm:px-4 py-2 sm:py-3">
-              <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto">
+          {/* Floating Search Card - Overlapping style */}
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl mx-auto overflow-hidden">
+            {/* Tabs Row */}
+            <div className="flex items-center justify-between px-4 py-3 md:px-6 md:py-4">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setActiveTab("projects")}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                     activeTab === "projects"
-                      ? "bg-foreground text-background shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
-                  Presale Projects
+                  Presale
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveTab("assignments")}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
+                  className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
                     activeTab === "assignments"
-                      ? "bg-foreground text-background shadow-sm"
+                      ? "bg-primary text-primary-foreground shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
                   Assignments
                 </button>
               </div>
+              
               <button
                 type="button"
-                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/assignments")}
-                className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => navigate("/map-search")}
+                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
               >
                 <MapPin className="h-4 w-4" />
-                Browse All
+                <span className="hidden sm:inline">Search by Map</span>
+                <span className="sm:hidden">Map</span>
               </button>
             </div>
 
             {/* Search Input */}
             <form onSubmit={handleSearch}>
-              <div className="relative px-2.5 sm:px-4 py-2.5 sm:py-3" ref={searchContainerRef}>
-                <Input
-                  type="text"
-                  placeholder={activeTab === "projects" 
-                    ? "City, Neighbourhood, Developer..." 
-                    : "Project, Neighbourhood, City..."
-                  }
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="h-11 sm:h-12 md:h-14 text-[15px] sm:text-base pl-3.5 pr-11 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
-                  autoComplete="off"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
+              <div className="relative px-4 pb-4 md:px-6 md:pb-5" ref={searchContainerRef}>
+                <div className="relative">
+                  <Input
+                    type="text"
+                    placeholder={activeTab === "projects" 
+                      ? "City, Neighbourhood, Developer..." 
+                      : "Project, Neighbourhood, City..."
+                    }
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    className="h-14 md:h-16 text-base md:text-lg pl-5 pr-14 border-border bg-muted/30 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-xl"
+                    autoComplete="off"
+                  />
+                  <button 
+                    type="submit"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 md:h-12 md:w-12 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all rounded-full"
+                  >
+                    <Search className="h-5 w-5 md:h-6 md:w-6" />
+                  </button>
+                </div>
                 <SearchSuggestions
                   query={searchQuery}
                   onSelect={handleSuggestionSelect}
@@ -161,25 +158,25 @@ export function HeroSection() {
               </div>
             </form>
           </div>
+        </div>
+      </div>
 
-          {/* Top Cities */}
-          <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
-            <span className="text-[10px] sm:text-sm text-white/70 font-medium tracking-wide block mb-2">
+      {/* Top Cities - Below hero on white bg */}
+      <div className="absolute bottom-0 left-0 right-0 bg-background py-4 md:py-5">
+        <div className="container px-4">
+          <div className="flex items-center gap-4 overflow-x-auto scrollbar-hide">
+            <span className="text-sm text-muted-foreground font-medium whitespace-nowrap">
               Top Cities
             </span>
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3">
-              {(activeTab === "projects" ? projectCities : assignmentCities).map((city) => (
-                <Button
-                  key={city}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleCityClick(city)}
-                  className="rounded-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-2.5 sm:px-3 md:px-4 h-7 sm:h-8 font-medium"
-                >
-                  {city}
-                </Button>
-              ))}
-            </div>
+            {(activeTab === "projects" ? projectCities : assignmentCities).map((city) => (
+              <button
+                key={city}
+                onClick={() => handleCityClick(city)}
+                className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all"
+              >
+                {city}
+              </button>
+            ))}
           </div>
         </div>
       </div>
