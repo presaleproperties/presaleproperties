@@ -339,36 +339,38 @@ export default function MapSearch() {
               </div>
             </div>
 
-            <SafeMapWrapper height="h-full">
-              <Suspense fallback={<LoadingMap />}>
-                {isLoading ? (
-                  <LoadingMap />
-                ) : mapProjects.length === 0 ? (
-                  <div className="h-full w-full bg-muted flex items-center justify-center">
-                    <div className="text-center text-muted-foreground p-6">
-                      <Building2 className="h-12 w-12 mx-auto mb-3" />
-                      <h3 className="font-semibold text-foreground mb-2">No projects found</h3>
-                      <p className="text-sm mb-4">Try adjusting your filters</p>
-                      <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
+            <div className="absolute inset-0">
+              <SafeMapWrapper height="h-full">
+                <Suspense fallback={<LoadingMap />}>
+                  {isLoading ? (
+                    <LoadingMap />
+                  ) : mapProjects.length === 0 ? (
+                    <div className="h-full w-full bg-muted flex items-center justify-center">
+                      <div className="text-center text-muted-foreground p-6">
+                        <Building2 className="h-12 w-12 mx-auto mb-3" />
+                        <h3 className="font-semibold text-foreground mb-2">No projects found</h3>
+                        <p className="text-sm mb-4">Try adjusting your filters</p>
+                        <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <ProjectsMap 
-                    projects={mapProjects as any} 
-                    isLoading={false} 
-                    onProjectSelect={handleProjectSelect}
-                    onVisibleProjectsChange={handleVisibleProjectsChange}
-                  />
-                )}
-              </Suspense>
-            </SafeMapWrapper>
+                  ) : (
+                    <ProjectsMap 
+                      projects={mapProjects as any} 
+                      isLoading={false} 
+                      onProjectSelect={handleProjectSelect}
+                      onVisibleProjectsChange={handleVisibleProjectsChange}
+                    />
+                  )}
+                </Suspense>
+              </SafeMapWrapper>
+            </div>
 
-            {/* Toggle button when carousel is hidden - positioned at bottom */}
+            {/* Toggle button when carousel is hidden - positioned at bottom with safe area */}
             {!showCarousel && visibleProjects.length > 0 && (
-              <div className="absolute bottom-6 left-0 right-0 z-[1000] flex justify-center lg:hidden">
+              <div className="absolute bottom-0 left-0 right-0 z-[1100] flex justify-center pb-6 safe-bottom lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
-                  className="p-2 rounded-full bg-background/90 shadow-lg border border-border hover:bg-muted transition-colors"
+                  className="p-2.5 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/50 hover:bg-background transition-colors"
                   aria-label="Show projects"
                 >
                   <ChevronUp className="h-5 w-5 text-foreground" />
@@ -376,67 +378,72 @@ export default function MapSearch() {
               </div>
             )}
 
-            {/* Bottom Carousel - Shows on mobile and tablet only */}
+            {/* Bottom Carousel - Shows on mobile and tablet only, hovers over map */}
             {showCarousel && visibleProjects.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden bg-gradient-to-t from-background via-background/90 to-transparent pt-4 pb-2">
-                  {/* Header row with project count and minimalist hide button */}
-                  <div className="flex items-center justify-between px-4 md:px-6 pb-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {visibleProjects.length} project{visibleProjects.length !== 1 ? "s" : ""} in view
-                    </span>
+              <div className="absolute bottom-0 left-0 right-0 z-[1100] lg:hidden">
+                  {/* Floating toggle button */}
+                  <div className="flex justify-center pb-2">
                     <button
                       onClick={() => setShowCarousel(false)}
-                      className="p-1 rounded-full hover:bg-muted/80 transition-colors"
+                      className="p-2 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/50 hover:bg-background transition-colors"
                       aria-label="Hide projects"
                     >
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      <ChevronDown className="h-4 w-4 text-foreground" />
                     </button>
                   </div>
-                  <div 
-                    ref={carouselRef}
-                    className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
-                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                  >
-                    {visibleProjects.slice(0, 30).map((project) => (
-                      <Link 
-                        key={project.id} 
-                        to={`/presale-projects/${project.slug}`}
-                        data-project-id={project.id}
-                        className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
-                      >
-                        <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
-                          selectedProjectId === project.id 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-border hover:border-primary/50'
-                        }`}>
-                          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
-                            {project.featured_image ? (
-                              <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Building2 className="h-6 w-6 text-muted-foreground" />
-                              </div>
-                            )}
-                            <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
-                              {project.status === 'active' ? 'Selling Now' : project.status === 'registering' ? 'Registering' : 'Coming Soon'}
-                            </Badge>
-                          </div>
-                          <div className="p-2.5 sm:p-3">
-                            <h4 className="font-semibold text-foreground text-sm truncate">{project.name}</h4>
-                            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                              <MapPin className="h-3 w-3" />
-                              <span className="text-xs truncate">{project.city}</span>
-                            </div>
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="font-bold text-foreground text-sm">{formatPrice(project.starting_price)}</span>
-                              {project.completion_year && (
-                                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">{project.completion_year}</span>
+                  {/* Carousel with count */}
+                  <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 pt-2 pb-2 safe-bottom">
+                    <div className="flex items-center justify-between px-4 md:px-6 pb-2">
+                      <span className="text-xs font-medium text-muted-foreground">
+                        {visibleProjects.length} project{visibleProjects.length !== 1 ? "s" : ""} in view
+                      </span>
+                    </div>
+                    <div 
+                      ref={carouselRef}
+                      className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                      {visibleProjects.slice(0, 30).map((project) => (
+                        <Link 
+                          key={project.id} 
+                          to={`/presale-projects/${project.slug}`}
+                          data-project-id={project.id}
+                          className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
+                        >
+                          <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
+                            selectedProjectId === project.id 
+                              ? 'border-primary ring-2 ring-primary/20' 
+                              : 'border-border hover:border-primary/50'
+                          }`}>
+                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
+                              {project.featured_image ? (
+                                <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                                </div>
                               )}
+                              <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
+                                {project.status === 'active' ? 'Selling Now' : project.status === 'registering' ? 'Registering' : 'Coming Soon'}
+                              </Badge>
+                            </div>
+                            <div className="p-2.5 sm:p-3">
+                              <h4 className="font-semibold text-foreground text-sm truncate">{project.name}</h4>
+                              <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                <span className="text-xs truncate">{project.city}</span>
+                              </div>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="font-bold text-foreground text-sm">{formatPrice(project.starting_price)}</span>
+                                {project.completion_year && (
+                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">{project.completion_year}</span>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
               </div>
             )}
