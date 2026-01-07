@@ -60,9 +60,9 @@ const HOME_SIZES: { value: HomeSize; label: string }[] = [
 ];
 
 const AGENT_STATUSES: { value: AgentStatus; label: string }[] = [
-  { value: "no_agent", label: "No agent" },
-  { value: "has_agent", label: "Working with agent" },
-  { value: "is_agent", label: "I am an agent" },
+  { value: "no_agent", label: "No" },
+  { value: "has_agent", label: "Yes" },
+  { value: "is_agent", label: "I'm an agent" },
 ];
 
 export function BookingModal({
