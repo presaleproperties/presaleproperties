@@ -1,6 +1,5 @@
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { X } from "lucide-react";
 import { ProjectLeadForm } from "./ProjectLeadForm";
 
 interface FloorPlanModalProps {
@@ -23,21 +22,12 @@ export function FloorPlanModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="w-[calc(100%-24px)] max-w-md p-0 overflow-hidden bg-card border-0 max-h-[min(580px,85vh)] overflow-y-auto rounded-2xl shadow-2xl [&>button]:hidden"
+        className="w-[calc(100%-24px)] max-w-md p-0 overflow-hidden bg-card border-0 max-h-[min(600px,85vh)] overflow-y-auto rounded-2xl shadow-2xl [&>button]:hidden"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <VisuallyHidden>
           <DialogTitle>Get Floor Plans & Pricing for {projectName}</DialogTitle>
         </VisuallyHidden>
-        
-        {/* Close button */}
-        <button
-          onClick={() => onOpenChange(false)}
-          className="absolute right-3 top-2.5 z-50 p-2 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
-          aria-label="Close"
-        >
-          <X className="h-5 w-5" />
-        </button>
         
         {/* Compact styling for modal - preserves 16px input text to prevent iOS zoom */}
         <div className="
@@ -65,6 +55,7 @@ export function FloorPlanModal({
             projectName={projectName}
             status={status}
             brochureUrl={brochureUrl}
+            onClose={() => onOpenChange(false)}
           />
         </div>
       </DialogContent>

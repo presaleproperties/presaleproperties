@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Download, MessageCircle, ArrowRight } from "lucide-react";
+import { Send, CheckCircle, Download, MessageCircle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,6 +32,7 @@ interface ProjectLeadFormProps {
   status: "coming_soon" | "registering" | "active" | "sold_out";
   brochureUrl?: string | null;
   leadSource?: "floor_plan_request" | "general_inquiry" | "scheduler";
+  onClose?: () => void;
 }
 
 const PERSONAS = [
@@ -51,7 +52,7 @@ const HOME_SIZES = [
   { value: "3_bed_plus", label: "3 Bed+" },
 ];
 
-export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, leadSource = "floor_plan_request" }: ProjectLeadFormProps) {
+export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, leadSource = "floor_plan_request", onClose }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
@@ -275,9 +276,20 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const content = getFormContent();
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl relative">
+      {/* Close button */}
+      {onClose && (
+        <button
+          onClick={onClose}
+          className="absolute right-3 top-3 z-10 p-1.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors"
+          aria-label="Close"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+      
       {/* Header */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 pr-12">
         <div className="flex items-center gap-2 flex-wrap mb-1">
           {brochureUrl && (
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full">
@@ -440,13 +452,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             {isSubmitting ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                Sending...
+                Submitting...
               </span>
             ) : (
-              <>
-                {content.buttonText}
-                <ArrowRight className="h-4 w-4" />
-              </>
+              "Submit"
             )}
           </Button>
 
