@@ -347,24 +347,22 @@ export default function MapSearch() {
               </Suspense>
             </SafeMapWrapper>
 
-            {/* Bottom Carousel Toggle + Carousel - Shows on mobile and tablet only */}
-            <div className="absolute bottom-4 left-0 right-0 z-[1000] lg:hidden">
-              {/* Toggle button when carousel is hidden */}
-              {!showCarousel && visibleProjects.length > 0 && (
-                <div className="flex justify-center">
-                  <button
-                    onClick={() => setShowCarousel(true)}
-                    className="p-2 rounded-full bg-background/90 shadow-lg border border-border hover:bg-muted transition-colors"
-                    aria-label="Show projects"
-                  >
-                    <ChevronUp className="h-5 w-5 text-foreground" />
-                  </button>
-                </div>
-              )}
+            {/* Toggle button when carousel is hidden - positioned at bottom */}
+            {!showCarousel && visibleProjects.length > 0 && (
+              <div className="absolute bottom-6 left-0 right-0 z-[1000] flex justify-center lg:hidden">
+                <button
+                  onClick={() => setShowCarousel(true)}
+                  className="p-2 rounded-full bg-background/90 shadow-lg border border-border hover:bg-muted transition-colors"
+                  aria-label="Show projects"
+                >
+                  <ChevronUp className="h-5 w-5 text-foreground" />
+                </button>
+              </div>
+            )}
 
-              {/* Carousel */}
-              {showCarousel && visibleProjects.length > 0 && (
-                <div className="bg-gradient-to-t from-background via-background/90 to-transparent pt-4 pb-2">
+            {/* Bottom Carousel - Shows on mobile and tablet only */}
+            {showCarousel && visibleProjects.length > 0 && (
+              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden bg-gradient-to-t from-background via-background/90 to-transparent pt-4 pb-2">
                   {/* Header row with project count and minimalist hide button */}
                   <div className="flex items-center justify-between px-4 md:px-6 pb-2">
                     <span className="text-xs font-medium text-muted-foreground">
@@ -424,9 +422,8 @@ export default function MapSearch() {
                       </Link>
                     ))}
                   </div>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Desktop List Panel - Shows projects visible in map viewport */}
