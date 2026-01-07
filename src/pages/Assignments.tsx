@@ -24,7 +24,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ListingCard } from "@/components/listings/ListingCard";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { CTASection } from "@/components/home/CTASection";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
@@ -622,7 +621,6 @@ export default function Assignments() {
 
       <CTASection />
       <Footer />
-      <FloatingMapButton />
     </PullToRefresh>
   );
 }

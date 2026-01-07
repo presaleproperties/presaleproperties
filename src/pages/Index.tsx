@@ -1,7 +1,6 @@
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Map } from "lucide-react";
-import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { HeroSection } from "@/components/home/HeroSection";
@@ -307,9 +306,6 @@ const Index = () => {
           <BuyerCTASection />
         </ScrollReveal>
       </main>
-      
-      {/* Floating Map Button - Mobile/Tablet */}
-      <FloatingMapButton />
       
       {/* Desktop Map Button */}
       <Link 
