@@ -30,7 +30,9 @@ import {
   FolderOpen,
   Image,
   FileText,
-  MapPin
+  MapPin,
+  ChevronLeft,
+  ChevronRight
 } from "lucide-react";
 
 type ProjectFormData = {
@@ -129,6 +131,7 @@ export default function AdminProjectForm() {
   const [addressSuggestions, setAddressSuggestions] = useState<{ description: string; placeId: string }[]>([]);
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const { toast } = useToast();
 
   // Geocode address using Google Maps API via edge function
@@ -273,6 +276,7 @@ export default function AdminProjectForm() {
   useEffect(() => {
     if (id) {
       fetchProject();
+      fetchAdjacentProjects();
     }
   }, [id]);
 
@@ -335,6 +339,33 @@ export default function AdminProjectForm() {
       navigate("/admin/projects");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Fetch adjacent projects for navigation
+  const fetchAdjacentProjects = async () => {
+    if (!id) return;
+    
+    try {
+      // Fetch all project IDs ordered by updated_at (same order as admin list)
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("id")
+        .order("updated_at", { ascending: false });
+
+      if (error) throw error;
+      
+      const projectIds = data?.map(p => p.id) || [];
+      const currentIndex = projectIds.indexOf(id);
+      
+      if (currentIndex !== -1) {
+        setAdjacentProjects({
+          prev: currentIndex > 0 ? projectIds[currentIndex - 1] : null,
+          next: currentIndex < projectIds.length - 1 ? projectIds[currentIndex + 1] : null,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching adjacent projects:", error);
     }
   };
 
@@ -868,25 +899,37 @@ export default function AdminProjectForm() {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <div>
-              <h1 className="text-2xl font-bold">
-                {isEdit ? "Edit Project" : "Create Project"}
-              </h1>
-              <p className="text-muted-foreground">
-                {isEdit ? "Update project details" : "Add a new presale project"}
-              </p>
+              <h1 className="text-2xl font-bold">Edit Project</h1>
+              <p className="text-muted-foreground">Update project details</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!isEdit && (
+            {/* Project Navigation */}
+            <div className="flex items-center border rounded-lg">
               <Button
                 type="button"
-                variant="outline"
-                onClick={() => setShowUploadAssistant(true)}
+                variant="ghost"
+                size="sm"
+                onClick={() => adjacentProjects.prev && navigate(`/admin/projects/${adjacentProjects.prev}/edit`)}
+                disabled={!adjacentProjects.prev}
+                className="rounded-r-none"
               >
-                <Sparkles className="h-4 w-4 mr-2" />
-                AI Import
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Prev
               </Button>
-            )}
+              <div className="w-px h-6 bg-border" />
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={() => adjacentProjects.next && navigate(`/admin/projects/${adjacentProjects.next}/edit`)}
+                disabled={!adjacentProjects.next}
+                className="rounded-l-none"
+              >
+                Next
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
             {formData.slug && (
               <Button
                 type="button"
@@ -900,7 +943,7 @@ export default function AdminProjectForm() {
             <Button type="submit" disabled={saving}>
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               <Save className="h-4 w-4 mr-2" />
-              {isEdit ? "Save Changes" : "Create Project"}
+              Save Changes
             </Button>
           </div>
         </div>
