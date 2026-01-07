@@ -53,6 +53,7 @@ import { UtmTracker } from "@/components/UtmTracker";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
+import ResaleListingDetail from "./pages/ResaleListingDetail";
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => (
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
             <Route path="/map-search" element={<MapSearch />} />
             <Route path="/resale" element={<ResaleListings />} />
+            <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
