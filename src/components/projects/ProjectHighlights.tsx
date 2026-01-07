@@ -81,23 +81,23 @@ export function ProjectHighlights({
   if (highlights.length === 0) return null;
 
   return (
-    <div className="bg-muted/40 rounded-xl p-4">
-      <div className="grid grid-cols-2 gap-4">
+    <div className="bg-gradient-to-br from-muted/60 to-muted/30 rounded-2xl p-5 border border-border/50">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
         {highlights.map((item, index) => (
           <div 
             key={index} 
-            className="flex items-start gap-3 p-2 rounded-lg"
+            className="group flex flex-col items-center text-center p-4 rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200"
           >
-            <div className="p-2 rounded-lg bg-primary/10 text-primary shrink-0">
-              {item.icon}
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200">
+              <div className="text-primary">
+                {item.icon}
+              </div>
             </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5">
-                {item.label}
-              </div>
-              <div className="font-semibold text-sm text-foreground leading-tight">
-                {item.value}
-              </div>
+            <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-1">
+              {item.label}
+            </div>
+            <div className="font-bold text-sm text-foreground leading-tight">
+              {item.value}
             </div>
           </div>
         ))}
