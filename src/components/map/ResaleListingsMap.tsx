@@ -227,11 +227,7 @@ export function ResaleListingsMap({
         icon: createPricePillIcon(listing),
       });
 
-      marker.bindPopup(popupHtml(listing), {
-        maxWidth: 220,
-        className: "custom-popup",
-      });
-
+      // Only trigger carousel selection, no popup
       marker.on("click", () => {
         onListingSelect?.(listing.id);
       });
