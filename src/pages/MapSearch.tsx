@@ -78,6 +78,7 @@ export default function MapSearch() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [visibleProjectIds, setVisibleProjectIds] = useState<string[]>([]);
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const handleProjectSelect = useCallback((projectId: string) => {
@@ -89,6 +90,10 @@ export default function MapSearch() {
         cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
       }
     }
+  }, []);
+
+  const handleVisibleProjectsChange = useCallback((projectIds: string[]) => {
+    setVisibleProjectIds(projectIds);
   }, []);
 
   const filters = {
@@ -139,6 +144,12 @@ export default function MapSearch() {
   }, [allProjects, searchQuery]);
 
   const mapProjects = filteredProjects;
+
+  // Projects visible in current map viewport (synced with carousel/list)
+  const visibleProjects = useMemo(() => {
+    if (visibleProjectIds.length === 0) return filteredProjects;
+    return filteredProjects.filter(p => visibleProjectIds.includes(p.id));
+  }, [filteredProjects, visibleProjectIds]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -329,42 +340,42 @@ export default function MapSearch() {
                     projects={mapProjects as any} 
                     isLoading={false} 
                     onProjectSelect={handleProjectSelect}
+                    onVisibleProjectsChange={handleVisibleProjectsChange}
                   />
                 )}
               </Suspense>
             </SafeMapWrapper>
 
-            {/* Bottom Carousel - Always visible on mobile, visible on desktop when list hidden */}
-            {filteredProjects.length > 0 && (isMobile || !showList) && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-gradient-to-t from-background via-background/95 to-transparent pt-6 pb-4">
-                {!isMobile && (
-                  <div className="flex items-center justify-between px-6 pb-3">
-                    <span className="text-sm font-medium text-foreground">
-                      {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
-                    </span>
-                    <Link to="/presale-projects">
-                      <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
-                    </Link>
-                  </div>
-                )}
+            {/* Bottom Carousel - Shows on mobile, tablet, AND desktop when list is hidden */}
+            {visibleProjects.length > 0 && (!showList || isMobile) && (
+              <div className="absolute bottom-0 left-0 right-0 z-[1000] bg-gradient-to-t from-background via-background/95 to-transparent pt-6 pb-4 lg:pb-6">
+                {/* Header row - visible on tablet and desktop */}
+                <div className="hidden sm:flex items-center justify-between px-4 md:px-6 pb-3">
+                  <span className="text-sm font-medium text-foreground">
+                    {visibleProjects.length} Project{visibleProjects.length !== 1 ? "s" : ""} in view
+                  </span>
+                  <Link to="/presale-projects">
+                    <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
+                  </Link>
+                </div>
                 <div 
                   ref={carouselRef}
-                  className="flex gap-3 lg:gap-4 overflow-x-auto px-4 lg:px-6 pb-2 snap-x snap-mandatory"
+                  className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-                  {filteredProjects.slice(0, 30).map((project) => (
+                  {visibleProjects.slice(0, 30).map((project) => (
                     <Link 
                       key={project.id} 
                       to={`/presale-projects/${project.slug}`}
                       data-project-id={project.id}
-                      className={`snap-start shrink-0 ${isMobile ? 'w-[280px]' : 'w-[300px] lg:w-[320px]'}`}
+                      className="snap-start shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
                     >
                       <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                         selectedProjectId === project.id 
                           ? 'border-primary ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/50'
                       }`}>
-                        <div className={`relative w-full bg-muted ${isMobile ? 'h-28' : 'h-32'}`}>
+                        <div className="relative w-full h-28 sm:h-32 bg-muted">
                           {project.featured_image ? (
                             <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
                           ) : (
@@ -376,7 +387,7 @@ export default function MapSearch() {
                             {project.status === 'active' ? 'Selling Now' : project.status === 'registering' ? 'Registering' : 'Coming Soon'}
                           </Badge>
                         </div>
-                        <div className={`${isMobile ? 'p-2.5' : 'p-3'}`}>
+                        <div className="p-2.5 sm:p-3">
                           <h4 className="font-semibold text-foreground text-sm truncate">{project.name}</h4>
                           <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
                             <MapPin className="h-3 w-3" />
@@ -397,13 +408,13 @@ export default function MapSearch() {
             )}
           </div>
 
-          {/* Desktop List Panel */}
+          {/* Desktop List Panel - Shows projects visible in map viewport */}
           {showList && (
             <div className="hidden lg:flex lg:w-2/5 flex-col border-l border-border bg-background">
               <div className="shrink-0 px-4 py-3 border-b border-border">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-foreground">
-                    {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
+                    {visibleProjects.length} Project{visibleProjects.length !== 1 ? "s" : ""} in view
                   </h3>
                   <Link to="/presale-projects">
                     <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
@@ -412,14 +423,15 @@ export default function MapSearch() {
               </div>
               
               <div className="flex-1 overflow-y-auto p-4">
-                {filteredProjects.length === 0 ? (
+                {visibleProjects.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <Building2 className="h-10 w-10 mx-auto mb-2" />
-                    <p>No projects match your filters</p>
+                    <p>No projects in current view</p>
+                    <p className="text-xs mt-1">Zoom out to see more</p>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
-                    {filteredProjects.slice(0, 30).map((project) => (
+                    {visibleProjects.slice(0, 30).map((project) => (
                       <Link key={project.id} to={`/presale-projects/${project.slug}`} className="block">
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
                           selectedProjectId === project.id ? 'ring-2 ring-primary border-primary' : 'border-border'
