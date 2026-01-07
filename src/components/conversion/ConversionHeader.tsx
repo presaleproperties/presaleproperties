@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
+import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Calculator } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -170,6 +170,12 @@ export function ConversionHeader() {
               Blog
             </Link>
             <Link
+              to="/roi-calculator"
+              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ROI Calculator
+            </Link>
+            <Link
               to="/agents"
               className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
             >
@@ -283,6 +289,22 @@ export function ConversionHeader() {
                         <div className="flex items-center gap-3">
                           <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
                           <span className="text-base font-medium">Blog</span>
+                        </div>
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                      </Link>
+
+                      <Link
+                        to="/roi-calculator"
+                        onClick={() => setOpen(false)}
+                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
+                          isActive("/roi-calculator") 
+                            ? "bg-primary/10 text-primary" 
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Calculator className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                          <span className="text-base font-medium">ROI Calculator</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
