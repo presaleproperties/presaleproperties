@@ -1,6 +1,7 @@
-import { useEffect, useRef, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import MarkerClusterGroup from "react-leaflet-cluster";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +15,30 @@ L.Icon.Default.mergeOptions({
   iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
+
+// Custom cluster icon
+const createClusterCustomIcon = (cluster: any) => {
+  const count = cluster.getChildCount();
+  let size = "small";
+  let diameter = 36;
+  
+  if (count >= 10) {
+    size = "medium";
+    diameter = 44;
+  }
+  if (count >= 25) {
+    size = "large";
+    diameter = 52;
+  }
+  
+  return L.divIcon({
+    html: `<div class="cluster-icon cluster-${size}">
+      <span>${count}</span>
+    </div>`,
+    className: "custom-cluster-marker",
+    iconSize: L.point(diameter, diameter, true),
+  });
+};
 
 // Custom marker icon based on status
 const createCustomIcon = (status: string) => {
@@ -212,51 +237,60 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
         
         <FitBoundsControl projects={mappedProjects} />
         
-        {mappedProjects.map((project) => (
-          <Marker
-            key={project.id}
-            position={[project.lat, project.lng]}
-            icon={createCustomIcon(project.status)}
-            eventHandlers={{
-              click: () => setSelectedProject(project.id),
-            }}
-          >
-            <Popup maxWidth={280} className="project-popup">
-              <div className="p-1">
-                {project.featured_image && (
-                  <img
-                    src={project.featured_image}
-                    alt={project.name}
-                    className="w-full h-32 object-cover rounded-md mb-2"
-                  />
-                )}
-                <div className="space-y-2">
-                  <div className="flex items-start justify-between gap-2">
-                    <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
-                    <Badge className={`${getStatusColor(project.status)} text-[10px] px-1.5 py-0.5 shrink-0`}>
-                      {getStatusLabel(project.status)}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <MapPin className="h-3 w-3" />
-                    {project.neighborhood}, {project.city}
-                  </p>
-                  {project.starting_price && (
-                    <p className="text-sm font-medium">
-                      From {formatPrice(project.starting_price)}
-                    </p>
+        <MarkerClusterGroup
+          chunkedLoading
+          iconCreateFunction={createClusterCustomIcon}
+          maxClusterRadius={60}
+          spiderfyOnMaxZoom={true}
+          showCoverageOnHover={false}
+          disableClusteringAtZoom={15}
+        >
+          {mappedProjects.map((project) => (
+            <Marker
+              key={project.id}
+              position={[project.lat, project.lng]}
+              icon={createCustomIcon(project.status)}
+              eventHandlers={{
+                click: () => setSelectedProject(project.id),
+              }}
+            >
+              <Popup maxWidth={280} className="project-popup">
+                <div className="p-1">
+                  {project.featured_image && (
+                    <img
+                      src={project.featured_image}
+                      alt={project.name}
+                      className="w-full h-32 object-cover rounded-md mb-2"
+                    />
                   )}
-                  <Link to={`/presale-projects/${project.slug}`}>
-                    <Button size="sm" className="w-full mt-2 text-xs h-8">
-                      View Project
-                      <ExternalLink className="h-3 w-3 ml-1" />
-                    </Button>
-                  </Link>
+                  <div className="space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
+                      <Badge className={`${getStatusColor(project.status)} text-[10px] px-1.5 py-0.5 shrink-0`}>
+                        {getStatusLabel(project.status)}
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-3 w-3" />
+                      {project.neighborhood}, {project.city}
+                    </p>
+                    {project.starting_price && (
+                      <p className="text-sm font-medium">
+                        From {formatPrice(project.starting_price)}
+                      </p>
+                    )}
+                    <Link to={`/presale-projects/${project.slug}`}>
+                      <Button size="sm" className="w-full mt-2 text-xs h-8">
+                        View Project
+                        <ExternalLink className="h-3 w-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
+              </Popup>
+            </Marker>
+          ))}
+        </MarkerClusterGroup>
       </MapContainer>
       
       {/* Legend */}
