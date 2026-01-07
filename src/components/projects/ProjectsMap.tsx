@@ -29,13 +29,9 @@ const DEFAULT_CENTER: [number, number] = [49.25, -122.9];
 const DEFAULT_ZOOM = 10;
 
 // Mapbox Streets tiles - clean, premium style
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "";
-const TILE_URL = MAPBOX_TOKEN
-  ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
-  : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const TILE_ATTRIBUTION = MAPBOX_TOKEN
-  ? '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-  : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+const MAPBOX_TOKEN = "pk.eyJ1IjoicHJlc2FsZXByb3BlcnRpZXMiLCJhIjoiY21rM3FxNG9kMHVlNjNlb281cjc1eW41MyJ9.m9bmUbXwLDv0N0GjJDzymw";
+const TILE_URL = `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`;
+const TILE_ATTRIBUTION = '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 interface Project {
   id: string;
@@ -159,7 +155,7 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
         attribution: TILE_ATTRIBUTION,
         maxZoom: 19,
         tileSize: 512,
-        zoomOffset: MAPBOX_TOKEN ? -1 : 0,
+        zoomOffset: -1,
       }).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
