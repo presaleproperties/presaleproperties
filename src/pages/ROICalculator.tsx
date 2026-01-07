@@ -319,48 +319,44 @@ export default function ROICalculator() {
           </div>
         </section>
 
-        {/* FAQ Section for SEO */}
-        <section className="py-10 md:py-14">
+        {/* FAQ Section - Collapsible on Mobile */}
+        <section className="py-6 md:py-14">
           <div className="container px-4">
             <div className="max-w-3xl mx-auto">
-              <div className="text-center mb-8">
-                <h2 className="text-2xl md:text-3xl font-bold mb-3">
-                  Frequently Asked Questions
-                </h2>
-                <p className="text-muted-foreground">
-                  Common questions about presale investments in BC
-                </p>
-              </div>
+              <h2 className="text-lg md:text-3xl font-bold mb-4 md:mb-8 md:text-center">
+                FAQs
+              </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-2 md:space-y-4">
                 {ROI_FAQS.map((faq, index) => (
-                  <div key={index} className="bg-muted/30 rounded-lg p-5 border">
-                    <h3 className="font-semibold mb-2 flex items-start gap-2">
-                      <ChevronRight className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                      {faq.question}
-                    </h3>
-                    <p className="text-sm text-muted-foreground pl-7">
-                      {faq.answer}
-                    </p>
-                  </div>
+                  <details 
+                    key={index} 
+                    className="group bg-muted/30 rounded-lg border overflow-hidden"
+                  >
+                    <summary className="flex items-center justify-between gap-3 p-3 md:p-5 cursor-pointer list-none font-medium text-sm md:text-base">
+                      <span>{faq.question}</span>
+                      <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 transition-transform group-open:rotate-90" />
+                    </summary>
+                    <div className="px-3 pb-3 md:px-5 md:pb-5 pt-0">
+                      <p className="text-xs md:text-sm text-muted-foreground">
+                        {faq.answer}
+                      </p>
+                    </div>
+                  </details>
                 ))}
               </div>
 
-              {/* FAQ Schema */}
               <FAQSchema faqs={ROI_FAQS} />
             </div>
           </div>
         </section>
 
         {/* Disclaimer */}
-        <section className="py-6 border-t bg-muted/20">
+        <section className="py-4 md:py-6 border-t bg-muted/20">
           <div className="container px-4">
-            <div className="max-w-2xl mx-auto text-center text-xs text-muted-foreground">
-              <strong>Disclaimer:</strong> This calculator provides estimates only and is not 
-              financial, legal, or tax advice. Market conditions, interest rates, and rental 
-              demand can change significantly. Always consult with licensed professionals 
-              before making investment decisions.
-            </div>
+            <p className="max-w-2xl mx-auto text-center text-[10px] md:text-xs text-muted-foreground leading-relaxed">
+              <strong>Disclaimer:</strong> Estimates only, not financial advice. Consult licensed professionals before investing.
+            </p>
           </div>
         </section>
       </main>
