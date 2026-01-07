@@ -5,14 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, Loader2, MapPin, Navigation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-// Fix Leaflet default marker icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
-
+// City center coordinates for fallback positioning
 const CITY_CENTERS: Record<string, [number, number]> = {
   Vancouver: [49.2827, -123.1207],
   Burnaby: [49.2488, -122.9805],
@@ -34,6 +27,10 @@ const CITY_CENTERS: Record<string, [number, number]> = {
 
 const DEFAULT_CENTER: [number, number] = [49.25, -122.9];
 const DEFAULT_ZOOM = 10;
+
+// CartoDB Voyager tiles - clean, colorful, modern
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 interface Project {
   id: string;
@@ -72,42 +69,32 @@ const getStatusLabel = (status: Project["status"]) => {
   }
 };
 
-const markerColor = (status: Project["status"]) => {
-  switch (status) {
-    case "active":
-      return "#16a34a";
-    case "registering":
-      return "#7c3aed";
-    case "coming_soon":
-      return "#2563eb";
-    case "sold_out":
-      return "#6b7280";
-  }
-};
+// Price pill marker (like the reference image)
+const createPricePillIcon = (project: Project) => {
+  const priceText = project.starting_price
+    ? formatPrice(project.starting_price)
+    : "TBD";
 
-const createCustomIcon = (status: Project["status"]) => {
-  const color = markerColor(status);
   return L.divIcon({
-    className: "custom-marker",
+    className: "price-pill-marker",
     html: `
       <div style="
-        background-color: ${color};
-        width: 32px;
-        height: 32px;
-        border-radius: 50% 50% 50% 0;
-        transform: rotate(-45deg);
-        border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      ">
-        <div style="transform: rotate(45deg); color: white; font-size: 14px; font-weight: bold;">●</div>
-      </div>
+        background: linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%);
+        color: white;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+        border: 2px solid white;
+        cursor: pointer;
+        transform: translateX(-50%);
+      ">${priceText}</div>
     `,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
-    popupAnchor: [0, -32],
+    iconSize: [0, 0],
+    iconAnchor: [0, 16],
+    popupAnchor: [0, -20],
   });
 };
 
@@ -131,7 +118,7 @@ function popupHtml(project: Project) {
       </div>
       <div style="margin-top:6px;font-size:12px;opacity:.75;">${project.neighborhood}, ${project.city}</div>
       ${price}
-      <a href="/presale-projects/${project.slug}" style="display:block;margin-top:10px;text-align:center;background:#111827;color:#fff;text-decoration:none;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;">View Project</a>
+      <a href="/presale-projects/${project.slug}" style="display:block;margin-top:10px;text-align:center;background:#1e3a5f;color:#fff;text-decoration:none;padding:8px 10px;border-radius:10px;font-size:12px;font-weight:700;">View Project</a>
     </div>
   `;
 }
@@ -163,15 +150,14 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
         zoomControl: true,
       });
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
+      L.tileLayer(TILE_URL, {
+        attribution: TILE_ATTRIBUTION,
         maxZoom: 19,
       }).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
       mapRef.current = map;
 
-      // Helps when map is mounted inside flex/hidden containers
       setTimeout(() => map.invalidateSize(), 0);
     }
 
@@ -182,7 +168,7 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
     layer.clearLayers();
 
     mappedProjects.forEach((p) => {
-      const marker = L.marker([p.lat, p.lng], { icon: createCustomIcon(p.status) });
+      const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon(p) });
       marker.bindPopup(popupHtml(p), { maxWidth: 300 });
       marker.addTo(layer);
     });
