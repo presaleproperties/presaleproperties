@@ -552,7 +552,7 @@ export default function PresaleProjectDetail() {
                   <Button
                     size="default"
                     onClick={handleGetPlansClick}
-                    className="w-full justify-center font-semibold text-sm h-9 md:h-10"
+                    className="hidden md:flex w-full justify-center font-semibold text-sm h-9 md:h-10"
                   >
                     <Download className="h-4 w-4 mr-1.5" />
                     Get Floor Plans
