@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Map as MapIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -460,6 +460,15 @@ export default function Assignments() {
             />
           </div>
           <div className="flex gap-2">
+            {/* Map Button */}
+            <Button 
+              variant="outline" 
+              className="h-10 px-3"
+              onClick={() => window.location.href = '/map-search'}
+            >
+              <MapIcon className="h-4 w-4 mr-2" />
+              <span className="text-sm">Map</span>
+            </Button>
             {/* Mobile Filters */}
             <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
               <SheetTrigger asChild>
