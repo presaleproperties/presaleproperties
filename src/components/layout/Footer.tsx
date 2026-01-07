@@ -107,6 +107,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/roi-calculator" className="hover:text-foreground transition-colors">
+                  ROI Calculator
+                </Link>
+              </li>
+              <li>
                 <Link to="/buyers-guide" className="hover:text-foreground transition-colors">
                   Presale Buyer's Guide
                 </Link>
