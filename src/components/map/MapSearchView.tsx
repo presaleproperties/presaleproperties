@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from "react-leaflet";
-import MarkerClusterGroup from "@/components/map/MarkerClusterGroup";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, ExternalLink, RotateCcw, Locate } from "lucide-react";
-import { createPriceMarker, createClusterIcon } from "./PriceMarker";
+import { createPriceMarker } from "./PriceMarker";
 
 // Fix Leaflet default marker icon issue
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -203,67 +202,55 @@ export function MapSearchView({
           />
         )}
         
-        <MarkerClusterGroup
-          chunkedLoading
-          iconCreateFunction={(cluster) => createClusterIcon(cluster.getChildCount())}
-          maxClusterRadius={50}
-          spiderfyOnMaxZoom={true}
-          showCoverageOnHover={false}
-        >
-          {projects.map((project) => (
-            <Marker
-              key={project.id}
-              position={[project.map_lat!, project.map_lng!]}
-              icon={createPriceMarker(
-                project.starting_price, 
-                project.status, 
-                hoveredProjectId === project.id
-              )}
-              eventHandlers={{
-                mouseover: () => onHoverProject(project.id),
-                mouseout: () => onHoverProject(null),
-              }}
-            >
-              <Popup maxWidth={280}>
-                <div className="p-1">
-                  {project.featured_image ? (
-                    <img
-                      src={project.featured_image}
-                      alt={project.name}
-                      className="w-full h-28 object-cover rounded-md mb-2"
-                    />
-                  ) : null}
-                  <div className="space-y-2">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
-                      <Badge className={`${getStatusColor(project.status)} text-[10px] px-1.5 py-0.5 shrink-0`}>
-                        {getStatusLabel(project.status)}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />
-                      {project.neighborhood}, {project.city}
-                    </p>
-                    {project.starting_price ? (
-                      <p className="text-sm font-medium">
-                        From {formatPrice(project.starting_price)}
-                      </p>
-                    ) : null}
-                    <p className="text-xs text-muted-foreground capitalize">
-                      {project.project_type}
-                    </p>
-                    <Link to={`/presale-projects/${project.slug}`}>
-                      <Button size="sm" className="w-full mt-2 text-xs h-8">
-                        View Project
-                        <ExternalLink className="h-3 w-3 ml-1" />
-                      </Button>
-                    </Link>
+        {projects.map((project) => (
+          <Marker
+            key={project.id}
+            position={[project.map_lat!, project.map_lng!]}
+            icon={createPriceMarker(
+              project.starting_price,
+              project.status,
+              hoveredProjectId === project.id
+            )}
+            eventHandlers={{
+              mouseover: () => onHoverProject(project.id),
+              mouseout: () => onHoverProject(null),
+            }}
+          >
+            <Popup maxWidth={280}>
+              <div className="p-1">
+                {project.featured_image ? (
+                  <img
+                    src={project.featured_image}
+                    alt={project.name}
+                    className="w-full h-28 object-cover rounded-md mb-2"
+                  />
+                ) : null}
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <h3 className="font-semibold text-sm line-clamp-1">{project.name}</h3>
+                    <Badge className={`${getStatusColor(project.status)} text-[10px] px-1.5 py-0.5 shrink-0`}>
+                      {getStatusLabel(project.status)}
+                    </Badge>
                   </div>
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <MapPin className="h-3 w-3" />
+                    {project.neighborhood}, {project.city}
+                  </p>
+                  {project.starting_price ? (
+                    <p className="text-sm font-medium">From {formatPrice(project.starting_price)}</p>
+                  ) : null}
+                  <p className="text-xs text-muted-foreground capitalize">{project.project_type}</p>
+                  <Link to={`/presale-projects/${project.slug}`}>
+                    <Button size="sm" className="w-full mt-2 text-xs h-8">
+                      View Project
+                      <ExternalLink className="h-3 w-3 ml-1" />
+                    </Button>
+                  </Link>
                 </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MarkerClusterGroup>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
       </MapContainer>
       
       {/* Legend */}
