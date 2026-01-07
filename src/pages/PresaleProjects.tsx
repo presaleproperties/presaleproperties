@@ -667,42 +667,51 @@ export default function PresaleProjects() {
 
         {/* Hot Projects Carousel - only show when no filters active */}
         {activeFilterCount === 0 && hotProjects && hotProjects.length > 0 && (
-          <section className="py-6 md:py-8 bg-muted/30 border-b border-border">
-            <div className="container px-4">
-              <div className="flex items-center gap-2 mb-4">
-                <Flame className="h-5 w-5 text-orange-500" />
-                <h2 className="text-lg md:text-xl font-semibold text-foreground">
-                  Hottest Projects Right Now
-                </h2>
-              </div>
-              <div className="-mx-4 px-4 overflow-x-auto scrollbar-hide">
-                <div className="flex gap-3 md:gap-4 pb-2" style={{ scrollSnapType: 'x mandatory' }}>
-                  {hotProjects.map((project) => (
-                    <div 
-                      key={project.id} 
-                      className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
-                      style={{ scrollSnapAlign: 'start' }}
-                    >
-                      <PresaleProjectCard
-                        id={project.id}
-                        slug={project.slug}
-                        name={project.name}
-                        city={project.city}
-                        neighborhood={project.neighborhood}
-                        projectType={project.project_type}
-                        status={project.status}
-                        completionYear={project.completion_year}
-                        startingPrice={project.starting_price}
-                        featuredImage={project.featured_image}
-                        galleryImages={project.gallery_images}
-                        size="default"
-                      />
-                    </div>
-                  ))}
+          <ScrollReveal animation="fade-up">
+            <section className="py-6 md:py-8 bg-muted/30 border-b border-border">
+              <div className="container px-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Flame className="h-5 w-5 text-orange-500 animate-pulse" />
+                  <h2 className="text-lg md:text-xl font-semibold text-foreground">
+                    Hottest Projects Right Now
+                  </h2>
+                </div>
+                <div 
+                  className="-mx-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
+                  style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: '16px' }}
+                >
+                  <div className="flex gap-3 md:gap-4 pb-2">
+                    {hotProjects.map((project, index) => (
+                      <div 
+                        key={project.id} 
+                        className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] animate-fade-in"
+                        style={{ 
+                          scrollSnapAlign: 'start',
+                          animationDelay: `${index * 75}ms`,
+                          animationFillMode: 'both'
+                        }}
+                      >
+                        <PresaleProjectCard
+                          id={project.id}
+                          slug={project.slug}
+                          name={project.name}
+                          city={project.city}
+                          neighborhood={project.neighborhood}
+                          projectType={project.project_type}
+                          status={project.status}
+                          completionYear={project.completion_year}
+                          startingPrice={project.starting_price}
+                          featuredImage={project.featured_image}
+                          galleryImages={project.gallery_images}
+                          size="default"
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-          </section>
+            </section>
+          </ScrollReveal>
         )}
 
         <main className="container px-4 py-4 md:py-8">
