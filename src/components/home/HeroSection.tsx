@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "./SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
-const projectCities = ["Surrey", "Langley", "Coquitlam", "Abbotsford"];
-const assignmentCities = ["Surrey", "Langley", "Coquitlam", "Abbotsford"];
+const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
+const assignmentCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 
 type SearchTab = "projects" | "assignments";
 
