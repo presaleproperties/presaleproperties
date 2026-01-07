@@ -28,9 +28,14 @@ const CITY_CENTERS: Record<string, [number, number]> = {
 const DEFAULT_CENTER: [number, number] = [49.25, -122.9];
 const DEFAULT_ZOOM = 10;
 
-// CartoDB Voyager tiles - clean, colorful, modern
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
-const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
+// Mapbox Streets tiles - clean, premium style
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "";
+const TILE_URL = MAPBOX_TOKEN
+  ? `https://api.mapbox.com/styles/v1/mapbox/streets-v12/tiles/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`
+  : "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+const TILE_ATTRIBUTION = MAPBOX_TOKEN
+  ? '&copy; <a href="https://www.mapbox.com/about/maps/">Mapbox</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+  : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 interface Project {
   id: string;
@@ -153,6 +158,8 @@ export function ProjectsMap({ projects, isLoading }: ProjectsMapProps) {
       L.tileLayer(TILE_URL, {
         attribution: TILE_ATTRIBUTION,
         maxZoom: 19,
+        tileSize: 512,
+        zoomOffset: MAPBOX_TOKEN ? -1 : 0,
       }).addTo(map);
 
       markersLayerRef.current = L.layerGroup().addTo(map);
