@@ -16,8 +16,8 @@ export function FloatingMapButton({ to = "/map-search", city }: FloatingMapButto
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
   
-  // Hide on map search page
-  const isMapPage = location.pathname === "/map-search";
+  // Hide on map search pages
+  const isMapPage = location.pathname === "/map-search" || location.pathname === "/resale-map";
   
   useEffect(() => {
     const handleScroll = () => {
