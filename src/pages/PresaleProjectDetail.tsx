@@ -513,6 +513,49 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
+                {/* Quick Action Icons - Map, Street View, Favourite, Share */}
+                <div className="flex items-center gap-2 mb-3 md:mb-4">
+                  {project.map_lat && project.map_lng && (
+                    <a
+                      href={`https://www.google.com/maps?q=${project.map_lat},${project.map_lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="View on Map"
+                    >
+                      <MapPin className="h-4 w-4" />
+                    </a>
+                  )}
+                  {project.map_lat && project.map_lng && (
+                    <a
+                      href={`https://www.google.com/maps?layer=c&cbll=${project.map_lat},${project.map_lng}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                      title="Street View"
+                    >
+                      <Eye className="h-4 w-4" />
+                    </a>
+                  )}
+                  <button
+                    onClick={() => {
+                      // TODO: Implement favourite functionality
+                      toast({ title: "Saved to favourites!" });
+                    }}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    title="Save to Favourites"
+                  >
+                    <Star className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="flex items-center justify-center w-10 h-10 rounded-full bg-muted/60 hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
+                    title="Share"
+                  >
+                    <Share2 className="h-4 w-4" />
+                  </button>
+                </div>
+
                 {/* Quick Facts - visible on tablet and desktop, more compact */}
                 <div className="hidden md:block space-y-1.5 lg:space-y-2 mb-2 lg:mb-3">
                   {project.developer_name && (
@@ -547,24 +590,15 @@ export default function PresaleProjectDetail() {
                   )}
                 </div>
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-2 md:mt-3 mb-2">
+                {/* Action Buttons - Desktop only */}
+                <div className="hidden md:block mb-2">
                   <Button
                     size="default"
                     onClick={handleGetPlansClick}
-                    className="hidden md:flex w-full justify-center font-semibold text-sm h-9 md:h-10"
+                    className="w-full justify-center font-semibold text-sm h-10"
                   >
                     <Download className="h-4 w-4 mr-1.5" />
                     Get Floor Plans
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={handleShare}
-                    className="w-full justify-center text-sm h-9 md:h-10"
-                  >
-                    <Share2 className="h-4 w-4 mr-1.5" />
-                    Share
                   </Button>
                 </div>
 
