@@ -1,4 +1,4 @@
-import { Building2, Layers, Calendar, DollarSign, Gift, MapPin } from "lucide-react";
+import { Building2, Layers, Calendar, DollarSign, Gift, MapPin, Landmark, Receipt } from "lucide-react";
 
 interface ProjectHighlightsProps {
   projectType: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
@@ -9,6 +9,8 @@ interface ProjectHighlightsProps {
   neighborhood?: string | null;
   depositStructure?: string | null;
   incentives?: string | null;
+  developerName?: string | null;
+  strataFees?: string | null;
 }
 
 export function ProjectHighlights({
@@ -20,6 +22,8 @@ export function ProjectHighlights({
   neighborhood,
   depositStructure,
   incentives,
+  developerName,
+  strataFees,
 }: ProjectHighlightsProps) {
   const getMonthName = (month: number) => {
     return new Date(2000, month - 1).toLocaleString("default", { month: "short" });
@@ -75,6 +79,16 @@ export function ProjectHighlights({
       label: "Incentives",
       value: incentives.length > 25 ? incentives.substring(0, 25) + "..." : incentives,
       icon: <Gift className="h-5 w-5" />,
+    },
+    developerName && {
+      label: "Developer",
+      value: developerName.length > 20 ? developerName.substring(0, 20) + "..." : developerName,
+      icon: <Landmark className="h-5 w-5" />,
+    },
+    strataFees && {
+      label: "Strata Fees",
+      value: strataFees,
+      icon: <Receipt className="h-5 w-5" />,
     },
   ].filter(Boolean) as { label: string; value: string; icon: React.ReactNode }[];
 

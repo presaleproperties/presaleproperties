@@ -614,6 +614,8 @@ export default function PresaleProjectDetail() {
               neighborhood={project.neighborhood}
               depositStructure={project.deposit_structure}
               incentives={project.incentives}
+              developerName={project.developer_name}
+              strataFees={project.strata_fees}
             />
           </div>
         </section>
@@ -630,13 +632,13 @@ export default function PresaleProjectDetail() {
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       {project.developer_name && (
-                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                        <div className="hidden md:block bg-background/70 rounded-xl p-4 border border-border/30">
                           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Developer</p>
                           <p className="font-semibold text-foreground">{project.developer_name}</p>
                         </div>
                       )}
                       {project.strata_fees && (
-                        <div className="bg-background/70 rounded-xl p-4 border border-border/30">
+                        <div className="hidden md:block bg-background/70 rounded-xl p-4 border border-border/30">
                           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Strata Fees</p>
                           <p className="font-semibold text-foreground">{project.strata_fees}</p>
                         </div>
