@@ -344,108 +344,137 @@ export default function MapSearch() {
         </div>
 
         {/* Main Content - Map & List */}
-        <div className="flex-1 flex flex-col lg:flex-row overflow-hidden relative">
-          {/* Map Section - Full height on mobile */}
-          <div className={`
-            flex-1
-            ${!isMobile && showList ? "lg:w-3/5" : "w-full"} 
-            relative min-h-[300px]
-          `}>
-            <SafeMapWrapper height="h-full">
-              <Suspense fallback={<LoadingMap />}>
-                {isLoading ? (
-                  <LoadingMap />
-                ) : mapProjects.length === 0 ? (
-                  <div className="h-full w-full bg-muted flex items-center justify-center">
-                    <div className="text-center text-muted-foreground p-6">
-                      <Building2 className="h-12 w-12 mx-auto mb-3" />
-                      <h3 className="font-semibold text-foreground mb-2">No projects found</h3>
-                      <p className="text-sm mb-4">Try adjusting your filters</p>
-                      <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
+        <div className="flex-1 flex flex-col overflow-hidden relative">
+          <div className="flex-1 flex flex-row overflow-hidden">
+            {/* Map Section - Expands when list is hidden */}
+            <div className={`
+              flex-1 relative min-h-[300px] transition-all duration-300 ease-in-out
+              ${!isMobile && showList ? "lg:w-3/5" : "w-full"} 
+            `}>
+              <SafeMapWrapper height="h-full">
+                <Suspense fallback={<LoadingMap />}>
+                  {isLoading ? (
+                    <LoadingMap />
+                  ) : mapProjects.length === 0 ? (
+                    <div className="h-full w-full bg-muted flex items-center justify-center">
+                      <div className="text-center text-muted-foreground p-6">
+                        <Building2 className="h-12 w-12 mx-auto mb-3" />
+                        <h3 className="font-semibold text-foreground mb-2">No projects found</h3>
+                        <p className="text-sm mb-4">Try adjusting your filters</p>
+                        <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="h-full w-full">
-                    <ProjectsMap 
-                      projects={mapProjects as any} 
-                      isLoading={false} 
-                      onProjectSelect={handleProjectSelect}
-                    />
-                  </div>
-                )}
-              </Suspense>
-            </SafeMapWrapper>
+                  ) : (
+                    <div className="h-full w-full">
+                      <ProjectsMap 
+                        projects={mapProjects as any} 
+                        isLoading={false} 
+                        onProjectSelect={handleProjectSelect}
+                      />
+                    </div>
+                  )}
+                </Suspense>
+              </SafeMapWrapper>
+            </div>
+
+            {/* Desktop List Section - Only on lg+ when showList is true */}
+            <div className={`
+              hidden lg:block border-l border-border overflow-y-auto transition-all duration-300 ease-in-out
+              ${showList ? "lg:w-2/5 opacity-100" : "lg:w-0 opacity-0 border-l-0"}
+            `}>
+              {showList && (
+                <div className="p-4 min-w-[300px]">
+                  <h3 className="font-semibold text-foreground mb-4">
+                    {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
+                  </h3>
+                  
+                  {filteredProjects.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <Building2 className="h-10 w-10 mx-auto mb-2" />
+                      <p>No projects match your filters</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-4">
+                      {filteredProjects.slice(0, 20).map((project) => (
+                        <PresaleProjectCard
+                          key={project.id}
+                          id={project.id}
+                          slug={project.slug}
+                          name={project.name}
+                          city={project.city}
+                          neighborhood={project.neighborhood}
+                          projectType={project.project_type}
+                          status={project.status}
+                          completionYear={project.completion_year}
+                          startingPrice={project.starting_price}
+                          featuredImage={project.featured_image}
+                          galleryImages={project.gallery_images}
+                          size="default"
+                        />
+                      ))}
+                      {filteredProjects.length > 20 && (
+                        <div className="text-center py-4">
+                          <Link to="/presale-projects">
+                            <Button variant="outline">
+                              View All {filteredProjects.length} Projects
+                            </Button>
+                          </Link>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Desktop List Section - Only on lg+ */}
-          {showList && (
-            <div className="hidden lg:block lg:w-2/5 border-l border-border overflow-y-auto">
-              <div className="p-4">
-                <h3 className="font-semibold text-foreground mb-4">
-                  {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
-                </h3>
-                
-                {filteredProjects.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Building2 className="h-10 w-10 mx-auto mb-2" />
-                    <p>No projects match your filters</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 gap-4">
-                    {filteredProjects.slice(0, 20).map((project) => (
-                      <PresaleProjectCard
-                        key={project.id}
-                        id={project.id}
-                        slug={project.slug}
-                        name={project.name}
-                        city={project.city}
-                        neighborhood={project.neighborhood}
-                        projectType={project.project_type}
-                        status={project.status}
-                        completionYear={project.completion_year}
-                        startingPrice={project.starting_price}
-                        featuredImage={project.featured_image}
-                        galleryImages={project.gallery_images}
-                        size="default"
-                      />
-                    ))}
-                    {filteredProjects.length > 20 && (
-                      <div className="text-center py-4">
-                        <Link to="/presale-projects">
-                          <Button variant="outline">
-                            View All {filteredProjects.length} Projects
-                          </Button>
-                        </Link>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Mobile & Tablet Bottom Carousel */}
-          {filteredProjects.length > 0 && (
-            <div className="lg:hidden absolute bottom-0 left-0 right-0 z-[1100] bg-gradient-to-t from-background via-background/95 to-transparent pt-8 pb-4">
+          {/* Bottom Carousel - Shows on mobile/tablet OR on desktop when list is hidden */}
+          {filteredProjects.length > 0 && (isMobile || !showList) && (
+            <div className={`
+              absolute bottom-0 left-0 right-0 z-[1100] 
+              bg-gradient-to-t from-background via-background/95 to-transparent 
+              pt-6 pb-4 lg:pb-6
+              transition-all duration-300 ease-in-out
+            `}>
+              {/* Desktop Carousel Header */}
+              {!isMobile && !showList && (
+                <div className="hidden lg:flex items-center justify-between px-6 pb-3">
+                  <span className="text-sm font-medium text-foreground">
+                    {filteredProjects.length} Project{filteredProjects.length !== 1 ? "s" : ""}
+                  </span>
+                  <Link to="/presale-projects">
+                    <Button variant="ghost" size="sm" className="text-sm text-muted-foreground hover:text-foreground">
+                      View All →
+                    </Button>
+                  </Link>
+                </div>
+              )}
+              
               <div 
                 ref={carouselRef}
-                className="flex gap-3 overflow-x-auto px-4 pb-2 pt-2 snap-x snap-mandatory scrollbar-hide"
+                className={`
+                  flex gap-3 overflow-x-auto px-4 lg:px-6 pb-2 pt-2 snap-x snap-mandatory scrollbar-hide
+                  ${!isMobile ? 'lg:gap-4' : ''}
+                `}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
               >
-                {filteredProjects.slice(0, 20).map((project) => (
+                {filteredProjects.slice(0, 30).map((project) => (
                   <Link 
                     key={project.id} 
-                    to={`/presale/${project.slug}`}
+                    to={`/presale-projects/${project.slug}`}
                     data-project-id={project.id}
-                    className="snap-start flex-shrink-0 w-[300px]"
+                    className={`
+                      snap-start flex-shrink-0 
+                      ${isMobile ? 'w-[300px]' : 'w-[320px] lg:w-[340px]'}
+                    `}
                   >
-                    <div className={`bg-card rounded-lg shadow-lg border-2 overflow-hidden transition-all ${
+                    <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
                       selectedProjectId === project.id 
                         ? 'border-primary ring-2 ring-primary/20' 
-                        : 'border-border'
+                        : 'border-border hover:border-primary/50'
                     }`}>
                       {/* Wide image on top */}
-                      <div className="relative w-full h-28 bg-muted">
+                      <div className={`relative w-full bg-muted ${isMobile ? 'h-28' : 'h-32 lg:h-36'}`}>
                         {project.featured_image ? (
                           <img
                             src={project.featured_image}
@@ -460,30 +489,35 @@ export default function MapSearch() {
                         {/* Status Badge */}
                         <Badge 
                           variant="secondary" 
-                          className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 bg-background/90 backdrop-blur-sm"
+                          className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground font-medium"
                         >
                           {project.status === 'coming_soon' ? 'Coming Soon' : 
                            project.status === 'registering' ? 'Registering' : 
-                           project.status === 'active' ? 'Selling' : 'Sold Out'}
+                           project.status === 'active' ? 'Selling Now' : 'Sold Out'}
                         </Badge>
                       </div>
                       {/* Content */}
-                      <div className="p-2.5">
-                        <h4 className="font-semibold text-foreground text-sm truncate">
+                      <div className={`${isMobile ? 'p-2.5' : 'p-3 lg:p-4'}`}>
+                        <h4 className={`font-semibold text-foreground truncate ${isMobile ? 'text-sm' : 'text-base'}`}>
                           {project.name}
                         </h4>
-                        <p className="text-xs text-muted-foreground truncate mt-0.5">
-                          {project.neighborhood}, {project.city}
-                        </p>
-                        <div className="flex items-center justify-between mt-1.5">
-                          <span className="text-sm font-semibold text-primary">
+                        <div className="flex items-center gap-1 mt-1 text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          <p className="text-xs truncate">
+                            {project.neighborhood}, {project.city}
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className={`font-bold text-foreground ${isMobile ? 'text-sm' : 'text-base'}`}>
                             {project.starting_price 
-                              ? `From $${(project.starting_price / 1000).toFixed(0)}K`
-                              : 'TBA'}
+                              ? project.starting_price >= 1000000 
+                                ? `From $${(project.starting_price / 1000000).toFixed(2)}M`
+                                : `From $${(project.starting_price / 1000).toFixed(0)}K`
+                              : 'Price TBA'}
                           </span>
                           {project.completion_year && (
-                            <span className="text-xs text-muted-foreground">
-                              {project.completion_year}
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                              Move in {project.completion_year}
                             </span>
                           )}
                         </div>
