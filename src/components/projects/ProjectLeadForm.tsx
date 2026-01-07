@@ -329,7 +329,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               <Input
                 id="lead-name"
                 placeholder="John Smith"
-                autoComplete="off"
+                autoComplete="name"
                 {...form.register("name")}
                 className="h-12 text-base rounded-lg"
               />
@@ -343,7 +343,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
                 id="lead-phone"
                 type="tel"
                 placeholder="604-555-0123"
-                autoComplete="off"
+                autoComplete="tel"
                 {...form.register("phone")}
                 className="h-12 text-base rounded-lg"
               />
@@ -357,7 +357,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
                 id="lead-email"
                 type="email"
                 placeholder="john@email.com"
-                autoComplete="off"
+                autoComplete="email"
                 {...form.register("email")}
                 className="h-12 text-base rounded-lg"
               />

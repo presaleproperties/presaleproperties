@@ -136,6 +136,7 @@ export function ROILeadCapture({ inputs, results, onTrackEvent }: ROILeadCapture
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               placeholder="Your name"
+              autoComplete="name"
               className={errors.name ? "border-destructive" : ""}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name}</p>}
@@ -149,6 +150,7 @@ export function ROILeadCapture({ inputs, results, onTrackEvent }: ROILeadCapture
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               placeholder="your@email.com"
+              autoComplete="email"
               className={errors.email ? "border-destructive" : ""}
             />
             {errors.email && <p className="text-xs text-destructive">{errors.email}</p>}
@@ -162,6 +164,7 @@ export function ROILeadCapture({ inputs, results, onTrackEvent }: ROILeadCapture
               value={formData.phone}
               onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               placeholder="(604) 123-4567"
+              autoComplete="tel"
             />
           </div>
 

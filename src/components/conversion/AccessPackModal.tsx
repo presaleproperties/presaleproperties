@@ -239,7 +239,7 @@ export function AccessPackModal({
                   <Input
                     id="name"
                     placeholder="John"
-                    autoComplete="off"
+                    autoComplete="name"
                     {...form.register("name")}
                     className="h-9 sm:h-11 mt-0.5 text-sm"
                   />
@@ -253,7 +253,7 @@ export function AccessPackModal({
                     id="phone"
                     type="tel"
                     placeholder="604-555-0123"
-                    autoComplete="off"
+                    autoComplete="tel"
                     {...form.register("phone")}
                     className="h-9 sm:h-11 mt-0.5 text-sm"
                   />
@@ -267,7 +267,7 @@ export function AccessPackModal({
                     id="email"
                     type="email"
                     placeholder="john@email.com"
-                    autoComplete="off"
+                    autoComplete="email"
                     {...form.register("email")}
                     className="h-9 sm:h-11 mt-0.5 text-sm"
                   />

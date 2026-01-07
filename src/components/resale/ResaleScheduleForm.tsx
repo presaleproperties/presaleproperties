@@ -178,6 +178,7 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
               placeholder="Full Name*"
               value={formData.name}
               onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              autoComplete="name"
               className="h-12"
               required
             />
@@ -188,6 +189,7 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
               placeholder="Mobile Phone*"
               value={formData.phone}
               onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              autoComplete="tel"
               className="h-12"
               required
             />
@@ -198,6 +200,7 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
               placeholder="Email*"
               value={formData.email}
               onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              autoComplete="email"
               className="h-12"
               required
             />
