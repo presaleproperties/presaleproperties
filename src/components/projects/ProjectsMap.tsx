@@ -172,35 +172,67 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
     });
   }, [projects]);
 
+  // Auto-locate user on mount
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (!containerRef.current || mapRef.current) return;
 
-    if (!mapRef.current) {
-      const map = L.map(containerRef.current, {
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
-        zoomControl: true,
-      });
+    const map = L.map(containerRef.current, {
+      center: DEFAULT_CENTER,
+      zoom: DEFAULT_ZOOM,
+      zoomControl: true,
+    });
 
-      L.tileLayer(TILE_URL, {
-        attribution: TILE_ATTRIBUTION,
-        maxZoom: 19,
-      }).addTo(map);
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTRIBUTION,
+      maxZoom: 19,
+    }).addTo(map);
 
-      // Create marker cluster group
-      clusterGroupRef.current = L.markerClusterGroup({
-        iconCreateFunction: createClusterIcon,
-        maxClusterRadius: 50,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        disableClusteringAtZoom: 15,
-      });
-      map.addLayer(clusterGroupRef.current);
+    // Create marker cluster group
+    clusterGroupRef.current = L.markerClusterGroup({
+      iconCreateFunction: createClusterIcon,
+      maxClusterRadius: 50,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 15,
+    });
+    map.addLayer(clusterGroupRef.current);
 
-      mapRef.current = map;
-      setTimeout(() => map.invalidateSize(), 0);
+    mapRef.current = map;
+    setTimeout(() => map.invalidateSize(), 0);
+
+    // Auto-locate user on mount
+    if (navigator.geolocation) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          
+          // Only center on user if they're in the general BC area
+          if (latitude > 48 && latitude < 51 && longitude > -125 && longitude < -120) {
+            map.setView([latitude, longitude], 12, { animate: true });
+            
+            if (userCircleRef.current) userCircleRef.current.remove();
+            userCircleRef.current = L.circle([latitude, longitude], {
+              radius: 500,
+              color: "hsl(43 96% 56%)",
+              fillColor: "hsl(43 96% 56%)",
+              fillOpacity: 0.15,
+              weight: 2,
+            }).addTo(map);
+          }
+          setIsLocating(false);
+        },
+        () => {
+          // Silently fail - just use default view
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+      );
     }
+  }, []);
 
+  // Update markers when projects change
+  useEffect(() => {
     const map = mapRef.current;
     const clusterGroup = clusterGroupRef.current;
     if (!map || !clusterGroup) return;
@@ -219,11 +251,12 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect }: ProjectsMa
       clusterGroup.addLayer(marker);
     });
 
-    if (mappedProjects.length > 0) {
+    // Only fit bounds if user location circle isn't showing (meaning we didn't auto-locate)
+    if (mappedProjects.length > 0 && !userCircleRef.current) {
       const bounds = L.latLngBounds(mappedProjects.map((p) => [p.lat, p.lng] as [number, number]));
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
-  }, [mappedProjects]);
+  }, [mappedProjects, onProjectSelect]);
 
   useEffect(() => {
     return () => {
