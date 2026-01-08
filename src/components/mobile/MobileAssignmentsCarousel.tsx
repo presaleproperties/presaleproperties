@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronRight, Bed, Bath, Square } from "lucide-react";
@@ -8,6 +9,7 @@ interface MobileAssignmentsCarouselProps {
   title: string;
   subtitle?: string;
   featured?: boolean;
+  showCityFilter?: boolean;
 }
 
 interface Listing {
@@ -31,9 +33,13 @@ function formatPrice(price: number): string {
   return `$${(price / 1000).toFixed(0)}K`;
 }
 
-export function MobileAssignmentsCarousel({ title, subtitle, featured = false }: MobileAssignmentsCarouselProps) {
+const CITIES = ["All", "Vancouver", "Burnaby", "Surrey", "Richmond", "Coquitlam", "Langley"];
+
+export function MobileAssignmentsCarousel({ title, subtitle, featured = false, showCityFilter = false }: MobileAssignmentsCarouselProps) {
+  const [selectedCity, setSelectedCity] = useState("All");
+
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["mobile-assignments", featured],
+    queryKey: ["mobile-assignments", featured, selectedCity],
     queryFn: async () => {
       let query = supabase
         .from("listings")
@@ -56,6 +62,10 @@ export function MobileAssignmentsCarousel({ title, subtitle, featured = false }:
 
       if (featured) {
         query = query.eq("is_featured", true);
+      }
+
+      if (selectedCity !== "All") {
+        query = query.eq("city", selectedCity);
       }
 
       const { data, error } = await query;
@@ -106,6 +116,25 @@ export function MobileAssignmentsCarousel({ title, subtitle, featured = false }:
           <ChevronRight className="h-4 w-4" />
         </Link>
       </div>
+
+      {/* City Filter Chips */}
+      {showCityFilter && (
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6">
+          {CITIES.map((city) => (
+            <button
+              key={city}
+              onClick={() => setSelectedCity(city)}
+              className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                selectedCity === city
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80"
+              }`}
+            >
+              {city}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Horizontal Scroll Cards */}
       <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6">
