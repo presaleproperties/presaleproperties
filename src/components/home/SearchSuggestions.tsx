@@ -11,7 +11,7 @@ interface SearchSuggestionsProps {
   onSelect: (value: string, type: SuggestionType, slug?: string) => void;
   isVisible: boolean;
   onClose: () => void;
-  searchMode?: "projects" | "resale";
+  searchMode?: "projects" | "resale" | "assignments";
   glassStyle?: boolean;
 }
 
