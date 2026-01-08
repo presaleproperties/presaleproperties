@@ -169,10 +169,10 @@ export function ConversionHeader() {
             </NavigationMenu>
             
             <Link
-              to="/resale"
+              to="/assignments"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Resale
+              Assignments
             </Link>
             <Link
               to="/blog"
@@ -276,17 +276,17 @@ export function ConversionHeader() {
                       </Collapsible>
 
                       <Link
-                        to="/resale"
+                        to="/assignments"
                         onClick={() => setOpen(false)}
                         className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                          isActive("/resale") 
+                          isActive("/assignments") 
                             ? "bg-primary/10 text-primary" 
                             : "text-foreground hover:bg-muted"
                         }`}
                       >
                         <div className="flex items-center gap-3">
-                          <Home className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Resale</span>
+                          <FileStack className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
+                          <span className="text-base font-medium">Assignments</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>

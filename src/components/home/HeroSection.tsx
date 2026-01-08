@@ -102,39 +102,18 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
             className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
             style={{ animationDelay: "0.2s" }}
           >
-            {/* Tabs */}
+            {/* Header Row */}
             <div className="flex items-center justify-between border-b border-border px-2.5 sm:px-4 py-2 sm:py-3">
-              <div className="flex items-center gap-1 sm:gap-2 w-full sm:w-auto">
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("projects")}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
-                    activeTab === "projects"
-                      ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  Presale
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleTabChange("resale")}
-                  className={`flex-1 sm:flex-none px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all active:scale-95 ${
-                    activeTab === "resale"
-                      ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  Resale
-                </button>
-              </div>
+              <span className="text-[12px] sm:text-sm font-semibold text-foreground">
+                Search Presale Projects
+              </span>
               <button
                 type="button"
-                onClick={() => navigate(activeTab === "projects" ? "/map-search" : "/resale-map")}
-                className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                onClick={() => navigate("/map-search")}
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
-                Open Map
+                <span className="hidden sm:inline">Open Map</span>
               </button>
             </div>
 
