@@ -30,7 +30,7 @@ export function MetaPixel() {
         .maybeSingle();
 
       const pixelId = typeof data?.value === "string" ? data.value : null;
-      
+
       if (!pixelId) {
         if (import.meta.env.DEV) {
           console.log("📊 [Meta Pixel] No Pixel ID configured");
@@ -39,32 +39,34 @@ export function MetaPixel() {
       }
 
       pixelIdRef.current = pixelId;
-      initializedRef.current = true;
 
-      // Load Meta Pixel script
+      // Ensure fbq exists (create stub if needed)
       const w = window as unknown as { fbq?: FbqFunction; _fbq?: FbqFunction };
-      if (w.fbq) return;
-      
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const n: any = function() {
-        // eslint-disable-next-line prefer-rest-params
-        n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-      };
-      if (!w._fbq) w._fbq = n;
-      n.push = n;
-      n.loaded = true;
-      n.version = "2.0";
-      n.queue = [];
-      w.fbq = n;
-      
-      const script = document.createElement("script");
-      script.async = true;
-      script.src = "https://connect.facebook.net/en_US/fbevents.js";
-      const firstScript = document.getElementsByTagName("script")[0];
-      firstScript?.parentNode?.insertBefore(script, firstScript);
+      if (!w.fbq) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const n: any = function () {
+          // eslint-disable-next-line prefer-rest-params
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!w._fbq) w._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = "2.0";
+        n.queue = [];
+        w.fbq = n;
 
-      w.fbq("init", pixelId);
-      w.fbq("track", "PageView");
+        const script = document.createElement("script");
+        script.async = true;
+        script.src = "https://connect.facebook.net/en_US/fbevents.js";
+        const firstScript = document.getElementsByTagName("script")[0];
+        firstScript?.parentNode?.insertBefore(script, firstScript);
+      }
+
+      // Always init with our Pixel ID (fbq may already exist from other scripts)
+      w.fbq?.("init", pixelId);
+      w.fbq?.("track", "PageView");
+
+      initializedRef.current = true;
 
       if (import.meta.env.DEV) {
         console.log("📊 [Meta Pixel] Initialized with ID:", pixelId);
