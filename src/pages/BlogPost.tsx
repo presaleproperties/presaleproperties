@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   ChevronLeft,
   Calendar,
+  Clock,
   FileText,
   Loader2,
   ArrowRight,
@@ -53,6 +54,13 @@ function parseMarkdown(text: string): string {
     // Fix lists that got wrapped in paragraphs
     .replace(/<p>(<ul>)/g, '$1')
     .replace(/(<\/ul>)<\/p>/g, '$1');
+}
+
+// Calculate reading time based on word count (average 200 wpm)
+function getReadingTime(content: string): number {
+  const text = content.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  const wordCount = text.split(' ').filter(word => word.length > 0).length;
+  return Math.max(1, Math.ceil(wordCount / 200));
 }
 
 type BlogPostType = {
@@ -218,7 +226,7 @@ export default function BlogPost() {
         <article>
           <header className="py-8 md:py-12 border-b">
             <div className="container max-w-4xl">
-              <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center gap-3 flex-wrap mb-4">
                 {post.category && (
                   <Badge variant="secondary">{post.category}</Badge>
                 )}
@@ -226,6 +234,12 @@ export default function BlogPost() {
                   <span className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     {formatDate(post.publish_date)}
+                  </span>
+                )}
+                {post.content && (
+                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Clock className="h-4 w-4" />
+                    {getReadingTime(post.content)} min read
                   </span>
                 )}
               </div>
