@@ -95,12 +95,7 @@ export function Header() {
             </NavigationMenuList>
           </NavigationMenu>
           
-          <Link
-            to="/assignments"
-            className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Assignments
-          </Link>
+          {/* Assignments link hidden for now */}
           <Link
             to="/blog"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -187,13 +182,7 @@ export function Header() {
                       Presales
                     </Link>
 
-                    <Link
-                      to="/assignments"
-                      onClick={() => setOpen(false)}
-                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
-                    >
-                      Assignments
-                    </Link>
+                    {/* Assignments link hidden for now */}
 
                     {/* Collapsible Cities Section */}
                     <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
