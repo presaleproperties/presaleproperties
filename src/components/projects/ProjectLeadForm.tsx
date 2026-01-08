@@ -183,6 +183,25 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         .invoke("send-project-lead", { body: { leadId } })
         .catch(console.error);
 
+      // Send server-side Lead event to Meta Conversions API
+      supabase.functions
+        .invoke("meta-conversions-api", {
+          body: {
+            event_name: "Lead",
+            email: data.email,
+            phone: data.phone,
+            first_name: data.firstName,
+            last_name: data.lastName,
+            event_source_url: window.location.href,
+            content_name: projectName,
+            content_category: actualPersona,
+            client_user_agent: navigator.userAgent,
+            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+          },
+        })
+        .catch((err) => console.error("Meta CAPI error:", err));
+
       supabase.functions
         .invoke("send-drip-email", {})
         .catch(console.error);
