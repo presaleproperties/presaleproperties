@@ -27,6 +27,10 @@ interface BookingNotificationRequest {
   home_size?: string;
   agent_status?: string;
   notes?: string;
+  utm_source?: string;
+  utm_medium?: string;
+  utm_campaign?: string;
+  referrer?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -95,7 +99,27 @@ const handler = async (req: Request): Promise<Response> => {
         return { firstName: parts[0] || "", lastName: "" };
       };
 
+      // Parse home size and agent status from notes if not directly provided
+      const parseFromNotes = (notes: string | undefined): { homeSize: string; agentStatus: string } => {
+        let homeSize = "";
+        let agentStatus = "";
+        
+        if (notes) {
+          const homeSizeMatch = notes.match(/Home size:\s*([^,|]+)/i);
+          const agentMatch = notes.match(/Agent:\s*([^,.|]+)/i);
+          if (homeSizeMatch) homeSize = homeSizeMatch[1].trim();
+          if (agentMatch) agentStatus = agentMatch[1].trim();
+        }
+        
+        return { homeSize, agentStatus };
+      };
+
       const { firstName, lastName } = parseNames(data.name, data.notes);
+      const parsedFromNotes = parseFromNotes(data.notes);
+      
+      // Use direct fields if available, otherwise use parsed values
+      const homeSize = data.home_size || parsedFromNotes.homeSize;
+      const agentStatus = data.agent_status || parsedFromNotes.agentStatus;
       
       const webhookPayload = {
         // Lead info - separate first and last name
@@ -107,10 +131,10 @@ const handler = async (req: Request): Promise<Response> => {
         lead_phone: data.phone || "",
         lead_notes: data.notes || "",
         lead_persona: data.persona || data.buyer_type || "",
-        lead_home_size: data.home_size || "",
-        lead_agent_status: data.agent_status || "",
-        is_realtor: data.agent_status === "i_am_realtor" ? "Yes" : "No",
-        has_realtor: data.agent_status === "yes" ? "Yes" : "No",
+        lead_home_size: homeSize,
+        lead_agent_status: agentStatus,
+        is_realtor: agentStatus === "is_agent" ? "Yes" : "No",
+        has_realtor: agentStatus === "has_agent" ? "Yes" : "No",
         submitted_at: new Date().toISOString(),
         
         // Booking specific info
@@ -131,6 +155,12 @@ const handler = async (req: Request): Promise<Response> => {
         is_floor_plan_request: "No",
         is_tour_request: "Yes",
         is_callback_request: "No",
+        
+        // Attribution
+        utm_source: data.utm_source || "",
+        utm_medium: data.utm_medium || "",
+        utm_campaign: data.utm_campaign || "",
+        referrer: data.referrer || "",
         
         // Source
         source: "PresaleProperties.com",
