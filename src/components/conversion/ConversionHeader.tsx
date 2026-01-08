@@ -186,12 +186,6 @@ export function ConversionHeader() {
             >
               ROI Calculator
             </Link>
-            <Link
-              to="/agents"
-              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-            >
-              For Agents
-            </Link>
           </nav>
 
           {/* Desktop CTA */}
@@ -329,17 +323,6 @@ export function ConversionHeader() {
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
 
-                      <Link
-                        to="/agents"
-                        onClick={() => setOpen(false)}
-                        className="flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group text-primary hover:bg-primary/5"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Users className="h-5 w-5 text-primary" />
-                          <span className="text-base font-medium">For Agents</span>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                      </Link>
                     </div>
                   </nav>
 
