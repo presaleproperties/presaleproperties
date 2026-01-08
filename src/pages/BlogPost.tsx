@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
-import { marked } from "marked";
 import { 
   ChevronLeft,
   Calendar,
@@ -18,6 +17,43 @@ import {
   ArrowRight,
   Tag
 } from "lucide-react";
+
+// Simple markdown to HTML parser
+function parseMarkdown(text: string): string {
+  return text
+    // Headers
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+    // Bold
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    // Italic
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    // Numbered lists
+    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
+    // Bullet lists
+    .replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>')
+    // Wrap consecutive li elements in ul/ol
+    .replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`)
+    // Links
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary underline">$1</a>')
+    // Paragraphs (double newlines)
+    .replace(/\n\n/g, '</p><p>')
+    // Single newlines within paragraphs
+    .replace(/\n/g, '<br/>')
+    // Wrap in paragraph
+    .replace(/^(.+)$/s, '<p>$1</p>')
+    // Clean up empty paragraphs
+    .replace(/<p><\/p>/g, '')
+    .replace(/<p><br\/>/g, '<p>')
+    .replace(/<br\/><\/p>/g, '</p>')
+    // Fix headers that got wrapped in paragraphs
+    .replace(/<p>(<h[1-3]>)/g, '$1')
+    .replace(/(<\/h[1-3]>)<\/p>/g, '$1')
+    // Fix lists that got wrapped in paragraphs
+    .replace(/<p>(<ul>)/g, '$1')
+    .replace(/(<\/ul>)<\/p>/g, '$1');
+}
 
 type BlogPostType = {
   id: string;
@@ -100,8 +136,8 @@ export default function BlogPost() {
     const isHtml = /<[a-z][\s\S]*>/i.test(post.content);
     if (isHtml) return post.content;
     
-    // Parse as markdown
-    return marked.parse(post.content, { async: false }) as string;
+    // Parse as markdown using our simple parser
+    return parseMarkdown(post.content);
   }, [post?.content]);
 
   if (loading) {
