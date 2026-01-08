@@ -13,75 +13,72 @@ export function ClickableMapPreview({ lat, lng, onLocationChange }: ClickableMap
   const mapRef = useRef<L.Map | null>(null);
   const markerRef = useRef<L.Marker | null>(null);
 
+  // Store callback ref to avoid stale closure
+  const onLocationChangeRef = useRef(onLocationChange);
+  onLocationChangeRef.current = onLocationChange;
+
+  // Initialize map once on mount
   useEffect(() => {
-    if (!mapContainerRef.current) return;
+    if (!mapContainerRef.current || mapRef.current) return;
 
-    // Initialize map if not already created
-    if (!mapRef.current) {
-      mapRef.current = L.map(mapContainerRef.current, {
-        center: [lat, lng],
-        zoom: 15,
-        zoomControl: true,
-        attributionControl: false,
-      });
+    mapRef.current = L.map(mapContainerRef.current, {
+      center: [lat, lng],
+      zoom: 15,
+      zoomControl: true,
+      attributionControl: false,
+    });
 
-      // Add CartoDB Voyager tiles for clean look
-      L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
-        maxZoom: 19,
-      }).addTo(mapRef.current);
+    // Add CartoDB Voyager tiles for clean look
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png", {
+      maxZoom: 19,
+    }).addTo(mapRef.current);
 
-      // Create custom marker icon
-      const markerIcon = L.divIcon({
-        className: "custom-marker",
-        html: `<div style="
-          width: 24px;
-          height: 24px;
-          background: #F5C243;
-          border: 3px solid white;
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        "></div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
-      });
+    // Create custom marker icon
+    const markerIcon = L.divIcon({
+      className: "custom-marker",
+      html: `<div style="
+        width: 24px;
+        height: 24px;
+        background: #F5C243;
+        border: 3px solid white;
+        border-radius: 50%;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      "></div>`,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+    });
 
-      // Add draggable marker
-      markerRef.current = L.marker([lat, lng], {
-        icon: markerIcon,
-        draggable: true,
-      }).addTo(mapRef.current);
+    // Add draggable marker
+    markerRef.current = L.marker([lat, lng], {
+      icon: markerIcon,
+      draggable: true,
+    }).addTo(mapRef.current);
 
-      // Handle marker drag
-      markerRef.current.on("dragend", () => {
-        const position = markerRef.current?.getLatLng();
-        if (position) {
-          onLocationChange(position.lat, position.lng);
-        }
-      });
-
-      // Handle map click to move marker
-      mapRef.current.on("click", (e: L.LeafletMouseEvent) => {
-        if (markerRef.current) {
-          markerRef.current.setLatLng(e.latlng);
-          onLocationChange(e.latlng.lat, e.latlng.lng);
-        }
-      });
-    } else {
-      // Update existing map and marker position
-      mapRef.current.setView([lat, lng], mapRef.current.getZoom());
-      if (markerRef.current) {
-        markerRef.current.setLatLng([lat, lng]);
+    // Handle marker drag
+    markerRef.current.on("dragend", () => {
+      const position = markerRef.current?.getLatLng();
+      if (position) {
+        onLocationChangeRef.current(position.lat, position.lng);
       }
-    }
+    });
 
+    // Handle map click to move marker
+    mapRef.current.on("click", (e: L.LeafletMouseEvent) => {
+      if (markerRef.current) {
+        markerRef.current.setLatLng(e.latlng);
+        onLocationChangeRef.current(e.latlng.lat, e.latlng.lng);
+      }
+    });
+
+    // Cleanup on unmount only
     return () => {
-      // Cleanup on unmount
       if (mapRef.current) {
         mapRef.current.remove();
         mapRef.current = null;
         markerRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Update marker position when props change (but don't reinitialize map)
