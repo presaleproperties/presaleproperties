@@ -253,7 +253,7 @@ export function BookingModal({
         phone,
         buyer_type: buyerType,
         timeline: "0_3_months" as const,
-        notes: notes ? `Home size: ${homeSize}, Agent: ${agentStatus}. ${notes}` : `Home size: ${homeSize}, Agent: ${agentStatus}`,
+        notes: `First Name: ${firstName} | Last Name: ${lastName} | Home size: ${homeSize}, Agent: ${agentStatus}${notes ? `. ${notes}` : ""}`,
         utm_source: urlParams.get("utm_source"),
         utm_medium: urlParams.get("utm_medium"),
         utm_campaign: urlParams.get("utm_campaign"),
