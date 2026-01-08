@@ -71,9 +71,37 @@ const handler = async (req: Request): Promise<Response> => {
     if (zapierWebhookUrl) {
       console.log("Sending booking to Zapier webhook for Lofty CRM");
       
+      // Parse first and last name from notes field if available, otherwise split the name
+      const parseNames = (name: string, notes: string | undefined): { firstName: string; lastName: string } => {
+        // Try to extract from notes field first (format: "First Name: X | Last Name: Y | ...")
+        if (notes) {
+          const firstNameMatch = notes.match(/First Name:\s*([^|]+)/i);
+          const lastNameMatch = notes.match(/Last Name:\s*([^|]+)/i);
+          if (firstNameMatch && lastNameMatch) {
+            return {
+              firstName: firstNameMatch[1].trim(),
+              lastName: lastNameMatch[1].trim(),
+            };
+          }
+        }
+        // Fallback: split the full name
+        const parts = (name || "").trim().split(/\s+/);
+        if (parts.length >= 2) {
+          return {
+            firstName: parts[0],
+            lastName: parts.slice(1).join(" "),
+          };
+        }
+        return { firstName: parts[0] || "", lastName: "" };
+      };
+
+      const { firstName, lastName } = parseNames(data.name, data.notes);
+      
       const webhookPayload = {
-        // Lead info
+        // Lead info - separate first and last name
         lead_id: data.booking_id || `booking-${Date.now()}`,
+        lead_first_name: firstName,
+        lead_last_name: lastName,
         lead_name: data.name,
         lead_email: data.email,
         lead_phone: data.phone || "",
@@ -99,9 +127,15 @@ const handler = async (req: Request): Promise<Response> => {
         project_neighborhood: data.project_neighborhood || "",
         project_url: data.project_url,
         
+        // Lead type flags
+        is_floor_plan_request: "No",
+        is_tour_request: "Yes",
+        is_callback_request: "No",
+        
         // Source
         source: "PresaleProperties.com",
-        form_type: "Booking Form",
+        form_type: "Schedule a Preview",
+        form_location: "Booking Modal",
         lead_type: "booking",
       };
 

@@ -119,6 +119,8 @@ export function AccessPackModal({
       const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
       
       const messageData = [
+        `First Name: ${data.firstName}`,
+        `Last Name: ${data.lastName}`,
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
         `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
