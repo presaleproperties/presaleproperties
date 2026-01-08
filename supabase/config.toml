@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.geocode-address]
 verify_jwt = false
+
+[functions.meta-conversions-api]
+verify_jwt = false
