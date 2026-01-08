@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Map } from "lucide-react";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { HeroSection, SearchTab } from "@/components/home/HeroSection";
+import { HeroSection } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
-import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
+import { FeaturedListings } from "@/components/home/FeaturedListings";
+import { LatestListings } from "@/components/home/LatestListings";
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
@@ -57,7 +57,6 @@ const HOME_FAQS = [
 
 const Index = () => {
   const isMobileOrTablet = useIsMobileOrTablet();
-  const [activeSearchTab, setActiveSearchTab] = useState<SearchTab>("projects");
   // Primary structured data - RealEstateAgent with LocalBusiness
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -289,19 +288,19 @@ const Index = () => {
       
       <ConversionHeader />
       <main className="flex-1">
-        <HeroSection activeTab={activeSearchTab} onTabChange={setActiveSearchTab} />
+        <HeroSection />
         <ScrollReveal animation="fade-up">
-          {activeSearchTab === "projects" ? (
-            <FeaturedProjects />
-          ) : (
-            <FeaturedResaleListings />
-          )}
+          <FeaturedProjects />
         </ScrollReveal>
-        {activeSearchTab === "projects" && (
-          <ScrollReveal animation="fade-up" delay={100}>
-            <CityProjectsSection />
-          </ScrollReveal>
-        )}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <CityProjectsSection />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <FeaturedListings />
+        </ScrollReveal>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <LatestListings />
+        </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <NewConstructionBenefits />
         </ScrollReveal>
