@@ -220,6 +220,51 @@ export type Database = {
           },
         ]
       }
+      developer_profiles: {
+        Row: {
+          company_name: string
+          contact_name: string
+          created_at: string
+          id: string
+          logo_url: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          verification_notes: string | null
+          verification_status: string
+          verified_at: string | null
+          website_url: string | null
+        }
+        Insert: {
+          company_name: string
+          contact_name: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          website_url?: string | null
+        }
+        Update: {
+          company_name?: string
+          contact_name?: string
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_notes?: string | null
+          verification_status?: string
+          verified_at?: string | null
+          website_url?: string | null
+        }
+        Relationships: []
+      }
       developers: {
         Row: {
           city: string | null
@@ -1487,7 +1532,7 @@ export type Database = {
     }
     Enums: {
       agent_verification_status: "unverified" | "verified" | "rejected"
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "developer"
       appointment_type: "preview" | "showing"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
       buyer_timeline:
@@ -1648,7 +1693,7 @@ export const Constants = {
   public: {
     Enums: {
       agent_verification_status: ["unverified", "verified", "rejected"],
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "developer"],
       appointment_type: ["preview", "showing"],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
       buyer_timeline: [

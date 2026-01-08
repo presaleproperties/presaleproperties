@@ -5,26 +5,26 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { 
   CheckCircle, 
-  Download,
-  FileText,
+  Upload,
+  Users,
   BarChart3,
-  Calendar,
-  ArrowRight,
   Clock,
+  ArrowRight,
   Building2,
-  Users
+  FileText,
+  Calendar
 } from "lucide-react";
 
-export default function ForAgents() {
+export default function ForDevelopers() {
   return (
     <>
       <Helmet>
-        <title>For Agents | Access All Presale Project Info | PresaleProperties</title>
+        <title>For Developers | Share Your Projects with Active Agents | PresaleProperties</title>
         <meta 
           name="description" 
-          content="Everything you need to sell presale condos — in one place. Access floor plans, pricing, brochures. No forms. No waiting." 
+          content="Get your project in front of agents who actually sell presale condos. Share pricing and floor plans in one place. Spend less time on calls." 
         />
-        <link rel="canonical" href="https://presaleproperties.com/agents" />
+        <link rel="canonical" href="https://presaleproperties.com/for-developers" />
       </Helmet>
 
       <ConversionHeader />
@@ -34,43 +34,63 @@ export default function ForAgents() {
         <section className="relative py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
           <div className="container max-w-4xl text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Built for Agents Who Sell Presale Condos
+              Get Your Project in Front of Active Agents
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Everything you need to sell presale condos — in one place.
+              Share your pricing and floor plans with agents who actually sell presale condos.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link to="/login?tab=signup&type=agent">
+              <Link to="/login?tab=signup&type=developer">
                 <Button size="lg" className="shadow-gold text-lg px-8">
-                  Join as an Agent
+                  Request Developer Access
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
-              <Link to="/login">
+              <Link to="/login?type=developer">
                 <Button size="lg" variant="outline" className="text-lg px-8">
-                  Agent Login
+                  Developer Login
                 </Button>
               </Link>
             </div>
           </div>
         </section>
 
-        {/* Key Benefits */}
+        {/* What This Is */}
         <section className="py-16 lg:py-24">
+          <div className="container max-w-3xl">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">
+              This Is Not a Consumer Listing Site
+            </h2>
+            <div className="prose prose-lg text-muted-foreground">
+              <p>
+                We don't advertise to buyers.
+              </p>
+              <p>
+                We share your project info with <strong>real estate agents</strong> who are actively selling presale condos.
+              </p>
+              <p className="font-medium text-foreground">
+                Think of it as a distribution channel for agents.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Benefits */}
+        <section className="py-16 lg:py-24 bg-muted/30">
           <div className="container max-w-4xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
-              What You Get
+              Why Developers Use Our Platform
             </h2>
             <div className="grid sm:grid-cols-2 gap-6">
               {[
-                { icon: FileText, text: "Access all floor plans and pricing in one place" },
-                { icon: Clock, text: "Always up to date" },
-                { icon: Download, text: "No forms or waiting" },
-                { icon: BarChart3, text: "Compare projects easily" },
-                { icon: Calendar, text: "Book tours directly with developers" },
-                { icon: CheckCircle, text: "Save time every day" },
+                { icon: Users, text: "Reach agents who actively sell presales" },
+                { icon: Upload, text: "Upload floor plans and pricing once" },
+                { icon: Clock, text: "Spend less time answering calls" },
+                { icon: BarChart3, text: "Keep your info up to date easily" },
+                { icon: Calendar, text: "Receive tour requests directly" },
+                { icon: CheckCircle, text: "Move inventory faster" },
               ].map((benefit, index) => (
-                <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-muted/30">
+                <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-background border">
                   <benefit.icon className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
                   <span className="text-lg">{benefit.text}</span>
                 </div>
@@ -79,69 +99,46 @@ export default function ForAgents() {
           </div>
         </section>
 
-        {/* The Problem */}
-        <section className="py-16 lg:py-24 bg-muted/30">
-          <div className="container max-w-3xl">
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Stop Chasing Developers for Info
-            </h2>
-            <div className="prose prose-lg text-muted-foreground">
-              <p>
-                Right now, getting presale info is a pain.
-              </p>
-              <p>
-                You fill out forms. You wait for callbacks. You search through old emails.
-              </p>
-              <p className="font-medium text-foreground">
-                That wastes your time.
-              </p>
-              <p>
-                With our Agent Portal, you log in and get everything you need. Instantly.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        {/* What's Inside */}
+        {/* What You Can Do */}
         <section className="py-16 lg:py-24">
           <div className="container max-w-4xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
-              What's in the Agent Portal
+              What You Can Do in the Developer Portal
             </h2>
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="p-6 rounded-lg border bg-background">
                 <FileText className="h-8 w-8 text-primary mb-4" />
-                <h3 className="font-semibold text-lg mb-2">Floor Plans</h3>
+                <h3 className="font-semibold text-lg mb-2">Upload Floor Plans</h3>
                 <p className="text-muted-foreground">
-                  Download floor plans for every unit type. Always the latest version.
+                  Add PDFs for each unit type. Replace them anytime.
                 </p>
               </div>
               <div className="p-6 rounded-lg border bg-background">
                 <BarChart3 className="h-8 w-8 text-primary mb-4" />
-                <h3 className="font-semibold text-lg mb-2">Pricing Sheets</h3>
+                <h3 className="font-semibold text-lg mb-2">Share Pricing Sheets</h3>
                 <p className="text-muted-foreground">
-                  See current pricing for all projects. Updated as prices change.
+                  Keep pricing current. Agents see the latest version.
                 </p>
               </div>
               <div className="p-6 rounded-lg border bg-background">
-                <Download className="h-8 w-8 text-primary mb-4" />
-                <h3 className="font-semibold text-lg mb-2">Brochures</h3>
+                <Upload className="h-8 w-8 text-primary mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Add Brochures</h3>
                 <p className="text-muted-foreground">
-                  One-click download for all marketing materials.
+                  Upload marketing materials for agents to download.
                 </p>
               </div>
               <div className="p-6 rounded-lg border bg-background">
                 <Building2 className="h-8 w-8 text-primary mb-4" />
-                <h3 className="font-semibold text-lg mb-2">Project Status</h3>
+                <h3 className="font-semibold text-lg mb-2">Update Project Status</h3>
                 <p className="text-muted-foreground">
-                  Know if a project is preselling, under construction, or completed.
+                  Mark as preselling, under construction, or completed.
                 </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* How It Works */}
+        {/* Simple Process */}
         <section className="py-16 lg:py-24 bg-muted/30">
           <div className="container max-w-4xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
@@ -149,9 +146,9 @@ export default function ForAgents() {
             </h2>
             <div className="grid sm:grid-cols-3 gap-8">
               {[
-                { step: "1", title: "Sign Up", description: "Create your agent account in 2 minutes." },
-                { step: "2", title: "Log In", description: "Access all project info instantly." },
-                { step: "3", title: "Download & Compare", description: "Get what you need. Book tours directly." },
+                { step: "1", title: "Request Access", description: "Tell us about your company. We'll verify and approve you." },
+                { step: "2", title: "Add Your Project", description: "Upload floor plans, pricing, and brochures." },
+                { step: "3", title: "Agents Find You", description: "Active agents see your project. They book tours directly." },
               ].map((item) => (
                 <div key={item.step} className="text-center">
                   <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
@@ -165,18 +162,15 @@ export default function ForAgents() {
           </div>
         </section>
 
-        {/* No More Forms */}
+        {/* Value Prop */}
         <section className="py-16 lg:py-24">
           <div className="container max-w-3xl text-center">
-            <Users className="h-12 w-12 text-primary mx-auto mb-6" />
+            <Building2 className="h-12 w-12 text-primary mx-auto mb-6" />
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              No Forms. No Waiting. No Outdated Info.
+              Spend Less Time on Calls. More Time Selling.
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Log in. Download. Compare. Book tours.
-            </p>
-            <p className="text-lg text-muted-foreground">
-              That's it. Simple.
+              When agents have the info they need, they bring buyers faster.
             </p>
           </div>
         </section>
@@ -185,17 +179,19 @@ export default function ForAgents() {
         <section className="py-20 lg:py-32 bg-primary/5">
           <div className="container max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Save Time?
+              Ready to Reach More Agents?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join hundreds of agents who already use our portal.
+              Join developers who use our platform to share their projects.
             </p>
-            <Link to="/login?tab=signup&type=agent">
-              <Button size="lg" className="shadow-gold text-lg px-10">
-                Join as an Agent
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Link to="/login?tab=signup&type=developer">
+                <Button size="lg" className="shadow-gold text-lg px-10">
+                  Request Developer Access
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </Link>
+            </div>
           </div>
         </section>
 
@@ -203,7 +199,7 @@ export default function ForAgents() {
         <section className="py-8 border-t">
           <div className="container max-w-3xl">
             <p className="text-sm text-muted-foreground text-center">
-              Agent Portal access is for licensed real estate professionals only.
+              Developer Portal access requires verification. We review all requests within 1-2 business days.
             </p>
           </div>
         </section>
