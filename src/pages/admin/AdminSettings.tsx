@@ -29,6 +29,7 @@ interface AppSettings {
   zapier_bookings_webhook: string;
   lofty_tracking_webhook: string;
   zapier_behavior_webhook: string;
+  meta_pixel_id: string;
   email_sender: string;
   email_domain_verified: boolean;
 }
@@ -46,6 +47,7 @@ export default function AdminSettings() {
     zapier_bookings_webhook: "",
     lofty_tracking_webhook: "",
     zapier_behavior_webhook: "",
+    meta_pixel_id: "",
     email_sender: DEFAULT_SENDER,
     email_domain_verified: false,
   });
@@ -76,6 +78,7 @@ export default function AdminSettings() {
         if (item.key === "zapier_bookings_webhook") settingsMap.zapier_bookings_webhook = item.value as string;
         if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
         if (item.key === "zapier_behavior_webhook") settingsMap.zapier_behavior_webhook = item.value as string;
+        if (item.key === "meta_pixel_id") settingsMap.meta_pixel_id = item.value as string;
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
       });
@@ -101,6 +104,7 @@ export default function AdminSettings() {
         { key: "zapier_bookings_webhook", value: settings.zapier_bookings_webhook },
         { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
         { key: "zapier_behavior_webhook", value: settings.zapier_behavior_webhook },
+        { key: "meta_pixel_id", value: settings.meta_pixel_id },
         { key: "email_sender", value: settings.email_sender },
         { key: "email_domain_verified", value: settings.email_domain_verified },
       ];
@@ -317,6 +321,29 @@ export default function AdminSettings() {
                       />
                       <p className="text-xs text-muted-foreground">
                         Legacy page view tracking. Use the new Behavior Events webhook for full tracking.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Meta Pixel */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm">Retargeting Pixels</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="meta_pixel_id">Meta Pixel ID</Label>
+                      <Input
+                        id="meta_pixel_id"
+                        type="text"
+                        placeholder="123456789012345"
+                        value={settings.meta_pixel_id}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          meta_pixel_id: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Facebook/Meta Pixel ID for retargeting. Find it in your Meta Events Manager.
                       </p>
                     </div>
                   </div>
