@@ -13,7 +13,6 @@ import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefi
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
-import { VIPAccessSection } from "@/components/home/VIPAccessSection";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
@@ -315,9 +314,6 @@ const Index = () => {
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <HomeMapSection />
-        </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
-          <VIPAccessSection />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
