@@ -14,6 +14,7 @@ import ListingDetail from "./pages/ListingDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ForAgents from "./pages/ForAgents";
+import ForDevelopers from "./pages/ForDevelopers";
 import BuyersGuide from "./pages/BuyersGuide";
 import PresaleGuide from "./pages/PresaleGuide";
 import MortgageCalculatorPage from "./pages/MortgageCalculatorPage";
@@ -24,6 +25,10 @@ import DashboardLeads from "./pages/dashboard/DashboardLeads";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardBilling from "./pages/dashboard/DashboardBilling";
 import ListingForm from "./pages/dashboard/ListingForm";
+import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
+import DeveloperProjects from "./pages/developer/DeveloperProjects";
+import DeveloperTourRequests from "./pages/developer/DeveloperTourRequests";
+import DeveloperSettings from "./pages/developer/DeveloperSettings";
 import AdminOverview from "./pages/admin/AdminOverview";
 import AdminProjects from "./pages/admin/AdminProjects";
 import AdminProjectForm from "./pages/admin/AdminProjectForm";
@@ -40,6 +45,7 @@ import AdminLeadAnalytics from "./pages/admin/AdminLeadAnalytics";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
 import AdminLogin from "./pages/admin/AdminLogin";
+import AdminDeveloperProfiles from "./pages/admin/AdminDeveloperProfiles";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
@@ -99,12 +105,19 @@ const App = () => (
             <Route path="/contact" element={<Contact />} />
             <Route path="/agents" element={<ForAgents />} />
             <Route path="/for-agents" element={<ForAgents />} />
+            <Route path="/for-developers" element={<ForDevelopers />} />
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/login" element={<Login />} />
+            
+            {/* Developer Portal Routes */}
+            <Route path="/developer" element={<DeveloperDashboard />} />
+            <Route path="/developer/projects" element={<DeveloperProjects />} />
+            <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
+            <Route path="/developer/settings" element={<DeveloperSettings />} />
             
             {/* Agent Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
@@ -134,6 +147,7 @@ const App = () => (
             <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />
             <Route path="/admin/scheduler-settings" element={<AdminProtectedRoute><AdminSchedulerSettings /></AdminProtectedRoute>} />
             <Route path="/admin/developers" element={<AdminProtectedRoute><AdminDevelopers /></AdminProtectedRoute>} />
+            <Route path="/admin/developer-accounts" element={<AdminProtectedRoute><AdminDeveloperProfiles /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             
             {/* SEO City Product Pages - must be before 404 */}
