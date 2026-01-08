@@ -28,6 +28,7 @@ interface AppSettings {
   zapier_listing_leads_webhook: string;
   zapier_bookings_webhook: string;
   lofty_tracking_webhook: string;
+  zapier_behavior_webhook: string;
   email_sender: string;
   email_domain_verified: boolean;
 }
@@ -44,6 +45,7 @@ export default function AdminSettings() {
     zapier_listing_leads_webhook: "",
     zapier_bookings_webhook: "",
     lofty_tracking_webhook: "",
+    zapier_behavior_webhook: "",
     email_sender: DEFAULT_SENDER,
     email_domain_verified: false,
   });
@@ -73,6 +75,7 @@ export default function AdminSettings() {
         if (item.key === "zapier_listing_leads_webhook") settingsMap.zapier_listing_leads_webhook = item.value as string;
         if (item.key === "zapier_bookings_webhook") settingsMap.zapier_bookings_webhook = item.value as string;
         if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
+        if (item.key === "zapier_behavior_webhook") settingsMap.zapier_behavior_webhook = item.value as string;
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
       });
@@ -97,6 +100,7 @@ export default function AdminSettings() {
         { key: "zapier_listing_leads_webhook", value: settings.zapier_listing_leads_webhook },
         { key: "zapier_bookings_webhook", value: settings.zapier_bookings_webhook },
         { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
+        { key: "zapier_behavior_webhook", value: settings.zapier_behavior_webhook },
         { key: "email_sender", value: settings.email_sender },
         { key: "email_domain_verified", value: settings.email_domain_verified },
       ];
@@ -280,22 +284,41 @@ export default function AdminSettings() {
               <CardContent className="space-y-6">
                 {/* Behavioral Tracking */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-sm">Behavioral Tracking</h4>
-                  <div className="space-y-2">
-                    <Label htmlFor="lofty_tracking_webhook">Page View Tracking Webhook</Label>
-                    <Input
-                      id="lofty_tracking_webhook"
-                      type="url"
-                      placeholder="https://hooks.zapier.com/..."
-                      value={settings.lofty_tracking_webhook}
-                      onChange={(e) => setSettings(prev => ({ 
-                        ...prev, 
-                        lofty_tracking_webhook: e.target.value 
-                      }))}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Tracks page views, property views, and visitor behavior. Includes visitor ID, session ID, page URL, and project details.
-                    </p>
+                  <h4 className="font-medium text-sm">Full-Funnel Behavioral Tracking</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="zapier_behavior_webhook">Behavior Events Webhook (NEW)</Label>
+                      <Input
+                        id="zapier_behavior_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.zapier_behavior_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          zapier_behavior_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Full-funnel tracking:</strong> page_view, property_view, search, floorplan_view, floorplan_download, favorite_add/remove, cta_click, form_start, form_submit. Includes visitor_id, session_id, first/last UTM, device info.
+                      </p>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="lofty_tracking_webhook">Page View Tracking (Legacy)</Label>
+                      <Input
+                        id="lofty_tracking_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.lofty_tracking_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          lofty_tracking_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        Legacy page view tracking. Use the new Behavior Events webhook for full tracking.
+                      </p>
+                    </div>
                   </div>
                 </div>
 

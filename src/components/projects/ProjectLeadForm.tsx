@@ -11,6 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
+import { trackFormStart, trackFormSubmit } from "@/lib/tracking";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -56,6 +57,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
+  const [formStartTracked, setFormStartTracked] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -72,6 +74,17 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     };
     fetchWhatsappNumber();
   }, []);
+
+  // Track form start on first interaction
+  const handleFormInteraction = () => {
+    if (!formStartTracked) {
+      setFormStartTracked(true);
+      trackFormStart({
+        form_name: leadSource === "floor_plan_request" ? "floor_plan_request" : "project_inquiry",
+        form_location: "project_lead_form",
+      });
+    }
+  };
 
   const form = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
@@ -97,11 +110,24 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const onSubmit = async (data: LeadFormData) => {
     setIsSubmitting(true);
 
-    // Track form submission CTA click
+    // Track form submission CTA click (legacy)
     trackCTAClick({
       cta_type: "lead_form_submit",
       cta_label: leadSource === "floor_plan_request" ? "Get Pricing & Floor Plans" : "Submit Inquiry",
       cta_location: "project_lead_form",
+      project_id: projectId,
+      project_name: projectName,
+    });
+
+    // Track form submission with new behavioral tracking
+    trackFormSubmit({
+      form_name: leadSource === "floor_plan_request" ? "floor_plan_request" : "project_inquiry",
+      form_location: "project_lead_form",
+      first_name: data.firstName,
+      last_name: data.lastName,
+      email: data.email,
+      phone: data.phone,
+      user_type: data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona === "investor" ? "investor" : "buyer",
       project_id: projectId,
       project_name: projectName,
     });
@@ -305,7 +331,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
       {/* Form - optimized for conversion */}
       <div className="p-4 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} className="space-y-3">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-3">
           {/* First Name & Last Name - side by side */}
           <div className="grid grid-cols-2 gap-3">
             <div>

@@ -26,6 +26,8 @@ import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLoftyProjectTracking } from "@/hooks/useLoftyTracking";
+import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
+import { trackFloorplanView, trackFloorplanDownload, trackCTAClick } from "@/lib/tracking";
 import { 
   MapPin,
   Calendar,
@@ -96,8 +98,17 @@ export default function PresaleProjectDetail() {
   const [bookingTimePeriod, setBookingTimePeriod] = useState<string | undefined>();
   const [floorPlanModalOpen, setFloorPlanModalOpen] = useState(false);
 
-  // Track project view to Lofty CRM
+  // Track project view to Lofty CRM (legacy)
   useLoftyProjectTracking(project);
+  
+  // Track project view with new behavioral tracking
+  usePropertyViewTracking(project ? {
+    project_id: project.id,
+    project_name: project.name,
+    address: project.address || undefined,
+    city: project.city,
+    price_from: project.starting_price,
+  } : null);
 
   const handleRequestTour = (date: Date, timePeriod: string) => {
     setBookingDate(date);
@@ -129,6 +140,20 @@ export default function PresaleProjectDetail() {
       project_city: project?.city,
       project_status: project?.status,
     });
+    
+    // Track with behavioral tracking
+    if (project) {
+      trackCTAClick({
+        cta_name: "get_floor_plans",
+        cta_location: "project_detail_cta",
+        destination_url: window.location.href,
+      });
+      trackFloorplanView({
+        project_id: project.id,
+        project_name: project.name,
+      });
+    }
+    
     // On mobile, open modal instead of scrolling
     if (window.innerWidth < 1024) {
       setFloorPlanModalOpen(true);
@@ -144,6 +169,15 @@ export default function PresaleProjectDetail() {
       selected_date: date.toISOString(),
       time_period: timePeriod,
     });
+    
+    // Track with behavioral tracking
+    if (project) {
+      trackCTAClick({
+        cta_name: "schedule_tour",
+        cta_location: "project_detail_scheduler",
+      });
+    }
+    
     handleRequestTour(date, timePeriod);
   };
 
