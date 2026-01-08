@@ -11,6 +11,7 @@ import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
+import { VIPAccessSection } from "@/components/home/VIPAccessSection";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
@@ -385,6 +386,11 @@ export function MobileHomePage() {
       {/* Benefits Section */}
       <div className="mt-6">
         <NewConstructionBenefits />
+      </div>
+
+      {/* VIP Access Section */}
+      <div className="mt-4">
+        <VIPAccessSection />
       </div>
 
       {/* ROI Calculator Teaser */}
