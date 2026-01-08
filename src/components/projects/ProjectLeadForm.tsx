@@ -135,6 +135,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     try {
       const fullName = `${data.firstName} ${data.lastName}`.trim();
       const messageData = [
+        `First Name: ${data.firstName}`,
+        `Last Name: ${data.lastName}`,
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
         `Home Size: ${HOME_SIZES.find(h => h.value === data.homeSize)?.label}`,

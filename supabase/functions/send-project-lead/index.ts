@@ -135,9 +135,37 @@ serve(async (req: Request): Promise<Response> => {
         }
       };
 
+      // Parse first and last name from message field if available, otherwise split the name
+      const parseNames = (name: string, message: string | null): { firstName: string; lastName: string } => {
+        // Try to extract from message field first (format: "First Name: X | Last Name: Y | ...")
+        if (message) {
+          const firstNameMatch = message.match(/First Name:\s*([^|]+)/i);
+          const lastNameMatch = message.match(/Last Name:\s*([^|]+)/i);
+          if (firstNameMatch && lastNameMatch) {
+            return {
+              firstName: firstNameMatch[1].trim(),
+              lastName: lastNameMatch[1].trim(),
+            };
+          }
+        }
+        // Fallback: split the full name
+        const parts = (name || "").trim().split(/\s+/);
+        if (parts.length >= 2) {
+          return {
+            firstName: parts[0],
+            lastName: parts.slice(1).join(" "),
+          };
+        }
+        return { firstName: parts[0] || "", lastName: "" };
+      };
+
+      const { firstName, lastName } = parseNames(lead.name, lead.message);
+
       const webhookPayload = {
-        // Lead info
+        // Lead info - separate first and last name
         lead_id: lead.id,
+        lead_first_name: firstName,
+        lead_last_name: lastName,
         lead_name: lead.name,
         lead_email: lead.email,
         lead_phone: lead.phone || "",
