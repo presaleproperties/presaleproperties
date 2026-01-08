@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ArticleSchema } from "@/components/seo/ArticleSchema";
 import { supabase } from "@/integrations/supabase/client";
+import { marked } from "marked";
 import { 
   ChevronLeft,
   Calendar,
@@ -91,10 +92,17 @@ export default function BlogPost() {
     });
   };
 
-  // Check if content contains HTML tags
-  const isHtmlContent = (content: string) => {
-    return /<[a-z][\s\S]*>/i.test(content);
-  };
+  // Parse content - supports both HTML and Markdown
+  const parsedContent = useMemo(() => {
+    if (!post?.content) return null;
+    
+    // Check if content is already HTML
+    const isHtml = /<[a-z][\s\S]*>/i.test(post.content);
+    if (isHtml) return post.content;
+    
+    // Parse as markdown
+    return marked.parse(post.content, { async: false }) as string;
+  }, [post?.content]);
 
   if (loading) {
     return (
@@ -209,13 +217,9 @@ export default function BlogPost() {
 
           {/* Content */}
           <div className="container max-w-4xl py-8">
-            <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:ml-6 prose-ol:ml-6 prose-li:mb-2 prose-strong:font-semibold">
-              {post.content ? (
-                isHtmlContent(post.content) ? (
-                  <div dangerouslySetInnerHTML={{ __html: post.content }} />
-                ) : (
-                  <div className="whitespace-pre-wrap">{post.content}</div>
-                )
+          <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:ml-6 prose-ol:ml-6 prose-li:mb-2 prose-strong:font-semibold">
+              {parsedContent ? (
+                <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
               ) : (
                 <p className="text-muted-foreground">No content available.</p>
               )}
