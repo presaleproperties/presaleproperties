@@ -53,6 +53,7 @@ import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
+import { MetaPixel } from "@/components/tracking/MetaPixel";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
@@ -75,6 +76,7 @@ const App = () => (
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
+            <MetaPixel />
             <FloatingMapButton />
           <Routes>
             {/* Public Routes */}

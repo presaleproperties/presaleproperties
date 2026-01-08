@@ -21,7 +21,6 @@ import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
-    fbq?: (...args: unknown[]) => void;
   }
 }
 
@@ -78,9 +77,6 @@ export default function ROICalculator() {
       window.gtag("event", event, {
         event_category: "roi_calculator",
       });
-    }
-    if (window.fbq) {
-      window.fbq("trackCustom", event);
     }
   };
 
