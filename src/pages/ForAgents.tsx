@@ -12,17 +12,20 @@ import {
   ArrowRight,
   Clock,
   Building2,
-  Users
+  Users,
+  Tag,
+  Lock,
+  TrendingUp
 } from "lucide-react";
 
 export default function ForAgents() {
   return (
     <>
       <Helmet>
-        <title>For Agents | Access All Presale Project Info | PresaleProperties</title>
+        <title>For Agents | Market Assignments & Access Off-Market Deals | PresaleProperties</title>
         <meta 
           name="description" 
-          content="Everything you need to sell presale condos — in one place. Access floor plans, pricing, brochures. No forms. No waiting." 
+          content="Market your own assignments and access exclusive off-market deals. The agent platform built for presale specialists." 
         />
         <link rel="canonical" href="https://presaleproperties.com/agents" />
       </Helmet>
@@ -34,10 +37,10 @@ export default function ForAgents() {
         <section className="relative py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
           <div className="container max-w-4xl text-center">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6">
-              Built for Agents Who Sell Presale Condos
+              Your Assignment Advantage
             </h1>
             <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-              Everything you need to sell presale condos — in one place.
+              Market your own assignments. Access off-market deals. Close more presale transactions.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/login?tab=signup&type=agent">
@@ -55,20 +58,70 @@ export default function ForAgents() {
           </div>
         </section>
 
+        {/* Assignment Value Proposition */}
+        <section className="py-16 lg:py-24 bg-primary/5">
+          <div className="container max-w-4xl">
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="p-8 rounded-xl bg-background border-2 border-primary/20">
+                <Tag className="h-10 w-10 text-primary mb-4" />
+                <h2 className="text-2xl font-bold mb-4">Market Your Assignments</h2>
+                <p className="text-muted-foreground mb-4">
+                  List your client's assignments to our network of active buyers and agents.
+                </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span>Reach qualified presale buyers</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span>Professional listing presentation</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span>Direct buyer inquiries to you</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="p-8 rounded-xl bg-background border-2 border-primary/20">
+                <Lock className="h-10 w-10 text-primary mb-4" />
+                <h2 className="text-2xl font-bold mb-4">Access Off-Market Deals</h2>
+                <p className="text-muted-foreground mb-4">
+                  Get early access to assignments before they hit the public market.
+                </p>
+                <ul className="space-y-2 text-muted-foreground">
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span>Exclusive agent-only listings</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span>First look at new inventory</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-primary" />
+                    <span>Connect directly with selling agents</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Key Benefits */}
         <section className="py-16 lg:py-24">
           <div className="container max-w-4xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
-              What You Get
+              Everything You Need
             </h2>
             <div className="grid sm:grid-cols-2 gap-6">
               {[
-                { icon: FileText, text: "Access all floor plans and pricing in one place" },
-                { icon: Clock, text: "Always up to date" },
-                { icon: Download, text: "No forms or waiting" },
-                { icon: BarChart3, text: "Compare projects easily" },
+                { icon: Tag, text: "List and market your client's assignments" },
+                { icon: Lock, text: "Access off-market assignment inventory" },
+                { icon: FileText, text: "Download floor plans and pricing instantly" },
+                { icon: Clock, text: "Always up-to-date project info" },
+                { icon: BarChart3, text: "Compare projects side by side" },
                 { icon: Calendar, text: "Book tours directly with developers" },
-                { icon: CheckCircle, text: "Save time every day" },
               ].map((benefit, index) => (
                 <div key={index} className="flex items-start gap-4 p-4 rounded-lg bg-muted/30">
                   <benefit.icon className="h-6 w-6 text-primary flex-shrink-0 mt-0.5" />
@@ -83,20 +136,20 @@ export default function ForAgents() {
         <section className="py-16 lg:py-24 bg-muted/30">
           <div className="container max-w-3xl">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Stop Chasing Developers for Info
+              Stop Leaving Money on the Table
             </h2>
             <div className="prose prose-lg text-muted-foreground">
               <p>
-                Right now, getting presale info is a pain.
+                Your clients have assignments to sell. But where do you list them?
               </p>
               <p>
-                You fill out forms. You wait for callbacks. You search through old emails.
+                Other agents have off-market deals. But how do you find them?
               </p>
               <p className="font-medium text-foreground">
-                That wastes your time.
+                You need a platform built for presale agents.
               </p>
               <p>
-                With our Agent Portal, you log in and get everything you need. Instantly.
+                Our Agent Portal gives you everything in one place — your own assignments, off-market inventory, and all the project info you need.
               </p>
             </div>
           </div>
@@ -108,7 +161,21 @@ export default function ForAgents() {
             <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
               What's in the Agent Portal
             </h2>
-            <div className="grid sm:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="p-6 rounded-lg border bg-background">
+                <TrendingUp className="h-8 w-8 text-primary mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Assignment Marketing</h3>
+                <p className="text-muted-foreground">
+                  List your client's assignments with photos, pricing, and floor plans.
+                </p>
+              </div>
+              <div className="p-6 rounded-lg border bg-background">
+                <Lock className="h-8 w-8 text-primary mb-4" />
+                <h3 className="font-semibold text-lg mb-2">Off-Market Access</h3>
+                <p className="text-muted-foreground">
+                  Browse exclusive assignments not available to the public.
+                </p>
+              </div>
               <div className="p-6 rounded-lg border bg-background">
                 <FileText className="h-8 w-8 text-primary mb-4" />
                 <h3 className="font-semibold text-lg mb-2">Floor Plans</h3>
@@ -150,8 +217,8 @@ export default function ForAgents() {
             <div className="grid sm:grid-cols-3 gap-8">
               {[
                 { step: "1", title: "Sign Up", description: "Create your agent account in 2 minutes." },
-                { step: "2", title: "Log In", description: "Access all project info instantly." },
-                { step: "3", title: "Download & Compare", description: "Get what you need. Book tours directly." },
+                { step: "2", title: "List & Browse", description: "Market your assignments. Access off-market deals." },
+                { step: "3", title: "Close Deals", description: "Connect with buyers and agents directly." },
               ].map((item) => (
                 <div key={item.step} className="text-center">
                   <div className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-4 text-xl font-bold">
@@ -165,30 +232,14 @@ export default function ForAgents() {
           </div>
         </section>
 
-        {/* No More Forms */}
-        <section className="py-16 lg:py-24">
-          <div className="container max-w-3xl text-center">
-            <Users className="h-12 w-12 text-primary mx-auto mb-6" />
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              No Forms. No Waiting. No Outdated Info.
-            </h2>
-            <p className="text-xl text-muted-foreground mb-8">
-              Log in. Download. Compare. Book tours.
-            </p>
-            <p className="text-lg text-muted-foreground">
-              That's it. Simple.
-            </p>
-          </div>
-        </section>
-
         {/* Final CTA Section */}
         <section className="py-20 lg:py-32 bg-primary/5">
           <div className="container max-w-3xl text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-6">
-              Ready to Save Time?
+              Ready to Grow Your Presale Business?
             </h2>
             <p className="text-xl text-muted-foreground mb-8">
-              Join hundreds of agents who already use our portal.
+              Join agents who are already listing assignments and accessing off-market inventory.
             </p>
             <Link to="/login?tab=signup&type=agent">
               <Button size="lg" className="shadow-gold text-lg px-10">
