@@ -10,10 +10,6 @@ import { getAttributionData, getReferrer } from "./attribution";
 // Debug mode - logs all payloads to console
 const DEBUG_MODE = import.meta.env.DEV;
 
-// Cache webhook URL
-let cachedWebhookUrl: string | null = null;
-let webhookUrlFetched = false;
-
 // Cache for intent scoring module (lazy loaded to avoid circular deps)
 let intentScoringModule: typeof import("./intentScoring") | null = null;
 
@@ -24,39 +20,20 @@ async function getIntentScoringModule() {
   return intentScoringModule;
 }
 
-async function getWebhookUrl(): Promise<string | null> {
-  if (webhookUrlFetched) return cachedWebhookUrl;
-  
-  try {
-    const { data } = await supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "zapier_behavior_webhook")
-      .maybeSingle();
-    
-    cachedWebhookUrl = data?.value as string | null;
-    webhookUrlFetched = true;
-    return cachedWebhookUrl;
-  } catch (error) {
-    console.error("Failed to fetch webhook URL:", error);
-    return null;
-  }
-}
-
 /**
  * Detect device type from user agent
  */
 function getDeviceType(): "mobile" | "tablet" | "desktop" {
   const ua = navigator.userAgent.toLowerCase();
-  
+
   if (/(tablet|ipad|playbook|silk)|(android(?!.*mobi))/i.test(ua)) {
     return "tablet";
   }
-  
+
   if (/mobile|android|iphone|ipod|blackberry|opera mini|iemobile/i.test(ua)) {
     return "mobile";
   }
-  
+
   return "desktop";
 }
 
@@ -65,7 +42,7 @@ function getDeviceType(): "mobile" | "tablet" | "desktop" {
  */
 function buildBasePayload() {
   const attribution = getAttributionData();
-  
+
   return {
     event_id: generateEventId(),
     timestamp: new Date().toISOString(),
@@ -87,14 +64,13 @@ function buildBasePayload() {
 }
 
 /**
- * Send event to Zapier webhook
+ * Send event to Zapier behavior webhook (via backend proxy to avoid ad-blockers)
  */
 async function sendEvent(eventName: string, eventPayload: object = {}): Promise<void> {
-  const webhookUrl = await getWebhookUrl();
-  
   // Import intent scoring lazily to avoid circular deps
-  const { getIntentScore, getCityInterests, getTopViewedProjects, getBehaviorSummary } = await getIntentScoringModule();
-  
+  const { getIntentScore, getCityInterests, getTopViewedProjects, getBehaviorSummary } =
+    await getIntentScoringModule();
+
   const payload = {
     ...buildBasePayload(),
     event_name: eventName,
@@ -102,31 +78,25 @@ async function sendEvent(eventName: string, eventPayload: object = {}): Promise<
     // Include intent data in all events
     intent_score: getIntentScore(),
     city_interest: getCityInterests(),
-    project_interest: getTopViewedProjects().map(p => p.project_id),
+    project_interest: getTopViewedProjects().map((p) => p.project_id),
     // Include full behavior summary for form submissions
     ...(eventName === "form_submit" ? { behavior_summary: getBehaviorSummary() } : {}),
   };
-  
+
   if (DEBUG_MODE) {
     console.log(`📊 [Tracking] ${eventName}:`, payload);
   }
-  
-  if (!webhookUrl) {
-    if (DEBUG_MODE) {
-      console.warn("Webhook URL not configured (zapier_behavior_webhook)");
-    }
-    return;
-  }
-  
+
   try {
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      mode: "no-cors",
-      body: JSON.stringify(payload),
+    const { error } = await supabase.functions.invoke("send-behavior-event", {
+      body: payload,
     });
+
+    if (error) {
+      console.error("Failed to proxy tracking event:", error);
+    }
   } catch (error) {
-    console.error("Failed to send tracking event:", error);
+    console.error("Failed to proxy tracking event:", error);
   }
 }
 
