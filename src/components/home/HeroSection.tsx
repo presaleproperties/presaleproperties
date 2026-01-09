@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -109,14 +109,13 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                   Presale Projects
                 </span>
               </div>
-              <button
-                type="button"
-                onClick={() => navigate("/map-search")}
+              <Link
+                to="/map-search"
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
                 Open Map
-              </button>
+              </Link>
             </div>
 
             {/* Search Input */}
