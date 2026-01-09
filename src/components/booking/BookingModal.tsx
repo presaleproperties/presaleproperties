@@ -12,6 +12,8 @@ import { format, addDays, isSameDay, getDay } from "date-fns";
 import { Calendar as CalendarIcon, Clock, CheckCircle, Loader2, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
+import { getVisitorId, getSessionId } from "@/lib/tracking";
+import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 
 type BuyerType = "first_time" | "investor";
 type HomeSize = "1_bed" | "2_bed" | "3_bed_plus";
@@ -239,6 +241,13 @@ export function BookingModal({
       const urlParams = new URLSearchParams(window.location.search);
       const fullName = `${firstName} ${lastName}`.trim();
       
+      // Get visitor tracking data for Zapier enrichment
+      const visitorId = getVisitorId();
+      const sessionId = getSessionId();
+      const intentScore = getIntentScore();
+      const cityInterest = getCityInterests();
+      const projectInterest = getTopViewedProjects().map(p => p.project_id);
+      
       const bookingData = {
         appointment_type: "showing" as const,
         appointment_date: format(selectedDate, "yyyy-MM-dd"),
@@ -258,6 +267,12 @@ export function BookingModal({
         utm_medium: urlParams.get("utm_medium"),
         utm_campaign: urlParams.get("utm_campaign"),
         referrer: document.referrer || null,
+        // Visitor tracking for Zapier enrichment
+        visitor_id: visitorId,
+        session_id: sessionId,
+        intent_score: intentScore,
+        city_interest: cityInterest,
+        project_interest: projectInterest,
       };
 
       const { error } = await supabase.from("bookings").insert(bookingData);

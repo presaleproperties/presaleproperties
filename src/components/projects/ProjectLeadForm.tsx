@@ -11,7 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
-import { trackFormStart, trackFormSubmit } from "@/lib/tracking";
+import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
+import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -149,6 +150,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       // Get UTM tracking data
       const utmData = getUtmDataForSubmission();
 
+      // Get visitor tracking data for Zapier enrichment
+      const visitorId = getVisitorId();
+      const sessionId = getSessionId();
+      const intentScore = getIntentScore();
+      const cityInterest = getCityInterests();
+      const projectInterest = getTopViewedProjects().map(p => p.project_id);
+
       // Avoid selecting the inserted row (keeps lead data private under RLS)
       const leadId = crypto.randomUUID();
 
@@ -176,6 +184,12 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             referrer: utmData.referrer,
             landing_page: utmData.landing_page,
             lead_source: leadSource,
+            // Visitor tracking for Zapier enrichment
+            visitor_id: visitorId,
+            session_id: sessionId,
+            intent_score: intentScore,
+            city_interest: cityInterest,
+            project_interest: projectInterest,
           },
         ]);
 
