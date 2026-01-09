@@ -37,3 +37,29 @@ export type {
   FormStartData,
   FormSubmitData,
 } from "./events";
+
+// Intent Scoring
+export {
+  getIntentScore,
+  incrementIntentScore,
+  resetIntentScore,
+  trackProjectView,
+  getProjectViewCount,
+  getTopViewedProjects,
+  addCityInterest,
+  getCityInterests,
+  trackFavorite,
+  getFavoritedProjects,
+  trackDownload,
+  getDownloadedAssets,
+  checkReturnVisit,
+  getBehaviorSummary,
+  setUserType,
+  getUserType,
+  isRealtorVisitor,
+  tagAsRealtor,
+  setLastPageViewed,
+  getLastPageViewed,
+} from "./intentScoring";
+
+export type { IntentData, BehaviorSummary } from "./intentScoring";

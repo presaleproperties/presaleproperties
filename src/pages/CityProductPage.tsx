@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, Link } from "react-router-dom";
 import NotFound from "./NotFound";
@@ -16,6 +16,8 @@ import {
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
+import { CityListCTA } from "@/components/conversion/CityListCTA";
+import { addCityInterest } from "@/lib/tracking/intentScoring";
 import { supabase } from "@/integrations/supabase/client";
 
 // Neighborhoods configuration per city (top neighborhoods with most projects)
@@ -363,6 +365,14 @@ export default function CityProductPage() {
   if (!citySlug || !productType || !config) {
     return <NotFound />;
   }
+
+  // Track city interest when page loads
+  useEffect(() => {
+    if (config?.cityName) {
+      addCityInterest(config.cityName);
+    }
+  }, [config?.cityName]);
+
   // Fetch projects filtered by city and product type
   const { data: projects, isLoading } = useQuery({
     queryKey: ["city-product-projects", citySlug, productType],
@@ -491,6 +501,9 @@ export default function CityProductPage() {
           <p className="text-base sm:text-lg text-muted-foreground max-w-3xl mb-8 leading-relaxed">
             {config.intro}
           </p>
+
+          {/* City List CTA - Conversion Hook */}
+          <CityListCTA city={config.cityName} productType={productType as "condos" | "townhomes"} />
           
           {/* Product type switcher - pill style */}
           <div className="flex flex-wrap gap-3 mb-6">
