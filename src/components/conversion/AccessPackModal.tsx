@@ -11,6 +11,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { getVisitorId, getSessionId } from "@/lib/tracking";
+import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -135,6 +137,13 @@ export function AccessPackModal({
 
       const fullName = `${data.firstName} ${data.lastName}`.trim();
       
+      // Get visitor tracking data for Zapier enrichment
+      const visitorId = getVisitorId();
+      const sessionId = getSessionId();
+      const intentScore = getIntentScore();
+      const cityInterest = getCityInterests();
+      const projectInterest = getTopViewedProjects().map(p => p.project_id);
+      
       // Use client-side generated ID to avoid RLS read issues
       const leadId = crypto.randomUUID();
       
@@ -160,6 +169,12 @@ export function AccessPackModal({
           utm_term: utmTerm,
           referrer: referrer,
           landing_page: landingPage,
+          // Visitor tracking for Zapier enrichment
+          visitor_id: visitorId,
+          session_id: sessionId,
+          intent_score: intentScore,
+          city_interest: cityInterest,
+          project_interest: projectInterest,
         });
 
       if (error) throw error;

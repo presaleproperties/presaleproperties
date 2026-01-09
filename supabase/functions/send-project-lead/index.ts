@@ -51,6 +51,11 @@ serve(async (req: Request): Promise<Response> => {
         landing_page,
         created_at,
         project_id,
+        visitor_id,
+        session_id,
+        intent_score,
+        city_interest,
+        project_interest,
         presale_projects (
           name,
           slug,
@@ -176,6 +181,13 @@ serve(async (req: Request): Promise<Response> => {
         is_realtor: lead.agent_status === "i_am_realtor" ? "Yes" : "No",
         has_realtor: lead.agent_status === "yes" ? "Yes" : "No",
         submitted_at: lead.created_at,
+        
+        // Visitor tracking for behavior enrichment
+        visitor_id: lead.visitor_id || "",
+        session_id: lead.session_id || "",
+        intent_score: lead.intent_score || 0,
+        city_interest: lead.city_interest || [],
+        project_interest: lead.project_interest || [],
         
         // Project info
         project_id: lead.project_id,

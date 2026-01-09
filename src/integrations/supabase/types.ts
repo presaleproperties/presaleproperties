@@ -135,26 +135,31 @@ export type Database = {
           appointment_type: Database["public"]["Enums"]["appointment_type"]
           buyer_type: Database["public"]["Enums"]["buyer_type"]
           cancelled_at: string | null
+          city_interest: Json | null
           confirmed_at: string | null
           created_at: string
           email: string
           id: string
+          intent_score: number | null
           lead_source: string | null
           name: string
           notes: string | null
           phone: string
           project_city: string | null
           project_id: string | null
+          project_interest: Json | null
           project_name: string
           project_neighborhood: string | null
           project_url: string | null
           referrer: string | null
+          session_id: string | null
           status: Database["public"]["Enums"]["booking_status"]
           timeline: Database["public"]["Enums"]["buyer_timeline"]
           updated_at: string
           utm_campaign: string | null
           utm_medium: string | null
           utm_source: string | null
+          visitor_id: string | null
         }
         Insert: {
           appointment_date: string
@@ -162,26 +167,31 @@ export type Database = {
           appointment_type: Database["public"]["Enums"]["appointment_type"]
           buyer_type: Database["public"]["Enums"]["buyer_type"]
           cancelled_at?: string | null
+          city_interest?: Json | null
           confirmed_at?: string | null
           created_at?: string
           email: string
           id?: string
+          intent_score?: number | null
           lead_source?: string | null
           name: string
           notes?: string | null
           phone: string
           project_city?: string | null
           project_id?: string | null
+          project_interest?: Json | null
           project_name: string
           project_neighborhood?: string | null
           project_url?: string | null
           referrer?: string | null
+          session_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           timeline: Database["public"]["Enums"]["buyer_timeline"]
           updated_at?: string
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+          visitor_id?: string | null
         }
         Update: {
           appointment_date?: string
@@ -189,26 +199,31 @@ export type Database = {
           appointment_type?: Database["public"]["Enums"]["appointment_type"]
           buyer_type?: Database["public"]["Enums"]["buyer_type"]
           cancelled_at?: string | null
+          city_interest?: Json | null
           confirmed_at?: string | null
           created_at?: string
           email?: string
           id?: string
+          intent_score?: number | null
           lead_source?: string | null
           name?: string
           notes?: string | null
           phone?: string
           project_city?: string | null
           project_id?: string | null
+          project_interest?: Json | null
           project_name?: string
           project_neighborhood?: string | null
           project_url?: string | null
           referrer?: string | null
+          session_id?: string | null
           status?: Database["public"]["Enums"]["booking_status"]
           timeline?: Database["public"]["Enums"]["buyer_timeline"]
           updated_at?: string
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+          visitor_id?: string | null
         }
         Relationships: [
           {
@@ -1288,11 +1303,13 @@ export type Database = {
         Row: {
           agent_status: string | null
           budget: string | null
+          city_interest: Json | null
           created_at: string
           drip_sequence: string | null
           email: string
           home_size: string | null
           id: string
+          intent_score: number | null
           landing_page: string | null
           last_drip_sent: number | null
           lead_source: string | null
@@ -1302,22 +1319,27 @@ export type Database = {
           persona: string | null
           phone: string | null
           project_id: string | null
+          project_interest: Json | null
           referrer: string | null
+          session_id: string | null
           timeline: string | null
           utm_campaign: string | null
           utm_content: string | null
           utm_medium: string | null
           utm_source: string | null
           utm_term: string | null
+          visitor_id: string | null
         }
         Insert: {
           agent_status?: string | null
           budget?: string | null
+          city_interest?: Json | null
           created_at?: string
           drip_sequence?: string | null
           email: string
           home_size?: string | null
           id?: string
+          intent_score?: number | null
           landing_page?: string | null
           last_drip_sent?: number | null
           lead_source?: string | null
@@ -1327,22 +1349,27 @@ export type Database = {
           persona?: string | null
           phone?: string | null
           project_id?: string | null
+          project_interest?: Json | null
           referrer?: string | null
+          session_id?: string | null
           timeline?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          visitor_id?: string | null
         }
         Update: {
           agent_status?: string | null
           budget?: string | null
+          city_interest?: Json | null
           created_at?: string
           drip_sequence?: string | null
           email?: string
           home_size?: string | null
           id?: string
+          intent_score?: number | null
           landing_page?: string | null
           last_drip_sent?: number | null
           lead_source?: string | null
@@ -1352,13 +1379,16 @@ export type Database = {
           persona?: string | null
           phone?: string | null
           project_id?: string | null
+          project_interest?: Json | null
           referrer?: string | null
+          session_id?: string | null
           timeline?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
           utm_medium?: string | null
           utm_source?: string | null
           utm_term?: string | null
+          visitor_id?: string | null
         }
         Relationships: [
           {

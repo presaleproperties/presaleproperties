@@ -31,6 +31,12 @@ interface BookingNotificationRequest {
   utm_medium?: string;
   utm_campaign?: string;
   referrer?: string;
+  // Visitor tracking fields
+  visitor_id?: string;
+  session_id?: string;
+  intent_score?: number;
+  city_interest?: string[];
+  project_interest?: string[];
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -136,6 +142,13 @@ const handler = async (req: Request): Promise<Response> => {
         is_realtor: agentStatus === "is_agent" ? "Yes" : "No",
         has_realtor: agentStatus === "has_agent" ? "Yes" : "No",
         submitted_at: new Date().toISOString(),
+        
+        // Visitor tracking for behavior enrichment
+        visitor_id: data.visitor_id || "",
+        session_id: data.session_id || "",
+        intent_score: data.intent_score || 0,
+        city_interest: data.city_interest || [],
+        project_interest: data.project_interest || [],
         
         // Booking specific info
         appointment_type: appointmentTypeLabel,
