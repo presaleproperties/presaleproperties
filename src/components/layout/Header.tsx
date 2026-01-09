@@ -35,9 +35,7 @@ export function Header() {
 
   const navLinks = [
     { to: "/presale-projects", label: "Presale Projects", icon: Building2 },
-    { to: "/assignments", label: "Assignments", icon: FileStack },
     { to: "/blog", label: "Blog", icon: BookOpen },
-    { to: "/agents", label: "For Agents", icon: Users, highlight: true },
   ];
 
   const isActive = (path: string) => location.pathname === path;
@@ -102,20 +100,9 @@ export function Header() {
           >
             Blog
           </Link>
-          <Link
-            to="/agents"
-            className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            For Agents
-          </Link>
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <Link to="/login" className="hidden sm:block">
-            <Button variant="ghost" size="sm">
-              Agent Login
-            </Button>
-          </Link>
           <Link to="/contact" className="hidden sm:block">
             <Button size="sm" className="shadow-gold">
               <Phone className="h-4 w-4 mr-2" />
@@ -152,18 +139,11 @@ export function Header() {
                   </button>
                 </div>
 
-                {/* Sign In / Sign Up Row */}
+                {/* Contact CTA Row */}
                 <div className="flex items-center gap-6 px-6 pb-5">
-                  <Link 
-                    to="/login" 
-                    onClick={() => setOpen(false)}
-                    className="text-sm font-bold tracking-widest text-muted-foreground hover:text-foreground transition-colors uppercase"
-                  >
-                    Sign-In
-                  </Link>
                   <Link to="/contact" onClick={() => setOpen(false)} className="flex-1">
                     <Button className="w-full h-12 font-bold tracking-widest text-sm rounded-md bg-foreground text-background hover:bg-foreground/90 uppercase">
-                      Sign Up
+                      Contact Us
                     </Button>
                   </Link>
                 </div>
@@ -205,11 +185,11 @@ export function Header() {
                     </Collapsible>
 
                     <Link
-                      to="/agents"
+                      to="/blog"
                       onClick={() => setOpen(false)}
                       className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
-                      Agents
+                      Blog
                     </Link>
 
                     <Link

@@ -117,8 +117,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/agents" className="hover:text-foreground transition-colors">
-                  For Realtors
+                <Link to="/developers" className="hover:text-foreground transition-colors">
+                  Developers
                 </Link>
               </li>
               <li>
