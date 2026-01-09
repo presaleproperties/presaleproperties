@@ -14,6 +14,16 @@ const DEBUG_MODE = import.meta.env.DEV;
 let cachedWebhookUrl: string | null = null;
 let webhookUrlFetched = false;
 
+// Cache for intent scoring module (lazy loaded to avoid circular deps)
+let intentScoringModule: typeof import("./intentScoring") | null = null;
+
+async function getIntentScoringModule() {
+  if (!intentScoringModule) {
+    intentScoringModule = await import("./intentScoring");
+  }
+  return intentScoringModule;
+}
+
 async function getWebhookUrl(): Promise<string | null> {
   if (webhookUrlFetched) return cachedWebhookUrl;
   
@@ -82,10 +92,19 @@ function buildBasePayload() {
 async function sendEvent(eventName: string, eventPayload: object = {}): Promise<void> {
   const webhookUrl = await getWebhookUrl();
   
+  // Import intent scoring lazily to avoid circular deps
+  const { getIntentScore, getCityInterests, getTopViewedProjects, getBehaviorSummary } = await getIntentScoringModule();
+  
   const payload = {
     ...buildBasePayload(),
     event_name: eventName,
     event_payload: eventPayload,
+    // Include intent data in all events
+    intent_score: getIntentScore(),
+    city_interest: getCityInterests(),
+    project_interest: getTopViewedProjects().map(p => p.project_id),
+    // Include full behavior summary for form submissions
+    ...(eventName === "form_submit" ? { behavior_summary: getBehaviorSummary() } : {}),
   };
   
   if (DEBUG_MODE) {
@@ -248,6 +267,13 @@ export interface FormSubmitData {
 
 export function trackFormSubmit(data: FormSubmitData): void {
   sendEvent("form_submit", data);
+}
+
+/**
+ * Track return visit
+ */
+export function trackReturnVisit(data: { last_page_viewed?: string; project_context?: string }): void {
+  sendEvent("return_visit", data);
 }
 
 // Export for direct use

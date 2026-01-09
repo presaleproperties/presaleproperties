@@ -5,6 +5,8 @@
  * 1. Initialize visitor/session IDs
  * 2. Initialize attribution tracking
  * 3. Track page views on route changes
+ * 4. Detect and track return visits
+ * 5. Update last page viewed
  */
 
 import { useEffect, useRef } from "react";
@@ -13,8 +15,12 @@ import {
   getVisitorId, 
   getSessionId, 
   initAttribution, 
-  trackPageView 
+  trackPageView,
+  checkReturnVisit,
+  setLastPageViewed,
+  getLastPageViewed,
 } from "@/lib/tracking";
+import { trackReturnVisit } from "@/lib/tracking/events";
 
 export function BehaviorTracker() {
   const location = useLocation();
@@ -33,10 +39,24 @@ export function BehaviorTracker() {
     // Initialize attribution (UTM capture)
     initAttribution();
     
+    // Check for return visit and track if applicable
+    const isReturnVisit = checkReturnVisit();
+    if (isReturnVisit) {
+      const lastPage = getLastPageViewed();
+      trackReturnVisit({
+        last_page_viewed: lastPage,
+      });
+      
+      if (import.meta.env.DEV) {
+        console.log("📊 [Tracking] Return visit detected", { last_page_viewed: lastPage });
+      }
+    }
+    
     if (import.meta.env.DEV) {
       console.log("📊 [Tracking] Initialized", {
         visitor_id: getVisitorId(),
         session_id: getSessionId(),
+        is_return_visit: isReturnVisit,
       });
     }
   }, []);
@@ -49,6 +69,9 @@ export function BehaviorTracker() {
     if (currentPath === lastTrackedPath.current) return;
     
     lastTrackedPath.current = currentPath;
+    
+    // Update last page viewed
+    setLastPageViewed(currentPath);
     
     // Small delay to ensure page title is updated
     const timeoutId = setTimeout(() => {
