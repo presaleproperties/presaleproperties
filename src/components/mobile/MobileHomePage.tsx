@@ -11,6 +11,7 @@ import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
+import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
@@ -331,6 +332,11 @@ export function MobileHomePage() {
       {/* Benefits Section */}
       <div className="mt-6">
         <NewConstructionBenefits />
+      </div>
+
+      {/* Map Section */}
+      <div className="mt-4">
+        <HomeMapSection />
       </div>
 
       {/* ROI Calculator Teaser */}
