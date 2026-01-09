@@ -137,27 +137,6 @@ export function HomeMapSection() {
             </Suspense>
           </SafeMapWrapper>
         )}
-
-        {/* Stats Bar */}
-        {hasValidProjects && (
-          <div className="mt-4 flex flex-wrap items-center justify-center gap-4 md:gap-8 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-green-500" />
-              <span>Selling Now</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-purple-500" />
-              <span>Registering</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-blue-500" />
-              <span>Coming Soon</span>
-            </div>
-            <span className="text-foreground font-medium">
-              {projectsWithCoords.length} projects shown
-            </span>
-          </div>
-        )}
       </div>
     </section>
   );
