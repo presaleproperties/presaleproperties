@@ -146,7 +146,7 @@ function popupHtml(project: Project) {
   const statusLabel = getStatusLabel(project.status);
 
   return `
-    <div style="padding:2px;max-width:240px;font-family:system-ui,-apple-system,sans-serif;">
+    <a href="/presale-projects/${project.slug}" style="display:block;text-decoration:none;color:inherit;padding:2px;max-width:240px;font-family:system-ui,-apple-system,sans-serif;">
       ${img}
       <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
         <div style="font-weight:600;font-size:13px;line-height:1.3;">${project.name}</div>
@@ -154,8 +154,8 @@ function popupHtml(project: Project) {
       </div>
       <div style="margin-top:4px;font-size:11px;color:#888;">${project.neighborhood}, ${project.city}</div>
       ${price}
-      <a href="/presale-projects/${project.slug}" style="display:block;margin-top:8px;text-align:center;background:#1e3a5f;color:#fff;text-decoration:none;padding:6px 8px;border-radius:6px;font-size:11px;font-weight:600;">View Project</a>
-    </div>
+      <div style="display:block;margin-top:8px;text-align:center;background:#1e3a5f;color:#fff;text-decoration:none;padding:6px 8px;border-radius:6px;font-size:11px;font-weight:600;">View Project</div>
+    </a>
   `;
 }
 
@@ -299,7 +299,12 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     mappedProjects.forEach((p) => {
       const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon(p) });
       
-      // Only trigger carousel selection, no popup
+      // Bind popup for navigation and trigger carousel selection
+      marker.bindPopup(popupHtml(p), {
+        maxWidth: 260,
+        className: 'project-popup'
+      });
+      
       marker.on('click', () => {
         onProjectSelect?.(p.id);
       });
