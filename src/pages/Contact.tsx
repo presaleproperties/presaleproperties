@@ -157,7 +157,7 @@ export default function Contact() {
                 Get in Touch
               </h1>
               <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Have questions about assignment sales? Want to list your property? We're here to help.
+                Have questions about presale projects? We're here to help.
               </p>
             </div>
           </section>

@@ -109,7 +109,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
       setIsSubmitted(true);
       toast({
         title: "You're subscribed!",
-        description: "We'll notify you about new assignments matching your preferences.",
+        description: "We'll notify you about new presale projects matching your preferences.",
       });
     } catch (error) {
       console.error("Error subscribing:", error);
@@ -127,7 +127,7 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
         <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-foreground mb-2">You're on the list!</h3>
         <p className="text-muted-foreground text-sm">
-          We'll email you when new assignments match your preferences.
+          We'll email you when new presale projects match your preferences.
         </p>
       </div>
     );
@@ -156,8 +156,8 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
           <Bell className="h-5 w-5 text-primary" />
         </div>
         <div>
-          <h3 className="font-semibold text-foreground">Get New Assignment Alerts</h3>
-          <p className="text-sm text-muted-foreground">Be first to know about new properties</p>
+          <h3 className="font-semibold text-foreground">Get New Project Alerts</h3>
+          <p className="text-sm text-muted-foreground">Be first to know about new presale projects</p>
         </div>
       </div>
 
@@ -205,13 +205,6 @@ export function NewsletterSignup({ variant = "card", source = "homepage" }: News
         </div>
 
         <div className="flex flex-wrap gap-4">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <Checkbox
-              checked={watch("wantsAssignments")}
-              onCheckedChange={(checked) => setValue("wantsAssignments", !!checked)}
-            />
-            <span className="text-sm">Assignments</span>
-          </label>
           <label className="flex items-center gap-2 cursor-pointer">
             <Checkbox
               checked={watch("wantsProjects")}

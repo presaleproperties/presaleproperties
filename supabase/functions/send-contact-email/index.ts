@@ -6,7 +6,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
+const DEFAULT_SENDER = "PresaleProperties <noreply@presaleproperties.com>";
 
 interface ContactEmailRequest {
   name: string;
@@ -58,7 +58,7 @@ serve(async (req: Request): Promise<Response> => {
     // Send notification email to the admin
     const adminEmailResponse = await resend.emails.send({
       from: senderEmail,
-      to: ["info@assignmenthub.ca"],
+      to: ["info@presaleproperties.com"],
       subject: `New Contact Form: ${subject}`,
       html: `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -97,7 +97,7 @@ serve(async (req: Request): Promise<Response> => {
           <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
           
           <p style="color: #9a9a9a; font-size: 12px; text-align: center;">
-            This email was sent from the AssignmentHub contact form.
+            This email was sent from the PresaleProperties.com contact form.
           </p>
         </div>
       `,
@@ -128,7 +128,7 @@ serve(async (req: Request): Promise<Response> => {
           
           <p style="color: #4a4a4a; font-size: 14px; line-height: 1.6;">
             Best regards,<br />
-            The AssignmentHub Team
+            The PresaleProperties Team
           </p>
         </div>
       `,
