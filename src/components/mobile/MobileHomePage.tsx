@@ -11,6 +11,7 @@ import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
+import { AssignmentsComingSoon } from "@/components/home/AssignmentsComingSoon";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
@@ -336,6 +337,11 @@ export function MobileHomePage() {
       {/* ROI Calculator Teaser */}
       <div className="mt-4">
         <ROICalculatorTeaser />
+      </div>
+
+      {/* Assignments Coming Soon */}
+      <div className="mt-4">
+        <AssignmentsComingSoon />
       </div>
 
       {/* Quick Links Section */}
