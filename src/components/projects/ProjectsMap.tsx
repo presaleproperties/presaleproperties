@@ -134,27 +134,45 @@ const createClusterIcon = (cluster: L.MarkerCluster) => {
   });
 };
 
+function getStatusColor(status: Project["status"]) {
+  switch (status) {
+    case "active":
+      return { bg: "#22c55e", text: "#fff" };
+    case "registering":
+      return { bg: "#3b82f6", text: "#fff" };
+    case "coming_soon":
+      return { bg: "#f59e0b", text: "#fff" };
+    case "sold_out":
+      return { bg: "#94a3b8", text: "#fff" };
+  }
+}
+
 function popupHtml(project: Project) {
+  const statusLabel = getStatusLabel(project.status);
+  const statusColor = getStatusColor(project.status);
+
   const img = project.featured_image
-    ? `<img src="${project.featured_image}" alt="${project.name}" style="width:100%;height:120px;object-fit:cover;border-radius:8px;margin-bottom:8px;" />`
-    : "";
+    ? `<div style="position:relative;margin:-12px -12px 0 -12px;">
+        <img src="${project.featured_image}" alt="${project.name}" style="width:100%;height:130px;object-fit:cover;border-radius:8px 8px 0 0;" />
+        <div style="position:absolute;top:8px;left:8px;background:${statusColor.bg};color:${statusColor.text};padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${statusLabel}</div>
+      </div>`
+    : `<div style="position:absolute;top:-4px;left:-4px;background:${statusColor.bg};color:${statusColor.text};padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">${statusLabel}</div>`;
 
   const price = project.starting_price
-    ? `<div style="margin-top:4px;font-weight:600;font-size:14px;">From ${formatPrice(project.starting_price)}</div>`
-    : "";
-
-  const statusLabel = getStatusLabel(project.status);
+    ? `<div style="font-weight:700;font-size:15px;color:#1e3a5f;margin-top:2px;">From ${formatPrice(project.starting_price)}</div>`
+    : `<div style="font-size:13px;color:#888;margin-top:2px;">Price TBD</div>`;
 
   return `
-    <a href="/presale-projects/${project.slug}" style="display:block;text-decoration:none;color:inherit;padding:2px;max-width:240px;font-family:system-ui,-apple-system,sans-serif;">
+    <a href="/presale-projects/${project.slug}" style="display:block;text-decoration:none;color:inherit;padding:12px;max-width:220px;font-family:system-ui,-apple-system,sans-serif;position:relative;">
       ${img}
-      <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
-        <div style="font-weight:600;font-size:13px;line-height:1.3;">${project.name}</div>
-        <div style="font-size:10px;color:#666;white-space:nowrap;">${statusLabel}</div>
+      <div style="padding-top:${project.featured_image ? '10px' : '20px'};">
+        <div style="font-weight:600;font-size:14px;line-height:1.3;color:#1a1a1a;margin-bottom:4px;">${project.name}</div>
+        <div style="font-size:12px;color:#666;display:flex;align-items:center;gap:4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${project.neighborhood}, ${project.city}
+        </div>
+        ${price}
       </div>
-      <div style="margin-top:4px;font-size:11px;color:#888;">${project.neighborhood}, ${project.city}</div>
-      ${price}
-      <div style="display:block;margin-top:8px;text-align:center;background:#1e3a5f;color:#fff;text-decoration:none;padding:6px 8px;border-radius:6px;font-size:11px;font-weight:600;">View Project</div>
     </a>
   `;
 }
