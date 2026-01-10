@@ -67,6 +67,7 @@ import ResaleListingDetail from "./pages/ResaleListingDetail";
 import ResaleMapSearch from "./pages/ResaleMapSearch";
 import Developers from "./pages/Developers";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
+import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
 
 const queryClient = new QueryClient();
 
@@ -108,6 +109,7 @@ const App = () => (
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
+            <Route path="/investment-snapshot" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/login" element={<Login />} />
             
