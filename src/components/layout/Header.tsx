@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   NavigationMenu,
@@ -43,11 +44,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Link to="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-xl font-bold tracking-tight">
-            presale<span className="text-primary">properties</span>
-          </span>
-        </Link>
+        <Logo className="text-xl" />
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
@@ -125,11 +122,7 @@ export function Header() {
               <div className="flex flex-col h-full">
                 {/* Header with Logo and Close Button */}
                 <div className="flex items-center justify-between px-6 py-5">
-                  <Link to="/" onClick={() => setOpen(false)} className="flex items-center gap-2">
-                    <span className="text-xl font-bold tracking-tight">
-                      presale<span className="text-primary">properties</span>
-                    </span>
-                  </Link>
+                  <Logo className="text-xl" onClick={() => setOpen(false)} />
                   {/* Custom circular close button like REW */}
                   <button 
                     onClick={() => setOpen(false)}

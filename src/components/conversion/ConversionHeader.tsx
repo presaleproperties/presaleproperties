@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Calculator, Home, Map } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
@@ -100,11 +101,7 @@ export function ConversionHeader() {
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
         {/* Desktop: standard height, Mobile: enhanced compact */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
-          <Link to="/" className="flex items-center gap-2 shrink-0">
-            <span className="text-lg md:text-xl font-bold tracking-tight">
-              presale<span className="text-primary">properties</span>
-            </span>
-          </Link>
+          <Logo className="text-lg md:text-xl" />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">

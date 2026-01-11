@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import realBrokerLogo from "@/assets/real-broker-logo.avif";
+import { Logo } from "@/components/ui/Logo";
 
 // Primary cities for condos
 const CONDO_CITY_LINKS = [
@@ -29,11 +30,7 @@ export function Footer() {
       <div className="container py-8 sm:py-12 px-4">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-5">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
-            <Link to="/" className="flex items-center gap-2">
-              <span className="text-lg sm:text-xl font-bold tracking-tight">
-                presale<span className="text-primary">properties</span>
-              </span>
-            </Link>
+            <Logo className="text-lg sm:text-xl" />
             <p className="text-xs sm:text-sm text-muted-foreground">
               Metro Vancouver's #1 marketplace for presale condos, townhomes, and new construction homes with VIP pricing and floor plans.
             </p>
