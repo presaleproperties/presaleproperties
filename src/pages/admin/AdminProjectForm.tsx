@@ -132,6 +132,7 @@ export default function AdminProjectForm() {
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
+  const [isFormattingDescription, setIsFormattingDescription] = useState(false);
   const { toast } = useToast();
 
   // Geocode address using Google Maps API via edge function
@@ -716,6 +717,51 @@ export default function AdminProjectForm() {
       ...prev,
       faq: prev.faq.filter((_, i) => i !== index),
     }));
+  };
+
+  // AI Format Description
+  const formatDescriptionWithAI = async () => {
+    if (!formData.full_description || formData.full_description.trim().length < 20) {
+      toast({
+        title: "Not enough content",
+        description: "Add more description text before formatting",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsFormattingDescription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("format-description", {
+        body: {
+          description: formData.full_description,
+          projectContext: {
+            name: formData.name,
+            city: formData.city,
+            neighborhood: formData.neighborhood,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.formatted) {
+        setFormData(prev => ({ ...prev, full_description: data.formatted }));
+        toast({
+          title: "Description Formatted",
+          description: "Content optimized for easy reading",
+        });
+      }
+    } catch (error: any) {
+      console.error("Format error:", error);
+      toast({
+        title: "Formatting Failed",
+        description: error.message || "Could not format description",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFormattingDescription(false);
+    }
   };
 
   const removeGalleryImage = (index: number) => {
@@ -1402,14 +1448,35 @@ export default function AdminProjectForm() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="full_description">Full Description</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="full_description">Full Description</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={formatDescriptionWithAI}
+                      disabled={isFormattingDescription || !formData.full_description}
+                      className="gap-2"
+                    >
+                      {isFormattingDescription ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      {isFormattingDescription ? "Formatting..." : "AI Format"}
+                    </Button>
+                  </div>
                   <Textarea
                     id="full_description"
                     value={formData.full_description}
                     onChange={(e) => setFormData(prev => ({ ...prev, full_description: e.target.value }))}
-                    placeholder="Detailed project description..."
-                    rows={6}
+                    placeholder="Detailed project description... Use **bold** for emphasis and • for bullet points"
+                    rows={8}
+                    className="font-mono text-sm"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Supports markdown: **bold**, • bullet points. Click "AI Format" to optimize for readability.
+                  </p>
                 </div>
               </CardContent>
             </Card>
