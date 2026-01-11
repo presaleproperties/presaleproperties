@@ -1,12 +1,15 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { ArrowDown, TrendingUp, TrendingDown, DollarSign, Calendar, Home, Banknote } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ArrowDown, TrendingUp, TrendingDown, DollarSign, Calendar, Home, Banknote, RotateCcw, Share2, Copy, Check } from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
+import { toast } from 'sonner';
 
 interface SnapshotInputs {
   purchasePrice: number;
@@ -44,8 +47,49 @@ function calculateMonthlyMortgage(principal: number, annualRate: number, years: 
          (Math.pow(1 + monthlyRate, numPayments) - 1);
 }
 
+function parseUrlParams(searchParams: URLSearchParams): Partial<SnapshotInputs> {
+  const parsed: Partial<SnapshotInputs> = {};
+  
+  const p = searchParams.get('p');
+  if (p) parsed.purchasePrice = Number(p);
+  
+  const d1 = searchParams.get('d1');
+  if (d1) parsed.firstDepositPercent = Number(d1);
+  
+  const d2 = searchParams.get('d2');
+  if (d2) parsed.secondDepositPercent = Number(d2);
+  
+  const dp = searchParams.get('dp');
+  if (dp) parsed.downPaymentPercent = Number(dp);
+  
+  const r = searchParams.get('r');
+  if (r) parsed.interestRate = Number(r);
+  
+  const a = searchParams.get('a');
+  if (a) parsed.amortizationYears = Number(a);
+  
+  const rent = searchParams.get('rent');
+  if (rent) parsed.monthlyRent = Number(rent);
+  
+  const s = searchParams.get('s');
+  if (s) parsed.strataFees = Number(s);
+  
+  const t = searchParams.get('t');
+  if (t) parsed.propertyTax = Number(t);
+  
+  const nc = searchParams.get('nc');
+  if (nc) parsed.isNewConstruction = nc === '1';
+  
+  return parsed;
+}
+
 export function InvestmentSnapshot() {
-  const [inputs, setInputs] = useState<SnapshotInputs>(DEFAULT_INPUTS);
+  const [searchParams] = useSearchParams();
+  const [inputs, setInputs] = useState<SnapshotInputs>(() => {
+    const urlParams = parseUrlParams(searchParams);
+    return { ...DEFAULT_INPUTS, ...urlParams };
+  });
+  const [copied, setCopied] = useState(false);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-CA', {
@@ -113,6 +157,58 @@ export function InvestmentSnapshot() {
     setInputs(prev => ({ ...prev, [field]: value }));
   };
 
+  const resetToDefaults = () => {
+    setInputs(DEFAULT_INPUTS);
+    toast.success('Reset to defaults');
+  };
+
+  const generateShareUrl = () => {
+    const params = new URLSearchParams({
+      p: inputs.purchasePrice.toString(),
+      d1: inputs.firstDepositPercent.toString(),
+      d2: inputs.secondDepositPercent.toString(),
+      dp: inputs.downPaymentPercent.toString(),
+      r: inputs.interestRate.toString(),
+      a: inputs.amortizationYears.toString(),
+      rent: inputs.monthlyRent.toString(),
+      s: inputs.strataFees.toString(),
+      t: inputs.propertyTax.toString(),
+      nc: inputs.isNewConstruction ? '1' : '0',
+    });
+    return `${window.location.origin}/investment-snapshot?${params.toString()}`;
+  };
+
+  const handleShare = async () => {
+    const url = generateShareUrl();
+    const shareData = {
+      title: 'Investment Snapshot',
+      text: `Check out this condo investment: ${formatCurrency(inputs.purchasePrice)} with ${formatCurrency(results.monthlyCashFlow)}/mo cash flow`,
+      url,
+    };
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled or error
+      }
+    } else {
+      handleCopyLink();
+    }
+  };
+
+  const handleCopyLink = async () => {
+    const url = generateShareUrl();
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+      toast.success('Link copied to clipboard');
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error('Failed to copy link');
+    }
+  };
+
   const isPositiveCashFlow = results.monthlyCashFlow >= 0;
 
   return (
@@ -121,6 +217,37 @@ export function InvestmentSnapshot() {
       <div className="text-center pt-2">
         <h1 className="text-2xl font-bold text-foreground">Investment Snapshot</h1>
         <p className="text-sm text-muted-foreground">Quick cash flow analysis</p>
+        
+        {/* Action Buttons */}
+        <div className="flex justify-center gap-2 mt-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={resetToDefaults}
+            className="gap-1.5"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Reset
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShare}
+            className="gap-1.5"
+          >
+            <Share2 className="w-4 h-4" />
+            Share
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyLink}
+            className="gap-1.5"
+          >
+            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+            {copied ? 'Copied' : 'Copy Link'}
+          </Button>
+        </div>
       </div>
 
       {/* Step 1: Purchase Price */}
