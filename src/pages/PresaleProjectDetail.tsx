@@ -719,10 +719,34 @@ export default function PresaleProjectDetail() {
                 {project.full_description && (
                   <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
                     <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground">
-                      {project.full_description.split("\n").map((p, i) => (
-                        <p key={i} className="text-sm lg:text-base leading-relaxed mb-3 last:mb-0">{p}</p>
-                      ))}
+                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-3">
+                      {project.full_description.split("\n").map((line, i) => {
+                        // Handle bullet points
+                        const isBullet = line.trim().startsWith("•") || line.trim().startsWith("-");
+                        // Parse bold markdown **text**
+                        const parsedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
+                        
+                        if (isBullet) {
+                          const bulletContent = line.trim().replace(/^[•\-]\s*/, "");
+                          const parsedBullet = bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
+                          return (
+                            <div key={i} className="flex items-start gap-2 text-sm lg:text-base">
+                              <span className="text-primary mt-0.5">•</span>
+                              <span dangerouslySetInnerHTML={{ __html: parsedBullet }} />
+                            </div>
+                          );
+                        }
+                        
+                        if (!line.trim()) return null;
+                        
+                        return (
+                          <p 
+                            key={i} 
+                            className="text-sm lg:text-base leading-relaxed"
+                            dangerouslySetInnerHTML={{ __html: parsedLine }}
+                          />
+                        );
+                      })}
                     </div>
                   </div>
                 )}
