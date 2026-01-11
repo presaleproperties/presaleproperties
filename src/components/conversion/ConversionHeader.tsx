@@ -101,7 +101,7 @@ export function ConversionHeader() {
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
         {/* Desktop: standard height, Mobile: enhanced compact */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
-          <Logo className="text-lg md:text-xl" />
+          <Logo size="lg" />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
