@@ -501,9 +501,9 @@ export function InvestmentSnapshot() {
                     <span className="text-muted-foreground">Required</span>
                     <span className="font-bold truncate ml-2">{fmt(results.downPayment)}</span>
                   </div>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50 gap-2">
-                    <label className="flex items-center gap-1.5 sm:gap-2 cursor-pointer min-w-0">
-                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-75 flex-shrink-0" />
+                  <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border/50 gap-2">
+                    <label className="flex items-center gap-1 sm:gap-2 cursor-pointer min-w-0">
+                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-[0.65] sm:scale-75 flex-shrink-0" />
                       <span className="text-[10px] sm:text-xs truncate">GST {fmt(results.gst)}</span>
                     </label>
                     {inputs.buyerType === 'investor' && results.ptt > 0 && (
