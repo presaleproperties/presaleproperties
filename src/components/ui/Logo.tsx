@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
+import logoSvg from "@/assets/logo.svg";
 
 interface LogoProps {
   className?: string;
@@ -10,23 +11,18 @@ interface LogoProps {
 
 export function Logo({ className, asLink = true, onClick, size = "md" }: LogoProps) {
   const sizeClasses = {
-    sm: "text-sm leading-[0.9]",
-    md: "text-lg leading-[0.9]",
-    lg: "text-xl leading-[0.9]",
-    xl: "text-2xl leading-[0.9]",
+    sm: "h-6",
+    md: "h-8",
+    lg: "h-10",
+    xl: "h-12",
   };
 
   const logoContent = (
-    <span className={cn("font-bold tracking-tight flex flex-col", sizeClasses[size], className)}>
-      <span>
-        <span className="text-primary">P</span>
-        <span>resale</span>
-        <span className="text-primary">.</span>
-      </span>
-      <span className="text-[0.7em] font-medium tracking-widest uppercase text-muted-foreground">
-        properties
-      </span>
-    </span>
+    <img 
+      src={logoSvg} 
+      alt="Presale Properties" 
+      className={cn(sizeClasses[size], "w-auto", className)} 
+    />
   );
 
   if (asLink) {
