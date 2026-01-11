@@ -44,7 +44,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
-        <Logo size="lg" />
+        <Logo size="xl" />
 
         {/* Desktop Navigation */}
         <nav className="hidden lg:flex items-center gap-6">
@@ -122,7 +122,7 @@ export function Header() {
               <div className="flex flex-col h-full">
                 {/* Header with Logo and Close Button */}
                 <div className="flex items-center justify-between px-6 py-5">
-                  <Logo size="lg" onClick={() => setOpen(false)} />
+                  <Logo size="xl" onClick={() => setOpen(false)} />
                   {/* Custom circular close button like REW */}
                   <button 
                     onClick={() => setOpen(false)}
