@@ -10,7 +10,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
   TrendingUp, TrendingDown, RotateCcw, Share2, Download, DollarSign, 
   Percent, Home, Calendar, Save, BarChart3, ChevronRight, ChevronLeft,
-  PiggyBank, ArrowUpRight
+  PiggyBank, ArrowUpRight, Users, Building
 } from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
 import { useSavedSnapshots } from '@/hooks/useSavedSnapshots';
@@ -18,7 +18,10 @@ import { SnapshotComparison } from './SnapshotComparison';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 
+type BuyerType = 'firstTimeBuyer' | 'investor';
+
 interface SnapshotInputs {
+  buyerType: BuyerType;
   purchasePrice: number;
   firstDepositPercent: number;
   secondDepositPercent: number;
@@ -29,12 +32,12 @@ interface SnapshotInputs {
   strataFees: number;
   propertyTax: number;
   includeGST: boolean;
-  includePTT: boolean;
   holdingPeriodYears: number;
   appreciationRate: number;
 }
 
 const DEFAULT_INPUTS: SnapshotInputs = {
+  buyerType: 'investor',
   purchasePrice: 599000,
   firstDepositPercent: 5,
   secondDepositPercent: 5,
@@ -45,7 +48,6 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   strataFees: 275,
   propertyTax: 125,
   includeGST: true,
-  includePTT: true,
   holdingPeriodYears: 5,
   appreciationRate: 3,
 };
@@ -102,8 +104,8 @@ function parseUrlParams(searchParams: URLSearchParams): Partial<SnapshotInputs> 
   if (t) parsed.propertyTax = Number(t);
   const gst = searchParams.get('gst');
   if (gst) parsed.includeGST = gst === '1';
-  const ptt = searchParams.get('ptt');
-  if (ptt) parsed.includePTT = ptt === '1';
+  const bt = searchParams.get('bt');
+  if (bt) parsed.buyerType = bt === 'ftb' ? 'firstTimeBuyer' : 'investor';
   const hold = searchParams.get('hold');
   if (hold) parsed.holdingPeriodYears = Number(hold);
   const app = searchParams.get('app');
@@ -139,6 +141,7 @@ export function InvestmentSnapshot() {
   };
 
   const results = useMemo(() => {
+    const isFirstTimeBuyer = inputs.buyerType === 'firstTimeBuyer';
     const gst = inputs.includeGST ? calculateGST(inputs.purchasePrice) : 0;
     const priceWithGST = inputs.purchasePrice + gst;
     const firstDeposit = inputs.purchasePrice * (inputs.firstDepositPercent / 100);
@@ -147,7 +150,8 @@ export function InvestmentSnapshot() {
     const downPayment = priceWithGST * (inputs.downPaymentPercent / 100);
     const mortgageAmount = priceWithGST - downPayment;
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
-    const ptt = inputs.includePTT ? calculatePTT(inputs.purchasePrice, false) : 0;
+    // First time buyers are exempt from PTT on properties under $500k (full) or partial up to $525k
+    const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
     const cashAtCompletion = remainingDownPayment + ptt;
     const totalCashRequired = totalDeposits + cashAtCompletion;
@@ -180,7 +184,7 @@ export function InvestmentSnapshot() {
     };
   }, [inputs]);
 
-  const updateInput = (field: keyof SnapshotInputs, value: number | boolean) => {
+  const updateInput = (field: keyof SnapshotInputs, value: number | boolean | BuyerType) => {
     setInputs(prev => ({ ...prev, [field]: value }));
   };
 
@@ -201,7 +205,7 @@ export function InvestmentSnapshot() {
       s: inputs.strataFees.toString(),
       t: inputs.propertyTax.toString(),
       gst: inputs.includeGST ? '1' : '0',
-      ptt: inputs.includePTT ? '1' : '0',
+      bt: inputs.buyerType === 'firstTimeBuyer' ? 'ftb' : 'inv',
       hold: inputs.holdingPeriodYears.toString(),
       app: inputs.appreciationRate.toString(),
     });
@@ -325,6 +329,34 @@ export function InvestmentSnapshot() {
           </div>
         </div>
 
+        {/* Buyer Type Toggle */}
+        <div className="px-4 py-3 bg-secondary/10 border-b border-border/30">
+          <div className="flex items-center justify-center gap-2">
+            <button
+              onClick={() => updateInput('buyerType', 'firstTimeBuyer')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                inputs.buyerType === 'firstTimeBuyer'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'bg-white text-muted-foreground hover:bg-secondary/50 border border-border/50'
+              }`}
+            >
+              <Users className="w-4 h-4" />
+              First Time Buyer
+            </button>
+            <button
+              onClick={() => updateInput('buyerType', 'investor')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                inputs.buyerType === 'investor'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'bg-white text-muted-foreground hover:bg-secondary/50 border border-border/50'
+              }`}
+            >
+              <Building className="w-4 h-4" />
+              Investor
+            </button>
+          </div>
+        </div>
+
         {/* Page Tabs */}
         <Tabs value={currentPage} onValueChange={(v) => setCurrentPage(v as 'cashflow' | 'equity')} className="w-full">
           <div className="border-b border-border/50 bg-secondary/20">
@@ -334,7 +366,7 @@ export function InvestmentSnapshot() {
                 className="flex-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-white data-[state=active]:shadow-none"
               >
                 <DollarSign className="w-4 h-4 mr-1.5" />
-                <span className="text-sm font-medium">Cash Flow</span>
+                <span className="text-sm font-medium">{inputs.buyerType === 'firstTimeBuyer' ? 'Monthly Payment' : 'Cash Flow'}</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="equity" 
@@ -416,15 +448,17 @@ export function InvestmentSnapshot() {
                     <span className="text-muted-foreground">Required</span>
                     <span className="font-bold">{fmt(results.downPayment)}</span>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-border/50">
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
                     <label className="flex items-center gap-2 cursor-pointer">
                       <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-75" />
                       <span className="text-xs">GST {fmt(results.gst)}</span>
                     </label>
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Switch checked={inputs.includePTT} onCheckedChange={(v) => updateInput('includePTT', v)} className="scale-75" />
-                      <span className="text-xs">PTT {fmt(results.ptt)}</span>
-                    </label>
+                    {inputs.buyerType === 'investor' && results.ptt > 0 && (
+                      <span className="text-xs text-muted-foreground">PTT: {fmt(results.ptt)}</span>
+                    )}
+                    {inputs.buyerType === 'firstTimeBuyer' && (
+                      <span className="text-xs text-green-600 font-medium">PTT Exempt ✓</span>
+                    )}
                   </div>
                 </div>
 
@@ -484,63 +518,132 @@ export function InvestmentSnapshot() {
 
               {/* Right Column: Results */}
               <div className="space-y-4">
-                {/* Cash Flow Result */}
-                <div className={`rounded-xl p-4 text-center border-2 ${isPositive ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    {isPositive ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
-                    <span className={`text-xs font-bold uppercase ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                      {isPositive ? 'Cash Flow Positive' : 'Cash Burn'}
-                    </span>
-                  </div>
-                  <div className={`text-3xl sm:text-4xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                    {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
-                    <span className="text-sm font-normal">/mo</span>
-                  </div>
-                  <div className={`text-xs mt-1 ${isPositive ? 'text-green-700' : 'text-red-700'}`}>
-                    {isPositive ? '+' : ''}{fmt(results.annualCashFlow)} per year
-                  </div>
-                </div>
+                {inputs.buyerType === 'firstTimeBuyer' ? (
+                  <>
+                    {/* First Time Buyer - Monthly Payment Focus */}
+                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 text-center border-2 border-primary/30">
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        <Home className="w-5 h-5 text-primary" />
+                        <span className="text-xs font-bold uppercase text-primary">Your Monthly Payment</span>
+                      </div>
+                      <div className="text-3xl sm:text-4xl font-bold text-foreground">
+                        {fmt(results.totalMonthlyExpenses)}
+                        <span className="text-sm font-normal text-muted-foreground">/mo</span>
+                      </div>
+                      <div className="text-xs mt-1 text-muted-foreground">
+                        Mortgage + Strata + Tax
+                      </div>
+                    </div>
 
-                {/* Monthly Breakdown */}
-                <div className="bg-secondary/20 rounded-xl p-4">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-green-600">+ Rent Income</span>
-                      <span className="font-medium text-green-600">{fmt(inputs.monthlyRent)}</span>
+                    {/* Monthly Breakdown - First Time Buyer */}
+                    <div className="bg-secondary/20 rounded-xl p-4">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Mortgage</span>
+                          <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Strata</span>
+                          <span className="font-medium">{fmt(inputs.strataFees)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Property Tax</span>
+                          <span className="font-medium">{fmt(inputs.propertyTax)}</span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
+                          <span>Total Monthly</span>
+                          <span>{fmt(results.totalMonthlyExpenses)}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">- Mortgage</span>
-                      <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
+
+                    {/* Cash to Close - First Time Buyer */}
+                    <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-xs font-bold uppercase text-green-700">PTT Exemption Savings</span>
+                      </div>
+                      <div className="text-lg font-bold text-green-600">
+                        You save {fmt(calculatePTT(inputs.purchasePrice, false))} on PTT
+                      </div>
+                      <p className="text-xs text-green-600 mt-1">First-time buyer benefit</p>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">- Strata + Tax</span>
-                      <span className="font-medium">{fmt(inputs.strataFees + inputs.propertyTax)}</span>
+
+                    {/* Cash Required Summary */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-foreground text-background rounded-xl p-3">
+                        <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
+                        <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
+                        <p className="text-[10px] opacity-60">Balance only</p>
+                      </div>
+                      <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
+                        <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Cash Needed</div>
+                        <div className="text-lg font-bold">{fmt(results.totalCashRequired)}</div>
+                        <p className="text-[10px] text-muted-foreground">Deposits + Cash</p>
+                      </div>
                     </div>
-                    <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
-                      <span>Net Cash Flow</span>
-                      <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
+                  </>
+                ) : (
+                  <>
+                    {/* Investor - Cash Flow Focus */}
+                    <div className={`rounded-xl p-4 text-center border-2 ${isPositive ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
+                      <div className="flex items-center justify-center gap-2 mb-1">
+                        {isPositive ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
+                        <span className={`text-xs font-bold uppercase ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                          {isPositive ? 'Cash Flow Positive' : 'Cash Burn'}
+                        </span>
+                      </div>
+                      <div className={`text-3xl sm:text-4xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                         {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
-                      </span>
+                        <span className="text-sm font-normal">/mo</span>
+                      </div>
+                      <div className={`text-xs mt-1 ${isPositive ? 'text-green-700' : 'text-red-700'}`}>
+                        {isPositive ? '+' : ''}{fmt(results.annualCashFlow)} per year
+                      </div>
                     </div>
-                  </div>
-                </div>
 
-                {/* Investment Summary */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-foreground text-background rounded-xl p-3">
-                    <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
-                    <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                    <p className="text-[10px] opacity-60">Balance + PTT</p>
-                  </div>
-                  <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
-                    <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
-                    <div className="text-lg font-bold">{fmt(results.totalCashRequired)}</div>
-                    <p className="text-[10px] text-muted-foreground">Deposits + Cash</p>
-                  </div>
-                </div>
+                    {/* Monthly Breakdown - Investor */}
+                    <div className="bg-secondary/20 rounded-xl p-4">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-green-600">+ Rent Income</span>
+                          <span className="font-medium text-green-600">{fmt(inputs.monthlyRent)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">- Mortgage</span>
+                          <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">- Strata + Tax</span>
+                          <span className="font-medium">{fmt(inputs.strataFees + inputs.propertyTax)}</span>
+                        </div>
+                        <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
+                          <span>Net Cash Flow</span>
+                          <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
+                            {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
 
-                {/* Mortgage Info */}
+                    {/* Investment Summary - Investor */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="bg-foreground text-background rounded-xl p-3">
+                        <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
+                        <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
+                        <p className="text-[10px] opacity-60">Balance + PTT</p>
+                      </div>
+                      <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
+                        <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
+                        <div className="text-lg font-bold">{fmt(results.totalCashRequired)}</div>
+                        <p className="text-[10px] text-muted-foreground">Deposits + Cash</p>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Mortgage Info - Both */}
                 <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Mortgage Principal</span>

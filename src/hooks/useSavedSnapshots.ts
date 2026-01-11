@@ -5,6 +5,7 @@ export interface SavedSnapshot {
   name: string;
   savedAt: string;
   inputs: {
+    buyerType: 'firstTimeBuyer' | 'investor';
     purchasePrice: number;
     firstDepositPercent: number;
     secondDepositPercent: number;
@@ -15,7 +16,6 @@ export interface SavedSnapshot {
     strataFees: number;
     propertyTax: number;
     includeGST: boolean;
-    includePTT: boolean;
   };
   results: {
     totalCashRequired: number;
