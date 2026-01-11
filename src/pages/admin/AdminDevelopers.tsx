@@ -69,12 +69,32 @@ export default function AdminDevelopers() {
   const { data: developers, isLoading } = useQuery({
     queryKey: ["admin-developers"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all developers
+      const { data: devData, error: devError } = await supabase
         .from("developers")
         .select("*")
         .order("name");
-      if (error) throw error;
-      return data as Developer[];
+      if (devError) throw devError;
+
+      // Then get project counts per developer
+      const { data: countData, error: countError } = await supabase
+        .from("presale_projects")
+        .select("developer_id");
+      if (countError) throw countError;
+
+      // Count projects per developer
+      const counts: Record<string, number> = {};
+      countData?.forEach((p) => {
+        if (p.developer_id) {
+          counts[p.developer_id] = (counts[p.developer_id] || 0) + 1;
+        }
+      });
+
+      // Merge counts into developer data
+      return (devData || []).map((d) => ({
+        ...d,
+        project_count: counts[d.id] || 0,
+      })) as Developer[];
     },
   });
 
@@ -388,6 +408,7 @@ export default function AdminDevelopers() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Developer</TableHead>
+                  <TableHead>Projects</TableHead>
                   <TableHead>Website</TableHead>
                   <TableHead>City</TableHead>
                   <TableHead>Status</TableHead>
@@ -412,6 +433,18 @@ export default function AdminDevelopers() {
                         </div>
                         <span className="font-medium">{dev.name}</span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      {dev.project_count > 0 ? (
+                        <a
+                          href={`/admin/projects?developer=${encodeURIComponent(dev.name)}`}
+                          className="text-primary hover:underline font-medium"
+                        >
+                          {dev.project_count}
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground">0</span>
+                      )}
                     </TableCell>
                     <TableCell>
                       {dev.website_url ? (
