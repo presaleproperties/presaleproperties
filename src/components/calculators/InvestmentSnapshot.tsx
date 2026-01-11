@@ -243,7 +243,7 @@ export function InvestmentSnapshot() {
       hold: inputs.holdingPeriodYears.toString(),
       app: inputs.appreciationRate.toString(),
     });
-    return `${window.location.origin}/investment-snapshot?${params.toString()}`;
+    return `${window.location.origin}/calculator?${params.toString()}`;
   };
 
   const handleShare = async () => {
