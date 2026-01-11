@@ -170,13 +170,16 @@ export function InvestmentSnapshot() {
     const totalDeposits = firstDeposit + secondDeposit;
     const downPayment = priceWithGST * (inputs.downPaymentPercent / 100);
     
-    // Calculate base mortgage (before CMHC)
+    // Calculate base mortgage (before CMHC) - includes GST
     const baseMortgageAmount = priceWithGST - downPayment;
     
-    // Calculate CMHC insurance premium (added to mortgage if down payment < 20%)
-    const cmhcPremium = calculateCMHCPremium(baseMortgageAmount, inputs.downPaymentPercent);
+    // CMHC insurance is calculated on the purchase price WITHOUT GST
+    // Down payment for CMHC purposes is based on purchase price only
+    const downPaymentOnPurchasePrice = inputs.purchasePrice * (inputs.downPaymentPercent / 100);
+    const mortgageForCMHC = inputs.purchasePrice - downPaymentOnPurchasePrice;
+    const cmhcPremium = calculateCMHCPremium(mortgageForCMHC, inputs.downPaymentPercent);
     
-    // Total mortgage includes CMHC premium
+    // Total mortgage includes base amount + CMHC premium
     const mortgageAmount = baseMortgageAmount + cmhcPremium;
     
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
