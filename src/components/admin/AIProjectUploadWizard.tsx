@@ -117,6 +117,7 @@ export function AIProjectUploadWizard() {
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
   const brochureFileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  const [extractImagesFromPDFs, setExtractImagesFromPDFs] = useState(true);
   
   // Address autocomplete state
   const [addressSuggestions, setAddressSuggestions] = useState<{ description: string; placeId: string }[]>([]);
@@ -214,7 +215,7 @@ export function AIProjectUploadWizard() {
   };
 
   // Extract HQ page screenshots from PDF and upload to storage
-  const extractImagesFromPDF = async (file: File): Promise<string[]> => {
+  const extractImagesFromPDFFunc = async (file: File): Promise<string[]> => {
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     const uploadedUrls: string[] = [];
@@ -307,16 +308,18 @@ export function AIProjectUploadWizard() {
         
         console.log(`Extracted ${text.length} chars from ${file.name}`);
         
-        // Extract HQ page screenshots and add to gallery
-        toast({
-          title: "Extracting Images",
-          description: `Capturing HQ screenshots from ${file.name}...`,
-        });
-        
-        const pageImages = await extractImagesFromPDF(file);
-        extractedImages = [...extractedImages, ...pageImages];
-        
-        console.log(`Extracted ${pageImages.length} page images from ${file.name}`);
+        // Extract HQ page screenshots and add to gallery (if enabled)
+        if (extractImagesFromPDFs) {
+          toast({
+            title: "Extracting Images",
+            description: `Capturing HQ screenshots from ${file.name}...`,
+          });
+          
+          const pageImages = await extractImagesFromPDFFunc(file);
+          extractedImages = [...extractedImages, ...pageImages];
+          
+          console.log(`Extracted ${pageImages.length} page images from ${file.name}`);
+        }
       }
 
       setUploadedFiles(prev => [...prev, ...newFiles]);
@@ -938,6 +941,22 @@ export function AIProjectUploadWizard() {
               )}
             </div>
 
+            {/* Extract Images Toggle */}
+            <div className="flex items-center justify-between p-4 bg-muted/30 rounded-lg border">
+              <div className="space-y-0.5">
+                <Label htmlFor="extract-images" className="text-sm font-medium cursor-pointer">
+                  Extract Images from PDFs
+                </Label>
+                <p className="text-xs text-muted-foreground">
+                  Capture HQ page screenshots and add to gallery (slower processing)
+                </p>
+              </div>
+              <Switch
+                id="extract-images"
+                checked={extractImagesFromPDFs}
+                onCheckedChange={setExtractImagesFromPDFs}
+              />
+            </div>
 
             {error && (
               <div className="flex items-center gap-2 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
