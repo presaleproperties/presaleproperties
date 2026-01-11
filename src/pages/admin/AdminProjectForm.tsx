@@ -55,6 +55,7 @@ type ProjectFormData = {
   city: string;
   neighborhood: string;
   address: string;
+  developer_id: string;
   developer_name: string;
   project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix: string;
@@ -95,6 +96,7 @@ const defaultFormData: ProjectFormData = {
   city: "",
   neighborhood: "",
   address: "",
+  developer_id: "",
   developer_name: "",
   project_type: "condo",
   unit_mix: "",
@@ -359,7 +361,7 @@ export default function AdminProjectForm() {
       
       // Add to local list and select it
       setDevelopers(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
-      setFormData(prev => ({ ...prev, developer_name: data.name }));
+      setFormData(prev => ({ ...prev, developer_id: data.id, developer_name: data.name }));
       setDeveloperSearch("");
       setShowDeveloperDropdown(false);
       
@@ -380,8 +382,8 @@ export default function AdminProjectForm() {
   };
 
   // Select existing developer
-  const selectDeveloper = (name: string) => {
-    setFormData(prev => ({ ...prev, developer_name: name }));
+  const selectDeveloper = (id: string, name: string) => {
+    setFormData(prev => ({ ...prev, developer_id: id, developer_name: name }));
     setDeveloperSearch("");
     setShowDeveloperDropdown(false);
   };
@@ -403,6 +405,7 @@ export default function AdminProjectForm() {
         city: data.city || "",
         neighborhood: data.neighborhood || "",
         address: data.address || "",
+        developer_id: data.developer_id || "",
         developer_name: data.developer_name || "",
         project_type: data.project_type || "condo",
         unit_mix: data.unit_mix || "",
@@ -1048,6 +1051,7 @@ export default function AdminProjectForm() {
         city: formData.city,
         neighborhood: formData.neighborhood,
         address: formData.address || null,
+        developer_id: formData.developer_id || null,
         developer_name: formData.developer_name || null,
         project_type: formData.project_type,
         unit_mix: formData.unit_mix || null,
@@ -1702,10 +1706,10 @@ export default function AdminProjectForm() {
                               key={dev.id}
                               type="button"
                               className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0 flex items-center justify-between"
-                              onClick={() => selectDeveloper(dev.name)}
+                              onClick={() => selectDeveloper(dev.id, dev.name)}
                             >
                               <span>{dev.name}</span>
-                              {formData.developer_name === dev.name && (
+                              {formData.developer_id === dev.id && (
                                 <span className="text-primary text-xs">Selected</span>
                               )}
                             </button>

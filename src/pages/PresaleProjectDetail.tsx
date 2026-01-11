@@ -55,6 +55,7 @@ type Project = {
   city: string;
   neighborhood: string;
   address: string | null;
+  developer_id: string | null;
   developer_name: string | null;
   project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family";
   unit_mix: string | null;
@@ -648,6 +649,7 @@ export default function PresaleProjectDetail() {
               neighborhood={project.neighborhood}
               depositStructure={project.deposit_structure}
               incentives={project.incentives}
+              developerId={project.developer_id}
               developerName={project.developer_name}
               strataFees={project.strata_fees}
               assignmentFees={project.assignment_fees}
