@@ -12,6 +12,7 @@ interface ProjectHighlightsProps {
   neighborhood?: string | null;
   depositStructure?: string | null;
   incentives?: string | null;
+  developerId?: string | null;
   developerName?: string | null;
   strataFees?: string | null;
   assignmentFees?: string | null;
@@ -34,25 +35,38 @@ export function ProjectHighlights({
   neighborhood,
   depositStructure,
   incentives,
+  developerId,
   developerName,
   strataFees,
   assignmentFees,
 }: ProjectHighlightsProps) {
-  // Fetch developer info if we have a developer name
+  // Fetch developer info - prefer developer_id, fallback to name
   const { data: developer } = useQuery({
-    queryKey: ["developer", developerName],
+    queryKey: ["developer", developerId, developerName],
     queryFn: async () => {
-      if (!developerName) return null;
-      const { data, error } = await supabase
-        .from("developers")
-        .select("id, name, slug, website_url, logo_url")
-        .eq("name", developerName)
-        .eq("is_active", true)
-        .maybeSingle();
-      if (error) return null;
-      return data as Developer | null;
+      // Prefer lookup by ID if available
+      if (developerId) {
+        const { data, error } = await supabase
+          .from("developers")
+          .select("id, name, slug, website_url, logo_url")
+          .eq("id", developerId)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (!error && data) return data as Developer;
+      }
+      // Fallback to name lookup
+      if (developerName) {
+        const { data, error } = await supabase
+          .from("developers")
+          .select("id, name, slug, website_url, logo_url")
+          .eq("name", developerName)
+          .eq("is_active", true)
+          .maybeSingle();
+        if (!error && data) return data as Developer;
+      }
+      return null;
     },
-    enabled: !!developerName,
+    enabled: !!(developerId || developerName),
   });
 
   const getMonthName = (month: number) => {
