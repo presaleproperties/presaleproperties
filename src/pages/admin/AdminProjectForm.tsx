@@ -725,6 +725,24 @@ export default function AdminProjectForm() {
     }));
   };
 
+  const setGalleryImageAsPrimary = (index: number) => {
+    const newFeatured = formData.gallery_images[index];
+    const oldFeatured = formData.featured_image;
+    
+    setFormData(prev => ({
+      ...prev,
+      featured_image: newFeatured,
+      gallery_images: oldFeatured 
+        ? [oldFeatured, ...prev.gallery_images.filter((_, i) => i !== index)]
+        : prev.gallery_images.filter((_, i) => i !== index),
+    }));
+    
+    toast({
+      title: "Primary Image Updated",
+      description: "The selected image is now the featured image",
+    });
+  };
+
   const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -1666,12 +1684,22 @@ export default function AdminProjectForm() {
                 {formData.gallery_images.length > 0 && (
                   <div className="grid grid-cols-2 gap-2">
                     {formData.gallery_images.map((img, i) => (
-                      <div key={i} className="relative aspect-square">
+                      <div key={i} className="relative aspect-square group">
                         <img
                           src={img}
                           alt={`Gallery ${i + 1}`}
                           className="w-full h-full object-cover rounded-lg"
                         />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg" />
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          className="absolute bottom-1 left-1 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => setGalleryImageAsPrimary(i)}
+                        >
+                          Set Primary
+                        </Button>
                         <Button
                           type="button"
                           variant="destructive"
