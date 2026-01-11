@@ -5,14 +5,15 @@ interface LogoProps {
   className?: string;
   asLink?: boolean;
   onClick?: () => void;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 }
 
 export function Logo({ className, asLink = true, onClick, size = "md" }: LogoProps) {
   const sizeClasses = {
-    sm: "text-xs leading-[0.9]",
-    md: "text-sm leading-[0.9]",
-    lg: "text-base leading-[0.9]",
+    sm: "text-sm leading-[0.9]",
+    md: "text-lg leading-[0.9]",
+    lg: "text-xl leading-[0.9]",
+    xl: "text-2xl leading-[0.9]",
   };
 
   const logoContent = (
