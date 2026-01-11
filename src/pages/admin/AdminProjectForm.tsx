@@ -147,9 +147,19 @@ export default function AdminProjectForm() {
   const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
   const [isExtractingFromPdf, setIsExtractingFromPdf] = useState(false);
-  const [extractedPreviewImages, setExtractedPreviewImages] = useState<string[]>([]);
+  const [extractedPreviewImages, setExtractedPreviewImages] = useState<{
+    url: string;
+    width: number;
+    height: number;
+    category: string;
+    qualityScore: number;
+    isPrimary: boolean;
+    storyOrder: number;
+    altText: string;
+  }[]>([]);
   const [selectedPreviewImages, setSelectedPreviewImages] = useState<Set<number>>(new Set());
   const [showImagePreviewModal, setShowImagePreviewModal] = useState(false);
+  const [extractionSummary, setExtractionSummary] = useState<{ primaryReason?: string; categoryCounts?: Record<string, number> }>({});
   const pdfForGalleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -692,21 +702,21 @@ export default function AdminProjectForm() {
     return extractedImages;
   };
 
-  // Extract HQ images from PDF (AI detects image regions, excludes text)
+  // Extract HQ images from PDF (AI detects image regions, classifies, and sequences)
   const extractImagesFromPdfForGallery = async (file: File) => {
     setIsExtractingFromPdf(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const allImages: { url: string; width: number; height: number; quality: number }[] = [];
-      const maxImages = 7;
+      const uploadedImages: { url: string; width: number; height: number; pageNum: number; index: number }[] = [];
       
       toast({
         title: "AI Scanning PDF",
-        description: `Detecting images in ${pdf.numPages} pages...`,
+        description: `Extracting images from ${pdf.numPages} pages...`,
       });
       
       // Process each page
+      let imageIndex = 0;
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
@@ -729,36 +739,78 @@ export default function AdminProjectForm() {
               .from("listing-photos")
               .getPublicUrl(fileName);
             
-            allImages.push({
+            uploadedImages.push({
               url: publicUrl,
               width: img.width,
               height: img.height,
-              quality: img.quality
+              pageNum,
+              index: imageIndex++
             });
             
-            console.log(`Extracted: ${img.width}x${img.height}, quality: ${img.quality.toFixed(2)}`);
+            console.log(`Extracted: ${img.width}x${img.height} from page ${pageNum}`);
           }
         } catch (pageErr) {
           console.error(`Error on page ${pageNum}:`, pageErr);
         }
       }
       
-      if (allImages.length > 0) {
-        // Sort by quality (size + color richness) and pick best ones
-        allImages.sort((a, b) => b.quality - a.quality);
-        const topImages = allImages.slice(0, maxImages);
-        const urls = topImages.map(img => img.url);
-        
-        // Show preview modal
-        setExtractedPreviewImages(urls);
-        setSelectedPreviewImages(new Set(urls.map((_, i) => i)));
-        setShowImagePreviewModal(true);
-        
-        const bestImg = topImages[0];
+      if (uploadedImages.length > 0) {
         toast({
-          title: "AI Extracted Images",
-          description: `Found ${allImages.length} images. Best: ${bestImg.width}x${bestImg.height}px`,
+          title: "AI Analyzing Images",
+          description: `Classifying ${uploadedImages.length} images...`,
         });
+        
+        // Call AI to analyze, classify, and sequence images
+        try {
+          const { data: analysisResult, error: analysisError } = await supabase.functions.invoke('analyze-brochure-images', {
+            body: { 
+              images: uploadedImages.slice(0, 12), // Limit to 12 for AI
+              projectName: formData.name 
+            }
+          });
+          
+          if (analysisError) throw analysisError;
+          
+          if (analysisResult?.images) {
+            // Sort by story order and set preview
+            const sortedImages = analysisResult.images.sort((a: any, b: any) => a.storyOrder - b.storyOrder);
+            setExtractedPreviewImages(sortedImages.slice(0, 7)); // Max 7
+            setSelectedPreviewImages(new Set(sortedImages.slice(0, 7).map((_: any, i: number) => i)));
+            setExtractionSummary(analysisResult.summary || {});
+            setShowImagePreviewModal(true);
+            
+            const primaryImg = sortedImages.find((img: any) => img.isPrimary);
+            toast({
+              title: "AI Analysis Complete",
+              description: primaryImg 
+                ? `Primary: ${primaryImg.altText || primaryImg.category}` 
+                : `Found ${sortedImages.length} images`,
+            });
+          } else {
+            throw new Error('No analysis result');
+          }
+        } catch (aiError) {
+          console.warn("AI analysis failed, using basic extraction:", aiError);
+          // Fallback: show images without AI classification
+          const fallbackImages = uploadedImages.slice(0, 7).map((img, i) => ({
+            url: img.url,
+            width: img.width,
+            height: img.height,
+            category: 'other',
+            qualityScore: 5,
+            isPrimary: i === 0,
+            storyOrder: i + 1,
+            altText: `Image ${i + 1} (${img.width}x${img.height})`
+          }));
+          setExtractedPreviewImages(fallbackImages);
+          setSelectedPreviewImages(new Set(fallbackImages.map((_, i) => i)));
+          setShowImagePreviewModal(true);
+          
+          toast({
+            title: "Images Extracted",
+            description: `Found ${fallbackImages.length} images (basic mode)`,
+          });
+        }
       } else {
         toast({
           title: "No Images Found",
@@ -796,9 +848,9 @@ export default function AdminProjectForm() {
 
   // Add selected images to gallery
   const addSelectedImagesToGallery = () => {
-    const selectedUrls = extractedPreviewImages.filter((_, i) => selectedPreviewImages.has(i));
+    const selectedImages = extractedPreviewImages.filter((_, i) => selectedPreviewImages.has(i));
     
-    if (selectedUrls.length === 0) {
+    if (selectedImages.length === 0) {
       toast({
         title: "No Images Selected",
         description: "Please select at least one image to add",
@@ -807,12 +859,19 @@ export default function AdminProjectForm() {
       return;
     }
     
-    // If no featured image, set first selected as featured
-    if (!formData.featured_image && selectedUrls.length > 0) {
+    // Extract URLs from selected images
+    const selectedUrls = selectedImages.map(img => img.url);
+    
+    // Find the primary image (AI-selected) or use first
+    const primaryImage = selectedImages.find(img => img.isPrimary) || selectedImages[0];
+    
+    // If no featured image, set primary as featured
+    if (!formData.featured_image && primaryImage) {
+      const otherUrls = selectedUrls.filter(url => url !== primaryImage.url);
       setFormData(prev => ({
         ...prev,
-        featured_image: selectedUrls[0],
-        gallery_images: [...prev.gallery_images, ...selectedUrls.slice(1)]
+        featured_image: primaryImage.url,
+        gallery_images: [...prev.gallery_images, ...otherUrls]
       }));
     } else {
       setFormData(prev => ({
@@ -823,13 +882,14 @@ export default function AdminProjectForm() {
     
     toast({
       title: "Images Added",
-      description: `Added ${selectedUrls.length} images to gallery`,
+      description: `Added ${selectedImages.length} images${primaryImage?.isPrimary ? ' (AI-selected primary as hero)' : ''}`,
     });
     
     // Close modal and reset
     setShowImagePreviewModal(false);
     setExtractedPreviewImages([]);
     setSelectedPreviewImages(new Set());
+    setExtractionSummary({});
   };
 
   const handlePdfForGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2303,16 +2363,22 @@ export default function AdminProjectForm() {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              AI Extracted Images
+              AI Extracted & Classified Images
             </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[60vh] p-1">
+            {extractionSummary.primaryReason && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 mb-4">
+                <p className="text-sm font-medium text-foreground">AI Primary Selection:</p>
+                <p className="text-sm text-muted-foreground">{extractionSummary.primaryReason}</p>
+              </div>
+            )}
             <p className="text-sm text-muted-foreground mb-4">
               {selectedPreviewImages.size} of {extractedPreviewImages.length} images selected. 
-              <span className="font-medium text-foreground"> First selected image becomes your primary/hero image.</span>
+              <span className="font-medium text-foreground"> AI-selected primary becomes your hero image.</span>
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {extractedPreviewImages.map((url, index) => (
+              {extractedPreviewImages.map((img, index) => (
                 <div
                   key={index}
                   className={`relative aspect-[4/3] cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
@@ -2323,8 +2389,8 @@ export default function AdminProjectForm() {
                   onClick={() => togglePreviewImageSelection(index)}
                 >
                   <img
-                    src={url}
-                    alt={`Preview ${index + 1}`}
+                    src={img.url}
+                    alt={img.altText || `Preview ${index + 1}`}
                     className="w-full h-full object-cover"
                   />
                   <div className={`absolute inset-0 transition-colors ${
@@ -2337,14 +2403,19 @@ export default function AdminProjectForm() {
                       className="h-5 w-5 bg-white/90 border-2"
                     />
                   </div>
-                  {index === 0 && (
+                  {img.isPrimary && (
                     <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1">
                       <Sparkles className="h-3 w-3" />
-                      Best Primary
+                      Primary
                     </div>
                   )}
-                  <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
-                    {index + 1}
+                  {/* Category badge */}
+                  <div className="absolute bottom-1 left-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded capitalize">
+                    {img.category}
+                  </div>
+                  {/* Quality & size badge */}
+                  <div className="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    {img.width}×{img.height} • Q{img.qualityScore}
                   </div>
                 </div>
               ))}
@@ -2358,6 +2429,7 @@ export default function AdminProjectForm() {
                 setShowImagePreviewModal(false);
                 setExtractedPreviewImages([]);
                 setSelectedPreviewImages(new Set());
+                setExtractionSummary({});
               }}
             >
               Cancel
