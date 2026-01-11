@@ -285,6 +285,7 @@ export function AIProjectUploadWizard() {
     try {
       const newFiles: UploadedFile[] = [];
       let extractedImages: string[] = [];
+      const uploadedBrochureUrls: string[] = [];
       
       for (const file of Array.from(files)) {
         if (file.type !== "application/pdf") {
@@ -297,6 +298,25 @@ export function AIProjectUploadWizard() {
         }
 
         console.log("Processing PDF:", file.name);
+        
+        // Upload the PDF to storage as a brochure file
+        const fileExt = file.name.split(".").pop();
+        const fileName = `brochures/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("listing-files")
+          .upload(fileName, file);
+        
+        if (!uploadError) {
+          const { data: urlData } = supabase.storage
+            .from("listing-files")
+            .getPublicUrl(fileName);
+          
+          uploadedBrochureUrls.push(urlData.publicUrl);
+          console.log(`Uploaded brochure PDF: ${urlData.publicUrl}`);
+        } else {
+          console.error("Failed to upload brochure:", uploadError);
+        }
         
         // Extract text for AI processing
         const text = await extractTextFromPDF(file);
@@ -324,6 +344,11 @@ export function AIProjectUploadWizard() {
 
       setUploadedFiles(prev => [...prev, ...newFiles]);
       
+      // Add uploaded brochure PDFs to brochure files
+      if (uploadedBrochureUrls.length > 0) {
+        setBrochureFiles(prev => [...prev, ...uploadedBrochureUrls]);
+      }
+      
       // Add extracted images to gallery
       if (extractedImages.length > 0) {
         if (!featuredImage && extractedImages.length > 0) {
@@ -336,7 +361,7 @@ export function AIProjectUploadWizard() {
       
       toast({
         title: "Files Processed",
-        description: `Processed ${newFiles.length} PDF(s), extracted ${extractedImages.length} page image(s)`,
+        description: `Processed ${newFiles.length} PDF(s)${uploadedBrochureUrls.length > 0 ? ', saved as brochure' : ''}, extracted ${extractedImages.length} page image(s)`,
       });
 
     } catch (err: any) {
