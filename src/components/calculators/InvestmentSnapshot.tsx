@@ -1,12 +1,15 @@
-// Investment Snapshot - Responsive: Desktop, Tablet, Mobile
+// Investment Snapshot - Responsive with Scenario Comparison
 import { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, TrendingDown, RotateCcw, Share2, Download, DollarSign, Percent, Home, Calendar } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { TrendingUp, TrendingDown, RotateCcw, Share2, Download, DollarSign, Percent, Home, Calendar, Save, BarChart3 } from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
+import { useSavedSnapshots } from '@/hooks/useSavedSnapshots';
+import { SnapshotComparison } from './SnapshotComparison';
 import { toast } from 'sonner';
 import html2canvas from 'html2canvas';
 
@@ -80,7 +83,12 @@ export function InvestmentSnapshot() {
     return { ...DEFAULT_INPUTS, ...urlParams };
   });
   const [isDownloading, setIsDownloading] = useState(false);
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [scenarioName, setScenarioName] = useState('');
+  const [showComparison, setShowComparison] = useState(false);
   const snapshotRef = useRef<HTMLDivElement>(null);
+  
+  const { snapshots, saveSnapshot, deleteSnapshot, clearAllSnapshots, canSaveMore } = useSavedSnapshots();
 
   const fmt = (value: number) => new Intl.NumberFormat('en-CA', {
     style: 'currency',
@@ -177,10 +185,47 @@ export function InvestmentSnapshot() {
     }
   };
 
+  const handleSaveScenario = () => {
+    if (!scenarioName.trim()) {
+      toast.error('Please enter a name');
+      return;
+    }
+    
+    const success = saveSnapshot(scenarioName.trim(), inputs, {
+      totalCashRequired: results.totalCashRequired,
+      monthlyCashFlow: results.monthlyCashFlow,
+      annualCashFlow: results.annualCashFlow,
+      cashAtCompletion: results.cashAtCompletion,
+      mortgageAmount: results.mortgageAmount,
+      monthlyMortgage: results.monthlyMortgage,
+      totalMonthlyExpenses: results.totalMonthlyExpenses,
+    });
+    
+    if (success) {
+      toast.success('Scenario saved!');
+      setShowSaveDialog(false);
+      setScenarioName('');
+      setShowComparison(true);
+    } else {
+      toast.error('Maximum 3 scenarios. Delete one first.');
+    }
+  };
+
+  const openSaveDialog = () => {
+    if (!canSaveMore) {
+      toast.error('Maximum 3 scenarios. Delete one to save more.');
+      setShowComparison(true);
+      return;
+    }
+    setScenarioName(`${fmt(inputs.purchasePrice)} @ ${inputs.downPaymentPercent}%`);
+    setShowSaveDialog(true);
+  };
+
   const isPositive = results.monthlyCashFlow >= 0;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-6">
+      {/* Main Calculator Card */}
       <div ref={snapshotRef} className="bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Header */}
         <div className="bg-foreground text-background px-4 sm:px-6 py-4 sm:py-5">
@@ -194,7 +239,7 @@ export function InvestmentSnapshot() {
                 <p className="text-xs sm:text-sm opacity-70 hidden sm:block">Metro Vancouver Presale Calculator</p>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1 sm:gap-2">
               <Button variant="ghost" size="icon" onClick={resetToDefaults} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
                 <RotateCcw className="w-4 h-4" />
               </Button>
@@ -204,6 +249,22 @@ export function InvestmentSnapshot() {
               <Button variant="ghost" size="icon" onClick={handleDownloadImage} disabled={isDownloading} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
                 <Download className="w-4 h-4" />
               </Button>
+              <Button variant="ghost" size="icon" onClick={openSaveDialog} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
+                <Save className="w-4 h-4" />
+              </Button>
+              {snapshots.length > 0 && (
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  onClick={() => setShowComparison(!showComparison)} 
+                  className="text-primary hover:text-primary hover:bg-primary/10 h-9 w-9 relative"
+                >
+                  <BarChart3 className="w-4 h-4" />
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-background text-[10px] rounded-full flex items-center justify-center font-bold">
+                    {snapshots.length}
+                  </span>
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -443,41 +504,49 @@ export function InvestmentSnapshot() {
                 </div>
               </div>
 
-              {/* Breakdown */}
-              <div className="bg-secondary/10 rounded-xl p-4 text-sm">
-                <h4 className="font-semibold mb-2 text-xs uppercase tracking-wider text-muted-foreground">Investment Breakdown</h4>
-                <div className="space-y-1.5">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Deposit 1 ({inputs.firstDepositPercent}%)</span>
-                    <span className="font-medium">{fmt(results.firstDeposit)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Deposit 2 ({inputs.secondDepositPercent}%)</span>
-                    <span className="font-medium">{fmt(results.secondDeposit)}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Remaining Down Payment</span>
-                    <span className="font-medium">{fmt(results.remainingDownPayment)}</span>
-                  </div>
-                  {inputs.includePTT && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">PTT (Due on Completion)</span>
-                      <span className="font-medium">{fmt(results.ptt)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
-                    <span>Total</span>
-                    <span>{fmt(results.totalCashRequired)}</span>
-                  </div>
-                </div>
-              </div>
+              {/* Save Scenario Button - Mobile */}
+              <Button 
+                onClick={openSaveDialog}
+                className="w-full h-12 lg:hidden"
+                variant={canSaveMore ? "default" : "outline"}
+              >
+                <Save className="w-4 h-4 mr-2" />
+                {canSaveMore ? 'Save Scenario' : `Compare ${snapshots.length}/3`}
+              </Button>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Comparison Section */}
+      {showComparison && snapshots.length > 0 && (
+        <SnapshotComparison
+          snapshots={snapshots}
+          onDelete={deleteSnapshot}
+          onClearAll={() => {
+            clearAllSnapshots();
+            setShowComparison(false);
+          }}
+        />
+      )}
+
+      {/* Empty state for comparison */}
+      {!showComparison && snapshots.length === 0 && (
+        <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
+          <BarChart3 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <h3 className="font-semibold mb-1">Compare Scenarios</h3>
+          <p className="text-sm text-muted-foreground mb-4">
+            Save up to 3 different scenarios to compare them side-by-side
+          </p>
+          <Button onClick={openSaveDialog} variant="outline">
+            <Save className="w-4 h-4 mr-2" />
+            Save Current Scenario
+          </Button>
+        </div>
+      )}
+
       {/* Mobile Action Bar */}
-      <div className="flex gap-2 mt-4 lg:hidden">
+      <div className="flex gap-2 lg:hidden">
         <Button variant="outline" onClick={resetToDefaults} className="flex-1 h-11">
           <RotateCcw className="w-4 h-4 mr-2" />
           Reset
@@ -491,6 +560,52 @@ export function InvestmentSnapshot() {
           Save
         </Button>
       </div>
+
+      {/* Save Dialog */}
+      <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save Scenario</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div>
+              <label className="text-sm font-medium block mb-2">Scenario Name</label>
+              <Input
+                value={scenarioName}
+                onChange={(e) => setScenarioName(e.target.value)}
+                placeholder="e.g., $599K @ 20% down"
+                className="h-12"
+                autoFocus
+              />
+            </div>
+            <div className="bg-secondary/20 rounded-lg p-3 text-sm">
+              <div className="flex justify-between mb-1">
+                <span className="text-muted-foreground">Purchase Price</span>
+                <span className="font-medium">{fmt(inputs.purchasePrice)}</span>
+              </div>
+              <div className="flex justify-between mb-1">
+                <span className="text-muted-foreground">Monthly Cash Flow</span>
+                <span className={`font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                  {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Investment</span>
+                <span className="font-medium">{fmt(results.totalCashRequired)}</span>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveScenario}>
+              <Save className="w-4 h-4 mr-2" />
+              Save
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
