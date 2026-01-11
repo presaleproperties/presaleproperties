@@ -99,8 +99,8 @@ export function ConversionHeader() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
-        {/* Desktop: standard height, Mobile: enhanced compact */}
-        <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
+        {/* Desktop: larger height for bigger logo, Mobile: compact */}
+        <div className="flex h-16 md:h-24 items-center justify-between px-4 md:container">
           <Logo size="xl" />
 
           {/* Desktop Navigation */}
