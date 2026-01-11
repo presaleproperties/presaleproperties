@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -18,6 +18,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIProjectUploadWizard } from "@/components/admin/AIProjectUploadWizard";
 import { ClickableMapPreview } from "@/components/admin/ClickableMapPreview";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorkerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { 
   ArrowLeft,
   Loader2,
@@ -34,6 +36,9 @@ import {
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
+
+// Set up PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 
 type ProjectFormData = {
   name: string;
@@ -133,6 +138,8 @@ export default function AdminProjectForm() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
+  const [isExtractingFromPdf, setIsExtractingFromPdf] = useState(false);
+  const pdfForGalleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Geocode address using Google Maps API via edge function
@@ -480,6 +487,121 @@ export default function AdminProjectForm() {
       seo_title: generateSeoTitle(mergedData),
       seo_description: generateSeoDescription(mergedData),
     }));
+  };
+
+  // Extract HQ images from PDF for gallery (up to 7 images)
+  const extractImagesFromPdfForGallery = async (file: File) => {
+    setIsExtractingFromPdf(true);
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      const uploadedUrls: string[] = [];
+      
+      // Limit to 7 pages max
+      const maxPages = Math.min(pdf.numPages, 7);
+      const scale = 2.0; // High quality
+      
+      toast({
+        title: "Extracting Images",
+        description: `Processing ${maxPages} pages from ${file.name}...`,
+      });
+      
+      for (let i = 1; i <= maxPages; i++) {
+        try {
+          const page = await pdf.getPage(i);
+          const viewport = page.getViewport({ scale });
+          
+          const canvas = document.createElement("canvas");
+          const context = canvas.getContext("2d");
+          if (!context) continue;
+          
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          
+          await page.render({
+            canvasContext: context,
+            viewport: viewport,
+          }).promise;
+          
+          const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, "image/jpeg", 0.92);
+          });
+          
+          if (!blob) continue;
+          
+          const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-page${i}.jpg`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from("listing-photos")
+            .upload(fileName, blob, { contentType: "image/jpeg" });
+          
+          if (uploadError) {
+            console.error(`Failed to upload page ${i}:`, uploadError);
+            continue;
+          }
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from("listing-photos")
+            .getPublicUrl(fileName);
+          
+          uploadedUrls.push(publicUrl);
+        } catch (pageErr) {
+          console.error(`Error processing page ${i}:`, pageErr);
+        }
+      }
+      
+      if (uploadedUrls.length > 0) {
+        // If no featured image, set first as featured
+        if (!formData.featured_image) {
+          setFormData(prev => ({
+            ...prev,
+            featured_image: uploadedUrls[0],
+            gallery_images: [...prev.gallery_images, ...uploadedUrls.slice(1)]
+          }));
+        } else {
+          setFormData(prev => ({
+            ...prev,
+            gallery_images: [...prev.gallery_images, ...uploadedUrls]
+          }));
+        }
+        
+        toast({
+          title: "Images Extracted",
+          description: `Added ${uploadedUrls.length} HQ images to gallery`,
+        });
+      } else {
+        toast({
+          title: "No Images",
+          description: "Could not extract any images from PDF",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("PDF extraction error:", error);
+      toast({
+        title: "Extraction Failed",
+        description: error.message || "Could not extract images from PDF",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtractingFromPdf(false);
+      if (pdfForGalleryInputRef.current) {
+        pdfForGalleryInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handlePdfForGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && file.type === "application/pdf") {
+      extractImagesFromPdfForGallery(file);
+    } else if (file) {
+      toast({
+        title: "Invalid File",
+        description: "Please upload a PDF file",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -1792,6 +1914,38 @@ export default function AdminProjectForm() {
                       )}
                     </Button>
                   </div>
+                </div>
+
+                {/* Extract Images from PDF */}
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg space-y-2">
+                  <div className="flex items-center gap-2 text-sm font-medium text-blue-700">
+                    <FileText className="h-4 w-4" />
+                    Extract Images from Brochure PDF
+                  </div>
+                  <p className="text-xs text-blue-600">
+                    Upload a PDF brochure to automatically extract up to 7 HQ page images
+                  </p>
+                  <label className={`flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors ${isExtractingFromPdf ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    {isExtractingFromPdf ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin text-blue-600" />
+                        <span className="text-sm text-blue-600">Extracting images...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="h-4 w-4 text-blue-500" />
+                        <span className="text-sm text-blue-600">Upload PDF for images</span>
+                      </>
+                    )}
+                    <input
+                      ref={pdfForGalleryInputRef}
+                      type="file"
+                      accept=".pdf"
+                      className="hidden"
+                      onChange={handlePdfForGalleryUpload}
+                      disabled={isExtractingFromPdf}
+                    />
+                  </label>
                 </div>
 
                 {/* Existing Images */}
