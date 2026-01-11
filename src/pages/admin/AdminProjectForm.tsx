@@ -489,64 +489,106 @@ export default function AdminProjectForm() {
     }));
   };
 
-  // Extract HQ images from PDF for gallery (up to 7 images)
+  // Extract embedded images from PDF for gallery (up to 7 images, no text)
   const extractImagesFromPdfForGallery = async (file: File) => {
     setIsExtractingFromPdf(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const uploadedUrls: string[] = [];
-      
-      // Limit to 7 pages max
-      const maxPages = Math.min(pdf.numPages, 7);
-      const scale = 2.0; // High quality
+      const minImageSize = 50000; // Minimum 50KB to filter out small icons/logos
       
       toast({
-        title: "Extracting Images",
-        description: `Processing ${maxPages} pages from ${file.name}...`,
+        title: "Scanning PDF",
+        description: `Looking for images in ${pdf.numPages} pages...`,
       });
       
-      for (let i = 1; i <= maxPages; i++) {
+      // Scan all pages for embedded images
+      for (let pageNum = 1; pageNum <= pdf.numPages && uploadedUrls.length < 7; pageNum++) {
         try {
-          const page = await pdf.getPage(i);
-          const viewport = page.getViewport({ scale });
+          const page = await pdf.getPage(pageNum);
+          const operatorList = await page.getOperatorList();
           
-          const canvas = document.createElement("canvas");
-          const context = canvas.getContext("2d");
-          if (!context) continue;
-          
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          
-          await page.render({
-            canvasContext: context,
-            viewport: viewport,
-          }).promise;
-          
-          const blob = await new Promise<Blob | null>((resolve) => {
-            canvas.toBlob(resolve, "image/jpeg", 0.92);
-          });
-          
-          if (!blob) continue;
-          
-          const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-page${i}.jpg`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from("listing-photos")
-            .upload(fileName, blob, { contentType: "image/jpeg" });
-          
-          if (uploadError) {
-            console.error(`Failed to upload page ${i}:`, uploadError);
-            continue;
+          // Find image objects in the page
+          for (let i = 0; i < operatorList.fnArray.length && uploadedUrls.length < 7; i++) {
+            // OPS.paintImageXObject = 85, OPS.paintJpegXObject = 82
+            if (operatorList.fnArray[i] === 85 || operatorList.fnArray[i] === 82) {
+              const imgName = operatorList.argsArray[i][0];
+              
+              try {
+                // Get the image data
+                const img = await page.objs.get(imgName);
+                
+                if (img && img.data && img.width && img.height) {
+                  // Skip small images (icons, logos, etc.)
+                  const estimatedSize = img.width * img.height * (img.data.length / (img.width * img.height));
+                  if (img.width < 200 || img.height < 200 || estimatedSize < minImageSize) {
+                    continue;
+                  }
+                  
+                  // Create canvas and draw image
+                  const canvas = document.createElement("canvas");
+                  canvas.width = img.width;
+                  canvas.height = img.height;
+                  const ctx = canvas.getContext("2d");
+                  if (!ctx) continue;
+                  
+                  // Create ImageData from the raw pixel data
+                  const imgData = ctx.createImageData(img.width, img.height);
+                  
+                  // Handle different image formats
+                  if (img.data.length === img.width * img.height * 4) {
+                    // RGBA format
+                    imgData.data.set(img.data);
+                  } else if (img.data.length === img.width * img.height * 3) {
+                    // RGB format - convert to RGBA
+                    for (let j = 0, k = 0; j < img.data.length; j += 3, k += 4) {
+                      imgData.data[k] = img.data[j];
+                      imgData.data[k + 1] = img.data[j + 1];
+                      imgData.data[k + 2] = img.data[j + 2];
+                      imgData.data[k + 3] = 255;
+                    }
+                  } else {
+                    // Grayscale or other format
+                    continue;
+                  }
+                  
+                  ctx.putImageData(imgData, 0, 0);
+                  
+                  // Convert to blob
+                  const blob = await new Promise<Blob | null>((resolve) => {
+                    canvas.toBlob(resolve, "image/jpeg", 0.92);
+                  });
+                  
+                  if (!blob || blob.size < 10000) continue; // Skip if too small
+                  
+                  // Upload to storage
+                  const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-img${uploadedUrls.length + 1}.jpg`;
+                  
+                  const { error: uploadError } = await supabase.storage
+                    .from("listing-photos")
+                    .upload(fileName, blob, { contentType: "image/jpeg" });
+                  
+                  if (uploadError) {
+                    console.error(`Failed to upload image:`, uploadError);
+                    continue;
+                  }
+                  
+                  const { data: { publicUrl } } = supabase.storage
+                    .from("listing-photos")
+                    .getPublicUrl(fileName);
+                  
+                  uploadedUrls.push(publicUrl);
+                  console.log(`Extracted image ${uploadedUrls.length}: ${img.width}x${img.height}`);
+                }
+              } catch (imgErr) {
+                // Image extraction failed for this object, continue to next
+                console.log(`Could not extract image ${imgName}:`, imgErr);
+              }
+            }
           }
-          
-          const { data: { publicUrl } } = supabase.storage
-            .from("listing-photos")
-            .getPublicUrl(fileName);
-          
-          uploadedUrls.push(publicUrl);
         } catch (pageErr) {
-          console.error(`Error processing page ${i}:`, pageErr);
+          console.error(`Error processing page ${pageNum}:`, pageErr);
         }
       }
       
@@ -567,12 +609,12 @@ export default function AdminProjectForm() {
         
         toast({
           title: "Images Extracted",
-          description: `Added ${uploadedUrls.length} HQ images to gallery`,
+          description: `Found and added ${uploadedUrls.length} images to gallery`,
         });
       } else {
         toast({
-          title: "No Images",
-          description: "Could not extract any images from PDF",
+          title: "No Images Found",
+          description: "No suitable images found in PDF. Try uploading images directly.",
           variant: "destructive",
         });
       }
@@ -1923,7 +1965,7 @@ export default function AdminProjectForm() {
                     Extract Images from Brochure PDF
                   </div>
                   <p className="text-xs text-blue-600">
-                    Upload a PDF brochure to automatically extract up to 7 HQ page images
+                    Extracts embedded photos & renders (no text) - up to 7 images
                   </p>
                   <label className={`flex items-center justify-center gap-2 px-3 py-2 border-2 border-dashed border-blue-300 rounded-lg cursor-pointer hover:border-blue-400 transition-colors ${isExtractingFromPdf ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     {isExtractingFromPdf ? (
