@@ -23,8 +23,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Pencil, Trash2, ExternalLink, Building2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, Building2, ImageDown, Loader2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Progress } from "@/components/ui/progress";
 
 interface Developer {
   id: string;
@@ -62,6 +63,8 @@ export default function AdminDevelopers() {
   const [isOpen, setIsOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<DeveloperForm>(emptyForm);
+  const [isFetchingLogos, setIsFetchingLogos] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState({ current: 0, total: 0, currentName: "" });
 
   const { data: developers, isLoading } = useQuery({
     queryKey: ["admin-developers"],
@@ -162,16 +165,106 @@ export default function AdminDevelopers() {
     setIsOpen(true);
   };
 
+  const fetchAllLogos = async () => {
+    if (!developers) return;
+    
+    // Get developers with websites but no logos
+    const needsLogo = developers.filter(
+      (d) => d.website_url && (!d.logo_url || d.logo_url === "")
+    );
+
+    if (needsLogo.length === 0) {
+      toast({
+        title: "All done",
+        description: "All developers with websites already have logos.",
+      });
+      return;
+    }
+
+    setIsFetchingLogos(true);
+    setFetchProgress({ current: 0, total: needsLogo.length, currentName: "" });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < needsLogo.length; i++) {
+      const dev = needsLogo[i];
+      setFetchProgress({ current: i + 1, total: needsLogo.length, currentName: dev.name });
+
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-developer-logo`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ website_url: dev.website_url }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.logo_url) {
+          // Update the developer with the found logo
+          const { error } = await supabase
+            .from("developers")
+            .update({ logo_url: data.logo_url })
+            .eq("id", dev.id);
+
+          if (!error) {
+            successCount++;
+          } else {
+            failCount++;
+          }
+        } else {
+          failCount++;
+        }
+      } catch (error) {
+        console.error(`Failed to fetch logo for ${dev.name}:`, error);
+        failCount++;
+      }
+
+      // Small delay to avoid rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    setIsFetchingLogos(false);
+    setFetchProgress({ current: 0, total: 0, currentName: "" });
+    queryClient.invalidateQueries({ queryKey: ["admin-developers"] });
+
+    toast({
+      title: "Logo fetch complete",
+      description: `Found ${successCount} logos. ${failCount} developers still need manual logos.`,
+    });
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-3">
           <div>
             <h1 className="text-2xl font-bold">Developers</h1>
             <p className="text-muted-foreground">
               Manage developer profiles and website links
             </p>
           </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={fetchAllLogos}
+              disabled={isFetchingLogos}
+            >
+              {isFetchingLogos ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Fetching...
+                </>
+              ) : (
+                <>
+                  <ImageDown className="h-4 w-4 mr-2" />
+                  Fetch All Logos
+                </>
+              )}
+            </Button>
           <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogTrigger asChild>
               <Button onClick={openCreate}>
@@ -269,7 +362,19 @@ export default function AdminDevelopers() {
               </form>
             </DialogContent>
           </Dialog>
+          </div>
         </div>
+
+        {/* Progress bar during logo fetch */}
+        {isFetchingLogos && (
+          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+            <div className="flex items-center justify-between text-sm">
+              <span>Fetching logo for: <strong>{fetchProgress.currentName}</strong></span>
+              <span>{fetchProgress.current} / {fetchProgress.total}</span>
+            </div>
+            <Progress value={(fetchProgress.current / fetchProgress.total) * 100} />
+          </div>
+        )}
 
         {isLoading ? (
           <div className="space-y-3">
