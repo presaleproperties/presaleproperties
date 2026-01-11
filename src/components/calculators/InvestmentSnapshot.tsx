@@ -514,18 +514,6 @@ export function InvestmentSnapshot() {
                   </div>
                 </div>
 
-                {/* Closing Costs */}
-                <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
-                  <label className="text-xs text-amber-700 block mb-1">Closing Costs</label>
-                  <Input
-                    type="number"
-                    value={inputs.closingCosts}
-                    onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
-                    className="h-9 text-center font-semibold text-sm text-amber-700 border-amber-300"
-                  />
-                  <p className="text-[9px] text-amber-600 mt-1">Lawyer, inspection, etc.</p>
-                </div>
-
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-secondary/20 rounded-xl p-3">
                     <label className="text-xs text-muted-foreground block mb-1">Strata</label>
@@ -545,15 +533,28 @@ export function InvestmentSnapshot() {
                       className="h-9 text-center font-semibold text-sm"
                     />
                   </div>
-                  <div className="bg-green-50 rounded-xl p-3 border border-green-200">
-                    <label className="text-xs text-green-700 block mb-1">Rent</label>
-                    <Input
-                      type="number"
-                      value={inputs.monthlyRent}
-                      onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                      className="h-9 text-center font-semibold text-sm text-green-700 border-green-300"
-                    />
-                  </div>
+                  {inputs.buyerType === 'investor' ? (
+                    <div className="bg-green-50 rounded-xl p-3 border border-green-200">
+                      <label className="text-xs text-green-700 block mb-1">Rent</label>
+                      <Input
+                        type="number"
+                        value={inputs.monthlyRent}
+                        onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
+                        className="h-9 text-center font-semibold text-sm text-green-700 border-green-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+                      <label className="text-xs text-amber-700 block mb-1">Closing</label>
+                      <Input
+                        type="number"
+                        value={inputs.closingCosts}
+                        onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
+                        className="h-9 text-center font-semibold text-sm text-amber-700 border-amber-300"
+                      />
+                      <p className="text-[9px] text-amber-600 mt-0.5">Lawyer, etc.</p>
+                    </div>
+                  )}
                 </div>
               </div>
 
