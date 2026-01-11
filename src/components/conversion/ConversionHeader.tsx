@@ -99,9 +99,9 @@ export function ConversionHeader() {
   return (
     <>
       <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
-        {/* Desktop: larger height for bigger logo, Mobile: compact */}
-        <div className="flex h-16 md:h-24 items-center justify-between px-4 md:container">
-          <Logo size="xl" />
+        {/* Desktop: standard height with oversized logo */}
+        <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
+          <Logo size="xl" className="md:-my-4" />
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-6">
