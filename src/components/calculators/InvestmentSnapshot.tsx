@@ -23,6 +23,7 @@ type BuyerType = 'firstTimeBuyer' | 'investor';
 interface SnapshotInputs {
   buyerType: BuyerType;
   purchasePrice: number;
+  sqft: number;
   firstDepositPercent: number;
   secondDepositPercent: number;
   downPaymentPercent: number;
@@ -40,6 +41,7 @@ interface SnapshotInputs {
 const DEFAULT_INPUTS: SnapshotInputs = {
   buyerType: 'investor',
   purchasePrice: 599000,
+  sqft: 550,
   firstDepositPercent: 5,
   secondDepositPercent: 5,
   downPaymentPercent: 20,
@@ -428,6 +430,25 @@ export function InvestmentSnapshot() {
                   <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
                     <span>Price + GST:</span>
                     <span className="font-semibold">{fmt(results.priceWithGST)}</span>
+                  </div>
+                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/30">
+                    <div className="flex items-center gap-1.5 flex-1">
+                      <Input
+                        type="number"
+                        value={inputs.sqft}
+                        onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
+                        className="h-7 w-16 text-center text-xs font-medium px-1"
+                        placeholder="sqft"
+                      />
+                      <span className="text-[10px] text-muted-foreground">sqft</span>
+                    </div>
+                    <div className="text-xs text-right">
+                      <span className="text-muted-foreground">= </span>
+                      <span className="font-semibold text-primary">
+                        ${inputs.sqft > 0 ? Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString() : '—'}
+                      </span>
+                      <span className="text-muted-foreground">/sqft</span>
+                    </div>
                   </div>
                 </div>
 
