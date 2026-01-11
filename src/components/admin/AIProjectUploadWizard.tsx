@@ -34,7 +34,8 @@ import {
   FolderOpen,
   Image,
   Globe,
-  Link
+  Link,
+  MapPin
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -101,7 +102,83 @@ export function AIProjectUploadWizard() {
   const [driveUrl, setDriveUrl] = useState("");
   const [isImportingDrive, setIsImportingDrive] = useState(false);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
+  
+  // Address autocomplete state
+  const [addressSuggestions, setAddressSuggestions] = useState<{ description: string; placeId: string }[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [mapLat, setMapLat] = useState<string>("");
+  const [mapLng, setMapLng] = useState<string>("");
   const [pastedContent, setPastedContent] = useState("");
+
+  // Fetch address suggestions from Google Places
+  const fetchAddressSuggestions = async (input: string) => {
+    if (input.length < 3) {
+      setAddressSuggestions([]);
+      return;
+    }
+    
+    setIsLoadingSuggestions(true);
+    try {
+      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
+      const supabaseUrl = publicUrl.split('/storage/')[0];
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: input, action: 'autocomplete' }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setAddressSuggestions(data.predictions || []);
+        setShowAddressSuggestions(true);
+      }
+    } catch (error) {
+      console.error('Address suggestions error:', error);
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
+  };
+
+  // Handle selecting an address suggestion
+  const handleSelectAddress = async (suggestion: { description: string; placeId: string }) => {
+    updateFormField("address", suggestion.description);
+    setShowAddressSuggestions(false);
+    setAddressSuggestions([]);
+    
+    // Auto-geocode the selected address
+    setIsGeocoding(true);
+    try {
+      const { data: { publicUrl } } = supabase.storage.from('listing-photos').getPublicUrl('');
+      const supabaseUrl = publicUrl.split('/storage/')[0];
+      
+      const response = await fetch(`${supabaseUrl}/functions/v1/geocode-address`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: suggestion.description, action: 'geocode' }),
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        setMapLat(data.lat.toString());
+        setMapLng(data.lng.toString());
+        // Auto-fill city and neighborhood if available
+        if (data.city) updateFormField("city", data.city);
+        if (data.neighborhood) updateFormField("neighborhood", data.neighborhood);
+        
+        toast({
+          title: "Address Found",
+          description: `Coordinates: ${data.lat.toFixed(5)}, ${data.lng.toFixed(5)}`,
+        });
+      }
+    } catch (error) {
+      console.error('Geocoding selected address error:', error);
+    } finally {
+      setIsGeocoding(false);
+    }
+  };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
     const arrayBuffer = await file.arrayBuffer();
@@ -474,6 +551,8 @@ export function AIProjectUploadWizard() {
         is_published: isPublished,
         is_featured: isFeatured,
         published_at: isPublished ? new Date().toISOString() : null,
+        map_lat: mapLat ? parseFloat(mapLat) : null,
+        map_lng: mapLng ? parseFloat(mapLng) : null,
       };
 
       const { error } = await supabase
@@ -849,13 +928,52 @@ export function AIProjectUploadWizard() {
                         placeholder="Neighborhood"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <Label>Address</Label>
-                      <Input
-                        value={formData.address || ""}
-                        onChange={(e) => updateFormField("address", e.target.value)}
-                        placeholder="Street address"
-                      />
+                    <div className="space-y-2 relative">
+                      <Label>Address <span className="text-xs text-muted-foreground">(Google Maps powered)</span></Label>
+                      <div className="relative">
+                        <Input
+                          value={formData.address || ""}
+                          onChange={(e) => {
+                            updateFormField("address", e.target.value);
+                            fetchAddressSuggestions(e.target.value);
+                          }}
+                          onFocus={() => {
+                            if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
+                          }}
+                          onBlur={() => {
+                            setTimeout(() => setShowAddressSuggestions(false), 200);
+                          }}
+                          placeholder="Start typing an address..."
+                          autoComplete="off"
+                        />
+                        {(isLoadingSuggestions || isGeocoding) && (
+                          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                          </div>
+                        )}
+                      </div>
+                      {showAddressSuggestions && addressSuggestions.length > 0 && (
+                        <div className="absolute z-50 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                          {addressSuggestions.map((suggestion, index) => (
+                            <button
+                              key={index}
+                              type="button"
+                              className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0"
+                              onClick={() => handleSelectAddress(suggestion)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <span className="truncate">{suggestion.description}</span>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                      {mapLat && mapLng && (
+                        <p className="text-xs text-green-600">
+                          ✓ Coordinates: {parseFloat(mapLat).toFixed(5)}, {parseFloat(mapLng).toFixed(5)}
+                        </p>
+                      )}
                     </div>
                   </div>
 
