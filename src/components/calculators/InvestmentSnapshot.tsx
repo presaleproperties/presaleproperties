@@ -1,3 +1,4 @@
+// Investment Snapshot - GST added to mortgage, PTT due on completion
 import { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -94,25 +95,37 @@ export function InvestmentSnapshot() {
   };
 
   const results = useMemo(() => {
+    // GST is calculated on purchase price and added to mortgage principal
+    const gst = inputs.includeGST ? calculateGST(inputs.purchasePrice) : 0;
+    const priceWithGST = inputs.purchasePrice + gst;
+    
+    // Deposits are based on original purchase price (paid during construction)
     const firstDeposit = inputs.purchasePrice * (inputs.firstDepositPercent / 100);
     const secondDeposit = inputs.purchasePrice * (inputs.secondDepositPercent / 100);
     const totalDeposits = firstDeposit + secondDeposit;
-    const downPayment = inputs.purchasePrice * (inputs.downPaymentPercent / 100);
-    const mortgageAmount = inputs.purchasePrice - downPayment;
+    
+    // Down payment is 20% of price INCLUDING GST
+    const downPayment = priceWithGST * (inputs.downPaymentPercent / 100);
+    
+    // Mortgage includes GST (price + GST - down payment)
+    const mortgageAmount = priceWithGST - downPayment;
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
+    
+    // PTT is due on completion (closing cost, not added to mortgage)
     const ptt = inputs.includePTT ? calculatePTT(inputs.purchasePrice, false) : 0;
-    const gst = inputs.includeGST ? calculateGST(inputs.purchasePrice) : 0;
-    const totalClosingCosts = ptt + gst;
+    
+    // Cash at completion = remaining down payment + PTT
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
-    const cashAtCompletion = remainingDownPayment + totalClosingCosts;
+    const cashAtCompletion = remainingDownPayment + ptt;
     const totalCashRequired = totalDeposits + cashAtCompletion;
+    
     const totalMonthlyExpenses = monthlyMortgage + inputs.strataFees + inputs.propertyTax;
     const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
     const annualCashFlow = monthlyCashFlow * 12;
 
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
-      mortgageAmount, monthlyMortgage, ptt, gst, totalClosingCosts, cashAtCompletion,
+      mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, cashAtCompletion,
       totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
     };
   }, [inputs]);
