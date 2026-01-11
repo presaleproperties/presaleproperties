@@ -1,4 +1,5 @@
-import { useState, useMemo, useRef } from 'react'; 
+// Investment Snapshot Calculator
+import { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
