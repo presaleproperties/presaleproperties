@@ -160,7 +160,12 @@ export default function AdminProjectForm() {
   const [selectedPreviewImages, setSelectedPreviewImages] = useState<Set<number>>(new Set());
   const [showImagePreviewModal, setShowImagePreviewModal] = useState(false);
   const [extractionSummary, setExtractionSummary] = useState<{ primaryReason?: string; categoryCounts?: Record<string, number> }>({});
+  const [developers, setDevelopers] = useState<{ id: string; name: string }[]>([]);
+  const [developerSearch, setDeveloperSearch] = useState("");
+  const [showDeveloperDropdown, setShowDeveloperDropdown] = useState(false);
+  const [isAddingDeveloper, setIsAddingDeveloper] = useState(false);
   const pdfForGalleryInputRef = useRef<HTMLInputElement>(null);
+  const developerInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Geocode address using Google Maps API via edge function
@@ -302,12 +307,84 @@ export default function AdminProjectForm() {
 
   const isEdit = !!id;
 
+  // Fetch developers list
+  const fetchDevelopers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("developers")
+        .select("id, name")
+        .eq("is_active", true)
+        .order("name");
+      
+      if (!error && data) {
+        setDevelopers(data);
+      }
+    } catch (err) {
+      console.error("Error fetching developers:", err);
+    }
+  };
+
   useEffect(() => {
+    fetchDevelopers();
     if (id) {
       fetchProject();
       fetchAdjacentProjects();
     }
   }, [id]);
+
+  // Filter developers based on search
+  const filteredDevelopers = developers.filter(dev => 
+    dev.name.toLowerCase().includes(developerSearch.toLowerCase())
+  );
+
+  // Check if search term is a new developer (not in list)
+  const isNewDeveloper = developerSearch.trim() && 
+    !developers.some(dev => dev.name.toLowerCase() === developerSearch.toLowerCase());
+
+  // Add new developer
+  const addNewDeveloper = async (name: string) => {
+    if (!name.trim()) return;
+    
+    setIsAddingDeveloper(true);
+    try {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+      
+      const { data, error } = await supabase
+        .from("developers")
+        .insert({ name: name.trim(), slug, is_active: true })
+        .select("id, name")
+        .single();
+      
+      if (error) throw error;
+      
+      // Add to local list and select it
+      setDevelopers(prev => [...prev, data].sort((a, b) => a.name.localeCompare(b.name)));
+      setFormData(prev => ({ ...prev, developer_name: data.name }));
+      setDeveloperSearch("");
+      setShowDeveloperDropdown(false);
+      
+      toast({
+        title: "Developer Added",
+        description: `"${data.name}" added to developers list`,
+      });
+    } catch (err: any) {
+      console.error("Error adding developer:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Could not add developer",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingDeveloper(false);
+    }
+  };
+
+  // Select existing developer
+  const selectDeveloper = (name: string) => {
+    setFormData(prev => ({ ...prev, developer_name: name }));
+    setDeveloperSearch("");
+    setShowDeveloperDropdown(false);
+  };
 
   const fetchProject = async () => {
     try {
@@ -1580,14 +1657,82 @@ export default function AdminProjectForm() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="space-y-2 relative">
                     <Label htmlFor="developer_name">Developer Name</Label>
-                    <Input
-                      id="developer_name"
-                      value={formData.developer_name}
-                      onChange={(e) => setFormData(prev => ({ ...prev, developer_name: e.target.value }))}
-                      placeholder="e.g., Concord Pacific"
-                    />
+                    <div className="relative">
+                      <Input
+                        ref={developerInputRef}
+                        id="developer_name"
+                        value={showDeveloperDropdown ? developerSearch : formData.developer_name}
+                        onChange={(e) => {
+                          setDeveloperSearch(e.target.value);
+                          if (!showDeveloperDropdown) setShowDeveloperDropdown(true);
+                        }}
+                        onFocus={() => {
+                          setDeveloperSearch(formData.developer_name);
+                          setShowDeveloperDropdown(true);
+                        }}
+                        onBlur={() => {
+                          // Delay to allow click on dropdown items
+                          setTimeout(() => setShowDeveloperDropdown(false), 200);
+                        }}
+                        placeholder="Search or add developer..."
+                        autoComplete="off"
+                      />
+                      {formData.developer_name && !showDeveloperDropdown && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 -translate-y-1/2 h-7 w-7 p-0"
+                          onClick={() => {
+                            setFormData(prev => ({ ...prev, developer_name: "" }));
+                            developerInputRef.current?.focus();
+                          }}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      )}
+                    </div>
+                    {showDeveloperDropdown && (
+                      <div className="absolute z-50 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                        {filteredDevelopers.length > 0 ? (
+                          filteredDevelopers.slice(0, 10).map((dev) => (
+                            <button
+                              key={dev.id}
+                              type="button"
+                              className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0 flex items-center justify-between"
+                              onClick={() => selectDeveloper(dev.name)}
+                            >
+                              <span>{dev.name}</span>
+                              {formData.developer_name === dev.name && (
+                                <span className="text-primary text-xs">Selected</span>
+                              )}
+                            </button>
+                          ))
+                        ) : !isNewDeveloper ? (
+                          <div className="px-3 py-2 text-sm text-muted-foreground">
+                            No developers found
+                          </div>
+                        ) : null}
+                        
+                        {isNewDeveloper && (
+                          <button
+                            type="button"
+                            className="w-full text-left px-3 py-2.5 hover:bg-primary/10 text-sm border-t bg-muted/50 flex items-center gap-2 text-primary font-medium"
+                            onClick={() => addNewDeveloper(developerSearch)}
+                            disabled={isAddingDeveloper}
+                          >
+                            {isAddingDeveloper ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Plus className="h-4 w-4" />
+                            )}
+                            Add "{developerSearch}" as new developer
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="unit_mix">Unit Mix</Label>
