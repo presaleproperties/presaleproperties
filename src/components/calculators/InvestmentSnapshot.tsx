@@ -514,48 +514,63 @@ export function InvestmentSnapshot() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="bg-secondary/20 rounded-xl p-3">
-                    <label className="text-xs text-muted-foreground block mb-1">Strata</label>
+                <div className="grid grid-cols-3 gap-2 sm:gap-3">
+                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
+                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Strata</label>
                     <Input
                       type="number"
                       value={inputs.strataFees}
                       onChange={(e) => updateInput('strataFees', parseInt(e.target.value) || 0)}
-                      className="h-9 text-center font-semibold text-sm"
+                      className="h-8 sm:h-9 text-center font-semibold text-sm px-1"
                     />
                   </div>
-                  <div className="bg-secondary/20 rounded-xl p-3">
-                    <label className="text-xs text-muted-foreground block mb-1">Tax/mo</label>
+                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
+                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Tax/mo</label>
                     <Input
                       type="number"
                       value={inputs.propertyTax}
                       onChange={(e) => updateInput('propertyTax', parseInt(e.target.value) || 0)}
-                      className="h-9 text-center font-semibold text-sm"
+                      className="h-8 sm:h-9 text-center font-semibold text-sm px-1"
                     />
                   </div>
                   {inputs.buyerType === 'investor' ? (
-                    <div className="bg-green-50 rounded-xl p-3 border border-green-200">
-                      <label className="text-xs text-green-700 block mb-1">Rent</label>
+                    <div className="bg-green-50 rounded-xl p-2 sm:p-3 border border-green-200">
+                      <label className="text-[10px] sm:text-xs text-green-700 block mb-1">Rent</label>
                       <Input
                         type="number"
                         value={inputs.monthlyRent}
                         onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                        className="h-9 text-center font-semibold text-sm text-green-700 border-green-300"
+                        className="h-8 sm:h-9 text-center font-semibold text-sm text-green-700 border-green-300 px-1"
                       />
                     </div>
                   ) : (
-                    <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
-                      <label className="text-xs text-amber-700 block mb-1">Closing</label>
+                    <div className="bg-amber-50 rounded-xl p-2 sm:p-3 border border-amber-200">
+                      <label className="text-[10px] sm:text-xs text-amber-700 block mb-1 truncate">Closing</label>
                       <Input
                         type="number"
                         value={inputs.closingCosts}
                         onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
-                        className="h-9 text-center font-semibold text-sm text-amber-700 border-amber-300"
+                        className="h-8 sm:h-9 text-center font-semibold text-sm text-amber-700 border-amber-300 px-1"
                       />
-                      <p className="text-[9px] text-amber-600 mt-0.5">Lawyer, etc.</p>
                     </div>
                   )}
                 </div>
+
+                {/* Closing Costs for Investors */}
+                {inputs.buyerType === 'investor' && (
+                  <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs text-amber-700">Closing Costs</label>
+                      <Input
+                        type="number"
+                        value={inputs.closingCosts}
+                        onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
+                        className="h-8 w-24 text-center font-semibold text-sm text-amber-700 border-amber-300"
+                      />
+                    </div>
+                    <p className="text-[10px] text-amber-600 mt-1">Lawyer fees, inspection, etc.</p>
+                  </div>
+                )}
               </div>
 
               {/* Right Column: Results */}
