@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -14,6 +15,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { AIProjectUploadWizard } from "@/components/admin/AIProjectUploadWizard";
@@ -139,6 +147,9 @@ export default function AdminProjectForm() {
   const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
   const [isExtractingFromPdf, setIsExtractingFromPdf] = useState(false);
+  const [extractedPreviewImages, setExtractedPreviewImages] = useState<string[]>([]);
+  const [selectedPreviewImages, setSelectedPreviewImages] = useState<Set<number>>(new Set());
+  const [showImagePreviewModal, setShowImagePreviewModal] = useState(false);
   const pdfForGalleryInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -489,7 +500,7 @@ export default function AdminProjectForm() {
     }));
   };
 
-  // Extract embedded images from PDF for gallery (up to 7 images, no text)
+  // Extract embedded images from PDF for gallery (up to 10 images, no text) - shows preview first
   const extractImagesFromPdfForGallery = async (file: File) => {
     setIsExtractingFromPdf(true);
     try {
@@ -503,14 +514,14 @@ export default function AdminProjectForm() {
         description: `Looking for images in ${pdf.numPages} pages...`,
       });
       
-      // Scan all pages for embedded images
-      for (let pageNum = 1; pageNum <= pdf.numPages && uploadedUrls.length < 7; pageNum++) {
+      // Scan all pages for embedded images (up to 10 for preview)
+      for (let pageNum = 1; pageNum <= pdf.numPages && uploadedUrls.length < 10; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
           const operatorList = await page.getOperatorList();
           
           // Find image objects in the page
-          for (let i = 0; i < operatorList.fnArray.length && uploadedUrls.length < 7; i++) {
+          for (let i = 0; i < operatorList.fnArray.length && uploadedUrls.length < 10; i++) {
             // OPS.paintImageXObject = 85, OPS.paintJpegXObject = 82
             if (operatorList.fnArray[i] === 85 || operatorList.fnArray[i] === 82) {
               const imgName = operatorList.argsArray[i][0];
@@ -562,7 +573,7 @@ export default function AdminProjectForm() {
                   
                   if (!blob || blob.size < 10000) continue; // Skip if too small
                   
-                  // Upload to storage
+                  // Upload to storage (temporary - will be used if selected)
                   const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-img${uploadedUrls.length + 1}.jpg`;
                   
                   const { error: uploadError } = await supabase.storage
@@ -593,23 +604,14 @@ export default function AdminProjectForm() {
       }
       
       if (uploadedUrls.length > 0) {
-        // If no featured image, set first as featured
-        if (!formData.featured_image) {
-          setFormData(prev => ({
-            ...prev,
-            featured_image: uploadedUrls[0],
-            gallery_images: [...prev.gallery_images, ...uploadedUrls.slice(1)]
-          }));
-        } else {
-          setFormData(prev => ({
-            ...prev,
-            gallery_images: [...prev.gallery_images, ...uploadedUrls]
-          }));
-        }
+        // Show preview modal instead of directly adding
+        setExtractedPreviewImages(uploadedUrls);
+        setSelectedPreviewImages(new Set(uploadedUrls.map((_, i) => i))); // Select all by default
+        setShowImagePreviewModal(true);
         
         toast({
-          title: "Images Extracted",
-          description: `Found and added ${uploadedUrls.length} images to gallery`,
+          title: "Images Found",
+          description: `Found ${uploadedUrls.length} images. Select which ones to add.`,
         });
       } else {
         toast({
@@ -631,6 +633,57 @@ export default function AdminProjectForm() {
         pdfForGalleryInputRef.current.value = "";
       }
     }
+  };
+
+  // Toggle selection of a preview image
+  const togglePreviewImageSelection = (index: number) => {
+    setSelectedPreviewImages(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
+  // Add selected images to gallery
+  const addSelectedImagesToGallery = () => {
+    const selectedUrls = extractedPreviewImages.filter((_, i) => selectedPreviewImages.has(i));
+    
+    if (selectedUrls.length === 0) {
+      toast({
+        title: "No Images Selected",
+        description: "Please select at least one image to add",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // If no featured image, set first selected as featured
+    if (!formData.featured_image && selectedUrls.length > 0) {
+      setFormData(prev => ({
+        ...prev,
+        featured_image: selectedUrls[0],
+        gallery_images: [...prev.gallery_images, ...selectedUrls.slice(1)]
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        gallery_images: [...prev.gallery_images, ...selectedUrls]
+      }));
+    }
+    
+    toast({
+      title: "Images Added",
+      description: `Added ${selectedUrls.length} images to gallery`,
+    });
+    
+    // Close modal and reset
+    setShowImagePreviewModal(false);
+    setExtractedPreviewImages([]);
+    setSelectedPreviewImages(new Set());
   };
 
   const handlePdfForGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -2097,6 +2150,85 @@ export default function AdminProjectForm() {
           </div>
         </div>
       </form>
+
+      {/* Image Preview Modal */}
+      <Dialog open={showImagePreviewModal} onOpenChange={setShowImagePreviewModal}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle>Select Images to Add</DialogTitle>
+          </DialogHeader>
+          <div className="overflow-y-auto max-h-[60vh] p-1">
+            <p className="text-sm text-muted-foreground mb-4">
+              {selectedPreviewImages.size} of {extractedPreviewImages.length} images selected
+            </p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {extractedPreviewImages.map((url, index) => (
+                <div
+                  key={index}
+                  className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                    selectedPreviewImages.has(index) 
+                      ? 'border-primary ring-2 ring-primary/20' 
+                      : 'border-muted hover:border-muted-foreground/50'
+                  }`}
+                  onClick={() => togglePreviewImageSelection(index)}
+                >
+                  <img
+                    src={url}
+                    alt={`Preview ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className={`absolute inset-0 transition-colors ${
+                    selectedPreviewImages.has(index) ? 'bg-primary/10' : 'bg-black/0 hover:bg-black/10'
+                  }`} />
+                  <div className="absolute top-2 left-2">
+                    <Checkbox
+                      checked={selectedPreviewImages.has(index)}
+                      onCheckedChange={() => togglePreviewImageSelection(index)}
+                      className="h-5 w-5 bg-white/90 border-2"
+                    />
+                  </div>
+                  <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                    {index + 1}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <DialogFooter className="flex gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setShowImagePreviewModal(false);
+                setExtractedPreviewImages([]);
+                setSelectedPreviewImages(new Set());
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                if (selectedPreviewImages.size === extractedPreviewImages.length) {
+                  setSelectedPreviewImages(new Set());
+                } else {
+                  setSelectedPreviewImages(new Set(extractedPreviewImages.map((_, i) => i)));
+                }
+              }}
+            >
+              {selectedPreviewImages.size === extractedPreviewImages.length ? 'Deselect All' : 'Select All'}
+            </Button>
+            <Button
+              type="button"
+              onClick={addSelectedImagesToGallery}
+              disabled={selectedPreviewImages.size === 0}
+            >
+              Add {selectedPreviewImages.size} Image{selectedPreviewImages.size !== 1 ? 's' : ''}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </AdminLayout>
   );
