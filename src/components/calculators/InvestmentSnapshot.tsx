@@ -5,11 +5,13 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Building2, DollarSign, Home, TrendingUp, Calculator, Banknote } from 'lucide-react';
+import { Building2, DollarSign, Home, TrendingUp, Banknote, Wallet } from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
 
 interface SnapshotInputs {
   purchasePrice: number;
+  firstDepositPercent: number;
+  secondDepositPercent: number;
   downPaymentPercent: number;
   interestRate: number;
   amortizationYears: number;
@@ -22,6 +24,8 @@ interface SnapshotInputs {
 
 const DEFAULT_INPUTS: SnapshotInputs = {
   purchasePrice: 499000,
+  firstDepositPercent: 5,
+  secondDepositPercent: 5,
   downPaymentPercent: 20,
   interestRate: 3.79,
   amortizationYears: 30,
@@ -53,6 +57,11 @@ export function InvestmentSnapshot() {
   };
 
   const results = useMemo(() => {
+    // Deposit calculations
+    const firstDeposit = inputs.purchasePrice * (inputs.firstDepositPercent / 100);
+    const secondDeposit = inputs.purchasePrice * (inputs.secondDepositPercent / 100);
+    const totalDeposits = firstDeposit + secondDeposit;
+    
     const downPayment = inputs.purchasePrice * (inputs.downPaymentPercent / 100);
     const mortgageAmount = inputs.purchasePrice - downPayment;
     const monthlyMortgage = calculateMonthlyMortgage(
@@ -65,6 +74,9 @@ export function InvestmentSnapshot() {
     const ptt = calculatePTT(inputs.purchasePrice, inputs.isFirstTimeBuyer);
     const gst = inputs.isNewConstruction ? calculateGST(inputs.purchasePrice) : 0;
     const totalClosingCosts = ptt + gst;
+    
+    // Cash needed at completion = Down Payment - Deposits Already Paid + Closing Costs
+    const cashAtCompletion = Math.max(0, downPayment - totalDeposits) + totalClosingCosts;
     const totalCashRequired = downPayment + totalClosingCosts;
 
     // Monthly numbers
@@ -88,12 +100,16 @@ export function InvestmentSnapshot() {
     }
 
     return {
+      firstDeposit,
+      secondDeposit,
+      totalDeposits,
       downPayment,
       mortgageAmount,
       monthlyMortgage,
       ptt,
       gst,
       totalClosingCosts,
+      cashAtCompletion,
       totalCashRequired,
       monthlyCashFlow,
       annualCashFlow,
@@ -165,6 +181,75 @@ export function InvestmentSnapshot() {
               <div className="text-xs text-[#4a7c59] font-medium mb-1">Mortgage Amount</div>
               <div className="text-base font-bold text-[#1e3a5f]">{formatCurrency(results.mortgageAmount)}</div>
             </div>
+          </div>
+        </div>
+
+        {/* Deposit Structure */}
+        <div className="space-y-3">
+          <div className="flex items-center gap-2 justify-center text-[#c9a227]">
+            <Wallet className="w-5 h-5" />
+            <span className="font-semibold uppercase tracking-wide text-sm">Deposit Structure</span>
+          </div>
+          <Separator className="bg-[#c9a227]/20" />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="flex justify-between mb-2">
+                <Label className="text-xs text-muted-foreground">First Deposit</Label>
+                <span className="text-sm font-medium">{inputs.firstDepositPercent}%</span>
+              </div>
+              <Slider
+                value={[inputs.firstDepositPercent]}
+                onValueChange={(v) => updateInput('firstDepositPercent', v[0])}
+                min={1}
+                max={20}
+                step={1}
+              />
+              <div className="text-center text-sm font-semibold text-[#1e3a5f] mt-1">
+                {formatCurrency(results.firstDeposit)}
+              </div>
+            </div>
+            <div>
+              <div className="flex justify-between mb-2">
+                <Label className="text-xs text-muted-foreground">Second Deposit</Label>
+                <span className="text-sm font-medium">{inputs.secondDepositPercent}%</span>
+              </div>
+              <Slider
+                value={[inputs.secondDepositPercent]}
+                onValueChange={(v) => updateInput('secondDepositPercent', v[0])}
+                min={0}
+                max={20}
+                step={1}
+              />
+              <div className="text-center text-sm font-semibold text-[#1e3a5f] mt-1">
+                {formatCurrency(results.secondDeposit)}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2 bg-secondary/50 rounded-lg p-3">
+            <div className="flex justify-between text-sm">
+              <span>First Deposit (on signing)</span>
+              <span className="font-semibold">{formatCurrency(results.firstDeposit)}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+              <span>Second Deposit (during construction)</span>
+              <span className="font-semibold">{formatCurrency(results.secondDeposit)}</span>
+            </div>
+            <Separator className="my-2" />
+            <div className="flex justify-between text-sm font-medium">
+              <span>Total Deposits</span>
+              <span className="font-bold text-[#1e3a5f]">{formatCurrency(results.totalDeposits)}</span>
+            </div>
+          </div>
+
+          {/* Cash Needed at Completion */}
+          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4a6f] text-white rounded-lg py-3 px-4">
+            <div className="flex justify-between items-center mb-1">
+              <span className="font-medium text-sm">Cash Needed at Completion</span>
+              <span className="text-xl font-bold">{formatCurrency(results.cashAtCompletion)}</span>
+            </div>
+            <p className="text-xs text-white/70">Remaining down payment + closing costs</p>
           </div>
         </div>
 
