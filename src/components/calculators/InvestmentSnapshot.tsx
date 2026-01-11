@@ -5,7 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
 import { Separator } from '@/components/ui/separator';
 import { Switch } from '@/components/ui/switch';
-import { Building2, DollarSign, Home, TrendingUp, Banknote, Wallet } from 'lucide-react';
+import { ArrowDown, TrendingUp, TrendingDown, DollarSign, Calendar, Home, Banknote } from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
 
 interface SnapshotInputs {
@@ -23,15 +23,15 @@ interface SnapshotInputs {
 }
 
 const DEFAULT_INPUTS: SnapshotInputs = {
-  purchasePrice: 499000,
+  purchasePrice: 599000,
   firstDepositPercent: 5,
   secondDepositPercent: 5,
   downPaymentPercent: 20,
-  interestRate: 3.79,
-  amortizationYears: 30,
-  monthlyRent: 2200,
-  strataFees: 350,
-  propertyTax: 200,
+  interestRate: 4.49,
+  amortizationYears: 25,
+  monthlyRent: 2400,
+  strataFees: 400,
+  propertyTax: 175,
   isNewConstruction: true,
   isFirstTimeBuyer: false,
 };
@@ -56,6 +56,11 @@ export function InvestmentSnapshot() {
     }).format(value);
   };
 
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const rawValue = e.target.value.replace(/[^0-9]/g, '');
+    updateInput('purchasePrice', Number(rawValue) || 0);
+  };
+
   const results = useMemo(() => {
     // Deposit calculations
     const firstDeposit = inputs.purchasePrice * (inputs.firstDepositPercent / 100);
@@ -76,34 +81,21 @@ export function InvestmentSnapshot() {
     const totalClosingCosts = ptt + gst;
     
     // Cash needed at completion = Down Payment - Deposits Already Paid + Closing Costs
-    const cashAtCompletion = Math.max(0, downPayment - totalDeposits) + totalClosingCosts;
-    const totalCashRequired = downPayment + totalClosingCosts;
+    const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
+    const cashAtCompletion = remainingDownPayment + totalClosingCosts;
+    const totalCashRequired = totalDeposits + cashAtCompletion;
 
     // Monthly numbers
-    const monthlyExpenses = monthlyMortgage + inputs.strataFees + inputs.propertyTax;
-    const monthlyCashFlow = inputs.monthlyRent - monthlyExpenses;
+    const totalMonthlyExpenses = monthlyMortgage + inputs.strataFees + inputs.propertyTax;
+    const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
     const annualCashFlow = monthlyCashFlow * 12;
-
-    // Determine cash flow status
-    let cashFlowStatus: 'positive' | 'negative' | 'neutral';
-    let cashFlowMessage: string;
-    
-    if (monthlyCashFlow > 200) {
-      cashFlowStatus = 'positive';
-      cashFlowMessage = 'Strong Positive Cash Flow • Good Investment';
-    } else if (monthlyCashFlow > 0) {
-      cashFlowStatus = 'neutral';
-      cashFlowMessage = 'Tight but Positive Cash Flow • Long-term Hold';
-    } else {
-      cashFlowStatus = 'negative';
-      cashFlowMessage = 'Negative Cash Flow • Review Numbers';
-    }
 
     return {
       firstDeposit,
       secondDeposit,
       totalDeposits,
       downPayment,
+      remainingDownPayment,
       mortgageAmount,
       monthlyMortgage,
       ptt,
@@ -111,10 +103,9 @@ export function InvestmentSnapshot() {
       totalClosingCosts,
       cashAtCompletion,
       totalCashRequired,
+      totalMonthlyExpenses,
       monthlyCashFlow,
       annualCashFlow,
-      cashFlowStatus,
-      cashFlowMessage,
     };
   }, [inputs]);
 
@@ -122,314 +113,293 @@ export function InvestmentSnapshot() {
     setInputs(prev => ({ ...prev, [field]: value }));
   };
 
+  const isPositiveCashFlow = results.monthlyCashFlow >= 0;
+
   return (
-    <div className="w-full max-w-lg mx-auto space-y-6">
+    <div className="w-full max-w-md mx-auto space-y-4 px-4">
       {/* Header */}
-      <div className="text-center">
-        <div className="inline-block bg-[#1e3a5f] text-white px-6 py-3 rounded-t-xl">
-          <h1 className="text-xl font-bold tracking-wide">CONDO INVESTMENT SNAPSHOT</h1>
-        </div>
+      <div className="text-center pt-2">
+        <h1 className="text-2xl font-bold text-foreground">Investment Snapshot</h1>
+        <p className="text-sm text-muted-foreground">Quick cash flow analysis</p>
       </div>
 
-      <Card className="p-6 space-y-6 shadow-lg border-0 rounded-2xl bg-gradient-to-b from-white to-secondary/30">
-        {/* Purchase Overview - Inputs */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 justify-center text-[#1e3a5f]">
-            <Building2 className="w-5 h-5" />
-            <span className="font-semibold uppercase tracking-wide text-sm">Purchase Overview</span>
-          </div>
-          <Separator className="bg-[#1e3a5f]/20" />
-
-          <div className="space-y-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Purchase Price</Label>
-              <Input
-                type="number"
-                value={inputs.purchasePrice}
-                onChange={(e) => updateInput('purchasePrice', Number(e.target.value))}
-                className="text-lg font-semibold text-center"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between mb-2">
-                <Label className="text-xs text-muted-foreground">Down Payment</Label>
-                <span className="text-sm font-medium">{inputs.downPaymentPercent}%</span>
-              </div>
-              <Slider
-                value={[inputs.downPaymentPercent]}
-                onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
-                min={5}
-                max={50}
-                step={5}
-                className="mb-2"
-              />
-            </div>
-          </div>
-
-          {/* Results Grid */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-              <div className="text-xs text-[#4a7c59] font-medium mb-1">Purchase Price</div>
-              <div className="text-base font-bold text-[#1e3a5f]">{formatCurrency(inputs.purchasePrice)}</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-              <div className="text-xs text-[#4a7c59] font-medium mb-1">Down Payment</div>
-              <div className="text-base font-bold text-[#1e3a5f]">{formatCurrency(results.downPayment)}</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-              <div className="text-xs text-[#4a7c59] font-medium mb-1">Mortgage Amount</div>
-              <div className="text-base font-bold text-[#1e3a5f]">{formatCurrency(results.mortgageAmount)}</div>
-            </div>
-          </div>
+      {/* Step 1: Purchase Price */}
+      <Card className="p-5 space-y-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">1</div>
+          <h2 className="font-semibold text-foreground">Purchase Price</h2>
+        </div>
+        
+        <div className="relative">
+          <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Input
+            type="text"
+            inputMode="numeric"
+            value={inputs.purchasePrice.toLocaleString()}
+            onChange={handlePriceChange}
+            className="text-2xl font-bold text-center pl-10 h-14"
+          />
         </div>
 
-        {/* Deposit Structure */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 justify-center text-[#c9a227]">
-            <Wallet className="w-5 h-5" />
-            <span className="font-semibold uppercase tracking-wide text-sm">Deposit Structure</span>
-          </div>
-          <Separator className="bg-[#c9a227]/20" />
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-muted-foreground">New Construction</span>
+          <Switch
+            checked={inputs.isNewConstruction}
+            onCheckedChange={(v) => updateInput('isNewConstruction', v)}
+          />
+        </div>
+      </Card>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <div className="flex justify-between mb-2">
-                <Label className="text-xs text-muted-foreground">First Deposit</Label>
-                <span className="text-sm font-medium">{inputs.firstDepositPercent}%</span>
-              </div>
-              <Slider
-                value={[inputs.firstDepositPercent]}
-                onValueChange={(v) => updateInput('firstDepositPercent', v[0])}
-                min={1}
-                max={20}
-                step={1}
-              />
-              <div className="text-center text-sm font-semibold text-[#1e3a5f] mt-1">
-                {formatCurrency(results.firstDeposit)}
-              </div>
-            </div>
-            <div>
-              <div className="flex justify-between mb-2">
-                <Label className="text-xs text-muted-foreground">Second Deposit</Label>
-                <span className="text-sm font-medium">{inputs.secondDepositPercent}%</span>
-              </div>
-              <Slider
-                value={[inputs.secondDepositPercent]}
-                onValueChange={(v) => updateInput('secondDepositPercent', v[0])}
-                min={0}
-                max={20}
-                step={1}
-              />
-              <div className="text-center text-sm font-semibold text-[#1e3a5f] mt-1">
-                {formatCurrency(results.secondDeposit)}
-              </div>
-            </div>
-          </div>
+      <div className="flex justify-center">
+        <ArrowDown className="w-5 h-5 text-muted-foreground" />
+      </div>
 
-          <div className="space-y-2 bg-secondary/50 rounded-lg p-3">
-            <div className="flex justify-between text-sm">
-              <span>First Deposit (on signing)</span>
-              <span className="font-semibold">{formatCurrency(results.firstDeposit)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Second Deposit (during construction)</span>
-              <span className="font-semibold">{formatCurrency(results.secondDeposit)}</span>
-            </div>
-            <Separator className="my-2" />
-            <div className="flex justify-between text-sm font-medium">
-              <span>Total Deposits</span>
-              <span className="font-bold text-[#1e3a5f]">{formatCurrency(results.totalDeposits)}</span>
-            </div>
-          </div>
-
-          {/* Cash Needed at Completion */}
-          <div className="bg-gradient-to-r from-[#1e3a5f] to-[#2a4a6f] text-white rounded-lg py-3 px-4">
-            <div className="flex justify-between items-center mb-1">
-              <span className="font-medium text-sm">Cash Needed at Completion</span>
-              <span className="text-xl font-bold">{formatCurrency(results.cashAtCompletion)}</span>
-            </div>
-            <p className="text-xs text-white/70">Remaining down payment + closing costs</p>
-          </div>
+      {/* Step 2: Deposit Structure */}
+      <Card className="p-5 space-y-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">2</div>
+          <h2 className="font-semibold text-foreground">Deposits</h2>
         </div>
 
-        {/* Closing Costs */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 justify-center text-[#4a7c59]">
-            <DollarSign className="w-5 h-5" />
-            <span className="font-semibold uppercase tracking-wide text-sm">Closing Costs</span>
-          </div>
-          <Separator className="bg-[#4a7c59]/20" />
-
-          <div className="flex items-center justify-between">
-            <span className="text-sm">New Construction (GST applies)</span>
-            <Switch
-              checked={inputs.isNewConstruction}
-              onCheckedChange={(v) => updateInput('isNewConstruction', v)}
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-sm">First-Time Home Buyer</span>
-            <Switch
-              checked={inputs.isFirstTimeBuyer}
-              onCheckedChange={(v) => updateInput('isFirstTimeBuyer', v)}
-            />
-          </div>
-
-          <div className="space-y-2 bg-secondary/50 rounded-lg p-3">
-            <div className="flex justify-between text-sm">
-              <span>PTT (BC Transfer Tax)</span>
-              <span className="font-semibold">{formatCurrency(results.ptt)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>GST</span>
-              <span className="font-semibold">{formatCurrency(results.gst)}</span>
-            </div>
-          </div>
-
-          {/* Total Cash Required */}
-          <div className="bg-gradient-to-r from-[#c9a227] to-[#d4af37] text-white rounded-lg py-3 px-4 flex justify-between items-center">
-            <span className="font-bold uppercase tracking-wide text-sm">Total Cash Required</span>
-            <span className="text-xl font-bold">{formatCurrency(results.totalCashRequired)}</span>
-          </div>
-        </div>
-
-        {/* Mortgage Details */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 justify-center text-[#1e3a5f]">
-            <Home className="w-5 h-5" />
-            <span className="font-semibold uppercase tracking-wide text-sm">Mortgage Details</span>
-          </div>
-          <Separator className="bg-[#1e3a5f]/20" />
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Interest Rate (%)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                value={inputs.interestRate}
-                onChange={(e) => updateInput('interestRate', Number(e.target.value))}
-                className="text-center"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Amortization (Years)</Label>
-              <Input
-                type="number"
-                value={inputs.amortizationYears}
-                onChange={(e) => updateInput('amortizationYears', Number(e.target.value))}
-                className="text-center"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-              <div className="text-xs text-[#4a7c59] font-medium mb-1">Interest Rate</div>
-              <div className="text-lg font-bold text-[#1e3a5f]">{inputs.interestRate}%</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-              <div className="text-xs text-[#4a7c59] font-medium mb-1">Amortization</div>
-              <div className="text-lg font-bold text-[#1e3a5f]">{inputs.amortizationYears} Years</div>
-            </div>
-            <div className="bg-white rounded-lg p-3 text-center shadow-sm border">
-              <div className="text-xs text-[#4a7c59] font-medium mb-1">Monthly Payment</div>
-              <div className="text-lg font-bold text-[#1e3a5f]">{formatCurrency(results.monthlyMortgage)}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Monthly Numbers */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 justify-center text-[#1e3a5f]">
-            <Banknote className="w-5 h-5" />
-            <span className="font-semibold uppercase tracking-wide text-sm">Monthly Numbers</span>
-          </div>
-          <Separator className="bg-[#1e3a5f]/20" />
-
-          <div className="grid grid-cols-3 gap-4">
-            <div>
-              <Label className="text-xs text-muted-foreground">Monthly Rent</Label>
-              <Input
-                type="number"
-                value={inputs.monthlyRent}
-                onChange={(e) => updateInput('monthlyRent', Number(e.target.value))}
-                className="text-center"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Strata Fees</Label>
-              <Input
-                type="number"
-                value={inputs.strataFees}
-                onChange={(e) => updateInput('strataFees', Number(e.target.value))}
-                className="text-center"
-              />
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">Property Tax</Label>
-              <Input
-                type="number"
-                value={inputs.propertyTax}
-                onChange={(e) => updateInput('propertyTax', Number(e.target.value))}
-                className="text-center"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2 bg-secondary/50 rounded-lg p-3">
-            <div className="flex justify-between text-sm">
-              <span>Rent</span>
-              <span className="font-semibold text-[#4a7c59]">{formatCurrency(inputs.monthlyRent)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Mortgage</span>
-              <span className="font-semibold text-destructive">-{formatCurrency(results.monthlyMortgage)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Strata Fees</span>
-              <span className="font-semibold text-destructive">-{formatCurrency(inputs.strataFees)}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Property Tax</span>
-              <span className="font-semibold text-destructive">-{formatCurrency(inputs.propertyTax)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Cash Flow Result */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2 justify-center text-[#1e3a5f]">
-            <TrendingUp className="w-5 h-5" />
-            <span className="font-semibold uppercase tracking-wide text-sm">Cash Flow Result</span>
-          </div>
-          <Separator className="bg-[#1e3a5f]/20" />
-
+        <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <div className={`rounded-lg py-3 px-4 text-center ${
-              results.monthlyCashFlow >= 0 
-                ? 'bg-gradient-to-r from-[#4a7c59] to-[#5a8c69] text-white' 
-                : 'bg-gradient-to-r from-destructive to-red-500 text-white'
-            }`}>
-              <div className="text-xl font-bold">
-                {results.monthlyCashFlow >= 0 ? '+' : ''}{formatCurrency(results.monthlyCashFlow)} / Month
-              </div>
+            <div className="flex justify-between">
+              <Label className="text-xs text-muted-foreground">On Signing</Label>
+              <span className="text-xs font-medium">{inputs.firstDepositPercent}%</span>
             </div>
-            <div className={`rounded-lg py-3 px-4 text-center ${
-              results.annualCashFlow >= 0 
-                ? 'bg-gradient-to-r from-[#4a7c59] to-[#5a8c69] text-white' 
-                : 'bg-gradient-to-r from-destructive to-red-500 text-white'
-            }`}>
-              <div className="text-xl font-bold">
-                {results.annualCashFlow >= 0 ? '+' : ''}{formatCurrency(results.annualCashFlow)} / Year
-              </div>
+            <Slider
+              value={[inputs.firstDepositPercent]}
+              onValueChange={(v) => updateInput('firstDepositPercent', v[0])}
+              min={1}
+              max={15}
+              step={1}
+            />
+            <div className="text-center font-bold text-foreground">{formatCurrency(results.firstDeposit)}</div>
+          </div>
+          <div className="space-y-2">
+            <div className="flex justify-between">
+              <Label className="text-xs text-muted-foreground">During Build</Label>
+              <span className="text-xs font-medium">{inputs.secondDepositPercent}%</span>
+            </div>
+            <Slider
+              value={[inputs.secondDepositPercent]}
+              onValueChange={(v) => updateInput('secondDepositPercent', v[0])}
+              min={0}
+              max={15}
+              step={1}
+            />
+            <div className="text-center font-bold text-foreground">{formatCurrency(results.secondDeposit)}</div>
+          </div>
+        </div>
+
+        <div className="bg-secondary/50 rounded-lg p-3 text-center">
+          <span className="text-xs text-muted-foreground">Total Deposits</span>
+          <div className="text-lg font-bold text-foreground">{formatCurrency(results.totalDeposits)}</div>
+        </div>
+      </Card>
+
+      <div className="flex justify-center">
+        <ArrowDown className="w-5 h-5 text-muted-foreground" />
+      </div>
+
+      {/* Step 3: Down Payment & Completion */}
+      <Card className="p-5 space-y-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">3</div>
+          <h2 className="font-semibold text-foreground">At Completion</h2>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex justify-between">
+            <Label className="text-sm text-muted-foreground">Total Down Payment</Label>
+            <span className="text-sm font-medium">{inputs.downPaymentPercent}%</span>
+          </div>
+          <Slider
+            value={[inputs.downPaymentPercent]}
+            onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
+            min={5}
+            max={35}
+            step={5}
+          />
+        </div>
+
+        <div className="space-y-2 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Total Down Payment</span>
+            <span className="font-medium">{formatCurrency(results.downPayment)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">− Deposits Paid</span>
+            <span className="font-medium text-green-600">−{formatCurrency(results.totalDeposits)}</span>
+          </div>
+          <Separator />
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Remaining Down Payment</span>
+            <span className="font-semibold">{formatCurrency(results.remainingDownPayment)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">+ Closing Costs (PTT, GST)</span>
+            <span className="font-medium">+{formatCurrency(results.totalClosingCosts)}</span>
+          </div>
+        </div>
+
+        <div className="bg-foreground text-background rounded-lg p-4 text-center">
+          <div className="flex items-center justify-center gap-2 text-xs opacity-80 mb-1">
+            <Calendar className="w-4 h-4" />
+            <span>Cash Needed at Completion</span>
+          </div>
+          <div className="text-2xl font-bold">{formatCurrency(results.cashAtCompletion)}</div>
+        </div>
+      </Card>
+
+      <div className="flex justify-center">
+        <ArrowDown className="w-5 h-5 text-muted-foreground" />
+      </div>
+
+      {/* Step 4: Mortgage & Carrying Costs */}
+      <Card className="p-5 space-y-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">4</div>
+          <h2 className="font-semibold text-foreground">Monthly Costs</h2>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Rate %</Label>
+            <Input
+              type="number"
+              step="0.01"
+              value={inputs.interestRate}
+              onChange={(e) => updateInput('interestRate', Number(e.target.value))}
+              className="text-center h-10"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Years</Label>
+            <Input
+              type="number"
+              value={inputs.amortizationYears}
+              onChange={(e) => updateInput('amortizationYears', Number(e.target.value))}
+              className="text-center h-10"
+            />
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <Label className="text-xs text-muted-foreground">Strata</Label>
+            <Input
+              type="number"
+              value={inputs.strataFees}
+              onChange={(e) => updateInput('strataFees', Number(e.target.value))}
+              className="text-center h-10"
+            />
+          </div>
+          <div>
+            <Label className="text-xs text-muted-foreground">Property Tax /mo</Label>
+            <Input
+              type="number"
+              value={inputs.propertyTax}
+              onChange={(e) => updateInput('propertyTax', Number(e.target.value))}
+              className="text-center h-10"
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2 bg-secondary/30 rounded-lg p-3 text-sm">
+          <div className="flex justify-between">
+            <span className="text-muted-foreground flex items-center gap-1"><Home className="w-3 h-3" /> Mortgage</span>
+            <span className="font-medium">{formatCurrency(results.monthlyMortgage)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Strata</span>
+            <span className="font-medium">{formatCurrency(inputs.strataFees)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-muted-foreground">Property Tax</span>
+            <span className="font-medium">{formatCurrency(inputs.propertyTax)}</span>
+          </div>
+          <Separator />
+          <div className="flex justify-between font-semibold">
+            <span>Total Monthly</span>
+            <span className="text-destructive">{formatCurrency(results.totalMonthlyExpenses)}</span>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex justify-center">
+        <ArrowDown className="w-5 h-5 text-muted-foreground" />
+      </div>
+
+      {/* Step 5: Rental Income */}
+      <Card className="p-5 space-y-4 shadow-sm">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">5</div>
+          <h2 className="font-semibold text-foreground">Projected Rent</h2>
+        </div>
+
+        <div className="relative">
+          <Banknote className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+          <Input
+            type="number"
+            value={inputs.monthlyRent}
+            onChange={(e) => updateInput('monthlyRent', Number(e.target.value))}
+            className="text-2xl font-bold text-center pl-10 h-14"
+          />
+        </div>
+      </Card>
+
+      <div className="flex justify-center">
+        <ArrowDown className="w-5 h-5 text-muted-foreground" />
+      </div>
+
+      {/* Step 6: Cash Flow Result */}
+      <Card className={`p-6 shadow-lg border-2 ${isPositiveCashFlow ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}`}>
+        <div className="text-center space-y-3">
+          <div className="flex items-center justify-center gap-2">
+            {isPositiveCashFlow ? (
+              <TrendingUp className="w-6 h-6 text-green-600" />
+            ) : (
+              <TrendingDown className="w-6 h-6 text-red-600" />
+            )}
+            <h2 className="font-bold text-lg">
+              {isPositiveCashFlow ? 'Cash Flow Positive' : 'Cash Burn'}
+            </h2>
+          </div>
+
+          <div className="space-y-1">
+            <div className={`text-4xl font-bold ${isPositiveCashFlow ? 'text-green-600' : 'text-red-600'}`}>
+              {isPositiveCashFlow ? '+' : ''}{formatCurrency(results.monthlyCashFlow)}
+              <span className="text-lg font-normal"> /mo</span>
+            </div>
+            <div className={`text-lg font-semibold ${isPositiveCashFlow ? 'text-green-700' : 'text-red-700'}`}>
+              {isPositiveCashFlow ? '+' : ''}{formatCurrency(results.annualCashFlow)}
+              <span className="text-sm font-normal"> /year</span>
             </div>
           </div>
 
-          {/* Status Message */}
-          <div className="bg-[#1e3a5f] text-white rounded-lg py-4 px-4 text-center">
-            <p className="text-sm font-medium italic">{results.cashFlowMessage}</p>
+          <div className="pt-3 border-t space-y-1 text-sm text-muted-foreground">
+            <div className="flex justify-between">
+              <span>Rent</span>
+              <span className="text-green-600 font-medium">+{formatCurrency(inputs.monthlyRent)}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Expenses</span>
+              <span className="text-red-600 font-medium">−{formatCurrency(results.totalMonthlyExpenses)}</span>
+            </div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Investment Summary */}
+      <Card className="p-4 bg-foreground text-background">
+        <div className="text-center space-y-2">
+          <div className="text-xs opacity-70">Total Cash Investment</div>
+          <div className="text-2xl font-bold">{formatCurrency(results.totalCashRequired)}</div>
+          <div className="flex justify-center gap-4 text-xs opacity-70">
+            <span>Deposits: {formatCurrency(results.totalDeposits)}</span>
+            <span>•</span>
+            <span>At Closing: {formatCurrency(results.cashAtCompletion)}</span>
           </div>
         </div>
       </Card>
