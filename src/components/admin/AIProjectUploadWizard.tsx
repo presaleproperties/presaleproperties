@@ -44,7 +44,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
 type ExtractedProjectData = {
   name?: string;
   slug?: string;
-  status?: "coming_soon" | "active" | "sold_out";
+  status?: "coming_soon" | "registering" | "active" | "sold_out";
   developer_name?: string;
   city?: string;
   neighborhood?: string;
@@ -53,7 +53,14 @@ type ExtractedProjectData = {
   unit_mix?: string;
   starting_price?: number;
   deposit_structure?: string;
+  deposit_percent?: number;
+  strata_fees?: string;
+  assignment_fees?: string;
+  assignment_allowed?: string;
+  rental_restrictions?: string;
   incentives?: string;
+  incentives_available?: boolean;
+  near_skytrain?: boolean;
   completion_month?: number;
   completion_year?: number;
   occupancy_estimate?: string;
@@ -62,6 +69,7 @@ type ExtractedProjectData = {
   highlights?: string[];
   amenities?: string[];
   faq?: { question: string; answer: string }[];
+  brochure_files?: string[];
   seo_title?: string;
   seo_description?: string;
   is_indexed?: boolean;
@@ -92,6 +100,10 @@ export function AIProjectUploadWizard() {
   const [formData, setFormData] = useState<ExtractedProjectData>({
     status: "coming_soon",
     is_indexed: true,
+    incentives_available: false,
+    near_skytrain: false,
+    assignment_allowed: "Unknown",
+    rental_restrictions: "Unknown",
   });
   const [isPublished, setIsPublished] = useState(false);
   const [isFeatured, setIsFeatured] = useState(false);
@@ -99,8 +111,11 @@ export function AIProjectUploadWizard() {
   // Photo upload state
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [featuredImage, setFeaturedImage] = useState<string>("");
+  const [brochureFiles, setBrochureFiles] = useState<string[]>([]);
   const [driveUrl, setDriveUrl] = useState("");
   const [isImportingDrive, setIsImportingDrive] = useState(false);
+  const [isFormattingDescription, setIsFormattingDescription] = useState(false);
+  const brochureFileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   
   // Address autocomplete state
@@ -534,7 +549,14 @@ export function AIProjectUploadWizard() {
         unit_mix: formData.unit_mix || null,
         starting_price: formData.starting_price || null,
         deposit_structure: formData.deposit_structure || null,
+        deposit_percent: formData.deposit_percent || null,
+        strata_fees: formData.strata_fees || null,
+        assignment_fees: formData.assignment_fees || null,
+        assignment_allowed: formData.assignment_allowed || "Unknown",
+        rental_restrictions: formData.rental_restrictions || "Unknown",
         incentives: formData.incentives || null,
+        incentives_available: formData.incentives_available || false,
+        near_skytrain: formData.near_skytrain || false,
         completion_month: formData.completion_month || null,
         completion_year: formData.completion_year || null,
         occupancy_estimate: formData.occupancy_estimate || null,
@@ -543,6 +565,7 @@ export function AIProjectUploadWizard() {
         highlights: formData.highlights || null,
         amenities: formData.amenities || null,
         faq: formData.faq || [],
+        brochure_files: brochureFiles.length > 0 ? brochureFiles : null,
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         is_indexed: formData.is_indexed ?? true,
@@ -654,6 +677,97 @@ export function AIProjectUploadWizard() {
       ...prev,
       faq: prev.faq?.filter((_, i) => i !== index)
     }));
+  };
+
+  // AI Format Description
+  const formatDescriptionWithAI = async () => {
+    if (!formData.full_description || formData.full_description.trim().length < 20) {
+      toast({
+        title: "Not enough content",
+        description: "Add more description text before formatting",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsFormattingDescription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("format-description", {
+        body: {
+          description: formData.full_description,
+          projectContext: {
+            name: formData.name,
+            city: formData.city,
+            neighborhood: formData.neighborhood,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.formatted) {
+        updateFormField("full_description", data.formatted);
+        toast({
+          title: "Description Formatted",
+          description: "Content optimized for easy reading",
+        });
+      }
+    } catch (error: any) {
+      console.error("Format error:", error);
+      toast({
+        title: "Formatting Failed",
+        description: error.message || "Could not format description",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFormattingDescription(false);
+    }
+  };
+
+  // Brochure upload handler
+  const handleBrochureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImages(true);
+    try {
+      const file = files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `brochures/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("listing-files")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("listing-files")
+        .getPublicUrl(fileName);
+
+      setBrochureFiles([urlData.publicUrl]);
+
+      toast({
+        title: "Upload Complete",
+        description: "Brochure PDF uploaded successfully",
+      });
+    } catch (error) {
+      console.error("Error uploading brochure:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload brochure",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImages(false);
+      if (brochureFileInputRef.current) {
+        brochureFileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const removeBrochure = () => {
+    setBrochureFiles([]);
   };
 
   // Render based on current step
@@ -904,6 +1018,7 @@ export function AIProjectUploadWizard() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="coming_soon">Coming Soon</SelectItem>
+                          <SelectItem value="registering">Registering</SelectItem>
                           <SelectItem value="active">Selling Now</SelectItem>
                           <SelectItem value="sold_out">Sold Out</SelectItem>
                         </SelectContent>
@@ -1014,14 +1129,25 @@ export function AIProjectUploadWizard() {
                   <CardTitle>Pricing & Deposits</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Starting Price</Label>
-                    <Input
-                      type="number"
-                      value={formData.starting_price || ""}
-                      onChange={(e) => updateFormField("starting_price", e.target.value ? Number(e.target.value) : undefined)}
-                      placeholder="e.g., 499000"
-                    />
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Starting Price</Label>
+                      <Input
+                        type="number"
+                        value={formData.starting_price || ""}
+                        onChange={(e) => updateFormField("starting_price", e.target.value ? Number(e.target.value) : undefined)}
+                        placeholder="e.g., 499000"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Deposit %</Label>
+                      <Input
+                        type="number"
+                        value={formData.deposit_percent || ""}
+                        onChange={(e) => updateFormField("deposit_percent", e.target.value ? Number(e.target.value) : undefined)}
+                        placeholder="e.g., 15"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -1034,6 +1160,62 @@ export function AIProjectUploadWizard() {
                     />
                   </div>
 
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Strata Fees</Label>
+                      <Input
+                        value={formData.strata_fees || ""}
+                        onChange={(e) => updateFormField("strata_fees", e.target.value)}
+                        placeholder="e.g., $0.45/sqft/month"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Assignment Fees</Label>
+                      <Input
+                        value={formData.assignment_fees || ""}
+                        onChange={(e) => updateFormField("assignment_fees", e.target.value)}
+                        placeholder="e.g., $5,000"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Assignment Allowed</Label>
+                      <Select
+                        value={formData.assignment_allowed || "Unknown"}
+                        onValueChange={(v) => updateFormField("assignment_allowed", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Yes">Yes</SelectItem>
+                          <SelectItem value="No">No</SelectItem>
+                          <SelectItem value="Unknown">Unknown</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Rental Restrictions</Label>
+                      <Select
+                        value={formData.rental_restrictions || "Unknown"}
+                        onValueChange={(v) => updateFormField("rental_restrictions", v)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="None">No Restrictions</SelectItem>
+                          <SelectItem value="1 Year">1 Year Minimum</SelectItem>
+                          <SelectItem value="2 Years">2 Years Minimum</SelectItem>
+                          <SelectItem value="No Rentals">No Rentals Allowed</SelectItem>
+                          <SelectItem value="Unknown">Unknown</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
                   <div className="space-y-2">
                     <Label>Incentives</Label>
                     <Textarea
@@ -1042,6 +1224,23 @@ export function AIProjectUploadWizard() {
                       placeholder="Current promotions or incentives"
                       rows={2}
                     />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-4 pt-2">
+                    <div className="flex items-center gap-3 border rounded-lg p-3">
+                      <Switch
+                        checked={formData.incentives_available || false}
+                        onCheckedChange={(v) => updateFormField("incentives_available", v)}
+                      />
+                      <Label className="cursor-pointer">Incentives Available</Label>
+                    </div>
+                    <div className="flex items-center gap-3 border rounded-lg p-3">
+                      <Switch
+                        checked={formData.near_skytrain || false}
+                        onCheckedChange={(v) => updateFormField("near_skytrain", v)}
+                      />
+                      <Label className="cursor-pointer">Near SkyTrain</Label>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1117,7 +1316,23 @@ export function AIProjectUploadWizard() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Full Description</Label>
+                    <div className="flex items-center justify-between">
+                      <Label>Full Description</Label>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={formatDescriptionWithAI}
+                        disabled={isFormattingDescription || !formData.full_description?.trim()}
+                      >
+                        {isFormattingDescription ? (
+                          <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-4 w-4 mr-1" />
+                        )}
+                        AI Format
+                      </Button>
+                    </div>
                     <Textarea
                       value={formData.full_description || ""}
                       onChange={(e) => updateFormField("full_description", e.target.value)}
@@ -1435,6 +1650,48 @@ export function AIProjectUploadWizard() {
                       disabled={isUploadingImages}
                     />
                   </label>
+                </CardContent>
+              </Card>
+
+              {/* Brochure PDF */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Brochure PDF
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {brochureFiles.length > 0 ? (
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-primary" />
+                        <span className="text-sm truncate max-w-[150px]">
+                          {brochureFiles[0].split('/').pop()}
+                        </span>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={removeBrochure}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                      <span className="text-sm text-muted-foreground">Upload brochure PDF</span>
+                      <input
+                        ref={brochureFileInputRef}
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={handleBrochureUpload}
+                      />
+                    </label>
+                  )}
                 </CardContent>
               </Card>
 
