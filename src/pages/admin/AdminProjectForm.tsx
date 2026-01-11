@@ -500,123 +500,163 @@ export default function AdminProjectForm() {
     }));
   };
 
-  // Extract embedded images from PDF for gallery (up to 10 images, no text) - shows preview first
+  // Analyze if a page is image-heavy (for AI selection of primary image)
+  const analyzePageImageContent = async (page: any): Promise<{ isImageHeavy: boolean; imageRatio: number }> => {
+    try {
+      const viewport = page.getViewport({ scale: 1.0 });
+      const textContent = await page.getTextContent();
+      
+      // Calculate total text area
+      let textArea = 0;
+      for (const item of textContent.items as any[]) {
+        if (item.width && item.height) {
+          textArea += item.width * item.height;
+        }
+      }
+      
+      const pageArea = viewport.width * viewport.height;
+      const textRatio = textArea / pageArea;
+      
+      // Page is image-heavy if text covers less than 15% of the page
+      return {
+        isImageHeavy: textRatio < 0.15,
+        imageRatio: 1 - textRatio
+      };
+    } catch (err) {
+      console.warn("Could not analyze page:", err);
+      return { isImageHeavy: true, imageRatio: 0.5 };
+    }
+  };
+
+  // Extract HQ screenshots from PDF pages that are image-heavy (minimal text)
   const extractImagesFromPdfForGallery = async (file: File) => {
     setIsExtractingFromPdf(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
       const uploadedUrls: string[] = [];
-      const minImageSize = 50000; // Minimum 50KB to filter out small icons/logos
+      const pageScores: { pageNum: number; imageRatio: number; url: string }[] = [];
+      const renderScale = 2.5; // High quality screenshots
+      const maxImages = 7;
       
       toast({
-        title: "Scanning PDF",
-        description: `Looking for images in ${pdf.numPages} pages...`,
+        title: "AI Scanning PDF",
+        description: `Analyzing ${pdf.numPages} pages for images...`,
       });
       
-      // Scan all pages for embedded images (up to 10 for preview)
-      for (let pageNum = 1; pageNum <= pdf.numPages && uploadedUrls.length < 10; pageNum++) {
+      // First pass: analyze all pages to find image-heavy ones
+      const imageHeavyPages: number[] = [];
+      for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
-          const operatorList = await page.getOperatorList();
+          const { isImageHeavy, imageRatio } = await analyzePageImageContent(page);
           
-          // Find image objects in the page
-          for (let i = 0; i < operatorList.fnArray.length && uploadedUrls.length < 10; i++) {
-            // OPS.paintImageXObject = 85, OPS.paintJpegXObject = 82
-            if (operatorList.fnArray[i] === 85 || operatorList.fnArray[i] === 82) {
-              const imgName = operatorList.argsArray[i][0];
-              
-              try {
-                // Get the image data
-                const img = await page.objs.get(imgName);
-                
-                if (img && img.data && img.width && img.height) {
-                  // Skip small images (icons, logos, etc.)
-                  const estimatedSize = img.width * img.height * (img.data.length / (img.width * img.height));
-                  if (img.width < 200 || img.height < 200 || estimatedSize < minImageSize) {
-                    continue;
-                  }
-                  
-                  // Create canvas and draw image
-                  const canvas = document.createElement("canvas");
-                  canvas.width = img.width;
-                  canvas.height = img.height;
-                  const ctx = canvas.getContext("2d");
-                  if (!ctx) continue;
-                  
-                  // Create ImageData from the raw pixel data
-                  const imgData = ctx.createImageData(img.width, img.height);
-                  
-                  // Handle different image formats
-                  if (img.data.length === img.width * img.height * 4) {
-                    // RGBA format
-                    imgData.data.set(img.data);
-                  } else if (img.data.length === img.width * img.height * 3) {
-                    // RGB format - convert to RGBA
-                    for (let j = 0, k = 0; j < img.data.length; j += 3, k += 4) {
-                      imgData.data[k] = img.data[j];
-                      imgData.data[k + 1] = img.data[j + 1];
-                      imgData.data[k + 2] = img.data[j + 2];
-                      imgData.data[k + 3] = 255;
-                    }
-                  } else {
-                    // Grayscale or other format
-                    continue;
-                  }
-                  
-                  ctx.putImageData(imgData, 0, 0);
-                  
-                  // Convert to blob
-                  const blob = await new Promise<Blob | null>((resolve) => {
-                    canvas.toBlob(resolve, "image/jpeg", 0.92);
-                  });
-                  
-                  if (!blob || blob.size < 10000) continue; // Skip if too small
-                  
-                  // Upload to storage (temporary - will be used if selected)
-                  const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-img${uploadedUrls.length + 1}.jpg`;
-                  
-                  const { error: uploadError } = await supabase.storage
-                    .from("listing-photos")
-                    .upload(fileName, blob, { contentType: "image/jpeg" });
-                  
-                  if (uploadError) {
-                    console.error(`Failed to upload image:`, uploadError);
-                    continue;
-                  }
-                  
-                  const { data: { publicUrl } } = supabase.storage
-                    .from("listing-photos")
-                    .getPublicUrl(fileName);
-                  
-                  uploadedUrls.push(publicUrl);
-                  console.log(`Extracted image ${uploadedUrls.length}: ${img.width}x${img.height}`);
-                }
-              } catch (imgErr) {
-                // Image extraction failed for this object, continue to next
-                console.log(`Could not extract image ${imgName}:`, imgErr);
-              }
-            }
+          if (isImageHeavy) {
+            imageHeavyPages.push(pageNum);
+            console.log(`Page ${pageNum}: Image-heavy (${(imageRatio * 100).toFixed(0)}% visual content)`);
+          } else {
+            console.log(`Page ${pageNum}: Text-heavy, skipping`);
           }
+        } catch (err) {
+          console.warn(`Error analyzing page ${pageNum}:`, err);
+        }
+      }
+      
+      if (imageHeavyPages.length === 0) {
+        // Fallback: if no image-heavy pages found, take first few pages
+        toast({
+          title: "Limited Images Found",
+          description: "Extracting best available pages...",
+        });
+        for (let i = 1; i <= Math.min(maxImages, pdf.numPages); i++) {
+          imageHeavyPages.push(i);
+        }
+      }
+      
+      // Second pass: render HQ screenshots of image-heavy pages
+      const pagesToRender = imageHeavyPages.slice(0, maxImages);
+      
+      for (const pageNum of pagesToRender) {
+        try {
+          const page = await pdf.getPage(pageNum);
+          const viewport = page.getViewport({ scale: renderScale });
+          
+          // Create high-res canvas
+          const canvas = document.createElement("canvas");
+          canvas.width = viewport.width;
+          canvas.height = viewport.height;
+          const ctx = canvas.getContext("2d", { alpha: false });
+          if (!ctx) continue;
+          
+          // White background for better image quality
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Render the page
+          await page.render({
+            canvasContext: ctx,
+            viewport: viewport,
+          }).promise;
+          
+          // Convert to high-quality JPEG
+          const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, "image/jpeg", 0.95);
+          });
+          
+          if (!blob || blob.size < 20000) continue; // Skip very small results
+          
+          // Upload to storage
+          const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-page${pageNum}.jpg`;
+          
+          const { error: uploadError } = await supabase.storage
+            .from("listing-photos")
+            .upload(fileName, blob, { contentType: "image/jpeg" });
+          
+          if (uploadError) {
+            console.error(`Failed to upload page ${pageNum}:`, uploadError);
+            continue;
+          }
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from("listing-photos")
+            .getPublicUrl(fileName);
+          
+          uploadedUrls.push(publicUrl);
+          
+          // Track page analysis for primary image selection
+          const { imageRatio } = await analyzePageImageContent(page);
+          pageScores.push({ pageNum, imageRatio, url: publicUrl });
+          
+          console.log(`Extracted page ${pageNum}: ${viewport.width}x${viewport.height} @ ${renderScale}x scale`);
         } catch (pageErr) {
-          console.error(`Error processing page ${pageNum}:`, pageErr);
+          console.error(`Error rendering page ${pageNum}:`, pageErr);
         }
       }
       
       if (uploadedUrls.length > 0) {
-        // Show preview modal instead of directly adding
+        // Sort by image ratio to find best primary image (most visual, least text)
+        pageScores.sort((a, b) => b.imageRatio - a.imageRatio);
+        const bestPrimaryIndex = uploadedUrls.indexOf(pageScores[0]?.url || uploadedUrls[0]);
+        
+        // Reorder so best primary is first
+        if (bestPrimaryIndex > 0) {
+          const [bestImage] = uploadedUrls.splice(bestPrimaryIndex, 1);
+          uploadedUrls.unshift(bestImage);
+        }
+        
+        // Show preview modal with best image pre-selected as first
         setExtractedPreviewImages(uploadedUrls);
         setSelectedPreviewImages(new Set(uploadedUrls.map((_, i) => i))); // Select all by default
         setShowImagePreviewModal(true);
         
         toast({
-          title: "Images Found",
-          description: `Found ${uploadedUrls.length} images. Select which ones to add.`,
+          title: "AI Extracted Images",
+          description: `Found ${uploadedUrls.length} image-heavy pages. First image recommended as primary.`,
         });
       } else {
         toast({
           title: "No Images Found",
-          description: "No suitable images found in PDF. Try uploading images directly.",
+          description: "Could not extract usable images. Try uploading images directly.",
           variant: "destructive",
         });
       }
@@ -2155,17 +2195,21 @@ export default function AdminProjectForm() {
       <Dialog open={showImagePreviewModal} onOpenChange={setShowImagePreviewModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
-            <DialogTitle>Select Images to Add</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              AI Extracted Images
+            </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto max-h-[60vh] p-1">
             <p className="text-sm text-muted-foreground mb-4">
-              {selectedPreviewImages.size} of {extractedPreviewImages.length} images selected
+              {selectedPreviewImages.size} of {extractedPreviewImages.length} images selected. 
+              <span className="font-medium text-foreground"> First selected image becomes your primary/hero image.</span>
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
               {extractedPreviewImages.map((url, index) => (
                 <div
                   key={index}
-                  className={`relative aspect-square cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
+                  className={`relative aspect-[4/3] cursor-pointer rounded-lg overflow-hidden border-2 transition-all ${
                     selectedPreviewImages.has(index) 
                       ? 'border-primary ring-2 ring-primary/20' 
                       : 'border-muted hover:border-muted-foreground/50'
@@ -2187,6 +2231,12 @@ export default function AdminProjectForm() {
                       className="h-5 w-5 bg-white/90 border-2"
                     />
                   </div>
+                  {index === 0 && (
+                    <div className="absolute top-2 right-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded font-medium flex items-center gap-1">
+                      <Sparkles className="h-3 w-3" />
+                      Best Primary
+                    </div>
+                  )}
                   <div className="absolute bottom-1 right-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
                     {index + 1}
                   </div>
