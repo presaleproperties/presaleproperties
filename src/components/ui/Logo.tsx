@@ -14,7 +14,7 @@ export function Logo({ className, asLink = true, onClick, size = "md" }: LogoPro
     sm: "h-8",
     md: "h-12",
     lg: "h-16",
-    xl: "h-24 sm:h-28 md:h-32",
+    xl: "h-28 sm:h-28 md:h-32",
   };
 
   const logoContent = (
