@@ -7,7 +7,7 @@ export default function InvestmentSnapshotPage() {
   return (
     <>
       <Helmet>
-        <title>Investment Snapshot Calculator | Quick Condo Cash Flow Tool</title>
+        <title>Calculator | Quick Condo Cash Flow Tool</title>
         <meta 
           name="description" 
           content="Instantly calculate your condo investment cash flow. Simple one-page tool to project monthly income, expenses, and returns for BC real estate." 
