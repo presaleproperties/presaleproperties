@@ -35,7 +35,9 @@ import {
   Image,
   Globe,
   Link,
-  MapPin
+  MapPin,
+  Download,
+  ExternalLink
 } from "lucide-react";
 
 // Set up PDF.js worker
@@ -1792,21 +1794,62 @@ export function AIProjectUploadWizard() {
                 </CardHeader>
                 <CardContent>
                   {brochureFiles.length > 0 ? (
-                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-5 w-5 text-primary" />
-                        <span className="text-sm truncate max-w-[150px]">
-                          {brochureFiles[0].split('/').pop()}
-                        </span>
-                      </div>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={removeBrochure}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
+                    <div className="space-y-2">
+                      {brochureFiles.map((url, index) => {
+                        const fileName = decodeURIComponent(url.split('/').pop() || 'brochure.pdf');
+                        const displayName = fileName.length > 30 
+                          ? fileName.substring(0, 27) + '...' + fileName.slice(-7) 
+                          : fileName;
+                        
+                        return (
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="p-2 bg-primary/10 rounded">
+                                <FileText className="h-5 w-5 text-primary" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate" title={fileName}>
+                                  {displayName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">PDF Brochure</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                                className="h-8 w-8"
+                              >
+                                <a href={url} target="_blank" rel="noopener noreferrer" title="Open in new tab">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                                className="h-8 w-8"
+                              >
+                                <a href={url} download title="Download">
+                                  <Download className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={removeBrochure}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   ) : (
                     <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
