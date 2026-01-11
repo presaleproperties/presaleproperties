@@ -1311,6 +1311,53 @@ export default function AdminProjectForm() {
                 <CardDescription>Latitude and longitude for the project map pin</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Quick Address Search */}
+                <div className="space-y-2 relative">
+                  <Label>Search Address</Label>
+                  <div className="relative">
+                    <Input
+                      value={formData.address}
+                      onChange={(e) => {
+                        setFormData(prev => ({ ...prev, address: e.target.value }));
+                        fetchAddressSuggestions(e.target.value);
+                      }}
+                      onFocus={() => {
+                        if (addressSuggestions.length > 0) setShowAddressSuggestions(true);
+                      }}
+                      onBlur={() => {
+                        setTimeout(() => setShowAddressSuggestions(false), 200);
+                      }}
+                      placeholder="Type an address to search..."
+                      autoComplete="off"
+                    />
+                    {isLoadingSuggestions && (
+                      <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      </div>
+                    )}
+                  </div>
+                  {showAddressSuggestions && addressSuggestions.length > 0 && (
+                    <div className="absolute z-50 w-full bg-background border border-border rounded-md shadow-lg mt-1 max-h-60 overflow-auto">
+                      {addressSuggestions.map((suggestion, index) => (
+                        <button
+                          key={index}
+                          type="button"
+                          className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0"
+                          onClick={() => handleSelectAddress(suggestion)}
+                        >
+                          <div className="flex items-center gap-2">
+                            <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                            <span className="truncate">{suggestion.description}</span>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    Search for an address - coordinates, city, and neighborhood will auto-fill
+                  </p>
+                </div>
+
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="map_lat">Latitude</Label>
@@ -1366,7 +1413,7 @@ export default function AdminProjectForm() {
                   {isGeocoding ? "Finding Coordinates..." : "Get Coordinates from Address"}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Auto-fetch coordinates using the address, city, and neighborhood fields above.
+                  Or click above to auto-fetch using the address fields.
                 </p>
               </CardContent>
             </Card>
