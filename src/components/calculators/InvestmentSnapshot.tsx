@@ -361,29 +361,29 @@ export function InvestmentSnapshot() {
         </div>
 
         {/* Buyer Type Toggle */}
-        <div className="px-4 py-3 bg-secondary/10 border-b border-border/30">
+        <div className="px-3 sm:px-4 py-3 bg-secondary/10 border-b border-border/30">
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => updateInput('buyerType', 'firstTimeBuyer')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all min-h-[44px] ${
                 inputs.buyerType === 'firstTimeBuyer'
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-white text-muted-foreground hover:bg-secondary/50 border border-border/50'
               }`}
             >
-              <Users className="w-4 h-4" />
-              First Time Buyer
+              <Users className="w-4 h-4 flex-shrink-0" />
+              <span className="whitespace-nowrap">First Time Buyer</span>
             </button>
             <button
               onClick={() => updateInput('buyerType', 'investor')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all min-h-[44px] ${
                 inputs.buyerType === 'investor'
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-white text-muted-foreground hover:bg-secondary/50 border border-border/50'
               }`}
             >
-              <Building className="w-4 h-4" />
-              Investor
+              <Building className="w-4 h-4 flex-shrink-0" />
+              <span>Investor</span>
             </button>
           </div>
         </div>
@@ -453,40 +453,40 @@ export function InvestmentSnapshot() {
                 </div>
 
                 {/* Deposits Row */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-secondary/20 rounded-xl p-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs text-muted-foreground">Deposit 1</span>
-                      <span className="text-sm font-bold text-primary">{inputs.firstDepositPercent}%</span>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
+                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">Deposit 1</span>
+                      <span className="text-xs sm:text-sm font-bold text-primary">{inputs.firstDepositPercent}%</span>
                     </div>
                     <Slider
                       value={[inputs.firstDepositPercent]}
                       onValueChange={(v) => updateInput('firstDepositPercent', v[0])}
                       min={1} max={15} step={1}
-                      className="my-2"
+                      className="my-1.5 sm:my-2"
                     />
-                    <div className="text-center text-sm font-semibold">{fmt(results.firstDeposit)}</div>
+                    <div className="text-center text-xs sm:text-sm font-semibold truncate">{fmt(results.firstDeposit)}</div>
                   </div>
-                  <div className="bg-secondary/20 rounded-xl p-3">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-xs text-muted-foreground">Deposit 2</span>
-                      <span className="text-sm font-bold text-primary">{inputs.secondDepositPercent}%</span>
+                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
+                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
+                      <span className="text-[10px] sm:text-xs text-muted-foreground">Deposit 2</span>
+                      <span className="text-xs sm:text-sm font-bold text-primary">{inputs.secondDepositPercent}%</span>
                     </div>
                     <Slider
                       value={[inputs.secondDepositPercent]}
                       onValueChange={(v) => updateInput('secondDepositPercent', v[0])}
                       min={0} max={15} step={1}
-                      className="my-2"
+                      className="my-1.5 sm:my-2"
                     />
-                    <div className="text-center text-sm font-semibold">{fmt(results.secondDeposit)}</div>
+                    <div className="text-center text-xs sm:text-sm font-semibold truncate">{fmt(results.secondDeposit)}</div>
                   </div>
                 </div>
 
                 {/* Down Payment & Toggles */}
-                <div className="bg-secondary/20 rounded-xl p-4">
+                <div className="bg-secondary/20 rounded-xl p-3 sm:p-4">
                   <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase">Down Payment</h3>
-                    <span className="text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
+                    <h3 className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase">Down Payment</h3>
+                    <span className="text-base sm:text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
                   </div>
                   <Slider
                     value={[inputs.downPaymentPercent]}
@@ -494,43 +494,43 @@ export function InvestmentSnapshot() {
                     min={5} max={35} step={5}
                     className="my-2"
                   />
-                  <div className="flex justify-between text-sm mt-2">
+                  <div className="flex justify-between text-xs sm:text-sm mt-2">
                     <span className="text-muted-foreground">Required</span>
-                    <span className="font-bold">{fmt(results.downPayment)}</span>
+                    <span className="font-bold truncate ml-2">{fmt(results.downPayment)}</span>
                   </div>
-                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50">
-                    <label className="flex items-center gap-2 cursor-pointer">
-                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-75" />
-                      <span className="text-xs">GST {fmt(results.gst)}</span>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/50 gap-2">
+                    <label className="flex items-center gap-1.5 sm:gap-2 cursor-pointer min-w-0">
+                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-75 flex-shrink-0" />
+                      <span className="text-[10px] sm:text-xs truncate">GST {fmt(results.gst)}</span>
                     </label>
                     {inputs.buyerType === 'investor' && results.ptt > 0 && (
-                      <span className="text-xs text-muted-foreground">PTT: {fmt(results.ptt)}</span>
+                      <span className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">PTT: {fmt(results.ptt)}</span>
                     )}
                     {inputs.buyerType === 'firstTimeBuyer' && (
-                      <span className="text-xs text-green-600 font-medium">PTT Exempt ✓</span>
+                      <span className="text-[10px] sm:text-xs text-green-600 font-medium whitespace-nowrap">PTT Exempt ✓</span>
                     )}
                   </div>
                 </div>
 
                 {/* Mortgage & Expenses */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-secondary/20 rounded-xl p-3">
-                    <label className="text-xs text-muted-foreground block mb-1">Rate %</label>
+                <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
+                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Rate %</label>
                     <Input
                       type="number"
                       step="0.01"
                       value={inputs.interestRate}
                       onChange={(e) => updateInput('interestRate', parseFloat(e.target.value) || 0)}
-                      className="h-9 text-center font-semibold text-sm"
+                      className="h-9 sm:h-10 text-center font-semibold text-sm"
                     />
                   </div>
-                  <div className="bg-secondary/20 rounded-xl p-3">
-                    <label className="text-xs text-muted-foreground block mb-1">Amortization</label>
+                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
+                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Amortization</label>
                     <Input
                       type="number"
                       value={inputs.amortizationYears}
                       onChange={(e) => updateInput('amortizationYears', parseInt(e.target.value) || 0)}
-                      className="h-9 text-center font-semibold text-sm"
+                      className="h-9 sm:h-10 text-center font-semibold text-sm"
                     />
                   </div>
                 </div>
@@ -994,16 +994,16 @@ export function InvestmentSnapshot() {
 
       {/* Mobile Action Bar */}
       <div className="flex gap-2 sm:hidden">
-        <Button variant="outline" onClick={resetToDefaults} className="flex-1 h-10">
-          <RotateCcw className="w-4 h-4 mr-1.5" />
+        <Button variant="outline" onClick={resetToDefaults} className="flex-1 h-12 text-xs font-medium">
+          <RotateCcw className="w-4 h-4 mr-1" />
           Reset
         </Button>
-        <Button variant="outline" onClick={handleShare} className="flex-1 h-10">
-          <Share2 className="w-4 h-4 mr-1.5" />
+        <Button variant="outline" onClick={handleShare} className="flex-1 h-12 text-xs font-medium">
+          <Share2 className="w-4 h-4 mr-1" />
           Share
         </Button>
-        <Button onClick={handleDownloadImage} disabled={isDownloading} className="flex-1 h-10">
-          <Download className="w-4 h-4 mr-1.5" />
+        <Button onClick={handleDownloadImage} disabled={isDownloading} className="flex-1 h-12 text-xs font-medium">
+          <Download className="w-4 h-4 mr-1" />
           Save
         </Button>
       </div>
