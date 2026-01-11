@@ -109,7 +109,7 @@ const App = () => (
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
-            <Route path="/investment-snapshot" element={<InvestmentSnapshotPage />} />
+            <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
             <Route path="/login" element={<Login />} />
             
