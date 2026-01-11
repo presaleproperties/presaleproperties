@@ -12,6 +12,7 @@ export interface SavedSnapshot {
     downPaymentPercent: number;
     interestRate: number;
     amortizationYears: number;
+    closingCosts: number;
     monthlyRent: number;
     strataFees: number;
     propertyTax: number;

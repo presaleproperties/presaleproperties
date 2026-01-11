@@ -28,6 +28,7 @@ interface SnapshotInputs {
   downPaymentPercent: number;
   interestRate: number;
   amortizationYears: number;
+  closingCosts: number;
   monthlyRent: number;
   strataFees: number;
   propertyTax: number;
@@ -44,6 +45,7 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   downPaymentPercent: 20,
   interestRate: 3.79,
   amortizationYears: 30,
+  closingCosts: 3000,
   monthlyRent: 2400,
   strataFees: 275,
   propertyTax: 125,
@@ -179,7 +181,8 @@ export function InvestmentSnapshot() {
     // First time buyers are exempt from PTT on properties under $500k (full) or partial up to $525k
     const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
-    const cashAtCompletion = remainingDownPayment + ptt;
+    const closingCosts = inputs.closingCosts;
+    const cashAtCompletion = remainingDownPayment + ptt + closingCosts;
     const totalCashRequired = totalDeposits + cashAtCompletion;
     const totalMonthlyExpenses = monthlyMortgage + inputs.strataFees + inputs.propertyTax;
     const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
@@ -204,7 +207,7 @@ export function InvestmentSnapshot() {
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
       baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, 
-      cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
+      closingCosts, cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
       principalPaid, remainingBalance, futureValue, appreciation, totalEquityBuilt,
       equityFromPaydown, totalCashFlowOverPeriod, totalReturn, roiPercent,
     };
@@ -511,6 +514,18 @@ export function InvestmentSnapshot() {
                   </div>
                 </div>
 
+                {/* Closing Costs */}
+                <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+                  <label className="text-xs text-amber-700 block mb-1">Closing Costs</label>
+                  <Input
+                    type="number"
+                    value={inputs.closingCosts}
+                    onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
+                    className="h-9 text-center font-semibold text-sm text-amber-700 border-amber-300"
+                  />
+                  <p className="text-[9px] text-amber-600 mt-1">Lawyer, inspection, etc.</p>
+                </div>
+
                 <div className="grid grid-cols-3 gap-3">
                   <div className="bg-secondary/20 rounded-xl p-3">
                     <label className="text-xs text-muted-foreground block mb-1">Strata</label>
@@ -600,7 +615,7 @@ export function InvestmentSnapshot() {
                       <div className="bg-foreground text-background rounded-xl p-3">
                         <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
                         <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                        <p className="text-[10px] opacity-60">Balance only</p>
+                        <p className="text-[10px] opacity-60">Balance + Closing</p>
                       </div>
                       <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
                         <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Cash Needed</div>
@@ -658,7 +673,7 @@ export function InvestmentSnapshot() {
                       <div className="bg-foreground text-background rounded-xl p-3">
                         <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
                         <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                        <p className="text-[10px] opacity-60">Balance + PTT</p>
+                        <p className="text-[10px] opacity-60">Balance + PTT + Closing</p>
                       </div>
                       <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
                         <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
