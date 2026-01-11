@@ -166,6 +166,7 @@ export default function AdminProjectForm() {
   const [developerSearch, setDeveloperSearch] = useState("");
   const [showDeveloperDropdown, setShowDeveloperDropdown] = useState(false);
   const [isAddingDeveloper, setIsAddingDeveloper] = useState(false);
+  const [isSortingGallery, setIsSortingGallery] = useState(false);
   const pdfForGalleryInputRef = useRef<HTMLInputElement>(null);
   const developerInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -1003,6 +1004,60 @@ export default function AdminProjectForm() {
       [field]: value,
       ...updateSeoFields(updates),
     }));
+  };
+
+  // Sort gallery images using AI (exterior → interior → amenities)
+  const sortGalleryImages = async () => {
+    if (formData.gallery_images.length < 2) {
+      toast({
+        title: "Not enough images",
+        description: "Need at least 2 images to sort",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSortingGallery(true);
+    try {
+      toast({
+        title: "Analyzing images...",
+        description: "AI is classifying and sorting your gallery",
+      });
+
+      const { data, error } = await supabase.functions.invoke('sort-project-images', {
+        body: { 
+          imageUrls: formData.gallery_images,
+          projectName: formData.name 
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.sortedImages && Array.isArray(data.sortedImages)) {
+        const sortedUrls = data.sortedImages.map((img: any) => img.url);
+        
+        setFormData(prev => ({
+          ...prev,
+          gallery_images: sortedUrls
+        }));
+
+        toast({
+          title: "Gallery Sorted",
+          description: `Reordered ${sortedUrls.length} images: exterior → interior → amenities`,
+        });
+      } else {
+        throw new Error('Invalid response from AI');
+      }
+    } catch (error: any) {
+      console.error("Sort gallery error:", error);
+      toast({
+        title: "Sort Failed",
+        description: error.message || "Could not sort images",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSortingGallery(false);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -2400,35 +2455,60 @@ export default function AdminProjectForm() {
 
                 {/* Existing Images */}
                 {formData.gallery_images.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {formData.gallery_images.map((img, i) => (
-                      <div key={i} className="relative aspect-square group">
-                        <img
-                          src={img}
-                          alt={`Gallery ${i + 1}`}
-                          className="w-full h-full object-cover rounded-lg"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg" />
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          size="sm"
-                          className="absolute bottom-1 left-1 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
-                          onClick={() => setGalleryImageAsPrimary(i)}
-                        >
-                          Set Primary
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          size="icon"
-                          className="absolute top-1 right-1 h-6 w-6"
-                          onClick={() => removeGalleryImage(i)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        {formData.gallery_images.length} images
+                      </span>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={sortGalleryImages}
+                        disabled={isSortingGallery || formData.gallery_images.length < 2}
+                        className="gap-2"
+                      >
+                        {isSortingGallery ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Sparkles className="h-3 w-3" />
+                        )}
+                        {isSortingGallery ? "Sorting..." : "Sort by Story"}
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      {formData.gallery_images.map((img, i) => (
+                        <div key={i} className="relative aspect-square group">
+                          <img
+                            src={img}
+                            alt={`Gallery ${i + 1}`}
+                            className="w-full h-full object-cover rounded-lg"
+                          />
+                          <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded">
+                            {i + 1}
+                          </div>
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-lg" />
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            size="sm"
+                            className="absolute bottom-1 left-1 h-6 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => setGalleryImageAsPrimary(i)}
+                          >
+                            Set Primary
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="icon"
+                            className="absolute top-1 right-1 h-6 w-6"
+                            onClick={() => removeGalleryImage(i)}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
 
