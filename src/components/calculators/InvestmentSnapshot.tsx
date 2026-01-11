@@ -1,4 +1,4 @@
-// Investment Snapshot - Responsive with Scenario Comparison
+// Investment Snapshot - 2-Page Wizard with Equity Analysis
 import { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -6,7 +6,12 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { TrendingUp, TrendingDown, RotateCcw, Share2, Download, DollarSign, Percent, Home, Calendar, Save, BarChart3 } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { 
+  TrendingUp, TrendingDown, RotateCcw, Share2, Download, DollarSign, 
+  Percent, Home, Calendar, Save, BarChart3, ChevronRight, ChevronLeft,
+  PiggyBank, ArrowUpRight
+} from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
 import { useSavedSnapshots } from '@/hooks/useSavedSnapshots';
 import { SnapshotComparison } from './SnapshotComparison';
@@ -25,6 +30,8 @@ interface SnapshotInputs {
   propertyTax: number;
   includeGST: boolean;
   includePTT: boolean;
+  holdingPeriodYears: number;
+  appreciationRate: number;
 }
 
 const DEFAULT_INPUTS: SnapshotInputs = {
@@ -39,6 +46,8 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   propertyTax: 125,
   includeGST: true,
   includePTT: true,
+  holdingPeriodYears: 5,
+  appreciationRate: 3,
 };
 
 function calculateMonthlyMortgage(principal: number, annualRate: number, years: number): number {
@@ -47,6 +56,28 @@ function calculateMonthlyMortgage(principal: number, annualRate: number, years: 
   const numPayments = years * 12;
   return principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
          (Math.pow(1 + monthlyRate, numPayments) - 1);
+}
+
+function calculateMortgagePaydown(principal: number, annualRate: number, years: number, holdingYears: number) {
+  if (principal <= 0 || annualRate <= 0) return { principalPaid: 0, remainingBalance: principal };
+  
+  const monthlyRate = annualRate / 100 / 12;
+  const numPayments = years * 12;
+  const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                        (Math.pow(1 + monthlyRate, numPayments) - 1);
+  
+  let balance = principal;
+  let totalPrincipalPaid = 0;
+  const holdingMonths = holdingYears * 12;
+  
+  for (let i = 0; i < holdingMonths && balance > 0; i++) {
+    const interestPayment = balance * monthlyRate;
+    const principalPayment = monthlyPayment - interestPayment;
+    totalPrincipalPaid += principalPayment;
+    balance -= principalPayment;
+  }
+  
+  return { principalPaid: totalPrincipalPaid, remainingBalance: Math.max(0, balance) };
 }
 
 function parseUrlParams(searchParams: URLSearchParams): Partial<SnapshotInputs> {
@@ -73,6 +104,10 @@ function parseUrlParams(searchParams: URLSearchParams): Partial<SnapshotInputs> 
   if (gst) parsed.includeGST = gst === '1';
   const ptt = searchParams.get('ptt');
   if (ptt) parsed.includePTT = ptt === '1';
+  const hold = searchParams.get('hold');
+  if (hold) parsed.holdingPeriodYears = Number(hold);
+  const app = searchParams.get('app');
+  if (app) parsed.appreciationRate = Number(app);
   return parsed;
 }
 
@@ -82,6 +117,7 @@ export function InvestmentSnapshot() {
     const urlParams = parseUrlParams(searchParams);
     return { ...DEFAULT_INPUTS, ...urlParams };
   });
+  const [currentPage, setCurrentPage] = useState<'cashflow' | 'equity'>('cashflow');
   const [isDownloading, setIsDownloading] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [scenarioName, setScenarioName] = useState('');
@@ -119,10 +155,28 @@ export function InvestmentSnapshot() {
     const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
     const annualCashFlow = monthlyCashFlow * 12;
 
+    // Equity calculations
+    const { principalPaid, remainingBalance } = calculateMortgagePaydown(
+      mortgageAmount, 
+      inputs.interestRate, 
+      inputs.amortizationYears, 
+      inputs.holdingPeriodYears
+    );
+    
+    const futureValue = priceWithGST * Math.pow(1 + inputs.appreciationRate / 100, inputs.holdingPeriodYears);
+    const appreciation = futureValue - priceWithGST;
+    const totalEquityBuilt = downPayment + principalPaid + appreciation;
+    const equityFromPaydown = principalPaid;
+    const totalCashFlowOverPeriod = annualCashFlow * inputs.holdingPeriodYears;
+    const totalReturn = appreciation + principalPaid + totalCashFlowOverPeriod;
+    const roiPercent = totalCashRequired > 0 ? (totalReturn / totalCashRequired) * 100 : 0;
+
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
       mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, cashAtCompletion,
       totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
+      principalPaid, remainingBalance, futureValue, appreciation, totalEquityBuilt,
+      equityFromPaydown, totalCashFlowOverPeriod, totalReturn, roiPercent,
     };
   }, [inputs]);
 
@@ -148,6 +202,8 @@ export function InvestmentSnapshot() {
       t: inputs.propertyTax.toString(),
       gst: inputs.includeGST ? '1' : '0',
       ptt: inputs.includePTT ? '1' : '0',
+      hold: inputs.holdingPeriodYears.toString(),
+      app: inputs.appreciationRate.toString(),
     });
     return `${window.location.origin}/investment-snapshot?${params.toString()}`;
   };
@@ -224,32 +280,32 @@ export function InvestmentSnapshot() {
   const isPositive = results.monthlyCashFlow >= 0;
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-8 space-y-6">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-8 space-y-4">
       {/* Main Calculator Card */}
       <div ref={snapshotRef} className="bg-white rounded-2xl shadow-xl overflow-hidden">
         {/* Header */}
-        <div className="bg-foreground text-background px-4 sm:px-6 py-4 sm:py-5">
+        <div className="bg-foreground text-background px-4 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Home className="w-5 h-5 text-primary" />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/20 flex items-center justify-center">
+                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               <div>
-                <h1 className="text-lg sm:text-xl font-bold">Investment Snapshot</h1>
-                <p className="text-xs sm:text-sm opacity-70 hidden sm:block">Metro Vancouver Presale Calculator</p>
+                <h1 className="text-base sm:text-lg font-bold">Investment Snapshot</h1>
+                <p className="text-[10px] sm:text-xs opacity-70 hidden sm:block">Metro Vancouver Presale Calculator</p>
               </div>
             </div>
-            <div className="flex gap-1 sm:gap-2">
-              <Button variant="ghost" size="icon" onClick={resetToDefaults} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" onClick={resetToDefaults} className="text-background/70 hover:text-background hover:bg-white/10 h-8 w-8">
                 <RotateCcw className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleShare} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
+              <Button variant="ghost" size="icon" onClick={handleShare} className="text-background/70 hover:text-background hover:bg-white/10 h-8 w-8">
                 <Share2 className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleDownloadImage} disabled={isDownloading} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
+              <Button variant="ghost" size="icon" onClick={handleDownloadImage} disabled={isDownloading} className="text-background/70 hover:text-background hover:bg-white/10 h-8 w-8">
                 <Download className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={openSaveDialog} className="text-background/70 hover:text-background hover:bg-white/10 h-9 w-9">
+              <Button variant="ghost" size="icon" onClick={openSaveDialog} className="text-background/70 hover:text-background hover:bg-white/10 h-8 w-8">
                 <Save className="w-4 h-4" />
               </Button>
               {snapshots.length > 0 && (
@@ -257,10 +313,10 @@ export function InvestmentSnapshot() {
                   variant="ghost" 
                   size="icon" 
                   onClick={() => setShowComparison(!showComparison)} 
-                  className="text-primary hover:text-primary hover:bg-primary/10 h-9 w-9 relative"
+                  className="text-primary hover:text-primary hover:bg-primary/10 h-8 w-8 relative"
                 >
                   <BarChart3 className="w-4 h-4" />
-                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-background text-[10px] rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-primary text-background text-[9px] rounded-full flex items-center justify-center font-bold">
                     {snapshots.length}
                   </span>
                 </Button>
@@ -269,41 +325,54 @@ export function InvestmentSnapshot() {
           </div>
         </div>
 
-        {/* Main Content - Responsive Grid */}
-        <div className="p-4 sm:p-6 lg:p-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-            
-            {/* Column 1: Price & Deposits */}
-            <div className="space-y-4">
-              {/* Purchase Price */}
-              <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
-                <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                  <DollarSign className="w-3.5 h-3.5" />
-                  Purchase Price
-                </label>
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  value={`$${inputs.purchasePrice.toLocaleString()}`}
-                  onChange={handlePriceChange}
-                  className="text-2xl sm:text-3xl font-bold text-center h-14 border-2 border-primary/20 bg-white focus:border-primary"
-                />
-                {inputs.includeGST && (
-                  <p className="text-xs text-muted-foreground text-center mt-2">
-                    Price + GST: <span className="font-semibold">{fmt(results.priceWithGST)}</span>
-                  </p>
-                )}
-              </div>
+        {/* Page Tabs */}
+        <Tabs value={currentPage} onValueChange={(v) => setCurrentPage(v as 'cashflow' | 'equity')} className="w-full">
+          <div className="border-b border-border/50 bg-secondary/20">
+            <TabsList className="w-full h-auto p-0 bg-transparent rounded-none">
+              <TabsTrigger 
+                value="cashflow" 
+                className="flex-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-white data-[state=active]:shadow-none"
+              >
+                <DollarSign className="w-4 h-4 mr-1.5" />
+                <span className="text-sm font-medium">Cash Flow</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="equity" 
+                className="flex-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-white data-[state=active]:shadow-none"
+              >
+                <PiggyBank className="w-4 h-4 mr-1.5" />
+                <span className="text-sm font-medium">Equity & Growth</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-              {/* Deposits */}
-              <div className="bg-secondary/20 rounded-xl p-4 space-y-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                  <Percent className="w-3.5 h-3.5" />
-                  Construction Deposits
-                </h3>
-                
+          {/* Page 1: Cash Flow */}
+          <TabsContent value="cashflow" className="p-4 sm:p-6 mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              {/* Left Column: Inputs */}
+              <div className="space-y-4">
+                {/* Purchase Price */}
+                <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                    <DollarSign className="w-3.5 h-3.5" />
+                    Purchase Price
+                  </label>
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    value={`$${inputs.purchasePrice.toLocaleString()}`}
+                    onChange={handlePriceChange}
+                    className="text-xl sm:text-2xl font-bold text-center h-12 border-2 border-primary/20 bg-white focus:border-primary"
+                  />
+                  <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                    <span>Price + GST:</span>
+                    <span className="font-semibold">{fmt(results.priceWithGST)}</span>
+                  </div>
+                </div>
+
+                {/* Deposits Row */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-white rounded-lg p-3 border border-border/50">
+                  <div className="bg-secondary/20 rounded-xl p-3">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs text-muted-foreground">Deposit 1</span>
                       <span className="text-sm font-bold text-primary">{inputs.firstDepositPercent}%</span>
@@ -316,8 +385,7 @@ export function InvestmentSnapshot() {
                     />
                     <div className="text-center text-sm font-semibold">{fmt(results.firstDeposit)}</div>
                   </div>
-                  
-                  <div className="bg-white rounded-lg p-3 border border-border/50">
+                  <div className="bg-secondary/20 rounded-xl p-3">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-xs text-muted-foreground">Deposit 2</span>
                       <span className="text-sm font-bold text-primary">{inputs.secondDepositPercent}%</span>
@@ -332,190 +400,373 @@ export function InvestmentSnapshot() {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-2 border-t border-border/50">
-                  <span className="text-sm font-medium">Total Deposits</span>
-                  <span className="text-lg font-bold">{fmt(results.totalDeposits)}</span>
-                </div>
-              </div>
-
-              {/* Down Payment */}
-              <div className="bg-secondary/20 rounded-xl p-4">
-                <div className="flex justify-between items-center mb-3">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Down Payment</h3>
-                  <span className="text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
-                </div>
-                <Slider
-                  value={[inputs.downPaymentPercent]}
-                  onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
-                  min={5} max={35} step={5}
-                  className="my-3"
-                />
-                <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Total Required</span>
-                  <span className="font-bold text-lg">{fmt(results.downPayment)}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Column 2: Costs & Mortgage */}
-            <div className="space-y-4">
-              {/* GST/PTT Toggles */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white rounded-xl p-3 border border-border/50 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={inputs.includeGST}
-                      onCheckedChange={(v) => updateInput('includeGST', v)}
-                    />
-                    <span className="text-sm font-medium">GST (5%)</span>
+                {/* Down Payment & Toggles */}
+                <div className="bg-secondary/20 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase">Down Payment</h3>
+                    <span className="text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
                   </div>
-                  <span className="text-sm font-bold">{fmt(results.gst)}</span>
-                </div>
-                <div className="bg-white rounded-xl p-3 border border-border/50 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={inputs.includePTT}
-                      onCheckedChange={(v) => updateInput('includePTT', v)}
-                    />
-                    <span className="text-sm font-medium">PTT</span>
+                  <Slider
+                    value={[inputs.downPaymentPercent]}
+                    onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
+                    min={5} max={35} step={5}
+                    className="my-2"
+                  />
+                  <div className="flex justify-between text-sm mt-2">
+                    <span className="text-muted-foreground">Required</span>
+                    <span className="font-bold">{fmt(results.downPayment)}</span>
                   </div>
-                  <span className="text-sm font-bold">{fmt(results.ptt)}</span>
+                  <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-border/50">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-75" />
+                      <span className="text-xs">GST {fmt(results.gst)}</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Switch checked={inputs.includePTT} onCheckedChange={(v) => updateInput('includePTT', v)} className="scale-75" />
+                      <span className="text-xs">PTT {fmt(results.ptt)}</span>
+                    </label>
+                  </div>
                 </div>
-              </div>
 
-              {/* Mortgage Settings */}
-              <div className="bg-secondary/20 rounded-xl p-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-3">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Mortgage Terms
-                </h3>
+                {/* Mortgage & Expenses */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Interest Rate %</label>
+                  <div className="bg-secondary/20 rounded-xl p-3">
+                    <label className="text-xs text-muted-foreground block mb-1">Rate %</label>
                     <Input
                       type="number"
                       step="0.01"
                       value={inputs.interestRate}
                       onChange={(e) => updateInput('interestRate', parseFloat(e.target.value) || 0)}
-                      className="h-10 text-center font-semibold"
+                      className="h-9 text-center font-semibold text-sm"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Amortization (Yrs)</label>
+                  <div className="bg-secondary/20 rounded-xl p-3">
+                    <label className="text-xs text-muted-foreground block mb-1">Amortization</label>
                     <Input
                       type="number"
                       value={inputs.amortizationYears}
                       onChange={(e) => updateInput('amortizationYears', parseInt(e.target.value) || 0)}
-                      className="h-10 text-center font-semibold"
+                      className="h-9 text-center font-semibold text-sm"
                     />
                   </div>
                 </div>
-                <div className="mt-3 pt-3 border-t border-border/50 flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Mortgage Principal</span>
-                  <span className="font-bold">{fmt(results.mortgageAmount)}</span>
-                </div>
-              </div>
 
-              {/* Monthly Expenses */}
-              <div className="bg-secondary/20 rounded-xl p-4">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Monthly Expenses</h3>
-                <div className="grid grid-cols-2 gap-3 mb-3">
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Strata Fees</label>
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="bg-secondary/20 rounded-xl p-3">
+                    <label className="text-xs text-muted-foreground block mb-1">Strata</label>
                     <Input
                       type="number"
                       value={inputs.strataFees}
                       onChange={(e) => updateInput('strataFees', parseInt(e.target.value) || 0)}
-                      className="h-10 text-center font-semibold"
+                      className="h-9 text-center font-semibold text-sm"
                     />
                   </div>
-                  <div>
-                    <label className="text-xs text-muted-foreground block mb-1">Property Tax</label>
+                  <div className="bg-secondary/20 rounded-xl p-3">
+                    <label className="text-xs text-muted-foreground block mb-1">Tax/mo</label>
                     <Input
                       type="number"
                       value={inputs.propertyTax}
                       onChange={(e) => updateInput('propertyTax', parseInt(e.target.value) || 0)}
-                      className="h-10 text-center font-semibold"
+                      className="h-9 text-center font-semibold text-sm"
+                    />
+                  </div>
+                  <div className="bg-green-50 rounded-xl p-3 border border-green-200">
+                    <label className="text-xs text-green-700 block mb-1">Rent</label>
+                    <Input
+                      type="number"
+                      value={inputs.monthlyRent}
+                      onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
+                      className="h-9 text-center font-semibold text-sm text-green-700 border-green-300"
                     />
                   </div>
                 </div>
-                <div className="space-y-2 pt-3 border-t border-border/50">
+              </div>
+
+              {/* Right Column: Results */}
+              <div className="space-y-4">
+                {/* Cash Flow Result */}
+                <div className={`rounded-xl p-4 text-center border-2 ${isPositive ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    {isPositive ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
+                    <span className={`text-xs font-bold uppercase ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                      {isPositive ? 'Cash Flow Positive' : 'Cash Burn'}
+                    </span>
+                  </div>
+                  <div className={`text-3xl sm:text-4xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
+                    <span className="text-sm font-normal">/mo</span>
+                  </div>
+                  <div className={`text-xs mt-1 ${isPositive ? 'text-green-700' : 'text-red-700'}`}>
+                    {isPositive ? '+' : ''}{fmt(results.annualCashFlow)} per year
+                  </div>
+                </div>
+
+                {/* Monthly Breakdown */}
+                <div className="bg-secondary/20 rounded-xl p-4">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-green-600">+ Rent Income</span>
+                      <span className="font-medium text-green-600">{fmt(inputs.monthlyRent)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">- Mortgage</span>
+                      <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">- Strata + Tax</span>
+                      <span className="font-medium">{fmt(inputs.strataFees + inputs.propertyTax)}</span>
+                    </div>
+                    <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
+                      <span>Net Cash Flow</span>
+                      <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
+                        {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Investment Summary */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-foreground text-background rounded-xl p-3">
+                    <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
+                    <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
+                    <p className="text-[10px] opacity-60">Balance + PTT</p>
+                  </div>
+                  <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
+                    <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
+                    <div className="text-lg font-bold">{fmt(results.totalCashRequired)}</div>
+                    <p className="text-[10px] text-muted-foreground">Deposits + Cash</p>
+                  </div>
+                </div>
+
+                {/* Mortgage Info */}
+                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mortgage Payment</span>
-                    <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
+                    <span className="text-muted-foreground">Mortgage Principal</span>
+                    <span className="font-bold">{fmt(results.mortgageAmount)}</span>
+                  </div>
+                </div>
+
+                {/* Next Page Button */}
+                <Button 
+                  onClick={() => setCurrentPage('equity')}
+                  className="w-full h-11"
+                  variant="outline"
+                >
+                  View Equity & Growth
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
+          </TabsContent>
+
+          {/* Page 2: Equity & Growth */}
+          <TabsContent value="equity" className="p-4 sm:p-6 mt-0">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+              {/* Left Column: Inputs */}
+              <div className="space-y-4">
+                {/* Holding Period */}
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20">
+                  <label className="text-xs font-medium text-primary uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                    <Calendar className="w-3.5 h-3.5" />
+                    Holding Period
+                  </label>
+                  <div className="flex items-center justify-center gap-4">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => updateInput('holdingPeriodYears', Math.max(1, inputs.holdingPeriodYears - 1))}
+                      className="h-10 w-10"
+                    >
+                      -
+                    </Button>
+                    <div className="text-center">
+                      <div className="text-4xl font-bold text-primary">{inputs.holdingPeriodYears}</div>
+                      <div className="text-xs text-muted-foreground">years</div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => updateInput('holdingPeriodYears', Math.min(30, inputs.holdingPeriodYears + 1))}
+                      className="h-10 w-10"
+                    >
+                      +
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Appreciation Rate */}
+                <div className="bg-secondary/20 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <label className="text-xs font-semibold text-muted-foreground uppercase">
+                      Annual Appreciation
+                    </label>
+                    <span className="text-lg font-bold text-primary">{inputs.appreciationRate}%</span>
+                  </div>
+                  <Slider
+                    value={[inputs.appreciationRate]}
+                    onValueChange={(v) => updateInput('appreciationRate', v[0])}
+                    min={0} max={10} step={0.5}
+                    className="my-3"
+                  />
+                  <div className="grid grid-cols-3 text-center text-xs text-muted-foreground pt-2">
+                    <span>0%</span>
+                    <span>5%</span>
+                    <span>10%</span>
+                  </div>
+                </div>
+
+                {/* Property Summary */}
+                <div className="bg-secondary/10 rounded-xl p-4 border border-border/30 space-y-2">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Property Summary</h3>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Purchase Price</span>
+                    <span className="font-medium">{fmt(inputs.purchasePrice)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Strata + Tax</span>
-                    <span className="font-medium">{fmt(inputs.strataFees + inputs.propertyTax)}</span>
+                    <span className="text-muted-foreground">Price + GST</span>
+                    <span className="font-medium">{fmt(results.priceWithGST)}</span>
                   </div>
-                  <div className="flex justify-between font-bold pt-2 border-t border-border/50">
-                    <span>Total Monthly</span>
-                    <span className="text-destructive">{fmt(results.totalMonthlyExpenses)}</span>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Mortgage Amount</span>
+                    <span className="font-medium">{fmt(results.mortgageAmount)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Down Payment</span>
+                    <span className="font-medium">{fmt(results.downPayment)}</span>
+                  </div>
+                  <div className="flex justify-between text-sm pt-2 border-t border-border/50">
+                    <span className="text-muted-foreground">Total Cash Invested</span>
+                    <span className="font-bold">{fmt(results.totalCashRequired)}</span>
+                  </div>
+                </div>
+
+                {/* Back Button */}
+                <Button 
+                  onClick={() => setCurrentPage('cashflow')}
+                  className="w-full h-11 md:hidden"
+                  variant="outline"
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Back to Cash Flow
+                </Button>
+              </div>
+
+              {/* Right Column: Results */}
+              <div className="space-y-4">
+                {/* Future Value */}
+                <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl p-4 border border-green-200">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold text-green-700 uppercase">
+                      Future Property Value
+                    </span>
+                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                      {inputs.holdingPeriodYears} years
+                    </span>
+                  </div>
+                  <div className="text-3xl font-bold text-green-700">{fmt(results.futureValue)}</div>
+                  <div className="flex items-center gap-1 mt-1 text-sm text-green-600">
+                    <ArrowUpRight className="w-4 h-4" />
+                    <span>+{fmt(results.appreciation)} appreciation</span>
+                  </div>
+                </div>
+
+                {/* Equity Breakdown */}
+                <div className="bg-white rounded-xl p-4 border border-border shadow-sm">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-1.5">
+                    <PiggyBank className="w-3.5 h-3.5" />
+                    Total Equity Built
+                  </h3>
+                  <div className="text-3xl font-bold text-foreground mb-4">{fmt(results.totalEquityBuilt)}</div>
+                  
+                  <div className="space-y-3">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Down Payment</span>
+                        <span className="font-medium">{fmt(results.downPayment)}</span>
+                      </div>
+                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary/70 rounded-full"
+                          style={{ width: `${(results.downPayment / results.totalEquityBuilt) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Mortgage Paydown</span>
+                        <span className="font-medium">{fmt(results.principalPaid)}</span>
+                      </div>
+                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-blue-500 rounded-full"
+                          style={{ width: `${(results.principalPaid / results.totalEquityBuilt) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-muted-foreground">Appreciation</span>
+                        <span className="font-medium text-green-600">+{fmt(results.appreciation)}</span>
+                      </div>
+                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-green-500 rounded-full"
+                          style={{ width: `${(results.appreciation / results.totalEquityBuilt) * 100}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* ROI Summary */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-foreground text-background rounded-xl p-3">
+                    <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Total Return</div>
+                    <div className="text-lg font-bold">{fmt(results.totalReturn)}</div>
+                    <p className="text-[10px] opacity-60">{inputs.holdingPeriodYears}yr period</p>
+                  </div>
+                  <div className={`rounded-xl p-3 border-2 ${results.roiPercent > 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
+                    <div className={`text-[10px] uppercase tracking-wider font-semibold mb-1 ${results.roiPercent > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                      ROI
+                    </div>
+                    <div className={`text-lg font-bold ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {results.roiPercent.toFixed(1)}%
+                    </div>
+                    <p className={`text-[10px] ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      on {fmt(results.totalCashRequired)}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Remaining Balance */}
+                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Remaining Mortgage</span>
+                    <span className="font-bold">{fmt(results.remainingBalance)}</span>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    After {inputs.holdingPeriodYears} years of payments
+                  </div>
+                </div>
+
+                {/* Cash Flow Impact */}
+                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-muted-foreground">Cumulative Cash Flow</span>
+                    <span className={`font-bold ${results.totalCashFlowOverPeriod >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {results.totalCashFlowOverPeriod >= 0 ? '+' : ''}{fmt(results.totalCashFlowOverPeriod)}
+                    </span>
+                  </div>
+                  <div className="text-xs text-muted-foreground">
+                    {fmt(results.annualCashFlow)}/yr × {inputs.holdingPeriodYears} years
                   </div>
                 </div>
               </div>
             </div>
-
-            {/* Column 3: Results */}
-            <div className="space-y-4">
-              {/* Rent Input */}
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <label className="text-xs font-semibold text-green-700 uppercase tracking-wider block mb-2">Expected Rent</label>
-                <Input
-                  type="number"
-                  value={inputs.monthlyRent}
-                  onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                  className="h-14 text-2xl text-center font-bold text-green-700 bg-white border-green-300 focus:border-green-500"
-                />
-              </div>
-
-              {/* Cash Flow Result */}
-              <div className={`rounded-xl p-5 text-center border-2 ${isPositive ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  {isPositive ? (
-                    <TrendingUp className="w-5 h-5 text-green-600" />
-                  ) : (
-                    <TrendingDown className="w-5 h-5 text-red-600" />
-                  )}
-                  <span className={`text-sm font-bold uppercase tracking-wide ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                    {isPositive ? 'Cash Flow Positive' : 'Cash Burn'}
-                  </span>
-                </div>
-                <div className={`text-3xl sm:text-4xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
-                  <span className="text-base font-normal">/mo</span>
-                </div>
-                <div className={`text-sm mt-1 ${isPositive ? 'text-green-700' : 'text-red-700'}`}>
-                  {isPositive ? '+' : ''}{fmt(results.annualCashFlow)} per year
-                </div>
-              </div>
-
-              {/* Summary Cards */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3">
-                <div className="bg-foreground text-background rounded-xl p-4">
-                  <div className="text-xs opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
-                  <div className="text-2xl font-bold">{fmt(results.cashAtCompletion)}</div>
-                  <p className="text-xs opacity-60 mt-1">Down payment balance + PTT</p>
-                </div>
-                <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
-                  <div className="text-xs text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
-                  <div className="text-2xl font-bold text-foreground">{fmt(results.totalCashRequired)}</div>
-                  <p className="text-xs text-muted-foreground mt-1">Deposits + Cash at Completion</p>
-                </div>
-              </div>
-
-              {/* Save Scenario Button - Mobile */}
-              <Button 
-                onClick={openSaveDialog}
-                className="w-full h-12 lg:hidden"
-                variant={canSaveMore ? "default" : "outline"}
-              >
-                <Save className="w-4 h-4 mr-2" />
-                {canSaveMore ? 'Save Scenario' : `Compare ${snapshots.length}/3`}
-              </Button>
-            </div>
-          </div>
-        </div>
+          </TabsContent>
+        </Tabs>
       </div>
 
       {/* Comparison Section */}
@@ -532,58 +783,58 @@ export function InvestmentSnapshot() {
 
       {/* Empty state for comparison */}
       {!showComparison && snapshots.length === 0 && (
-        <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
-          <BarChart3 className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
-          <h3 className="font-semibold mb-1">Compare Scenarios</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Save up to 3 different scenarios to compare them side-by-side
+        <div className="bg-white rounded-2xl shadow-lg p-5 text-center">
+          <BarChart3 className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <h3 className="font-semibold text-sm mb-1">Compare Scenarios</h3>
+          <p className="text-xs text-muted-foreground mb-3">
+            Save up to 3 scenarios to compare side-by-side
           </p>
-          <Button onClick={openSaveDialog} variant="outline">
+          <Button onClick={openSaveDialog} variant="outline" size="sm">
             <Save className="w-4 h-4 mr-2" />
-            Save Current Scenario
+            Save Current
           </Button>
         </div>
       )}
 
       {/* Mobile Action Bar */}
-      <div className="flex gap-2 lg:hidden">
-        <Button variant="outline" onClick={resetToDefaults} className="flex-1 h-11">
-          <RotateCcw className="w-4 h-4 mr-2" />
+      <div className="flex gap-2 sm:hidden">
+        <Button variant="outline" onClick={resetToDefaults} className="flex-1 h-10">
+          <RotateCcw className="w-4 h-4 mr-1.5" />
           Reset
         </Button>
-        <Button variant="outline" onClick={handleShare} className="flex-1 h-11">
-          <Share2 className="w-4 h-4 mr-2" />
+        <Button variant="outline" onClick={handleShare} className="flex-1 h-10">
+          <Share2 className="w-4 h-4 mr-1.5" />
           Share
         </Button>
-        <Button onClick={handleDownloadImage} disabled={isDownloading} className="flex-1 h-11">
-          <Download className="w-4 h-4 mr-2" />
+        <Button onClick={handleDownloadImage} disabled={isDownloading} className="flex-1 h-10">
+          <Download className="w-4 h-4 mr-1.5" />
           Save
         </Button>
       </div>
 
       {/* Save Dialog */}
       <Dialog open={showSaveDialog} onOpenChange={setShowSaveDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-w-sm mx-4">
           <DialogHeader>
             <DialogTitle>Save Scenario</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
+          <div className="space-y-4 py-3">
             <div>
               <label className="text-sm font-medium block mb-2">Scenario Name</label>
               <Input
                 value={scenarioName}
                 onChange={(e) => setScenarioName(e.target.value)}
                 placeholder="e.g., $599K @ 20% down"
-                className="h-12"
+                className="h-11"
                 autoFocus
               />
             </div>
-            <div className="bg-secondary/20 rounded-lg p-3 text-sm">
-              <div className="flex justify-between mb-1">
+            <div className="bg-secondary/20 rounded-lg p-3 text-sm space-y-1">
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Purchase Price</span>
                 <span className="font-medium">{fmt(inputs.purchasePrice)}</span>
               </div>
-              <div className="flex justify-between mb-1">
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Monthly Cash Flow</span>
                 <span className={`font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
                   {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
@@ -595,7 +846,7 @@ export function InvestmentSnapshot() {
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
               Cancel
             </Button>
