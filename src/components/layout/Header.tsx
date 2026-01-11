@@ -193,11 +193,11 @@ export function Header() {
                     </Link>
 
                     <Link
-                      to="/mortgage-calculator"
+                      to="/calculator"
                       onClick={() => setOpen(false)}
                       className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
-                      Mortgages
+                      Calculator
                     </Link>
 
                     <Link

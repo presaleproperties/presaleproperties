@@ -102,8 +102,8 @@ export function Footer() {
             <h4 className="text-xs sm:text-sm font-semibold">Resources</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
-                <Link to="/roi-calculator" className="hover:text-foreground transition-colors">
-                  ROI Calculator
+                <Link to="/calculator" className="hover:text-foreground transition-colors">
+                  Calculator
                 </Link>
               </li>
               <li>
