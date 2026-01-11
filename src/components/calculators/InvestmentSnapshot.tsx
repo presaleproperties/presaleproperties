@@ -52,6 +52,23 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   appreciationRate: 3,
 };
 
+function calculateCMHCPremium(mortgageAmount: number, downPaymentPercent: number): number {
+  // CMHC insurance is required for down payments less than 20%
+  if (downPaymentPercent >= 20) return 0;
+  
+  // CMHC premium rates based on down payment percentage
+  let premiumRate: number;
+  if (downPaymentPercent >= 15) {
+    premiumRate = 0.028; // 2.80%
+  } else if (downPaymentPercent >= 10) {
+    premiumRate = 0.031; // 3.10%
+  } else {
+    premiumRate = 0.04; // 4.00%
+  }
+  
+  return mortgageAmount * premiumRate;
+}
+
 function calculateMonthlyMortgage(principal: number, annualRate: number, years: number): number {
   if (principal <= 0 || annualRate <= 0) return 0;
   const monthlyRate = annualRate / 100 / 12;
@@ -148,7 +165,16 @@ export function InvestmentSnapshot() {
     const secondDeposit = inputs.purchasePrice * (inputs.secondDepositPercent / 100);
     const totalDeposits = firstDeposit + secondDeposit;
     const downPayment = priceWithGST * (inputs.downPaymentPercent / 100);
-    const mortgageAmount = priceWithGST - downPayment;
+    
+    // Calculate base mortgage (before CMHC)
+    const baseMortgageAmount = priceWithGST - downPayment;
+    
+    // Calculate CMHC insurance premium (added to mortgage if down payment < 20%)
+    const cmhcPremium = calculateCMHCPremium(baseMortgageAmount, inputs.downPaymentPercent);
+    
+    // Total mortgage includes CMHC premium
+    const mortgageAmount = baseMortgageAmount + cmhcPremium;
+    
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
     // First time buyers are exempt from PTT on properties under $500k (full) or partial up to $525k
     const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
@@ -177,8 +203,8 @@ export function InvestmentSnapshot() {
 
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
-      mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, cashAtCompletion,
-      totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
+      baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, 
+      cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
       principalPaid, remainingBalance, futureValue, appreciation, totalEquityBuilt,
       equityFromPaydown, totalCashFlowOverPeriod, totalReturn, roiPercent,
     };
@@ -644,11 +670,26 @@ export function InvestmentSnapshot() {
                 )}
 
                 {/* Mortgage Info - Both */}
-                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
+                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-muted-foreground">Mortgage Principal</span>
                     <span className="font-bold">{fmt(results.mortgageAmount)}</span>
                   </div>
+                  {results.cmhcPremium > 0 && (
+                    <>
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>Base Mortgage</span>
+                        <span>{fmt(results.baseMortgageAmount)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="text-amber-600">+ CMHC Insurance</span>
+                        <span className="text-amber-600 font-medium">{fmt(results.cmhcPremium)}</span>
+                      </div>
+                      <p className="text-[10px] text-amber-600 pt-1 border-t border-border/30">
+                        Required for down payments under 20%
+                      </p>
+                    </>
+                  )}
                 </div>
 
                 {/* Next Page Button */}
