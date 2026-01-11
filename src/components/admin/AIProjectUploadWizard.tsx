@@ -213,6 +213,67 @@ export function AIProjectUploadWizard() {
     return fullText.trim();
   };
 
+  // Extract HQ page screenshots from PDF and upload to storage
+  const extractImagesFromPDF = async (file: File): Promise<string[]> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const uploadedUrls: string[] = [];
+    
+    // Render each page at high resolution (2x scale for HQ)
+    const scale = 2.0;
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      try {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale });
+        
+        // Create canvas for rendering
+        const canvas = document.createElement("canvas");
+        const context = canvas.getContext("2d");
+        if (!context) continue;
+        
+        canvas.width = viewport.width;
+        canvas.height = viewport.height;
+        
+        // Render page to canvas
+        await page.render({
+          canvasContext: context,
+          viewport: viewport,
+        }).promise;
+        
+        // Convert canvas to blob
+        const blob = await new Promise<Blob | null>((resolve) => {
+          canvas.toBlob(resolve, "image/jpeg", 0.92);
+        });
+        
+        if (!blob) continue;
+        
+        // Upload to Supabase storage
+        const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-page${i}.jpg`;
+        
+        const { error: uploadError } = await supabase.storage
+          .from("listing-photos")
+          .upload(fileName, blob, { contentType: "image/jpeg" });
+        
+        if (uploadError) {
+          console.error(`Failed to upload page ${i}:`, uploadError);
+          continue;
+        }
+        
+        const { data: { publicUrl } } = supabase.storage
+          .from("listing-photos")
+          .getPublicUrl(fileName);
+        
+        uploadedUrls.push(publicUrl);
+        console.log(`Extracted and uploaded page ${i} from ${file.name}`);
+      } catch (pageErr) {
+        console.error(`Error processing page ${i}:`, pageErr);
+      }
+    }
+    
+    return uploadedUrls;
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -222,6 +283,7 @@ export function AIProjectUploadWizard() {
 
     try {
       const newFiles: UploadedFile[] = [];
+      let extractedImages: string[] = [];
       
       for (const file of Array.from(files)) {
         if (file.type !== "application/pdf") {
@@ -234,6 +296,8 @@ export function AIProjectUploadWizard() {
         }
 
         console.log("Processing PDF:", file.name);
+        
+        // Extract text for AI processing
         const text = await extractTextFromPDF(file);
         
         newFiles.push({
@@ -242,13 +306,34 @@ export function AIProjectUploadWizard() {
         });
         
         console.log(`Extracted ${text.length} chars from ${file.name}`);
+        
+        // Extract HQ page screenshots and add to gallery
+        toast({
+          title: "Extracting Images",
+          description: `Capturing HQ screenshots from ${file.name}...`,
+        });
+        
+        const pageImages = await extractImagesFromPDF(file);
+        extractedImages = [...extractedImages, ...pageImages];
+        
+        console.log(`Extracted ${pageImages.length} page images from ${file.name}`);
       }
 
       setUploadedFiles(prev => [...prev, ...newFiles]);
       
+      // Add extracted images to gallery
+      if (extractedImages.length > 0) {
+        if (!featuredImage && extractedImages.length > 0) {
+          setFeaturedImage(extractedImages[0]);
+          setGalleryImages(prev => [...prev, ...extractedImages.slice(1)]);
+        } else {
+          setGalleryImages(prev => [...prev, ...extractedImages]);
+        }
+      }
+      
       toast({
-        title: "Files Uploaded",
-        description: `Processed ${newFiles.length} PDF file(s)`,
+        title: "Files Processed",
+        description: `Processed ${newFiles.length} PDF(s), extracted ${extractedImages.length} page image(s)`,
       });
 
     } catch (err: any) {
