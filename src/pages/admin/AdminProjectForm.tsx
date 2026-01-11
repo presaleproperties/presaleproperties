@@ -500,163 +500,269 @@ export default function AdminProjectForm() {
     }));
   };
 
-  // Analyze if a page is image-heavy (for AI selection of primary image)
-  const analyzePageImageContent = async (page: any): Promise<{ isImageHeavy: boolean; imageRatio: number }> => {
+  // AI: Detect and extract pure image regions from a PDF page (no text)
+  const extractImageRegionsFromPage = async (
+    page: any, 
+    pageNum: number,
+    renderScale: number = 3.0
+  ): Promise<{ blob: Blob; width: number; height: number; quality: number }[]> => {
+    const extractedImages: { blob: Blob; width: number; height: number; quality: number }[] = [];
+    
     try {
-      const viewport = page.getViewport({ scale: 1.0 });
+      const viewport = page.getViewport({ scale: renderScale });
       const textContent = await page.getTextContent();
       
-      // Calculate total text area
-      let textArea = 0;
+      // Render the full page
+      const canvas = document.createElement("canvas");
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      const ctx = canvas.getContext("2d", { alpha: false });
+      if (!ctx) return extractedImages;
+      
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      await page.render({ canvasContext: ctx, viewport }).promise;
+      
+      // Build text region mask - mark areas with text
+      const textMask: boolean[][] = Array(Math.ceil(viewport.height / 10))
+        .fill(null)
+        .map(() => Array(Math.ceil(viewport.width / 10)).fill(false));
+      
+      const padding = 20 * renderScale; // Padding around text
+      
       for (const item of textContent.items as any[]) {
-        if (item.width && item.height) {
-          textArea += item.width * item.height;
+        if (item.transform && item.width && item.height) {
+          const [, , , , tx, ty] = item.transform;
+          const x = tx * renderScale;
+          const y = viewport.height - (ty * renderScale); // PDF Y is bottom-up
+          const w = item.width * renderScale;
+          const h = item.height * renderScale * 1.5; // Text height buffer
+          
+          // Mark text region in mask (with padding)
+          const startX = Math.max(0, Math.floor((x - padding) / 10));
+          const endX = Math.min(textMask[0].length - 1, Math.ceil((x + w + padding) / 10));
+          const startY = Math.max(0, Math.floor((y - h - padding) / 10));
+          const endY = Math.min(textMask.length - 1, Math.ceil((y + padding) / 10));
+          
+          for (let my = startY; my <= endY; my++) {
+            for (let mx = startX; mx <= endX; mx++) {
+              textMask[my][mx] = true;
+            }
+          }
         }
       }
       
-      const pageArea = viewport.width * viewport.height;
-      const textRatio = textArea / pageArea;
+      // Find large non-text rectangular regions (potential images)
+      const minImageSize = 150 * renderScale; // Minimum 150px at base scale
+      const regions: { x: number; y: number; w: number; h: number }[] = [];
       
-      // Page is image-heavy if text covers less than 15% of the page
-      return {
-        isImageHeavy: textRatio < 0.15,
-        imageRatio: 1 - textRatio
-      };
+      // Scan for contiguous non-text regions
+      const visited: boolean[][] = Array(textMask.length)
+        .fill(null)
+        .map(() => Array(textMask[0].length).fill(false));
+      
+      for (let y = 0; y < textMask.length; y++) {
+        for (let x = 0; x < textMask[0].length; x++) {
+          if (!textMask[y][x] && !visited[y][x]) {
+            // Flood fill to find region bounds
+            let minX = x, maxX = x, minY = y, maxY = y;
+            const queue: [number, number][] = [[x, y]];
+            visited[y][x] = true;
+            
+            while (queue.length > 0) {
+              const [cx, cy] = queue.shift()!;
+              minX = Math.min(minX, cx);
+              maxX = Math.max(maxX, cx);
+              minY = Math.min(minY, cy);
+              maxY = Math.max(maxY, cy);
+              
+              // Check neighbors
+              for (const [dx, dy] of [[0, 1], [1, 0], [0, -1], [-1, 0]]) {
+                const nx = cx + dx, ny = cy + dy;
+                if (nx >= 0 && nx < textMask[0].length && ny >= 0 && ny < textMask.length) {
+                  if (!textMask[ny][nx] && !visited[ny][nx]) {
+                    visited[ny][nx] = true;
+                    queue.push([nx, ny]);
+                  }
+                }
+              }
+            }
+            
+            // Convert mask coords to pixel coords
+            const regionW = (maxX - minX + 1) * 10;
+            const regionH = (maxY - minY + 1) * 10;
+            
+            // Only keep large enough regions
+            if (regionW >= minImageSize && regionH >= minImageSize) {
+              regions.push({
+                x: minX * 10,
+                y: minY * 10,
+                w: regionW,
+                h: regionH
+              });
+            }
+          }
+        }
+      }
+      
+      // Extract each region as a separate image
+      for (const region of regions) {
+        // Analyze if region contains actual image content (not just white space)
+        const regionCanvas = document.createElement("canvas");
+        regionCanvas.width = region.w;
+        regionCanvas.height = region.h;
+        const regionCtx = regionCanvas.getContext("2d");
+        if (!regionCtx) continue;
+        
+        regionCtx.drawImage(
+          canvas,
+          region.x, region.y, region.w, region.h,
+          0, 0, region.w, region.h
+        );
+        
+        // Check if region has meaningful content (not mostly white/blank)
+        const imageData = regionCtx.getImageData(0, 0, region.w, region.h);
+        const pixels = imageData.data;
+        let colorVariance = 0;
+        let nonWhitePixels = 0;
+        
+        // Sample pixels for analysis
+        const sampleStep = Math.max(1, Math.floor(pixels.length / (4 * 1000)));
+        for (let i = 0; i < pixels.length; i += 4 * sampleStep) {
+          const r = pixels[i], g = pixels[i + 1], b = pixels[i + 2];
+          const brightness = (r + g + b) / 3;
+          
+          // Count non-white pixels
+          if (brightness < 250) nonWhitePixels++;
+          
+          // Measure color variance
+          colorVariance += Math.abs(r - g) + Math.abs(g - b) + Math.abs(b - r);
+        }
+        
+        const sampledPixels = Math.floor(pixels.length / (4 * sampleStep));
+        const nonWhiteRatio = nonWhitePixels / sampledPixels;
+        const avgVariance = colorVariance / sampledPixels;
+        
+        // Skip if mostly white/blank or very low color variance (likely not a photo)
+        if (nonWhiteRatio < 0.3 || avgVariance < 10) continue;
+        
+        // Calculate quality score based on size and color richness
+        const quality = (region.w * region.h) / (1000 * 1000) + avgVariance / 100;
+        
+        const blob = await new Promise<Blob | null>((resolve) => {
+          regionCanvas.toBlob(resolve, "image/jpeg", 0.95);
+        });
+        
+        if (blob && blob.size > 30000) { // At least 30KB
+          extractedImages.push({
+            blob,
+            width: Math.round(region.w / renderScale),
+            height: Math.round(region.h / renderScale),
+            quality
+          });
+        }
+      }
+      
+      // If no regions found, check if page itself is mostly an image
+      if (extractedImages.length === 0) {
+        const textCoverage = textMask.flat().filter(Boolean).length / textMask.flat().length;
+        
+        // If less than 10% text, treat whole page as image
+        if (textCoverage < 0.1) {
+          const blob = await new Promise<Blob | null>((resolve) => {
+            canvas.toBlob(resolve, "image/jpeg", 0.95);
+          });
+          
+          if (blob && blob.size > 50000) {
+            extractedImages.push({
+              blob,
+              width: Math.round(viewport.width / renderScale),
+              height: Math.round(viewport.height / renderScale),
+              quality: (viewport.width * viewport.height) / (1000 * 1000)
+            });
+          }
+        }
+      }
+      
     } catch (err) {
-      console.warn("Could not analyze page:", err);
-      return { isImageHeavy: true, imageRatio: 0.5 };
+      console.warn(`Error extracting images from page ${pageNum}:`, err);
     }
+    
+    return extractedImages;
   };
 
-  // Extract HQ screenshots from PDF pages that are image-heavy (minimal text)
+  // Extract HQ images from PDF (AI detects image regions, excludes text)
   const extractImagesFromPdfForGallery = async (file: File) => {
     setIsExtractingFromPdf(true);
     try {
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      const uploadedUrls: string[] = [];
-      const pageScores: { pageNum: number; imageRatio: number; url: string }[] = [];
-      const renderScale = 2.5; // High quality screenshots
+      const allImages: { url: string; width: number; height: number; quality: number }[] = [];
       const maxImages = 7;
       
       toast({
         title: "AI Scanning PDF",
-        description: `Analyzing ${pdf.numPages} pages for images...`,
+        description: `Detecting images in ${pdf.numPages} pages...`,
       });
       
-      // First pass: analyze all pages to find image-heavy ones
-      const imageHeavyPages: number[] = [];
+      // Process each page
       for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
         try {
           const page = await pdf.getPage(pageNum);
-          const { isImageHeavy, imageRatio } = await analyzePageImageContent(page);
+          const images = await extractImageRegionsFromPage(page, pageNum, 3.0);
           
-          if (isImageHeavy) {
-            imageHeavyPages.push(pageNum);
-            console.log(`Page ${pageNum}: Image-heavy (${(imageRatio * 100).toFixed(0)}% visual content)`);
-          } else {
-            console.log(`Page ${pageNum}: Text-heavy, skipping`);
+          for (const img of images) {
+            // Upload to storage
+            const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-p${pageNum}.jpg`;
+            
+            const { error: uploadError } = await supabase.storage
+              .from("listing-photos")
+              .upload(fileName, img.blob, { contentType: "image/jpeg" });
+            
+            if (uploadError) {
+              console.error(`Upload failed:`, uploadError);
+              continue;
+            }
+            
+            const { data: { publicUrl } } = supabase.storage
+              .from("listing-photos")
+              .getPublicUrl(fileName);
+            
+            allImages.push({
+              url: publicUrl,
+              width: img.width,
+              height: img.height,
+              quality: img.quality
+            });
+            
+            console.log(`Extracted: ${img.width}x${img.height}, quality: ${img.quality.toFixed(2)}`);
           }
-        } catch (err) {
-          console.warn(`Error analyzing page ${pageNum}:`, err);
-        }
-      }
-      
-      if (imageHeavyPages.length === 0) {
-        // Fallback: if no image-heavy pages found, take first few pages
-        toast({
-          title: "Limited Images Found",
-          description: "Extracting best available pages...",
-        });
-        for (let i = 1; i <= Math.min(maxImages, pdf.numPages); i++) {
-          imageHeavyPages.push(i);
-        }
-      }
-      
-      // Second pass: render HQ screenshots of image-heavy pages
-      const pagesToRender = imageHeavyPages.slice(0, maxImages);
-      
-      for (const pageNum of pagesToRender) {
-        try {
-          const page = await pdf.getPage(pageNum);
-          const viewport = page.getViewport({ scale: renderScale });
-          
-          // Create high-res canvas
-          const canvas = document.createElement("canvas");
-          canvas.width = viewport.width;
-          canvas.height = viewport.height;
-          const ctx = canvas.getContext("2d", { alpha: false });
-          if (!ctx) continue;
-          
-          // White background for better image quality
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          
-          // Render the page
-          await page.render({
-            canvasContext: ctx,
-            viewport: viewport,
-          }).promise;
-          
-          // Convert to high-quality JPEG
-          const blob = await new Promise<Blob | null>((resolve) => {
-            canvas.toBlob(resolve, "image/jpeg", 0.95);
-          });
-          
-          if (!blob || blob.size < 20000) continue; // Skip very small results
-          
-          // Upload to storage
-          const fileName = `projects/${Date.now()}-${Math.random().toString(36).substring(7)}-page${pageNum}.jpg`;
-          
-          const { error: uploadError } = await supabase.storage
-            .from("listing-photos")
-            .upload(fileName, blob, { contentType: "image/jpeg" });
-          
-          if (uploadError) {
-            console.error(`Failed to upload page ${pageNum}:`, uploadError);
-            continue;
-          }
-          
-          const { data: { publicUrl } } = supabase.storage
-            .from("listing-photos")
-            .getPublicUrl(fileName);
-          
-          uploadedUrls.push(publicUrl);
-          
-          // Track page analysis for primary image selection
-          const { imageRatio } = await analyzePageImageContent(page);
-          pageScores.push({ pageNum, imageRatio, url: publicUrl });
-          
-          console.log(`Extracted page ${pageNum}: ${viewport.width}x${viewport.height} @ ${renderScale}x scale`);
         } catch (pageErr) {
-          console.error(`Error rendering page ${pageNum}:`, pageErr);
+          console.error(`Error on page ${pageNum}:`, pageErr);
         }
       }
       
-      if (uploadedUrls.length > 0) {
-        // Sort by image ratio to find best primary image (most visual, least text)
-        pageScores.sort((a, b) => b.imageRatio - a.imageRatio);
-        const bestPrimaryIndex = uploadedUrls.indexOf(pageScores[0]?.url || uploadedUrls[0]);
+      if (allImages.length > 0) {
+        // Sort by quality (size + color richness) and pick best ones
+        allImages.sort((a, b) => b.quality - a.quality);
+        const topImages = allImages.slice(0, maxImages);
+        const urls = topImages.map(img => img.url);
         
-        // Reorder so best primary is first
-        if (bestPrimaryIndex > 0) {
-          const [bestImage] = uploadedUrls.splice(bestPrimaryIndex, 1);
-          uploadedUrls.unshift(bestImage);
-        }
-        
-        // Show preview modal with best image pre-selected as first
-        setExtractedPreviewImages(uploadedUrls);
-        setSelectedPreviewImages(new Set(uploadedUrls.map((_, i) => i))); // Select all by default
+        // Show preview modal
+        setExtractedPreviewImages(urls);
+        setSelectedPreviewImages(new Set(urls.map((_, i) => i)));
         setShowImagePreviewModal(true);
         
+        const bestImg = topImages[0];
         toast({
           title: "AI Extracted Images",
-          description: `Found ${uploadedUrls.length} image-heavy pages. First image recommended as primary.`,
+          description: `Found ${allImages.length} images. Best: ${bestImg.width}x${bestImg.height}px`,
         });
       } else {
         toast({
           title: "No Images Found",
-          description: "Could not extract usable images. Try uploading images directly.",
+          description: "Could not detect image regions. Try uploading images directly.",
           variant: "destructive",
         });
       }
