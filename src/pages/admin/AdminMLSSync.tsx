@@ -20,8 +20,20 @@ import {
   Settings2,
   MapPin,
   Eye,
-  EyeOff
+  EyeOff,
+  Trash2
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { format } from "date-fns";
 import {
   Table,
@@ -208,6 +220,33 @@ export default function AdminMLSSync() {
     onError: (error: Error) => {
       toast({
         title: "Failed to save",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Clear all listings mutation
+  const clearListingsMutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("mls_listings")
+        .delete()
+        .neq("id", "00000000-0000-0000-0000-000000000000"); // Delete all rows
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ 
+        title: "All listings cleared", 
+        description: "The MLS listings database has been reset.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["mls-listing-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["mls-city-counts"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to clear listings",
         description: error.message,
         variant: "destructive",
       });
@@ -479,10 +518,45 @@ export default function AdminMLSSync() {
               </div>
             </div>
 
-            <div className="pt-4 border-t">
+            <div className="pt-4 border-t flex items-center justify-between">
               <p className="text-xs text-muted-foreground">
                 <strong>Note:</strong> The sync runs in batches of 3,000 listings per request. For large syncs, you may need to run multiple times to import all data.
               </p>
+              
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    disabled={clearListingsMutation.isPending || (listingStats?.total || 0) === 0}
+                  >
+                    {clearListingsMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4 mr-2" />
+                    )}
+                    Clear All Listings
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Clear All MLS Listings?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will permanently delete all <strong>{listingStats?.total?.toLocaleString() || 0}</strong> MLS listings from the database. 
+                      This action cannot be undone. You will need to run a new sync to repopulate the data.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => clearListingsMutation.mutate()}
+                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    >
+                      Yes, Clear All Listings
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </CardContent>
         </Card>
