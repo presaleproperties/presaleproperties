@@ -77,33 +77,38 @@ const getStatusLabel = (status: Project["status"]) => {
   }
 };
 
-// Smaller, refined price pill marker
+// Presale marker with crane icon
 const createPricePillIcon = (project: Project) => {
   const priceText = project.starting_price
     ? formatPrice(project.starting_price)
     : "TBD";
 
+  // SVG crane icon for presale projects
+  const craneIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20v-6"/><path d="M14 20v-6"/><path d="M2 20h20"/><path d="M19 9V4l-6 3V4L6 8v3"/><path d="M19 9h-7v6h7z"/></svg>`;
+
   return L.divIcon({
     className: "price-pill-marker",
     html: `
       <div style="
-        display: inline-block;
-        background: #F5C243;
-        color: #1a1a1a;
-        padding: 4px 8px;
-        border-radius: 4px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: hsl(222, 47%, 15%);
+        color: white;
+        padding: 5px 10px 5px 8px;
+        border-radius: 16px;
         font-size: 11px;
         font-weight: 600;
         white-space: nowrap;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-        border: 1.5px solid white;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+        border: 2px solid hsl(45, 89%, 55%);
         cursor: pointer;
         font-family: system-ui, -apple-system, sans-serif;
-      ">${priceText}</div>
+      ">${craneIcon}${priceText}</div>
     `,
-    iconSize: [60, 22],
-    iconAnchor: [30, 11],
-    popupAnchor: [0, -11],
+    iconSize: [100, 28],
+    iconAnchor: [50, 14],
+    popupAnchor: [0, -14],
   });
 };
 

@@ -339,149 +339,7 @@ export default function ResaleMapSearch() {
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader />
 
-        {/* Search & Filter Bar */}
-        <div className="border-b border-border bg-background z-40 shrink-0">
-          <div className="px-4 lg:px-6 py-3">
-            <div className="flex items-center gap-2 md:gap-4">
-              {/* Back Button */}
-              <Link to="/resale" className="lg:hidden">
-                <button className="p-2 rounded-md bg-background border border-border/50 hover:bg-muted transition-colors" aria-label="View all listings">
-                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </Link>
-              <Link to="/resale" className="hidden lg:block">
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back</span>
-                </Button>
-              </Link>
-
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search city, neighborhood, project..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-9"
-                />
-              </div>
-
-              {/* Mobile Filters */}
-              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="lg:hidden relative">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                        {activeFilterCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[280px]">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">City</label>
-                      <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                        <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="any">All Cities</SelectItem>
-                          {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Property Type</label>
-                      <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
-                        <SelectTrigger><SelectValue placeholder="All Types" /></SelectTrigger>
-                        <SelectContent>
-                          {PROPERTY_TYPES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Beds</label>
-                      <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-                        <SelectTrigger><SelectValue placeholder="Any Beds" /></SelectTrigger>
-                        <SelectContent>
-                          {BED_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Price</label>
-                      <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-                        <SelectTrigger><SelectValue placeholder="Any Price" /></SelectTrigger>
-                        <SelectContent>
-                          {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {activeFilterCount > 0 && (
-                      <Button variant="ghost" onClick={clearAllFilters} className="w-full">
-                        <X className="h-4 w-4 mr-2" /> Clear All
-                      </Button>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* Desktop Filters */}
-              <div className="hidden lg:flex items-center gap-2">
-                <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                  <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="All Cities" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">All Cities</SelectItem>
-                    {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
-                  <SelectTrigger className="w-[120px] h-9"><SelectValue placeholder="All Types" /></SelectTrigger>
-                  <SelectContent>
-                    {PROPERTY_TYPES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-                  <SelectTrigger className="w-[110px] h-9"><SelectValue placeholder="Any Beds" /></SelectTrigger>
-                  <SelectContent>
-                    {BED_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-                  <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Any Price" /></SelectTrigger>
-                  <SelectContent>
-                    {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                {activeFilterCount > 0 && (
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-
-              {/* Toggle List Button */}
-              <Button
-                variant={showList ? "outline" : "default"}
-                size="sm"
-                className="hidden lg:flex gap-2"
-                onClick={() => setShowList(!showList)}
-              >
-                {showList ? <Map className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-                {showList ? "Expand Map" : "Show List"}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content */}
+        {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/5" : "lg:w-full"}`}>
@@ -493,6 +351,15 @@ export default function ResaleMapSearch() {
                 presaleCount={filteredPresaleProjects?.length || 0}
                 resaleCount={filteredResaleListings?.length || 0}
               />
+            </div>
+
+            {/* Zoom Controls Info */}
+            <div className="absolute top-3 right-3 z-[1000] lg:hidden">
+              <Link to="/resale">
+                <button className="p-2 rounded-full bg-background/90 backdrop-blur-sm shadow-md border border-border/30 hover:bg-background transition-colors">
+                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </Link>
             </div>
 
             <div className="absolute inset-0">
@@ -637,21 +504,120 @@ export default function ResaleMapSearch() {
             )}
           </div>
 
-          {/* Desktop List Panel */}
+          {/* Desktop List Panel - Search bar at top like reference */}
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
             showList ? "w-2/5 opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
-            <div className="shrink-0 px-4 py-3 border-b border-border">
-              <div className="flex items-center justify-between">
-                <h3 className="font-semibold text-foreground">
-                  {visibleItems.length} Propert{visibleItems.length !== 1 ? "ies" : "y"} in view
-                </h3>
-                <Link to="/resale">
-                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
-                </Link>
+            {/* Search & Filter Section at top of panel */}
+            <div className="shrink-0 p-4 border-b border-border space-y-3">
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="City, Neighbourhood, ..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-10 bg-background border-border"
+                />
+              </div>
+              
+              {/* Filter Row */}
+              <div className="flex items-center gap-2">
+                <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      Filter
+                      {activeFilterCount > 0 && (
+                        <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full">
+                          {activeFilterCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[300px]">
+                    <SheetHeader>
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 space-y-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">City</label>
+                        <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+                          <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="any">All Cities</SelectItem>
+                            {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Property Type</label>
+                        <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
+                          <SelectTrigger><SelectValue placeholder="All Types" /></SelectTrigger>
+                          <SelectContent>
+                            {PROPERTY_TYPES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Beds</label>
+                        <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
+                          <SelectTrigger><SelectValue placeholder="Any Beds" /></SelectTrigger>
+                          <SelectContent>
+                            {BED_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Price</label>
+                        <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
+                          <SelectTrigger><SelectValue placeholder="Any Price" /></SelectTrigger>
+                          <SelectContent>
+                            {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {activeFilterCount > 0 && (
+                        <Button variant="ghost" onClick={clearAllFilters} className="w-full">
+                          <X className="h-4 w-4 mr-2" /> Clear All
+                        </Button>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                {/* Results Count & Sort */}
+                <div className="flex-1 flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {visibleItems.length} Results
+                  </span>
+                  <Select defaultValue="latest">
+                    <SelectTrigger className="w-[110px] h-8 text-xs border-0 bg-transparent">
+                      <SelectValue placeholder="Sort" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="latest">Latest</SelectItem>
+                      <SelectItem value="price-asc">Price ↑</SelectItem>
+                      <SelectItem value="price-desc">Price ↓</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* View Toggle */}
+                <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+                  <button className="p-1.5 rounded bg-background shadow-sm">
+                    <MapPin className="h-3.5 w-3.5 text-foreground" />
+                  </button>
+                  <Link to="/resale">
+                    <button className="p-1.5 rounded hover:bg-background/50 transition-colors">
+                      <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
+                    </button>
+                  </Link>
+                </div>
               </div>
             </div>
             
+            {/* Property List */}
             <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
               {visibleItems.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
