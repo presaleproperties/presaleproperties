@@ -11,8 +11,9 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { getVisitorId, getSessionId } from "@/lib/tracking";
+import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -86,6 +87,18 @@ export function AccessPackModal({
   }, []);
 
   useEffect(() => {
+    if (open) {
+      // Track form start for Meta Pixel
+      MetaEvents.formStart({
+        content_name: projectName || "Access Pack",
+        content_category: variant === "floorplans" ? "floorplans" : "callback",
+      });
+      // Track form start for behavioral tracking
+      trackFormStart({
+        form_name: variant === "floorplans" ? "access_pack" : "callback_request",
+        form_location: "access_pack_modal",
+      });
+    }
     if (!open) {
       setIsSuccess(false);
       form.reset();
@@ -187,6 +200,43 @@ export function AccessPackModal({
       supabase.functions
         .invoke("send-drip-email", {})
         .catch(console.error);
+
+      // Track behavioral form submission
+      trackFormSubmit({
+        form_name: variant === "floorplans" ? "access_pack" : "callback_request",
+        form_location: "access_pack_modal",
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        phone: data.phone,
+        user_type: actualPersona,
+        project_name: projectName,
+      });
+
+      // Track Meta Pixel Lead event
+      MetaEvents.lead({
+        content_name: projectName || "Access Pack",
+        content_category: actualPersona,
+      });
+
+      // Send server-side Lead event to Meta Conversions API
+      supabase.functions
+        .invoke("meta-conversions-api", {
+          body: {
+            event_name: "Lead",
+            email: data.email,
+            phone: data.phone,
+            first_name: data.firstName,
+            last_name: data.lastName,
+            event_source_url: window.location.href,
+            content_name: projectName || "Access Pack",
+            content_category: actualPersona,
+            client_user_agent: navigator.userAgent,
+            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+          },
+        })
+        .catch((err) => console.error("Meta CAPI error:", err));
 
       localStorage.setItem("presale_persona", actualPersona);
 

@@ -12,8 +12,9 @@ import { format, addDays, isSameDay, getDay } from "date-fns";
 import { Calendar as CalendarIcon, Clock, CheckCircle, Loader2, ArrowLeft, ArrowRight, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
-import { getVisitorId, getSessionId } from "@/lib/tracking";
+import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 type BuyerType = "first_time" | "investor";
 type HomeSize = "1_bed" | "2_bed" | "3_bed_plus";
@@ -118,10 +119,20 @@ export function BookingModal({
   const [existingBookings, setExistingBookings] = useState<ExistingBooking[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch availability data
+  // Fetch availability data and track form start
   useEffect(() => {
     if (open) {
       fetchSchedulerData();
+      // Track form start for Meta Pixel
+      MetaEvents.formStart({ 
+        content_name: projectName,
+        content_category: "tour_booking" 
+      });
+      // Track form start for behavioral tracking
+      trackFormStart({
+        form_name: "tour_booking",
+        form_location: "booking_modal",
+      });
     }
   }, [open]);
 
@@ -313,6 +324,48 @@ export function BookingModal({
         project_id: projectId,
         project_name: projectName,
       });
+
+      // Track behavioral form submission
+      trackFormSubmit({
+        form_name: "tour_booking",
+        form_location: "booking_modal",
+        first_name: firstName,
+        last_name: lastName,
+        email,
+        phone,
+        user_type: agentStatus === "is_agent" ? "realtor" : buyerType,
+        project_id: projectId,
+        project_name: projectName,
+      });
+
+      // Track Meta Pixel events - Schedule and Lead
+      MetaEvents.schedule({ 
+        content_name: projectName,
+        content_category: buyerType 
+      });
+      MetaEvents.lead({
+        content_name: projectName,
+        content_category: "tour_booking",
+      });
+
+      // Send server-side Lead event to Meta Conversions API
+      supabase.functions
+        .invoke("meta-conversions-api", {
+          body: {
+            event_name: "Schedule",
+            email,
+            phone,
+            first_name: firstName,
+            last_name: lastName,
+            event_source_url: window.location.href,
+            content_name: projectName,
+            content_category: "tour_booking",
+            client_user_agent: navigator.userAgent,
+            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+          },
+        })
+        .catch((err) => console.error("Meta CAPI error:", err));
 
       // Track Google Analytics
       if (typeof window !== "undefined" && (window as any).gtag) {
