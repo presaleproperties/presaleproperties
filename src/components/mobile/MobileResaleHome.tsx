@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Flame } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Footer } from "@/components/layout/Footer";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
+import { MobileResalePropertyTypeCarousel } from "./MobileResalePropertyTypeCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
@@ -24,14 +25,14 @@ const TOP_CITIES = [
 ];
 
 const CITY_CAROUSELS = [
-  { city: "Vancouver", title: "Vancouver New Homes", subtitle: "Condos, Townhomes & Single Family" },
-  { city: "Burnaby", title: "Burnaby New Homes", subtitle: "Metrotown & Brentwood" },
-  { city: "Surrey", title: "Surrey New Homes", subtitle: "South Surrey & Guildford" },
-  { city: "Coquitlam", title: "Coquitlam New Homes", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley New Homes", subtitle: "Township & City" },
-  { city: "Delta", title: "Delta New Homes", subtitle: "Tsawwassen & Ladner" },
-  { city: "Richmond", title: "Richmond New Homes", subtitle: "City Centre & Steveston" },
-  { city: "Abbotsford", title: "Abbotsford New Homes", subtitle: "Fraser Valley" },
+  { city: "Vancouver", title: "Vancouver", subtitle: "Downtown, East Van & West Side" },
+  { city: "Surrey", title: "Surrey", subtitle: "South Surrey & Guildford" },
+  { city: "Burnaby", title: "Burnaby", subtitle: "Metrotown & Brentwood" },
+  { city: "Coquitlam", title: "Coquitlam", subtitle: "Tri-Cities Area" },
+  { city: "Langley", title: "Langley", subtitle: "Township & City" },
+  { city: "Richmond", title: "Richmond", subtitle: "City Centre & Steveston" },
+  { city: "Delta", title: "Delta", subtitle: "Tsawwassen & Ladner" },
+  { city: "Abbotsford", title: "Abbotsford", subtitle: "Fraser Valley" },
 ];
 
 export function MobileResaleHome() {
@@ -77,6 +78,8 @@ export function MobileResaleHome() {
 
   const handleRefresh = useCallback(async () => {
     await queryClient.invalidateQueries({ queryKey: ["featured-resale-listings-2025"] });
+    await queryClient.invalidateQueries({ queryKey: ["mobile-resale-property-type-2025"] });
+    await queryClient.invalidateQueries({ queryKey: ["mobile-resale-carousel-2025"] });
   }, [queryClient]);
 
   const { pullDistance, isRefreshing, containerRef } = usePullToRefresh({
@@ -197,26 +200,68 @@ export function MobileResaleHome() {
 
       {/* Discovery Sections */}
       <div className="pb-6">
-        {/* Featured Listings - Newest Metro Vancouver */}
+        {/* Hottest / Newest Listings */}
         <CarouselSection delay={0}>
+          <div className="px-4 sm:px-6 mb-2">
+            <div className="flex items-center gap-1.5 text-primary text-xs font-semibold uppercase tracking-wide">
+              <Flame className="h-3.5 w-3.5" />
+              Don't Miss Out
+            </div>
+          </div>
           <MobileResaleCarousel
-            title="Newest Listings"
-            subtitle="Just added in Metro Vancouver"
+            title="Hottest Listings"
+            subtitle="Newest homes in Metro Vancouver"
+          />
+        </CarouselSection>
+
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+        {/* Property Type Carousels */}
+        <CarouselSection delay={50}>
+          <MobileResalePropertyTypeCarousel
+            propertyType="condo"
+            title="New Condos"
+            subtitle="Brand new apartments"
+          />
+        </CarouselSection>
+
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+        <CarouselSection delay={75}>
+          <MobileResalePropertyTypeCarousel
+            propertyType="townhouse"
+            title="New Townhomes"
+            subtitle="Townhouses & duplexes"
+          />
+        </CarouselSection>
+
+        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+        <CarouselSection delay={100}>
+          <MobileResalePropertyTypeCarousel
+            propertyType="house"
+            title="New Single Family"
+            subtitle="Detached houses"
           />
         </CarouselSection>
 
         <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
         {/* City Quick Links */}
-        <CarouselSection delay={50}>
+        <CarouselSection delay={125}>
           <MobileCityQuickLinks mode="resale" />
         </CarouselSection>
 
         <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
         {/* City-based Carousels */}
+        <div className="px-4 sm:px-6 mb-4">
+          <h3 className="text-lg font-bold text-foreground">Browse by City</h3>
+          <p className="text-sm text-muted-foreground">Find new homes in your area</p>
+        </div>
+        
         {CITY_CAROUSELS.map((carousel, index) => (
-          <CarouselSection key={carousel.city} delay={100 + index * 50}>
+          <CarouselSection key={carousel.city} delay={150 + index * 25}>
             <MobileResaleCarousel
               city={carousel.city}
               title={carousel.title}
