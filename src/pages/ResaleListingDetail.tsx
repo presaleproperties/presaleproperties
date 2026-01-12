@@ -31,6 +31,7 @@ import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
+import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -635,6 +636,14 @@ export default function ResaleListingDetail() {
                 </a>
               </div>
             )}
+
+            {/* Neighborhood Insights */}
+            <NeighborhoodInsights
+              neighborhood={listing.neighborhood}
+              city={listing.city}
+              latitude={listing.latitude}
+              longitude={listing.longitude}
+            />
 
             {/* Listing Agent Info */}
             {listing.list_agent_name && (
