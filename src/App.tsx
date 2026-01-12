@@ -65,7 +65,6 @@ import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
-import ResaleMapSearch from "./pages/ResaleMapSearch";
 import CityResalePage from "./pages/CityResalePage";
 import Developers from "./pages/Developers";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
@@ -93,7 +92,6 @@ const App = () => (
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
             <Route path="/map-search" element={<MapSearch />} />
             <Route path="/resale" element={<ResaleListings />} />
-            <Route path="/resale-map" element={<ResaleMapSearch />} />
             {/* City-specific resale pages - MUST be before :listingKey route */}
             <Route path="/resale/vancouver" element={<CityResalePage />} />
             <Route path="/resale/surrey" element={<CityResalePage />} />

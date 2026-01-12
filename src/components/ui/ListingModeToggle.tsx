@@ -34,7 +34,7 @@ export function ListingModeToggle({ className, size = "default" }: ListingModeTo
     if (location.pathname === "/presale-projects") {
       navigate("/resale");
     } else if (location.pathname.includes("?view=map") || location.pathname === "/map-search") {
-      navigate("/resale-map");
+      navigate("/map-search?mode=resale");
     } else if (location.pathname.includes("-presale-")) {
       // City page - try to convert
       navigate("/resale");

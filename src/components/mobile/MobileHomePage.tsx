@@ -194,7 +194,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               </div>
               
               <button 
-                onClick={() => navigate(activeTab === "projects" ? "/map-search" : "/resale-map")}
+                onClick={() => navigate("/map-search")}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />

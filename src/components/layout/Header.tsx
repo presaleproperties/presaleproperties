@@ -105,7 +105,7 @@ export function Header() {
                       </div>
                     </Link>
                     <Link 
-                      to="/resale-map" 
+                      to="/map-search" 
                       className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
                     >
                       <MapPin className="h-4 w-4 text-primary" />

@@ -105,7 +105,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/resale-map" className="hover:text-foreground transition-colors">
+                <Link to="/map-search" className="hover:text-foreground transition-colors">
                   Map Search
                 </Link>
               </li>

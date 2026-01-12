@@ -150,7 +150,7 @@ export function CityDiscoverySection() {
 
         <div className="mt-8 text-center">
           <Button variant="outline" size="lg" asChild>
-            <Link to="/resale-map">
+            <Link to="/map-search?mode=resale">
               <MapPin className="mr-2 h-4 w-4" />
               View All on Map
             </Link>
