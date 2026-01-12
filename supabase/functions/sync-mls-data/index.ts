@@ -36,8 +36,11 @@ interface DDFProperty {
   ListAgentKey?: string;
   ListAgentMlsId?: string;
   ListAgentFullName?: string;
+  ListAgentFirstName?: string;
+  ListAgentLastName?: string;
   ListAgentEmail?: string;
   ListAgentDirectPhone?: string;
+  ListAgentPreferredPhone?: string;
   ListOfficeName?: string;
   ListOfficeKey?: string;
   ListOfficeMlsId?: string;
@@ -396,9 +399,12 @@ Deno.serve(async (req) => {
           public_remarks: property.PublicRemarks,
           list_agent_key: property.ListAgentKey,
           list_agent_mls_id: property.ListAgentMlsId,
-          list_agent_name: property.ListAgentFullName,
+          list_agent_name: property.ListAgentFullName || 
+            (property.ListAgentFirstName && property.ListAgentLastName 
+              ? `${property.ListAgentFirstName} ${property.ListAgentLastName}` 
+              : property.ListAgentFirstName || property.ListAgentLastName || null),
           list_agent_email: property.ListAgentEmail,
-          list_agent_phone: property.ListAgentDirectPhone,
+          list_agent_phone: property.ListAgentDirectPhone || property.ListAgentPreferredPhone,
           list_office_key: property.ListOfficeKey,
           list_office_mls_id: property.ListOfficeMlsId,
           list_office_name: property.ListOfficeName,
