@@ -5,28 +5,33 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// DDF API response structure - using actual CREA DDF field names
+// DDF API response structure - using correct CREA DDF field names from documentation
 interface DDFProperty {
-  Id?: string;
   ListingKey?: string;
-  MlsNumber?: string;
+  ListingId?: string;
   ListPrice?: number;
-  Status?: string;
-  PropertyType?: string;
+  StandardStatus?: string;
+  PropertySubType?: string;
   City?: string;
-  Province?: string;
+  StateOrProvince?: string;
   PostalCode?: string;
-  StreetAddress?: string;
-  Bedrooms?: number;
-  Bathrooms?: number;
-  BuildingAreaTotal?: number;
+  UnparsedAddress?: string;
+  StreetNumber?: string;
+  StreetName?: string;
+  UnitNumber?: string;
+  BedroomsTotal?: number;
+  BathroomsTotalInteger?: number;
+  LivingArea?: number;
+  LivingAreaUnits?: string;
   YearBuilt?: number;
   Latitude?: number;
   Longitude?: number;
   PublicRemarks?: string;
-  ListAgentName?: string;
-  ListOfficeName?: string;
-  OriginalPrice?: number;
+  ListAgentKey?: string;
+  ListOfficeKey?: string;
+  OriginalEntryTimestamp?: string;
+  ModificationTimestamp?: string;
+  PhotosCount?: number;
   Media?: Array<{
     MediaURL: string;
     MediaCategory?: string;
@@ -113,22 +118,27 @@ Deno.serve(async (req) => {
     const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
 
     // Step 2: Fetch properties from DDF API
-    // Try without $select first to see what fields are available
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
     
-    // Build OData query - filter for BC new construction listings
+    // Build OData query - filter for BC listings using correct field names
     const queryParams = [`$top=${maxRecords}`];
     
-    // Build filter for BC, new construction (2025+), specific property types
-    const filters = [
-      "Province eq 'British Columbia'",
-      "YearBuilt ge 2025",
-      "(PropertyType eq 'Condominium' or PropertyType eq 'Townhouse' or PropertyType eq 'Single Family' or PropertyType eq 'Detached' or contains(PropertyType,'Condo') or contains(PropertyType,'Town') or contains(PropertyType,'House'))"
-    ];
+    // Build filter for BC (using StateOrProvince), new construction (2024+), specific property types
+    // Use correct CREA DDF field names from documentation
+    const filters: string[] = [];
     
-    // Add city filter if specified
+    // Filter by province - BC
+    filters.push("StateOrProvince eq 'British Columbia'");
+    
+    // Filter by year built - 2024 and newer for new construction
+    filters.push("YearBuilt ge 2024");
+    
+    // Add city filter if specified - target Vancouver, Surrey, Delta
     if (filterCity) {
-      filters.push(`contains(City,'${filterCity}')`);
+      filters.push(`City eq '${filterCity}'`);
+    } else {
+      // Default to major Metro Vancouver cities
+      filters.push("(City eq 'Vancouver' or City eq 'Surrey' or City eq 'Delta' or City eq 'Burnaby' or City eq 'Richmond' or City eq 'Coquitlam' or City eq 'Langley' or City eq 'Abbotsford' or City eq 'New Westminster' or City eq 'Port Moody' or City eq 'North Vancouver' or City eq 'West Vancouver')");
     }
     
     queryParams.push(`$filter=${filters.join(' and ')}`);
@@ -184,35 +194,40 @@ Deno.serve(async (req) => {
     // Process each property
     for (const property of properties) {
       try {
-        // Transform DDF property to our schema - use DDF field names
-        const listingKey = property.ListingKey || property.Id || property.MlsNumber || `ddf-${Date.now()}-${Math.random()}`;
+        // Transform DDF property to our schema - use correct DDF field names
+        const listingKey = property.ListingKey || property.ListingId || `ddf-${Date.now()}-${Math.random()}`;
         
         const mlsListing = {
           listing_key: listingKey,
-          listing_id: property.MlsNumber || property.Id || listingKey, // Fallback to listingKey if no ID
+          listing_id: property.ListingId || listingKey,
           listing_price: property.ListPrice || 0,
-          mls_status: property.Status || "Active",
-          standard_status: property.Status || "Active",
-          property_type: property.PropertyType || "Residential",
+          mls_status: property.StandardStatus || "Active",
+          standard_status: property.StandardStatus || "Active",
+          property_type: "Residential",
+          property_sub_type: property.PropertySubType || null,
           city: property.City || "Unknown",
-          state_or_province: property.Province || "BC",
+          state_or_province: property.StateOrProvince || "British Columbia",
           postal_code: property.PostalCode,
-          unparsed_address: property.StreetAddress,
-          bedrooms_total: property.Bedrooms,
-          bathrooms_total: property.Bathrooms,
-          living_area: property.BuildingAreaTotal,
-          living_area_units: "sqft",
+          unparsed_address: property.UnparsedAddress,
+          street_number: property.StreetNumber,
+          street_name: property.StreetName,
+          unit_number: property.UnitNumber,
+          bedrooms_total: property.BedroomsTotal,
+          bathrooms_total: property.BathroomsTotalInteger,
+          living_area: property.LivingArea,
+          living_area_units: property.LivingAreaUnits || "sqft",
           year_built: property.YearBuilt,
           latitude: property.Latitude,
           longitude: property.Longitude,
           public_remarks: property.PublicRemarks,
-          list_agent_name: property.ListAgentName,
-          list_office_name: property.ListOfficeName,
-          original_list_price: property.OriginalPrice,
+          list_agent_key: property.ListAgentKey,
+          list_office_key: property.ListOfficeKey,
           photos: property.Media ? property.Media.map(m => ({
-            url: m.MediaURL,
+            MediaURL: m.MediaURL,
             order: m.Order || 0,
           })) : null,
+          list_date: property.OriginalEntryTimestamp ? new Date(property.OriginalEntryTimestamp).toISOString() : new Date().toISOString(),
+          modification_timestamp: property.ModificationTimestamp,
           last_synced_at: new Date().toISOString(),
         };
 
