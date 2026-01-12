@@ -32,8 +32,11 @@ export function FloatingMapButton() {
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
   
-  // Hide on map search pages
+  // Hide on map search pages and detail pages (they have their own CTAs)
   const isMapPage = location.pathname === "/map-search" || location.pathname === "/resale-map";
+  const isPresaleDetailPage = location.pathname.startsWith("/presale/") || location.pathname.startsWith("/presale-projects/");
+  const isResaleDetailPage = /^\/resale\/[^/]+$/.test(location.pathname) && !["vancouver", "surrey", "burnaby", "langley", "coquitlam", "richmond", "delta", "abbotsford", "chilliwack"].includes(location.pathname.split("/")[2] || "");
+  const isDetailPage = isPresaleDetailPage || isResaleDetailPage;
   
   // Parse current route to extract context (city, type, neighborhood)
   const mapContext = useMemo(() => {
@@ -125,7 +128,7 @@ export function FloatingMapButton() {
     return () => clearTimeout(timer);
   }, [isPulsing]);
   
-  if (isMapPage) return null;
+  if (isMapPage || isDetailPage) return null;
   
   // Build the map URL with context-aware params
   const buildMapUrl = () => {
