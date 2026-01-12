@@ -122,7 +122,7 @@ export function ConversionHeader() {
               <NavigationMenuList>
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
-                    Presale Projects
+                    Presale
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[500px] p-4 bg-background">
@@ -178,7 +178,7 @@ export function ConversionHeader() {
 
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
-                    Resale Properties
+                    Resale
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[500px] p-4 bg-background">
@@ -303,7 +303,7 @@ export function ConversionHeader() {
                       >
                         <div className="flex items-center gap-3">
                           <Building2 className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Presale Projects</span>
+                          <span className="text-base font-medium">Presale</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
@@ -353,7 +353,7 @@ export function ConversionHeader() {
                       >
                         <div className="flex items-center gap-3">
                           <Home className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Resale Properties</span>
+                          <span className="text-base font-medium">Resale</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>

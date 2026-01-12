@@ -249,9 +249,9 @@ export function SearchSuggestions({
   const getLabel = (type: SuggestionType) => {
     switch (type) {
       case "project":
-        return "Project";
+        return "Presale";
       case "presale":
-        return "Presale Project";
+        return "Presale";
       case "neighborhood":
         return "Neighborhood";
       case "city":
