@@ -120,22 +120,24 @@ Deno.serve(async (req) => {
 
     // Parse request body for options
     let filterCity = "";
-    let resumeFrom = 0;
-    let maxBatches = 50; // Process max 50 batches (5000 listings) per call to avoid timeout
+    let offset = 0;
+    let maxBatches = 30; // Process max 30 batches (3000 listings) per call to stay under 60s timeout
     
     try {
       const body = await req.json();
       if (body?.city) filterCity = body.city;
-      if (body?.resumeFrom) resumeFrom = parseInt(body.resumeFrom) || 0;
-      if (body?.maxBatches) maxBatches = parseInt(body.maxBatches) || 50;
+      if (body?.offset !== undefined) offset = parseInt(body.offset) || 0;
+      if (body?.maxBatches) maxBatches = Math.min(parseInt(body.maxBatches) || 30, 50);
     } catch {
       // No body or invalid JSON
     }
+    
+    console.log(`Sync starting with offset=${offset}, maxBatches=${maxBatches}`);
 
-    // Log sync start (only if not resuming)
+    // Log sync start (only if starting fresh)
     let syncLogId: string | undefined;
     
-    if (resumeFrom === 0) {
+    if (offset === 0) {
       const { data: syncLog, error: logError } = await supabase
         .from("mls_sync_logs")
         .insert({
@@ -180,13 +182,13 @@ Deno.serve(async (req) => {
     }
 
     let allProperties: DDFProperty[] = [];
-    let skip = resumeFrom;
+    let skip = offset;
     let batchCount = 0;
     let hasMore = true;
-    let totalFetched = resumeFrom;
+    let totalFetched = offset;
     let totalCount = 0;
 
-    console.log(`Starting paginated fetch from offset ${resumeFrom}...`);
+    console.log(`Starting paginated fetch from offset ${offset}...`);
 
     // Paginate through results (limited batches per call)
     while (hasMore && batchCount < maxBatches) {
@@ -278,10 +280,14 @@ Deno.serve(async (req) => {
       const mlsListings = batch.map(property => {
         const listingKey = property.ListingKey || property.ListingId || `ddf-${Date.now()}-${Math.random()}`;
         
+        // Helper to safely convert to integer
+        const toInt = (val: number | undefined | null): number | null => 
+          val !== undefined && val !== null ? Math.floor(val) : null;
+        
         return {
           listing_key: listingKey,
           listing_id: property.ListingId || listingKey,
-          listing_price: property.ListPrice || 0,
+          listing_price: toInt(property.ListPrice) || 0,
           mls_status: property.StandardStatus || "Active",
           standard_status: property.StandardStatus || "Active",
           property_type: property.PropertyType || "Residential",
@@ -296,13 +302,13 @@ Deno.serve(async (req) => {
           unit_number: property.UnitNumber,
           neighborhood: property.Subdivision,
           subdivision_name: property.Subdivision,
-          bedrooms_total: property.BedroomsTotal,
-          bathrooms_total: property.BathroomsTotalInteger,
-          bathrooms_full: property.BathroomsFull,
-          bathrooms_half: property.BathroomsHalf,
-          living_area: property.LivingArea,
+          bedrooms_total: toInt(property.BedroomsTotal),
+          bathrooms_total: toInt(property.BathroomsTotalInteger),
+          bathrooms_full: toInt(property.BathroomsFull),
+          bathrooms_half: toInt(property.BathroomsHalf),
+          living_area: toInt(property.LivingArea),
           living_area_units: property.LivingAreaUnits || "sqft",
-          year_built: property.YearBuilt,
+          year_built: toInt(property.YearBuilt),
           latitude: property.Latitude,
           longitude: property.Longitude,
           public_remarks: property.PublicRemarks,
@@ -315,15 +321,15 @@ Deno.serve(async (req) => {
           list_office_mls_id: property.ListOfficeMlsId,
           list_office_name: property.ListOfficeName,
           list_office_phone: property.ListOfficePhone,
-          original_list_price: property.OriginalListPrice,
-          days_on_market: property.DaysOnMarket,
+          original_list_price: toInt(property.OriginalListPrice),
+          days_on_market: toInt(property.DaysOnMarket),
           association_fee: property.AssociationFee,
           association_fee_frequency: property.AssociationFeeFrequency,
           tax_annual_amount: property.TaxAnnualAmount,
-          tax_year: property.TaxYear,
-          garage_spaces: property.GarageSpaces,
-          parking_total: property.ParkingTotal,
-          stories: property.Stories,
+          tax_year: toInt(property.TaxYear),
+          garage_spaces: toInt(property.GarageSpaces),
+          parking_total: toInt(property.ParkingTotal),
+          stories: toInt(property.Stories),
           virtual_tour_url: property.VirtualTourURLUnbranded,
           view: property.View,
           heating: property.Heating,
