@@ -55,10 +55,10 @@ export function ResaleMapSection() {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
-  // Optimized query - only fetch what's needed for map display
-  // Limit to 500 for homepage section (full map has more) - 2025+ builds only
+  // Optimized query - fetch more listings for better map coverage
+  // Increased to 2000 to show all available listings - 2025+ builds only
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings-2025", enabledCities],
+    queryKey: ["resale-map-section-listings-2025-v2", enabledCities],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
@@ -71,13 +71,13 @@ export function ResaleMapSection() {
         .in("city", citiesToUse)
         .gte("year_built", 2025)
         .order("listing_price", { ascending: false })
-        .limit(500);
+        .limit(2000);
 
       if (error) throw error;
       return data;
     },
     enabled: shouldLoad,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
