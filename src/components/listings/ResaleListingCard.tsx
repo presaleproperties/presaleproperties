@@ -19,6 +19,7 @@ interface ResaleListingCardProps {
   sqft?: number | null;
   photos?: any[];
   daysOnMarket?: number | null;
+  listDate?: string | null;
   status?: string;
   listAgentName?: string | null;
   listOfficeName?: string | null;
@@ -78,6 +79,7 @@ export function ResaleListingCard({
   sqft,
   photos,
   daysOnMarket,
+  listDate,
   status = "Active",
   listAgentName,
   listOfficeName,
@@ -135,7 +137,14 @@ export function ResaleListingCard({
     touchEndX.current = null;
   };
 
-  const isNew = daysOnMarket !== null && daysOnMarket !== undefined && daysOnMarket <= 7;
+  // Calculate days on market from list_date if daysOnMarket is null
+  let calculatedDom = daysOnMarket;
+  if (calculatedDom === null && listDate) {
+    const listDateObj = new Date(listDate);
+    const today = new Date();
+    calculatedDom = Math.floor((today.getTime() - listDateObj.getTime()) / (1000 * 60 * 60 * 24));
+  }
+  const isNew = calculatedDom !== null && calculatedDom !== undefined && calculatedDom <= 7;
   const isNewConstruction = yearBuilt !== null && yearBuilt !== undefined && yearBuilt >= 2024;
   const displayType = formatPropertyType(propertyType, propertySubType);
 

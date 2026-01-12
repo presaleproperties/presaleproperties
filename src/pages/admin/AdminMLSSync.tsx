@@ -280,6 +280,48 @@ export default function AdminMLSSync() {
     },
   });
 
+  // Geocode MLS listings mutation
+  const geocodeMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("geocode-mls-listings", {
+        body: { batchSize: 50 },
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Geocoding completed",
+        description: `Updated ${data.updated || 0} listings. ${data.remaining || 0} remaining.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["mls-geocode-stats"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Geocoding failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Fetch geocoding stats
+  const { data: geocodeStats } = useQuery({
+    queryKey: ["mls-geocode-stats"],
+    queryFn: async () => {
+      const { count: missingCoords } = await supabase
+        .from("mls_listings")
+        .select("*", { count: "exact", head: true })
+        .eq("mls_status", "Active")
+        .or("latitude.is.null,longitude.is.null");
+
+      return {
+        missingCoords: missingCoords || 0,
+      };
+    },
+  });
+
   // Fetch agent/office stats
   const { data: agentStats } = useQuery({
     queryKey: ["mls-agent-stats"],
@@ -615,6 +657,48 @@ export default function AdminMLSSync() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Geocoding */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Geocode Listings (Google Maps)
+            </CardTitle>
+            <CardDescription>
+              Improve map accuracy by geocoding listings using Google Maps API. This updates coordinates for listings missing or having inaccurate location data.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold text-orange-600">{geocodeStats?.missingCoords || 0}</p>
+                <p className="text-xs text-muted-foreground">Missing Coordinates</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold">{(listingStats?.active || 0) - (geocodeStats?.missingCoords || 0)}</p>
+                <p className="text-xs text-muted-foreground">With Coordinates</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => geocodeMutation.mutate()}
+                disabled={geocodeMutation.isPending || (geocodeStats?.missingCoords || 0) === 0}
+              >
+                {geocodeMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <MapPin className="h-4 w-4 mr-2" />
+                )}
+                Geocode 50 Listings
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Uses Google Maps Geocoding API for accurate coordinates. Run multiple times to process all missing listings.
+              </p>
             </div>
           </CardContent>
         </Card>

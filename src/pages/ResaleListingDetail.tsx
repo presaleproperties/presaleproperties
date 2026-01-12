@@ -413,25 +413,40 @@ export default function ResaleListingDetail() {
                 >
                   {listing.mls_status}
                 </Badge>
-                {/* Days on Market - Prominent display */}
-                {listing.days_on_market !== null && listing.days_on_market <= 3 && (
-                  <Badge className="bg-blue-600 text-white gap-1">
-                    <Clock className="h-3 w-3" />
-                    New Today
-                  </Badge>
-                )}
-                {listing.days_on_market !== null && listing.days_on_market > 3 && listing.days_on_market <= 7 && (
-                  <Badge className="bg-blue-500 text-white gap-1">
-                    <Clock className="h-3 w-3" />
-                    {listing.days_on_market} Days on Market
-                  </Badge>
-                )}
-                {listing.days_on_market !== null && listing.days_on_market > 7 && (
-                  <Badge variant="outline" className="text-xs gap-1">
-                    <Clock className="h-3 w-3" />
-                    {listing.days_on_market} Days on Market
-                  </Badge>
-                )}
+                {/* Days on Market - Calculate from list_date if days_on_market is null */}
+                {(() => {
+                  let dom = listing.days_on_market;
+                  if (dom === null && listing.list_date) {
+                    const listDate = new Date(listing.list_date);
+                    const today = new Date();
+                    dom = Math.floor((today.getTime() - listDate.getTime()) / (1000 * 60 * 60 * 24));
+                  }
+                  if (dom !== null && dom >= 0) {
+                    if (dom <= 3) {
+                      return (
+                        <Badge className="bg-blue-600 text-white gap-1">
+                          <Clock className="h-3 w-3" />
+                          {dom === 0 ? 'New Today' : `${dom} Days on Market`}
+                        </Badge>
+                      );
+                    } else if (dom <= 7) {
+                      return (
+                        <Badge className="bg-blue-500 text-white gap-1">
+                          <Clock className="h-3 w-3" />
+                          {dom} Days on Market
+                        </Badge>
+                      );
+                    } else {
+                      return (
+                        <Badge variant="outline" className="text-xs gap-1">
+                          <Clock className="h-3 w-3" />
+                          {dom} Days on Market
+                        </Badge>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
                 {/* Open House Badge */}
                 {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
                   <Badge className="bg-orange-500 text-white gap-1">
