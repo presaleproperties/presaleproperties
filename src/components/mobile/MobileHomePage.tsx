@@ -189,7 +189,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                       : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  Resale
+                  Move-In Ready
                 </button>
               </div>
               

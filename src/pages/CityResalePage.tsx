@@ -360,7 +360,7 @@ export default function CityResalePage() {
             <h1 className="text-2xl font-bold mb-2">City Not Found</h1>
             <p className="text-muted-foreground mb-4">We couldn't find listings for this city.</p>
             <Button asChild>
-              <Link to="/resale">Browse All Listings</Link>
+              <Link to="/resale">Browse All New Homes</Link>
             </Button>
           </div>
         </div>

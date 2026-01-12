@@ -123,7 +123,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  Resale
+                  Move-In Ready
                 </button>
               </div>
               <Link
