@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -22,12 +22,13 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
+import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
-import { QuickFilterChips } from "@/components/search/QuickFilterChips";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
+import { RelatedContent } from "@/components/home/RelatedContent";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 
 // Lazy load map component
@@ -54,8 +55,7 @@ const CITIES = [
 
 const PROPERTY_TYPES = [
   { value: "any", label: "All Types" },
-  { value: "Residential", label: "Residential" },
-  { value: "Condo/Strata", label: "Condo" },
+  { value: "Apartment/Condo", label: "Condo" },
   { value: "Townhouse", label: "Townhouse" },
   { value: "House", label: "House" },
 ];
@@ -108,6 +108,7 @@ type MLSListing = {
   list_agent_name: string | null;
   list_office_name: string | null;
   virtual_tour_url: string | null;
+  created_at: string | null;
 };
 
 // Presale/Resale Toggle Component
@@ -134,9 +135,11 @@ function ListingTypeToggle() {
 export default function ResaleListings() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
@@ -151,15 +154,30 @@ export default function ResaleListings() {
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
+  // Featured/Hot listings query - newest listings
+  const { data: hotListings } = useQuery({
+    queryKey: ["hot-resale-listings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("mls_listings")
+        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, created_at")
+        .eq("mls_status", "Active")
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.5)
+        .lte("longitude", -121.3)
+        .order("created_at", { ascending: false })
+        .limit(8);
+
+      if (error) throw error;
+      return data as MLSListing[];
+    },
+  });
+
   const { data, isLoading } = useQuery({
     queryKey: ["resale-listings", filters, currentPage, enabledCities],
     queryFn: async () => {
-      // Optimized query with proper filters for large datasets
-      // Using a separate count query is more efficient than counting in the main query
-      
-      // Build the filter conditions once
       const buildFilters = (query: any) => {
-        // Filter by enabled cities first
         if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
           query = query.in("city", enabledCities);
         }
@@ -167,7 +185,6 @@ export default function ResaleListings() {
           query = query.eq("city", filters.city);
         }
         if (filters.propertyType !== "any") {
-          // Search both property_type and property_sub_type for flexibility
           query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
         }
         if (filters.priceRange !== "any") {
@@ -180,12 +197,10 @@ export default function ResaleListings() {
         return query;
       };
 
-      // Get total count (head: true makes this very fast)
       let countQuery = supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
-        // Geographic bounding box for Lower Mainland / Metro Vancouver area
         .gte("latitude", 48.9)
         .lte("latitude", 49.6)
         .gte("longitude", -123.5)
@@ -193,19 +208,16 @@ export default function ResaleListings() {
       countQuery = buildFilters(countQuery);
       const { count } = await countQuery;
 
-      // Get paginated data with optimized column selection
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url")
+        .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url, created_at")
         .eq("mls_status", "Active")
-        // Geographic bounding box for Lower Mainland / Metro Vancouver area
         .gte("latitude", 48.9)
         .lte("latitude", 49.6)
         .gte("longitude", -123.5)
         .lte("longitude", -121.3);
       query = buildFilters(query);
 
-      // Apply sorting (using indexed columns for performance)
       switch (filters.sort) {
         case "price-asc":
           query = query.order("listing_price", { ascending: true });
@@ -214,10 +226,9 @@ export default function ResaleListings() {
           query = query.order("listing_price", { ascending: false });
           break;
         default:
-          query = query.order("list_date", { ascending: false, nullsFirst: false });
+          query = query.order("created_at", { ascending: false });
       }
 
-      // Apply pagination
       const from = (currentPage - 1) * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
       query = query.range(from, to);
@@ -227,15 +238,14 @@ export default function ResaleListings() {
 
       return { listings: listingsData as MLSListing[], totalCount: count || 0 };
     },
-    staleTime: 60 * 1000, // Cache for 1 minute
-    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
+    staleTime: 60 * 1000,
+    gcTime: 5 * 60 * 1000,
   });
 
   const listings = data?.listings || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
-  // Filter by search query client-side
   const filteredListings = useMemo(() => {
     if (!listings || !searchQuery.trim()) return listings;
     const q = searchQuery.toLowerCase();
@@ -286,29 +296,12 @@ export default function ResaleListings() {
     filters.beds !== "any",
   ].filter(Boolean).length;
 
-  const formatPrice = (price: number) => {
-    if (price >= 1000000) {
-      return `$${(price / 1000000).toFixed(2)}M`;
-    }
-    return `$${(price / 1000).toFixed(0)}K`;
-  };
-
   const getAddress = (listing: MLSListing) => {
     if (listing.unparsed_address) return listing.unparsed_address;
     if (listing.street_number && listing.street_name) {
       return `${listing.street_number} ${listing.street_name}`;
     }
     return listing.city;
-  };
-
-  const getFirstPhoto = (listing: MLSListing) => {
-    if (!listing.photos) return null;
-    if (Array.isArray(listing.photos) && listing.photos.length > 0) {
-      const photo = listing.photos[0];
-      // Handle different photo formats: {MediaURL}, {url}, or direct string
-      return photo?.MediaURL || photo?.url || (typeof photo === 'string' ? photo : null);
-    }
-    return null;
   };
 
   const FilterControls = () => (
@@ -442,59 +435,60 @@ export default function ResaleListings() {
   };
 
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6">
-      {Array.from({ length: 8 }).map((_, i) => (
-        <div key={i} className="space-y-3">
-          <Skeleton className="aspect-[4/3] w-full rounded-xl" />
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-4 w-1/2" />
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="rounded-xl overflow-hidden border border-border">
+          <Skeleton className="aspect-[16/11] w-full" />
+          <div className="p-4 space-y-3">
+            <Skeleton className="h-5 w-3/4" />
+            <Skeleton className="h-4 w-1/2" />
+            <Skeleton className="h-4 w-2/3" />
+          </div>
         </div>
       ))}
     </div>
   );
 
-  // SEO dynamic title
+  // Dynamic SEO
+  const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search}`;
+  
   const getSeoTitle = () => {
-    const cityText = filters.city !== "any" ? filters.city : "Metro Vancouver";
-    const typeText = filters.propertyType !== "any" ? filters.propertyType : "Homes";
-    return `${typeText} for Sale in ${cityText} | MLS Listings | PresaleProperties`;
+    const parts: string[] = [];
+    
+    if (filters.propertyType !== "any") {
+      const typeLabel = filters.propertyType === "Apartment/Condo" ? "Condos" : 
+                        filters.propertyType === "Townhouse" ? "Townhouses" : "Homes";
+      parts.push(typeLabel);
+    } else {
+      parts.push("Homes");
+    }
+    
+    parts.push("for Sale");
+    
+    if (filters.city !== "any") {
+      parts.push(`in ${filters.city}`);
+    } else {
+      parts.push("in Metro Vancouver");
+    }
+    
+    return `${parts.join(" ")} | MLS Listings | PresaleProperties.com`;
   };
 
   const getSeoDescription = () => {
-    const cityText = filters.city !== "any" ? filters.city : "Metro Vancouver";
-    return `Browse ${totalCount}+ resale homes, condos, and townhouses for sale in ${cityText}. Find your next home from active MLS listings with prices, photos, and details.`;
+    const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Burnaby, Coquitlam & more";
+    const typeText = filters.propertyType === "Apartment/Condo" ? "condos" : 
+                     filters.propertyType === "Townhouse" ? "townhouses" : 
+                     "homes, condos & townhouses";
+    
+    return `Browse ${totalCount.toLocaleString()}+ ${typeText} for sale in ${cityText}. View MLS listings with photos, prices & details.`;
   };
 
-  // Breadcrumb items
-  const breadcrumbs = [
-    { label: "For Sale", href: "/resale" },
-    ...(filters.city !== "any" ? [{ label: filters.city }] : []),
-  ];
-
-  // Quick filter chips for beds
-  const bedsChips = [
-    { value: "1", label: "1+ Bed" },
-    { value: "2", label: "2+ Beds" },
-    { value: "3", label: "3+ Beds" },
-    { value: "4", label: "4+ Beds" },
-  ];
-
-  // JSON-LD Structured Data
-  const breadcrumbSchema = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "For Sale", "item": "https://presaleproperties.com/resale" },
-      ...(filters.city !== "any" ? [{ "@type": "ListItem", "position": 3, "name": filters.city }] : [])
-    ]
-  };
-
-  const itemListSchema = {
+  const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     "name": getSeoTitle(),
     "description": getSeoDescription(),
+    "url": canonicalUrl,
     "numberOfItems": totalCount,
     "itemListElement": filteredListings?.slice(0, 10).map((listing, index) => ({
       "@type": "ListItem",
@@ -517,73 +511,96 @@ export default function ResaleListings() {
       <Helmet>
         <title>{getSeoTitle()}</title>
         <meta name="description" content={getSeoDescription()} />
-        <link rel="canonical" href={`https://presaleproperties.com/resale${filters.city !== "any" ? `?city=${filters.city}` : ""}`} />
-        <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
-        <script type="application/ld+json">{JSON.stringify(itemListSchema)}</script>
+        <meta name="keywords" content={`${filters.city !== "any" ? filters.city : "Vancouver Surrey Burnaby Coquitlam Langley"} real estate, homes for sale, condos, townhouses, MLS listings, Metro Vancouver`} />
+        <link rel="canonical" href={canonicalUrl} />
+        
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={getSeoTitle()} />
+        <meta property="og:description" content={getSeoDescription()} />
+        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:site_name" content="PresaleProperties.com" />
+        
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={getSeoTitle()} />
+        <meta name="twitter:description" content={getSeoDescription()} />
+        
+        <meta name="geo.region" content="CA-BC" />
+        <meta name="geo.placename" content={filters.city !== "any" ? filters.city : "Metro Vancouver"} />
+        
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
       </Helmet>
 
-      <PullToRefresh onRefresh={handleRefresh}>
-        <div className="min-h-screen bg-background">
-          <ConversionHeader />
-
-          <main className="container py-6 md:py-8">
+      <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
+        <ConversionHeader />
+        
+        <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
+          <div className="container px-4">
             {/* Breadcrumbs */}
             <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
                 <Home className="h-3.5 w-3.5" />
               </Link>
-              {breadcrumbs.map((crumb, index) => (
-                <span key={index} className="flex items-center gap-1 shrink-0">
-                  <ChevronRightIcon className="h-3.5 w-3.5" />
-                  {crumb.href ? (
-                    <Link to={crumb.href} className="hover:text-foreground transition-colors">
-                      {crumb.label}
-                    </Link>
-                  ) : (
-                    <span className="text-foreground font-medium">{crumb.label}</span>
-                  )}
-                </span>
-              ))}
+              <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
+              <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
+                For Sale
+              </Link>
+              {filters.city !== "any" && (
+                <>
+                  <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-foreground font-medium shrink-0">{filters.city}</span>
+                </>
+              )}
             </nav>
 
-            {/* Toggle + Title */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                  {filters.city !== "any" ? `${filters.city} Real Estate` : "Resale Properties"}
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="max-w-3xl">
+                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+                  {filters.city !== "any" 
+                    ? `Homes for Sale in ${filters.city}` 
+                    : "Homes for Sale in Metro Vancouver"}
                 </h1>
-                <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap">
+                <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
                   <span className="font-medium text-foreground">{totalCount.toLocaleString()}</span>
                   <span>active listings</span>
-                  {filters.city !== "any" && (
+                  {activeFilterCount > 0 && (
                     <>
                       <span className="text-border">•</span>
-                      <span>{filters.city}, BC</span>
+                      <button 
+                        onClick={clearAllFilters}
+                        className="text-primary hover:underline"
+                      >
+                        Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                      </button>
                     </>
                   )}
                 </p>
               </div>
               <ListingTypeToggle />
             </div>
-
-            {/* Quick Filter Chips (like REW) */}
-            <div className="flex items-center gap-3 mb-4 overflow-x-auto pb-2 scrollbar-hide">
-              <QuickFilterChips
-                options={bedsChips}
-                selected={filters.beds}
-                onSelect={(v) => updateFilter("beds", v)}
-              />
-              <div className="h-4 w-px bg-border shrink-0" />
-              {/* City chips */}
-              <div className="flex items-center gap-2">
-                {["Vancouver", "Burnaby", "Surrey", "Richmond", "Coquitlam"].map((city) => (
+            
+            {/* Quick City Filter Chips */}
+            <div className="mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 pb-1">
+                <button
+                  onClick={() => updateFilter("city", "any")}
+                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    filters.city === "any"
+                      ? "bg-foreground text-background"
+                      : "bg-muted hover:bg-muted/80 text-foreground"
+                  }`}
+                >
+                  All Cities
+                </button>
+                {["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Richmond", "Langley", "Delta", "Abbotsford"].map((city) => (
                   <button
                     key={city}
-                    onClick={() => updateFilter("city", city === filters.city ? "any" : city)}
-                    className={`shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                    onClick={() => updateFilter("city", city)}
+                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
                       filters.city === city
-                        ? "bg-foreground text-background border-foreground"
-                        : "bg-background text-muted-foreground border-border hover:border-foreground/50 hover:text-foreground"
+                        ? "bg-foreground text-background"
+                        : "bg-muted hover:bg-muted/80 text-foreground"
                     }`}
                   >
                     {city}
@@ -591,125 +608,269 @@ export default function ResaleListings() {
                 ))}
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* Search + Filters Bar */}
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-              <div className="relative flex-1 flex items-center">
-                <Search className="absolute left-3 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <Input
-                  type="text"
-                  placeholder="Search by city, neighborhood, address..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-12"
-                />
-                <Link 
-                  to="/resale-map" 
-                  className="absolute right-1 p-2 rounded-md hover:bg-muted transition-colors"
-                  title="View on map"
-                >
-                  <Map className="h-4 w-4 text-muted-foreground hover:text-foreground" />
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                  <SelectTrigger className="w-[160px]">
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {SORT_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" className="md:hidden relative">
-                      <SlidersHorizontal className="h-4 w-4 mr-2" />
-                      Filters
-                      {activeFilterCount > 0 && (
-                        <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                          {activeFilterCount}
-                        </Badge>
-                      )}
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right" className="w-[300px]">
-                    <SheetHeader>
-                      <SheetTitle>Filters</SheetTitle>
-                    </SheetHeader>
-                    <div className="mt-6">
-                      <FilterControls />
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              </div>
-            </div>
-
-            <div className="flex gap-6">
-              {/* Desktop Sidebar Filters */}
-              <aside className="hidden md:block w-[240px] shrink-0">
-                <div className="sticky top-24 space-y-4 p-4 border rounded-lg bg-card">
-                  <h3 className="font-semibold text-foreground">Filters</h3>
-                  <FilterControls />
+        {/* Hot Listings Carousel - only show when no filters active */}
+        {activeFilterCount === 0 && hotListings && hotListings.length > 0 && (
+          <ScrollReveal animation="fade-up">
+            <section className="py-6 md:py-8 bg-muted/30 border-b border-border">
+              <div className="container px-4">
+                <div className="flex items-center gap-2 mb-4">
+                  <Flame className="h-5 w-5 text-orange-500 animate-pulse" />
+                  <h2 className="text-lg md:text-xl font-semibold text-foreground">
+                    Newest Listings
+                  </h2>
                 </div>
-              </aside>
-
-              {/* Main Content */}
-              <div className="flex-1 min-w-0">
-                {isLoading ? (
-                  <LoadingSkeleton />
-                ) : filteredListings.length === 0 ? (
-                  <div className="text-center py-16">
-                    <Home className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                    <h3 className="text-xl font-semibold mb-2">No listings found</h3>
-                    <p className="text-muted-foreground mb-4">
-                      Try adjusting your filters or search criteria
-                    </p>
-                    <Button onClick={clearAllFilters}>Clear All Filters</Button>
+                <div 
+                  className="-mx-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
+                  style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: '16px' }}
+                >
+                  <div className="flex gap-3 md:gap-4 pb-2">
+                    {hotListings.map((listing, index) => (
+                      <div 
+                        key={listing.id} 
+                        className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] animate-fade-in"
+                        style={{ 
+                          scrollSnapAlign: 'start',
+                          animationDelay: `${index * 75}ms`,
+                          animationFillMode: 'both'
+                        }}
+                      >
+                        <ResaleListingCard
+                          id={listing.id}
+                          listingKey={listing.listing_key}
+                          price={listing.listing_price}
+                          address={getAddress(listing)}
+                          city={listing.city}
+                          neighborhood={listing.neighborhood}
+                          propertyType={listing.property_type}
+                          propertySubType={listing.property_sub_type}
+                          beds={listing.bedrooms_total}
+                          baths={listing.bathrooms_total}
+                          sqft={listing.living_area}
+                          photos={Array.isArray(listing.photos) ? listing.photos : []}
+                          daysOnMarket={listing.days_on_market}
+                          status={listing.mls_status}
+                          listAgentName={listing.list_agent_name}
+                          listOfficeName={listing.list_office_name}
+                          virtualTourUrl={listing.virtual_tour_url}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-                      {filteredListings.map((listing, index) => (
-                        <ScrollReveal key={listing.id} delay={index * 0.05}>
-                          <ResaleListingCard
-                            id={listing.id}
-                            listingKey={listing.listing_key}
-                            price={listing.listing_price}
-                            address={getAddress(listing)}
-                            city={listing.city}
-                            neighborhood={listing.neighborhood}
-                            propertyType={listing.property_type}
-                            propertySubType={listing.property_sub_type}
-                            beds={listing.bedrooms_total}
-                            baths={listing.bathrooms_total}
-                            sqft={listing.living_area}
-                            photos={Array.isArray(listing.photos) ? listing.photos : []}
-                            daysOnMarket={listing.days_on_market}
-                            status={listing.mls_status}
-                            listAgentName={listing.list_agent_name}
-                            listOfficeName={listing.list_office_name}
-                            virtualTourUrl={listing.virtual_tour_url}
-                          />
-                        </ScrollReveal>
-                      ))}
-                    </div>
-                    <PaginationControls />
-                  </>
-                )}
+                </div>
+              </div>
+            </section>
+          </ScrollReveal>
+        )}
+
+        <main className="container px-4 py-4 md:py-8">
+          {/* Search & Sort Bar */}
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by city, neighborhood, address..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              {/* Map Button */}
+              <Button 
+                variant="outline" 
+                className="h-10 px-3"
+                onClick={() => navigate('/resale-map')}
+              >
+                <Map className="h-4 w-4 mr-2" />
+                <span className="text-sm">Map</span>
+              </Button>
+              
+              {/* Mobile Filters */}
+              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="lg:hidden relative h-10 px-3">
+                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                    <span className="text-sm">Filters</span>
+                    {activeFilterCount > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] sm:w-80">
+                  <SheetHeader>
+                    <SheetTitle>Filters</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <FilterControls />
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* Sort */}
+              <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
+                <SelectTrigger className="w-[140px] sm:w-[180px] h-10 text-sm">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* View Mode Toggle */}
+              <div className="flex border rounded-lg overflow-hidden">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  className="rounded-none h-10 px-3"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "map" ? "default" : "ghost"}
+                  size="sm"
+                  className="rounded-none h-10 px-3"
+                  onClick={() => setViewMode("map")}
+                >
+                  <Map className="h-4 w-4" />
+                </Button>
               </div>
             </div>
-          </main>
+          </div>
 
-          {/* Map Section */}
+          {/* Active Filters Pills */}
+          {activeFilterCount > 0 && (
+            <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+              {filters.city !== "any" && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  {filters.city}
+                  <button onClick={() => updateFilter("city", "any")}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {filters.propertyType !== "any" && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  {PROPERTY_TYPES.find((t) => t.value === filters.propertyType)?.label}
+                  <button onClick={() => updateFilter("type", "any")}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {filters.priceRange !== "any" && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  {PRICE_RANGES.find((p) => p.value === filters.priceRange)?.label}
+                  <button onClick={() => updateFilter("price", "any")}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {filters.beds !== "any" && (
+                <Badge variant="secondary" className="gap-1 text-xs">
+                  {BEDS_OPTIONS.find((b) => b.value === filters.beds)?.label}
+                  <button onClick={() => updateFilter("beds", "any")}>
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
+          )}
+
+          <div className="flex gap-6 lg:gap-8">
+            {/* Desktop Sidebar Filters */}
+            <aside className="hidden lg:block w-60 flex-shrink-0">
+              <div className="sticky top-6 bg-card border border-border rounded-xl p-4">
+                <h3 className="font-semibold mb-4">Filter Listings</h3>
+                <FilterControls />
+              </div>
+            </aside>
+
+            {/* Main Content */}
+            <div className="flex-1 min-w-0">
+              {isLoading ? (
+                <LoadingSkeleton />
+              ) : filteredListings.length === 0 ? (
+                <div className="text-center py-16 md:py-20">
+                  <Building2 className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground mx-auto mb-4" />
+                  <h2 className="text-xl md:text-2xl font-semibold mb-2">No listings found</h2>
+                  <p className="text-sm md:text-base text-muted-foreground mb-6">
+                    Try adjusting your search or filters
+                  </p>
+                  <Button onClick={clearAllFilters}>
+                    Clear Filters
+                  </Button>
+                </div>
+              ) : viewMode === "map" ? (
+                <>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
+                    Showing {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""} on map
+                  </p>
+                  <Suspense fallback={
+                    <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+                      <div className="text-center text-muted-foreground">
+                        <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+                        <p>Loading map...</p>
+                      </div>
+                    </div>
+                  }>
+                    <div className="relative">
+                      <div className="h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
+                        <ResaleListingsMap listings={filteredListings} />
+                      </div>
+                    </div>
+                  </Suspense>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
+                    Showing {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
+                    {filteredListings.map((listing) => (
+                      <ResaleListingCard
+                        key={listing.id}
+                        id={listing.id}
+                        listingKey={listing.listing_key}
+                        price={listing.listing_price}
+                        address={getAddress(listing)}
+                        city={listing.city}
+                        neighborhood={listing.neighborhood}
+                        propertyType={listing.property_type}
+                        propertySubType={listing.property_sub_type}
+                        beds={listing.bedrooms_total}
+                        baths={listing.bathrooms_total}
+                        sqft={listing.living_area}
+                        photos={Array.isArray(listing.photos) ? listing.photos : []}
+                        daysOnMarket={listing.days_on_market}
+                        status={listing.mls_status}
+                        listAgentName={listing.list_agent_name}
+                        listOfficeName={listing.list_office_name}
+                        virtualTourUrl={listing.virtual_tour_url}
+                      />
+                    ))}
+                  </div>
+
+                  <PaginationControls />
+                </>
+              )}
+            </div>
+          </div>
+        </main>
+
+        {/* Map Section */}
+        {viewMode !== "map" && (
           <section className="py-12 bg-muted/30">
-            <div className="container">
+            <div className="container px-4">
               <div className="text-center mb-6">
                 <h2 className="text-2xl font-bold text-foreground mb-2">Explore on Map</h2>
-                <p className="text-muted-foreground">Find resale properties near you</p>
+                <p className="text-muted-foreground">Find homes near you</p>
               </div>
               <Suspense fallback={
                 <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
@@ -720,7 +881,9 @@ export default function ResaleListings() {
                 </div>
               }>
                 <div className="rounded-xl overflow-hidden border border-border">
-                  <ResaleListingsMap listings={filteredListings} isLoading={isLoading} />
+                  <div className="h-[400px] lg:h-[500px]">
+                    <ResaleListingsMap listings={filteredListings} />
+                  </div>
                 </div>
               </Suspense>
               <div className="text-center mt-4">
@@ -733,9 +896,14 @@ export default function ResaleListings() {
               </div>
             </div>
           </section>
+        )}
 
-          <Footer />
-        </div>
+        <ScrollReveal animation="fade-up" delay={100}>
+          <RelatedContent />
+        </ScrollReveal>
+        
+        <Footer />
+        <FloatingBottomNav />
       </PullToRefresh>
     </>
   );
