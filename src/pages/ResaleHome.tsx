@@ -1,16 +1,14 @@
-import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { NewHomesHero } from "@/components/resale/NewHomesHero";
-import { WhyNewHomes } from "@/components/resale/WhyNewHomes";
 import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
-import { CityDiscoverySection } from "@/components/resale/CityDiscoverySection";
+import { ResaleCitySection } from "@/components/resale/ResaleCitySection";
+import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { ResaleMapSection } from "@/components/resale/ResaleMapSection";
-import { PresaleVsNewResale } from "@/components/resale/PresaleVsNewResale";
-import { NewHomesLeadCapture } from "@/components/resale/NewHomesLeadCapture";
-import { ExpertPositioning } from "@/components/resale/ExpertPositioning";
+import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { RelatedContent } from "@/components/home/RelatedContent";
+import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileResaleHome } from "@/components/mobile/MobileResaleHome";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
@@ -87,15 +85,15 @@ const ResaleHome = () => {
         <NewHomesHero />
         
         <ScrollReveal animation="fade-up">
-          <WhyNewHomes />
-        </ScrollReveal>
-        
-        <ScrollReveal animation="fade-up">
           <FeaturedResaleListings />
         </ScrollReveal>
         
         <ScrollReveal animation="fade-up" delay={100}>
-          <CityDiscoverySection />
+          <ResaleCitySection />
+        </ScrollReveal>
+        
+        <ScrollReveal animation="fade-up" delay={100}>
+          <NewConstructionBenefits />
         </ScrollReveal>
         
         <ScrollReveal animation="fade-up" delay={100}>
@@ -103,19 +101,15 @@ const ResaleHome = () => {
         </ScrollReveal>
         
         <ScrollReveal animation="fade-up" delay={100}>
-          <PresaleVsNewResale />
-        </ScrollReveal>
-        
-        <ScrollReveal animation="fade-up" delay={100}>
-          <NewHomesLeadCapture />
-        </ScrollReveal>
-        
-        <ScrollReveal animation="fade-up" delay={100}>
-          <ExpertPositioning />
+          <ROICalculatorTeaser />
         </ScrollReveal>
         
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
+        </ScrollReveal>
+        
+        <ScrollReveal animation="scale" delay={100}>
+          <BuyerCTASection />
         </ScrollReveal>
       </main>
 
