@@ -40,10 +40,11 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     };
   }
 
+  // Use port 465 with direct TLS (SSL) instead of STARTTLS on 587
   const client = new SMTPClient({
     connection: {
       hostname: "smtp.gmail.com",
-      port: 587,
+      port: 465,
       tls: true,
       auth: {
         username: smtpUser,
@@ -55,7 +56,7 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
   try {
     const recipients = Array.isArray(options.to) ? options.to : [options.to];
     
-    console.log(`Sending email to ${recipients.join(", ")} via Gmail SMTP`);
+    console.log(`Sending email to ${recipients.join(", ")} via Gmail SMTP (port 465)`);
     
     await client.send({
       from: `${DEFAULT_FROM_NAME} <${smtpUser}>`,
