@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, Map, Building2, Home } from "lucide-react";
+import { Search, Map, Building2, Home, Bell } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Footer } from "@/components/layout/Footer";
 import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
-import { ResaleCitySection } from "@/components/resale/ResaleCitySection";
+import { CityDiscoverySection } from "@/components/resale/CityDiscoverySection";
 import { ResaleMapSection } from "@/components/resale/ResaleMapSection";
-import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
+import { WhyNewHomes } from "@/components/resale/WhyNewHomes";
+import { PresaleVsNewResale } from "@/components/resale/PresaleVsNewResale";
+import { NewHomesLeadCapture } from "@/components/resale/NewHomesLeadCapture";
+import { ExpertPositioning } from "@/components/resale/ExpertPositioning";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
@@ -30,7 +33,7 @@ export function MobileResaleHome() {
   const queryClient = useQueryClient();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [propertyType, setPropertyType] = useState<"condos" | "townhomes">("condos");
+  const [propertyType, setPropertyType] = useState<"all" | "condos" | "townhomes">("all");
   const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -45,20 +48,19 @@ export function MobileResaleHome() {
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
-    const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
-    if (searchQuery.trim()) {
-      navigate(`/resale?q=${encodeURIComponent(searchQuery)}&type=${typeFilter}`);
-    } else {
-      navigate(`/resale?type=${typeFilter}`);
-    }
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set("q", searchQuery);
+    if (propertyType === "condos") params.set("type", "Condo");
+    else if (propertyType === "townhomes") params.set("type", "Townhouse");
+    params.set("new", "true");
+    navigate(`/resale?${params.toString()}`);
   };
 
   const handleSuggestionSelect = (suggestion: any) => {
     if (suggestion.type === "city") {
       navigate(`/resale/${suggestion.city.toLowerCase()}`);
     } else {
-      const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
-      navigate(`/resale?q=${encodeURIComponent(suggestion.name || suggestion.city)}&type=${typeFilter}`);
+      handleSearch();
     }
     setShowSuggestions(false);
   };
@@ -68,61 +70,79 @@ export function MobileResaleHome() {
   };
 
   const handleRefresh = async () => {
-    await queryClient.invalidateQueries({ queryKey: ["featured-resale-listings"] });
+    await queryClient.invalidateQueries({ queryKey: ["featured-resale-listings-2025"] });
+  };
+
+  const scrollToLeadForm = () => {
+    document.getElementById("lead-capture")?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <main className="flex-1">
         {/* Hero Section */}
-        <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden">
+        <section className="relative min-h-[65vh] flex items-center justify-center overflow-hidden">
           {/* Background */}
           <div className="absolute inset-0">
             <img
               src={heroImage}
-              alt="New Construction Condos & Townhomes in BC"
+              alt="Ready-to-Move-In New Homes"
               className="h-full w-full object-cover"
               loading="eager"
             />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/45 to-black/75" />
           </div>
 
           {/* Content */}
           <div className="relative z-10 container px-4 text-center py-8">
             <div className="max-w-lg mx-auto space-y-4">
-              <span className="inline-block text-[10px] font-medium uppercase tracking-widest text-white/80 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                New Construction • Ready to Move In
+              {/* Badge */}
+              <span className="inline-block text-[10px] font-semibold uppercase tracking-widest text-white bg-primary/90 px-3 py-1.5 rounded-full">
+                Move-In Ready • Built 2025+
               </span>
 
               <h1 className="text-2xl font-bold text-white leading-tight">
-                New <span className="text-primary">Condos & Townhomes</span>{" "}
-                for Sale in BC
+                Find <span className="text-primary">Ready-to-Move-In</span> Homes
               </h1>
+              
+              <p className="text-white/90 text-sm">
+                Newly Built Homes Across Metro Vancouver & Fraser Valley
+              </p>
 
               {/* Search Card */}
               <div className="bg-white/95 backdrop-blur-md rounded-xl shadow-xl p-4">
                 {/* Property Type Toggle */}
                 <div className="flex items-center justify-center gap-1 mb-3">
                   <button
+                    onClick={() => setPropertyType("all")}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      propertyType === "all"
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground bg-muted/50"
+                    }`}
+                  >
+                    All
+                  </button>
+                  <button
                     onClick={() => setPropertyType("condos")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       propertyType === "condos"
                         ? "bg-foreground text-background"
                         : "text-muted-foreground bg-muted/50"
                     }`}
                   >
-                    <Building2 className="h-3.5 w-3.5" />
+                    <Building2 className="h-3 w-3" />
                     Condos
                   </button>
                   <button
                     onClick={() => setPropertyType("townhomes")}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       propertyType === "townhomes"
                         ? "bg-foreground text-background"
                         : "text-muted-foreground bg-muted/50"
                     }`}
                   >
-                    <Home className="h-3.5 w-3.5" />
+                    <Home className="h-3 w-3" />
                     Townhomes
                   </button>
                 </div>
@@ -172,15 +192,27 @@ export function MobileResaleHome() {
                   </form>
                 </div>
 
-                {/* Map Link */}
-                <div className="mt-3 flex justify-center">
+                {/* Micro-copy */}
+                <p className="text-[10px] text-muted-foreground mt-2 text-center">
+                  All listings are newly built — no older resales.
+                </p>
+
+                {/* Action Links */}
+                <div className="mt-3 flex items-center justify-center gap-4">
                   <Link
                     to="/resale-map"
-                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
                   >
                     <Map className="h-3.5 w-3.5" />
-                    Open Map
+                    Map View
                   </Link>
+                  <button
+                    onClick={scrollToLeadForm}
+                    className="flex items-center gap-1.5 text-xs text-primary font-medium"
+                  >
+                    <Bell className="h-3.5 w-3.5" />
+                    Get Alerts
+                  </button>
                 </div>
               </div>
 
@@ -203,10 +235,13 @@ export function MobileResaleHome() {
         </section>
 
         {/* Content Sections */}
+        <WhyNewHomes />
         <FeaturedResaleListings />
-        <ResaleCitySection />
+        <CityDiscoverySection />
         <ResaleMapSection />
-        <NewConstructionBenefits />
+        <PresaleVsNewResale />
+        <NewHomesLeadCapture />
+        <ExpertPositioning />
         <RelatedContent />
       </main>
 
