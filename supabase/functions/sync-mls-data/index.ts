@@ -177,7 +177,7 @@ Deno.serve(async (req) => {
         
         const mlsListing = {
           listing_key: listingKey,
-          listing_id: property.MlsNumber || property.Id,
+          listing_id: property.MlsNumber || property.Id || listingKey, // Fallback to listingKey if no ID
           listing_price: property.ListPrice || 0,
           mls_status: property.Status || "Active",
           standard_status: property.Status || "Active",
