@@ -36,7 +36,7 @@ export function CityDiscoverySection() {
           .select("listing_price, property_type")
           .eq("mls_status", "Active")
           .ilike("city", `%${city.name}%`)
-          .gte("year_built", 2025);
+          .gte("year_built", 2024);
 
         if (!error && data) {
           const count = data.length;

@@ -206,7 +206,7 @@ export default function MapSearch() {
         .lte("latitude", 49.6)
         .gte("longitude", -123.5)
         .lte("longitude", -121.3)
-        .gte("year_built", 2025);
+        .gte("year_built", 2024);
 
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
         query = query.in("city", enabledCities);

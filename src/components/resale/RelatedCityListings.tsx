@@ -56,7 +56,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("neighborhood", neighborhood)
         .neq("listing_key", excludeListingKey)
-        .gte("year_built", 2025)
+        .gte("year_built", 2024)
         .order("list_date", { ascending: false })
         .limit(6);
 
@@ -76,7 +76,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("city", city)
         .neq("listing_key", excludeListingKey)
-        .gte("year_built", 2025)
+        .gte("year_built", 2024)
         .order("list_date", { ascending: false })
         .limit(10);
 
