@@ -25,14 +25,14 @@ const TOP_CITIES = [
 ];
 
 const CITY_CAROUSELS = [
-  { city: "Vancouver", title: "Vancouver", subtitle: "Downtown & East Van" },
-  { city: "Burnaby", title: "Burnaby", subtitle: "Metrotown & Brentwood" },
-  { city: "Surrey", title: "Surrey", subtitle: "South Surrey & Guildford" },
-  { city: "Coquitlam", title: "Coquitlam", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley", subtitle: "Township & City" },
-  { city: "Delta", title: "Delta", subtitle: "Tsawwassen & Ladner" },
-  { city: "Abbotsford", title: "Abbotsford", subtitle: "Fraser Valley" },
-  { city: "Chilliwack", title: "Chilliwack", subtitle: "Eastern Valley" },
+  { city: "Vancouver", title: "Vancouver New Homes", subtitle: "Condos, Townhomes & Single Family" },
+  { city: "Burnaby", title: "Burnaby New Homes", subtitle: "Metrotown & Brentwood" },
+  { city: "Surrey", title: "Surrey New Homes", subtitle: "South Surrey & Guildford" },
+  { city: "Coquitlam", title: "Coquitlam New Homes", subtitle: "Tri-Cities Area" },
+  { city: "Langley", title: "Langley New Homes", subtitle: "Township & City" },
+  { city: "Delta", title: "Delta New Homes", subtitle: "Tsawwassen & Ladner" },
+  { city: "Richmond", title: "Richmond New Homes", subtitle: "City Centre & Steveston" },
+  { city: "Abbotsford", title: "Abbotsford New Homes", subtitle: "Fraser Valley" },
 ];
 
 export function MobileResaleHome() {
@@ -118,10 +118,10 @@ export function MobileResaleHome() {
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
           <h1 className="text-xl font-bold text-white leading-tight">
-            Find <span className="text-primary">Move-In Ready</span> Homes
+            Find <span className="text-primary">New Construction</span> Homes
           </h1>
           <p className="text-white/80 text-xs mt-1.5">
-            New Construction • Built 2025+
+            Condos, Townhomes & Single Family • Built 2024+
           </p>
         </div>
 
