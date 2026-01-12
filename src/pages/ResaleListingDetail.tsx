@@ -15,7 +15,10 @@ import {
   DollarSign,
   Clock,
   Layers,
-  ChevronRight
+  ChevronRight,
+  Map,
+  Navigation,
+  Image
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -285,6 +288,93 @@ export default function ResaleListingDetail() {
                 <Home className="h-16 w-16 text-muted-foreground/50" />
               </div>
             )}
+
+            {/* Quick Actions - Map & Street View */}
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
+                asChild
+              >
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${listing.latitude || 0},${listing.longitude || 0}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Image className="h-3.5 w-3.5" />
+                  {photos.length} Photos
+                </a>
+              </Button>
+              {listing.virtual_tour_url && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
+                  asChild
+                >
+                  <a
+                    href={listing.virtual_tour_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <Navigation className="h-3.5 w-3.5" />
+                    Virtual Tour
+                  </a>
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
+                onClick={() => {
+                  if (listing.latitude && listing.longitude) {
+                    window.open(
+                      `https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`,
+                      "_blank"
+                    );
+                  }
+                }}
+                disabled={!listing.latitude || !listing.longitude}
+              >
+                <Map className="h-3.5 w-3.5" />
+                Map
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
+                onClick={() => {
+                  if (listing.latitude && listing.longitude) {
+                    window.open(
+                      `https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${listing.latitude},${listing.longitude}`,
+                      "_blank"
+                    );
+                  }
+                }}
+                disabled={!listing.latitude || !listing.longitude}
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                Street View
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
+                onClick={() => {
+                  if (listing.latitude && listing.longitude) {
+                    window.open(
+                      `https://www.google.com/maps/dir/?api=1&destination=${listing.latitude},${listing.longitude}`,
+                      "_blank"
+                    );
+                  }
+                }}
+                disabled={!listing.latitude || !listing.longitude}
+              >
+                <Navigation className="h-3.5 w-3.5" />
+                Directions
+              </Button>
+            </div>
 
             {/* Price Section - REW Style */}
             <div>
