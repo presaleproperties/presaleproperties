@@ -101,7 +101,7 @@ export function HomeUnifiedMapSection({
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .in("city", citiesToUse)
-        .gte("year_built", 2025)
+        .gte("year_built", 2024)
         .order("listing_price", { ascending: false })
         .limit(2000);
 
