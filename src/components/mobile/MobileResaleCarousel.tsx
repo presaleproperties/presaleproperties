@@ -22,6 +22,7 @@ type MLSListing = {
   photos: any;
   days_on_market: number | null;
   mls_status: string;
+  year_built: number | null;
 };
 
 function getAddress(listing: MLSListing): string {
@@ -44,13 +45,14 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status")
+        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built")
         .eq("mls_status", "Active")
+        .gte("year_built", 2025) // Filter for 2025+ new construction
         .order("list_date", { ascending: false })
         .limit(10);
 
       if (city && city !== "all") {
-        query = query.eq("city", city);
+        query = query.ilike("city", city);
       }
 
       const { data, error } = await query;
