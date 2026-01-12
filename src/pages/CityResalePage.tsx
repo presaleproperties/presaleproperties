@@ -24,8 +24,8 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
+import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 16;
@@ -669,7 +669,8 @@ export default function CityResalePage() {
             subtitle="Buy before completion and customize your new home"
           />
 
-          <BuyerCTASection />
+          {/* Large Map Section - Page Ending */}
+          <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
         </main>
       </PullToRefresh>
 

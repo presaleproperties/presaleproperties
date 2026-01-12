@@ -8,7 +8,6 @@ import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { ResaleCitySection } from "@/components/home/ResaleCitySection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
@@ -16,7 +15,6 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
-
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
   {
@@ -298,16 +296,14 @@ const Index = () => {
           <NewConstructionBenefits />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
-          <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
-        </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
         </ScrollReveal>
-        <ScrollReveal animation="scale" delay={100}>
-          <BuyerCTASection />
+        {/* Large Map Section - Page Ending */}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
       </main>
       
