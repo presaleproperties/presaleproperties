@@ -427,33 +427,34 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     <div className="relative h-full w-full">
       <div ref={containerRef} className="h-full w-full" />
 
-      {/* Custom controls - stacked on right */}
-      <div className="absolute top-3 right-3 z-[1000] flex flex-col gap-2">
+      {/* Custom controls - bottom right to avoid overlaps on mobile */}
+      <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
         {/* Locate button */}
         <button
           onClick={handleLocate}
           disabled={isLocating}
           title="Zoom to my location"
-          className="w-7 h-7 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/30 flex items-center justify-center hover:bg-background transition-colors disabled:opacity-50"
+          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors disabled:opacity-50"
         >
-          {isLocating ? <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" /> : <Navigation className="h-3.5 w-3.5 text-muted-foreground" />}
+          {isLocating ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <Navigation className="h-4 w-4 text-muted-foreground" />}
         </button>
         
         {/* Zoom controls */}
-        <div className="flex flex-col rounded-full overflow-hidden bg-background/80 backdrop-blur-sm shadow-sm border border-border/30">
+        <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={() => mapRef.current?.zoomIn()}
-            className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             title="Zoom in"
           >
-            <span className="text-sm font-medium">+</span>
+            <span className="text-base font-medium">+</span>
           </button>
+          <div className="w-full h-px bg-border/50" />
           <button
             onClick={() => mapRef.current?.zoomOut()}
-            className="w-7 h-7 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             title="Zoom out"
           >
-            <span className="text-sm font-medium">−</span>
+            <span className="text-base font-medium">−</span>
           </button>
         </div>
       </div>
