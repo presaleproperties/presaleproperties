@@ -4,7 +4,8 @@ import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, 
-  MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath
+  MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
+  Building, HomeIcon, Warehouse
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +21,11 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetFooter,
 } from "@/components/ui/sheet";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { Slider } from "@/components/ui/slider";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
@@ -42,29 +46,37 @@ const CITIES = [
 ];
 
 const PROPERTY_TYPES = [
-  { value: "any", label: "All Types" },
-  { value: "Apartment/Condo", label: "Condos" },
-  { value: "Townhouse", label: "Townhomes" },
-  { value: "Single Family", label: "Houses" },
-];
-
-const PRICE_RANGES = [
-  { value: "any", label: "Any Price" },
-  { value: "0-400000", label: "Under $400K" },
-  { value: "400000-600000", label: "$400K - $600K" },
-  { value: "600000-800000", label: "$600K - $800K" },
-  { value: "800000-1000000", label: "$800K - $1M" },
-  { value: "1000000-1500000", label: "$1M - $1.5M" },
-  { value: "1500000-2000000", label: "$1.5M - $2M" },
-  { value: "2000000-999999999", label: "$2M+" },
+  { value: "any", label: "Any", icon: null },
+  { value: "Apartment/Condo", label: "Condo", icon: Building },
+  { value: "Townhouse", label: "Townhouse", icon: Warehouse },
+  { value: "Single Family", label: "House", icon: HomeIcon },
 ];
 
 const BED_OPTIONS = [
-  { value: "any", label: "Beds" },
+  { value: "any", label: "Any" },
+  { value: "0", label: "Studio" },
+  { value: "1", label: "1" },
+  { value: "2", label: "2" },
+  { value: "3", label: "3" },
+  { value: "4", label: "4" },
+  { value: "5", label: "5+" },
+];
+
+const BATH_OPTIONS = [
+  { value: "any", label: "Any" },
   { value: "1", label: "1+" },
   { value: "2", label: "2+" },
   { value: "3", label: "3+" },
   { value: "4", label: "4+" },
+  { value: "5", label: "5+" },
+];
+
+const DAYS_ON_SITE_OPTIONS = [
+  { value: "any", label: "Any" },
+  { value: "1", label: "24 hrs" },
+  { value: "7", label: "7 days" },
+  { value: "14", label: "14 days" },
+  { value: "28", label: "28 days" },
 ];
 
 const SORT_OPTIONS = [
@@ -73,6 +85,10 @@ const SORT_OPTIONS = [
   { value: "price_desc", label: "Price (High)" },
 ];
 
+// Price constants
+const MIN_PRICE = 0;
+const MAX_PRICE = 5000000;
+const PRICE_STEP = 50000;
 type MapMode = "all" | "presale" | "resale";
 
 type MLSListing = {
@@ -196,10 +212,19 @@ export default function MapSearch() {
   const filters = {
     city: searchParams.get("city") || "any",
     propertyType: searchParams.get("type") || "any",
-    priceRange: searchParams.get("price") || "any",
+    priceMin: searchParams.get("priceMin") || "",
+    priceMax: searchParams.get("priceMax") || "",
     beds: searchParams.get("beds") || "any",
+    baths: searchParams.get("baths") || "any",
+    daysOnSite: searchParams.get("days") || "any",
     sort: searchParams.get("sort") || "newest",
   };
+
+  // Price slider state
+  const [priceRange, setPriceRange] = useState<[number, number]>([
+    filters.priceMin ? parseInt(filters.priceMin) : MIN_PRICE,
+    filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE,
+  ]);
 
   // Fetch resale listings (2025+ builds)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
@@ -227,9 +252,19 @@ export default function MapSearch() {
       if (filters.propertyType !== "any") {
         query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
       }
-      if (filters.priceRange !== "any") {
-        const [min, max] = filters.priceRange.split("-").map(Number);
-        query = query.gte("listing_price", min).lte("listing_price", max);
+      if (filters.priceMin) {
+        query = query.gte("listing_price", parseInt(filters.priceMin));
+      }
+      if (filters.priceMax) {
+        query = query.lte("listing_price", parseInt(filters.priceMax));
+      }
+      if (filters.baths !== "any") {
+        query = query.gte("bathrooms_total", parseInt(filters.baths));
+      }
+      if (filters.daysOnSite !== "any") {
+        const daysAgo = new Date();
+        daysAgo.setDate(daysAgo.getDate() - parseInt(filters.daysOnSite));
+        query = query.gte("list_date", daysAgo.toISOString().split('T')[0]);
       }
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
@@ -260,9 +295,11 @@ export default function MapSearch() {
       if (filters.city !== "any") {
         query = query.eq("city", filters.city);
       }
-      if (filters.priceRange !== "any") {
-        const [min, max] = filters.priceRange.split("-").map(Number);
-        query = query.gte("starting_price", min).lte("starting_price", max);
+      if (filters.priceMin) {
+        query = query.gte("starting_price", parseInt(filters.priceMin));
+      }
+      if (filters.priceMax) {
+        query = query.lte("starting_price", parseInt(filters.priceMax));
       }
 
       query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
@@ -364,9 +401,34 @@ export default function MapSearch() {
   const activeFilterCount = [
     filters.city !== "any",
     filters.propertyType !== "any",
-    filters.priceRange !== "any",
+    filters.priceMin !== "",
+    filters.priceMax !== "",
     filters.beds !== "any",
+    filters.baths !== "any",
+    filters.daysOnSite !== "any",
   ].filter(Boolean).length;
+
+  // Helper to format price display
+  const formatPriceLabel = (value: number) => {
+    if (value >= 1000000) return `$${(value / 1000000).toFixed(1)}M`;
+    return `$${(value / 1000).toFixed(0)}K`;
+  };
+
+  // Apply price filter from slider
+  const applyPriceFilter = () => {
+    const newParams = new URLSearchParams(searchParams);
+    if (priceRange[0] > MIN_PRICE) {
+      newParams.set("priceMin", priceRange[0].toString());
+    } else {
+      newParams.delete("priceMin");
+    }
+    if (priceRange[1] < MAX_PRICE) {
+      newParams.set("priceMax", priceRange[1].toString());
+    } else {
+      newParams.delete("priceMax");
+    }
+    setSearchParams(newParams);
+  };
 
   const LoadingMap = () => (
     <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center">
@@ -606,54 +668,175 @@ export default function MapSearch() {
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-[320px]">
-                    <SheetHeader>
-                      <SheetTitle>Filters</SheetTitle>
+                  <SheetContent side="right" className="w-[400px] sm:w-[450px] flex flex-col">
+                    <SheetHeader className="pb-4 border-b">
+                      <SheetTitle className="text-xl font-semibold">Filters</SheetTitle>
                     </SheetHeader>
-                    <div className="mt-6 space-y-5">
+                    
+                    <div className="flex-1 overflow-y-auto py-6 space-y-8">
+                      {/* Price Range Section */}
                       <div>
-                        <label className="text-sm font-medium mb-2 block">City</label>
+                        <label className="text-base font-semibold mb-4 block">Price range</label>
+                        <Slider
+                          value={priceRange}
+                          min={MIN_PRICE}
+                          max={MAX_PRICE}
+                          step={PRICE_STEP}
+                          onValueChange={(value) => setPriceRange(value as [number, number])}
+                          onValueCommit={applyPriceFilter}
+                          className="mb-4"
+                        />
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Minimum</label>
+                            <Input
+                              type="text"
+                              placeholder="No Min"
+                              value={priceRange[0] > MIN_PRICE ? formatPriceLabel(priceRange[0]) : ""}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9]/g, "");
+                                if (val) setPriceRange([parseInt(val), priceRange[1]]);
+                              }}
+                              onBlur={applyPriceFilter}
+                              className="h-10"
+                            />
+                          </div>
+                          <span className="text-muted-foreground mt-5">-</span>
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Maximum</label>
+                            <Input
+                              type="text"
+                              placeholder="No Max"
+                              value={priceRange[1] < MAX_PRICE ? formatPriceLabel(priceRange[1]) : ""}
+                              onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9]/g, "");
+                                if (val) setPriceRange([priceRange[0], parseInt(val)]);
+                              }}
+                              onBlur={applyPriceFilter}
+                              className="h-10"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Property Type Section */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">Property Type</label>
+                        <div className="flex flex-wrap gap-2">
+                          {PROPERTY_TYPES.map((opt) => {
+                            const Icon = opt.icon;
+                            return (
+                              <button
+                                key={opt.value}
+                                onClick={() => updateFilter("type", opt.value)}
+                                className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                                  filters.propertyType === opt.value
+                                    ? "bg-primary/10 border-primary text-primary"
+                                    : "border-border hover:border-foreground/30 text-foreground"
+                                }`}
+                              >
+                                {Icon && <Icon className="h-4 w-4" />}
+                                {opt.label}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Bedrooms Section */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">Bedrooms</label>
+                        <div className="flex flex-wrap gap-2">
+                          {BED_OPTIONS.map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => updateFilter("beds", opt.value)}
+                              className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-all min-w-[56px] ${
+                                filters.beds === opt.value
+                                  ? "bg-primary/10 border-primary text-primary"
+                                  : "border-border hover:border-foreground/30 text-foreground"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Bathrooms Section */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">Bathrooms</label>
+                        <div className="flex flex-wrap gap-2">
+                          {BATH_OPTIONS.map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => updateFilter("baths", opt.value)}
+                              className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-all min-w-[56px] ${
+                                filters.baths === opt.value
+                                  ? "bg-primary/10 border-primary text-primary"
+                                  : "border-border hover:border-foreground/30 text-foreground"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Days on Site Section */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">Days on site</label>
+                        <div className="flex flex-wrap gap-2">
+                          {DAYS_ON_SITE_OPTIONS.map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => updateFilter("days", opt.value)}
+                              className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
+                                filters.daysOnSite === opt.value
+                                  ? "bg-primary/10 border-primary text-primary"
+                                  : "border-border hover:border-foreground/30 text-foreground"
+                              }`}
+                            >
+                              {opt.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* City Section - keep dropdown for convenience */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">City</label>
                         <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                          <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
+                          <SelectTrigger className="h-11">
+                            <SelectValue placeholder="All Cities" />
+                          </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="any">All Cities</SelectItem>
                             {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Type</label>
-                        <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
-                          <SelectTrigger><SelectValue placeholder="All Types" /></SelectTrigger>
-                          <SelectContent>
-                            {PROPERTY_TYPES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Price</label>
-                        <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-                          <SelectTrigger><SelectValue placeholder="Any Price" /></SelectTrigger>
-                          <SelectContent>
-                            {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="text-sm font-medium mb-2 block">Bedrooms</label>
-                        <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-                          <SelectTrigger><SelectValue placeholder="Any Beds" /></SelectTrigger>
-                          <SelectContent>
-                            {BED_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      {activeFilterCount > 0 && (
-                        <Button variant="ghost" onClick={clearAllFilters} className="w-full">
-                          <X className="h-4 w-4 mr-2" /> Clear All
-                        </Button>
-                      )}
                     </div>
+
+                    {/* Footer with Clear/Done buttons */}
+                    <SheetFooter className="border-t pt-4 flex-row gap-3">
+                      <Button 
+                        variant="ghost" 
+                        onClick={() => {
+                          clearAllFilters();
+                          setPriceRange([MIN_PRICE, MAX_PRICE]);
+                        }} 
+                        className="flex-1"
+                      >
+                        CLEAR FILTERS
+                      </Button>
+                      <Button 
+                        onClick={() => setMobileFiltersOpen(false)} 
+                        className="flex-1 bg-foreground text-background hover:bg-foreground/90"
+                      >
+                        DONE
+                      </Button>
+                    </SheetFooter>
                   </SheetContent>
                 </Sheet>
               </div>
