@@ -1,7 +1,14 @@
 /**
  * Meta Pixel (Facebook Pixel) Integration
  * 
- * Loads Meta Pixel script and tracks PageView events on route changes.
+ * Comprehensive tracking for:
+ * - PageViews on route changes
+ * - Property views (ViewContent)
+ * - Form starts (InitiateCheckout)
+ * - Form completions (Lead)
+ * - Searches
+ * - Tour bookings (Schedule)
+ * 
  * Pixel ID is fetched from app_settings (key: "meta_pixel_id")
  */
 
@@ -11,6 +18,9 @@ import { supabase } from "@/integrations/supabase/client";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type FbqFunction = (...args: any[]) => void;
+
+// Debug mode for development
+const DEBUG_MODE = import.meta.env.DEV;
 
 export function MetaPixel() {
   const location = useLocation();
@@ -32,7 +42,7 @@ export function MetaPixel() {
       const pixelId = typeof data?.value === "string" ? data.value : null;
 
       if (!pixelId) {
-        if (import.meta.env.DEV) {
+        if (DEBUG_MODE) {
           console.log("📊 [Meta Pixel] No Pixel ID configured");
         }
         return;
@@ -68,7 +78,7 @@ export function MetaPixel() {
 
       initializedRef.current = true;
 
-      if (import.meta.env.DEV) {
+      if (DEBUG_MODE) {
         console.log("📊 [Meta Pixel] Initialized with ID:", pixelId);
       }
     };
@@ -85,7 +95,7 @@ export function MetaPixel() {
     
     w.fbq("track", "PageView");
     
-    if (import.meta.env.DEV) {
+    if (DEBUG_MODE) {
       console.log("📊 [Meta Pixel] PageView:", location.pathname);
     }
   }, [location.pathname]);
@@ -93,28 +103,156 @@ export function MetaPixel() {
   return null;
 }
 
-// Helper to track custom events from anywhere
+/**
+ * Track custom Meta events from anywhere in the app
+ */
 export function trackMetaEvent(eventName: string, params?: Record<string, unknown>) {
   const w = window as unknown as { fbq?: FbqFunction };
   if (w.fbq) {
     w.fbq("track", eventName, params);
     
-    if (import.meta.env.DEV) {
+    if (DEBUG_MODE) {
       console.log("📊 [Meta Pixel] Event:", eventName, params);
     }
   }
 }
 
-// Standard Meta events for convenience
+/**
+ * Track custom events (non-standard)
+ */
+export function trackMetaCustomEvent(eventName: string, params?: Record<string, unknown>) {
+  const w = window as unknown as { fbq?: FbqFunction };
+  if (w.fbq) {
+    w.fbq("trackCustom", eventName, params);
+    
+    if (DEBUG_MODE) {
+      console.log("📊 [Meta Pixel] Custom Event:", eventName, params);
+    }
+  }
+}
+
+// ============ STANDARD META EVENTS ============
+
 export const MetaEvents = {
-  lead: (params?: { content_name?: string; value?: number }) => 
-    trackMetaEvent("Lead", params),
-  viewContent: (params: { content_name: string; content_ids?: string[] }) => 
-    trackMetaEvent("ViewContent", params),
-  search: (params: { search_string: string }) => 
-    trackMetaEvent("Search", params),
-  contact: () => 
-    trackMetaEvent("Contact"),
-  schedule: () => 
-    trackMetaEvent("Schedule"),
+  /**
+   * Track lead form submission
+   */
+  lead: (params?: { 
+    content_name?: string; 
+    content_category?: string;
+    value?: number;
+    currency?: string;
+  }) => trackMetaEvent("Lead", { currency: "CAD", ...params }),
+  
+  /**
+   * Track property/project page view
+   */
+  viewContent: (params: { 
+    content_name: string; 
+    content_ids?: string[];
+    content_type?: string;
+    content_category?: string;
+    value?: number;
+    currency?: string;
+  }) => trackMetaEvent("ViewContent", { content_type: "property", currency: "CAD", ...params }),
+  
+  /**
+   * Track search actions
+   */
+  search: (params: { 
+    search_string: string;
+    content_category?: string;
+  }) => trackMetaEvent("Search", params),
+  
+  /**
+   * Track when user starts filling a form (InitiateCheckout = form start)
+   */
+  formStart: (params: { 
+    content_name: string;
+    content_category?: string;
+  }) => trackMetaEvent("InitiateCheckout", params),
+  
+  /**
+   * Track contact form submissions
+   */
+  contact: (params?: { content_name?: string }) => 
+    trackMetaEvent("Contact", params),
+  
+  /**
+   * Track tour/showing bookings
+   */
+  schedule: (params?: { 
+    content_name?: string;
+    content_category?: string;
+  }) => trackMetaEvent("Schedule", params),
+  
+  /**
+   * Track when user completes registration/signup
+   */
+  completeRegistration: (params?: {
+    content_name?: string;
+    status?: string;
+  }) => trackMetaEvent("CompleteRegistration", params),
+};
+
+// ============ CUSTOM EVENTS FOR FUNNEL ANALYSIS ============
+
+export const MetaCustomEvents = {
+  /**
+   * Track form abandonment (user started but didn't finish)
+   */
+  formAbandon: (params: { 
+    form_name: string;
+    form_location: string;
+    fields_filled?: number;
+  }) => trackMetaCustomEvent("FormAbandon", params),
+  
+  /**
+   * Track floorplan views
+   */
+  floorplanView: (params: { 
+    project_name: string;
+    project_id?: string;
+  }) => trackMetaCustomEvent("FloorplanView", params),
+  
+  /**
+   * Track floorplan downloads
+   */
+  floorplanDownload: (params: { 
+    project_name: string;
+    project_id?: string;
+  }) => trackMetaCustomEvent("FloorplanDownload", params),
+  
+  /**
+   * Track favorites/saves
+   */
+  addToWishlist: (params: { 
+    content_name: string;
+    content_ids?: string[];
+    content_type?: string;
+  }) => trackMetaEvent("AddToWishlist", params),
+  
+  /**
+   * Track map interactions
+   */
+  mapInteraction: (params: { 
+    action: "zoom" | "pan" | "marker_click";
+    location?: string;
+  }) => trackMetaCustomEvent("MapInteraction", params),
+  
+  /**
+   * Track calculator usage
+   */
+  calculatorUse: (params: { 
+    calculator_type: string;
+    inputs_completed?: boolean;
+  }) => trackMetaCustomEvent("CalculatorUse", params),
+  
+  /**
+   * Track high-intent signals
+   */
+  highIntent: (params: { 
+    signal_type: string;
+    project_name?: string;
+  }) => trackMetaCustomEvent("HighIntent", params),
 };

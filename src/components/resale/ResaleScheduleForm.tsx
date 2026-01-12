@@ -8,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 interface ResaleScheduleFormProps {
   listingId: string;
@@ -59,11 +61,29 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
       toast.error("Please select a date");
       return;
     }
+    // Track form start
+    MetaEvents.formStart({
+      content_name: listingAddress,
+      content_category: "resale_tour",
+    });
+    trackFormStart({
+      form_name: "resale_tour",
+      form_location: "resale_schedule_form",
+    });
     setShowContactForm(true);
     setShowQuestionForm(false);
   };
 
   const handleAskQuestion = () => {
+    // Track form start
+    MetaEvents.formStart({
+      content_name: listingAddress,
+      content_category: "resale_inquiry",
+    });
+    trackFormStart({
+      form_name: "resale_inquiry",
+      form_location: "resale_schedule_form",
+    });
     setShowQuestionForm(true);
     setShowContactForm(false);
     setSelectedDate(null);
@@ -85,6 +105,15 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
       const utmSource = sessionStorage.getItem("utm_source") || null;
       const utmMedium = sessionStorage.getItem("utm_medium") || null;
       const utmCampaign = sessionStorage.getItem("utm_campaign") || null;
+
+      // Get visitor tracking data
+      const visitorId = getVisitorId();
+      const sessionId = getSessionId();
+
+      // Parse name into first/last
+      const nameParts = formData.name.trim().split(" ");
+      const firstName = nameParts[0] || "";
+      const lastName = nameParts.slice(1).join(" ") || "";
 
       if (showContactForm && selectedDate) {
         // Submit as booking
@@ -113,6 +142,8 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
           utm_source: utmSource,
           utm_medium: utmMedium,
           utm_campaign: utmCampaign,
+          visitor_id: visitorId,
+          session_id: sessionId,
         };
 
         await supabase.from("bookings").insert([bookingData]);
@@ -125,6 +156,45 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
             formattedTime: selectedTimeSlot ? TIME_SLOTS.find(s => s.value === selectedTimeSlot)?.time : "Flexible",
           },
         }).catch(console.error);
+
+        // Track form submission
+        trackFormSubmit({
+          form_name: "resale_tour",
+          form_location: "resale_schedule_form",
+          first_name: firstName,
+          last_name: lastName,
+          email: formData.email,
+          phone: formData.phone,
+        });
+
+        // Track Meta Pixel events
+        MetaEvents.schedule({
+          content_name: listingAddress,
+          content_category: "resale_tour",
+        });
+        MetaEvents.lead({
+          content_name: listingAddress,
+          content_category: "resale_tour",
+        });
+
+        // Send server-side Lead event to Meta Conversions API
+        supabase.functions
+          .invoke("meta-conversions-api", {
+            body: {
+              event_name: "Schedule",
+              email: formData.email,
+              phone: formData.phone,
+              first_name: firstName,
+              last_name: lastName,
+              event_source_url: window.location.href,
+              content_name: listingAddress,
+              content_category: "resale_tour",
+              client_user_agent: navigator.userAgent,
+              fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+              fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+            },
+          })
+          .catch((err) => console.error("Meta CAPI error:", err));
 
         toast.success("Tour request submitted! We'll confirm your appointment soon.");
       } else {
@@ -144,12 +214,49 @@ export function ResaleScheduleForm({ listingId, listingAddress, listingCity }: R
           utm_source: utmSource,
           utm_medium: utmMedium,
           utm_campaign: utmCampaign,
+          visitor_id: visitorId,
+          session_id: sessionId,
         });
 
         // Trigger Zapier webhook for lead
         await supabase.functions.invoke("send-project-lead", {
           body: { leadId },
         }).catch(console.error);
+
+        // Track form submission
+        trackFormSubmit({
+          form_name: "resale_inquiry",
+          form_location: "resale_schedule_form",
+          first_name: firstName,
+          last_name: lastName,
+          email: formData.email,
+          phone: formData.phone,
+        });
+
+        // Track Meta Pixel Lead event
+        MetaEvents.lead({
+          content_name: listingAddress,
+          content_category: "resale_inquiry",
+        });
+
+        // Send server-side Lead event to Meta Conversions API
+        supabase.functions
+          .invoke("meta-conversions-api", {
+            body: {
+              event_name: "Lead",
+              email: formData.email,
+              phone: formData.phone,
+              first_name: firstName,
+              last_name: lastName,
+              event_source_url: window.location.href,
+              content_name: listingAddress,
+              content_category: "resale_inquiry",
+              client_user_agent: navigator.userAgent,
+              fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+              fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+            },
+          })
+          .catch((err) => console.error("Meta CAPI error:", err));
 
         toast.success("Question submitted! We'll get back to you soon.");
       }

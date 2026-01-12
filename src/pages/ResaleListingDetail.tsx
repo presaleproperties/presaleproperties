@@ -1,7 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { 
   Bed, 
   Bath, 
@@ -46,6 +46,8 @@ import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -149,6 +151,28 @@ export default function ResaleListingDetail() {
     },
     enabled: !!listingKey,
   });
+
+  // Track listing view with behavioral tracking
+  usePropertyViewTracking(listing ? {
+    project_id: listing.id,
+    project_name: listing.unparsed_address || listing.street_name || "Resale Listing",
+    city: listing.city,
+    price_from: listing.listing_price,
+  } : null);
+
+  // Track Meta ViewContent event when listing loads
+  useEffect(() => {
+    if (listing) {
+      MetaEvents.viewContent({
+        content_name: listing.unparsed_address || listing.street_name || "Resale Listing",
+        content_ids: [listing.listing_key],
+        content_type: "resale_listing",
+        content_category: listing.property_type,
+        value: listing.listing_price,
+        currency: "CAD",
+      });
+    }
+  }, [listing?.id]);
 
   if (isLoading) {
     return (

@@ -28,6 +28,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLoftyProjectTracking } from "@/hooks/useLoftyTracking";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { trackFloorplanView, trackFloorplanDownload, trackCTAClick } from "@/lib/tracking";
+import { MetaEvents, MetaCustomEvents } from "@/components/tracking/MetaPixel";
 import { 
   MapPin,
   Calendar,
@@ -126,10 +127,15 @@ export default function PresaleProjectDetail() {
       if ((window as any).gtag) {
         (window as any).gtag("event", eventName, params);
       }
-      if ((window as any).fbq && eventName === "project_view") {
-        (window as any).fbq("track", "ViewContent", {
-          content_name: params?.project_name,
-          content_category: "presale_project",
+      // Track ViewContent via Meta Pixel when project loads
+      if (eventName === "project_view" && project) {
+        MetaEvents.viewContent({
+          content_name: project.name,
+          content_ids: [project.id],
+          content_type: "presale_project",
+          content_category: project.project_type,
+          value: project.starting_price || undefined,
+          currency: "CAD",
         });
       }
     }
