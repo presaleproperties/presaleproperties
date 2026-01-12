@@ -107,7 +107,7 @@ export const ResaleFilterBar = ({
   onClearFilters,
   activeFilterCount,
   showMapLink = true,
-  mapLinkPath = "/resale-map",
+  mapLinkPath = "/map-search?mode=resale",
   cityOptions = DEFAULT_CITIES,
   propertyTypeOptions = DEFAULT_PROPERTY_TYPES,
   priceRangeOptions = DEFAULT_PRICE_RANGES,

@@ -142,11 +142,11 @@ export function HomeUnifiedMapSection({
   const getFullMapLink = () => {
     switch (mode) {
       case "presale":
-        return "/presale-projects?view=map";
+        return "/map-search?mode=presale";
       case "resale":
-        return "/resale-map";
+        return "/map-search?mode=resale";
       default:
-        return "/resale-map"; // Combined map
+        return "/map-search";
     }
   };
 

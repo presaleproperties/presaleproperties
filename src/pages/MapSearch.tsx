@@ -1,13 +1,12 @@
 import { useState, useMemo, useCallback, lazy, Suspense, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
-  Search, SlidersHorizontal, X, Map, LayoutGrid, 
-  MapPin, Building2, ArrowLeft, ChevronDown, ChevronUp
+  SlidersHorizontal, X, Map, LayoutGrid, 
+  MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -25,12 +24,15 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
+import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
+import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useEnabledCities } from "@/hooks/useEnabledCities";
 
-// Lazy load the map component
-const ProjectsMap = lazy(() => 
-  import("@/components/projects/ProjectsMap").then(m => ({ default: m.ProjectsMap }))
+// Lazy load the combined map component
+const CombinedListingsMap = lazy(() => 
+  import("@/components/map/CombinedListingsMap").then(m => ({ default: m.CombinedListingsMap }))
 );
 
 const CITIES = [
@@ -39,11 +41,11 @@ const CITIES = [
   "Langley", "Delta", "Abbotsford", "New Westminster", "White Rock"
 ];
 
-const TYPE_OPTIONS = [
+const PROPERTY_TYPES = [
   { value: "any", label: "All Types" },
-  { value: "condo", label: "Condos" },
-  { value: "townhome", label: "Townhomes" },
-  { value: "mixed", label: "Mixed" },
+  { value: "Apartment/Condo", label: "Condos" },
+  { value: "Townhouse", label: "Townhomes" },
+  { value: "Single Family", label: "Houses" },
 ];
 
 const PRICE_RANGES = [
@@ -55,57 +57,109 @@ const PRICE_RANGES = [
   { value: "1500000-999999999", label: "$1.5M+" },
 ];
 
-type Project = {
+const BED_OPTIONS = [
+  { value: "any", label: "Any Beds" },
+  { value: "1", label: "1+ Bed" },
+  { value: "2", label: "2+ Beds" },
+  { value: "3", label: "3+ Beds" },
+  { value: "4", label: "4+ Beds" },
+];
+
+type MapMode = "all" | "presale" | "resale";
+
+type MLSListing = {
+  id: string;
+  listing_key: string;
+  listing_price: number;
+  city: string;
+  neighborhood: string | null;
+  street_number: string | null;
+  street_name: string | null;
+  street_suffix: string | null;
+  property_type: string;
+  property_sub_type: string | null;
+  bedrooms_total: number | null;
+  bathrooms_total: number | null;
+  living_area: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  photos: any;
+  mls_status: string;
+};
+
+type PresaleProject = {
   id: string;
   name: string;
   slug: string;
   city: string;
   neighborhood: string;
-  status: "coming_soon" | "registering" | "active" | "sold_out";
-  project_type: "condo" | "townhome" | "mixed";
-  completion_year: number | null;
+  status: string;
+  project_type: string;
   starting_price: number | null;
   featured_image: string | null;
-  gallery_images: string[] | null;
   map_lat: number | null;
   map_lng: number | null;
 };
 
 export default function MapSearch() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
   const [showCarousel, setShowCarousel] = useState(true);
-  const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
-  const [visibleProjectIds, setVisibleProjectIds] = useState<string[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
+  const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
+  const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
+  
+  // Read initial mode from URL param, default to "all"
+  const initialMode = (searchParams.get("mode") as MapMode) || "all";
+  const [mapMode, setMapMode] = useState<MapMode>(initialMode);
+  
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
 
-  // Read initial map position from URL params (for deep-linking from project pages)
-  const initialLat = searchParams.get("lat") ? parseFloat(searchParams.get("lat")!) : undefined;
-  const initialLng = searchParams.get("lng") ? parseFloat(searchParams.get("lng")!) : undefined;
-  const initialZoom = searchParams.get("zoom") ? parseInt(searchParams.get("zoom")!) : undefined;
-  const initialProjectSlug = searchParams.get("project") || undefined;
+  // Get enabled cities from admin settings
+  const { data: enabledCities } = useEnabledCities();
 
-  const handleProjectSelect = useCallback((projectId: string) => {
-    setSelectedProjectId(projectId);
-    // Show carousel if hidden (mobile/tablet)
+  // Fetch neighborhoods from presale projects for autocomplete
+  const { data: neighborhoodsData } = useQuery({
+    queryKey: ["neighborhoods-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("neighborhood, city")
+        .eq("is_published", true)
+        .not("neighborhood", "is", null);
+      if (error) throw error;
+      const unique: Record<string, { neighborhood: string; city: string }> = {};
+      data?.forEach(row => {
+        const key = `${row.neighborhood}-${row.city}`;
+        if (!unique[key]) {
+          unique[key] = { neighborhood: row.neighborhood, city: row.city };
+        }
+      });
+      return Object.values(unique);
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+
+  const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
+    setSelectedItemId(id);
+    setSelectedItemType(type);
     setShowCarousel(true);
     
-    // Small delay to ensure elements are rendered before scrolling
     setTimeout(() => {
-      // Scroll carousel (mobile/tablet)
       if (carouselRef.current) {
-        const cardElement = carouselRef.current.querySelector(`[data-project-id="${projectId}"]`);
+        const cardElement = carouselRef.current.querySelector(`[data-item-id="${id}"]`);
         if (cardElement) {
           cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
       }
-      // Scroll desktop list
       if (desktopListRef.current) {
-        const cardElement = desktopListRef.current.querySelector(`[data-project-id="${projectId}"]`);
+        const cardElement = desktopListRef.current.querySelector(`[data-item-id="${id}"]`);
         if (cardElement) {
           cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -113,30 +167,86 @@ export default function MapSearch() {
     }, 100);
   }, []);
 
-  const handleVisibleProjectsChange = useCallback((projectIds: string[]) => {
-    setVisibleProjectIds(projectIds);
+  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[]) => {
+    setVisibleResaleIds(resaleIds);
+    setVisiblePresaleIds(presaleIds);
   }, []);
+
+  const handleModeChange = useCallback((newMode: MapMode) => {
+    setMapMode(newMode);
+    const newParams = new URLSearchParams(searchParams);
+    if (newMode === "all") {
+      newParams.delete("mode");
+    } else {
+      newParams.set("mode", newMode);
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const filters = {
     city: searchParams.get("city") || "any",
-    projectType: searchParams.get("type") || "any",
+    propertyType: searchParams.get("type") || "any",
     priceRange: searchParams.get("price") || "any",
+    beds: searchParams.get("beds") || "any",
   };
 
-  const { data: allProjects, isLoading } = useQuery({
-    queryKey: ["map-search-projects", filters],
+  // Fetch resale listings (2025+ builds)
+  const { data: resaleListings, isLoading: resaleLoading } = useQuery({
+    queryKey: ["unified-map-resale-2025", filters, enabledCities],
     queryFn: async () => {
       let query = supabase
-        .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, map_lat, map_lng")
-        .eq("is_published", true)
-        .not("status", "eq", "sold_out");
+        .from("mls_listings")
+        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built")
+        .eq("mls_status", "Active")
+        .not("latitude", "is", null)
+        .not("longitude", "is", null)
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.5)
+        .lte("longitude", -121.3)
+        .gte("year_built", 2025);
+
+      if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
+        query = query.in("city", enabledCities);
+      }
 
       if (filters.city !== "any") {
         query = query.eq("city", filters.city);
       }
-      if (filters.projectType !== "any") {
-        query = query.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
+      if (filters.propertyType !== "any") {
+        query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        query = query.gte("listing_price", min).lte("listing_price", max);
+      }
+      if (filters.beds !== "any") {
+        query = query.gte("bedrooms_total", parseInt(filters.beds));
+      }
+
+      query = query.order("listing_price", { ascending: false }).limit(2000);
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as MLSListing[];
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  // Fetch presale projects
+  const { data: presaleProjects, isLoading: presaleLoading } = useQuery({
+    queryKey: ["unified-map-presale", filters],
+    queryFn: async () => {
+      let query = supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, status, project_type, starting_price, featured_image, map_lat, map_lng")
+        .eq("is_published", true)
+        .not("status", "eq", "sold_out")
+        .not("map_lat", "is", null)
+        .not("map_lng", "is", null);
+
+      if (filters.city !== "any") {
+        query = query.eq("city", filters.city);
       }
       if (filters.priceRange !== "any") {
         const [min, max] = filters.priceRange.split("-").map(Number);
@@ -147,30 +257,59 @@ export default function MapSearch() {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as Project[];
+      return data as PresaleProject[];
     },
+    staleTime: 2 * 60 * 1000,
   });
 
-  const filteredProjects = useMemo(() => {
-    if (!allProjects) return [];
-    if (!searchQuery.trim()) return allProjects;
+  const isLoading = resaleLoading || presaleLoading;
+
+  const filteredResaleListings = useMemo(() => {
+    if (!resaleListings) return [];
+    if (!searchQuery.trim()) return resaleListings;
     
     const q = searchQuery.toLowerCase();
-    return allProjects.filter(
+    return resaleListings.filter(
+      (l) =>
+        l.city.toLowerCase().includes(q) ||
+        (l.neighborhood?.toLowerCase() || "").includes(q) ||
+        (l.street_name?.toLowerCase() || "").includes(q)
+    );
+  }, [resaleListings, searchQuery]);
+
+  const filteredPresaleProjects = useMemo(() => {
+    if (!presaleProjects) return [];
+    if (!searchQuery.trim()) return presaleProjects;
+    
+    const q = searchQuery.toLowerCase();
+    return presaleProjects.filter(
       (p) =>
         p.name.toLowerCase().includes(q) ||
         p.neighborhood.toLowerCase().includes(q) ||
         p.city.toLowerCase().includes(q)
     );
-  }, [allProjects, searchQuery]);
+  }, [presaleProjects, searchQuery]);
 
-  const mapProjects = filteredProjects;
+  // Visible items based on map viewport and mode
+  const visibleResaleListings = useMemo(() => {
+    if (mapMode === "presale") return [];
+    if (visibleResaleIds.length === 0) return filteredResaleListings.slice(0, 30);
+    return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id)).slice(0, 30);
+  }, [filteredResaleListings, visibleResaleIds, mapMode]);
 
-  // Projects visible in current map viewport (synced with carousel/list)
-  const visibleProjects = useMemo(() => {
-    if (visibleProjectIds.length === 0) return filteredProjects;
-    return filteredProjects.filter(p => visibleProjectIds.includes(p.id));
-  }, [filteredProjects, visibleProjectIds]);
+  const visiblePresaleProjects = useMemo(() => {
+    if (mapMode === "resale") return [];
+    if (visiblePresaleIds.length === 0) return filteredPresaleProjects.slice(0, 30);
+    return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id)).slice(0, 30);
+  }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
+
+  // Combined visible items for display
+  const visibleItems = useMemo(() => {
+    const items: Array<{ type: "resale" | "presale"; data: MLSListing | PresaleProject }> = [];
+    visiblePresaleProjects.forEach(p => items.push({ type: "presale", data: p }));
+    visibleResaleListings.forEach(l => items.push({ type: "resale", data: l }));
+    return items.slice(0, 40);
+  }, [visibleResaleListings, visiblePresaleProjects]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -182,15 +321,39 @@ export default function MapSearch() {
     setSearchParams(newParams);
   };
 
+  const projectsForSearch = useMemo(() => {
+    if (!presaleProjects) return [];
+    return presaleProjects.map(p => ({ name: p.name, city: p.city, slug: p.slug }));
+  }, [presaleProjects]);
+
+  const handleSearchSuggestionSelect = useCallback((suggestion: { type: string; value: string; city?: string; label: string }) => {
+    if (suggestion.type === "city") {
+      updateFilter("city", suggestion.value);
+      setSearchQuery("");
+    } else if (suggestion.type === "neighborhood") {
+      if (suggestion.city) {
+        updateFilter("city", suggestion.city);
+      }
+      setSearchQuery(suggestion.label);
+    } else if (suggestion.type === "project") {
+      navigate(`/presale/${suggestion.value}`);
+    }
+  }, [navigate, updateFilter]);
+
   const clearAllFilters = () => {
-    setSearchParams({});
+    const newParams = new URLSearchParams();
+    if (mapMode !== "all") {
+      newParams.set("mode", mapMode);
+    }
+    setSearchParams(newParams);
     setSearchQuery("");
   };
 
   const activeFilterCount = [
     filters.city !== "any",
-    filters.projectType !== "any",
+    filters.propertyType !== "any",
     filters.priceRange !== "any",
+    filters.beds !== "any",
   ].filter(Boolean).length;
 
   const LoadingMap = () => (
@@ -208,327 +371,412 @@ export default function MapSearch() {
     return `$${(price / 1000).toFixed(0)}K`;
   };
 
+  const getResaleAddress = (listing: MLSListing) => {
+    const parts = [listing.street_number, listing.street_name, listing.street_suffix].filter(Boolean);
+    return parts.length > 0 ? parts.join(" ") : listing.neighborhood || listing.city;
+  };
+
+  const getResalePhoto = (listing: MLSListing) => {
+    if (listing.photos && Array.isArray(listing.photos) && listing.photos.length > 0) {
+      return listing.photos[0]?.MediaURL || null;
+    }
+    return null;
+  };
+
+  const totalCount = (filteredResaleListings?.length || 0) + (filteredPresaleProjects?.length || 0);
+
   return (
     <>
       <Helmet>
-        <title>Map Search | Find Presale Projects Near You | PresaleProperties</title>
-        <meta name="description" content="Search presale condos and townhomes on an interactive map. Find new construction projects near you in Metro Vancouver." />
+        <title>Map Search | Find New Homes in Metro Vancouver | PresaleProperties</title>
+        <meta name="description" content="Search presale condos and move-in ready new homes on an interactive map. Find all new construction in Metro Vancouver." />
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader />
 
-        {/* Search & Filter Bar */}
-        <div className="border-b border-border bg-background z-40 shrink-0">
-          <div className="px-4 lg:px-6 py-3">
-            <div className="flex items-center gap-2 md:gap-4">
-              {/* List View Button - Icon only on mobile/tablet */}
-              <Link to="/presale-projects" className="lg:hidden">
-                <button className="p-2 rounded-md bg-background border border-border/50 hover:bg-muted transition-colors" aria-label="View all projects">
-                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </Link>
-              <Link to="/presale-projects" className="hidden lg:block">
-                <Button variant="ghost" size="sm" className="gap-1">
-                  <ArrowLeft className="h-4 w-4" />
-                  <span>Back</span>
-                </Button>
-              </Link>
-
-              {/* Desktop Presale/Move-In Ready Toggle */}
-              <div className="hidden lg:flex bg-background/80 backdrop-blur-sm rounded-md shadow-sm border border-border/30 text-[11px]">
-                <span className="px-2.5 py-1 font-medium bg-foreground text-background rounded-l-md">Presale</span>
-                <Link to="/resale-map" className="px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground transition-colors rounded-r-md">
-                  Move-In Ready
-                </Link>
-              </div>
-
-              <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search projects..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-9"
-                />
-              </div>
-
-              {/* Mobile Filters */}
-              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="lg:hidden relative">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-                        {activeFilterCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[280px]">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">City</label>
-                      <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                        <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="any">All Cities</SelectItem>
-                          {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Type</label>
-                      <Select value={filters.projectType} onValueChange={(v) => updateFilter("type", v)}>
-                        <SelectTrigger><SelectValue placeholder="All Types" /></SelectTrigger>
-                        <SelectContent>
-                          {TYPE_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Price</label>
-                      <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-                        <SelectTrigger><SelectValue placeholder="Any Price" /></SelectTrigger>
-                        <SelectContent>
-                          {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    {activeFilterCount > 0 && (
-                      <Button variant="ghost" onClick={clearAllFilters} className="w-full">
-                        <X className="h-4 w-4 mr-2" /> Clear All
-                      </Button>
-                    )}
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* Desktop Filters */}
-              <div className="hidden lg:flex items-center gap-2">
-                <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                  <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="All Cities" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">All Cities</SelectItem>
-                    {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filters.projectType} onValueChange={(v) => updateFilter("type", v)}>
-                  <SelectTrigger className="w-[120px] h-9"><SelectValue placeholder="All Types" /></SelectTrigger>
-                  <SelectContent>
-                    {TYPE_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-                  <SelectTrigger className="w-[140px] h-9"><SelectValue placeholder="Any Price" /></SelectTrigger>
-                  <SelectContent>
-                    {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                {activeFilterCount > 0 && (
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters}>
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-
-              {/* Toggle List Button */}
-              <Button
-                variant={showList ? "outline" : "default"}
-                size="sm"
-                className="hidden lg:flex gap-2"
-                onClick={() => setShowList(!showList)}
-              >
-                {showList ? <Map className="h-4 w-4" /> : <LayoutGrid className="h-4 w-4" />}
-                {showList ? "Expand Map" : "Show List"}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Main Content - isolate creates stacking context to contain map z-indexes */}
+        {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/5" : "lg:w-full"}`}>
+            {/* Unified Mode Toggle - Floating on map */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
+              <UnifiedMapToggle
+                mode={mapMode}
+                onModeChange={handleModeChange}
+                presaleCount={filteredPresaleProjects?.length || 0}
+                resaleCount={filteredResaleListings?.length || 0}
+              />
+            </div>
+
+            {/* List View Button - Mobile/Tablet */}
+            <div className="absolute top-3 right-3 z-[1000] lg:hidden">
+              <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
+                <button className="p-2 rounded-full bg-background/90 backdrop-blur-sm shadow-md border border-border/30 hover:bg-background transition-colors">
+                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </Link>
+            </div>
 
             <div className="absolute inset-0">
               <SafeMapWrapper height="h-full">
                 <Suspense fallback={<LoadingMap />}>
                   {isLoading ? (
                     <LoadingMap />
-                  ) : mapProjects.length === 0 ? (
+                  ) : totalCount === 0 ? (
                     <div className="h-full w-full bg-muted flex items-center justify-center">
                       <div className="text-center text-muted-foreground p-6">
-                        <Building2 className="h-12 w-12 mx-auto mb-3" />
-                        <h3 className="font-semibold text-foreground mb-2">No projects found</h3>
+                        <Home className="h-12 w-12 mx-auto mb-3" />
+                        <h3 className="font-semibold text-foreground mb-2">No properties found</h3>
                         <p className="text-sm mb-4">Try adjusting your filters</p>
                         <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
                       </div>
                     </div>
                   ) : (
-                    <ProjectsMap 
-                      projects={mapProjects as any} 
-                      isLoading={false} 
-                      onProjectSelect={handleProjectSelect}
-                      onVisibleProjectsChange={handleVisibleProjectsChange}
-                      initialCenter={initialLat && initialLng ? [initialLat, initialLng] : undefined}
-                      initialZoom={initialZoom}
-                      initialProjectSlug={initialProjectSlug}
+                    <CombinedListingsMap 
+                      resaleListings={filteredResaleListings}
+                      presaleProjects={filteredPresaleProjects}
+                      mode={mapMode}
+                      onListingSelect={handleItemSelect}
+                      onVisibleItemsChange={handleVisibleItemsChange}
                     />
                   )}
                 </Suspense>
               </SafeMapWrapper>
             </div>
 
-            {/* Toggle button when carousel is hidden - right side, minimal */}
-            {!showCarousel && visibleProjects.length > 0 && (
+            {/* Toggle button when carousel is hidden */}
+            {!showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-4 right-4 z-[1100] safe-bottom lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
                   className="p-1.5 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/30 hover:bg-background transition-colors"
-                  aria-label="Show projects"
+                  aria-label="Show properties"
                 >
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>
             )}
 
-            {/* Bottom Carousel - Shows on mobile and tablet only, hovers over map */}
-            {showCarousel && visibleProjects.length > 0 && (
+            {/* Bottom Carousel - Mobile/Tablet */}
+            {showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1100] lg:hidden">
-                  {/* Carousel with count and minimal toggle on right */}
-                  <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 pt-2 pb-2 safe-bottom">
-                    <div className="flex items-center justify-between px-4 md:px-6 pb-2">
-                      <span className="text-xs font-medium text-muted-foreground">
-                        {visibleProjects.length} project{visibleProjects.length !== 1 ? "s" : ""} in view
-                      </span>
-                      <button
-                        onClick={() => setShowCarousel(false)}
-                        className="p-1 rounded-full hover:bg-muted/50 transition-colors"
-                        aria-label="Hide projects"
-                      >
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      </button>
-                    </div>
-                    <div 
-                      ref={carouselRef}
-                      className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
-                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 pt-2 pb-2 safe-bottom">
+                  <div className="flex items-center justify-between px-4 md:px-6 pb-2">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      {visibleItems.length} propert{visibleItems.length !== 1 ? "ies" : "y"} in view
+                    </span>
+                    <button
+                      onClick={() => setShowCarousel(false)}
+                      className="p-1 rounded-full hover:bg-muted/50 transition-colors"
+                      aria-label="Hide properties"
                     >
-                      {visibleProjects.slice(0, 30).map((project) => (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    </button>
+                  </div>
+                  <div 
+                    ref={carouselRef}
+                    className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
+                    style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                    {visibleItems.map((item) => {
+                      const isPresale = item.type === "presale";
+                      const data = item.data;
+                      const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
+                      const link = isPresale 
+                        ? `/presale/${(data as PresaleProject).slug}` 
+                        : `/resale/${(data as MLSListing).listing_key}`;
+                      
+                      return (
                         <Link 
-                          key={project.id} 
-                          to={`/presale-projects/${project.slug}`}
-                          data-project-id={project.id}
+                          key={`${item.type}-${id}`}
+                          to={link}
+                          data-item-id={id}
                           className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
                         >
                           <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
-                            selectedProjectId === project.id 
-                              ? 'border-primary ring-2 ring-primary/20 animate-selection-pulse'
+                            selectedItemId === id 
+                              ? 'border-primary ring-2 ring-primary/20' 
                               : 'border-border hover:border-primary/50'
                           }`}>
                             <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
-                              {project.featured_image ? (
-                                <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
+                              {isPresale ? (
+                                (data as PresaleProject).featured_image ? (
+                                  <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Building2 className="h-6 w-6 text-muted-foreground" />
+                                  </div>
+                                )
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center">
-                                  <Building2 className="h-6 w-6 text-muted-foreground" />
-                                </div>
+                                getResalePhoto(data as MLSListing) ? (
+                                  <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Home className="h-6 w-6 text-muted-foreground" />
+                                  </div>
+                                )
                               )}
-                              <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
-                                {project.status === 'active' ? 'Selling Now' : project.status === 'registering' ? 'Registering' : 'Coming Soon'}
+                              <Badge className={`absolute top-2 left-2 text-[10px] px-2 py-0.5 ${
+                                isPresale 
+                                  ? 'bg-foreground text-background' 
+                                  : 'bg-primary text-primary-foreground'
+                              }`}>
+                                {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
                               </Badge>
                             </div>
                             <div className="p-2.5 sm:p-3">
-                              <h4 className="font-semibold text-foreground text-sm truncate">{project.name}</h4>
+                              <h4 className="font-semibold text-foreground text-sm truncate">
+                                {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
+                              </h4>
                               <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
                                 <MapPin className="h-3 w-3" />
-                                <span className="text-xs truncate">{project.city}</span>
+                                <span className="text-xs truncate">
+                                  {isPresale ? (data as PresaleProject).neighborhood : (data as MLSListing).city}
+                                </span>
                               </div>
                               <div className="flex items-center justify-between mt-2">
-                                <span className="font-bold text-foreground text-sm">{formatPrice(project.starting_price)}</span>
-                                {project.completion_year && (
-                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">{project.completion_year}</span>
+                                <span className="font-bold text-foreground text-sm">
+                                  {isPresale 
+                                    ? `From ${formatPrice((data as PresaleProject).starting_price)}`
+                                    : formatPrice((data as MLSListing).listing_price)
+                                  }
+                                </span>
+                                {!isPresale && (
+                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded flex items-center gap-1">
+                                    {(data as MLSListing).bedrooms_total && <><Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}</>}
+                                    {(data as MLSListing).bathrooms_total && <><Bath className="h-3 w-3 ml-1" /> {(data as MLSListing).bathrooms_total}</>}
+                                  </span>
                                 )}
                               </div>
                             </div>
                           </div>
                         </Link>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
+                </div>
               </div>
             )}
           </div>
 
-          {/* Desktop List Panel - Shows projects visible in map viewport */}
+          {/* Desktop List Panel */}
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
-            showList ? "lg:w-2/5 opacity-100" : "lg:w-0 opacity-0 overflow-hidden"
+            showList ? "w-2/5 opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
-              <div className="shrink-0 px-4 py-3 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground">
-                    {visibleProjects.length} Project{visibleProjects.length !== 1 ? "s" : ""} in view
-                  </h3>
-                  <Link to="/presale-projects">
-                    <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
-                  </Link>
-                </div>
-              </div>
+            {/* Search & Filter Section at top of panel */}
+            <div className="shrink-0 p-4 border-b border-border space-y-3">
+              {/* Search Bar with Autocomplete */}
+              <MapSearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSuggestionSelect={handleSearchSuggestionSelect}
+                placeholder="City, Neighbourhood, Project..."
+                cities={CITIES}
+                neighborhoods={neighborhoodsData || []}
+                projects={projectsForSearch}
+              />
               
-              <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
-                {visibleProjects.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Building2 className="h-10 w-10 mx-auto mb-2" />
-                    <p>No projects in current view</p>
-                    <p className="text-xs mt-1">Zoom out to see more</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    {visibleProjects.slice(0, 30).map((project) => (
-                      <Link key={project.id} to={`/presale-projects/${project.slug}`} className="block" data-project-id={project.id}>
-                        <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
-                          selectedProjectId === project.id ? 'ring-2 ring-primary border-primary animate-selection-pulse' : 'border-border'
-                        }`}>
-                          <div className="relative w-full aspect-[4/3] bg-muted">
-                            {project.featured_image ? (
-                              <img src={project.featured_image} alt={project.name} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Building2 className="h-8 w-8 text-muted-foreground" />
-                              </div>
-                            )}
-                            <Badge className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground">
-                              {project.status === 'active' ? 'Selling' : project.status === 'registering' ? 'Reg' : 'Soon'}
-                            </Badge>
-                          </div>
-                          <div className="p-2.5">
-                            <h4 className="font-semibold text-sm text-foreground truncate">{project.name}</h4>
-                            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                              <MapPin className="h-3 w-3 shrink-0" />
-                              <span className="text-xs truncate">{project.city}</span>
-                            </div>
-                            <div className="flex items-center justify-between mt-1.5">
-                              <span className="font-bold text-sm text-foreground">{formatPrice(project.starting_price)}</span>
-                              {project.completion_year && (
-                                <span className="text-[10px] text-muted-foreground">{project.completion_year}</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+              {/* Filter Row */}
+              <div className="flex items-center gap-2">
+                <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
+                      Filter
+                      {activeFilterCount > 0 && (
+                        <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full">
+                          {activeFilterCount}
+                        </Badge>
+                      )}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[300px]">
+                    <SheetHeader>
+                      <SheetTitle>Filters</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 space-y-4">
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">City</label>
+                        <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+                          <SelectTrigger><SelectValue placeholder="All Cities" /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="any">All Cities</SelectItem>
+                            {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Type</label>
+                        <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
+                          <SelectTrigger><SelectValue placeholder="All Types" /></SelectTrigger>
+                          <SelectContent>
+                            {PROPERTY_TYPES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Price</label>
+                        <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
+                          <SelectTrigger><SelectValue placeholder="Any Price" /></SelectTrigger>
+                          <SelectContent>
+                            {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium mb-2 block">Bedrooms</label>
+                        <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
+                          <SelectTrigger><SelectValue placeholder="Any Beds" /></SelectTrigger>
+                          <SelectContent>
+                            {BED_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {activeFilterCount > 0 && (
+                        <Button variant="ghost" onClick={clearAllFilters} className="w-full">
+                          <X className="h-4 w-4 mr-2" /> Clear All
+                        </Button>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+
+                {/* Inline desktop filters */}
+                <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+                  <SelectTrigger className="w-[120px] h-8 text-xs"><SelectValue placeholder="City" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="any">All Cities</SelectItem>
+                    {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+
+                <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
+                  <SelectTrigger className="w-[110px] h-8 text-xs"><SelectValue placeholder="Price" /></SelectTrigger>
+                  <SelectContent>
+                    {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+
+                {activeFilterCount > 0 && (
+                  <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 px-2">
+                    <X className="h-3.5 w-3.5" />
+                  </Button>
                 )}
+
+                <div className="flex-1" />
+
+                <Button
+                  variant={showList ? "outline" : "default"}
+                  size="sm"
+                  className="h-8 gap-1.5 text-xs"
+                  onClick={() => setShowList(!showList)}
+                >
+                  {showList ? <Map className="h-3.5 w-3.5" /> : <LayoutGrid className="h-3.5 w-3.5" />}
+                  {showList ? "Expand" : "List"}
+                </Button>
               </div>
             </div>
+
+            {/* Results Count */}
+            <div className="px-4 py-2 border-b border-border bg-muted/30">
+              <span className="text-xs text-muted-foreground">
+                {visibleItems.length} of {totalCount} properties in view
+              </span>
+            </div>
+
+            {/* Scrollable List */}
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4 space-y-3">
+              {visibleItems.map((item) => {
+                const isPresale = item.type === "presale";
+                const data = item.data;
+                const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
+                const link = isPresale 
+                  ? `/presale/${(data as PresaleProject).slug}` 
+                  : `/resale/${(data as MLSListing).listing_key}`;
+                
+                return (
+                  <Link 
+                    key={`${item.type}-${id}`}
+                    to={link}
+                    data-item-id={id}
+                  >
+                    <div className={`flex gap-3 p-3 rounded-lg border-2 transition-all hover:shadow-md ${
+                      selectedItemId === id 
+                        ? 'border-primary bg-primary/5' 
+                        : 'border-border hover:border-primary/50'
+                    }`}>
+                      <div className="relative w-24 h-20 rounded-md overflow-hidden bg-muted shrink-0">
+                        {isPresale ? (
+                          (data as PresaleProject).featured_image ? (
+                            <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Building2 className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )
+                        ) : (
+                          getResalePhoto(data as MLSListing) ? (
+                            <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center">
+                              <Home className="h-5 w-5 text-muted-foreground" />
+                            </div>
+                          )
+                        )}
+                        <Badge className={`absolute top-1 left-1 text-[8px] px-1.5 py-0.5 ${
+                          isPresale 
+                            ? 'bg-foreground text-background' 
+                            : 'bg-primary text-primary-foreground'
+                        }`}>
+                          {isPresale ? 'PRESALE' : 'READY'}
+                        </Badge>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-foreground text-sm truncate">
+                          {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
+                        </h4>
+                        <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          <span className="text-xs truncate">
+                            {isPresale 
+                              ? `${(data as PresaleProject).neighborhood}, ${(data as PresaleProject).city}`
+                              : (data as MLSListing).city
+                            }
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="font-bold text-foreground text-sm">
+                            {isPresale 
+                              ? `From ${formatPrice((data as PresaleProject).starting_price)}`
+                              : formatPrice((data as MLSListing).listing_price)
+                            }
+                          </span>
+                          {!isPresale && (data as MLSListing).bedrooms_total && (
+                            <span className="text-xs text-muted-foreground flex items-center gap-1">
+                              <Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}
+                              {(data as MLSListing).bathrooms_total && (
+                                <><Bath className="h-3 w-3 ml-1" /> {(data as MLSListing).bathrooms_total}</>
+                              )}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+              
+              {visibleItems.length === 0 && !isLoading && (
+                <div className="text-center py-12">
+                  <Home className="h-10 w-10 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-muted-foreground">No properties in current view</p>
+                  <p className="text-xs text-muted-foreground mt-1">Try zooming out or panning the map</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

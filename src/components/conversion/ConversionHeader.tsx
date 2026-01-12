@@ -228,7 +228,7 @@ export function ConversionHeader() {
                             <div className="border-t my-2" />
                             <NavigationMenuLink asChild>
                               <Link
-                                to="/resale-map"
+                                to="/map-search?mode=resale"
                                 className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
                               >
                                 <Map className="h-3 w-3 text-muted-foreground" />

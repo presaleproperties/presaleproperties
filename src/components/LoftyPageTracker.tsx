@@ -60,9 +60,7 @@ export function LoftyPageTracker() {
         } else if (currentPath === "/") {
           pageType = "homepage";
         } else if (currentPath === "/map-search") {
-          pageType = "presale_map";
-        } else if (currentPath === "/resale-map") {
-          pageType = "resale_map";
+          pageType = "map_search";
         } else if (currentPath === "/assignments") {
           pageType = "assignments";
         } else if (currentPath === "/contact") {
