@@ -104,6 +104,9 @@ type MLSListing = {
   photos: any | null;
   days_on_market: number | null;
   list_date: string | null;
+  list_agent_name: string | null;
+  list_office_name: string | null;
+  virtual_tour_url: string | null;
 };
 
 // Presale/Resale Toggle Component
@@ -174,7 +177,7 @@ export default function ResaleListings() {
       // Then get paginated data
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date")
+        .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url")
         .eq("mls_status", "Active");
 
       // Apply filters
@@ -675,6 +678,9 @@ export default function ResaleListings() {
                             photos={Array.isArray(listing.photos) ? listing.photos : []}
                             daysOnMarket={listing.days_on_market}
                             status={listing.mls_status}
+                            listAgentName={listing.list_agent_name}
+                            listOfficeName={listing.list_office_name}
+                            virtualTourUrl={listing.virtual_tour_url}
                           />
                         </ScrollReveal>
                       ))}
