@@ -69,6 +69,9 @@ import CityResalePage from "./pages/CityResalePage";
 import Developers from "./pages/Developers";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
+import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
+import ResalePriceRangePage from "./pages/ResalePriceRangePage";
+
 const queryClient = new QueryClient();
 
 const App = () => (
