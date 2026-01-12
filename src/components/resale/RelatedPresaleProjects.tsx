@@ -160,7 +160,7 @@ export const RelatedPresaleProjects = ({
           {projects.map((project) => (
             <Link
               key={project.id}
-              to={`/presale/${project.slug}`}
+              to={`/presale-projects/${project.slug}`}
               className="flex-shrink-0 w-[calc(100vw-72px)] sm:w-[300px] lg:w-[320px] scroll-snap-start group"
             >
               <div className="bg-card border border-border rounded-xl overflow-hidden transition-all hover:shadow-lg hover:border-primary/30">
