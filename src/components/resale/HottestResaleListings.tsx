@@ -80,10 +80,10 @@ export function HottestResaleListings() {
               Don't Miss Out
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              Hottest New Homes
+              Hottest Move-In Ready Homes
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-              The newest move-in ready homes across Metro Vancouver
+              The newest new-built homes across Metro Vancouver
             </p>
           </div>
           <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">

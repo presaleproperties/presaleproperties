@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useSearchParams, useLocation, Link } from "react-router-dom";
+import { useSearchParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -119,6 +119,27 @@ type Project = {
   map_lat: number | null;
   map_lng: number | null;
 };
+
+// Presale/Move-In Ready Toggle Component
+function PresaleToggle() {
+  const navigate = useNavigate();
+  
+  return (
+    <div className="flex items-center justify-center gap-1 p-1 bg-muted rounded-full">
+      <button
+        className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-foreground text-background shadow-sm"
+      >
+        Presale
+      </button>
+      <button
+        onClick={() => navigate("/resale")}
+        className="px-4 py-2 rounded-full text-sm font-medium transition-all text-muted-foreground hover:text-foreground"
+      >
+        Move-In Ready
+      </button>
+    </div>
+  );
+}
 
 export default function PresaleProjects() {
   const queryClient = useQueryClient();
@@ -622,27 +643,30 @@ export default function PresaleProjects() {
               )}
             </nav>
 
-            <div className="max-w-3xl">
-              <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
-                {filters.city !== "any" 
-                  ? `Presale Projects in ${filters.city}` 
-                  : "New & Pre-Construction Homes in Metro Vancouver"}
-              </h1>
-              <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
-                <span className="font-medium text-foreground">{totalCount}</span>
-                <span>projects available</span>
-                {activeFilterCount > 0 && (
-                  <>
-                    <span className="text-border">•</span>
-                    <button 
-                      onClick={clearAllFilters}
-                      className="text-primary hover:underline"
-                    >
-                      Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
-                    </button>
-                  </>
-                )}
-              </p>
+            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div className="max-w-3xl">
+                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+                  {filters.city !== "any" 
+                    ? `Presale Projects in ${filters.city}` 
+                    : "Pre-Construction New Homes"}
+                </h1>
+                <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
+                  <span className="font-medium text-foreground">{totalCount}</span>
+                  <span>projects available</span>
+                  {activeFilterCount > 0 && (
+                    <>
+                      <span className="text-border">•</span>
+                      <button 
+                        onClick={clearAllFilters}
+                        className="text-primary hover:underline"
+                      >
+                        Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                      </button>
+                    </>
+                  )}
+                </p>
+              </div>
+              <PresaleToggle />
             </div>
             
             {/* Quick City Filter Chips */}

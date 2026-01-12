@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, lazy, Suspense, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   Search, SlidersHorizontal, X, Map, LayoutGrid, 
@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ListingModeToggle } from "@/components/ui/ListingModeToggle";
 import {
   Select,
   SelectContent,
@@ -256,8 +257,8 @@ export default function ResaleMapSearch() {
   return (
     <>
       <Helmet>
-        <title>Resale Map Search | Find Homes Near You | PresaleProperties</title>
-        <meta name="description" content="Search resale homes on an interactive map. Find condos, townhomes, and houses for sale in Metro Vancouver." />
+        <title>Move-In Ready Homes Map | Find New Built Homes | PresaleProperties</title>
+        <meta name="description" content="Search move-in ready new built homes on an interactive map. Find condos, townhomes, and houses in Metro Vancouver." />
         <link rel="canonical" href="https://presaleproperties.com/resale-map" />
       </Helmet>
 
@@ -281,12 +282,12 @@ export default function ResaleMapSearch() {
                 </Button>
               </Link>
 
-              {/* Desktop Presale/Resale Toggle - Thin pill style */}
+              {/* Desktop Presale/Move-In Ready Toggle */}
               <div className="hidden lg:flex bg-background/80 backdrop-blur-sm rounded-md shadow-sm border border-border/30 text-[11px]">
                 <Link to="/map-search" className="px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground transition-colors rounded-l-md">
                   Presale
                 </Link>
-                <span className="px-2.5 py-1 font-medium bg-foreground text-background rounded-r-md">Resale</span>
+                <span className="px-2.5 py-1 font-medium bg-foreground text-background rounded-r-md">Move-In Ready</span>
               </div>
 
               <div className="relative flex-1 max-w-md">
