@@ -56,9 +56,9 @@ export function ResaleMapSection() {
   ];
 
   // Optimized query - fetch more listings for better map coverage
-  // Increased to 2000 to show all available listings - 2025+ builds only
+  // Increased to 2000 to show all available listings - 2024+ builds only
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings-2025-v2", enabledCities],
+    queryKey: ["resale-map-section-listings-2024-v3", enabledCities],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
@@ -69,7 +69,7 @@ export function ResaleMapSection() {
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .in("city", citiesToUse)
-        .gte("year_built", 2025)
+        .gte("year_built", 2024)
         .order("listing_price", { ascending: false })
         .limit(2000);
 
