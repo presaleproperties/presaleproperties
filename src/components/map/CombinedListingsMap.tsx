@@ -283,13 +283,14 @@ export function CombinedListingsMap({
       chunkedLoading: true,
       chunkDelay: 50,
       chunkInterval: 100,
-      maxClusterRadius: 60,
+      maxClusterRadius: 80, // Increased from 60 - more aggressive clustering
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 17,
+      disableClusteringAtZoom: 18, // Increased from 17 - cluster until very zoomed in
       animate: false,
       removeOutsideVisibleBounds: true,
       iconCreateFunction: createClusterIcon,
+      spiderfyDistanceMultiplier: 1.5, // Spread out spiderfied markers more
     });
 
     map.addLayer(clusterGroup);
