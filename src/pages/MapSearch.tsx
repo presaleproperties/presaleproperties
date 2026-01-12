@@ -238,9 +238,8 @@ export default function MapSearch() {
         .not("longitude", "is", null)
         .gte("year_built", 2024);
 
-      if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
-        query = query.in("city", enabledCities);
-      }
+      // Don't filter by enabledCities on map page - show all BC listings
+      // City filter only applied when user explicitly selects a city
 
       if (filters.city !== "any") {
         query = query.eq("city", filters.city);
