@@ -66,10 +66,10 @@ import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import ResaleMapSearch from "./pages/ResaleMapSearch";
+import CityResalePage from "./pages/CityResalePage";
 import Developers from "./pages/Developers";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
-
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -95,6 +95,15 @@ const App = () => (
             <Route path="/resale" element={<ResaleListings />} />
             <Route path="/resale-map" element={<ResaleMapSearch />} />
             <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
+            {/* City-specific resale pages */}
+            <Route path="/resale/vancouver" element={<CityResalePage />} />
+            <Route path="/resale/surrey" element={<CityResalePage />} />
+            <Route path="/resale/coquitlam" element={<CityResalePage />} />
+            <Route path="/resale/burnaby" element={<CityResalePage />} />
+            <Route path="/resale/delta" element={<CityResalePage />} />
+            <Route path="/resale/langley" element={<CityResalePage />} />
+            <Route path="/resale/abbotsford" element={<CityResalePage />} />
+            <Route path="/resale/chilliwack" element={<CityResalePage />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />

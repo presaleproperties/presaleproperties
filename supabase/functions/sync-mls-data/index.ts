@@ -123,22 +123,19 @@ Deno.serve(async (req) => {
     // Build OData query - filter for BC listings using correct field names
     const queryParams = [`$top=${maxRecords}`];
     
-    // Build filter for BC (using StateOrProvince), new construction (2024+), specific property types
+    // Build filter for BC (using StateOrProvince)
     // Use correct CREA DDF field names from documentation
     const filters: string[] = [];
     
     // Filter by province - BC
     filters.push("StateOrProvince eq 'British Columbia'");
     
-    // Filter by year built - 2024 and newer for new construction
-    filters.push("YearBuilt ge 2024");
-    
-    // Add city filter if specified - target Vancouver, Surrey, Delta
+    // Add city filter if specified
     if (filterCity) {
       filters.push(`City eq '${filterCity}'`);
     } else {
-      // Default to major Metro Vancouver cities
-      filters.push("(City eq 'Vancouver' or City eq 'Surrey' or City eq 'Delta' or City eq 'Burnaby' or City eq 'Richmond' or City eq 'Coquitlam' or City eq 'Langley' or City eq 'Abbotsford' or City eq 'New Westminster' or City eq 'Port Moody' or City eq 'North Vancouver' or City eq 'West Vancouver')");
+      // Default to major BC cities including Chilliwack
+      filters.push("(City eq 'Vancouver' or City eq 'Surrey' or City eq 'Delta' or City eq 'Burnaby' or City eq 'Richmond' or City eq 'Coquitlam' or City eq 'Langley' or City eq 'Abbotsford' or City eq 'New Westminster' or City eq 'Port Moody' or City eq 'North Vancouver' or City eq 'West Vancouver' or City eq 'Chilliwack' or City eq 'Port Coquitlam' or City eq 'Maple Ridge' or City eq 'Pitt Meadows' or City eq 'White Rock')");
     }
     
     queryParams.push(`$filter=${filters.join(' and ')}`);

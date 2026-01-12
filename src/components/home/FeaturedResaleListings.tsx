@@ -23,6 +23,7 @@ type MLSListing = {
   photos: any;
   days_on_market: number | null;
   mls_status: string;
+  year_built: number | null;
 };
 
 function getAddress(listing: MLSListing): string {
@@ -35,12 +36,13 @@ function getAddress(listing: MLSListing): string {
 
 export function FeaturedResaleListings() {
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["featured-resale-listings"],
+    queryKey: ["featured-resale-listings-2025"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status")
+        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built")
         .eq("mls_status", "Active")
+        .gte("year_built", 2025)
         .order("list_date", { ascending: false })
         .limit(6);
 
@@ -57,13 +59,13 @@ export function FeaturedResaleListings() {
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
           <div className="space-y-2 sm:space-y-3">
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
-              Just Listed
+              New Construction
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              Hottest Resale Properties
+              2025 New Homes for Sale
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-              The newest listings across Metro Vancouver
+              The newest construction across British Columbia
             </p>
           </div>
           <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">
