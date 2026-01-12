@@ -9,7 +9,7 @@ import heroImage from "@/assets/hero-lifestyle.jpg";
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 const resaleCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 
-export type SearchTab = "projects" | "assignments";
+export type SearchTab = "projects" | "resale";
 
 interface HeroSectionProps {
   activeTab?: SearchTab;
@@ -48,7 +48,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     if (searchQuery.trim()) {
       navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
     } else {
@@ -59,12 +59,12 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
   const handleSuggestionSelect = (value: string, type: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
   };
 
   const handleCityClick = (city: string) => {
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/assignments";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     navigate(`${basePath}?city=${encodeURIComponent(city)}`);
   };
 
@@ -102,15 +102,32 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
             className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
             style={{ animationDelay: "0.2s" }}
           >
-            {/* Search Header */}
+            {/* Search Header with Tabs */}
             <div className="flex items-center justify-between border-b border-border px-2.5 sm:px-4 py-2 sm:py-3">
               <div className="flex items-center gap-1 sm:gap-2">
-                <span className="px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold bg-foreground text-background shadow-sm">
+                <button
+                  onClick={() => handleTabChange("projects")}
+                  className={`px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all ${
+                    activeTab === "projects" 
+                      ? "bg-foreground text-background shadow-sm" 
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
                   Presale Projects
-                </span>
+                </button>
+                <button
+                  onClick={() => handleTabChange("resale")}
+                  className={`px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all ${
+                    activeTab === "resale" 
+                      ? "bg-foreground text-background shadow-sm" 
+                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                  }`}
+                >
+                  Resale Homes
+                </button>
               </div>
               <Link
-                to="/map-search"
+                to={activeTab === "projects" ? "/map-search" : "/resale-map"}
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
@@ -125,7 +142,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                   type="text"
                   placeholder={activeTab === "projects" 
                     ? "City, Neighbourhood, Developer..." 
-                    : "City, Project Name, Neighbourhood..."
+                    : "City, Neighbourhood, Address..."
                   }
                   value={searchQuery}
                   onChange={(e) => {

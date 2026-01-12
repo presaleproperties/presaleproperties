@@ -28,7 +28,7 @@ export function Footer() {
   return (
     <footer className="border-t border-border bg-muted/30">
       <div className="container py-8 sm:py-12 px-4">
-        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-5">
+        <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-6">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
             <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
             <p className="text-xs sm:text-sm text-muted-foreground">
@@ -92,6 +92,38 @@ export function Footer() {
                   </Link>
                 </li>
               ))}
+            </ul>
+          </div>
+
+          {/* Resale Homes */}
+          <div className="space-y-3 sm:space-y-4">
+            <h4 className="text-xs sm:text-sm font-semibold">Resale Homes</h4>
+            <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
+              <li>
+                <Link to="/resale" className="hover:text-foreground transition-colors">
+                  All Resale Listings
+                </Link>
+              </li>
+              <li>
+                <Link to="/resale-map" className="hover:text-foreground transition-colors">
+                  Map Search
+                </Link>
+              </li>
+              <li>
+                <Link to="/resale?city=Vancouver" className="hover:text-foreground transition-colors">
+                  Vancouver Homes
+                </Link>
+              </li>
+              <li>
+                <Link to="/resale?city=Surrey" className="hover:text-foreground transition-colors">
+                  Surrey Homes
+                </Link>
+              </li>
+              <li>
+                <Link to="/resale?city=Langley" className="hover:text-foreground transition-colors">
+                  Langley Homes
+                </Link>
+              </li>
             </ul>
           </div>
 
