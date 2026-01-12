@@ -119,6 +119,42 @@ const CITY_CONFIG: Record<string, {
     h1: "Homes for Sale in Richmond, BC",
     description: "Explore homes for sale in Richmond. Browse listings in City Centre, Steveston, Brighouse & more.",
     neighborhoods: ["City Centre", "Steveston", "Brighouse", "Ironwood", "West Cambie", "Hamilton"]
+  },
+  "new-westminster": {
+    name: "New Westminster",
+    region: "Metro Vancouver",
+    metaTitle: "Homes for Sale in New Westminster, BC | MLS Listings | PresaleProperties",
+    metaDescription: "Browse active MLS listings in New Westminster. Find condos & townhomes near SkyTrain in Downtown, Sapperton & Queensborough.",
+    h1: "Homes for Sale in New Westminster, BC",
+    description: "Explore homes for sale in New Westminster. Browse listings near SkyTrain in Downtown, Sapperton & Queensborough.",
+    neighborhoods: ["Downtown", "Sapperton", "Queensborough", "Uptown", "Brow of the Hill", "Queens Park"]
+  },
+  "port-coquitlam": {
+    name: "Port Coquitlam",
+    region: "Tri-Cities",
+    metaTitle: "Homes for Sale in Port Coquitlam, BC | MLS Listings | PresaleProperties",
+    metaDescription: "Browse active MLS listings in Port Coquitlam. Find condos & townhomes in Citadel, Lincoln & Mary Hill.",
+    h1: "Homes for Sale in Port Coquitlam, BC",
+    description: "Find homes for sale in Port Coquitlam. Browse listings in Citadel, Lincoln, Mary Hill & Downtown.",
+    neighborhoods: ["Citadel", "Lincoln", "Mary Hill", "Downtown", "Riverwood", "Oxford Heights"]
+  },
+  "port-moody": {
+    name: "Port Moody",
+    region: "Tri-Cities",
+    metaTitle: "Homes for Sale in Port Moody, BC | MLS Listings | PresaleProperties",
+    metaDescription: "Browse active MLS listings in Port Moody. Find condos & townhomes near Evergreen Line in Inlet Centre & Moody Centre.",
+    h1: "Homes for Sale in Port Moody, BC",
+    description: "Explore homes for sale in Port Moody. Browse listings near Evergreen Line in Inlet Centre, Moody Centre & Newport.",
+    neighborhoods: ["Inlet Centre", "Moody Centre", "Newport Village", "Glenayre", "Seaview", "College Park"]
+  },
+  "white-rock": {
+    name: "White Rock",
+    region: "South of Fraser",
+    metaTitle: "Homes for Sale in White Rock, BC | MLS Listings | PresaleProperties",
+    metaDescription: "Browse active MLS listings in White Rock. Find oceanfront condos, townhomes & houses near the beach.",
+    h1: "Homes for Sale in White Rock, BC",
+    description: "Find homes for sale in White Rock. Browse oceanfront listings near the beach and pier.",
+    neighborhoods: ["West Beach", "East Beach", "Town Centre", "Uptown", "Ocean Park"]
   }
 };
 
