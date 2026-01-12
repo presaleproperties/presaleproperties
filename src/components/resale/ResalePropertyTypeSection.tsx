@@ -12,10 +12,10 @@ export function ResalePropertyTypeSection() {
             Browse by Type
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-            Find Your Perfect Home
+            Find Your Move-In Ready Home
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            New construction condos, townhomes, and single family homes
+            New built condos, townhomes, and single family homes ready to move in
           </p>
         </div>
 

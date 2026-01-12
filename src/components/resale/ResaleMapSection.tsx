@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { Map, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ListingModeToggle } from "@/components/ui/ListingModeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
@@ -108,19 +109,22 @@ export function ResaleMapSection() {
               </span>
             </div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-              Explore Listings on the Map
+              Explore Move-In Ready Homes
             </h2>
             <p className="text-muted-foreground mt-2 text-sm md:text-base max-w-xl">
-              Find condos and townhomes near you. Click on any pin to see listing details.
+              Find new built condos, townhomes & houses. Click any pin for details.
             </p>
           </div>
-          <Link to="/resale-map">
-            <Button variant="outline" className="gap-2">
-              <Map className="h-4 w-4" />
-              Open Full Map
-              <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+          <div className="flex items-center gap-3">
+            <ListingModeToggle size="sm" />
+            <Link to="/resale-map">
+              <Button variant="outline" className="gap-2">
+                <Map className="h-4 w-4" />
+                Full Map
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
         </div>
 
         {/* Map Container */}

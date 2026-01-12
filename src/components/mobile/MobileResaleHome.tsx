@@ -120,10 +120,10 @@ export function MobileResaleHome() {
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
           <p className="text-primary text-xs font-medium tracking-wide mb-1">
-            Vancouver's #1 New Construction Marketplace
+            Metro Vancouver's Marketplace for Move-In Ready New Homes
           </p>
           <h1 className="text-xl font-bold text-white leading-tight">
-            Find <span className="text-primary">New Construction</span> Homes
+            <span className="text-primary">Move-In Ready</span> New Built Homes
           </h1>
         </div>
 

@@ -23,10 +23,10 @@ export function ResaleCitySectionCompact() {
             Explore by Location
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-            New Homes by City
+            Move-In Ready Homes by City
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            Find new construction in your preferred neighbourhood
+            Find new built homes in your preferred neighbourhood
           </p>
         </div>
 

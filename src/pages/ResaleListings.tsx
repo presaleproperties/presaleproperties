@@ -112,7 +112,7 @@ type MLSListing = {
   created_at: string | null;
 };
 
-// Presale/Resale Toggle Component
+// Presale/Move-In Ready Toggle Component
 function ListingTypeToggle() {
   const navigate = useNavigate();
   
@@ -122,12 +122,12 @@ function ListingTypeToggle() {
         onClick={() => navigate("/presale-projects")}
         className="px-4 py-2 rounded-full text-sm font-medium transition-all text-muted-foreground hover:text-foreground"
       >
-        Presales
+        Presale
       </button>
       <button
         className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-foreground text-background shadow-sm"
       >
-        Resale
+        Move-In Ready
       </button>
     </div>
   );
@@ -550,7 +550,7 @@ export default function ResaleListings() {
               </Link>
               <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
               <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
-                For Sale
+                Move-In Ready
               </Link>
               {filters.city !== "any" && (
                 <>
@@ -564,8 +564,8 @@ export default function ResaleListings() {
               <div className="max-w-3xl">
                 <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
                   {filters.city !== "any" 
-                    ? `Homes for Sale in ${filters.city}` 
-                    : "Homes for Sale in Metro Vancouver"}
+                    ? `Move-In Ready Homes in ${filters.city}` 
+                    : "Move-In Ready New Homes"}
                 </h1>
                 <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
                   <span className="font-medium text-foreground">{totalCount.toLocaleString()}</span>
