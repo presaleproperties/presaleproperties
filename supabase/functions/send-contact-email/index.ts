@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { z } from "https://deno.land/x/zod@v3.22.4/mod.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -12,16 +13,34 @@ const DEFAULT_SENDER = "PresaleProperties <noreply@presaleproperties.com>";
 const RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
 const RATE_LIMIT_MAX_REQUESTS = 5; // max 5 requests per hour per IP
 
-interface ContactEmailRequest {
-  name: string;
-  email: string;
-  phone?: string;
-  subject: string;
-  message: string;
-}
+// Zod schema for input validation with strict rules
+const ContactEmailSchema = z.object({
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .transform(val => val.trim()),
+  email: z.string()
+    .email("Invalid email format")
+    .max(255, "Email must be less than 255 characters")
+    .transform(val => val.toLowerCase().trim()),
+  phone: z.string()
+    .max(20, "Phone number must be less than 20 characters")
+    .regex(/^[0-9+\s().-]*$/, "Invalid phone number format")
+    .optional()
+    .or(z.literal("")),
+  subject: z.string()
+    .min(2, "Subject must be at least 2 characters")
+    .max(200, "Subject must be less than 200 characters")
+    .transform(val => val.trim()),
+  message: z.string()
+    .min(10, "Message must be at least 10 characters")
+    .max(5000, "Message must be less than 5000 characters")
+    .transform(val => val.trim()),
+});
+
+type ContactEmailRequest = z.infer<typeof ContactEmailSchema>;
 
 // Simple in-memory rate limiting (resets on function cold start)
-// For production, consider using Redis or database-backed rate limiting
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
 
 function isRateLimited(identifier: string): boolean {
@@ -29,7 +48,6 @@ function isRateLimited(identifier: string): boolean {
   const record = rateLimitStore.get(identifier);
   
   if (!record || now > record.resetTime) {
-    // Create new record
     rateLimitStore.set(identifier, {
       count: 1,
       resetTime: now + RATE_LIMIT_WINDOW * 1000,
@@ -45,53 +63,28 @@ function isRateLimited(identifier: string): boolean {
   return false;
 }
 
-// Input validation
-function validateInput(data: ContactEmailRequest): string | null {
-  if (!data.name || typeof data.name !== "string" || data.name.trim().length < 2) {
-    return "Name is required and must be at least 2 characters";
-  }
-  if (data.name.length > 100) {
-    return "Name must be less than 100 characters";
-  }
-  
-  if (!data.email || typeof data.email !== "string") {
-    return "Email is required";
-  }
-  // Basic email validation
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(data.email)) {
-    return "Invalid email format";
-  }
-  
-  if (!data.subject || typeof data.subject !== "string" || data.subject.trim().length < 2) {
-    return "Subject is required";
-  }
-  if (data.subject.length > 200) {
-    return "Subject must be less than 200 characters";
-  }
-  
-  if (!data.message || typeof data.message !== "string" || data.message.trim().length < 10) {
-    return "Message is required and must be at least 10 characters";
-  }
-  if (data.message.length > 5000) {
-    return "Message must be less than 5000 characters";
-  }
-  
-  if (data.phone && (typeof data.phone !== "string" || data.phone.length > 20)) {
-    return "Invalid phone number";
-  }
-  
-  return null;
+// Sanitize HTML to prevent XSS in emails
+function escapeHtml(str: string): string {
+  const htmlEscapeMap: Record<string, string> = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;',
+    '/': '&#x2F;',
+    '`': '&#x60;',
+    '=': '&#x3D;'
+  };
+  return str.replace(/[&<>"'`=/]/g, char => htmlEscapeMap[char] || char);
 }
 
-// Sanitize HTML to prevent XSS in emails
-function sanitizeHtml(str: string): string {
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+// Strip potentially dangerous patterns from input
+function sanitizeInput(str: string): string {
+  // Remove null bytes and control characters
+  let cleaned = str.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g, '');
+  // Remove CRLF injection attempts
+  cleaned = cleaned.replace(/\r\n|\r|\n/g, ' ');
+  return cleaned;
 }
 
 async function getSenderEmail(supabase: any): Promise<string> {
@@ -137,32 +130,39 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const requestData: ContactEmailRequest = await req.json();
+    const rawData = await req.json();
     
-    // Validate input
-    const validationError = validateInput(requestData);
-    if (validationError) {
+    // Validate and parse input using Zod schema
+    const parseResult = ContactEmailSchema.safeParse(rawData);
+    if (!parseResult.success) {
+      const errorMessage = parseResult.error.errors[0]?.message || "Invalid input";
+      console.warn("Validation failed:", errorMessage);
       return new Response(
-        JSON.stringify({ error: validationError }),
+        JSON.stringify({ error: errorMessage }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
 
-    const { name, email, phone, subject, message } = requestData;
+    const { name, email, phone, subject, message } = parseResult.data;
 
-    console.log("Received contact form submission:", { name, email: email.substring(0, 5) + "***", subject });
+    // Additional sanitization for dangerous patterns
+    const cleanName = sanitizeInput(name);
+    const cleanSubject = sanitizeInput(subject);
+    const cleanMessage = message; // Keep newlines in message body
+
+    console.log("Received contact form submission:", { name: cleanName, email: email.substring(0, 5) + "***", subject: cleanSubject });
 
     const { Resend } = await import("https://esm.sh/resend@2.0.0");
     const resend = new Resend(resendApiKey);
 
     const senderEmail = await getSenderEmail(supabase);
 
-    // Sanitize all user inputs for email content
-    const safeName = sanitizeHtml(name);
-    const safeEmail = sanitizeHtml(email);
-    const safePhone = phone ? sanitizeHtml(phone) : "";
-    const safeSubject = sanitizeHtml(subject);
-    const safeMessage = sanitizeHtml(message);
+    // Escape HTML in all user inputs for email content
+    const safeName = escapeHtml(cleanName);
+    const safeEmail = escapeHtml(email);
+    const safePhone = phone ? escapeHtml(sanitizeInput(phone)) : "";
+    const safeSubject = escapeHtml(cleanSubject);
+    const safeMessage = escapeHtml(cleanMessage);
 
     // Send notification email to the admin
     const adminEmailResponse = await resend.emails.send({
