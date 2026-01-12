@@ -106,7 +106,18 @@ const App = () => (
             <Route path="/resale/port-coquitlam" element={<CityResalePage />} />
             <Route path="/resale/port-moody" element={<CityResalePage />} />
             <Route path="/resale/white-rock" element={<CityResalePage />} />
-            {/* Dynamic listing key route - MUST be after city routes */}
+            {/* Property type and price range routes - MUST be before :listingKey */}
+            <Route path="/resale/:citySlug/condos" element={<ResalePropertyTypePage />} />
+            <Route path="/resale/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
+            <Route path="/resale/:citySlug/houses" element={<ResalePropertyTypePage />} />
+            <Route path="/resale/:citySlug/duplexes" element={<ResalePropertyTypePage />} />
+            <Route path="/resale/:citySlug/under-500k" element={<ResalePriceRangePage />} />
+            <Route path="/resale/:citySlug/under-750k" element={<ResalePriceRangePage />} />
+            <Route path="/resale/:citySlug/under-1m" element={<ResalePriceRangePage />} />
+            <Route path="/resale/:citySlug/under-1.5m" element={<ResalePriceRangePage />} />
+            <Route path="/resale/:citySlug/under-2m" element={<ResalePriceRangePage />} />
+            <Route path="/resale/:citySlug/luxury" element={<ResalePriceRangePage />} />
+            {/* Dynamic listing key route - MUST be after city/type/price routes */}
             <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             
