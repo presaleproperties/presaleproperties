@@ -28,6 +28,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
 import { QuickFilterChips } from "@/components/search/QuickFilterChips";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
+import { useEnabledCities } from "@/hooks/useEnabledCities";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
@@ -137,6 +138,8 @@ export default function ResaleListings() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   
+  // Get enabled cities from admin settings
+  const { data: enabledCities } = useEnabledCities();
 
   const filters = {
     city: searchParams.get("city") || "any",
@@ -149,13 +152,17 @@ export default function ResaleListings() {
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
   const { data, isLoading } = useQuery({
-    queryKey: ["resale-listings", filters, currentPage],
+    queryKey: ["resale-listings", filters, currentPage, enabledCities],
     queryFn: async () => {
       // Optimized query with proper filters for large datasets
       // Using a separate count query is more efficient than counting in the main query
       
       // Build the filter conditions once
       const buildFilters = (query: any) => {
+        // Filter by enabled cities first
+        if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
+          query = query.in("city", enabledCities);
+        }
         if (filters.city !== "any") {
           query = query.eq("city", filters.city);
         }

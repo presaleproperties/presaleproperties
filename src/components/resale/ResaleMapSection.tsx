@@ -5,6 +5,7 @@ import { Map, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
+import { useEnabledCities } from "@/hooks/useEnabledCities";
 
 // Lazy load the map component
 const ResaleListingsMap = lazy(() => 
@@ -15,6 +16,9 @@ export function ResaleMapSection() {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Get enabled cities from admin settings
+  const { data: enabledCities } = useEnabledCities();
 
   // Intersection Observer for lazy loading
   useEffect(() => {
@@ -44,21 +48,27 @@ export function ResaleMapSection() {
   // Optimized query - only fetch what's needed for map display
   // Limit to 500 for homepage section (full map has more)
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings"],
+    queryKey: ["resale-map-section-listings", enabledCities],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
-        .not("longitude", "is", null)
-        .order("listing_price", { ascending: false })
-        .limit(500); // Limit for homepage performance
+        .not("longitude", "is", null);
+      
+      // Filter by enabled cities
+      if (enabledCities && enabledCities.length > 0) {
+        query = query.in("city", enabledCities);
+      }
+      
+      query = query.order("listing_price", { ascending: false }).limit(500);
 
+      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
-    enabled: shouldLoad,
+    enabled: shouldLoad && !!enabledCities,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 10 * 60 * 1000,
   });

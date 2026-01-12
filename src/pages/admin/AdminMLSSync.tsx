@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { 
@@ -18,7 +19,10 @@ import {
   AlertTriangle,
   ExternalLink,
   Play,
-  Settings2
+  Settings2,
+  MapPin,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import { format } from "date-fns";
 import {
@@ -52,6 +56,64 @@ export default function AdminMLSSync() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [feedUrl, setFeedUrl] = useState("");
+  const [enabledCities, setEnabledCities] = useState<string[]>([]);
+
+  // Default Metro Vancouver & Fraser Valley cities
+  const defaultEnabledCities = [
+    "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
+    "Coquitlam", "Delta", "Abbotsford", "New Westminster", 
+    "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
+    "North Vancouver", "West Vancouver", "Chilliwack", "Mission"
+  ];
+
+  // Fetch city counts from MLS listings
+  const { data: cityCounts, isLoading: cityCountsLoading } = useQuery({
+    queryKey: ["mls-city-counts"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("mls_listings")
+        .select("city")
+        .eq("standard_status", "Active");
+      
+      if (error) throw error;
+      
+      // Count by city
+      const counts: Record<string, number> = {};
+      data?.forEach(listing => {
+        const city = listing.city || "Unknown";
+        counts[city] = (counts[city] || 0) + 1;
+      });
+      
+      // Sort by count descending
+      return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .map(([city, count]) => ({ city, count }));
+    },
+  });
+
+  // Fetch enabled cities from app_settings
+  const { data: savedEnabledCities } = useQuery({
+    queryKey: ["mls-enabled-cities"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "mls_enabled_cities")
+        .maybeSingle();
+      
+      return data?.value as string[] | null;
+    },
+  });
+
+  // Initialize enabled cities from saved settings or defaults
+  useEffect(() => {
+    if (savedEnabledCities) {
+      setEnabledCities(savedEnabledCities);
+    } else if (cityCounts && enabledCities.length === 0) {
+      // Use defaults if nothing is saved
+      setEnabledCities(defaultEnabledCities);
+    }
+  }, [savedEnabledCities, cityCounts]);
 
   // Fetch sync logs
   const { data: syncLogs, isLoading: logsLoading } = useQuery({
@@ -104,7 +166,7 @@ export default function AdminMLSSync() {
         .from("app_settings")
         .select("value")
         .eq("key", "ddf_feed_url")
-        .single();
+        .maybeSingle();
       
       return data?.value as string | null;
     },
@@ -159,6 +221,54 @@ export default function AdminMLSSync() {
       });
     },
   });
+
+  // Save enabled cities mutation
+  const saveEnabledCitiesMutation = useMutation({
+    mutationFn: async (cities: string[]) => {
+      const { error } = await supabase
+        .from("app_settings")
+        .upsert({ key: "mls_enabled_cities", value: cities }, { onConflict: "key" });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "City visibility settings saved" });
+      queryClient.invalidateQueries({ queryKey: ["mls-enabled-cities"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to save",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleCity = (city: string) => {
+    setEnabledCities(prev => 
+      prev.includes(city) 
+        ? prev.filter(c => c !== city)
+        : [...prev, city]
+    );
+  };
+
+  const enableAllCities = () => {
+    if (cityCounts) {
+      setEnabledCities(cityCounts.map(c => c.city));
+    }
+  };
+
+  const disableAllCities = () => {
+    setEnabledCities([]);
+  };
+
+  const enableMetroVancouver = () => {
+    setEnabledCities(defaultEnabledCities);
+  };
+
+  const visibleListingsCount = cityCounts
+    ?.filter(c => enabledCities.includes(c.city))
+    .reduce((sum, c) => sum + c.count, 0) || 0;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -234,6 +344,103 @@ export default function AdminMLSSync() {
             </CardContent>
           </Card>
         </div>
+
+        {/* City Visibility Control */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <MapPin className="h-5 w-5" />
+                  City Visibility Control
+                </CardTitle>
+                <CardDescription>
+                  Control which cities' listings appear on the website. Currently showing {visibleListingsCount.toLocaleString()} of {listingStats?.active?.toLocaleString() || 0} active listings.
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="text-sm">
+                  {enabledCities.length} cities enabled
+                </Badge>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Quick Actions */}
+            <div className="flex flex-wrap gap-2 pb-4 border-b">
+              <Button variant="outline" size="sm" onClick={enableMetroVancouver}>
+                Metro Vancouver Only
+              </Button>
+              <Button variant="outline" size="sm" onClick={enableAllCities}>
+                <Eye className="h-4 w-4 mr-1" />
+                Enable All
+              </Button>
+              <Button variant="outline" size="sm" onClick={disableAllCities}>
+                <EyeOff className="h-4 w-4 mr-1" />
+                Disable All
+              </Button>
+              <Button 
+                onClick={() => saveEnabledCitiesMutation.mutate(enabledCities)}
+                disabled={saveEnabledCitiesMutation.isPending}
+                size="sm"
+              >
+                {saveEnabledCitiesMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                )}
+                Save Settings
+              </Button>
+            </div>
+
+            {/* City Grid */}
+            {cityCountsLoading ? (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                {[...Array(12)].map((_, i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto">
+                {cityCounts?.map(({ city, count }) => {
+                  const isEnabled = enabledCities.includes(city);
+                  return (
+                    <div
+                      key={city}
+                      className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
+                        isEnabled 
+                          ? "bg-primary/10 border-primary/30" 
+                          : "bg-muted/30 border-muted"
+                      }`}
+                      onClick={() => toggleCity(city)}
+                    >
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Switch
+                          checked={isEnabled}
+                          onCheckedChange={() => toggleCity(city)}
+                          className="shrink-0"
+                        />
+                        <div className="min-w-0">
+                          <p className={`text-sm font-medium truncate ${isEnabled ? "" : "text-muted-foreground"}`}>
+                            {city}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {count.toLocaleString()} listings
+                          </p>
+                        </div>
+                      </div>
+                      {isEnabled ? (
+                        <Eye className="h-4 w-4 text-primary shrink-0" />
+                      ) : (
+                        <EyeOff className="h-4 w-4 text-muted-foreground shrink-0" />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Configuration */}
         <Card>
