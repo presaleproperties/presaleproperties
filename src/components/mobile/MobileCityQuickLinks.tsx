@@ -34,42 +34,79 @@ const CITY_IMAGES: Record<string, string> = {
   "New Westminster": newWestminsterImg,
 };
 
-export function MobileCityQuickLinks() {
+interface MobileCityQuickLinksProps {
+  mode?: "presale" | "resale";
+}
+
+export function MobileCityQuickLinks({ mode = "presale" }: MobileCityQuickLinksProps) {
   const navigate = useNavigate();
 
   const { data: cities = [] } = useQuery({
-    queryKey: ["city-project-counts"],
+    queryKey: ["city-project-counts", mode],
     queryFn: async () => {
-      const { data: projects } = await supabase
-        .from("presale_projects")
-        .select("city")
-        .eq("is_published", true);
+      if (mode === "presale") {
+        const { data: projects } = await supabase
+          .from("presale_projects")
+          .select("city")
+          .eq("is_published", true);
 
-      if (!projects) return [];
+        if (!projects) return [];
 
-      const cityMap = new Map<string, number>();
-      projects.forEach((p) => {
-        cityMap.set(p.city, (cityMap.get(p.city) || 0) + 1);
-      });
+        const cityMap = new Map<string, number>();
+        projects.forEach((p) => {
+          cityMap.set(p.city, (cityMap.get(p.city) || 0) + 1);
+        });
 
-      const cityData: CityData[] = Array.from(cityMap.entries())
-        .filter(([name]) => CITY_IMAGES[name]) // Only include cities with images
-        .map(([name, count]) => ({
-          name,
-          count,
-          image: CITY_IMAGES[name],
-        }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 10);
+        const cityData: CityData[] = Array.from(cityMap.entries())
+          .filter(([name]) => CITY_IMAGES[name])
+          .map(([name, count]) => ({
+            name,
+            count,
+            image: CITY_IMAGES[name],
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10);
 
-      return cityData;
+        return cityData;
+      } else {
+        // Resale mode - query MLS listings
+        const { data: listings } = await supabase
+          .from("mls_listings")
+          .select("city")
+          .eq("standard_status", "Active");
+
+        if (!listings) return [];
+
+        const cityMap = new Map<string, number>();
+        listings.forEach((l) => {
+          if (l.city) {
+            cityMap.set(l.city, (cityMap.get(l.city) || 0) + 1);
+          }
+        });
+
+        const cityData: CityData[] = Array.from(cityMap.entries())
+          .filter(([name]) => CITY_IMAGES[name])
+          .map(([name, count]) => ({
+            name,
+            count,
+            image: CITY_IMAGES[name],
+          }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 10);
+
+        return cityData;
+      }
     },
     staleTime: 60000,
   });
 
   const handleCityClick = (city: string) => {
     const slug = city.toLowerCase().replace(/\s+/g, '-');
-    navigate(`/presale-condos/${slug}`);
+    if (mode === "presale") {
+      navigate(`/presale-condos/${slug}`);
+    } else {
+      navigate(`/resale?city=${city}`);
+    }
   };
 
   if (cities.length === 0) return null;
@@ -79,10 +116,10 @@ export function MobileCityQuickLinks() {
       <div className="px-4 mb-3 md:mb-4">
         <h2 className="text-base md:text-lg font-bold text-foreground flex items-center gap-2">
           <MapPin className="h-4 w-4 md:h-5 md:w-5 text-primary" />
-          Projects Near You
+          {mode === "presale" ? "Projects Near You" : "Homes Near You"}
         </h2>
         <p className="text-xs md:text-sm text-muted-foreground mt-0.5">
-          Explore new developments by city
+          {mode === "presale" ? "Explore new developments by city" : "Browse listings by city"}
         </p>
       </div>
 
@@ -108,9 +145,9 @@ export function MobileCityQuickLinks() {
               <span className="text-xs md:text-sm font-semibold text-foreground text-center truncate w-full">
                 {city.name}
               </span>
-              {/* Project count */}
+              {/* Project/Listing count */}
               <span className="text-[10px] md:text-xs text-muted-foreground -mt-1">
-                {city.count} project{city.count !== 1 ? "s" : ""}
+                {city.count} {mode === "presale" ? (city.count !== 1 ? "projects" : "project") : (city.count !== 1 ? "listings" : "listing")}
               </span>
             </button>
           ))}
