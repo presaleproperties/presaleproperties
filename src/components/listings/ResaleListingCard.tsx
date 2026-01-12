@@ -1,8 +1,8 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Camera, ChevronLeft, ChevronRight, Home, Video } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MapPin, Home, ChevronLeft, ChevronRight, Video } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 interface ResaleListingCardProps {
@@ -23,6 +23,7 @@ interface ResaleListingCardProps {
   listAgentName?: string | null;
   listOfficeName?: string | null;
   virtualTourUrl?: string | null;
+  size?: "default" | "large" | "featured";
 }
 
 const formatPrice = (price: number) => {
@@ -39,6 +40,19 @@ function getPhotoUrl(photos: any[] | null | undefined, index: number): string | 
   if (!photo) return null;
   return photo?.MediaURL || photo?.url || (typeof photo === 'string' ? photo : null);
 }
+
+const formatPropertyType = (type: string | null) => {
+  if (!type) return "Residential";
+  // Map common types to display names
+  const typeMap: Record<string, string> = {
+    "Apartment/Condo": "Condo",
+    "Residential": "Home",
+    "Townhouse": "Townhouse",
+    "Single Family": "House",
+    "House": "House",
+  };
+  return typeMap[type] || type;
+};
 
 export function ResaleListingCard({
   id,
@@ -58,6 +72,7 @@ export function ResaleListingCard({
   listAgentName,
   listOfficeName,
   virtualTourUrl,
+  size = "default",
 }: ResaleListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -110,15 +125,23 @@ export function ResaleListingCard({
   };
 
   const isNew = daysOnMarket !== null && daysOnMarket !== undefined && daysOnMarket <= 7;
+  const displayType = formatPropertyType(propertySubType || propertyType);
 
-  // Format property type for display
-  const displayType = propertySubType || propertyType || "Residential";
+  // Build specs string like presale style
+  const specsString = [
+    beds !== null && beds !== undefined ? `${beds} Bed` : null,
+    baths !== null && baths !== undefined ? `${baths} Bath` : null,
+    sqft !== null && sqft !== undefined ? `${sqft.toLocaleString()} sqft` : null,
+  ].filter(Boolean).join(" • ");
 
   return (
     <Link to={`/resale/${listingKey}`}>
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out">
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full">
         <div 
-          className="relative aspect-[4/3] overflow-hidden bg-muted"
+          className={cn(
+            "relative overflow-hidden bg-muted",
+            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
+          )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -130,7 +153,23 @@ export function ResaleListingCard({
                 alt={address}
                 className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
                 loading="lazy"
+                decoding="async"
               />
+              
+              {/* Status Badge - Top Left (matching presale style) */}
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1.5">
+                {isNew && (
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1">
+                    Just Listed
+                  </Badge>
+                )}
+                {virtualTourUrl && (
+                  <Badge className="bg-foreground text-background text-[10px] sm:text-xs font-medium flex items-center gap-1 px-1.5 py-0.5 sm:px-2 sm:py-1">
+                    <Video className="h-3 w-3" />
+                    3D Tour
+                  </Badge>
+                )}
+              </div>
               
               {/* Image navigation arrows */}
               {imageCount > 1 && (
@@ -172,78 +211,46 @@ export function ResaleListingCard({
             </>
           ) : (
             <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <Home className="h-12 w-12 text-muted-foreground/50" />
+              <Home className="h-12 w-12 text-muted-foreground" />
             </div>
           )}
           
           {/* Gradient overlay on hover */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-          
-          {/* Badges - Top Left */}
-          <div className="absolute top-3 left-3 flex flex-col gap-2">
-            {virtualTourUrl && (
-              <Badge className="bg-foreground text-background flex items-center gap-1">
-                <Video className="h-3 w-3" />
-                VIRTUAL TOUR
-              </Badge>
-            )}
-            {isNew && (
-              <Badge className="bg-primary text-primary-foreground shadow-gold">
-                New
-              </Badge>
-            )}
-          </div>
 
           {/* Photo Count - Bottom Right */}
           {imageCount > 1 && (
             <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
-              <Camera className="h-3.5 w-3.5" />
               <span>{currentImageIndex + 1}/{imageCount}</span>
             </div>
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 space-y-2">
-          {/* Price - Prominent */}
-          <p className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-            {formatPrice(price)}
-          </p>
-
-          {/* Address */}
-          <h3 className="font-medium text-foreground line-clamp-1 text-sm sm:text-base">
-            {address}
-          </h3>
-
-          {/* Neighborhood • City */}
-          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
-            {neighborhood ? `${neighborhood} • ${city}` : city}
-          </p>
-
-          {/* Beds • Baths • Sqft • Type */}
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            {beds !== null && beds !== undefined && `${beds} bd`}
-            {baths !== null && baths !== undefined && ` • ${baths} ba`}
-            {sqft !== null && sqft !== undefined && ` • ${sqft.toLocaleString()} sf`}
-          </p>
-
-          {/* Agent Info - REW Style */}
-          {(listAgentName || listOfficeName) && (
-            <div className="flex items-center gap-2 pt-2 border-t border-border">
-              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="text-xs font-medium text-muted-foreground">
-                  {listAgentName ? listAgentName.charAt(0).toUpperCase() : 'A'}
+        <CardContent className="p-3 sm:p-4">
+          <div className="flex items-start justify-between gap-3">
+            {/* Left: Address, Location & Specs (matching presale layout) */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
+                {address}
+              </h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs sm:text-sm truncate">
+                  {neighborhood ? `${neighborhood}, ${city}` : city}
                 </span>
               </div>
-              <div className="min-w-0">
-                {listAgentName && (
-                  <p className="text-xs font-medium text-foreground truncate">{listAgentName}</p>
-                )}
-                {listOfficeName && (
-                  <p className="text-[10px] text-muted-foreground truncate">{listOfficeName}</p>
-                )}
-              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {displayType} {specsString && `• ${specsString}`}
+              </p>
             </div>
-          )}
+
+            {/* Right: Price (matching presale layout) */}
+            <div className="text-right shrink-0">
+              <span className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                {formatPrice(price)}
+              </span>
+            </div>
+          </div>
         </CardContent>
       </Card>
     </Link>
