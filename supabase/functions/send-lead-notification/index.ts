@@ -8,6 +8,9 @@ const corsHeaders = {
 
 const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
 
+// Maximum age of lead to process (5 minutes)
+const MAX_LEAD_AGE_MS = 5 * 60 * 1000;
+
 interface LeadNotificationRequest {
   leadId: string;
 }
@@ -25,6 +28,12 @@ async function getSenderEmail(supabase: any): Promise<string> {
   return DEFAULT_SENDER;
 }
 
+// Validate UUID format
+function isValidUUID(str: string): boolean {
+  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  return uuidRegex.test(str);
+}
+
 serve(async (req: Request): Promise<Response> => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -39,9 +48,18 @@ serve(async (req: Request): Promise<Response> => {
     const { leadId }: LeadNotificationRequest = await req.json();
     console.log("Processing listing lead:", leadId);
 
-    if (!leadId) {
+    // Validate leadId format
+    if (!leadId || typeof leadId !== "string") {
       return new Response(
         JSON.stringify({ error: "leadId is required" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    if (!isValidUUID(leadId)) {
+      console.warn("Invalid leadId format attempted:", leadId.substring(0, 10));
+      return new Response(
+        JSON.stringify({ error: "Invalid leadId format" }),
         { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
       );
     }
@@ -78,7 +96,17 @@ serve(async (req: Request): Promise<Response> => {
       );
     }
 
-    console.log("Lead details fetched successfully:", { leadId: lead.id, listingId: lead.listing_id });
+    // Validate lead age to prevent abuse
+    const leadAge = Date.now() - new Date(lead.created_at).getTime();
+    if (leadAge > MAX_LEAD_AGE_MS) {
+      console.warn(`Lead ${leadId} is too old (${Math.round(leadAge / 1000)}s), rejecting notification`);
+      return new Response(
+        JSON.stringify({ error: "Lead is too old to process" }),
+        { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
+      );
+    }
+
+    console.log("Lead details fetched successfully:", { leadId: lead.id, listingId: lead.listing_id, ageMs: leadAge });
 
     // Send to Zapier webhook if configured
     const zapierWebhookUrl = Deno.env.get("ZAPIER_LISTING_LEADS_WEBHOOK");
@@ -178,6 +206,18 @@ serve(async (req: Request): Promise<Response> => {
     // Get sender email from settings
     const senderEmail = await getSenderEmail(supabase);
 
+    // Sanitize user content for email
+    const sanitize = (str: string) => str
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;");
+
+    const safeName = sanitize(lead.name || "");
+    const safeEmail = sanitize(lead.email || "");
+    const safePhone = lead.phone ? sanitize(lead.phone) : "";
+    const safeMessage = lead.message ? sanitize(lead.message) : "";
+
     // Send email to agent
     const emailResponse = await resend.emails.send({
       from: senderEmail,
@@ -196,8 +236,8 @@ serve(async (req: Request): Promise<Response> => {
           </p>
           
           <div style="background: #f5f5f5; border-radius: 8px; padding: 16px; margin: 20px 0;">
-            <p style="margin: 0; font-weight: 600; color: #1a1a1a;">${listingTitle}</p>
-            <p style="margin: 4px 0 0; color: #6a6a6a; font-size: 14px;">${projectName}${city ? ` • ${city}` : ""}</p>
+            <p style="margin: 0; font-weight: 600; color: #1a1a1a;">${sanitize(listingTitle)}</p>
+            <p style="margin: 4px 0 0; color: #6a6a6a; font-size: 14px;">${sanitize(projectName)}${city ? ` • ${sanitize(city)}` : ""}</p>
           </div>
           
           <h2 style="color: #1a1a1a; font-size: 18px; margin: 24px 0 12px;">Lead Details</h2>
@@ -205,28 +245,28 @@ serve(async (req: Request): Promise<Response> => {
           <table style="width: 100%; border-collapse: collapse;">
             <tr>
               <td style="padding: 8px 0; color: #6a6a6a; font-size: 14px;">Name:</td>
-              <td style="padding: 8px 0; color: #1a1a1a; font-size: 14px; font-weight: 500;">${lead.name}</td>
+              <td style="padding: 8px 0; color: #1a1a1a; font-size: 14px; font-weight: 500;">${safeName}</td>
             </tr>
             <tr>
               <td style="padding: 8px 0; color: #6a6a6a; font-size: 14px;">Email:</td>
               <td style="padding: 8px 0; color: #1a1a1a; font-size: 14px;">
-                <a href="mailto:${lead.email}" style="color: #2563eb;">${lead.email}</a>
+                <a href="mailto:${safeEmail}" style="color: #2563eb;">${safeEmail}</a>
               </td>
             </tr>
-            ${lead.phone ? `
+            ${safePhone ? `
             <tr>
               <td style="padding: 8px 0; color: #6a6a6a; font-size: 14px;">Phone:</td>
               <td style="padding: 8px 0; color: #1a1a1a; font-size: 14px;">
-                <a href="tel:${lead.phone}" style="color: #2563eb;">${lead.phone}</a>
+                <a href="tel:${safePhone}" style="color: #2563eb;">${safePhone}</a>
               </td>
             </tr>
             ` : ""}
           </table>
           
-          ${lead.message ? `
+          ${safeMessage ? `
           <h3 style="color: #1a1a1a; font-size: 16px; margin: 24px 0 8px;">Message</h3>
           <div style="background: #f5f5f5; border-radius: 8px; padding: 16px;">
-            <p style="margin: 0; color: #4a4a4a; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${lead.message}</p>
+            <p style="margin: 0; color: #4a4a4a; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${safeMessage}</p>
           </div>
           ` : ""}
           

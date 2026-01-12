@@ -3,7 +3,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-function-token",
 };
 
 interface ExpiringListing {
@@ -20,6 +20,48 @@ serve(async (req: Request): Promise<Response> => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  }
+
+  // Authenticate scheduled/cron requests with secret token
+  const functionToken = req.headers.get("x-function-token");
+  const expectedToken = Deno.env.get("FUNCTION_SECRET_TOKEN");
+  
+  // Also allow authenticated admin requests
+  const authHeader = req.headers.get("authorization");
+  let isAdmin = false;
+  
+  if (authHeader?.startsWith("Bearer ")) {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+    const authClient = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+    
+    const token = authHeader.replace("Bearer ", "");
+    const { data: claims } = await authClient.auth.getClaims(token);
+    
+    if (claims?.claims?.sub) {
+      // Check if user is admin
+      const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
+      const { data: roleData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", claims.claims.sub)
+        .eq("role", "admin")
+        .maybeSingle();
+      
+      isAdmin = !!roleData;
+    }
+  }
+  
+  // Require either valid function token OR authenticated admin
+  if ((!expectedToken || functionToken !== expectedToken) && !isAdmin) {
+    console.error("Unauthorized access attempt to check-expiring-listings");
+    return new Response(
+      JSON.stringify({ error: "Unauthorized" }),
+      { status: 401, headers: { "Content-Type": "application/json", ...corsHeaders } }
+    );
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -188,7 +230,7 @@ serve(async (req: Request): Promise<Response> => {
               <hr style="border: none; border-top: 1px solid #e5e5e5; margin: 24px 0;" />
               
               <p style="color: #9a9a9a; font-size: 12px; text-align: center;">
-                This email was sent from AssignmentHub. You can manage your listings in your dashboard.
+                This email was sent from PresaleProperties. You can manage your listings in your dashboard.
               </p>
             </div>
           `,
