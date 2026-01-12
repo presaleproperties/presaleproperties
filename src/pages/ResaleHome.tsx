@@ -1,7 +1,7 @@
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { NewHomesHero } from "@/components/resale/NewHomesHero";
+import { ResaleHeroSection } from "@/components/resale/ResaleHeroSection";
 import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
 import { ResaleCitySection } from "@/components/resale/ResaleCitySection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
@@ -82,7 +82,7 @@ const ResaleHome = () => {
 
       <ConversionHeader />
       <main className="flex-1">
-        <NewHomesHero />
+        <ResaleHeroSection />
         
         <ScrollReveal animation="fade-up">
           <FeaturedResaleListings />

@@ -17,11 +17,10 @@ import heroImage from "@/assets/hero-lifestyle.jpg";
 
 const TOP_CITIES = [
   { name: "Vancouver", slug: "vancouver" },
-  { name: "Burnaby", slug: "burnaby" },
   { name: "Surrey", slug: "surrey" },
+  { name: "Burnaby", slug: "burnaby" },
   { name: "Coquitlam", slug: "coquitlam" },
   { name: "Langley", slug: "langley" },
-  { name: "Delta", slug: "delta" },
 ];
 
 const CITY_CAROUSELS = [
@@ -117,12 +116,12 @@ export function MobileResaleHome() {
 
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
+          <p className="text-primary text-xs font-medium tracking-wide mb-1">
+            Vancouver's #1 New Construction Marketplace
+          </p>
           <h1 className="text-xl font-bold text-white leading-tight">
             Find <span className="text-primary">New Construction</span> Homes
           </h1>
-          <p className="text-white/80 text-xs mt-1.5">
-            Condos, Townhomes & Single Family • Built 2024+
-          </p>
         </div>
 
         {/* Floating Search Card */}
@@ -198,11 +197,11 @@ export function MobileResaleHome() {
 
       {/* Discovery Sections */}
       <div className="pb-6">
-        {/* Featured Listings */}
+        {/* Featured Listings - Newest Metro Vancouver */}
         <CarouselSection delay={0}>
           <MobileResaleCarousel
-            title="Featured Listings"
-            subtitle="New construction resale homes"
+            title="Newest Listings"
+            subtitle="Just added in Metro Vancouver"
           />
         </CarouselSection>
 
