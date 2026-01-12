@@ -220,7 +220,7 @@ function presalePopupHtml(project: PresaleProject): string {
         <div style="font-size:13px;color:#64748b;margin-top:2px;">${project.neighborhood}</div>
         <div style="font-size:12px;color:#94a3b8;">${project.city}</div>
         ${project.starting_price ? `<div style="font-weight:600;font-size:14px;color:#1e293b;margin-top:4px;">From ${formatPrice(project.starting_price)}</div>` : ""}
-        <a href="/presale/${project.slug}" style="display:block;margin-top:8px;background:hsl(222, 47%, 20%);color:white;text-align:center;padding:6px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px;">View Project</a>
+        <a href="/presale-projects/${project.slug}" style="display:block;margin-top:8px;background:hsl(222, 47%, 20%);color:white;text-align:center;padding:6px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px;">View Project</a>
       </div>
     </div>
   `;
