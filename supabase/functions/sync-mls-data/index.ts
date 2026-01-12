@@ -5,7 +5,8 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface DDFListing {
+interface DDFProperty {
+  PropertyKey: string;
   ListingKey: string;
   ListingId: string;
   ListPrice: number;
@@ -84,6 +85,37 @@ interface DDFListing {
   }>;
 }
 
+async function getAccessToken(clientId: string, clientSecret: string): Promise<string> {
+  const tokenUrl = "https://identity.crea.ca/connect/token";
+  
+  const body = new URLSearchParams({
+    grant_type: "client_credentials",
+    client_id: clientId,
+    client_secret: clientSecret,
+    scope: "DDFApi_Read",
+  });
+
+  console.log("Requesting access token from CREA Identity Server...");
+  
+  const response = await fetch(tokenUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: body.toString(),
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Token request failed:", response.status, errorText);
+    throw new Error(`Failed to get access token: ${response.status} - ${errorText}`);
+  }
+
+  const data = await response.json();
+  console.log("Access token obtained successfully, expires in:", data.expires_in, "seconds");
+  return data.access_token;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -92,7 +124,6 @@ Deno.serve(async (req) => {
   try {
     const DDF_USERNAME = Deno.env.get("DDF_USERNAME");
     const DDF_PASSWORD = Deno.env.get("DDF_PASSWORD");
-    const DDF_FEED_URL = Deno.env.get("DDF_FEED_URL"); // Custom feed URL from CREA
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
@@ -102,27 +133,22 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Check for request body with custom URL (for testing)
-    let apiUrl = DDF_FEED_URL;
+    // Parse request body for options
+    let filterCity = "";
+    let maxRecords = 100; // Start small for testing
     try {
       const body = await req.json();
-      if (body?.feedUrl) {
-        apiUrl = body.feedUrl;
-      }
+      if (body?.city) filterCity = body.city;
+      if (body?.maxRecords) maxRecords = body.maxRecords;
     } catch {
-      // No body or invalid JSON, use default
-    }
-
-    // Default CREA DDF RESO Web API endpoint
-    if (!apiUrl) {
-      apiUrl = "https://data.crea.ca/Feed/Property";
+      // No body or invalid JSON
     }
 
     // Log sync start
     const { data: syncLog, error: logError } = await supabase
       .from("mls_sync_logs")
       .insert({
-        sync_type: "full",
+        sync_type: filterCity ? `city:${filterCity}` : "full",
         status: "running",
       })
       .select()
@@ -134,16 +160,34 @@ Deno.serve(async (req) => {
 
     const syncLogId = syncLog?.id;
 
-    // Create Basic Auth header
-    const authHeader = btoa(`${DDF_USERNAME}:${DDF_PASSWORD}`);
+    // Step 1: Get access token
+    const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
 
-    console.log("Fetching listings from DDF API:", apiUrl);
+    // Step 2: Fetch properties from DDF API
+    const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
+    
+    // Build OData query
+    let queryParams = [`$top=${maxRecords}`];
+    
+    // Filter for active listings
+    queryParams.push("$filter=StandardStatus eq 'Active'");
+    
+    // Add city filter if specified
+    if (filterCity) {
+      queryParams[1] = `$filter=StandardStatus eq 'Active' and contains(City,'${filterCity}')`;
+    }
+    
+    // Select specific fields to reduce payload
+    queryParams.push("$select=PropertyKey,ListingKey,ListingId,ListPrice,StandardStatus,MlsStatus,PropertyType,PropertySubType,City,StateOrProvince,PostalCode,StreetNumber,StreetName,StreetSuffix,UnitNumber,UnparsedAddress,BedroomsTotal,BathroomsTotalInteger,BathroomsFull,BathroomsHalf,LivingArea,LivingAreaUnits,LotSizeArea,LotSizeUnits,YearBuilt,Stories,GarageSpaces,ParkingTotal,Latitude,Longitude,PublicRemarks,Directions,ListAgentKey,ListAgentMlsId,ListAgentFullName,ListAgentEmail,ListAgentDirectPhone,ListOfficeKey,ListOfficeMlsId,ListOfficeName,ListOfficePhone,OriginalListPrice,ClosePrice,CloseDate,ListingContractDate,OnMarketDate,ExpirationDate,DaysOnMarket,CumulativeDaysOnMarket,ModificationTimestamp,PhotosChangeTimestamp,AssociationFee,AssociationFeeFrequency,TaxAnnualAmount,TaxYear,SubdivisionName,Neighborhood,VirtualTourURLUnbranded,VideoURL,Media");
 
-    // Fetch listings from DDF
+    const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
+    
+    console.log("Fetching properties from DDF API:", apiUrl);
+
     const response = await fetch(apiUrl, {
       method: "GET",
       headers: {
-        "Authorization": `Basic ${authHeader}`,
+        "Authorization": `Bearer ${accessToken}`,
         "Accept": "application/json",
       },
     });
@@ -152,7 +196,6 @@ Deno.serve(async (req) => {
       const errorText = await response.text();
       console.error("DDF API error:", response.status, errorText);
       
-      // Update sync log with error
       if (syncLogId) {
         await supabase
           .from("mls_sync_logs")
@@ -168,91 +211,78 @@ Deno.serve(async (req) => {
     }
 
     const data = await response.json();
-    const listings: DDFListing[] = data.value || data || [];
+    const properties: DDFProperty[] = data.value || [];
 
-    console.log(`Fetched ${listings.length} listings from DDF`);
+    console.log(`Fetched ${properties.length} properties from DDF`);
 
     let created = 0;
     let updated = 0;
     let errors = 0;
 
-    // Process each listing
-    for (const listing of listings) {
+    // Process each property
+    for (const property of properties) {
       try {
-        // Transform DDF listing to our schema
+        // Transform DDF property to our schema
         const mlsListing = {
-          listing_key: listing.ListingKey,
-          listing_id: listing.ListingId,
-          listing_price: listing.ListPrice,
-          mls_status: listing.MlsStatus || "Active",
-          standard_status: listing.StandardStatus,
-          property_type: listing.PropertyType || "Residential",
-          property_sub_type: listing.PropertySubType,
-          city: listing.City,
-          state_or_province: listing.StateOrProvince || "BC",
-          postal_code: listing.PostalCode,
-          street_number: listing.StreetNumber,
-          street_name: listing.StreetName,
-          street_suffix: listing.StreetSuffix,
-          unit_number: listing.UnitNumber,
-          unparsed_address: listing.UnparsedAddress,
-          bedrooms_total: listing.BedroomsTotal,
-          bathrooms_total: listing.BathroomsTotalInteger,
-          bathrooms_full: listing.BathroomsFull,
-          bathrooms_half: listing.BathroomsHalf,
-          living_area: listing.LivingArea,
-          living_area_units: listing.LivingAreaUnits || "sqft",
-          lot_size_area: listing.LotSizeArea,
-          lot_size_units: listing.LotSizeUnits,
-          year_built: listing.YearBuilt,
-          stories: listing.Stories,
-          garage_spaces: listing.GarageSpaces,
-          parking_total: listing.ParkingTotal,
-          latitude: listing.Latitude,
-          longitude: listing.Longitude,
-          public_remarks: listing.PublicRemarks,
-          private_remarks: listing.PrivateRemarks,
-          directions: listing.Directions,
-          list_agent_key: listing.ListAgentKey,
-          list_agent_mls_id: listing.ListAgentMlsId,
-          list_agent_name: listing.ListAgentFullName,
-          list_agent_email: listing.ListAgentEmail,
-          list_agent_phone: listing.ListAgentDirectPhone,
-          list_office_key: listing.ListOfficeKey,
-          list_office_mls_id: listing.ListOfficeMlsId,
-          list_office_name: listing.ListOfficeName,
-          list_office_phone: listing.ListOfficePhone,
-          buyer_agent_key: listing.BuyerAgentKey,
-          buyer_agent_name: listing.BuyerAgentFullName,
-          buyer_office_name: listing.BuyerOfficeName,
-          original_list_price: listing.OriginalListPrice,
-          close_price: listing.ClosePrice,
-          close_date: listing.CloseDate,
-          listing_contract_date: listing.ListingContractDate,
-          list_date: listing.OnMarketDate,
-          expiration_date: listing.ExpirationDate,
-          days_on_market: listing.DaysOnMarket,
-          cumulative_days_on_market: listing.CumulativeDaysOnMarket,
-          modification_timestamp: listing.ModificationTimestamp,
-          photos_change_timestamp: listing.PhotosChangeTimestamp,
-          association_fee: listing.AssociationFee,
-          association_fee_frequency: listing.AssociationFeeFrequency,
-          tax_annual_amount: listing.TaxAnnualAmount,
-          tax_year: listing.TaxYear,
-          cooling: listing.Cooling,
-          heating: listing.Heating,
-          interior_features: listing.InteriorFeatures,
-          exterior_features: listing.ExteriorFeatures,
-          community_features: listing.CommunityFeatures,
-          appliances: listing.Appliances,
-          view: listing.View,
-          pool_yn: listing.PoolPrivateYN,
-          waterfront_yn: listing.WaterfrontYN,
-          subdivision_name: listing.SubdivisionName,
-          neighborhood: listing.Neighborhood,
-          virtual_tour_url: listing.VirtualTourURLUnbranded,
-          video_url: listing.VideoURL,
-          photos: listing.Media ? listing.Media.filter(m => m.MediaCategory === "Photo").map(m => ({
+          listing_key: property.ListingKey || property.PropertyKey,
+          listing_id: property.ListingId,
+          listing_price: property.ListPrice,
+          mls_status: property.MlsStatus || "Active",
+          standard_status: property.StandardStatus,
+          property_type: property.PropertyType || "Residential",
+          property_sub_type: property.PropertySubType,
+          city: property.City,
+          state_or_province: property.StateOrProvince || "BC",
+          postal_code: property.PostalCode,
+          street_number: property.StreetNumber,
+          street_name: property.StreetName,
+          street_suffix: property.StreetSuffix,
+          unit_number: property.UnitNumber,
+          unparsed_address: property.UnparsedAddress,
+          bedrooms_total: property.BedroomsTotal,
+          bathrooms_total: property.BathroomsTotalInteger,
+          bathrooms_full: property.BathroomsFull,
+          bathrooms_half: property.BathroomsHalf,
+          living_area: property.LivingArea,
+          living_area_units: property.LivingAreaUnits || "sqft",
+          lot_size_area: property.LotSizeArea,
+          lot_size_units: property.LotSizeUnits,
+          year_built: property.YearBuilt,
+          stories: property.Stories,
+          garage_spaces: property.GarageSpaces,
+          parking_total: property.ParkingTotal,
+          latitude: property.Latitude,
+          longitude: property.Longitude,
+          public_remarks: property.PublicRemarks,
+          directions: property.Directions,
+          list_agent_key: property.ListAgentKey,
+          list_agent_mls_id: property.ListAgentMlsId,
+          list_agent_name: property.ListAgentFullName,
+          list_agent_email: property.ListAgentEmail,
+          list_agent_phone: property.ListAgentDirectPhone,
+          list_office_key: property.ListOfficeKey,
+          list_office_mls_id: property.ListOfficeMlsId,
+          list_office_name: property.ListOfficeName,
+          list_office_phone: property.ListOfficePhone,
+          original_list_price: property.OriginalListPrice,
+          close_price: property.ClosePrice,
+          close_date: property.CloseDate,
+          listing_contract_date: property.ListingContractDate,
+          list_date: property.OnMarketDate,
+          expiration_date: property.ExpirationDate,
+          days_on_market: property.DaysOnMarket,
+          cumulative_days_on_market: property.CumulativeDaysOnMarket,
+          modification_timestamp: property.ModificationTimestamp,
+          photos_change_timestamp: property.PhotosChangeTimestamp,
+          association_fee: property.AssociationFee,
+          association_fee_frequency: property.AssociationFeeFrequency,
+          tax_annual_amount: property.TaxAnnualAmount,
+          tax_year: property.TaxYear,
+          subdivision_name: property.SubdivisionName,
+          neighborhood: property.Neighborhood,
+          virtual_tour_url: property.VirtualTourURLUnbranded,
+          video_url: property.VideoURL,
+          photos: property.Media ? property.Media.filter(m => m.MediaCategory === "Photo").map(m => ({
             url: m.MediaURL,
             order: m.Order,
           })) : null,
@@ -265,14 +295,14 @@ Deno.serve(async (req) => {
           .upsert(mlsListing, { onConflict: "listing_key" });
 
         if (upsertError) {
-          console.error(`Error upserting listing ${listing.ListingKey}:`, upsertError);
+          console.error(`Error upserting listing ${property.ListingKey}:`, upsertError);
           errors++;
         } else {
           // Check if it was created or updated
           const { data: existing } = await supabase
             .from("mls_listings")
             .select("created_at, updated_at")
-            .eq("listing_key", listing.ListingKey)
+            .eq("listing_key", property.ListingKey || property.PropertyKey)
             .single();
 
           if (existing && existing.created_at === existing.updated_at) {
@@ -282,7 +312,7 @@ Deno.serve(async (req) => {
           }
         }
       } catch (err) {
-        console.error(`Error processing listing ${listing.ListingKey}:`, err);
+        console.error(`Error processing property ${property.ListingKey}:`, err);
         errors++;
       }
     }
@@ -293,7 +323,7 @@ Deno.serve(async (req) => {
         .from("mls_sync_logs")
         .update({
           status: errors > 0 ? "completed_with_errors" : "completed",
-          listings_fetched: listings.length,
+          listings_fetched: properties.length,
           listings_created: created,
           listings_updated: updated,
           completed_at: new Date().toISOString(),
@@ -307,7 +337,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        fetched: listings.length,
+        fetched: properties.length,
         created,
         updated,
         errors,
