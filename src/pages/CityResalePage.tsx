@@ -181,7 +181,6 @@ export default function CityResalePage() {
     priceRange: searchParams.get("price") || "any",
     beds: searchParams.get("beds") || "any",
     sort: searchParams.get("sort") || "newest",
-    newOnly: searchParams.get("new") === "true",
   };
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -191,12 +190,13 @@ export default function CityResalePage() {
     queryFn: async () => {
       if (!cityConfig) return { listings: [], totalCount: 0 };
 
-      // First, get total count
+      // First, get total count - always filter for 2025+ builds
       let countQuery = supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
-        .ilike("city", cityConfig.name);
+        .ilike("city", cityConfig.name)
+        .gte("year_built", 2025);
 
       // Apply filters to count query
       if (filters.propertyType !== "any") {
@@ -209,18 +209,16 @@ export default function CityResalePage() {
       if (filters.beds !== "any") {
         countQuery = countQuery.gte("bedrooms_total", parseInt(filters.beds));
       }
-      if (filters.newOnly) {
-        countQuery = countQuery.gte("year_built", 2025);
-      }
 
       const { count } = await countQuery;
 
-      // Then get paginated data
+      // Then get paginated data - always filter for 2025+ builds
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, list_date, year_built")
         .eq("mls_status", "Active")
-        .ilike("city", cityConfig.name);
+        .ilike("city", cityConfig.name)
+        .gte("year_built", 2025);
 
       // Apply filters
       if (filters.propertyType !== "any") {
@@ -232,9 +230,6 @@ export default function CityResalePage() {
       }
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
-      }
-      if (filters.newOnly) {
-        query = query.gte("year_built", 2025);
       }
 
       // Apply sorting
@@ -277,10 +272,6 @@ export default function CityResalePage() {
     setSearchParams(newParams);
   };
 
-  const toggleNewOnly = () => {
-    updateFilter("new", filters.newOnly ? "false" : "true");
-  };
-
   const goToPage = (page: number) => {
     const newParams = new URLSearchParams(searchParams);
     if (page === 1) {
@@ -304,7 +295,6 @@ export default function CityResalePage() {
     filters.propertyType !== "any",
     filters.priceRange !== "any",
     filters.beds !== "any",
-    filters.newOnly,
   ].filter(Boolean).length;
 
   const getAddress = (listing: MLSListing) => {
@@ -335,15 +325,9 @@ export default function CityResalePage() {
 
   const FilterControls = () => (
     <div className="space-y-4">
-      {/* New Construction Toggle */}
-      <div>
-        <Button
-          variant={filters.newOnly ? "default" : "outline"}
-          onClick={toggleNewOnly}
-          className="w-full"
-        >
-          {filters.newOnly ? "✓ New Construction (2025+)" : "Show New Construction Only"}
-        </Button>
+      {/* Info Badge - All listings are 2025+ */}
+      <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
+        <span className="text-sm font-medium text-primary">✓ Showing 2025+ New Construction Only</span>
       </div>
 
       <div>
@@ -569,15 +553,11 @@ export default function CityResalePage() {
                     </Select>
                   </div>
 
-                  {/* Quick Filter - New Construction Toggle */}
+                  {/* Info Badge - All listings are 2025+ */}
                   <div className="mb-4">
-                    <Button
-                      variant={filters.newOnly ? "default" : "outline"}
-                      size="sm"
-                      onClick={toggleNewOnly}
-                    >
-                      {filters.newOnly ? "✓ New Construction (2025+)" : "New Construction Only"}
-                    </Button>
+                    <Badge variant="secondary" className="text-xs">
+                      ✓ 2025+ New Construction Only
+                    </Badge>
                   </div>
 
                   {/* Listings Grid */}
