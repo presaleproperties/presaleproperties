@@ -1,8 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
-
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+import { sendEmail } from "../_shared/gmail-smtp.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -264,21 +262,24 @@ const handler = async (req: Request): Promise<Response> => {
           continue;
         }
 
-        const projectName = (lead as any).presale_projects?.name || "";
+        const projectName = ((lead as any).presale_projects?.name as string) || "";
         const subject = emailTemplate.subject;
         const htmlContent = emailTemplate.body(lead.name, projectName);
 
         console.log(`Sending drip email ${emailIndex + 1} to ${lead.email}`);
 
-        // Send the email
-        const emailResponse = await resend.emails.send({
-          from: "PresaleProperties <noreply@presaleproperties.com>",
-          to: [lead.email],
+        // Send the email via Gmail SMTP
+        const emailResult = await sendEmail({
+          to: lead.email,
           subject,
           html: htmlContent,
         });
 
-        console.log(`Email sent to ${lead.email}:`, emailResponse);
+        if (!emailResult.success) {
+          throw new Error(emailResult.error || "Failed to send email");
+        }
+
+        console.log(`Email sent to ${lead.email}:`, emailResult);
 
         // Log the email
         await supabase.from("email_logs").insert({
@@ -311,7 +312,8 @@ const handler = async (req: Request): Promise<Response> => {
           .eq("id", lead.id);
 
         sentCount++;
-      } catch (emailError: any) {
+      } catch (emailError: unknown) {
+        const errorMessage = emailError instanceof Error ? emailError.message : "Unknown error";
         console.error(`Error sending to ${lead.email}:`, emailError);
         
         // Log the failure
@@ -321,7 +323,7 @@ const handler = async (req: Request): Promise<Response> => {
           subject: "Drip email",
           template_type: "drip_error",
           status: "failed",
-          error_message: emailError.message,
+          error_message: errorMessage,
         });
 
         errorCount++;
@@ -337,10 +339,11 @@ const handler = async (req: Request): Promise<Response> => {
         headers: { "Content-Type": "application/json", ...corsHeaders },
       }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
     console.error("Error in drip campaign:", error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
