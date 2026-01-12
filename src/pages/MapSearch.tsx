@@ -236,10 +236,6 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .gte("latitude", 48.9)
-        .lte("latitude", 49.6)
-        .gte("longitude", -123.5)
-        .lte("longitude", -121.3)
         .gte("year_built", 2024);
 
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
@@ -270,8 +266,8 @@ export default function MapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      // IMPORTANT: order by recency so cheaper 1-bed condos don't get cut off by the 2000 marker cap
-      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(2000);
+      // Order by recency - no hard cap, show all results for accurate count
+      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(3000);
 
       const { data, error } = await query;
       if (error) throw error;
