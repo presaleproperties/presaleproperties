@@ -1,10 +1,10 @@
 import { useState, useCallback, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Search, MapPin } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
-import { MobileAssignmentsCarousel } from "./MobileAssignmentsCarousel";
+import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -15,8 +15,8 @@ import { HomeMapSection } from "@/components/home/HomeMapSection";
 import { Footer } from "@/components/layout/Footer";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
-import { cn } from "@/lib/utils";
 import heroImage from "@/assets/hero-lifestyle.jpg";
+import { SearchTab } from "@/components/home/HeroSection";
 
 const TOP_CITIES = [
   { name: "Vancouver", slug: "vancouver" },
@@ -27,7 +27,23 @@ const TOP_CITIES = [
   { name: "Richmond", slug: "richmond" },
 ];
 
-export function MobileHomePage() {
+interface MobileHomePageProps {
+  activeTab?: SearchTab;
+  onTabChange?: (tab: SearchTab) => void;
+}
+
+export function MobileHomePage({ activeTab: controlledTab, onTabChange }: MobileHomePageProps) {
+  const [internalTab, setInternalTab] = useState<SearchTab>("projects");
+  const activeTab = controlledTab ?? internalTab;
+  
+  const handleTabChange = (tab: SearchTab) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    } else {
+      setInternalTab(tab);
+    }
+  };
+  
   const [selectedCity, setSelectedCity] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -51,10 +67,11 @@ export function MobileHomePage() {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     if (searchQuery.trim()) {
-      navigate(`/presale-projects?q=${encodeURIComponent(searchQuery)}`);
+      navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
     } else {
-      navigate("/presale-projects");
+      navigate(basePath);
     }
   };
 
@@ -62,18 +79,26 @@ export function MobileHomePage() {
     setSearchQuery(value);
     setShowSuggestions(false);
 
-    // Navigate directly to project detail if a presale project is selected
-    if (type === "presale" && slug) {
-      navigate(`/presale-projects/${encodeURIComponent(slug)}`);
-      return;
+    if (activeTab === "projects") {
+      // Navigate directly to project detail if a presale project is selected
+      if (type === "presale" && slug) {
+        navigate(`/presale-projects/${encodeURIComponent(slug)}`);
+        return;
+      }
+      // For other types (city, neighborhood, developer), search the directory
+      navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
+    } else {
+      // Resale mode - navigate to resale search
+      navigate(`/resale?q=${encodeURIComponent(value)}`);
     }
-
-    // For other types (city, neighborhood, developer), search the directory
-    navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
   };
 
   const handleCityClick = (slug: string) => {
-    navigate(`/presale-condos/${slug}`);
+    if (activeTab === "projects") {
+      navigate(`/presale-condos/${slug}`);
+    } else {
+      navigate(`/resale?city=${slug}`);
+    }
   };
 
   const handleRefresh = useCallback(async () => {
@@ -129,10 +154,10 @@ export function MobileHomePage() {
         {/* Hero Content - Single header + subheader */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
           <h1 className="text-xl font-bold text-white leading-tight">
-            Find <span className="text-primary">Presale</span> Condos & Townhomes
+            Find <span className="text-primary">{activeTab === "projects" ? "Presale" : "Resale"}</span> {activeTab === "projects" ? "Condos & Townhomes" : "Homes"}
           </h1>
           <p className="text-white/80 text-xs mt-1.5">
-            Metro Vancouver's #1 Presale Marketplace
+            Metro Vancouver's #1 {activeTab === "projects" ? "Presale" : "Real Estate"} Marketplace
           </p>
         </div>
 
@@ -142,14 +167,33 @@ export function MobileHomePage() {
             ref={searchContainerRef}
             className="bg-card rounded-xl shadow-lg border border-border p-4"
           >
-            {/* Search Header */}
+            {/* Search Header with Tabs */}
             <div className="flex items-center justify-between mb-3">
-              <span className="px-3 py-1.5 rounded-full text-sm font-semibold bg-foreground text-background">
-                Presale Projects
-              </span>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => handleTabChange("projects")}
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                    activeTab === "projects" 
+                      ? "bg-foreground text-background" 
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  Presale
+                </button>
+                <button
+                  onClick={() => handleTabChange("resale")}
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${
+                    activeTab === "resale" 
+                      ? "bg-foreground text-background" 
+                      : "bg-muted text-muted-foreground"
+                  }`}
+                >
+                  Resale
+                </button>
+              </div>
               
               <button 
-                onClick={() => navigate("/map-search")}
+                onClick={() => navigate(activeTab === "projects" ? "/map-search" : "/resale-map")}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />
@@ -161,7 +205,10 @@ export function MobileHomePage() {
             <form onSubmit={handleSearch} className="relative">
               <Input
                 type="text"
-                placeholder="City, Neighbourhood, Project..."
+                placeholder={activeTab === "projects" 
+                  ? "City, Neighbourhood, Project..." 
+                  : "City, Neighbourhood, Address..."
+                }
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
@@ -188,7 +235,7 @@ export function MobileHomePage() {
               onSelect={handleSuggestionSelect}
               isVisible={showSuggestions}
               onClose={() => setShowSuggestions(false)}
-              searchMode="projects"
+              searchMode={activeTab}
             />
           </div>
         </div>
@@ -211,57 +258,78 @@ export function MobileHomePage() {
         </div>
       </div>
 
-      {/* Discovery Sections - Optimized spacing with dividers */}
+      {/* Discovery Sections - Switch based on active tab */}
       <div className="pb-6">
-        {/* Hot Projects - Featured Section */}
-        <CarouselSection delay={0}>
-          <MobileDiscoveryCarousel
-            type="hot_projects"
-            title="Most Popular Projects"
-            subtitle="The most in-demand presale projects"
-            city={selectedCity}
-          />
-        </CarouselSection>
+        {activeTab === "projects" ? (
+          <>
+            {/* Hot Projects - Featured Section */}
+            <CarouselSection delay={0}>
+              <MobileDiscoveryCarousel
+                type="hot_projects"
+                title="Most Popular Projects"
+                subtitle="The most in-demand presale projects"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Condos */}
-        <CarouselSection delay={50}>
-          <MobileDiscoveryCarousel
-            type="condos"
-            title="Presale Condos"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* Condos */}
+            <CarouselSection delay={50}>
+              <MobileDiscoveryCarousel
+                type="condos"
+                title="Presale Condos"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Townhomes */}
-        <CarouselSection delay={50}>
-          <MobileDiscoveryCarousel
-            type="townhomes"
-            title="Presale Townhomes"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* Townhomes */}
+            <CarouselSection delay={50}>
+              <MobileDiscoveryCarousel
+                type="townhomes"
+                title="Presale Townhomes"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Single-Family / Detached */}
-        <CarouselSection delay={100}>
-          <MobileDiscoveryCarousel
-            type="single_family"
-            title="Detached Homes"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            {/* Single-Family / Detached */}
+            <CarouselSection delay={100}>
+              <MobileDiscoveryCarousel
+                type="single_family"
+                title="Detached Homes"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
 
-        {/* Projects Near You - City Quick Links */}
-        <CarouselSection delay={125}>
-          <MobileCityQuickLinks />
-        </CarouselSection>
+            {/* Projects Near You - City Quick Links */}
+            <CarouselSection delay={125}>
+              <MobileCityQuickLinks />
+            </CarouselSection>
+          </>
+        ) : (
+          <>
+            {/* Resale Mode - Show MLS listings */}
+            <CarouselSection delay={0}>
+              <MobileResaleCarousel
+                title="Featured Listings"
+                subtitle="New construction resale homes"
+              />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            {/* City Quick Links for Resale */}
+            <CarouselSection delay={50}>
+              <MobileCityQuickLinks mode="resale" />
+            </CarouselSection>
+          </>
+        )}
 
         {/* City-based Carousels */}
         <CarouselSection delay={150}>

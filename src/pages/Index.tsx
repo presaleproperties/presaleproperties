@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { HeroSection } from "@/components/home/HeroSection";
+import { HeroSection, SearchTab } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
+import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
@@ -52,6 +54,7 @@ const HOME_FAQS = [
 
 const Index = () => {
   const isMobileOrTablet = useIsMobileOrTablet();
+  const [activeTab, setActiveTab] = useState<SearchTab>("projects");
   // Primary structured data - RealEstateAgent with LocalBusiness
   const organizationSchema = {
     "@context": "https://schema.org",
@@ -240,7 +243,7 @@ const Index = () => {
         <FAQSchema faqs={HOME_FAQS} />
         
         <ConversionHeader />
-        <MobileHomePage />
+        <MobileHomePage activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     );
   }
@@ -283,13 +286,15 @@ const Index = () => {
       
       <ConversionHeader />
       <main className="flex-1">
-        <HeroSection />
+        <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         <ScrollReveal animation="fade-up">
-          <FeaturedProjects />
+          {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
         </ScrollReveal>
-        <ScrollReveal animation="fade-up" delay={100}>
-          <CityProjectsSection />
-        </ScrollReveal>
+        {activeTab === "projects" && (
+          <ScrollReveal animation="fade-up" delay={100}>
+            <CityProjectsSection />
+          </ScrollReveal>
+        )}
         <ScrollReveal animation="fade-up" delay={100}>
           <NewConstructionBenefits />
         </ScrollReveal>
