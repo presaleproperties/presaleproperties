@@ -120,7 +120,7 @@ Deno.serve(async (req) => {
 
     // Step 2: Fetch properties from DDF API with pagination
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
-    const BATCH_SIZE = 1000; // Max records per request
+    const BATCH_SIZE = 100; // DDF API max is 100 records per request
     
     // Build filter for BC - ALL listings in the province
     const filters: string[] = [];
