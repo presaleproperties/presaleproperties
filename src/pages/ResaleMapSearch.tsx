@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, lazy, Suspense, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { useSearchParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   Search, SlidersHorizontal, X, Map, LayoutGrid, 
@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ListingModeToggle } from "@/components/ui/ListingModeToggle";
 import {
   Select,
   SelectContent,
@@ -26,13 +25,14 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
+import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 
-// Lazy load the map component
-const ResaleListingsMap = lazy(() => 
-  import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap }))
+// Lazy load the combined map component
+const CombinedListingsMap = lazy(() => 
+  import("@/components/map/CombinedListingsMap").then(m => ({ default: m.CombinedListingsMap }))
 );
 
 const CITIES = [
@@ -65,6 +65,8 @@ const BED_OPTIONS = [
   { value: "4", label: "4+ Beds" },
 ];
 
+type MapMode = "all" | "presale" | "resale";
+
 type MLSListing = {
   id: string;
   listing_key: string;
@@ -85,6 +87,20 @@ type MLSListing = {
   mls_status: string;
 };
 
+type PresaleProject = {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  neighborhood: string;
+  status: string;
+  project_type: string;
+  starting_price: number | null;
+  featured_image: string | null;
+  map_lat: number | null;
+  map_lng: number | null;
+};
+
 export default function ResaleMapSearch() {
   const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -92,31 +108,31 @@ export default function ResaleMapSearch() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
   const [showCarousel, setShowCarousel] = useState(true);
-  const [selectedListingId, setSelectedListingId] = useState<string | null>(null);
-  const [visibleListingIds, setVisibleListingIds] = useState<string[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
+  const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
+  const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
+  const [mapMode, setMapMode] = useState<MapMode>("all");
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
 
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
 
-  const handleListingSelect = useCallback((listingId: string) => {
-    setSelectedListingId(listingId);
-    // Show carousel if hidden (mobile/tablet)
+  const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
+    setSelectedItemId(id);
+    setSelectedItemType(type);
     setShowCarousel(true);
     
-    // Small delay to ensure elements are rendered before scrolling
     setTimeout(() => {
-      // Scroll carousel (mobile/tablet)
       if (carouselRef.current) {
-        const cardElement = carouselRef.current.querySelector(`[data-listing-id="${listingId}"]`);
+        const cardElement = carouselRef.current.querySelector(`[data-item-id="${id}"]`);
         if (cardElement) {
           cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
       }
-      // Scroll desktop list
       if (desktopListRef.current) {
-        const cardElement = desktopListRef.current.querySelector(`[data-listing-id="${listingId}"]`);
+        const cardElement = desktopListRef.current.querySelector(`[data-item-id="${id}"]`);
         if (cardElement) {
           cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
@@ -124,8 +140,9 @@ export default function ResaleMapSearch() {
     }, 100);
   }, []);
 
-  const handleVisibleListingsChange = useCallback((listingIds: string[]) => {
-    setVisibleListingIds(listingIds);
+  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[]) => {
+    setVisibleResaleIds(resaleIds);
+    setVisiblePresaleIds(presaleIds);
   }, []);
 
   const filters = {
@@ -135,27 +152,22 @@ export default function ResaleMapSearch() {
     beds: searchParams.get("beds") || "any",
   };
 
-  // Optimized query with limits for large datasets - 2025+ builds only
-  const { data: allListings, isLoading } = useQuery({
-    queryKey: ["resale-map-listings-2025", filters, enabledCities],
+  // Fetch resale listings (2025+ builds)
+  const { data: resaleListings, isLoading: resaleLoading } = useQuery({
+    queryKey: ["unified-map-resale-2025", filters, enabledCities],
     queryFn: async () => {
-      // Only fetch listings with coordinates for map display
-      // Limit to 2000 for performance while still showing good coverage
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        // Geographic bounding box for Lower Mainland / Metro Vancouver area
         .gte("latitude", 48.9)
         .lte("latitude", 49.6)
         .gte("longitude", -123.5)
         .lte("longitude", -121.3)
-        // Only 2025+ new construction
         .gte("year_built", 2025);
 
-      // Filter by enabled cities
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
         query = query.in("city", enabledCities);
       }
@@ -164,7 +176,6 @@ export default function ResaleMapSearch() {
         query = query.eq("city", filters.city);
       }
       if (filters.propertyType !== "any") {
-        // Handle both property_type and property_sub_type for flexibility
         query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
       }
       if (filters.priceRange !== "any") {
@@ -175,35 +186,96 @@ export default function ResaleMapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      // Order by price and limit for performance
       query = query.order("listing_price", { ascending: false }).limit(2000);
 
       const { data, error } = await query;
       if (error) throw error;
       return data as MLSListing[];
     },
-    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
+    staleTime: 2 * 60 * 1000,
   });
 
-  const filteredListings = useMemo(() => {
-    if (!allListings) return [];
-    if (!searchQuery.trim()) return allListings;
+  // Fetch presale projects
+  const { data: presaleProjects, isLoading: presaleLoading } = useQuery({
+    queryKey: ["unified-map-presale", filters],
+    queryFn: async () => {
+      let query = supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, status, project_type, starting_price, featured_image, map_lat, map_lng")
+        .eq("is_published", true)
+        .not("status", "eq", "sold_out")
+        .not("map_lat", "is", null)
+        .not("map_lng", "is", null);
+
+      if (filters.city !== "any") {
+        query = query.eq("city", filters.city);
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        query = query.gte("starting_price", min).lte("starting_price", max);
+      }
+
+      query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as PresaleProject[];
+    },
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const isLoading = resaleLoading || presaleLoading;
+
+  const filteredResaleListings = useMemo(() => {
+    if (!resaleListings) return [];
+    if (!searchQuery.trim()) return resaleListings;
     
     const q = searchQuery.toLowerCase();
-    return allListings.filter(
+    return resaleListings.filter(
       (l) =>
         l.city.toLowerCase().includes(q) ||
         (l.neighborhood?.toLowerCase() || "").includes(q) ||
         (l.street_name?.toLowerCase() || "").includes(q)
     );
-  }, [allListings, searchQuery]);
+  }, [resaleListings, searchQuery]);
 
-  const mapListings = filteredListings;
+  const filteredPresaleProjects = useMemo(() => {
+    if (!presaleProjects) return [];
+    if (!searchQuery.trim()) return presaleProjects;
+    
+    const q = searchQuery.toLowerCase();
+    return presaleProjects.filter(
+      (p) =>
+        p.name.toLowerCase().includes(q) ||
+        p.neighborhood.toLowerCase().includes(q) ||
+        p.city.toLowerCase().includes(q)
+    );
+  }, [presaleProjects, searchQuery]);
 
-  const visibleListings = useMemo(() => {
-    if (visibleListingIds.length === 0) return filteredListings;
-    return filteredListings.filter(l => visibleListingIds.includes(l.id));
-  }, [filteredListings, visibleListingIds]);
+  // Visible items based on map viewport and mode
+  const visibleResaleListings = useMemo(() => {
+    if (mapMode === "presale") return [];
+    if (visibleResaleIds.length === 0) return filteredResaleListings.slice(0, 30);
+    return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id)).slice(0, 30);
+  }, [filteredResaleListings, visibleResaleIds, mapMode]);
+
+  const visiblePresaleProjects = useMemo(() => {
+    if (mapMode === "resale") return [];
+    if (visiblePresaleIds.length === 0) return filteredPresaleProjects.slice(0, 30);
+    return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id)).slice(0, 30);
+  }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
+
+  // Combined visible items for display
+  const visibleItems = useMemo(() => {
+    const items: Array<{ type: "resale" | "presale"; data: MLSListing | PresaleProject }> = [];
+    
+    // Add presale projects first (they're fewer and more prominent)
+    visiblePresaleProjects.forEach(p => items.push({ type: "presale", data: p }));
+    // Then add resale listings
+    visibleResaleListings.forEach(l => items.push({ type: "resale", data: l }));
+    
+    return items.slice(0, 40);
+  }, [visibleResaleListings, visiblePresaleProjects]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -242,23 +314,25 @@ export default function ResaleMapSearch() {
     return `$${(price / 1000).toFixed(0)}K`;
   };
 
-  const getAddress = (listing: MLSListing) => {
+  const getResaleAddress = (listing: MLSListing) => {
     const parts = [listing.street_number, listing.street_name, listing.street_suffix].filter(Boolean);
     return parts.length > 0 ? parts.join(" ") : listing.neighborhood || listing.city;
   };
 
-  const getPhoto = (listing: MLSListing) => {
+  const getResalePhoto = (listing: MLSListing) => {
     if (listing.photos && Array.isArray(listing.photos) && listing.photos.length > 0) {
       return listing.photos[0]?.MediaURL || null;
     }
     return null;
   };
 
+  const totalCount = (filteredResaleListings?.length || 0) + (filteredPresaleProjects?.length || 0);
+
   return (
     <>
       <Helmet>
-        <title>Move-In Ready Homes Map | Find New Built Homes | PresaleProperties</title>
-        <meta name="description" content="Search move-in ready new built homes on an interactive map. Find condos, townhomes, and houses in Metro Vancouver." />
+        <title>Explore All Properties on Map | Presale & Move-In Ready | PresaleProperties</title>
+        <meta name="description" content="Search presale condos and move-in ready new homes on an interactive map. Find all new construction in Metro Vancouver." />
         <link rel="canonical" href="https://presaleproperties.com/resale-map" />
       </Helmet>
 
@@ -269,7 +343,7 @@ export default function ResaleMapSearch() {
         <div className="border-b border-border bg-background z-40 shrink-0">
           <div className="px-4 lg:px-6 py-3">
             <div className="flex items-center gap-2 md:gap-4">
-              {/* List View Button - Icon only on mobile/tablet */}
+              {/* Back Button */}
               <Link to="/resale" className="lg:hidden">
                 <button className="p-2 rounded-md bg-background border border-border/50 hover:bg-muted transition-colors" aria-label="View all listings">
                   <LayoutGrid className="h-4 w-4 text-muted-foreground" />
@@ -282,18 +356,10 @@ export default function ResaleMapSearch() {
                 </Button>
               </Link>
 
-              {/* Desktop Presale/Move-In Ready Toggle */}
-              <div className="hidden lg:flex bg-background/80 backdrop-blur-sm rounded-md shadow-sm border border-border/30 text-[11px]">
-                <Link to="/map-search" className="px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground transition-colors rounded-l-md">
-                  Presale
-                </Link>
-                <span className="px-2.5 py-1 font-medium bg-foreground text-background rounded-r-md">Move-In Ready</span>
-              </div>
-
               <div className="relative flex-1 max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search by city, neighborhood..."
+                  placeholder="Search city, neighborhood, project..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 h-9"
@@ -415,22 +481,18 @@ export default function ResaleMapSearch() {
           </div>
         </div>
 
-        {/* Main Content - isolate creates stacking context to contain map z-indexes */}
+        {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/5" : "lg:w-full"}`}>
-            {/* Presale/Resale Toggle - Thin minimal style matching zoom buttons */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000] lg:hidden">
-              <div className="flex bg-background/80 backdrop-blur-sm rounded-md shadow-sm border border-border/30 text-[11px]">
-                <Link to="/map-search">
-                  <button className="px-2.5 py-1 font-medium text-muted-foreground hover:text-foreground transition-colors rounded-l-md">
-                    Presale
-                  </button>
-                </Link>
-                <button className="px-2.5 py-1 font-medium bg-foreground text-background rounded-r-md">
-                  Resale
-                </button>
-              </div>
+            {/* Unified Mode Toggle - Floating on map */}
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
+              <UnifiedMapToggle
+                mode={mapMode}
+                onModeChange={setMapMode}
+                presaleCount={filteredPresaleProjects?.length || 0}
+                resaleCount={filteredResaleListings?.length || 0}
+              />
             </div>
 
             <div className="absolute inset-0">
@@ -438,33 +500,35 @@ export default function ResaleMapSearch() {
                 <Suspense fallback={<LoadingMap />}>
                   {isLoading ? (
                     <LoadingMap />
-                  ) : mapListings.length === 0 ? (
+                  ) : totalCount === 0 ? (
                     <div className="h-full w-full bg-muted flex items-center justify-center">
                       <div className="text-center text-muted-foreground p-6">
                         <Home className="h-12 w-12 mx-auto mb-3" />
-                        <h3 className="font-semibold text-foreground mb-2">No listings found</h3>
+                        <h3 className="font-semibold text-foreground mb-2">No properties found</h3>
                         <p className="text-sm mb-4">Try adjusting your filters</p>
                         <Button onClick={clearAllFilters} size="sm">Clear Filters</Button>
                       </div>
                     </div>
                   ) : (
-                    <ResaleListingsMap 
-                      listings={mapListings}
-                      onListingSelect={handleListingSelect}
-                      onVisibleListingsChange={handleVisibleListingsChange}
+                    <CombinedListingsMap 
+                      resaleListings={filteredResaleListings}
+                      presaleProjects={filteredPresaleProjects}
+                      mode={mapMode}
+                      onListingSelect={handleItemSelect}
+                      onVisibleItemsChange={handleVisibleItemsChange}
                     />
                   )}
                 </Suspense>
               </SafeMapWrapper>
             </div>
 
-            {/* Toggle button when carousel is hidden - right side, minimal */}
-            {!showCarousel && visibleListings.length > 0 && (
+            {/* Toggle button when carousel is hidden */}
+            {!showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-4 right-4 z-[1100] safe-bottom lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
                   className="p-1.5 rounded-full bg-background/80 backdrop-blur-sm shadow-sm border border-border/30 hover:bg-background transition-colors"
-                  aria-label="Show listings"
+                  aria-label="Show properties"
                 >
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 </button>
@@ -472,18 +536,17 @@ export default function ResaleMapSearch() {
             )}
 
             {/* Bottom Carousel - Mobile/Tablet */}
-            {showCarousel && visibleListings.length > 0 && (
+            {showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1100] lg:hidden">
-                {/* Carousel with count and minimal toggle on right */}
                 <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 pt-2 pb-2 safe-bottom">
                   <div className="flex items-center justify-between px-4 md:px-6 pb-2">
                     <span className="text-xs font-medium text-muted-foreground">
-                      {visibleListings.length} listing{visibleListings.length !== 1 ? "s" : ""} in view
+                      {visibleItems.length} propert{visibleItems.length !== 1 ? "ies" : "y"} in view
                     </span>
                     <button
                       onClick={() => setShowCarousel(false)}
                       className="p-1 rounded-full hover:bg-muted/50 transition-colors"
-                      aria-label="Hide listings"
+                      aria-label="Hide properties"
                     >
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </button>
@@ -493,47 +556,81 @@ export default function ResaleMapSearch() {
                     className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                   >
-                    {visibleListings.slice(0, 30).map((listing) => (
-                      <Link 
-                        key={listing.id} 
-                        to={`/resale/${listing.listing_key}`}
-                        data-listing-id={listing.id}
-                        className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
-                      >
-                        <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
-                          selectedListingId === listing.id 
-                            ? 'border-primary ring-2 ring-primary/20 animate-selection-pulse' 
-                            : 'border-border hover:border-primary/50'
-                        }`}>
-                          <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
-                            {getPhoto(listing) ? (
-                              <img src={getPhoto(listing)!} alt={getAddress(listing)} className="w-full h-full object-cover" />
-                            ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Home className="h-6 w-6 text-muted-foreground" />
+                    {visibleItems.map((item) => {
+                      const isPresale = item.type === "presale";
+                      const data = item.data;
+                      const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
+                      const link = isPresale 
+                        ? `/presale/${(data as PresaleProject).slug}` 
+                        : `/resale/${(data as MLSListing).listing_key}`;
+                      
+                      return (
+                        <Link 
+                          key={`${item.type}-${id}`}
+                          to={link}
+                          data-item-id={id}
+                          className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
+                        >
+                          <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
+                            selectedItemId === id 
+                              ? 'border-primary ring-2 ring-primary/20' 
+                              : 'border-border hover:border-primary/50'
+                          }`}>
+                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
+                              {isPresale ? (
+                                (data as PresaleProject).featured_image ? (
+                                  <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Building2 className="h-6 w-6 text-muted-foreground" />
+                                  </div>
+                                )
+                              ) : (
+                                getResalePhoto(data as MLSListing) ? (
+                                  <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center">
+                                    <Home className="h-6 w-6 text-muted-foreground" />
+                                  </div>
+                                )
+                              )}
+                              <Badge className={`absolute top-2 left-2 text-[10px] px-2 py-0.5 ${
+                                isPresale 
+                                  ? 'bg-foreground text-background' 
+                                  : 'bg-primary text-primary-foreground'
+                              }`}>
+                                {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
+                              </Badge>
+                            </div>
+                            <div className="p-2.5 sm:p-3">
+                              <h4 className="font-semibold text-foreground text-sm truncate">
+                                {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
+                              </h4>
+                              <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
+                                <MapPin className="h-3 w-3" />
+                                <span className="text-xs truncate">
+                                  {isPresale ? (data as PresaleProject).neighborhood : (data as MLSListing).city}
+                                </span>
                               </div>
-                            )}
-                            <Badge className="absolute top-2 left-2 text-[10px] px-2 py-0.5 bg-primary text-primary-foreground">
-                              {listing.mls_status}
-                            </Badge>
-                          </div>
-                          <div className="p-2.5 sm:p-3">
-                            <h4 className="font-semibold text-foreground text-sm truncate">{getAddress(listing)}</h4>
-                            <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                              <MapPin className="h-3 w-3" />
-                              <span className="text-xs truncate">{listing.city}</span>
-                            </div>
-                            <div className="flex items-center justify-between mt-2">
-                              <span className="font-bold text-foreground text-sm">{formatPrice(listing.listing_price)}</span>
-                              <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded flex items-center gap-1">
-                                {listing.bedrooms_total && <><Bed className="h-3 w-3" /> {listing.bedrooms_total}</>}
-                                {listing.bathrooms_total && <><Bath className="h-3 w-3 ml-1" /> {listing.bathrooms_total}</>}
-                              </span>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="font-bold text-foreground text-sm">
+                                  {isPresale 
+                                    ? `From ${formatPrice((data as PresaleProject).starting_price)}`
+                                    : formatPrice((data as MLSListing).listing_price)
+                                  }
+                                </span>
+                                {!isPresale && (
+                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded flex items-center gap-1">
+                                    {(data as MLSListing).bedrooms_total && <><Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}</>}
+                                    {(data as MLSListing).bathrooms_total && <><Bath className="h-3 w-3 ml-1" /> {(data as MLSListing).bathrooms_total}</>}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      </Link>
-                    ))}
+                        </Link>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -544,64 +641,98 @@ export default function ResaleMapSearch() {
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
             showList ? "w-2/5 opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
-              <div className="shrink-0 px-4 py-3 border-b border-border">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-foreground">
-                    {visibleListings.length} Listing{visibleListings.length !== 1 ? "s" : ""} in view
-                  </h3>
-                  <Link to="/resale">
-                    <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
-                  </Link>
-                </div>
+            <div className="shrink-0 px-4 py-3 border-b border-border">
+              <div className="flex items-center justify-between">
+                <h3 className="font-semibold text-foreground">
+                  {visibleItems.length} Propert{visibleItems.length !== 1 ? "ies" : "y"} in view
+                </h3>
+                <Link to="/resale">
+                  <Button variant="ghost" size="sm" className="text-sm text-muted-foreground">View All →</Button>
+                </Link>
               </div>
-              
-              <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
-                {visibleListings.length === 0 ? (
-                  <div className="text-center py-8 text-muted-foreground">
-                    <Home className="h-10 w-10 mx-auto mb-2" />
-                    <p>No listings in current view</p>
-                    <p className="text-xs mt-1">Zoom out to see more</p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-3">
-                    {visibleListings.slice(0, 30).map((listing) => (
-                      <Link key={listing.id} to={`/resale/${listing.listing_key}`} className="block" data-listing-id={listing.id}>
+            </div>
+            
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
+              {visibleItems.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Home className="h-10 w-10 mx-auto mb-2" />
+                  <p>No properties in current view</p>
+                  <p className="text-xs mt-1">Zoom out to see more</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  {visibleItems.map((item) => {
+                    const isPresale = item.type === "presale";
+                    const data = item.data;
+                    const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
+                    const link = isPresale 
+                      ? `/presale/${(data as PresaleProject).slug}` 
+                      : `/resale/${(data as MLSListing).listing_key}`;
+                    
+                    return (
+                      <Link key={`${item.type}-${id}`} to={link} className="block" data-item-id={id}>
                         <div className={`bg-card rounded-lg border overflow-hidden transition-all hover:shadow-md hover:border-primary/50 ${
-                          selectedListingId === listing.id ? 'ring-2 ring-primary border-primary animate-selection-pulse' : 'border-border'
+                          selectedItemId === id ? 'ring-2 ring-primary border-primary' : 'border-border'
                         }`}>
                           <div className="relative w-full aspect-[4/3] bg-muted">
-                            {getPhoto(listing) ? (
-                              <img src={getPhoto(listing)!} alt={getAddress(listing)} className="w-full h-full object-cover" />
+                            {isPresale ? (
+                              (data as PresaleProject).featured_image ? (
+                                <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Building2 className="h-8 w-8 text-muted-foreground" />
+                                </div>
+                              )
                             ) : (
-                              <div className="w-full h-full flex items-center justify-center">
-                                <Home className="h-8 w-8 text-muted-foreground" />
-                              </div>
+                              getResalePhoto(data as MLSListing) ? (
+                                <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center">
+                                  <Home className="h-8 w-8 text-muted-foreground" />
+                                </div>
+                              )
                             )}
-                            <Badge className="absolute top-2 left-2 text-[10px] px-1.5 py-0.5 bg-primary text-primary-foreground">
-                              {listing.mls_status}
+                            <Badge className={`absolute top-2 left-2 text-[10px] px-1.5 py-0.5 ${
+                              isPresale 
+                                ? 'bg-foreground text-background' 
+                                : 'bg-primary text-primary-foreground'
+                            }`}>
+                              {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
                             </Badge>
                           </div>
                           <div className="p-2.5">
-                            <h4 className="font-semibold text-sm text-foreground truncate">{getAddress(listing)}</h4>
+                            <h4 className="font-semibold text-sm text-foreground truncate">
+                              {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
+                            </h4>
                             <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
                               <MapPin className="h-3 w-3 shrink-0" />
-                              <span className="text-xs truncate">{listing.city}</span>
+                              <span className="text-xs truncate">
+                                {isPresale ? (data as PresaleProject).neighborhood : (data as MLSListing).city}
+                              </span>
                             </div>
                             <div className="flex items-center justify-between mt-1.5">
-                              <span className="font-bold text-sm text-foreground">{formatPrice(listing.listing_price)}</span>
-                              <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                {listing.bedrooms_total && <><Bed className="h-3 w-3" />{listing.bedrooms_total}</>}
-                                {listing.bathrooms_total && <><Bath className="h-3 w-3 ml-1" />{listing.bathrooms_total}</>}
+                              <span className="font-bold text-sm text-foreground">
+                                {isPresale 
+                                  ? `From ${formatPrice((data as PresaleProject).starting_price)}`
+                                  : formatPrice((data as MLSListing).listing_price)
+                                }
                               </span>
+                              {!isPresale && (
+                                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                  {(data as MLSListing).bedrooms_total && <><Bed className="h-3 w-3" />{(data as MLSListing).bedrooms_total}</>}
+                                  {(data as MLSListing).bathrooms_total && <><Bath className="h-3 w-3 ml-1" />{(data as MLSListing).bathrooms_total}</>}
+                                </span>
+                              )}
                             </div>
                           </div>
                         </div>
                       </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
+          </div>
         </div>
       </div>
     </>
