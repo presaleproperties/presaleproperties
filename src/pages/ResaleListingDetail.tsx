@@ -654,15 +654,34 @@ export default function ResaleListingDetail() {
               longitude={listing.longitude}
             />
 
-            {/* Listing Agent Info */}
-            {listing.list_agent_name && (
+            {/* Listed By Section */}
+            {(listing.list_agent_name || listing.list_office_name) && (
               <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                <h2 className="text-base md:text-lg font-semibold text-foreground mb-3">Listing Agent</h2>
-                <div className="space-y-1">
-                  <p className="font-medium">{listing.list_agent_name}</p>
-                  {listing.list_office_name && (
-                    <p className="text-sm text-muted-foreground">{listing.list_office_name}</p>
-                  )}
+                <h2 className="text-base md:text-lg font-semibold text-foreground mb-4">Listed By</h2>
+                <div className="flex items-start gap-4">
+                  {/* Agent Avatar Placeholder */}
+                  <div className="shrink-0 w-14 h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                    <span className="text-lg md:text-xl font-semibold text-primary">
+                      {listing.list_agent_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AG'}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    {listing.list_agent_name && (
+                      <p className="font-semibold text-foreground truncate">{listing.list_agent_name}</p>
+                    )}
+                    {listing.list_office_name && (
+                      <p className="text-sm text-muted-foreground truncate">{listing.list_office_name}</p>
+                    )}
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
+                      <span>MLS® #{listing.listing_id}</span>
+                      {listing.list_date && (
+                        <>
+                          <span>•</span>
+                          <span>Listed {new Date(listing.list_date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
