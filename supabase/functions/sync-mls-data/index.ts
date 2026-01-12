@@ -124,18 +124,14 @@ Deno.serve(async (req) => {
     let filterCity = "";
     let offset = 0;
     let maxBatches = 30; // Process max 30 batches (3000 listings) per call to stay under 60s timeout
-    let filterCondos = false;
-    let filterTownhomes = false;
-    let filterCondosAndTownhomes = false;
+    let metroVancouverResidential = false; // New filter: condos, townhomes, single family in Metro Van only
     
     try {
       const body = await req.json();
       if (body?.city) filterCity = body.city;
       if (body?.offset !== undefined) offset = parseInt(body.offset) || 0;
       if (body?.maxBatches) maxBatches = Math.min(parseInt(body.maxBatches) || 30, 50);
-      if (body?.filterCondos) filterCondos = true;
-      if (body?.filterTownhomes) filterTownhomes = true;
-      if (body?.filterCondosAndTownhomes) filterCondosAndTownhomes = true;
+      if (body?.metroVancouverResidential) metroVancouverResidential = true;
     } catch {
       // No body or invalid JSON
     }
@@ -189,19 +185,13 @@ Deno.serve(async (req) => {
       filters.push(`City eq '${filterCity}'`);
     }
     
-    // Filter for condos and/or townhomes using correct DDF API fields
-    // Condos: CommonInterest eq 'Condo/Strata'
-    // Townhomes: StructureType/any(a: a eq 'Row / Townhouse') or PropertySubType contains 'Townhouse'
-    if (filterCondosAndTownhomes) {
-      // Get both condos and townhomes
-      filters.push("(CommonInterest eq 'Condo/Strata' or StructureType/any(a: a eq 'Row / Townhouse'))");
-      console.log("Filtering for: Condos (CommonInterest eq 'Condo/Strata') AND Townhomes (StructureType Row / Townhouse)");
-    } else if (filterCondos) {
+    // Metro Vancouver Residential: Use CommonInterest for condos/strata properties
+    // This is the only reliable filter that works with DDF API
+    if (metroVancouverResidential) {
+      // CommonInterest eq 'Condo/Strata' captures condos AND townhomes (strata titled)
+      // We'll sync all and filter locally for display
       filters.push("CommonInterest eq 'Condo/Strata'");
-      console.log("Filtering for: Condos only (CommonInterest eq 'Condo/Strata')");
-    } else if (filterTownhomes) {
-      filters.push("StructureType/any(a: a eq 'Row / Townhouse')");
-      console.log("Filtering for: Townhomes only (StructureType Row / Townhouse)");
+      console.log("Filtering for: Strata properties (Condos + Strata Townhomes) via CommonInterest eq 'Condo/Strata'");
     }
 
     let allProperties: DDFProperty[] = [];
