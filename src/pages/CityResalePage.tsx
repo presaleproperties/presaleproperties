@@ -25,6 +25,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
+import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 16;
@@ -660,6 +661,13 @@ export default function CityResalePage() {
               </div>
             </section>
           )}
+
+          {/* Related Presale Projects */}
+          <RelatedPresaleProjects 
+            city={cityConfig.name}
+            title={`Presale Projects in ${cityConfig.name}`}
+            subtitle="Buy before completion and customize your new home"
+          />
 
           <BuyerCTASection />
         </main>
