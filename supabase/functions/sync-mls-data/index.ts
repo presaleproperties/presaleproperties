@@ -75,6 +75,82 @@ interface DDFProperty {
   }>;
 }
 
+// Known Metro Vancouver neighborhoods by city for better matching
+const CITY_NEIGHBORHOODS: Record<string, string[]> = {
+  "Vancouver": ["Downtown", "Yaletown", "Gastown", "Coal Harbour", "West End", "Kitsilano", "Point Grey", "Kerrisdale", "Dunbar", "Southlands", "Marpole", "South Cambie", "Oakridge", "Shaughnessy", "Arbutus Ridge", "Riley Park", "Mount Pleasant", "Fairview", "Cambie", "Strathcona", "Grandview-Woodland", "Hastings-Sunrise", "Renfrew-Collingwood", "Killarney", "Victoria-Fraserview", "Sunset", "Kensington-Cedar Cottage"],
+  "Burnaby": ["Metrotown", "Brentwood", "Highgate", "Edmonds", "Deer Lake", "Capitol Hill", "Sperling-Duthie", "Willingdon Heights", "Burnaby Heights", "Hastings", "Parkcrest", "Buckingham Heights", "Burnaby Mountain", "Forest Hills", "Lochdale", "Cascade-Schou", "Big Bend", "Cariboo"],
+  "Surrey": ["Whalley", "Guildford", "Fleetwood", "Newton", "Cloverdale", "South Surrey", "White Rock", "Panorama Ridge", "Sullivan Heights", "Bear Creek", "King George Corridor", "Sunnyside Park", "East Newton", "West Newton", "Fraser Heights", "Port Kells", "Bridgeview", "City Centre"],
+  "Richmond": ["Steveston", "Hamilton", "Seafair", "Broadmoor", "Thompson", "Terra Nova", "West Cambie", "Bridgeport", "City Centre", "East Richmond", "Gilmore", "Blundell", "Garden City", "McNair", "Brighouse"],
+  "Coquitlam": ["Maillardville", "Austin Heights", "Burquitlam", "Westwood Plateau", "Burke Mountain", "Como Lake", "Cariboo", "Lincoln Park", "Scott Creek", "Canyon Springs", "Eagle Ridge", "Harbour Place", "Ranch Park", "River Springs"],
+  "Langley": ["Willowbrook", "Walnut Grove", "Murrayville", "Brookswood", "Fernridge", "Aldergrove", "Fort Langley", "Langley City", "Langley Meadows", "Willoughby Heights", "Williams", "Yorkson Creek", "Milner"],
+  "New Westminster": ["Downtown", "Uptown", "Sapperton", "Queensborough", "West End", "Queen's Park", "Glenbrooke North", "Connaught Heights", "Brow of the Hill", "Victory Heights", "Fraserview"],
+  "North Vancouver": ["Lower Lonsdale", "Central Lonsdale", "Upper Lonsdale", "Lynn Valley", "Deep Cove", "Edgemont", "Capilano", "Pemberton Heights", "Norgate", "Blueridge", "Seymour Heights", "Dollarton", "Queensbury"],
+  "Port Coquitlam": ["Downtown", "Citadel Heights", "Oxford Heights", "Mary Hill", "Shaughnessy", "Birchland", "Dominion Triangle", "Lincoln Park"],
+  "Port Moody": ["Moody Centre", "Glenayre", "Harbour Chines", "Heritage Woods", "Pleasantside", "College Park", "Ioco", "Klahanie", "Suter Brook"],
+  "Abbotsford": ["Clearbrook", "Downtown", "Sumas Mountain", "Mill Lake", "Matsqui", "McCallum", "Townline", "Auguston", "West Abbotsford", "Bradner"],
+  "Delta": ["Ladner", "Tsawwassen", "North Delta", "Sunbury", "Annieville", "Sunshine Hills", "Kennedy", "Scott Point", "English Bluff"],
+  "Maple Ridge": ["Downtown", "Albion", "Cottonwood", "Hammond", "Silver Valley", "Webster's Corners", "Whonnock", "Thornhill", "Haney"],
+  "Chilliwack": ["Downtown", "Sardis", "Vedder", "Greendale", "Promontory", "Rosedale", "Yarrow", "Chilliwack Proper", "Fairfield Island"],
+  "White Rock": ["East Beach", "West Beach", "Town Centre", "Hillside", "Hospital Area", "Kent Street"],
+};
+
+// Extract neighborhood from address or subdivision name
+function extractNeighborhood(property: DDFProperty): string | null {
+  // First check if Subdivision is provided
+  if (property.Subdivision && property.Subdivision.trim()) {
+    return property.Subdivision.trim();
+  }
+  
+  const city = property.City || "";
+  const cityNeighborhoods = CITY_NEIGHBORHOODS[city];
+  
+  if (cityNeighborhoods) {
+    // Check street name for neighborhood patterns
+    const streetName = property.StreetName?.toLowerCase() || "";
+    const unparsedAddress = property.UnparsedAddress?.toLowerCase() || "";
+    const combinedText = `${streetName} ${unparsedAddress}`;
+    
+    for (const neighborhood of cityNeighborhoods) {
+      if (combinedText.includes(neighborhood.toLowerCase())) {
+        return neighborhood;
+      }
+    }
+    
+    // Postal code based neighborhood inference for some cities
+    const postalCode = property.PostalCode?.toUpperCase() || "";
+    
+    // Vancouver postal code mappings (simplified)
+    if (city === "Vancouver") {
+      if (postalCode.startsWith("V6B") || postalCode.startsWith("V6C") || postalCode.startsWith("V6E")) return "Downtown";
+      if (postalCode.startsWith("V6Z")) return "Yaletown";
+      if (postalCode.startsWith("V6G")) return "West End";
+      if (postalCode.startsWith("V5Y") || postalCode.startsWith("V5Z")) return "Mount Pleasant";
+      if (postalCode.startsWith("V6K")) return "Kitsilano";
+      if (postalCode.startsWith("V6R") || postalCode.startsWith("V6S")) return "Kerrisdale";
+      if (postalCode.startsWith("V6T")) return "Point Grey";
+    }
+    
+    if (city === "Burnaby") {
+      if (postalCode.startsWith("V5H") || postalCode.startsWith("V5E")) return "Metrotown";
+      if (postalCode.startsWith("V5C")) return "Brentwood";
+      if (postalCode.startsWith("V3N")) return "Edmonds";
+    }
+    
+    if (city === "Richmond") {
+      if (postalCode.startsWith("V6X") || postalCode.startsWith("V6Y")) return "City Centre";
+      if (postalCode.startsWith("V7E")) return "Steveston";
+    }
+    
+    if (city === "Surrey") {
+      if (postalCode.startsWith("V3T") || postalCode.startsWith("V3R")) return "City Centre";
+      if (postalCode.startsWith("V3S")) return "South Surrey";
+      if (postalCode.startsWith("V3W")) return "Guildford";
+    }
+  }
+  
+  return null;
+}
+
 // Infer property type from available data since PropertySubType is unreliable
 function inferPropertyType(property: DDFProperty): string {
   const hasUnitNumber = property.UnitNumber && property.UnitNumber.trim() !== '';
@@ -385,7 +461,7 @@ Deno.serve(async (req) => {
           street_name: property.StreetName,
           street_suffix: property.StreetSuffix,
           unit_number: property.UnitNumber,
-          neighborhood: property.Subdivision,
+          neighborhood: extractNeighborhood(property),
           subdivision_name: property.Subdivision,
           bedrooms_total: toInt(property.BedroomsTotal),
           bathrooms_total: toInt(property.BathroomsTotalInteger),
