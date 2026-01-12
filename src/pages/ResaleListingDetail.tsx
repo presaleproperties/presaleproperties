@@ -34,6 +34,7 @@ import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
+import { SimilarListings } from "@/components/resale/SimilarListings";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const formatPrice = (price: number) => {
@@ -769,6 +770,17 @@ export default function ResaleListingDetail() {
               <MortgageCalculator price={listing.listing_price} />
             </div>
           </div>
+        </div>
+
+        {/* Similar Listings */}
+        <div className="mt-12 md:mt-16 border-t pt-8">
+          <SimilarListings 
+            city={listing.city}
+            bedrooms={listing.bedrooms_total}
+            bathrooms={listing.bathrooms_total}
+            price={listing.listing_price}
+            excludeListingKey={listing.listing_key}
+          />
         </div>
 
         {/* Related Listings */}
