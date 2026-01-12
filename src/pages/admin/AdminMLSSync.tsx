@@ -3,8 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
@@ -55,24 +53,7 @@ interface SyncLog {
 export default function AdminMLSSync() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [feedUrl, setFeedUrl] = useState("");
   const [enabledCities, setEnabledCities] = useState<string[]>([]);
-  const [syncPropertyTypes, setSyncPropertyTypes] = useState<string[]>([
-    "Apartment/Condo",
-    "Townhouse",
-    "Row/Townhouse",
-    "Duplex"
-  ]);
-
-  // Available property types from DDF (for attached/multi-family properties)
-  const availablePropertyTypes = [
-    { value: "Apartment/Condo", label: "Condos/Apartments", description: "High-rise & low-rise condos" },
-    { value: "Townhouse", label: "Townhouses", description: "Attached townhomes" },
-    { value: "Row/Townhouse", label: "Row Houses", description: "Row-style townhouses" },
-    { value: "Duplex", label: "Duplexes", description: "Side-by-side or up/down" },
-    { value: "Single Family", label: "Single Family", description: "Detached homes" },
-    { value: "Multi-family", label: "Multi-family", description: "Multi-unit buildings" },
-  ];
 
   // Default Metro Vancouver & Fraser Valley cities
   const defaultEnabledCities = [
@@ -174,27 +155,14 @@ export default function AdminMLSSync() {
     },
   });
 
-  // Fetch saved feed URL from app_settings
-  const { data: savedFeedUrl } = useQuery({
-    queryKey: ["ddf-feed-url"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "ddf_feed_url")
-        .maybeSingle();
-      
-      return data?.value as string | null;
-    },
-  });
-
   // Trigger sync mutation
   const syncMutation = useMutation({
-    mutationFn: async (options?: { feedUrl?: string; propertyTypes?: string[] }) => {
+    mutationFn: async (options?: { metroVancouverResidential?: boolean; offset?: number }) => {
       const { data, error } = await supabase.functions.invoke("sync-mls-data", {
         body: { 
-          feedUrl: options?.feedUrl,
-          propertyTypes: options?.propertyTypes || syncPropertyTypes,
+          metroVancouverResidential: options?.metroVancouverResidential || false,
+          offset: options?.offset || 0,
+          maxBatches: 30,
         },
       });
       
@@ -202,12 +170,17 @@ export default function AdminMLSSync() {
       return data;
     },
     onSuccess: (data) => {
+      const message = data.isComplete 
+        ? `Sync complete! Fetched ${data.totalFetched} listings.`
+        : `Batch complete: ${data.totalFetched} of ${data.totalCount}. Run again to continue.`;
+      
       toast({
-        title: "Sync completed",
-        description: `Fetched ${data.fetched} listings. Created: ${data.created}, Updated: ${data.updated}`,
+        title: data.isComplete ? "Sync completed" : "Batch synced",
+        description: message,
       });
       queryClient.invalidateQueries({ queryKey: ["mls-sync-logs"] });
       queryClient.invalidateQueries({ queryKey: ["mls-listing-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["mls-city-counts"] });
     },
     onError: (error: Error) => {
       toast({
@@ -216,28 +189,6 @@ export default function AdminMLSSync() {
         variant: "destructive",
       });
       queryClient.invalidateQueries({ queryKey: ["mls-sync-logs"] });
-    },
-  });
-
-  // Save feed URL mutation
-  const saveFeedUrlMutation = useMutation({
-    mutationFn: async (url: string) => {
-      const { error } = await supabase
-        .from("app_settings")
-        .upsert({ key: "ddf_feed_url", value: url }, { onConflict: "key" });
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      toast({ title: "Feed URL saved" });
-      queryClient.invalidateQueries({ queryKey: ["ddf-feed-url"] });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "Failed to save",
-        description: error.message,
-        variant: "destructive",
-      });
     },
   });
 
@@ -354,11 +305,11 @@ export default function AdminMLSSync() {
               <Settings2 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {savedFeedUrl ? "Configured" : "Not Set"}
+              <div className="text-2xl font-bold text-green-600">
+                Connected
               </div>
               <p className="text-xs text-muted-foreground">
-                DDF Feed URL
+                CREA DDF API
               </p>
             </CardContent>
           </Card>
@@ -461,163 +412,112 @@ export default function AdminMLSSync() {
           </CardContent>
         </Card>
 
-        {/* Property Type Filter for Sync */}
+        {/* Sync Mode Selection */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Database className="h-5 w-5" />
-              Property Type Filter
+              Sync Mode
             </CardTitle>
             <CardDescription>
-              Select which property types to sync from the MLS feed. For a condo/townhome site, exclude Single Family homes.
+              Choose what type of listings to sync from the DDF feed. The API uses CommonInterest = 'Condo/Strata' for condos and strata townhomes.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Important</AlertTitle>
-              <AlertDescription>
-                The DDF feed contains mostly Single Family homes (~22k). For condos and townhomes, 
-                you need to filter by property type when syncing. Current DB has only {" "}
-                <strong>5 condo/townhouse listings</strong> out of ~28k total.
+            <Alert className="bg-green-50 border-green-200">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
+              <AlertTitle className="text-green-800">Strata Filter Active</AlertTitle>
+              <AlertDescription className="text-green-700">
+                Your DDF feed has <strong>13,175 strata properties</strong> (condos + townhomes) available.
+                Use "Sync Strata Only" for condo/townhome focused sites.
               </AlertDescription>
             </Alert>
 
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {availablePropertyTypes.map((type) => {
-                const isSelected = syncPropertyTypes.includes(type.value);
-                return (
-                  <div
-                    key={type.value}
-                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
-                      isSelected 
-                        ? "bg-primary/10 border-primary/30" 
-                        : "bg-muted/30 border-muted"
-                    }`}
-                    onClick={() => {
-                      setSyncPropertyTypes(prev => 
-                        prev.includes(type.value) 
-                          ? prev.filter(t => t !== type.value)
-                          : [...prev, type.value]
-                      );
-                    }}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <Switch
-                        checked={isSelected}
-                        onCheckedChange={() => {
-                          setSyncPropertyTypes(prev => 
-                            prev.includes(type.value) 
-                              ? prev.filter(t => t !== type.value)
-                              : [...prev, type.value]
-                          );
-                        }}
-                        className="shrink-0"
-                      />
-                      <div className="min-w-0">
-                        <p className={`text-sm font-medium truncate ${isSelected ? "" : "text-muted-foreground"}`}>
-                          {type.label}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {type.description}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Strata Only Sync */}
+              <div className="p-4 rounded-lg border-2 border-primary bg-primary/5 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Badge className="bg-primary">Recommended</Badge>
+                </div>
+                <h4 className="font-semibold">Strata Properties Only</h4>
+                <p className="text-sm text-muted-foreground">
+                  Condos, apartments, and strata-titled townhomes. Uses DDF filter: CommonInterest = 'Condo/Strata'
+                </p>
+                <Button
+                  onClick={() => syncMutation.mutate({ metroVancouverResidential: true })}
+                  disabled={syncMutation.isPending}
+                  className="w-full"
+                >
+                  {syncMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2" />
+                  )}
+                  Sync Strata Only
+                </Button>
+              </div>
+
+              {/* All BC Listings */}
+              <div className="p-4 rounded-lg border border-muted bg-muted/30 space-y-3">
+                <h4 className="font-semibold">All BC Listings</h4>
+                <p className="text-sm text-muted-foreground">
+                  Sync all active BC listings including single family, land, and commercial (~36k total).
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => syncMutation.mutate({})}
+                  disabled={syncMutation.isPending}
+                  className="w-full"
+                >
+                  {syncMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Play className="h-4 w-4 mr-2" />
+                  )}
+                  Sync All BC
+                </Button>
+              </div>
             </div>
 
-            <div className="flex gap-2 pt-2 border-t">
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setSyncPropertyTypes(["Apartment/Condo", "Townhouse", "Row/Townhouse", "Duplex"])}
-              >
-                Condos & Townhomes Only
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => setSyncPropertyTypes(availablePropertyTypes.map(t => t.value))}
-              >
-                All Types
-              </Button>
+            <div className="pt-4 border-t">
+              <p className="text-xs text-muted-foreground">
+                <strong>Note:</strong> The sync runs in batches of 3,000 listings per request. For large syncs, you may need to run multiple times to import all data.
+              </p>
             </div>
           </CardContent>
         </Card>
 
-        {/* Configuration */}
+        {/* Feed Configuration */}
         <Card>
           <CardHeader>
             <CardTitle>Feed Configuration</CardTitle>
             <CardDescription>
-              Configure your CREA Realtor Link DDF feed URL. You'll need to get this from your real estate board.
+              Your CREA DDF credentials are configured. The sync uses the standard DDF API endpoint.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Setup Required</AlertTitle>
-              <AlertDescription>
-                To sync MLS data, you need:
-                <ol className="list-decimal ml-4 mt-2 space-y-1">
-                  <li>DDF_USERNAME and DDF_PASSWORD secrets (already configured ✓)</li>
-                  <li>Your board-specific DDF feed URL from CREA Realtor Link</li>
-                </ol>
+            <Alert className="bg-blue-50 border-blue-200">
+              <CheckCircle2 className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="text-blue-800">DDF Configured</AlertTitle>
+              <AlertDescription className="text-blue-700">
+                <ul className="list-disc ml-4 mt-1 space-y-1">
+                  <li>DDF_USERNAME and DDF_PASSWORD secrets configured ✓</li>
+                  <li>API Endpoint: ddfapi.realtor.ca/odata/v1/Property</li>
+                  <li>OAuth via identity.crea.ca ✓</li>
+                </ul>
               </AlertDescription>
             </Alert>
 
-            <div className="space-y-2">
-              <Label htmlFor="feedUrl">DDF Feed URL</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="feedUrl"
-                  placeholder="https://data.crea.ca/Feed/Property?$filter=..."
-                  value={feedUrl || savedFeedUrl || ""}
-                  onChange={(e) => setFeedUrl(e.target.value)}
-                  className="flex-1"
-                />
-                <Button 
-                  variant="outline"
-                  onClick={() => saveFeedUrlMutation.mutate(feedUrl || savedFeedUrl || "")}
-                  disabled={saveFeedUrlMutation.isPending}
-                >
-                  Save
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Example: https://data.crea.ca/Feed/Property?$filter=contains(City,'Vancouver')
-              </p>
-            </div>
-
-            <div className="flex gap-2 pt-4">
-              <Button
-                onClick={() => syncMutation.mutate({ 
-                  feedUrl: feedUrl || savedFeedUrl || undefined,
-                  propertyTypes: syncPropertyTypes 
-                })}
-                disabled={syncMutation.isPending}
+            <Button variant="outline" asChild>
+              <a 
+                href="https://ddfapi-docs.realtor.ca/" 
+                target="_blank" 
+                rel="noopener noreferrer"
               >
-                {syncMutation.isPending ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                ) : (
-                  <Play className="h-4 w-4 mr-2" />
-                )}
-                Run Sync Now
-              </Button>
-
-              <Button variant="outline" asChild>
-                <a 
-                  href="https://www.crea.ca/data-solutions/ddf/" 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                >
-                  <ExternalLink className="h-4 w-4 mr-2" />
-                  CREA DDF Docs
-                </a>
-              </Button>
-            </div>
+                <ExternalLink className="h-4 w-4 mr-2" />
+                CREA DDF API Docs
+              </a>
+            </Button>
           </CardContent>
         </Card>
 
