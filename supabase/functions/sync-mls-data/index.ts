@@ -189,7 +189,7 @@ Deno.serve(async (req) => {
     // Parse request body for options
     let filterCity = "";
     let offset = 0;
-    let maxBatches = 30; // Process max 30 batches (3000 listings) per call to stay under 60s timeout
+    let maxBatches = 50; // Process max 50 batches (5000 listings) per call
     let metroVancouverResidential = false; // New filter: condos, townhomes, single family in Metro Van only
     
     try {
