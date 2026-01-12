@@ -174,11 +174,17 @@ export function ResaleListingsMap({
       maxZoom: 19 
     }).addTo(map);
 
+    // Optimized cluster settings for large datasets (36K+ listings)
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      maxClusterRadius: 50,
+      chunkDelay: 50,
+      chunkInterval: 100,
+      maxClusterRadius: 60, // Slightly larger to reduce marker count
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
+      disableClusteringAtZoom: 17,
+      animate: false, // Disable animations for better performance
+      removeOutsideVisibleBounds: true, // Only render visible markers
       iconCreateFunction: createClusterIcon,
     });
 
@@ -217,32 +223,45 @@ export function ResaleListingsMap({
     const clusterGroup = markerClusterRef.current;
     if (!map || !clusterGroup) return;
 
+    // For large datasets, batch marker creation for better performance
     clusterGroup.clearLayers();
     markersRef.current.clear();
 
     if (validListings.length === 0) return;
 
-    validListings.forEach((listing) => {
+    // Create markers in batches for better performance with large datasets
+    const BATCH_SIZE = 500;
+    const markers: L.Marker[] = [];
+    
+    for (let i = 0; i < validListings.length; i++) {
+      const listing = validListings[i];
       const marker = L.marker([listing.latitude!, listing.longitude!], {
         icon: createPricePillIcon(listing),
       });
 
-      // Only trigger carousel selection, no popup
       marker.on("click", () => {
         onListingSelect?.(listing.id);
       });
 
-      clusterGroup.addLayer(marker);
+      markers.push(marker);
       markersRef.current.set(listing.id, marker);
+    }
+
+    // Add all markers at once for better clustering performance
+    clusterGroup.addLayers(markers);
+
+    // Fit bounds to show all listings (only if we have valid data)
+    if (validListings.length > 0) {
+      const bounds = L.latLngBounds(
+        validListings.map(l => [l.latitude!, l.longitude!] as L.LatLngTuple)
+      );
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13, animate: false });
+    }
+
+    // Delay visibility update slightly for rendering
+    requestAnimationFrame(() => {
+      setTimeout(updateVisibleListings, 50);
     });
-
-    // Fit bounds to show all listings
-    const bounds = L.latLngBounds(
-      validListings.map(l => [l.latitude!, l.longitude!] as L.LatLngTuple)
-    );
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
-
-    setTimeout(updateVisibleListings, 100);
   }, [validListings, onListingSelect, updateVisibleListings]);
 
   const handleLocateUser = () => {

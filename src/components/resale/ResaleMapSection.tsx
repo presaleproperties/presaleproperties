@@ -41,25 +41,26 @@ export function ResaleMapSection() {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch listings with coordinates for condos/townhomes
+  // Optimized query - only fetch what's needed for map display
+  // Limit to 500 for homepage section (full map has more)
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-listings"],
+    queryKey: ["resale-map-section-listings"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos")
+        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos")
         .eq("mls_status", "Active")
-        .or("property_type.ilike.%Condo%,property_type.ilike.%Townhouse%,property_sub_type.ilike.%Condo%,property_sub_type.ilike.%Townhouse%")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .order("list_date", { ascending: false })
-        .limit(100);
+        .order("listing_price", { ascending: false })
+        .limit(500); // Limit for homepage performance
 
       if (error) throw error;
       return data;
     },
     enabled: shouldLoad,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 10 * 60 * 1000,
   });
 
   const validListings = listings?.filter(l => l.latitude && l.longitude) || [];

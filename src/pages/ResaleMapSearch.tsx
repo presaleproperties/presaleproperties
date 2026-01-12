@@ -130,19 +130,25 @@ export default function ResaleMapSearch() {
     beds: searchParams.get("beds") || "any",
   };
 
+  // Optimized query with limits for large datasets
   const { data: allListings, isLoading } = useQuery({
     queryKey: ["resale-map-listings", filters],
     queryFn: async () => {
+      // Only fetch listings with coordinates for map display
+      // Limit to 2000 for performance while still showing good coverage
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status")
-        .in("mls_status", ["Active", "Pending"]);
+        .eq("mls_status", "Active")
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
 
       if (filters.city !== "any") {
         query = query.eq("city", filters.city);
       }
       if (filters.propertyType !== "any") {
-        query = query.eq("property_sub_type", filters.propertyType);
+        // Handle both property_type and property_sub_type for flexibility
+        query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
       }
       if (filters.priceRange !== "any") {
         const [min, max] = filters.priceRange.split("-").map(Number);
@@ -152,12 +158,14 @@ export default function ResaleMapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      query = query.order("listing_price", { ascending: false });
+      // Order by price and limit for performance
+      query = query.order("listing_price", { ascending: false }).limit(2000);
 
       const { data, error } = await query;
       if (error) throw error;
       return data as MLSListing[];
     },
+    staleTime: 2 * 60 * 1000, // Cache for 2 minutes
   });
 
   const filteredListings = useMemo(() => {
