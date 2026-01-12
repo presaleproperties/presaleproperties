@@ -94,8 +94,7 @@ const App = () => (
             <Route path="/map-search" element={<MapSearch />} />
             <Route path="/resale" element={<ResaleListings />} />
             <Route path="/resale-map" element={<ResaleMapSearch />} />
-            <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
-            {/* City-specific resale pages */}
+            {/* City-specific resale pages - MUST be before :listingKey route */}
             <Route path="/resale/vancouver" element={<CityResalePage />} />
             <Route path="/resale/surrey" element={<CityResalePage />} />
             <Route path="/resale/coquitlam" element={<CityResalePage />} />
@@ -104,6 +103,9 @@ const App = () => (
             <Route path="/resale/langley" element={<CityResalePage />} />
             <Route path="/resale/abbotsford" element={<CityResalePage />} />
             <Route path="/resale/chilliwack" element={<CityResalePage />} />
+            <Route path="/resale/richmond" element={<CityResalePage />} />
+            {/* Dynamic listing key route - MUST be after city routes */}
+            <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />

@@ -110,6 +110,15 @@ const CITY_CONFIG: Record<string, {
     h1: "Homes for Sale in Chilliwack, BC",
     description: "Explore homes for sale in Chilliwack. Browse affordable listings in one of BC's fastest-growing cities.",
     neighborhoods: ["Sardis", "Vedder", "Downtown", "Promontory", "Rosedale"]
+  },
+  "richmond": {
+    name: "Richmond",
+    region: "Metro Vancouver",
+    metaTitle: "Homes for Sale in Richmond, BC | MLS Listings | PresaleProperties",
+    metaDescription: "Browse active MLS listings in Richmond. Find condos, townhomes & houses in City Centre, Steveston & Brighouse.",
+    h1: "Homes for Sale in Richmond, BC",
+    description: "Explore homes for sale in Richmond. Browse listings in City Centre, Steveston, Brighouse & more.",
+    neighborhoods: ["City Centre", "Steveston", "Brighouse", "Ironwood", "West Cambie", "Hamilton"]
   }
 };
 
