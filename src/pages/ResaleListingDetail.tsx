@@ -27,6 +27,7 @@ import { ShareButtons } from "@/components/listings/ShareButtons";
 import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
+import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -584,6 +585,15 @@ export default function ResaleListingDetail() {
               <MortgageCalculator price={listing.listing_price} />
             </div>
           </div>
+        </div>
+
+        {/* Related Listings */}
+        <div className="mt-12 md:mt-16 border-t pt-8">
+          <RelatedCityListings 
+            city={listing.city}
+            neighborhood={listing.neighborhood}
+            excludeListingKey={listing.listing_key}
+          />
         </div>
       </main>
 

@@ -6,7 +6,16 @@ import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
-const TOP_CITIES = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Langley", "Richmond"];
+const TOP_CITIES = [
+  "Vancouver", 
+  "Burnaby", 
+  "Surrey", 
+  "Coquitlam", 
+  "Langley", 
+  "Delta", 
+  "Abbotsford", 
+  "Chilliwack"
+];
 
 export function ResaleHeroSection() {
   const navigate = useNavigate();
@@ -27,7 +36,7 @@ export function ResaleHeroSection() {
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
-    const typeFilter = propertyType === "condos" ? "Condo/Strata" : "Townhouse";
+    const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
     if (searchQuery.trim()) {
       navigate(`/resale?q=${encodeURIComponent(searchQuery)}&type=${typeFilter}`);
     } else {
@@ -36,9 +45,9 @@ export function ResaleHeroSection() {
   };
 
   const handleSuggestionSelect = (suggestion: any) => {
-    const typeFilter = propertyType === "condos" ? "Condo/Strata" : "Townhouse";
+    const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
     if (suggestion.type === "city") {
-      navigate(`/resale?city=${suggestion.city}&type=${typeFilter}`);
+      navigate(`/resale/${suggestion.city.toLowerCase()}`);
     } else {
       navigate(`/resale?q=${encodeURIComponent(suggestion.name || suggestion.city)}&type=${typeFilter}`);
     }
@@ -46,8 +55,7 @@ export function ResaleHeroSection() {
   };
 
   const handleCityClick = (city: string) => {
-    const typeFilter = propertyType === "condos" ? "Condo/Strata" : "Townhouse";
-    navigate(`/resale?city=${city}&type=${typeFilter}`);
+    navigate(`/resale/${city.toLowerCase()}`);
   };
 
   return (
@@ -56,7 +64,7 @@ export function ResaleHeroSection() {
       <div className="absolute inset-0">
         <img
           src={heroImage}
-          alt="Metro Vancouver Real Estate"
+          alt="New Construction Condos & Townhomes in BC"
           className="h-full w-full object-cover"
           loading="eager"
           fetchPriority="high"
@@ -69,17 +77,17 @@ export function ResaleHeroSection() {
         <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
           {/* Tagline */}
           <span className="inline-block text-xs md:text-sm font-medium uppercase tracking-widest text-white/80 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-            MLS Listings • Metro Vancouver
+            New Construction • Ready to Move In
           </span>
 
           {/* Headline */}
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            Find Your Perfect{" "}
-            <span className="text-primary">Condo or Townhome</span>
+            New <span className="text-primary">Condos & Townhomes</span><br className="hidden sm:block" />
+            for Sale in BC
           </h1>
 
           <p className="text-white/80 text-sm md:text-lg max-w-xl mx-auto">
-            Browse thousands of active MLS listings across Metro Vancouver
+            Browse move-in ready homes across Vancouver, Surrey, Burnaby, Coquitlam, Langley, Delta, Abbotsford & Chilliwack
           </p>
 
           {/* Search Card */}
@@ -170,7 +178,7 @@ export function ResaleHeroSection() {
 
           {/* Top Cities */}
           <div className="pt-4">
-            <p className="text-white/60 text-xs mb-3 uppercase tracking-wider">Top Cities</p>
+            <p className="text-white/60 text-xs mb-3 uppercase tracking-wider">Browse by City</p>
             <div className="flex flex-wrap justify-center gap-2">
               {TOP_CITIES.map((city) => (
                 <button
