@@ -63,6 +63,22 @@ interface SyncLog {
   error_message: string | null;
 }
 
+interface GeocodingLog {
+  id: string;
+  started_at: string;
+  completed_at: string | null;
+  status: string;
+  listings_processed: number | null;
+  listings_updated: number | null;
+  listings_errors: number | null;
+  remaining_count: number | null;
+  api_calls_made: number | null;
+  batch_size: number | null;
+  city_filter: string | null;
+  error_message: string | null;
+  trigger_source: string | null;
+}
+
 export default function AdminMLSSync() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -293,9 +309,10 @@ export default function AdminMLSSync() {
     onSuccess: (data) => {
       toast({
         title: "Geocoding completed",
-        description: `Updated ${data.updated || 0} listings. ${data.remaining || 0} remaining.`,
+        description: `Updated ${data.updated || 0} listings. ${data.remaining || 0} remaining. ${data.apiCalls || 0} API calls made.`,
       });
       queryClient.invalidateQueries({ queryKey: ["mls-geocode-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["geocoding-logs"] });
     },
     onError: (error: Error) => {
       toast({
@@ -316,11 +333,45 @@ export default function AdminMLSSync() {
         .eq("mls_status", "Active")
         .or("latitude.is.null,longitude.is.null");
 
+      const { count: withCoords } = await supabase
+        .from("mls_listings")
+        .select("*", { count: "exact", head: true })
+        .eq("mls_status", "Active")
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
+
       return {
         missingCoords: missingCoords || 0,
+        withCoords: withCoords || 0,
       };
     },
   });
+
+  // Fetch geocoding logs
+  const { data: geocodingLogs, isLoading: geocodingLogsLoading } = useQuery({
+    queryKey: ["geocoding-logs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("geocoding_logs")
+        .select("*")
+        .order("started_at", { ascending: false })
+        .limit(20);
+      
+      if (error) throw error;
+      return data as GeocodingLog[];
+    },
+  });
+
+  // Calculate geocoding statistics from logs
+  const geocodingApiStats = geocodingLogs ? {
+    totalApiCalls: geocodingLogs.reduce((sum, log) => sum + (log.api_calls_made || 0), 0),
+    totalUpdated: geocodingLogs.reduce((sum, log) => sum + (log.listings_updated || 0), 0),
+    todayApiCalls: geocodingLogs
+      .filter(log => new Date(log.started_at).toDateString() === new Date().toDateString())
+      .reduce((sum, log) => sum + (log.api_calls_made || 0), 0),
+    lastRun: geocodingLogs[0]?.started_at,
+    lastRunStatus: geocodingLogs[0]?.status,
+  } : null;
 
   // Fetch agent/office stats
   const { data: agentStats } = useQuery({
@@ -661,30 +712,67 @@ export default function AdminMLSSync() {
           </CardContent>
         </Card>
 
-        {/* Geocoding */}
+        {/* Geocoding Monitoring Dashboard */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Geocode Listings (Google Maps)
+              Geocoding Monitoring Dashboard
             </CardTitle>
             <CardDescription>
-              Improve map accuracy by geocoding listings using Google Maps API. This updates coordinates for listings missing or having inaccurate location data.
+              Track geocoding progress and Google Maps API usage. Nightly cron jobs geocode ~300 listings automatically at 5:00, 5:30, and 6:00 AM PST.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-muted/50 text-center">
+          <CardContent className="space-y-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 text-center">
                 <p className="text-2xl font-bold text-orange-600">{geocodeStats?.missingCoords || 0}</p>
-                <p className="text-xs text-muted-foreground">Missing Coordinates</p>
+                <p className="text-xs text-muted-foreground">Missing Coords</p>
+              </div>
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-center">
+                <p className="text-2xl font-bold text-green-600">{geocodeStats?.withCoords || 0}</p>
+                <p className="text-xs text-muted-foreground">Geocoded</p>
+              </div>
+              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
+                <p className="text-2xl font-bold text-blue-600">{geocodingApiStats?.todayApiCalls || 0}</p>
+                <p className="text-xs text-muted-foreground">API Calls Today</p>
+              </div>
+              <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 text-center">
+                <p className="text-2xl font-bold text-purple-600">{geocodingApiStats?.totalApiCalls || 0}</p>
+                <p className="text-xs text-muted-foreground">Total API Calls</p>
               </div>
               <div className="p-3 rounded-lg bg-muted/50 text-center">
-                <p className="text-2xl font-bold">{(listingStats?.active || 0) - (geocodeStats?.missingCoords || 0)}</p>
-                <p className="text-xs text-muted-foreground">With Coordinates</p>
+                <p className="text-2xl font-bold">{geocodingApiStats?.totalUpdated || 0}</p>
+                <p className="text-xs text-muted-foreground">Total Updated</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Progress Bar */}
+            {geocodeStats && (geocodeStats.missingCoords + geocodeStats.withCoords) > 0 && (
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Geocoding Progress</span>
+                  <span className="text-muted-foreground">
+                    {Math.round((geocodeStats.withCoords / (geocodeStats.missingCoords + geocodeStats.withCoords)) * 100)}% complete
+                  </span>
+                </div>
+                <div className="w-full bg-muted rounded-full h-3">
+                  <div 
+                    className="bg-green-500 h-3 rounded-full transition-all" 
+                    style={{ 
+                      width: `${(geocodeStats.withCoords / (geocodeStats.missingCoords + geocodeStats.withCoords)) * 100}%` 
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {geocodeStats.withCoords.toLocaleString()} of {(geocodeStats.missingCoords + geocodeStats.withCoords).toLocaleString()} active listings geocoded
+                </p>
+              </div>
+            )}
+
+            {/* Manual Geocode Button */}
+            <div className="flex items-center gap-4 pt-2 border-t">
               <Button
                 onClick={() => geocodeMutation.mutate()}
                 disabled={geocodeMutation.isPending || (geocodeStats?.missingCoords || 0) === 0}
@@ -694,12 +782,82 @@ export default function AdminMLSSync() {
                 ) : (
                   <MapPin className="h-4 w-4 mr-2" />
                 )}
-                Geocode 50 Listings
+                Geocode 50 Listings Now
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Uses Google Maps Geocoding API for accurate coordinates. Run multiple times to process all missing listings.
-              </p>
+              <div className="text-xs text-muted-foreground">
+                <p>Uses Google Maps Geocoding API ($5 per 1,000 requests)</p>
+                <p className="text-muted-foreground/70">Est. remaining cost: ${((geocodeStats?.missingCoords || 0) * 0.005).toFixed(2)}</p>
+              </div>
             </div>
+
+            {/* Geocoding History Table */}
+            <div className="pt-4 border-t">
+              <h4 className="font-medium mb-3">Geocoding History</h4>
+              {geocodingLogsLoading ? (
+                <div className="space-y-2">
+                  {[...Array(5)].map((_, i) => (
+                    <Skeleton key={i} className="h-10 w-full" />
+                  ))}
+                </div>
+              ) : geocodingLogs && geocodingLogs.length > 0 ? (
+                <div className="max-h-[300px] overflow-y-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Source</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="text-right">Processed</TableHead>
+                        <TableHead className="text-right">Updated</TableHead>
+                        <TableHead className="text-right">Errors</TableHead>
+                        <TableHead className="text-right">API Calls</TableHead>
+                        <TableHead className="text-right">Remaining</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {geocodingLogs.map((log) => (
+                        <TableRow key={log.id}>
+                          <TableCell className="text-xs">
+                            {format(new Date(log.started_at), "MMM d, h:mm a")}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className="text-xs">
+                              {log.trigger_source === 'cron' ? '⏰ Cron' : '👤 Manual'}
+                            </Badge>
+                          </TableCell>
+                          <TableCell>{getStatusBadge(log.status)}</TableCell>
+                          <TableCell className="text-right">{log.listings_processed ?? "-"}</TableCell>
+                          <TableCell className="text-right text-green-600">{log.listings_updated ?? "-"}</TableCell>
+                          <TableCell className="text-right text-red-600">{log.listings_errors || "-"}</TableCell>
+                          <TableCell className="text-right text-blue-600">{log.api_calls_made ?? "-"}</TableCell>
+                          <TableCell className="text-right text-orange-600">{log.remaining_count?.toLocaleString() ?? "-"}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              ) : (
+                <div className="text-center py-6 text-muted-foreground">
+                  <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No geocoding history yet</p>
+                  <p className="text-xs">Run geocoding to start tracking progress</p>
+                </div>
+              )}
+            </div>
+
+            {/* Cron Schedule Info */}
+            <Alert className="bg-blue-50 border-blue-200">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <AlertTitle className="text-blue-800">Automated Geocoding Schedule</AlertTitle>
+              <AlertDescription className="text-blue-700">
+                <ul className="list-disc ml-4 mt-1 space-y-1 text-sm">
+                  <li><strong>5:00 AM PST</strong> - Batch 1: 100 listings</li>
+                  <li><strong>5:30 AM PST</strong> - Batch 2: 100 listings</li>
+                  <li><strong>6:00 AM PST</strong> - Batch 3: 100 listings</li>
+                </ul>
+                <p className="mt-2 text-xs">~300 listings geocoded nightly after the MLS sync completes.</p>
+              </AlertDescription>
+            </Alert>
           </CardContent>
         </Card>
 
