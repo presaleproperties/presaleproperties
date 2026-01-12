@@ -42,7 +42,7 @@ import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
-import { PriceHistoryChart } from "@/components/resale/PriceHistoryChart";
+
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -390,7 +390,7 @@ export default function ResaleListingDetail() {
               </div>
             </div>
 
-            {/* Price Section - REW Style */}
+            {/* Price Section */}
             <div>
               {/* Badges Row */}
               <div className="flex flex-wrap items-center gap-2 mb-3">
@@ -409,16 +409,23 @@ export default function ResaleListingDetail() {
                 >
                   {listing.mls_status}
                 </Badge>
-                {listing.days_on_market !== null && listing.days_on_market <= 7 && (
-                  <Badge variant="outline" className="text-xs gap-1 border-blue-200 text-blue-700 bg-blue-50">
+                {/* Days on Market - Prominent display */}
+                {listing.days_on_market !== null && listing.days_on_market <= 3 && (
+                  <Badge className="bg-blue-600 text-white gap-1">
                     <Clock className="h-3 w-3" />
-                    Just Listed
+                    New Today
+                  </Badge>
+                )}
+                {listing.days_on_market !== null && listing.days_on_market > 3 && listing.days_on_market <= 7 && (
+                  <Badge className="bg-blue-500 text-white gap-1">
+                    <Clock className="h-3 w-3" />
+                    {listing.days_on_market} Days on Market
                   </Badge>
                 )}
                 {listing.days_on_market !== null && listing.days_on_market > 7 && (
                   <Badge variant="outline" className="text-xs gap-1">
                     <Clock className="h-3 w-3" />
-                    {listing.days_on_market} days
+                    {listing.days_on_market} Days on Market
                   </Badge>
                 )}
               </div>
@@ -801,12 +808,6 @@ export default function ResaleListingDetail() {
               />
             )}
 
-            {/* Price History Chart */}
-            <PriceHistoryChart
-              currentPrice={listing.listing_price}
-              originalPrice={listing.original_list_price}
-              listDate={listing.list_date}
-            />
 
             {/* Property Value Trends */}
             <PropertyValueTrends
