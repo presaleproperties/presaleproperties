@@ -279,7 +279,24 @@ export function BookingModal({
 
       if (error) throw error;
 
-      // Send notification email
+      // Trigger booking workflow
+      await supabase.functions.invoke("trigger-workflow", {
+        body: {
+          event: "booking_request",
+          data: {
+            email,
+            first_name: firstName,
+            last_name: lastName,
+            project_name: projectName,
+            project_id: projectId,
+            booking_date: format(selectedDate, "EEEE, MMMM d, yyyy"),
+            booking_time: format(new Date(`2000-01-01T${selectedTime}`), "h:mm a"),
+          },
+          meta: { source: "booking_modal" },
+        },
+      }).catch(console.error);
+
+      // Send notification email to admin
       await supabase.functions.invoke("send-booking-notification", {
         body: {
           ...bookingData,
