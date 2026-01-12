@@ -1,57 +1,49 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, Map, Building2, Home } from "lucide-react";
+import { Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
-const TOP_CITIES = [
-  "Vancouver", 
-  "Burnaby", 
-  "Surrey", 
-  "Coquitlam", 
-  "Langley", 
-  "Delta", 
-  "Abbotsford", 
-  "Chilliwack"
-];
+const TOP_CITIES = ["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Langley"];
 
 export function ResaleHeroSection() {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [propertyType, setPropertyType] = useState<"condos" | "townhomes">("condos");
-  const searchRef = useRef<HTMLDivElement>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
+  // Close suggestions when clicking outside
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         setShowSuggestions(false);
       }
-    }
+    };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleSearch = (e?: React.FormEvent) => {
-    e?.preventDefault();
-    const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    setShowSuggestions(false);
     if (searchQuery.trim()) {
-      navigate(`/resale?q=${encodeURIComponent(searchQuery)}&type=${typeFilter}`);
+      navigate(`/resale?q=${encodeURIComponent(searchQuery)}`);
     } else {
-      navigate(`/resale?type=${typeFilter}`);
+      navigate("/resale");
     }
   };
 
-  const handleSuggestionSelect = (suggestion: any) => {
-    const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
-    if (suggestion.type === "city") {
-      navigate(`/resale/${suggestion.city.toLowerCase()}`);
-    } else {
-      navigate(`/resale?q=${encodeURIComponent(suggestion.name || suggestion.city)}&type=${typeFilter}`);
-    }
+  const handleSuggestionSelect = (value: string, type: string) => {
+    setSearchQuery(value);
     setShowSuggestions(false);
+    if (type === "city") {
+      navigate(`/resale/${value.toLowerCase()}`);
+    } else {
+      navigate(`/resale?q=${encodeURIComponent(value)}`);
+    }
   };
 
   const handleCityClick = (city: string) => {
@@ -59,135 +51,100 @@ export function ResaleHeroSection() {
   };
 
   return (
-    <section className="relative min-h-[70vh] md:min-h-[75vh] flex items-center justify-center overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0">
-        <img
-          src={heroImage}
-          alt="New Construction Condos & Townhomes in BC"
-          className="h-full w-full object-cover"
-          loading="eager"
-          fetchPriority="high"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
-      </div>
-
+    <section className="relative min-h-[560px] sm:min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden">
+      {/* Background Image - High Quality */}
+      <img 
+        src={heroImage}
+        alt="New construction homes in Metro Vancouver"
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        decoding="sync"
+        fetchPriority="high"
+      />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/50 to-black/70 sm:from-black/50 sm:via-black/40 sm:to-black/60" />
+      
       {/* Content */}
-      <div className="relative z-10 container px-4 text-center">
-        <div className="max-w-3xl mx-auto space-y-6 md:space-y-8">
+      <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
+        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
           {/* Tagline */}
-          <span className="inline-block text-xs md:text-sm font-medium uppercase tracking-widest text-white/80 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full">
-            New Construction • Ready to Move In
-          </span>
-
-          {/* Headline */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            New <span className="text-primary">Condos & Townhomes</span><br className="hidden sm:block" />
-            for Sale in BC
+          <p className="text-primary text-xs sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
+            Vancouver's #1 New Construction Homes Marketplace
+          </p>
+          
+          {/* Main Heading - SEO optimized H1 */}
+          <h1 className="text-[26px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.15] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
+            Find <span className="text-primary">New Construction</span> Homes
           </h1>
 
-          <p className="text-white/80 text-sm md:text-lg max-w-xl mx-auto">
-            Browse move-in ready homes across Vancouver, Surrey, Burnaby, Coquitlam, Langley, Delta, Abbotsford & Chilliwack
-          </p>
-
-          {/* Search Card */}
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-2xl p-4 md:p-6 max-w-2xl mx-auto">
-            {/* Property Type Toggle */}
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <button
-                onClick={() => setPropertyType("condos")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  propertyType === "condos"
-                    ? "bg-foreground text-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground bg-muted/50"
-                }`}
+          {/* Floating Search Card - Compact on mobile */}
+          <div 
+            className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
+            style={{ animationDelay: "0.2s" }}
+          >
+            {/* Search Header */}
+            <div className="flex items-center justify-between border-b border-border px-2.5 sm:px-4 py-2 sm:py-3">
+              <span className="px-3 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold bg-foreground text-background shadow-sm">
+                New Homes
+              </span>
+              <Link
+                to="/resale-map"
+                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                <Building2 className="h-4 w-4" />
-                Condos
-              </button>
-              <button
-                onClick={() => setPropertyType("townhomes")}
-                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                  propertyType === "townhomes"
-                    ? "bg-foreground text-background shadow-sm"
-                    : "text-muted-foreground hover:text-foreground bg-muted/50"
-                }`}
-              >
-                <Home className="h-4 w-4" />
-                Townhomes
-              </button>
+                <MapPin className="h-4 w-4" />
+                <span className="hidden sm:inline">Open Map</span>
+              </Link>
             </div>
 
             {/* Search Input */}
-            <div ref={searchRef}>
-              <form onSubmit={handleSearch} className="relative">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      type="text"
-                      placeholder="Search by city, neighborhood..."
-                      value={searchQuery}
-                      onChange={(e) => {
-                        setSearchQuery(e.target.value);
-                        setShowSuggestions(e.target.value.length > 0);
-                      }}
-                      onFocus={() => setShowSuggestions(true)}
-                      className="pl-12 h-12 md:h-14 text-base md:text-lg border-border rounded-xl"
-                    />
-                    {showSuggestions && (
-                      <div className="absolute left-0 right-0 top-full mt-1 bg-background border border-border rounded-xl shadow-xl overflow-hidden z-50">
-                        <SearchSuggestions
-                          query={searchQuery}
-                          isVisible={showSuggestions}
-                          onSelect={(value, type, slug) => {
-                            if (type === "city") {
-                              handleSuggestionSelect({ type: "city", city: value });
-                            } else {
-                              handleSuggestionSelect({ type, name: value, slug });
-                            }
-                          }}
-                          onClose={() => setShowSuggestions(false)}
-                          searchMode="resale"
-                        />
-                      </div>
-                    )}
-                  </div>
-                  <Button
-                    type="submit"
-                    size="lg"
-                    className="h-12 md:h-14 px-6 md:px-8 rounded-xl bg-foreground text-background hover:bg-foreground/90"
-                  >
-                    Search
-                  </Button>
-                </div>
-              </form>
-            </div>
-
-            {/* Map Link */}
-            <div className="mt-4 flex justify-center">
-              <Link
-                to="/resale-map"
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <Map className="h-4 w-4" />
-                Open Map
-              </Link>
-            </div>
+            <form onSubmit={handleSearch}>
+              <div className="relative px-2.5 sm:px-4 py-2.5 sm:py-3" ref={searchContainerRef}>
+                <Input
+                  type="text"
+                  placeholder="City, Neighbourhood, Address..."
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }}
+                  onFocus={() => setShowSuggestions(true)}
+                  className="h-11 sm:h-12 md:h-14 text-[15px] sm:text-base pl-3.5 pr-11 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
+                  autoComplete="off"
+                />
+                <button 
+                  type="submit"
+                  className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full"
+                >
+                  <Search className="h-5 w-5" />
+                </button>
+                <SearchSuggestions
+                  query={searchQuery}
+                  onSelect={handleSuggestionSelect}
+                  isVisible={showSuggestions}
+                  onClose={() => setShowSuggestions(false)}
+                  searchMode="resale"
+                />
+              </div>
+            </form>
           </div>
 
           {/* Top Cities */}
-          <div className="pt-4">
-            <p className="text-white/60 text-xs mb-3 uppercase tracking-wider">Browse by City</p>
-            <div className="flex flex-wrap justify-center gap-2">
+          <div className="animate-fade-in" style={{ animationDelay: "0.3s" }}>
+            <span className="text-[10px] sm:text-sm text-white/70 font-medium tracking-wide block mb-2">
+              Top Cities
+            </span>
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3">
               {TOP_CITIES.map((city) => (
-                <button
+                <Button
                   key={city}
+                  variant="outline"
+                  size="sm"
                   onClick={() => handleCityClick(city)}
-                  className="px-4 py-2 text-sm font-medium text-white/90 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all hover:scale-105"
+                  className="rounded-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-2.5 sm:px-3 md:px-4 h-7 sm:h-8 font-medium"
                 >
                   {city}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

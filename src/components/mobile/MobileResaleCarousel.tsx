@@ -40,23 +40,29 @@ interface MobileResaleCarouselProps {
 }
 
 export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCarouselProps) {
-  // Property types for new construction homes
-  const validPropertyTypes = ["Apartment/Condo", "Townhouse", "Row/Townhouse", "Duplex", "Single Family"];
+  // Metro Vancouver cities for filtering
+  const metroVancouverCities = [
+    "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
+    "Coquitlam", "Delta", "Abbotsford", "New Westminster", 
+    "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
+    "North Vancouver", "West Vancouver"
+  ];
 
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["mobile-resale-carousel-2024", city],
+    queryKey: ["mobile-resale-carousel-metro-vancouver", city],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built")
+        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, created_at")
         .eq("mls_status", "Active")
-        .gte("year_built", 2024) // Filter for 2024+ new construction
-        .in("property_sub_type", validPropertyTypes)
-        .order("list_date", { ascending: false })
+        .order("created_at", { ascending: false })
         .limit(10);
 
       if (city && city !== "all") {
         query = query.ilike("city", city);
+      } else {
+        // If no city specified, filter to Metro Vancouver
+        query = query.in("city", metroVancouverCities);
       }
 
       const { data, error } = await query;
