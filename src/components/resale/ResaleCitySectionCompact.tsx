@@ -1,14 +1,14 @@
 import { ResaleCityCarousel } from "./ResaleCityCarousel";
 
 const FEATURED_CITIES = [
-  { city: "Vancouver", title: "Vancouver", subtitle: "Downtown, East Van & West Side" },
-  { city: "Surrey", title: "Surrey", subtitle: "South Surrey, Guildford & Fleetwood" },
-  { city: "Burnaby", title: "Burnaby", subtitle: "Metrotown, Brentwood & Lougheed" },
-  { city: "Coquitlam", title: "Coquitlam", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley", subtitle: "Township & City of Langley" },
-  { city: "Richmond", title: "Richmond", subtitle: "City Centre & Steveston" },
-  { city: "Delta", title: "Delta", subtitle: "Tsawwassen & Ladner" },
-  { city: "Abbotsford", title: "Abbotsford", subtitle: "Fraser Valley" },
+  { city: "Vancouver", title: "Vancouver", subtitle: "Brand new homes ready for move-in" },
+  { city: "Surrey", title: "Surrey", subtitle: "Brand new, never lived in" },
+  { city: "Burnaby", title: "Burnaby", subtitle: "Brand new homes ready for move-in" },
+  { city: "Coquitlam", title: "Coquitlam", subtitle: "Brand new, never lived in" },
+  { city: "Langley", title: "Langley", subtitle: "Brand new homes ready for move-in" },
+  { city: "Richmond", title: "Richmond", subtitle: "Brand new, never lived in" },
+  { city: "Delta", title: "Delta", subtitle: "Brand new homes ready for move-in" },
+  { city: "Abbotsford", title: "Abbotsford", subtitle: "Brand new, never lived in" },
 ];
 
 export function ResaleCitySectionCompact() {
@@ -26,7 +26,7 @@ export function ResaleCitySectionCompact() {
             Move-In Ready Homes by City
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            Find new built homes in your preferred neighbourhood
+            Brand new condos, townhomes & single family homes in your preferred neighbourhood
           </p>
         </div>
 

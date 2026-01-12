@@ -15,27 +15,27 @@ export function ResalePropertyTypeSection() {
             Find Your Move-In Ready Home
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            New built condos, townhomes, and single family homes ready to move in
+            Brand new homes, never lived in – ready to move in today
           </p>
         </div>
 
         <div className="space-y-10 md:space-y-14">
           <ResalePropertyTypeCarousel
             propertyType="condo"
-            title="New Condos"
-            subtitle="Brand new apartments & condominiums"
+            title="Move-In Ready Condos"
+            subtitle="Brand new, never lived in"
           />
 
           <ResalePropertyTypeCarousel
             propertyType="townhouse"
-            title="New Townhomes"
-            subtitle="Townhouses, duplexes & row homes"
+            title="Move-In Ready Townhomes"
+            subtitle="Brand new homes ready for move-in"
           />
 
           <ResalePropertyTypeCarousel
             propertyType="house"
-            title="New Single Family Homes"
-            subtitle="Detached new construction houses"
+            title="Move-In Ready Single Family Homes"
+            subtitle="Brand new, never lived in"
           />
         </div>
       </div>

@@ -25,14 +25,14 @@ const TOP_CITIES = [
 ];
 
 const CITY_CAROUSELS = [
-  { city: "Vancouver", title: "Vancouver", subtitle: "Downtown, East Van & West Side" },
-  { city: "Surrey", title: "Surrey", subtitle: "South Surrey & Guildford" },
-  { city: "Burnaby", title: "Burnaby", subtitle: "Metrotown & Brentwood" },
-  { city: "Coquitlam", title: "Coquitlam", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley", subtitle: "Township & City" },
-  { city: "Richmond", title: "Richmond", subtitle: "City Centre & Steveston" },
-  { city: "Delta", title: "Delta", subtitle: "Tsawwassen & Ladner" },
-  { city: "Abbotsford", title: "Abbotsford", subtitle: "Fraser Valley" },
+  { city: "Vancouver", title: "Vancouver", subtitle: "Brand new homes ready for move-in" },
+  { city: "Surrey", title: "Surrey", subtitle: "Brand new, never lived in" },
+  { city: "Burnaby", title: "Burnaby", subtitle: "Brand new homes ready for move-in" },
+  { city: "Coquitlam", title: "Coquitlam", subtitle: "Brand new, never lived in" },
+  { city: "Langley", title: "Langley", subtitle: "Brand new homes ready for move-in" },
+  { city: "Richmond", title: "Richmond", subtitle: "Brand new, never lived in" },
+  { city: "Delta", title: "Delta", subtitle: "Brand new homes ready for move-in" },
+  { city: "Abbotsford", title: "Abbotsford", subtitle: "Brand new, never lived in" },
 ];
 
 export function MobileResaleHome() {
@@ -220,8 +220,8 @@ export function MobileResaleHome() {
         <CarouselSection delay={50}>
           <MobileResalePropertyTypeCarousel
             propertyType="condo"
-            title="New Condos"
-            subtitle="Brand new apartments"
+            title="Move-In Ready Condos"
+            subtitle="Brand new, never lived in"
           />
         </CarouselSection>
 
@@ -230,8 +230,8 @@ export function MobileResaleHome() {
         <CarouselSection delay={75}>
           <MobileResalePropertyTypeCarousel
             propertyType="townhouse"
-            title="New Townhomes"
-            subtitle="Townhouses & duplexes"
+            title="Move-In Ready Townhomes"
+            subtitle="Brand new homes ready for move-in"
           />
         </CarouselSection>
 
@@ -240,8 +240,8 @@ export function MobileResaleHome() {
         <CarouselSection delay={100}>
           <MobileResalePropertyTypeCarousel
             propertyType="house"
-            title="New Single Family"
-            subtitle="Detached houses"
+            title="Move-In Ready Single Family"
+            subtitle="Brand new, never lived in"
           />
         </CarouselSection>
 
