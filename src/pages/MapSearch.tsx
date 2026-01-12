@@ -410,10 +410,10 @@ export default function MapSearch() {
               />
             </div>
 
-            {/* List View Button - Mobile/Tablet */}
-            <div className="absolute top-3 right-3 z-[1000] lg:hidden">
+            {/* List View Button - Mobile/Tablet - top right */}
+            <div className="absolute top-3 right-3 z-[1001] lg:hidden">
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="p-2 rounded-full bg-background/90 backdrop-blur-sm shadow-md border border-border/30 hover:bg-background transition-colors">
+                <button className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors">
                   <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                 </button>
               </Link>
@@ -459,25 +459,25 @@ export default function MapSearch() {
               </div>
             )}
 
-            {/* Bottom Carousel - Mobile/Tablet */}
+            {/* Bottom Carousel - Mobile/Tablet - Compact and clean */}
             {showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1100] lg:hidden">
-                <div className="bg-background/95 backdrop-blur-sm border-t border-border/30 pt-2 pb-2 safe-bottom">
-                  <div className="flex items-center justify-between px-4 md:px-6 pb-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {visibleItems.length} propert{visibleItems.length !== 1 ? "ies" : "y"} in view
+              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden">
+                <div className="bg-background/98 backdrop-blur-md border-t border-border/30 pt-2 safe-bottom">
+                  <div className="flex items-center justify-between px-4 pb-1.5">
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      {visibleItems.length} in view
                     </span>
                     <button
                       onClick={() => setShowCarousel(false)}
-                      className="p-1 rounded-full hover:bg-muted/50 transition-colors"
-                      aria-label="Hide properties"
+                      className="p-1.5 -mr-1.5 rounded-full hover:bg-muted/50 transition-colors"
+                      aria-label="Hide"
                     >
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                     </button>
                   </div>
                   <div 
                     ref={carouselRef}
-                    className="flex gap-3 md:gap-4 overflow-x-auto px-4 md:px-6 pb-2 snap-x snap-mandatory"
+                    className="flex gap-2.5 overflow-x-auto px-4 pb-3 snap-x snap-mandatory"
                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                   >
                     {visibleItems.map((item) => {
@@ -493,20 +493,20 @@ export default function MapSearch() {
                           key={`${item.type}-${id}`}
                           to={link}
                           data-item-id={id}
-                          className="snap-start shrink-0 w-[200px] sm:w-[220px] md:w-[240px]"
+                          className="snap-start shrink-0 w-[160px] sm:w-[180px]"
                         >
-                          <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all hover:shadow-xl ${
+                          <div className={`bg-card rounded-lg shadow-md border overflow-hidden transition-all ${
                             selectedItemId === id 
-                              ? 'border-primary ring-2 ring-primary/20' 
-                              : 'border-border hover:border-primary/50'
+                              ? 'border-primary ring-1 ring-primary/20' 
+                              : 'border-border/60'
                           }`}>
-                            <div className="relative w-full aspect-[16/10] sm:aspect-[16/9] bg-muted">
+                            <div className="relative w-full aspect-[4/3] bg-muted">
                               {isPresale ? (
                                 (data as PresaleProject).featured_image ? (
                                   <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center">
-                                    <Building2 className="h-6 w-6 text-muted-foreground" />
+                                    <Building2 className="h-5 w-5 text-muted-foreground" />
                                   </div>
                                 )
                               ) : (
@@ -514,39 +514,38 @@ export default function MapSearch() {
                                   <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
                                 ) : (
                                   <div className="w-full h-full flex items-center justify-center">
-                                    <Home className="h-6 w-6 text-muted-foreground" />
+                                    <Home className="h-5 w-5 text-muted-foreground" />
                                   </div>
                                 )
                               )}
-                              <Badge className={`absolute top-2 left-2 text-[10px] px-2 py-0.5 ${
+                              <span className={`absolute top-1.5 left-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded ${
                                 isPresale 
-                                  ? 'bg-foreground text-background' 
-                                  : 'bg-primary text-primary-foreground'
+                                  ? 'bg-foreground/90 text-background' 
+                                  : 'bg-primary/90 text-primary-foreground'
                               }`}>
-                                {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
-                              </Badge>
+                                {isPresale ? 'PRESALE' : 'READY'}
+                              </span>
                             </div>
-                            <div className="p-2.5 sm:p-3">
-                              <h4 className="font-semibold text-foreground text-sm truncate">
+                            <div className="p-2">
+                              <h4 className="font-semibold text-foreground text-xs truncate leading-tight">
                                 {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
                               </h4>
                               <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                                <MapPin className="h-3 w-3" />
-                                <span className="text-xs truncate">
+                                <MapPin className="h-2.5 w-2.5" />
+                                <span className="text-[10px] truncate">
                                   {isPresale ? (data as PresaleProject).neighborhood : (data as MLSListing).city}
                                 </span>
                               </div>
-                              <div className="flex items-center justify-between mt-2">
-                                <span className="font-bold text-foreground text-sm">
+                              <div className="flex items-center justify-between mt-1.5">
+                                <span className="font-bold text-foreground text-xs">
                                   {isPresale 
-                                    ? `From ${formatPrice((data as PresaleProject).starting_price)}`
+                                    ? formatPrice((data as PresaleProject).starting_price)
                                     : formatPrice((data as MLSListing).listing_price)
                                   }
                                 </span>
-                                {!isPresale && (
-                                  <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded flex items-center gap-1">
-                                    {(data as MLSListing).bedrooms_total && <><Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}</>}
-                                    {(data as MLSListing).bathrooms_total && <><Bath className="h-3 w-3 ml-1" /> {(data as MLSListing).bathrooms_total}</>}
+                                {!isPresale && (data as MLSListing).bedrooms_total && (
+                                  <span className="text-[10px] text-muted-foreground flex items-center gap-0.5">
+                                    <Bed className="h-2.5 w-2.5" /> {(data as MLSListing).bedrooms_total}
                                   </span>
                                 )}
                               </div>

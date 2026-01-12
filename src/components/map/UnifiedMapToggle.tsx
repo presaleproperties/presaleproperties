@@ -21,50 +21,42 @@ export function UnifiedMapToggle({
   
   return (
     <div className={cn(
-      "bg-background/95 backdrop-blur-md rounded-full shadow-lg border border-border/50 p-1 flex items-center gap-0.5",
+      "bg-background/95 backdrop-blur-md rounded-full shadow-lg border border-border/40 p-0.5 flex items-center",
       className
     )}>
       <button
         onClick={() => onModeChange("all")}
         className={cn(
-          "px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200",
+          "px-3 py-1.5 rounded-full text-[11px] font-semibold transition-all duration-200",
           mode === "all"
             ? "bg-primary text-primary-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            : "text-muted-foreground hover:text-foreground"
         )}
       >
         All
-        {totalCount > 0 && (
-          <span className="ml-1 opacity-70">({totalCount.toLocaleString()})</span>
-        )}
+        <span className="ml-0.5 opacity-70">({totalCount.toLocaleString()})</span>
       </button>
       <button
         onClick={() => onModeChange("presale")}
         className={cn(
-          "px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200",
+          "px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-all duration-200",
           mode === "presale"
             ? "bg-foreground text-background shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            : "text-muted-foreground hover:text-foreground"
         )}
       >
         Presale
-        {presaleCount !== undefined && presaleCount > 0 && (
-          <span className="ml-1 opacity-70">({presaleCount})</span>
-        )}
       </button>
       <button
         onClick={() => onModeChange("resale")}
         className={cn(
-          "px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200",
+          "px-2.5 py-1.5 rounded-full text-[11px] font-semibold transition-all duration-200",
           mode === "resale"
             ? "bg-foreground text-background shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            : "text-muted-foreground hover:text-foreground"
         )}
       >
-        Move-In Ready
-        {resaleCount !== undefined && resaleCount > 0 && (
-          <span className="ml-1 opacity-70">({resaleCount.toLocaleString()})</span>
-        )}
+        Move-In
       </button>
     </div>
   );
