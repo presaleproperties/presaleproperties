@@ -1,14 +1,12 @@
 import { ResaleCityCarousel } from "./ResaleCityCarousel";
 
 const FEATURED_CITIES = [
-  { city: "Vancouver", title: "Vancouver New Homes", subtitle: "Condos, Townhomes & Single Family" },
-  { city: "Burnaby", title: "Burnaby New Homes", subtitle: "Metrotown, Brentwood & Lougheed" },
-  { city: "Surrey", title: "Surrey New Homes", subtitle: "South Surrey, Guildford & Fleetwood" },
-  { city: "Coquitlam", title: "Coquitlam New Homes", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley New Homes", subtitle: "Township & City of Langley" },
-  { city: "Delta", title: "Delta New Homes", subtitle: "Tsawwassen, Ladner & North Delta" },
-  { city: "Abbotsford", title: "Abbotsford New Homes", subtitle: "Fraser Valley Living" },
-  { city: "Richmond", title: "Richmond New Homes", subtitle: "City Centre & Steveston" },
+  { city: "Vancouver", title: "Vancouver Listings", subtitle: "Downtown, East Van & West Side" },
+  { city: "Surrey", title: "Surrey Listings", subtitle: "South Surrey, Guildford & Fleetwood" },
+  { city: "Burnaby", title: "Burnaby Listings", subtitle: "Metrotown, Brentwood & Lougheed" },
+  { city: "Coquitlam", title: "Coquitlam Listings", subtitle: "Tri-Cities Area" },
+  { city: "Langley", title: "Langley Listings", subtitle: "Township & City of Langley" },
+  { city: "Richmond", title: "Richmond Listings", subtitle: "City Centre & Steveston" },
 ];
 
 export function ResaleCitySection() {
@@ -23,10 +21,10 @@ export function ResaleCitySection() {
             Browse by City
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-            New Homes by Location
+            Explore Listings by Location
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            Condos, townhomes & single family homes built 2024 or newer
+            Discover condos & townhomes in Metro Vancouver's most sought-after communities
           </p>
         </div>
 

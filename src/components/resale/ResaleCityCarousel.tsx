@@ -48,22 +48,17 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // Property types for new construction homes
-  const validPropertyTypes = ["Apartment/Condo", "Townhouse", "Row/Townhouse", "Duplex", "Single Family"];
-
-  // Optimized query with caching for city carousels
+  // Optimized query with caching for city carousels - newest listings first
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-city-carousel-2024", city],
+    queryKey: ["resale-city-carousel-newest", city],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, year_built")
+        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, created_at")
         .eq("mls_status", "Active")
         .eq("city", city)
-        .gte("year_built", 2024) // 2024+ new construction
-        .in("property_sub_type", validPropertyTypes)
-        .order("listing_price", { ascending: false }) // Show highest value first
-        .limit(12); // Slightly more than displayed for variety
+        .order("created_at", { ascending: false }) // Newest listings first
+        .limit(12);
 
       if (error) throw error;
       return data as MLSListing[];
@@ -137,7 +132,7 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
         </div>
         <div className="flex items-center gap-2">
           <Link 
-            to={`/resale?city=${city}&type=Condo/Strata`}
+            to={`/resale/${city.toLowerCase()}`}
             className="hidden sm:flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
           >
             View All
@@ -203,7 +198,7 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
 
       {/* Mobile View All */}
       <div className="sm:hidden">
-        <Link to={`/resale?city=${city}&type=Condo/Strata`}>
+        <Link to={`/resale/${city.toLowerCase()}`}>
           <Button variant="outline" className="w-full">
             View All {city} Listings
           </Button>
