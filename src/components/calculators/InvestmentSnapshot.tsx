@@ -494,7 +494,7 @@ export function InvestmentSnapshot() {
                   <Slider
                     value={[inputs.downPaymentPercent]}
                     onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
-                    min={5} max={50} step={5}
+                    min={5} max={60} step={5}
                     className="my-2"
                   />
                   <div className="flex justify-between text-xs sm:text-sm mt-2">
