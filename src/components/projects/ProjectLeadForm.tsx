@@ -195,6 +195,23 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
       if (error) throw error;
 
+      // Trigger email workflow for project inquiry
+      supabase.functions
+        .invoke("trigger-workflow", {
+          body: {
+            event: "project_inquiry",
+            data: {
+              email: data.email,
+              first_name: data.firstName,
+              last_name: data.lastName,
+              project_name: projectName,
+              project_id: projectId,
+            },
+            meta: { lead_id: leadId, source: leadSource },
+          },
+        })
+        .catch(console.error);
+
       supabase.functions
         .invoke("send-project-lead", { body: { leadId } })
         .catch(console.error);
@@ -218,9 +235,6 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         })
         .catch((err) => console.error("Meta CAPI error:", err));
 
-      supabase.functions
-        .invoke("send-drip-email", {})
-        .catch(console.error);
       localStorage.setItem("presale_persona", actualPersona);
 
       // Analytics tracking
