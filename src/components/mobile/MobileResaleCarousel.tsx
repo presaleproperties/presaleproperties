@@ -40,14 +40,18 @@ interface MobileResaleCarouselProps {
 }
 
 export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCarouselProps) {
+  // Property types for new construction homes
+  const validPropertyTypes = ["Apartment/Condo", "Townhouse", "Row/Townhouse", "Duplex", "Single Family"];
+
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["mobile-resale-carousel", city],
+    queryKey: ["mobile-resale-carousel-2024", city],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built")
         .eq("mls_status", "Active")
-        .gte("year_built", 2025) // Filter for 2025+ new construction
+        .gte("year_built", 2024) // Filter for 2024+ new construction
+        .in("property_sub_type", validPropertyTypes)
         .order("list_date", { ascending: false })
         .limit(10);
 

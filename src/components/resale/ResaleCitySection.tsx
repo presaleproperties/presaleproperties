@@ -1,14 +1,14 @@
 import { ResaleCityCarousel } from "./ResaleCityCarousel";
 
 const FEATURED_CITIES = [
-  { city: "Vancouver", title: "Vancouver Condos & Townhomes", subtitle: "Downtown, East Van & Westside" },
-  { city: "Burnaby", title: "Burnaby Condos & Townhomes", subtitle: "Metrotown, Brentwood & Lougheed" },
-  { city: "Surrey", title: "Surrey Condos & Townhomes", subtitle: "South Surrey, Guildford & Fleetwood" },
-  { city: "Coquitlam", title: "Coquitlam Condos & Townhomes", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley Condos & Townhomes", subtitle: "Township & City of Langley" },
-  { city: "Delta", title: "Delta Condos & Townhomes", subtitle: "Tsawwassen, Ladner & North Delta" },
-  { city: "Abbotsford", title: "Abbotsford Condos & Townhomes", subtitle: "Fraser Valley Living" },
-  { city: "Chilliwack", title: "Chilliwack Condos & Townhomes", subtitle: "Affordable Fraser Valley" },
+  { city: "Vancouver", title: "Vancouver New Homes", subtitle: "Condos, Townhomes & Single Family" },
+  { city: "Burnaby", title: "Burnaby New Homes", subtitle: "Metrotown, Brentwood & Lougheed" },
+  { city: "Surrey", title: "Surrey New Homes", subtitle: "South Surrey, Guildford & Fleetwood" },
+  { city: "Coquitlam", title: "Coquitlam New Homes", subtitle: "Tri-Cities Area" },
+  { city: "Langley", title: "Langley New Homes", subtitle: "Township & City of Langley" },
+  { city: "Delta", title: "Delta New Homes", subtitle: "Tsawwassen, Ladner & North Delta" },
+  { city: "Abbotsford", title: "Abbotsford New Homes", subtitle: "Fraser Valley Living" },
+  { city: "Richmond", title: "Richmond New Homes", subtitle: "City Centre & Steveston" },
 ];
 
 export function ResaleCitySection() {
@@ -23,10 +23,10 @@ export function ResaleCitySection() {
             Browse by City
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-            New Construction by Location
+            New Homes by Location
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            Discover ready-to-move-in condos and townhomes across BC
+            Condos, townhomes & single family homes built 2024 or newer
           </p>
         </div>
 

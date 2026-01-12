@@ -35,14 +35,18 @@ function getAddress(listing: MLSListing): string {
 }
 
 export function FeaturedResaleListings() {
+  // Property types for new construction homes
+  const validPropertyTypes = ["Apartment/Condo", "Townhouse", "Row/Townhouse", "Duplex", "Single Family"];
+
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["featured-resale-listings-2025"],
+    queryKey: ["featured-resale-listings-2024-new"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built")
         .eq("mls_status", "Active")
-        .gte("year_built", 2025)
+        .gte("year_built", 2024)
+        .in("property_sub_type", validPropertyTypes)
         .order("list_date", { ascending: false })
         .limit(6);
 
@@ -62,10 +66,10 @@ export function FeaturedResaleListings() {
               New Construction
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              2025 New Homes for Sale
+              New Homes for Sale
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-              The newest construction across British Columbia
+              Condos, townhomes & single family homes built 2024+
             </p>
           </div>
           <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">
