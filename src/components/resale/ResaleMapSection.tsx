@@ -46,13 +46,13 @@ export function ResaleMapSection() {
   }, []);
 
   // Optimized query - only fetch what's needed for map display
-  // Limit to 500 for homepage section (full map has more)
+  // Limit to 500 for homepage section (full map has more) - 2025+ builds only
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings", enabledCities],
+    queryKey: ["resale-map-section-listings-2025", enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos")
+        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
@@ -60,7 +60,9 @@ export function ResaleMapSection() {
         .gte("latitude", 48.9)
         .lte("latitude", 49.6)
         .gte("longitude", -123.5)
-        .lte("longitude", -121.3);
+        .lte("longitude", -121.3)
+        // Only 2025+ new construction
+        .gte("year_built", 2025);
       
       // Filter by enabled cities
       if (enabledCities && enabledCities.length > 0) {

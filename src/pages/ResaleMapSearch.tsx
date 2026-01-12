@@ -134,15 +134,15 @@ export default function ResaleMapSearch() {
     beds: searchParams.get("beds") || "any",
   };
 
-  // Optimized query with limits for large datasets
+  // Optimized query with limits for large datasets - 2025+ builds only
   const { data: allListings, isLoading } = useQuery({
-    queryKey: ["resale-map-listings", filters, enabledCities],
+    queryKey: ["resale-map-listings-2025", filters, enabledCities],
     queryFn: async () => {
       // Only fetch listings with coordinates for map display
       // Limit to 2000 for performance while still showing good coverage
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status")
+        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
@@ -150,7 +150,9 @@ export default function ResaleMapSearch() {
         .gte("latitude", 48.9)
         .lte("latitude", 49.6)
         .gte("longitude", -123.5)
-        .lte("longitude", -121.3);
+        .lte("longitude", -121.3)
+        // Only 2025+ new construction
+        .gte("year_built", 2025);
 
       // Filter by enabled cities
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {

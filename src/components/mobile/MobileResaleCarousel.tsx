@@ -48,13 +48,15 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
     "North Vancouver", "West Vancouver"
   ];
 
+  // 2025+ builds only
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["mobile-resale-carousel-metro-vancouver", city],
+    queryKey: ["mobile-resale-carousel-2025", city],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, created_at")
         .eq("mls_status", "Active")
+        .gte("year_built", 2025)
         .order("created_at", { ascending: false })
         .limit(10);
 

@@ -29,6 +29,7 @@ interface MLSListing {
   longitude: number | null;
   photos: any;
   mls_status: string;
+  year_built?: number | null;
 }
 
 interface ResaleListingsMapProps {
