@@ -179,7 +179,7 @@ export default function ResaleListingDetail() {
             This listing may have been sold or is no longer available.
           </p>
           <Link to="/resale">
-            <Button>Browse All Resale Listings</Button>
+            <Button>Browse All New Homes</Button>
           </Link>
         </main>
         <Footer />

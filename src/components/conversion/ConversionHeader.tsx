@@ -178,7 +178,7 @@ export function ConversionHeader() {
 
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
-                    Resale
+                    Move-In Ready
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <div className="w-[500px] p-4 bg-background">
@@ -353,7 +353,7 @@ export function ConversionHeader() {
                       >
                         <div className="flex items-center gap-3">
                           <Home className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Resale</span>
+                          <span className="text-base font-medium">Move-In Ready</span>
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
                       </Link>
@@ -362,7 +362,7 @@ export function ConversionHeader() {
                         <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
                           <div className="flex items-center gap-3">
                             <Map className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-base font-medium">Resale by City</span>
+                            <span className="text-base font-medium">New Homes by City</span>
                           </div>
                           <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${resaleCitiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>

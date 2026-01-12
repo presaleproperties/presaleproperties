@@ -95,13 +95,13 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Resale Homes */}
+          {/* Move-In Ready Homes */}
           <div className="space-y-3 sm:space-y-4">
-            <h4 className="text-xs sm:text-sm font-semibold">Resale Homes</h4>
+            <h4 className="text-xs sm:text-sm font-semibold">Move-In Ready</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
                 <Link to="/resale" className="hover:text-foreground transition-colors">
-                  All Resale Listings
+                  All New Homes
                 </Link>
               </li>
               <li>

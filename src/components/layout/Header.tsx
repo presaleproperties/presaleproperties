@@ -90,7 +90,7 @@ export function Header() {
               
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
-                  Resale Homes
+                  Move-In Ready
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="w-[320px] p-4 bg-background">
@@ -189,7 +189,7 @@ export function Header() {
                       onClick={() => setOpen(false)}
                       className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                     >
-                      Resale Homes
+                      Move-In Ready
                     </Link>
 
                     {/* Collapsible Cities Section */}

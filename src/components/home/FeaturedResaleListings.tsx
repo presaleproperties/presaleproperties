@@ -134,7 +134,7 @@ export function FeaturedResaleListings() {
           <div className="text-center py-10 sm:py-12 bg-card rounded-xl border">
             <Building2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
             <h3 className="text-base sm:text-lg font-medium text-foreground mb-2">
-              No Resale Listings Yet
+              No Move-In Ready Homes Yet
             </h3>
             <p className="text-sm sm:text-base text-muted-foreground mb-4">
               Check back soon for new listings.
