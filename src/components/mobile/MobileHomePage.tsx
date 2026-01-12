@@ -5,6 +5,7 @@ import { Search, MapPin } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
+import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -328,73 +329,126 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <CarouselSection delay={50}>
               <MobileCityQuickLinks mode="resale" />
             </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            {/* Resale City Carousels */}
+            <CarouselSection delay={100}>
+              <MobileResaleCityCarousel city="Vancouver" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={150}>
+              <MobileResaleCityCarousel city="Surrey" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={200}>
+              <MobileResaleCityCarousel city="Burnaby" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={250}>
+              <MobileResaleCityCarousel city="Langley" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={300}>
+              <MobileResaleCityCarousel city="Coquitlam" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={350}>
+              <MobileResaleCityCarousel city="Richmond" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={400}>
+              <MobileResaleCityCarousel city="Delta" />
+            </CarouselSection>
+
+            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+
+            <CarouselSection delay={450}>
+              <MobileResaleCityCarousel city="Abbotsford" />
+            </CarouselSection>
           </>
         )}
 
-        {/* City-based Carousels */}
-        <CarouselSection delay={150}>
-          <MobileDiscoveryCarousel
-            type="city_vancouver"
-            title="Vancouver"
-            city={selectedCity}
-          />
-        </CarouselSection>
+        {/* City-based Carousels - Only show for Presale tab */}
+        {activeTab === "projects" && (
+          <>
+            <CarouselSection delay={150}>
+              <MobileDiscoveryCarousel
+                type="city_vancouver"
+                title="Vancouver"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={200}>
-          <MobileDiscoveryCarousel
-            type="city_surrey"
-            title="Surrey"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={200}>
+              <MobileDiscoveryCarousel
+                type="city_surrey"
+                title="Surrey"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={250}>
-          <MobileDiscoveryCarousel
-            type="city_burnaby"
-            title="Burnaby"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={250}>
+              <MobileDiscoveryCarousel
+                type="city_burnaby"
+                title="Burnaby"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={300}>
-          <MobileDiscoveryCarousel
-            type="city_coquitlam"
-            title="Coquitlam"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={300}>
+              <MobileDiscoveryCarousel
+                type="city_coquitlam"
+                title="Coquitlam"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={350}>
-          <MobileDiscoveryCarousel
-            type="city_langley"
-            title="Langley"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={350}>
+              <MobileDiscoveryCarousel
+                type="city_langley"
+                title="Langley"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={400}>
-          <MobileDiscoveryCarousel
-            type="city_richmond"
-            title="Richmond"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={400}>
+              <MobileDiscoveryCarousel
+                type="city_richmond"
+                title="Richmond"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={450}>
-          <MobileDiscoveryCarousel
-            type="city_delta"
-            title="Delta"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={450}>
+              <MobileDiscoveryCarousel
+                type="city_delta"
+                title="Delta"
+                city={selectedCity}
+              />
+            </CarouselSection>
 
-        <CarouselSection delay={500}>
-          <MobileDiscoveryCarousel
-            type="city_abbotsford"
-            title="Abbotsford"
-            city={selectedCity}
-          />
-        </CarouselSection>
+            <CarouselSection delay={500}>
+              <MobileDiscoveryCarousel
+                type="city_abbotsford"
+                title="Abbotsford"
+                city={selectedCity}
+              />
+            </CarouselSection>
+          </>
+        )}
       </div>
 
       {/* Benefits Section */}

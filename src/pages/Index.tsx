@@ -6,6 +6,7 @@ import { HeroSection, SearchTab } from "@/components/home/HeroSection";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
+import { ResaleCitySection } from "@/components/home/ResaleCitySection";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { RelatedContent } from "@/components/home/RelatedContent";
@@ -290,11 +291,9 @@ const Index = () => {
         <ScrollReveal animation="fade-up">
           {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
         </ScrollReveal>
-        {activeTab === "projects" && (
-          <ScrollReveal animation="fade-up" delay={100}>
-            <CityProjectsSection />
-          </ScrollReveal>
-        )}
+        <ScrollReveal animation="fade-up" delay={100}>
+          {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
+        </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <NewConstructionBenefits />
         </ScrollReveal>
