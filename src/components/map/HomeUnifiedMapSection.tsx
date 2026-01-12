@@ -96,13 +96,14 @@ export function HomeUnifiedMapSection({
       
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status")
+        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .in("city", citiesToUse)
         .gte("year_built", 2024)
-        .order("listing_price", { ascending: false })
+        // Order by recency so lower-priced listings aren't dropped by the 2000 marker cap
+        .order("list_date", { ascending: false, nullsFirst: false })
         .limit(2000);
 
       if (error) throw error;
