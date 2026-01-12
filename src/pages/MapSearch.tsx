@@ -198,7 +198,7 @@ export default function MapSearch() {
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
+        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
@@ -226,7 +226,8 @@ export default function MapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      query = query.order("listing_price", { ascending: false }).limit(2000);
+      // IMPORTANT: order by recency so cheaper 1-bed condos don't get cut off by the 2000 marker cap
+      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(2000);
 
       const { data, error } = await query;
       if (error) throw error;
