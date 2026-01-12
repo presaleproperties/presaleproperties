@@ -113,7 +113,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  Presale Projects
+                  Presale
                 </button>
                 <button
                   onClick={() => handleTabChange("resale")}
@@ -123,7 +123,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   }`}
                 >
-                  Resale Homes
+                  Resale
                 </button>
               </div>
               <Link
