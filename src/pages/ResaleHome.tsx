@@ -2,8 +2,9 @@ import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ResaleHeroSection } from "@/components/resale/ResaleHeroSection";
-import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
-import { ResaleCitySection } from "@/components/resale/ResaleCitySection";
+import { HottestResaleListings } from "@/components/resale/HottestResaleListings";
+import { ResalePropertyTypeSection } from "@/components/resale/ResalePropertyTypeSection";
+import { ResaleCitySectionCompact } from "@/components/resale/ResaleCitySectionCompact";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
 import { ResaleMapSection } from "@/components/resale/ResaleMapSection";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
@@ -84,30 +85,42 @@ const ResaleHome = () => {
       <main className="flex-1">
         <ResaleHeroSection />
         
+        {/* Hottest Listings - Grid format like FeaturedProjects */}
         <ScrollReveal animation="fade-up">
-          <FeaturedResaleListings />
+          <HottestResaleListings />
         </ScrollReveal>
         
+        {/* Property Type Carousels */}
         <ScrollReveal animation="fade-up" delay={100}>
-          <ResaleCitySection />
+          <ResalePropertyTypeSection />
         </ScrollReveal>
         
+        {/* City Carousels */}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <ResaleCitySectionCompact />
+        </ScrollReveal>
+        
+        {/* Benefits Section */}
         <ScrollReveal animation="fade-up" delay={100}>
           <NewConstructionBenefits />
         </ScrollReveal>
         
+        {/* Map Section */}
         <ScrollReveal animation="fade-up" delay={100}>
           <ResaleMapSection />
         </ScrollReveal>
         
+        {/* Calculator Teaser */}
         <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
         </ScrollReveal>
         
+        {/* Related Content */}
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
         </ScrollReveal>
         
+        {/* CTA Section */}
         <ScrollReveal animation="scale" delay={100}>
           <BuyerCTASection />
         </ScrollReveal>
