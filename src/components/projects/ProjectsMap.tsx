@@ -80,38 +80,38 @@ const getStatusLabel = (status: Project["status"]) => {
 // Presale marker - simple pin with building icon (no price)
 const createPricePillIcon = () => {
   // Building icon for new construction
-  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
+  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
 
   return L.divIcon({
     className: "presale-pin-marker",
     html: `
       <div style="
         position: relative;
-        width: 32px;
-        height: 40px;
+        width: 24px;
+        height: 30px;
       ">
-        <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(222, 47%, 25%)"/>
-          <circle cx="16" cy="15" r="10" fill="hsl(45, 89%, 55%)"/>
+        <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 7.5 12 18 12 18s12-10.5 12-18c0-6.627-5.373-12-12-12z" fill="hsl(222, 47%, 25%)"/>
+          <circle cx="12" cy="11" r="7" fill="hsl(45, 89%, 55%)"/>
         </svg>
         <div style="
           position: absolute;
-          top: 6px;
+          top: 5px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 20px;
-          height: 20px;
+          width: 14px;
+          height: 14px;
         ">
           ${buildingIcon}
         </div>
       </div>
     `,
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-    popupAnchor: [0, -40],
+    iconSize: [24, 30],
+    iconAnchor: [12, 30],
+    popupAnchor: [0, -30],
   });
 };
 
