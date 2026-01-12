@@ -34,6 +34,7 @@ import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
+import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -680,6 +681,16 @@ export default function ResaleListingDetail() {
                   View Virtual Tour →
                 </a>
               </div>
+            )}
+
+            {/* Interactive Mini-Map */}
+            {listing.latitude && listing.longitude && (
+              <ResaleListingMiniMap
+                latitude={listing.latitude}
+                longitude={listing.longitude}
+                address={address}
+                price={formatPrice(listing.listing_price)}
+              />
             )}
 
             {/* Property Value Trends */}
