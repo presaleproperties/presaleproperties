@@ -8,7 +8,7 @@ import { MobileResalePropertyTypeCarousel } from "./MobileResalePropertyTypeCaro
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { SearchSuggestions } from "@/components/home/SearchSuggestions";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
-import { ResaleMapSection } from "@/components/resale/ResaleMapSection";
+import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
@@ -279,9 +279,9 @@ export function MobileResaleHome() {
         <NewConstructionBenefits />
       </div>
 
-      {/* Map Section */}
+      {/* Map Section - Unified with toggle */}
       <div className="mt-4">
-        <ResaleMapSection />
+        <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
       </div>
 
       {/* ROI Calculator Teaser */}
