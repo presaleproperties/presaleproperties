@@ -35,6 +35,7 @@ import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
+import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -681,6 +682,14 @@ export default function ResaleListingDetail() {
                   View Virtual Tour →
                 </a>
               </div>
+            )}
+
+            {/* Walkability & Transit Scores */}
+            {listing.latitude && listing.longitude && (
+              <WalkTransitScore
+                latitude={listing.latitude}
+                longitude={listing.longitude}
+              />
             )}
 
             {/* Interactive Mini-Map */}
