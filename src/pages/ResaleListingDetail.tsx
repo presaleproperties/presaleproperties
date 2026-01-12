@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useRef, useState } from "react";
 import { 
-  ArrowLeft, 
   Bed, 
   Bath, 
   Maximize, 
@@ -18,7 +17,9 @@ import {
   ChevronRight,
   Map,
   Navigation,
-  Image
+  Sparkles,
+  Phone,
+  User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,7 @@ import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -102,6 +104,7 @@ export default function ResaleListingDetail() {
   const { listingKey } = useParams<{ listingKey: string }>();
   const formRef = useRef<HTMLDivElement>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const isMobile = useIsMobile();
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -293,21 +296,6 @@ export default function ResaleListingDetail() {
 
             {/* Quick Actions - Map & Street View */}
             <div className="flex flex-wrap items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
-                asChild
-              >
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${listing.latitude || 0},${listing.longitude || 0}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  <Image className="h-3.5 w-3.5" />
-                  {photos.length} Photos
-                </a>
-              </Button>
               {listing.virtual_tour_url && (
                 <Button
                   variant="outline"
@@ -376,42 +364,68 @@ export default function ResaleListingDetail() {
                 <Navigation className="h-3.5 w-3.5" />
                 Directions
               </Button>
+              <div className="ml-auto">
+                <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
+              </div>
             </div>
 
             {/* Price Section - REW Style */}
             <div>
-              <div className="flex flex-wrap items-center gap-2 mb-2">
+              {/* Badges Row */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                {listing.year_built && listing.year_built >= 2024 && (
+                  <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1">
+                    <Sparkles className="h-3 w-3" />
+                    New Construction
+                  </Badge>
+                )}
                 <Badge variant="secondary" className="text-xs">
                   {formatPropertyType(listing.property_sub_type || listing.property_type)}
                 </Badge>
                 <Badge 
                   variant="secondary" 
-                  className={listing.mls_status === "Active" ? "bg-green-500/10 text-green-700" : ""}
+                  className={listing.mls_status === "Active" ? "bg-green-500/10 text-green-700 border-green-200" : ""}
                 >
                   {listing.mls_status}
                 </Badge>
-                {listing.days_on_market !== null && (
-                  <Badge variant="outline" className="text-xs gap-1">
+                {listing.days_on_market !== null && listing.days_on_market <= 7 && (
+                  <Badge variant="outline" className="text-xs gap-1 border-blue-200 text-blue-700 bg-blue-50">
                     <Clock className="h-3 w-3" />
-                    {listing.days_on_market} days on market
+                    Just Listed
                   </Badge>
                 )}
-                <div className="flex items-center gap-2 ml-auto">
-                  <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
-                </div>
+                {listing.days_on_market !== null && listing.days_on_market > 7 && (
+                  <Badge variant="outline" className="text-xs gap-1">
+                    <Clock className="h-3 w-3" />
+                    {listing.days_on_market} days
+                  </Badge>
+                )}
               </div>
               
               {/* Price with Est. Monthly */}
-              <div className="flex items-baseline gap-3 mb-2">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
                 <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
                   {formatPrice(listing.listing_price)}
                 </span>
+                {listing.living_area && (
+                  <span className="text-sm font-medium text-muted-foreground">
+                    ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
+                  </span>
+                )}
+              </div>
+
+              {/* Estimated Monthly */}
+              <div className="flex items-center gap-2 mb-3">
                 <span className="text-sm text-muted-foreground">
                   Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
                 </span>
-                <a href="#calculator" className="text-sm text-primary hover:underline">
+                <span className="text-muted-foreground">•</span>
+                <button 
+                  onClick={scrollToForm}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
                   Get pre-approved
-                </a>
+                </button>
               </div>
 
               {/* Full Address */}
@@ -420,31 +434,60 @@ export default function ResaleListingDetail() {
               </h1>
               
               {/* City, Province, Postal • Neighborhood */}
-              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
-                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline">
+              <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground mb-3">
+                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                   {listing.city}
                 </Link>
                 <span>, BC</span>
-                {listing.postal_code && <span>, {listing.postal_code}</span>}
+                {listing.postal_code && <span className="hidden sm:inline">, {listing.postal_code}</span>}
                 {listing.neighborhood && (
                   <>
                     <span className="mx-1">•</span>
-                    <span className="text-primary">{listing.neighborhood}</span>
+                    <span className="font-medium">{listing.neighborhood}</span>
                   </>
                 )}
               </div>
 
-              {/* Beds • Baths • Sqft • Type - Inline */}
-              <p className="text-sm md:text-base text-muted-foreground">
-                {listing.bedrooms_total !== null && `${listing.bedrooms_total} Bed`}
-                {listing.bathrooms_total !== null && ` • ${listing.bathrooms_total} Bath`}
-                {listing.living_area && ` • ${listing.living_area.toLocaleString()} Sqft`}
-                {` • ${formatPropertyType(listing.property_sub_type || listing.property_type)}`}
-              </p>
+              {/* Beds • Baths • Sqft • Year - Inline with icons */}
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm md:text-base text-foreground">
+                {listing.bedrooms_total !== null && (
+                  <span className="flex items-center gap-1.5">
+                    <Bed className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{listing.bedrooms_total}</span>
+                    <span className="text-muted-foreground">Beds</span>
+                  </span>
+                )}
+                {listing.bathrooms_total !== null && (
+                  <span className="flex items-center gap-1.5">
+                    <Bath className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{listing.bathrooms_total}</span>
+                    <span className="text-muted-foreground">Baths</span>
+                  </span>
+                )}
+                {listing.living_area && (
+                  <span className="flex items-center gap-1.5">
+                    <Maximize className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{listing.living_area.toLocaleString()}</span>
+                    <span className="text-muted-foreground">Sqft</span>
+                  </span>
+                )}
+                {listing.year_built && (
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4 text-muted-foreground" />
+                    <span className="font-medium">{listing.year_built}</span>
+                    <span className="text-muted-foreground">Built</span>
+                  </span>
+                )}
+              </div>
 
               {listing.original_list_price && listing.original_list_price !== listing.listing_price && (
-                <p className="text-xs md:text-sm text-muted-foreground mt-2">
-                  Original List Price: <span className="line-through">{formatPrice(listing.original_list_price)}</span>
+                <p className="text-xs md:text-sm text-muted-foreground mt-3 flex items-center gap-2">
+                  <span>Original: <span className="line-through">{formatPrice(listing.original_list_price)}</span></span>
+                  {listing.original_list_price > listing.listing_price && (
+                    <Badge variant="outline" className="text-xs text-green-600 border-green-200 bg-green-50">
+                      {formatPrice(listing.original_list_price - listing.listing_price)} below asking
+                    </Badge>
+                  )}
                 </p>
               )}
             </div>
@@ -656,24 +699,30 @@ export default function ResaleListingDetail() {
 
             {/* Listed By Section */}
             {(listing.list_agent_name || listing.list_office_name) && (
-              <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-                <h2 className="text-base md:text-lg font-semibold text-foreground mb-4">Listed By</h2>
+              <div className="bg-gradient-to-br from-muted/50 to-muted/30 rounded-xl p-4 md:p-6 border">
+                <h2 className="text-base md:text-lg font-semibold text-foreground mb-4 flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Listed By
+                </h2>
                 <div className="flex items-start gap-4">
                   {/* Agent Avatar Placeholder */}
-                  <div className="shrink-0 w-14 h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center">
+                  <div className="shrink-0 w-14 h-14 md:w-16 md:h-16 bg-primary/10 rounded-full flex items-center justify-center border-2 border-primary/20">
                     <span className="text-lg md:text-xl font-semibold text-primary">
                       {listing.list_agent_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'AG'}
                     </span>
                   </div>
                   <div className="flex-1 min-w-0">
                     {listing.list_agent_name && (
-                      <p className="font-semibold text-foreground truncate">{listing.list_agent_name}</p>
+                      <p className="font-semibold text-foreground truncate text-base">{listing.list_agent_name}</p>
                     )}
                     {listing.list_office_name && (
-                      <p className="text-sm text-muted-foreground truncate">{listing.list_office_name}</p>
+                      <p className="text-sm text-muted-foreground truncate flex items-center gap-1.5 mt-0.5">
+                        <Building2 className="h-3.5 w-3.5 shrink-0" />
+                        {listing.list_office_name}
+                      </p>
                     )}
                     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs text-muted-foreground">
-                      <span>MLS® #{listing.listing_id}</span>
+                      <span className="font-medium">MLS® #{listing.listing_id}</span>
                       {listing.list_date && (
                         <>
                           <span>•</span>
@@ -682,6 +731,14 @@ export default function ResaleListingDetail() {
                       )}
                     </div>
                   </div>
+                </div>
+                
+                {/* Contact CTA for desktop - visible within this section */}
+                <div className="mt-4 pt-4 border-t hidden md:block">
+                  <Button onClick={scrollToForm} className="w-full h-12 gap-2">
+                    <Phone className="h-4 w-4" />
+                    Request More Info
+                  </Button>
                 </div>
               </div>
             )}
@@ -725,13 +782,22 @@ export default function ResaleListingDetail() {
       </main>
 
       {/* Mobile CTA Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background border-t p-4 flex items-center gap-3 lg:hidden z-40">
-        <div className="flex-1">
-          <p className="text-lg font-bold text-foreground">{formatPrice(listing.listing_price)}</p>
-          <p className="text-xs text-muted-foreground">{listing.bedrooms_total} bed · {listing.bathrooms_total} bath</p>
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-3 sm:p-4 flex items-center gap-3 lg:hidden z-40 shadow-lg">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2">
+            <p className="text-lg font-bold text-foreground">{formatPrice(listing.listing_price)}</p>
+            {listing.living_area && (
+              <p className="text-xs text-muted-foreground">${Math.round(listing.listing_price / listing.living_area)}/sqft</p>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground truncate">
+            {listing.bedrooms_total} bed · {listing.bathrooms_total} bath
+            {listing.living_area && ` · ${listing.living_area.toLocaleString()} sqft`}
+          </p>
         </div>
-        <Button onClick={scrollToForm} className="px-6">
-          Contact Agent
+        <Button onClick={scrollToForm} className="h-12 px-5 sm:px-6 bg-foreground hover:bg-foreground/90 text-background shrink-0">
+          <Phone className="h-4 w-4 mr-2" />
+          Contact
         </Button>
       </div>
 
