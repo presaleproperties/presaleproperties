@@ -116,13 +116,18 @@ Deno.serve(async (req) => {
     // Try without $select first to see what fields are available
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
     
-    // Build simple OData query without $select to discover available fields
+    // Build OData query - always filter for BC listings
     const queryParams = [`$top=${maxRecords}`];
+    
+    // Build filter - always include BC Province filter
+    const filters = ["Province eq 'British Columbia'"];
     
     // Add city filter if specified
     if (filterCity) {
-      queryParams.push(`$filter=contains(City,'${filterCity}')`);
+      filters.push(`contains(City,'${filterCity}')`);
     }
+    
+    queryParams.push(`$filter=${filters.join(' and ')}`);
 
     const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
     
