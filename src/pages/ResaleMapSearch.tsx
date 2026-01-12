@@ -27,6 +27,7 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useEnabledCities } from "@/hooks/useEnabledCities";
 
 // Lazy load the map component
 const ResaleListingsMap = lazy(() => 
@@ -95,6 +96,9 @@ export default function ResaleMapSearch() {
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
 
+  // Get enabled cities from admin settings
+  const { data: enabledCities } = useEnabledCities();
+
   const handleListingSelect = useCallback((listingId: string) => {
     setSelectedListingId(listingId);
     // Show carousel if hidden (mobile/tablet)
@@ -132,7 +136,7 @@ export default function ResaleMapSearch() {
 
   // Optimized query with limits for large datasets
   const { data: allListings, isLoading } = useQuery({
-    queryKey: ["resale-map-listings", filters],
+    queryKey: ["resale-map-listings", filters, enabledCities],
     queryFn: async () => {
       // Only fetch listings with coordinates for map display
       // Limit to 2000 for performance while still showing good coverage
@@ -142,6 +146,11 @@ export default function ResaleMapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null);
+
+      // Filter by enabled cities first
+      if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
+        query = query.in("city", enabledCities);
+      }
 
       if (filters.city !== "any") {
         query = query.eq("city", filters.city);
