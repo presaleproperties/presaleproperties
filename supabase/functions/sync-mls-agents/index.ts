@@ -5,20 +5,6 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface DDFAgent {
-  MemberKey?: string;
-  MemberMlsId?: string;
-  MemberFirstName?: string;
-  MemberLastName?: string;
-  MemberFullName?: string;
-  MemberEmail?: string;
-  MemberPreferredPhone?: string;
-  MemberDirectPhone?: string;
-  MemberOfficePhone?: string;
-  OfficeName?: string;
-  OfficeKey?: string;
-}
-
 interface DDFOffice {
   OfficeKey?: string;
   OfficeMlsId?: string;
@@ -69,116 +55,54 @@ Deno.serve(async (req) => {
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // Get unique agent and office keys from listings that don't have cached data
-    const { data: missingAgents } = await supabase
-      .from("mls_listings")
-      .select("list_agent_key")
-      .not("list_agent_key", "is", null)
-      .limit(500);
-
-    const { data: missingOffices } = await supabase
+    // Step 1: Get ALL unique office keys from active listings
+    const { data: allOfficeKeys, error: officeKeysError } = await supabase
       .from("mls_listings")
       .select("list_office_key")
-      .not("list_office_key", "is", null)
-      .limit(500);
+      .eq("mls_status", "Active")
+      .not("list_office_key", "is", null);
 
-    // Get already cached keys
-    const { data: cachedAgents } = await supabase
-      .from("mls_agents")
-      .select("agent_key");
-    
+    if (officeKeysError) {
+      throw new Error(`Failed to fetch office keys: ${officeKeysError.message}`);
+    }
+
+    // Get unique office keys
+    const uniqueOfficeKeys = [...new Set(
+      (allOfficeKeys || []).map(l => l.list_office_key).filter(Boolean)
+    )];
+
+    console.log(`Found ${uniqueOfficeKeys.length} unique office keys in listings`);
+
+    // Get already cached offices
     const { data: cachedOffices } = await supabase
       .from("mls_offices")
-      .select("office_key");
+      .select("office_key, office_name");
+    
+    const cachedOfficeMap = new Map(
+      (cachedOffices || []).map(o => [o.office_key, o.office_name])
+    );
 
-    const cachedAgentKeys = new Set((cachedAgents || []).map(a => a.agent_key));
-    const cachedOfficeKeys = new Set((cachedOffices || []).map(o => o.office_key));
+    console.log(`Already cached: ${cachedOfficeMap.size} offices`);
 
-    // Filter to only uncached keys - limit to 25 per call to avoid timeout
-    const agentKeysToFetch = [...new Set(
-      (missingAgents || [])
-        .map(l => l.list_agent_key)
-        .filter(k => k && !cachedAgentKeys.has(k))
-    )].slice(0, 25);
+    // Filter to only uncached keys
+    const officeKeysToFetch = uniqueOfficeKeys.filter(k => !cachedOfficeMap.has(k));
 
-    const officeKeysToFetch = [...new Set(
-      (missingOffices || [])
-        .map(l => l.list_office_key)
-        .filter(k => k && !cachedOfficeKeys.has(k))
-    )].slice(0, 25);
+    console.log(`Need to fetch: ${officeKeysToFetch.length} offices from DDF API`);
 
-    console.log(`Fetching ${agentKeysToFetch.length} agents, ${officeKeysToFetch.length} offices`);
-
-    if (agentKeysToFetch.length === 0 && officeKeysToFetch.length === 0) {
-      return new Response(
-        JSON.stringify({ success: true, message: "All agents and offices already cached", agentsFetched: 0, officesFetched: 0 }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
-
-    let agentsFetched = 0;
     let officesFetched = 0;
+    let fetchErrors = 0;
 
-    // Fetch agents one at a time (DDF API has node count limits)
-    if (agentKeysToFetch.length > 0) {
-      for (const agentKey of agentKeysToFetch) {
-        try {
-          const apiUrl = `https://ddfapi.realtor.ca/odata/v1/Member?$filter=MemberKey eq '${agentKey}'&$top=1`;
-          
-          const response = await fetch(apiUrl, {
-            method: "GET",
-            headers: {
-              "Authorization": `Bearer ${accessToken}`,
-              "Accept": "application/json",
-            },
-          });
-
-          if (response.ok) {
-            const data = await response.json();
-            const agents: DDFAgent[] = data.value || [];
-            
-            if (agents.length > 0) {
-              const agent = agents[0];
-              const { error } = await supabase
-                .from("mls_agents")
-                .upsert({
-                  agent_key: agent.MemberKey!,
-                  agent_mls_id: agent.MemberMlsId,
-                  full_name: agent.MemberFullName || 
-                    (agent.MemberFirstName && agent.MemberLastName 
-                      ? `${agent.MemberFirstName} ${agent.MemberLastName}`
-                      : agent.MemberFirstName || agent.MemberLastName),
-                  first_name: agent.MemberFirstName,
-                  last_name: agent.MemberLastName,
-                  email: agent.MemberEmail,
-                  phone: agent.MemberDirectPhone || agent.MemberPreferredPhone || agent.MemberOfficePhone,
-                  office_key: agent.OfficeKey,
-                }, { onConflict: "agent_key" });
-
-              if (!error) {
-                agentsFetched++;
-              }
-            }
-          } else {
-            const errText = await response.text();
-            console.error(`Agent API error for ${agentKey}:`, response.status, errText.substring(0, 200));
-          }
-
-          // Small delay to avoid rate limiting
-          if (agentsFetched % 10 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 50));
-          }
-        } catch (err) {
-          console.error(`Error fetching agent ${agentKey}:`, err);
-        }
-      }
-    }
-
-    // Fetch offices one at a time
+    // Only fetch from API if there are uncached offices
     if (officeKeysToFetch.length > 0) {
-      for (const officeKey of officeKeysToFetch) {
+      const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
+
+      // Process in batches of 50 to avoid timeout
+      const batchSize = 50;
+      const maxBatches = 20; // Max 1000 offices per call
+      const keysToProcess = officeKeysToFetch.slice(0, batchSize * maxBatches);
+
+      for (let i = 0; i < keysToProcess.length; i++) {
+        const officeKey = keysToProcess[i];
         try {
           const apiUrl = `https://ddfapi.realtor.ca/odata/v1/Office?$filter=OfficeKey eq '${officeKey}'&$top=1`;
           
@@ -207,40 +131,84 @@ Deno.serve(async (req) => {
                   city: office.OfficeCity,
                 }, { onConflict: "office_key" });
 
-              if (!error) {
+              if (!error && office.OfficeName) {
+                cachedOfficeMap.set(office.OfficeKey!, office.OfficeName);
                 officesFetched++;
               }
             }
           } else {
-            const errText = await response.text();
-            console.error(`Office API error for ${officeKey}:`, response.status, errText.substring(0, 200));
+            fetchErrors++;
+            if (fetchErrors <= 5) {
+              console.error(`Office API error for ${officeKey}:`, response.status);
+            }
           }
 
-          if (officesFetched % 10 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 50));
+          // Small delay every 10 requests to avoid rate limiting
+          if (i > 0 && i % 10 === 0) {
+            await new Promise(resolve => setTimeout(resolve, 100));
           }
         } catch (err) {
-          console.error(`Error fetching office ${officeKey}:`, err);
+          fetchErrors++;
+          if (fetchErrors <= 5) {
+            console.error(`Error fetching office ${officeKey}:`, err);
+          }
         }
       }
     }
 
-    // Update mls_listings with agent/office names from cache
-    const { error: updateError } = await supabase.rpc("update_listing_agent_names");
-    
-    if (updateError) {
-      console.log("Note: update_listing_agent_names function may not exist yet");
+    console.log(`Fetched ${officesFetched} new offices, ${fetchErrors} errors`);
+
+    // Step 2: Backfill list_office_name on listings from cache
+    // Find listings that have office_key but no office_name
+    const { data: listingsToUpdate } = await supabase
+      .from("mls_listings")
+      .select("id, list_office_key")
+      .eq("mls_status", "Active")
+      .not("list_office_key", "is", null)
+      .is("list_office_name", null)
+      .limit(2000);
+
+    let listingsUpdated = 0;
+
+    if (listingsToUpdate && listingsToUpdate.length > 0) {
+      // Build updates from cache
+      const updates = listingsToUpdate
+        .filter(l => cachedOfficeMap.has(l.list_office_key))
+        .map(l => ({
+          id: l.id,
+          list_office_name: cachedOfficeMap.get(l.list_office_key),
+        }));
+
+      if (updates.length > 0) {
+        // Update in batches of 100
+        for (let i = 0; i < updates.length; i += 100) {
+          const batch = updates.slice(i, i + 100);
+          for (const update of batch) {
+            const { error } = await supabase
+              .from("mls_listings")
+              .update({ list_office_name: update.list_office_name })
+              .eq("id", update.id);
+            
+            if (!error) listingsUpdated++;
+          }
+        }
+      }
+
+      console.log(`Updated ${listingsUpdated} listings with office names`);
     }
 
-    console.log(`Synced ${agentsFetched} agents, ${officesFetched} offices`);
+    // Count remaining uncached
+    const remainingUncached = officeKeysToFetch.length - officesFetched;
 
     return new Response(
       JSON.stringify({
         success: true,
-        agentsFetched,
+        totalUniqueOffices: uniqueOfficeKeys.length,
+        alreadyCached: cachedOfficeMap.size - officesFetched,
         officesFetched,
-        remainingAgents: agentKeysToFetch.length - agentsFetched,
-        remainingOffices: officeKeysToFetch.length - officesFetched,
+        fetchErrors,
+        listingsUpdated,
+        remainingUncached: Math.max(0, remainingUncached),
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
