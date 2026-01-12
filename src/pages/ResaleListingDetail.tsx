@@ -32,7 +32,6 @@ import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
-import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
@@ -710,13 +709,6 @@ export default function ResaleListingDetail() {
               currentPrice={listing.listing_price}
             />
 
-            {/* Neighborhood Insights */}
-            <NeighborhoodInsights
-              neighborhood={listing.neighborhood}
-              city={listing.city}
-              latitude={listing.latitude}
-              longitude={listing.longitude}
-            />
 
             {/* Listed By Section */}
             {(listing.list_agent_name || listing.list_office_name) && (
