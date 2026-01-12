@@ -239,6 +239,14 @@ export function ResaleListingsMap({
         icon: createPricePillIcon(listing),
       });
 
+      // Bind popup with listing details
+      marker.bindPopup(popupHtml(listing), {
+        maxWidth: 220,
+        minWidth: 200,
+        closeButton: true,
+        className: "resale-listing-popup",
+      });
+
       marker.on("click", () => {
         onListingSelect?.(listing.id);
       });
