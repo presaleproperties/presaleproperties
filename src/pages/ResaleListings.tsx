@@ -184,7 +184,12 @@ export default function ResaleListings() {
       let countQuery = supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
-        .eq("mls_status", "Active");
+        .eq("mls_status", "Active")
+        // Geographic bounding box for Lower Mainland / Metro Vancouver area
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.5)
+        .lte("longitude", -121.3);
       countQuery = buildFilters(countQuery);
       const { count } = await countQuery;
 
@@ -192,7 +197,12 @@ export default function ResaleListings() {
       let query = supabase
         .from("mls_listings")
         .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url")
-        .eq("mls_status", "Active");
+        .eq("mls_status", "Active")
+        // Geographic bounding box for Lower Mainland / Metro Vancouver area
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.5)
+        .lte("longitude", -121.3);
       query = buildFilters(query);
 
       // Apply sorting (using indexed columns for performance)

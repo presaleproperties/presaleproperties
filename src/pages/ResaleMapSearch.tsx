@@ -145,9 +145,14 @@ export default function ResaleMapSearch() {
         .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
-        .not("longitude", "is", null);
+        .not("longitude", "is", null)
+        // Geographic bounding box for Lower Mainland / Metro Vancouver area
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.5)
+        .lte("longitude", -121.3);
 
-      // Filter by enabled cities first
+      // Filter by enabled cities
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
         query = query.in("city", enabledCities);
       }
