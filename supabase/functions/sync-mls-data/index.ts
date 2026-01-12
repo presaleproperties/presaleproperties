@@ -5,7 +5,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-// DDF API response structure - using correct CREA DDF field names from documentation
+// DDF API response structure
 interface DDFProperty {
   ListingKey?: string;
   ListingId?: string;
@@ -28,6 +28,9 @@ interface DDFProperty {
   Longitude?: number;
   PublicRemarks?: string;
   ListAgentKey?: string;
+  ListAgentMlsId?: string;
+  ListAgentFullName?: string;
+  ListOfficeName?: string;
   ListOfficeKey?: string;
   OriginalEntryTimestamp?: string;
   ModificationTimestamp?: string;
@@ -89,11 +92,9 @@ Deno.serve(async (req) => {
 
     // Parse request body for options
     let filterCity = "";
-    let maxRecords = 100;
     try {
       const body = await req.json();
       if (body?.city) filterCity = body.city;
-      if (body?.maxRecords) maxRecords = body.maxRecords;
     } catch {
       // No body or invalid JSON
     }
@@ -117,84 +118,124 @@ Deno.serve(async (req) => {
     // Step 1: Get access token
     const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
 
-    // Step 2: Fetch properties from DDF API
+    // Step 2: Fetch properties from DDF API with pagination
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
-    
-    // Build OData query - filter for BC listings using correct field names
-    const queryParams = [`$top=${maxRecords}`];
+    const BATCH_SIZE = 1000; // Max records per request
     
     // Build filter for BC (using StateOrProvince)
-    // Use correct CREA DDF field names from documentation
     const filters: string[] = [];
-    
-    // Filter by province - BC
     filters.push("StateOrProvince eq 'British Columbia'");
     
     // Add city filter if specified
     if (filterCity) {
       filters.push(`City eq '${filterCity}'`);
     } else {
-      // Default to major BC cities including Chilliwack
-      filters.push("(City eq 'Vancouver' or City eq 'Surrey' or City eq 'Delta' or City eq 'Burnaby' or City eq 'Richmond' or City eq 'Coquitlam' or City eq 'Langley' or City eq 'Abbotsford' or City eq 'New Westminster' or City eq 'Port Moody' or City eq 'North Vancouver' or City eq 'West Vancouver' or City eq 'Chilliwack' or City eq 'Port Coquitlam' or City eq 'Maple Ridge' or City eq 'Pitt Meadows' or City eq 'White Rock')");
+      // All major BC cities
+      filters.push("(City eq 'Vancouver' or City eq 'Surrey' or City eq 'Delta' or City eq 'Burnaby' or City eq 'Richmond' or City eq 'Coquitlam' or City eq 'Langley' or City eq 'Abbotsford' or City eq 'New Westminster' or City eq 'Port Moody' or City eq 'North Vancouver' or City eq 'West Vancouver' or City eq 'Chilliwack' or City eq 'Port Coquitlam' or City eq 'Maple Ridge' or City eq 'Pitt Meadows' or City eq 'White Rock' or City eq 'Mission' or City eq 'Squamish' or City eq 'Whistler')");
     }
-    
-    queryParams.push(`$filter=${filters.join(' and ')}`);
-    
-    // Order by newest first
-    queryParams.push("$orderby=ListPrice desc");
 
-    const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
-    
-    console.log("Fetching properties from DDF API:", apiUrl);
+    let allProperties: DDFProperty[] = [];
+    let skip = 0;
+    let hasMore = true;
+    let totalFetched = 0;
 
-    const response = await fetch(apiUrl, {
-      method: "GET",
-      headers: {
-        "Authorization": `Bearer ${accessToken}`,
-        "Accept": "application/json",
-      },
-    });
+    console.log("Starting paginated fetch of all BC listings...");
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("DDF API error:", response.status, errorText);
+    // Paginate through all results
+    while (hasMore) {
+      const queryParams = [
+        `$top=${BATCH_SIZE}`,
+        `$skip=${skip}`,
+        `$filter=${filters.join(' and ')}`,
+        "$orderby=ModificationTimestamp desc",
+        "$count=true"
+      ];
+
+      const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
       
-      if (syncLogId) {
-        await supabase
-          .from("mls_sync_logs")
-          .update({
-            status: "failed",
-            error_message: `DDF API error: ${response.status} - ${errorText.substring(0, 500)}`,
-            completed_at: new Date().toISOString(),
-          })
-          .eq("id", syncLogId);
+      console.log(`Fetching batch: skip=${skip}, top=${BATCH_SIZE}`);
+
+      const response = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Accept": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("DDF API error:", response.status, errorText);
+        
+        if (syncLogId) {
+          await supabase
+            .from("mls_sync_logs")
+            .update({
+              status: "failed",
+              error_message: `DDF API error: ${response.status} - ${errorText.substring(0, 500)}`,
+              completed_at: new Date().toISOString(),
+            })
+            .eq("id", syncLogId);
+        }
+
+        throw new Error(`DDF API error: ${response.status}`);
       }
 
-      throw new Error(`DDF API error: ${response.status}`);
+      const data = await response.json();
+      const properties: DDFProperty[] = data.value || [];
+      const totalCount = data["@odata.count"] || 0;
+
+      console.log(`Batch fetched: ${properties.length} properties (total available: ${totalCount})`);
+
+      if (properties.length === 0) {
+        hasMore = false;
+      } else {
+        allProperties = allProperties.concat(properties);
+        totalFetched += properties.length;
+        skip += BATCH_SIZE;
+
+        // Update sync log with progress
+        if (syncLogId) {
+          await supabase
+            .from("mls_sync_logs")
+            .update({
+              listings_fetched: totalFetched,
+              error_message: `Fetching... ${totalFetched} of ${totalCount}`,
+            })
+            .eq("id", syncLogId);
+        }
+
+        // Check if we've fetched all
+        if (properties.length < BATCH_SIZE || totalFetched >= totalCount) {
+          hasMore = false;
+        }
+
+        // Small delay to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
     }
 
-    const data = await response.json();
-    const properties: DDFProperty[] = data.value || [];
+    console.log(`Total fetched: ${allProperties.length} properties`);
 
     // Log first property to see available fields
-    if (properties.length > 0) {
-      console.log("Sample property fields:", Object.keys(properties[0]));
-      console.log("Sample property:", JSON.stringify(properties[0]).substring(0, 1000));
+    if (allProperties.length > 0) {
+      console.log("Sample property fields:", Object.keys(allProperties[0]));
     }
-
-    console.log(`Fetched ${properties.length} properties from DDF`);
 
     let created = 0;
     let updated = 0;
     let errors = 0;
 
-    // Process each property
-    for (const property of properties) {
-      try {
-        // Transform DDF property to our schema - use correct DDF field names
+    // Process in batches for upsert
+    const UPSERT_BATCH_SIZE = 100;
+    
+    for (let i = 0; i < allProperties.length; i += UPSERT_BATCH_SIZE) {
+      const batch = allProperties.slice(i, i + UPSERT_BATCH_SIZE);
+      
+      const mlsListings = batch.map(property => {
         const listingKey = property.ListingKey || property.ListingId || `ddf-${Date.now()}-${Math.random()}`;
         
-        const mlsListing = {
+        return {
           listing_key: listingKey,
           listing_id: property.ListingId || listingKey,
           listing_price: property.ListPrice || 0,
@@ -218,7 +259,10 @@ Deno.serve(async (req) => {
           longitude: property.Longitude,
           public_remarks: property.PublicRemarks,
           list_agent_key: property.ListAgentKey,
+          list_agent_mls_id: property.ListAgentMlsId,
+          list_agent_name: property.ListAgentFullName,
           list_office_key: property.ListOfficeKey,
+          list_office_name: property.ListOfficeName,
           photos: property.Media ? property.Media.map(m => ({
             MediaURL: m.MediaURL,
             order: m.Order || 0,
@@ -227,21 +271,29 @@ Deno.serve(async (req) => {
           modification_timestamp: property.ModificationTimestamp,
           last_synced_at: new Date().toISOString(),
         };
+      });
 
-        // Upsert listing
-        const { error: upsertError } = await supabase
-          .from("mls_listings")
-          .upsert(mlsListing, { onConflict: "listing_key" });
+      // Upsert batch
+      const { error: upsertError } = await supabase
+        .from("mls_listings")
+        .upsert(mlsListings, { onConflict: "listing_key" });
 
-        if (upsertError) {
-          console.error(`Error upserting listing ${listingKey}:`, upsertError);
-          errors++;
-        } else {
-          created++;
-        }
-      } catch (err) {
-        console.error(`Error processing property:`, err);
-        errors++;
+      if (upsertError) {
+        console.error(`Error upserting batch at ${i}:`, upsertError);
+        errors += batch.length;
+      } else {
+        created += batch.length;
+      }
+
+      // Update progress
+      if (syncLogId && i % 500 === 0) {
+        await supabase
+          .from("mls_sync_logs")
+          .update({
+            listings_created: created,
+            error_message: `Processing... ${created} of ${allProperties.length}`,
+          })
+          .eq("id", syncLogId);
       }
     }
 
@@ -251,7 +303,7 @@ Deno.serve(async (req) => {
         .from("mls_sync_logs")
         .update({
           status: errors > 0 ? "completed_with_errors" : "completed",
-          listings_fetched: properties.length,
+          listings_fetched: allProperties.length,
           listings_created: created,
           listings_updated: updated,
           completed_at: new Date().toISOString(),
@@ -265,7 +317,7 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        fetched: properties.length,
+        fetched: allProperties.length,
         created,
         updated,
         errors,
