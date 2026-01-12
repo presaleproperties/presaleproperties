@@ -27,6 +27,7 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
 import { QuickFilterChips } from "@/components/search/QuickFilterChips";
+import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
@@ -659,58 +660,22 @@ export default function ResaleListings() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                       {filteredListings.map((listing, index) => (
                         <ScrollReveal key={listing.id} delay={index * 0.05}>
-                          <Link to={`/resale/${listing.listing_key}`} className="block group">
-                            <div className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                              <div className="relative aspect-[4/3] bg-muted">
-                                {getFirstPhoto(listing) ? (
-                                  <img
-                                    src={getFirstPhoto(listing)}
-                                    alt={getAddress(listing)}
-                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                    loading="lazy"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center">
-                                    <Home className="h-12 w-12 text-muted-foreground" />
-                                  </div>
-                                )}
-                                <Badge className="absolute top-3 left-3 bg-green-500 hover:bg-green-600">
-                                  Active
-                                </Badge>
-                                {listing.days_on_market && listing.days_on_market <= 7 && (
-                                  <Badge className="absolute top-3 right-3 bg-primary">
-                                    New
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="p-4">
-                                <div className="flex items-start justify-between gap-2 mb-2">
-                                  <h3 className="font-semibold text-lg text-foreground line-clamp-1">
-                                    {formatPrice(listing.listing_price)}
-                                  </h3>
-                                  {listing.property_sub_type && (
-                                    <Badge variant="secondary" className="shrink-0 text-xs">
-                                      {listing.property_sub_type}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <p className="text-sm text-muted-foreground line-clamp-1 mb-2">
-                                  {getAddress(listing)}
-                                </p>
-                                <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                  {listing.bedrooms_total && (
-                                    <span>{listing.bedrooms_total} bed</span>
-                                  )}
-                                  {listing.bathrooms_total && (
-                                    <span>{listing.bathrooms_total} bath</span>
-                                  )}
-                                  {listing.living_area && (
-                                    <span>{listing.living_area.toLocaleString()} sqft</span>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </Link>
+                          <ResaleListingCard
+                            id={listing.id}
+                            listingKey={listing.listing_key}
+                            price={listing.listing_price}
+                            address={getAddress(listing)}
+                            city={listing.city}
+                            neighborhood={listing.neighborhood}
+                            propertyType={listing.property_type}
+                            propertySubType={listing.property_sub_type}
+                            beds={listing.bedrooms_total}
+                            baths={listing.bathrooms_total}
+                            sqft={listing.living_area}
+                            photos={Array.isArray(listing.photos) ? listing.photos : []}
+                            daysOnMarket={listing.days_on_market}
+                            status={listing.mls_status}
+                          />
                         </ScrollReveal>
                       ))}
                     </div>
