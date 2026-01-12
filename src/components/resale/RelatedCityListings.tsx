@@ -44,9 +44,9 @@ function getAddress(listing: MLSListing): string {
 }
 
 export function RelatedCityListings({ city, neighborhood, excludeListingKey }: RelatedCityListingsProps) {
-  // First try to get listings from same neighborhood
+  // First try to get listings from same neighborhood - 2025+ builds only
   const { data: neighborhoodListings } = useQuery({
-    queryKey: ["related-neighborhood-listings", neighborhood, excludeListingKey],
+    queryKey: ["related-neighborhood-listings-2025", neighborhood, excludeListingKey],
     queryFn: async () => {
       if (!neighborhood) return [];
       
@@ -56,7 +56,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("neighborhood", neighborhood)
         .neq("listing_key", excludeListingKey)
-        .or("property_type.ilike.%Condo%,property_type.ilike.%Townhouse%,property_sub_type.ilike.%Condo%,property_sub_type.ilike.%Townhouse%")
+        .gte("year_built", 2025)
         .order("list_date", { ascending: false })
         .limit(6);
 
@@ -66,9 +66,9 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
     enabled: !!neighborhood,
   });
 
-  // Get listings from same city
+  // Get listings from same city - 2025+ builds only
   const { data: cityListings, isLoading } = useQuery({
-    queryKey: ["related-city-listings", city, excludeListingKey],
+    queryKey: ["related-city-listings-2025", city, excludeListingKey],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
@@ -76,7 +76,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("city", city)
         .neq("listing_key", excludeListingKey)
-        .or("property_type.ilike.%Condo%,property_type.ilike.%Townhouse%,property_sub_type.ilike.%Condo%,property_sub_type.ilike.%Townhouse%")
+        .gte("year_built", 2025)
         .order("list_date", { ascending: false })
         .limit(10);
 
