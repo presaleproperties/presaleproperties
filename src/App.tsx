@@ -64,6 +64,7 @@ import { MetaPixel } from "@/components/tracking/MetaPixel";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
+import ResaleHome from "./pages/ResaleHome";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import ResaleMapSearch from "./pages/ResaleMapSearch";
 import CityResalePage from "./pages/CityResalePage";
@@ -92,7 +93,8 @@ const App = () => (
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
             <Route path="/map-search" element={<MapSearch />} />
-            <Route path="/resale" element={<ResaleListings />} />
+            <Route path="/resale" element={<ResaleHome />} />
+            <Route path="/resale/listings" element={<ResaleListings />} />
             <Route path="/resale-map" element={<ResaleMapSearch />} />
             <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
             {/* City-specific resale pages */}

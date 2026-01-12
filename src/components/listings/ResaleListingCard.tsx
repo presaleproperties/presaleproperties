@@ -251,6 +251,17 @@ export function ResaleListingCard({
               </span>
             </div>
           </div>
+
+          {/* Agent Info */}
+          {(listAgentName || listOfficeName) && (
+            <div className="mt-2 pt-2 border-t border-border">
+              <p className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                {listAgentName && <span className="font-medium">{listAgentName}</span>}
+                {listAgentName && listOfficeName && " • "}
+                {listOfficeName && <span>{listOfficeName}</span>}
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </Link>
