@@ -687,87 +687,102 @@ export default function MapSearch() {
               </span>
             </div>
 
-            {/* Scrollable List */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4 space-y-3">
-              {visibleItems.map((item) => {
-                const isPresale = item.type === "presale";
-                const data = item.data;
-                const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
-                const link = isPresale 
-                  ? `/presale/${(data as PresaleProject).slug}` 
-                  : `/resale/${(data as MLSListing).listing_key}`;
-                
-                return (
-                  <Link 
-                    key={`${item.type}-${id}`}
-                    to={link}
-                    data-item-id={id}
-                  >
-                    <div className={`flex gap-3 p-3 rounded-lg border-2 transition-all hover:shadow-md ${
-                      selectedItemId === id 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border hover:border-primary/50'
-                    }`}>
-                      <div className="relative w-24 h-20 rounded-md overflow-hidden bg-muted shrink-0">
-                        {isPresale ? (
-                          (data as PresaleProject).featured_image ? (
-                            <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+            {/* Scrollable 2-Column Grid */}
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
+              <div className="grid grid-cols-2 gap-3">
+                {visibleItems.map((item) => {
+                  const isPresale = item.type === "presale";
+                  const data = item.data;
+                  const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
+                  const link = isPresale 
+                    ? `/presale-projects/${(data as PresaleProject).slug}` 
+                    : `/resale/${(data as MLSListing).listing_key}`;
+                  
+                  return (
+                    <Link 
+                      key={`${item.type}-${id}`}
+                      to={link}
+                      data-item-id={id}
+                    >
+                      <div className={`rounded-lg border-2 overflow-hidden transition-all hover:shadow-lg ${
+                        selectedItemId === id 
+                          ? 'border-primary ring-1 ring-primary/20' 
+                          : 'border-border hover:border-primary/50'
+                      }`}>
+                        {/* Image */}
+                        <div className="relative w-full aspect-[4/3] bg-muted">
+                          {isPresale ? (
+                            (data as PresaleProject).featured_image ? (
+                              <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Building2 className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Building2 className="h-5 w-5 text-muted-foreground" />
-                            </div>
-                          )
-                        ) : (
-                          getResalePhoto(data as MLSListing) ? (
-                            <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Home className="h-5 w-5 text-muted-foreground" />
-                            </div>
-                          )
-                        )}
-                        <Badge className={`absolute top-1 left-1 text-[8px] px-1.5 py-0.5 ${
-                          isPresale 
-                            ? 'bg-foreground text-background' 
-                            : 'bg-primary text-primary-foreground'
-                        }`}>
-                          {isPresale ? 'PRESALE' : 'READY'}
-                        </Badge>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-foreground text-sm truncate">
-                          {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
-                        </h4>
-                        <div className="flex items-center gap-1 mt-0.5 text-muted-foreground">
-                          <MapPin className="h-3 w-3" />
-                          <span className="text-xs truncate">
-                            {isPresale 
-                              ? `${(data as PresaleProject).neighborhood}, ${(data as PresaleProject).city}`
-                              : (data as MLSListing).city
-                            }
-                          </span>
+                            getResalePhoto(data as MLSListing) ? (
+                              <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <Home className="h-8 w-8 text-muted-foreground" />
+                              </div>
+                            )
+                          )}
+                          <Badge className={`absolute top-2 left-2 text-[9px] px-2 py-0.5 ${
+                            isPresale 
+                              ? 'bg-foreground text-background' 
+                              : 'bg-primary text-primary-foreground'
+                          }`}>
+                            {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
+                          </Badge>
                         </div>
-                        <div className="flex items-center justify-between mt-2">
-                          <span className="font-bold text-foreground text-sm">
-                            {isPresale 
-                              ? `From ${formatPrice((data as PresaleProject).starting_price)}`
-                              : formatPrice((data as MLSListing).listing_price)
-                            }
-                          </span>
-                          {!isPresale && (data as MLSListing).bedrooms_total && (
-                            <span className="text-xs text-muted-foreground flex items-center gap-1">
-                              <Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}
-                              {(data as MLSListing).bathrooms_total && (
-                                <><Bath className="h-3 w-3 ml-1" /> {(data as MLSListing).bathrooms_total}</>
-                              )}
+                        
+                        {/* Content */}
+                        <div className="p-3 space-y-1.5">
+                          {/* Price */}
+                          <div className="flex items-center justify-between">
+                            <span className="font-bold text-foreground text-base">
+                              {isPresale 
+                                ? formatPrice((data as PresaleProject).starting_price)
+                                : formatPrice((data as MLSListing).listing_price)
+                              }
                             </span>
+                          </div>
+                          
+                          {/* Address */}
+                          <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                            {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
+                          </h4>
+                          
+                          {/* Neighborhood & City */}
+                          <div className="text-xs text-muted-foreground line-clamp-1">
+                            {isPresale 
+                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).city}`
+                              : `${(data as MLSListing).neighborhood || ''} • ${(data as MLSListing).city}`.replace(/^ • /, '')
+                            }
+                          </div>
+                          
+                          {/* Specs */}
+                          {!isPresale && (
+                            <div className="text-xs text-muted-foreground pt-1">
+                              {(data as MLSListing).bedrooms_total && <span>{(data as MLSListing).bedrooms_total} bd</span>}
+                              {(data as MLSListing).bathrooms_total && <span> • {(data as MLSListing).bathrooms_total} ba</span>}
+                              {(data as MLSListing).living_area && <span> • {(data as MLSListing).living_area.toLocaleString()} sf</span>}
+                            </div>
+                          )}
+                          
+                          {/* Brokerage */}
+                          {!isPresale && (data as MLSListing).list_office_name && (
+                            <div className="text-[10px] text-muted-foreground/70 pt-1 line-clamp-1 border-t border-border/50 mt-2">
+                              {(data as MLSListing).list_office_name}
+                            </div>
                           )}
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                );
-              })}
+                    </Link>
+                  );
+                })}
+              </div>
               
               {visibleItems.length === 0 && !isLoading && (
                 <div className="text-center py-12">
