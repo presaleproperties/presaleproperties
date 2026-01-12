@@ -365,33 +365,42 @@ export function ConversionHeader() {
                         <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
                           <div className="flex items-center gap-3">
                             <Map className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-base font-medium">New Homes by City</span>
+                            <span className="text-base font-medium">Browse by City</span>
                           </div>
                           <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${resaleCitiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">Browse by City</p>
-                          {RESALE_CITY_LINKS.map((city) => (
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">New Condos</p>
+                          {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                             <Link
-                              key={`resale-city-${city.slug}`}
-                              to={`/resale/${city.slug}`}
+                              key={`resale-condo-${city.slug}`}
+                              to={`/resale/${city.slug}?type=condo`}
                               onClick={() => setOpen(false)}
                               className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                             >
-                              <span className="text-sm font-medium">{city.name}</span>
+                              <span className="text-sm font-medium">{city.name} Condos</span>
                             </Link>
                           ))}
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1 pt-2">Townhomes</p>
-                          {RESALE_CITY_LINKS.map((city) => (
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1 pt-2">New Townhomes</p>
+                          {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
                             <Link
                               key={`resale-townhome-${city.slug}`}
-                              to={`/resale?city=${city.name}&type=Townhouse`}
+                              to={`/resale/${city.slug}?type=townhouse`}
                               onClick={() => setOpen(false)}
                               className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                             >
                               <span className="text-sm font-medium">{city.name} Townhomes</span>
                             </Link>
                           ))}
+                          <div className="border-t my-2 mx-4" />
+                          <Link
+                            to="/resale-map"
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                          >
+                            <Map className="h-4 w-4" />
+                            <span className="text-sm font-medium">Map Search</span>
+                          </Link>
                         </CollapsibleContent>
                       </Collapsible>
 
