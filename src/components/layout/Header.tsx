@@ -87,10 +87,39 @@ export function Header() {
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
+                  Resale Homes
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="w-[320px] p-4 bg-background">
+                    <Link 
+                      to="/resale" 
+                      className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors mb-2"
+                    >
+                      <Building2 className="h-4 w-4 text-primary" />
+                      <div>
+                        <div className="text-sm font-medium">Browse Listings</div>
+                        <p className="text-xs text-muted-foreground">New construction resale homes</p>
+                      </div>
+                    </Link>
+                    <Link 
+                      to="/resale-map" 
+                      className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
+                    >
+                      <MapPin className="h-4 w-4 text-primary" />
+                      <div>
+                        <div className="text-sm font-medium">Map Search</div>
+                        <p className="text-xs text-muted-foreground">Find homes by location</p>
+                      </div>
+                    </Link>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
           
-          {/* Assignments link hidden for now */}
           <Link
             to="/blog"
             className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
@@ -155,7 +184,13 @@ export function Header() {
                       Presales
                     </Link>
 
-                    {/* Assignments link hidden for now */}
+                    <Link
+                      to="/resale"
+                      onClick={() => setOpen(false)}
+                      className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
+                    >
+                      Resale Homes
+                    </Link>
 
                     {/* Collapsible Cities Section */}
                     <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
