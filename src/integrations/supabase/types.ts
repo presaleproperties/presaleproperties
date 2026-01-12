@@ -722,6 +722,48 @@ export type Database = {
         }
         Relationships: []
       }
+      mls_agents: {
+        Row: {
+          agent_key: string
+          agent_mls_id: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          full_name: string | null
+          id: string
+          last_name: string | null
+          office_key: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          agent_key: string
+          agent_mls_id?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string
+          last_name?: string | null
+          office_key?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          agent_key?: string
+          agent_mls_id?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string
+          last_name?: string | null
+          office_key?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mls_listings: {
         Row: {
           appliances: string[] | null
@@ -965,6 +1007,42 @@ export type Database = {
           virtual_tour_url?: string | null
           waterfront_yn?: boolean | null
           year_built?: number | null
+        }
+        Relationships: []
+      }
+      mls_offices: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          id: string
+          office_key: string
+          office_mls_id: string | null
+          office_name: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          office_key: string
+          office_mls_id?: string | null
+          office_name?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          id?: string
+          office_key?: string
+          office_mls_id?: string | null
+          office_name?: string | null
+          phone?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1559,6 +1637,7 @@ export type Database = {
         Args: { project_id: string }
         Returns: undefined
       }
+      update_listing_agent_names: { Args: never; Returns: undefined }
     }
     Enums: {
       agent_verification_status: "unverified" | "verified" | "rejected"
