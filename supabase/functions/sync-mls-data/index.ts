@@ -122,12 +122,16 @@ Deno.serve(async (req) => {
     let filterCity = "";
     let offset = 0;
     let maxBatches = 30; // Process max 30 batches (3000 listings) per call to stay under 60s timeout
+    let propertyTypes: string[] = []; // Filter by property sub-types (Apartment/Condo, Townhouse, etc.)
     
     try {
       const body = await req.json();
       if (body?.city) filterCity = body.city;
       if (body?.offset !== undefined) offset = parseInt(body.offset) || 0;
       if (body?.maxBatches) maxBatches = Math.min(parseInt(body.maxBatches) || 30, 50);
+      if (body?.propertyTypes && Array.isArray(body.propertyTypes)) {
+        propertyTypes = body.propertyTypes;
+      }
     } catch {
       // No body or invalid JSON
     }
@@ -179,6 +183,13 @@ Deno.serve(async (req) => {
     // Only add city filter if explicitly specified
     if (filterCity) {
       filters.push(`City eq '${filterCity}'`);
+    }
+    
+    // Filter by property sub-types (for condos, townhomes, etc.)
+    if (propertyTypes.length > 0) {
+      const typeFilters = propertyTypes.map(t => `PropertySubType eq '${t}'`).join(' or ');
+      filters.push(`(${typeFilters})`);
+      console.log(`Filtering by property types: ${propertyTypes.join(', ')}`);
     }
 
     let allProperties: DDFProperty[] = [];

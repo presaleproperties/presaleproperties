@@ -57,6 +57,22 @@ export default function AdminMLSSync() {
   const queryClient = useQueryClient();
   const [feedUrl, setFeedUrl] = useState("");
   const [enabledCities, setEnabledCities] = useState<string[]>([]);
+  const [syncPropertyTypes, setSyncPropertyTypes] = useState<string[]>([
+    "Apartment/Condo",
+    "Townhouse",
+    "Row/Townhouse",
+    "Duplex"
+  ]);
+
+  // Available property types from DDF (for attached/multi-family properties)
+  const availablePropertyTypes = [
+    { value: "Apartment/Condo", label: "Condos/Apartments", description: "High-rise & low-rise condos" },
+    { value: "Townhouse", label: "Townhouses", description: "Attached townhomes" },
+    { value: "Row/Townhouse", label: "Row Houses", description: "Row-style townhouses" },
+    { value: "Duplex", label: "Duplexes", description: "Side-by-side or up/down" },
+    { value: "Single Family", label: "Single Family", description: "Detached homes" },
+    { value: "Multi-family", label: "Multi-family", description: "Multi-unit buildings" },
+  ];
 
   // Default Metro Vancouver & Fraser Valley cities
   const defaultEnabledCities = [
@@ -174,9 +190,12 @@ export default function AdminMLSSync() {
 
   // Trigger sync mutation
   const syncMutation = useMutation({
-    mutationFn: async (customFeedUrl?: string) => {
+    mutationFn: async (options?: { feedUrl?: string; propertyTypes?: string[] }) => {
       const { data, error } = await supabase.functions.invoke("sync-mls-data", {
-        body: customFeedUrl ? { feedUrl: customFeedUrl } : {},
+        body: { 
+          feedUrl: options?.feedUrl,
+          propertyTypes: options?.propertyTypes || syncPropertyTypes,
+        },
       });
       
       if (error) throw error;
@@ -442,6 +461,92 @@ export default function AdminMLSSync() {
           </CardContent>
         </Card>
 
+        {/* Property Type Filter for Sync */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5" />
+              Property Type Filter
+            </CardTitle>
+            <CardDescription>
+              Select which property types to sync from the MLS feed. For a condo/townhome site, exclude Single Family homes.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Important</AlertTitle>
+              <AlertDescription>
+                The DDF feed contains mostly Single Family homes (~22k). For condos and townhomes, 
+                you need to filter by property type when syncing. Current DB has only {" "}
+                <strong>5 condo/townhouse listings</strong> out of ~28k total.
+              </AlertDescription>
+            </Alert>
+
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+              {availablePropertyTypes.map((type) => {
+                const isSelected = syncPropertyTypes.includes(type.value);
+                return (
+                  <div
+                    key={type.value}
+                    className={`flex items-center justify-between p-3 rounded-lg border cursor-pointer transition-colors ${
+                      isSelected 
+                        ? "bg-primary/10 border-primary/30" 
+                        : "bg-muted/30 border-muted"
+                    }`}
+                    onClick={() => {
+                      setSyncPropertyTypes(prev => 
+                        prev.includes(type.value) 
+                          ? prev.filter(t => t !== type.value)
+                          : [...prev, type.value]
+                      );
+                    }}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Switch
+                        checked={isSelected}
+                        onCheckedChange={() => {
+                          setSyncPropertyTypes(prev => 
+                            prev.includes(type.value) 
+                              ? prev.filter(t => t !== type.value)
+                              : [...prev, type.value]
+                          );
+                        }}
+                        className="shrink-0"
+                      />
+                      <div className="min-w-0">
+                        <p className={`text-sm font-medium truncate ${isSelected ? "" : "text-muted-foreground"}`}>
+                          {type.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {type.description}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex gap-2 pt-2 border-t">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSyncPropertyTypes(["Apartment/Condo", "Townhouse", "Row/Townhouse", "Duplex"])}
+              >
+                Condos & Townhomes Only
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSyncPropertyTypes(availablePropertyTypes.map(t => t.value))}
+              >
+                All Types
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Configuration */}
         <Card>
           <CardHeader>
@@ -488,7 +593,10 @@ export default function AdminMLSSync() {
 
             <div className="flex gap-2 pt-4">
               <Button
-                onClick={() => syncMutation.mutate(feedUrl || savedFeedUrl || undefined)}
+                onClick={() => syncMutation.mutate({ 
+                  feedUrl: feedUrl || savedFeedUrl || undefined,
+                  propertyTypes: syncPropertyTypes 
+                })}
                 disabled={syncMutation.isPending}
               >
                 {syncMutation.isPending ? (
