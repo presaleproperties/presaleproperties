@@ -85,6 +85,8 @@ type MLSListing = {
   longitude: number | null;
   photos: any;
   mls_status: string;
+  list_agent_name?: string | null;
+  list_office_name?: string | null;
 };
 
 type PresaleProject = {
@@ -196,7 +198,7 @@ export default function MapSearch() {
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built")
+        .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
