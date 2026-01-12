@@ -252,13 +252,14 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
       maxZoom: 19,
     }).addTo(map);
 
-    // Create marker cluster group
+    // Create marker cluster group - aggressive clustering for cleaner map
     clusterGroupRef.current = L.markerClusterGroup({
       iconCreateFunction: createClusterIcon,
-      maxClusterRadius: 50,
+      maxClusterRadius: 80, // Increased for more aggressive clustering
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 15,
+      disableClusteringAtZoom: 16, // Increased from 15
+      spiderfyDistanceMultiplier: 1.5, // Spread spiderfied markers more
     });
     map.addLayer(clusterGroupRef.current);
 

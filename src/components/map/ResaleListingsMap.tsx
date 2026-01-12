@@ -183,18 +183,19 @@ export function ResaleListingsMap({
       maxZoom: 19 
     }).addTo(map);
 
-    // Optimized cluster settings for large datasets (36K+ listings)
+    // Optimized cluster settings - aggressive clustering to prevent overlapping pills
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       chunkDelay: 50,
       chunkInterval: 100,
-      maxClusterRadius: 60, // Slightly larger to reduce marker count
+      maxClusterRadius: 80, // Increased for more aggressive clustering
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 17,
+      disableClusteringAtZoom: 18, // Cluster until very zoomed in
       animate: false, // Disable animations for better performance
       removeOutsideVisibleBounds: true, // Only render visible markers
       iconCreateFunction: createClusterIcon,
+      spiderfyDistanceMultiplier: 1.5, // Spread spiderfied markers more
     });
 
     map.addLayer(clusterGroup);
