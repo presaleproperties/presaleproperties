@@ -285,7 +285,7 @@ export default function ResaleListingDetail() {
               </div>
             )}
 
-            {/* Title & Price */}
+            {/* Price Section - REW Style */}
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <Badge variant="secondary" className="text-xs">
@@ -307,23 +307,51 @@ export default function ResaleListingDetail() {
                   <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
                 </div>
               </div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-2">
+              
+              {/* Price with Est. Monthly */}
+              <div className="flex items-baseline gap-3 mb-2">
+                <span className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground">
+                  {formatPrice(listing.listing_price)}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
+                </span>
+                <a href="#calculator" className="text-sm text-primary hover:underline">
+                  Get pre-approved
+                </a>
+              </div>
+
+              {/* Full Address */}
+              <h1 className="text-lg sm:text-xl md:text-2xl font-semibold text-foreground mb-1">
                 {address}
               </h1>
-              <div className="flex items-center gap-2 text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
-                <MapPin className="h-4 w-4 shrink-0" />
-                <span>
-                  {listing.neighborhood && `${listing.neighborhood} · `}
+              
+              {/* City, Province, Postal • Neighborhood */}
+              <div className="flex items-center gap-1 text-sm text-muted-foreground mb-3">
+                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline">
                   {listing.city}
-                  {listing.postal_code && ` · ${listing.postal_code}`}
-                </span>
+                </Link>
+                <span>, BC</span>
+                {listing.postal_code && <span>, {listing.postal_code}</span>}
+                {listing.neighborhood && (
+                  <>
+                    <span className="mx-1">•</span>
+                    <span className="text-primary">{listing.neighborhood}</span>
+                  </>
+                )}
               </div>
-              <div className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">
-                {formatPrice(listing.listing_price)}
-              </div>
+
+              {/* Beds • Baths • Sqft • Type - Inline */}
+              <p className="text-sm md:text-base text-muted-foreground">
+                {listing.bedrooms_total !== null && `${listing.bedrooms_total} Bed`}
+                {listing.bathrooms_total !== null && ` • ${listing.bathrooms_total} Bath`}
+                {listing.living_area && ` • ${listing.living_area.toLocaleString()} Sqft`}
+                {` • ${formatPropertyType(listing.property_sub_type || listing.property_type)}`}
+              </p>
+
               {listing.original_list_price && listing.original_list_price !== listing.listing_price && (
-                <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                  Original List Price: {formatPrice(listing.original_list_price)}
+                <p className="text-xs md:text-sm text-muted-foreground mt-2">
+                  Original List Price: <span className="line-through">{formatPrice(listing.original_list_price)}</span>
                 </p>
               )}
             </div>
@@ -452,10 +480,10 @@ export default function ResaleListingDetail() {
               </div>
             )}
 
-            {/* Description */}
+            {/* About this home - REW Style */}
             {listing.public_remarks && (
               <div>
-                <h2 className="text-base md:text-lg font-semibold text-foreground mb-3">Description</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-4">About this home</h2>
                 <p className="text-sm md:text-base text-muted-foreground leading-relaxed whitespace-pre-line">
                   {listing.public_remarks}
                 </p>

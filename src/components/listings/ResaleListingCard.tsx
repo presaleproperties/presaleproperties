@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Bed, Bath, Maximize, Camera, ChevronLeft, ChevronRight, Home } from "lucide-react";
+import { Camera, ChevronLeft, ChevronRight, Home, Video } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,9 @@ interface ResaleListingCardProps {
   photos?: any[];
   daysOnMarket?: number | null;
   status?: string;
+  listAgentName?: string | null;
+  listOfficeName?: string | null;
+  virtualTourUrl?: string | null;
 }
 
 const formatPrice = (price: number) => {
@@ -52,6 +55,9 @@ export function ResaleListingCard({
   photos,
   daysOnMarket,
   status = "Active",
+  listAgentName,
+  listOfficeName,
+  virtualTourUrl,
 }: ResaleListingCardProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const touchStartX = useRef<number | null>(null);
@@ -104,6 +110,9 @@ export function ResaleListingCard({
   };
 
   const isNew = daysOnMarket !== null && daysOnMarket !== undefined && daysOnMarket <= 7;
+
+  // Format property type for display
+  const displayType = propertySubType || propertyType || "Residential";
 
   return (
     <Link to={`/resale/${listingKey}`}>
@@ -172,9 +181,12 @@ export function ResaleListingCard({
           
           {/* Badges - Top Left */}
           <div className="absolute top-3 left-3 flex flex-col gap-2">
-            <Badge className="bg-green-500 hover:bg-green-600 text-white">
-              {status}
-            </Badge>
+            {virtualTourUrl && (
+              <Badge className="bg-foreground text-background flex items-center gap-1">
+                <Video className="h-3 w-3" />
+                VIRTUAL TOUR
+              </Badge>
+            )}
             {isNew && (
               <Badge className="bg-primary text-primary-foreground shadow-gold">
                 New
@@ -191,54 +203,47 @@ export function ResaleListingCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-          <div className="flex items-start gap-1.5 text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
-            <span className="text-xs sm:text-sm truncate">
-              {neighborhood || city}
-            </span>
-          </div>
+        <CardContent className="p-3 sm:p-4 space-y-2">
+          {/* Price - Prominent */}
+          <p className="text-xl sm:text-2xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+            {formatPrice(price)}
+          </p>
 
-          <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
-              {address}
-            </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
-              {propertySubType || propertyType}
-            </p>
-          </div>
+          {/* Address */}
+          <h3 className="font-medium text-foreground line-clamp-1 text-sm sm:text-base">
+            {address}
+          </h3>
 
-          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
-            {beds !== null && beds !== undefined && (
-              <span className="flex items-center gap-1">
-                <Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {beds}
-              </span>
-            )}
-            {baths !== null && baths !== undefined && (
-              <span className="flex items-center gap-1">
-                <Bath className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {baths}
-              </span>
-            )}
-            {sqft !== null && sqft !== undefined && (
-              <span className="flex items-center gap-1">
-                <Maximize className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                {sqft.toLocaleString()} sqft
-              </span>
-            )}
-          </div>
+          {/* Neighborhood • City */}
+          <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">
+            {neighborhood ? `${neighborhood} • ${city}` : city}
+          </p>
 
-          <div className="flex items-end justify-between pt-2 border-t border-border">
-            <div>
-              <p className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-                {formatPrice(price)}
-              </p>
+          {/* Beds • Baths • Sqft • Type */}
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            {beds !== null && beds !== undefined && `${beds} bd`}
+            {baths !== null && baths !== undefined && ` • ${baths} ba`}
+            {sqft !== null && sqft !== undefined && ` • ${sqft.toLocaleString()} sf`}
+          </p>
+
+          {/* Agent Info - REW Style */}
+          {(listAgentName || listOfficeName) && (
+            <div className="flex items-center gap-2 pt-2 border-t border-border">
+              <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                <span className="text-xs font-medium text-muted-foreground">
+                  {listAgentName ? listAgentName.charAt(0).toUpperCase() : 'A'}
+                </span>
+              </div>
+              <div className="min-w-0">
+                {listAgentName && (
+                  <p className="text-xs font-medium text-foreground truncate">{listAgentName}</p>
+                )}
+                {listOfficeName && (
+                  <p className="text-[10px] text-muted-foreground truncate">{listOfficeName}</p>
+                )}
+              </div>
             </div>
-            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {city}
-            </span>
-          </div>
+          )}
         </CardContent>
       </Card>
     </Link>
