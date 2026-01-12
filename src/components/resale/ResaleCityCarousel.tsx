@@ -48,6 +48,7 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
+  // Optimized query with caching for city carousels
   const { data: listings, isLoading } = useQuery({
     queryKey: ["resale-city-carousel", city],
     queryFn: async () => {
@@ -56,13 +57,14 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url")
         .eq("mls_status", "Active")
         .eq("city", city)
-        .or("property_type.ilike.%Condo%,property_type.ilike.%Townhouse%,property_sub_type.ilike.%Condo%,property_sub_type.ilike.%Townhouse%")
-        .order("list_date", { ascending: false })
-        .limit(10);
+        .order("listing_price", { ascending: false }) // Show highest value first
+        .limit(12); // Slightly more than displayed for variety
 
       if (error) throw error;
       return data as MLSListing[];
     },
+    staleTime: 3 * 60 * 1000, // Cache for 3 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
   });
 
   const checkScroll = () => {

@@ -151,51 +151,44 @@ export default function ResaleListings() {
   const { data, isLoading } = useQuery({
     queryKey: ["resale-listings", filters, currentPage],
     queryFn: async () => {
-      // First, get total count
+      // Optimized query with proper filters for large datasets
+      // Using a separate count query is more efficient than counting in the main query
+      
+      // Build the filter conditions once
+      const buildFilters = (query: any) => {
+        if (filters.city !== "any") {
+          query = query.eq("city", filters.city);
+        }
+        if (filters.propertyType !== "any") {
+          // Search both property_type and property_sub_type for flexibility
+          query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+        }
+        if (filters.priceRange !== "any") {
+          const [min, max] = filters.priceRange.split("-").map(Number);
+          query = query.gte("listing_price", min).lte("listing_price", max);
+        }
+        if (filters.beds !== "any") {
+          query = query.gte("bedrooms_total", parseInt(filters.beds));
+        }
+        return query;
+      };
+
+      // Get total count (head: true makes this very fast)
       let countQuery = supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active");
-
-      // Apply filters to count query
-      if (filters.city !== "any") {
-        countQuery = countQuery.eq("city", filters.city);
-      }
-      if (filters.propertyType !== "any") {
-        countQuery = countQuery.ilike("property_type", `%${filters.propertyType}%`);
-      }
-      if (filters.priceRange !== "any") {
-        const [min, max] = filters.priceRange.split("-").map(Number);
-        countQuery = countQuery.gte("listing_price", min).lte("listing_price", max);
-      }
-      if (filters.beds !== "any") {
-        countQuery = countQuery.gte("bedrooms_total", parseInt(filters.beds));
-      }
-
+      countQuery = buildFilters(countQuery);
       const { count } = await countQuery;
 
-      // Then get paginated data
+      // Get paginated data with optimized column selection
       let query = supabase
         .from("mls_listings")
         .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url")
         .eq("mls_status", "Active");
+      query = buildFilters(query);
 
-      // Apply filters
-      if (filters.city !== "any") {
-        query = query.eq("city", filters.city);
-      }
-      if (filters.propertyType !== "any") {
-        query = query.ilike("property_type", `%${filters.propertyType}%`);
-      }
-      if (filters.priceRange !== "any") {
-        const [min, max] = filters.priceRange.split("-").map(Number);
-        query = query.gte("listing_price", min).lte("listing_price", max);
-      }
-      if (filters.beds !== "any") {
-        query = query.gte("bedrooms_total", parseInt(filters.beds));
-      }
-
-      // Apply sorting
+      // Apply sorting (using indexed columns for performance)
       switch (filters.sort) {
         case "price-asc":
           query = query.order("listing_price", { ascending: true });
@@ -217,6 +210,8 @@ export default function ResaleListings() {
 
       return { listings: listingsData as MLSListing[], totalCount: count || 0 };
     },
+    staleTime: 60 * 1000, // Cache for 1 minute
+    gcTime: 5 * 60 * 1000, // Keep in cache for 5 minutes
   });
 
   const listings = data?.listings || [];
