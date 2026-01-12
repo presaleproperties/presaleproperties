@@ -3,7 +3,6 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { School, ShoppingBag, Train, TreePine, Stethoscope, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
@@ -25,41 +24,11 @@ interface NearbyPlace {
 }
 
 const amenityCategories = [
-  { 
-    key: "schools", 
-    label: "Schools", 
-    icon: School, 
-    color: "#3B82F6",
-    osmTags: '["amenity"~"school|kindergarten|college|university"]'
-  },
-  { 
-    key: "grocery", 
-    label: "Grocery", 
-    icon: ShoppingBag, 
-    color: "#10B981",
-    osmTags: '["shop"~"supermarket|grocery|convenience"]'
-  },
-  { 
-    key: "transit", 
-    label: "Transit", 
-    icon: Train, 
-    color: "#8B5CF6",
-    osmTags: '["public_transport"~"station|stop_position"]["railway"~"station|halt|tram_stop"]["highway"="bus_stop"]'
-  },
-  { 
-    key: "parks", 
-    label: "Parks", 
-    icon: TreePine, 
-    color: "#22C55E",
-    osmTags: '["leisure"~"park|playground|garden"]'
-  },
-  { 
-    key: "healthcare", 
-    label: "Healthcare", 
-    icon: Stethoscope, 
-    color: "#EF4444",
-    osmTags: '["amenity"~"hospital|clinic|doctors|pharmacy"]'
-  },
+  { key: "schools", label: "Schools", icon: School, color: "#3B82F6" },
+  { key: "transit", label: "Transit", icon: Train, color: "#8B5CF6" },
+  { key: "parks", label: "Parks", icon: TreePine, color: "#22C55E" },
+  { key: "grocery", label: "Shops", icon: ShoppingBag, color: "#10B981" },
+  { key: "healthcare", label: "Health", icon: Stethoscope, color: "#EF4444" },
 ];
 
 // Build Overpass query for nearby amenities
@@ -67,19 +36,14 @@ function buildOverpassQuery(lat: number, lon: number, radiusMeters: number = 100
   const bbox = `(around:${radiusMeters},${lat},${lon})`;
   
   const queries = [
-    // Schools
     `node["amenity"~"school|kindergarten"]${bbox};`,
     `way["amenity"~"school|kindergarten"]${bbox};`,
-    // Grocery/Supermarkets
     `node["shop"~"supermarket|grocery|convenience"]${bbox};`,
-    // Transit
     `node["public_transport"="station"]${bbox};`,
     `node["railway"~"station|halt|tram_stop"]${bbox};`,
     `node["highway"="bus_stop"]${bbox};`,
-    // Parks
     `node["leisure"~"park|playground"]${bbox};`,
     `way["leisure"~"park|playground"]${bbox};`,
-    // Healthcare
     `node["amenity"~"hospital|clinic|doctors|pharmacy"]${bbox};`,
   ];
 
@@ -117,6 +81,7 @@ export function ResaleListingMiniMap({
   
   const [nearbyPlaces, setNearbyPlaces] = useState<NearbyPlace[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  // Show schools, transit, parks by default
   const [activeCategories, setActiveCategories] = useState<Set<string>>(new Set(["schools", "transit", "parks"]));
   const [placesLoaded, setPlacesLoaded] = useState(false);
 
@@ -169,7 +134,7 @@ export function ResaleListingMiniMap({
       zoom: 15,
       zoomControl: false,
       attributionControl: false,
-      scrollWheelZoom: false,
+      scrollWheelZoom: true,
       dragging: true,
       touchZoom: true,
     });
@@ -188,36 +153,20 @@ export function ResaleListingMiniMap({
       html: `
         <div class="property-marker-pin">
           <div class="property-marker-inner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
           </div>
-          <div class="property-marker-pulse"></div>
         </div>
       `,
       className: "property-marker-icon",
-      iconSize: [48, 48],
-      iconAnchor: [24, 48],
+      iconSize: [36, 44],
+      iconAnchor: [18, 44],
     });
 
-    const marker = L.marker([latitude, longitude], { icon: propertyIcon, zIndexOffset: 1000 });
+    L.marker([latitude, longitude], { icon: propertyIcon, zIndexOffset: 1000 }).addTo(map);
     
-    const popupContent = `
-      <div class="mini-map-popup">
-        <div class="mini-map-popup-price">${price}</div>
-        <div class="mini-map-popup-address">${address}</div>
-      </div>
-    `;
-    marker.bindPopup(popupContent, { 
-      closeButton: false, 
-      className: "mini-map-popup-container",
-      offset: [0, -40]
-    });
-    
-    marker.addTo(map);
-    marker.openPopup();
-
     mapRef.current = map;
 
     // Fetch nearby places when map initializes
@@ -228,17 +177,15 @@ export function ResaleListingMiniMap({
       mapRef.current = null;
       markersLayerRef.current = null;
     };
-  }, [latitude, longitude, address, price, fetchNearbyPlaces]);
+  }, [latitude, longitude, fetchNearbyPlaces]);
 
   // Update amenity markers when categories or places change
   useEffect(() => {
     const markersLayer = markersLayerRef.current;
     if (!markersLayer) return;
 
-    // Clear existing markers
     markersLayer.clearLayers();
 
-    // Add markers for active categories
     nearbyPlaces
       .filter(place => activeCategories.has(place.category))
       .forEach(place => {
@@ -252,8 +199,8 @@ export function ResaleListingMiniMap({
             </div>
           `,
           className: "amenity-marker-icon",
-          iconSize: [24, 24],
-          iconAnchor: [12, 12],
+          iconSize: [20, 20],
+          iconAnchor: [10, 10],
         });
 
         const marker = L.marker([place.lat, place.lon], { icon });
@@ -292,65 +239,19 @@ export function ResaleListingMiniMap({
     );
   };
 
-  // Count places by category
-  const categoryCounts = nearbyPlaces.reduce((acc, place) => {
-    acc[place.category] = (acc[place.category] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
-
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl md:text-2xl font-bold text-foreground">Location & Nearby</h2>
+        <h2 className="text-lg md:text-xl font-bold text-foreground">Location & Nearby</h2>
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
-          className="h-8 px-3 text-xs rounded-full gap-1.5"
+          className="h-7 px-2 text-xs gap-1 text-primary hover:text-primary"
           onClick={handleOpenFullMap}
         >
-          <ExternalLink className="h-3.5 w-3.5" />
-          Open in Maps
+          <ExternalLink className="h-3 w-3" />
+          Open Maps
         </Button>
-      </div>
-
-      {/* Category Toggles */}
-      <div className="flex flex-wrap gap-2">
-        {amenityCategories.map(({ key, label, icon: Icon, color }) => {
-          const isActive = activeCategories.has(key);
-          const count = categoryCounts[key] || 0;
-          
-          return (
-            <button
-              key={key}
-              onClick={() => toggleCategory(key)}
-              className={`
-                flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all
-                ${isActive 
-                  ? 'text-white shadow-sm' 
-                  : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }
-              `}
-              style={isActive ? { backgroundColor: color } : undefined}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
-              {count > 0 && (
-                <Badge 
-                  variant="secondary" 
-                  className={`h-4 min-w-4 px-1 text-[10px] ${isActive ? 'bg-white/20 text-white' : ''}`}
-                >
-                  {count}
-                </Badge>
-              )}
-            </button>
-          );
-        })}
-        {isLoading && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 text-xs text-muted-foreground">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            Loading...
-          </div>
-        )}
       </div>
 
       {/* Map Container */}
@@ -362,74 +263,51 @@ export function ResaleListingMiniMap({
           }
           .property-marker-pin {
             position: relative;
-            width: 48px;
-            height: 48px;
+            width: 36px;
+            height: 44px;
           }
           .property-marker-inner {
             position: absolute;
             top: 0;
             left: 50%;
-            transform: translateX(-50%);
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%);
             border-radius: 50% 50% 50% 0;
             transform: translateX(-50%) rotate(-45deg);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
           }
           .property-marker-inner svg {
             transform: rotate(45deg);
             color: hsl(var(--primary-foreground));
-          }
-          .property-marker-pulse {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 12px;
-            height: 12px;
-            background: hsl(var(--primary)/0.3);
-            border-radius: 50%;
-            animation: pulse 2s ease-out infinite;
-          }
-          @keyframes pulse {
-            0% {
-              transform: translateX(-50%) scale(1);
-              opacity: 1;
-            }
-            100% {
-              transform: translateX(-50%) scale(3);
-              opacity: 0;
-            }
           }
           .amenity-marker-icon {
             background: transparent !important;
             border: none !important;
           }
           .amenity-marker {
-            width: 24px;
-            height: 24px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             border: 2px solid white;
           }
           .amenity-marker-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             background: white;
             border-radius: 50%;
           }
           .amenity-popup-container .leaflet-popup-content-wrapper {
-            border-radius: 8px;
+            border-radius: 6px;
             padding: 0;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
           }
           .amenity-popup-container .leaflet-popup-content {
             margin: 0;
@@ -438,58 +316,49 @@ export function ResaleListingMiniMap({
             background: white;
           }
           .amenity-popup {
-            padding: 8px 12px;
+            padding: 6px 10px;
           }
           .amenity-popup-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #1f2937;
           }
           .amenity-popup-type {
-            font-size: 11px;
+            font-size: 10px;
             color: #6B7280;
-          }
-          .mini-map-popup-container .leaflet-popup-content-wrapper {
-            border-radius: 10px;
-            padding: 0;
-            overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-          }
-          .mini-map-popup-container .leaflet-popup-content {
-            margin: 0;
-          }
-          .mini-map-popup-container .leaflet-popup-tip {
-            display: none;
-          }
-          .mini-map-popup {
-            padding: 10px 14px;
-            text-align: center;
-          }
-          .mini-map-popup-price {
-            font-size: 16px;
-            font-weight: 700;
-            color: hsl(var(--primary));
-          }
-          .mini-map-popup-address {
-            font-size: 12px;
-            color: #6B7280;
-            max-width: 180px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
           }
         `}</style>
 
-        <div ref={mapContainerRef} className="w-full h-[320px] md:h-[380px]" />
+        <div ref={mapContainerRef} className="w-full h-[280px] md:h-[320px]" />
         
-        {/* Legend */}
-        {nearbyPlaces.length > 0 && (
-          <div className="absolute bottom-3 left-3 bg-background/95 backdrop-blur-sm rounded-lg px-3 py-2 shadow-md border text-xs">
-            <span className="text-muted-foreground">
-              {nearbyPlaces.filter(p => activeCategories.has(p.category)).length} places nearby
-            </span>
-          </div>
-        )}
+        {/* Compact overlay toggles on map */}
+        <div className="absolute top-2 left-2 z-[1000] flex flex-wrap gap-1">
+          {amenityCategories.map(({ key, icon: Icon, color }) => {
+            const isActive = activeCategories.has(key);
+            return (
+              <button
+                key={key}
+                onClick={() => toggleCategory(key)}
+                className={`
+                  w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-sm
+                  ${isActive 
+                    ? 'text-white shadow-md' 
+                    : 'bg-background/90 text-muted-foreground hover:bg-background border border-border/50'
+                  }
+                `}
+                style={isActive ? { backgroundColor: color } : undefined}
+                title={key.charAt(0).toUpperCase() + key.slice(1)}
+              >
+                <Icon className="h-3.5 w-3.5" />
+              </button>
+            );
+          })}
+          {isLoading && (
+            <div className="w-7 h-7 rounded-full bg-background/90 flex items-center justify-center">
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
