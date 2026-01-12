@@ -11,6 +11,7 @@ interface DDFProperty {
   ListingId?: string;
   ListPrice?: number;
   StandardStatus?: string;
+  PropertyType?: string;
   PropertySubType?: string;
   City?: string;
   StateOrProvince?: string;
@@ -18,9 +19,12 @@ interface DDFProperty {
   UnparsedAddress?: string;
   StreetNumber?: string;
   StreetName?: string;
+  StreetSuffix?: string;
   UnitNumber?: string;
   BedroomsTotal?: number;
   BathroomsTotalInteger?: number;
+  BathroomsFull?: number;
+  BathroomsHalf?: number;
   LivingArea?: number;
   LivingAreaUnits?: string;
   YearBuilt?: number;
@@ -30,11 +34,35 @@ interface DDFProperty {
   ListAgentKey?: string;
   ListAgentMlsId?: string;
   ListAgentFullName?: string;
+  ListAgentEmail?: string;
+  ListAgentDirectPhone?: string;
   ListOfficeName?: string;
   ListOfficeKey?: string;
+  ListOfficeMlsId?: string;
+  ListOfficePhone?: string;
   OriginalEntryTimestamp?: string;
   ModificationTimestamp?: string;
   PhotosCount?: number;
+  Subdivision?: string;
+  DaysOnMarket?: number;
+  OriginalListPrice?: number;
+  AssociationFee?: number;
+  AssociationFeeFrequency?: string;
+  TaxAnnualAmount?: number;
+  TaxYear?: number;
+  GarageSpaces?: number;
+  ParkingTotal?: number;
+  Stories?: number;
+  VirtualTourURLUnbranded?: string;
+  View?: string[];
+  Heating?: string[];
+  Cooling?: string[];
+  InteriorFeatures?: string[];
+  ExteriorFeatures?: string[];
+  CommunityFeatures?: string[];
+  Appliances?: string[];
+  PoolYN?: boolean;
+  WaterfrontYN?: boolean;
   Media?: Array<{
     MediaURL: string;
     MediaCategory?: string;
@@ -92,28 +120,47 @@ Deno.serve(async (req) => {
 
     // Parse request body for options
     let filterCity = "";
+    let resumeFrom = 0;
+    let maxBatches = 50; // Process max 50 batches (5000 listings) per call to avoid timeout
+    
     try {
       const body = await req.json();
       if (body?.city) filterCity = body.city;
+      if (body?.resumeFrom) resumeFrom = parseInt(body.resumeFrom) || 0;
+      if (body?.maxBatches) maxBatches = parseInt(body.maxBatches) || 50;
     } catch {
       // No body or invalid JSON
     }
 
-    // Log sync start
-    const { data: syncLog, error: logError } = await supabase
-      .from("mls_sync_logs")
-      .insert({
-        sync_type: filterCity ? `city:${filterCity}` : "full",
-        status: "running",
-      })
-      .select()
-      .single();
+    // Log sync start (only if not resuming)
+    let syncLogId: string | undefined;
+    
+    if (resumeFrom === 0) {
+      const { data: syncLog, error: logError } = await supabase
+        .from("mls_sync_logs")
+        .insert({
+          sync_type: filterCity ? `city:${filterCity}` : "full",
+          status: "running",
+        })
+        .select()
+        .single();
 
-    if (logError) {
-      console.error("Failed to create sync log:", logError);
+      if (logError) {
+        console.error("Failed to create sync log:", logError);
+      }
+      syncLogId = syncLog?.id;
+    } else {
+      // Get the latest running sync log
+      const { data: existingLog } = await supabase
+        .from("mls_sync_logs")
+        .select("id")
+        .eq("status", "running")
+        .order("started_at", { ascending: false })
+        .limit(1)
+        .single();
+      
+      syncLogId = existingLog?.id;
     }
-
-    const syncLogId = syncLog?.id;
 
     // Step 1: Get access token
     const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
@@ -122,25 +169,27 @@ Deno.serve(async (req) => {
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
     const BATCH_SIZE = 100; // DDF API max is 100 records per request
     
-    // Build filter for BC - ALL listings in the province
+    // Build filter for BC - all active listings
     const filters: string[] = [];
     filters.push("StateOrProvince eq 'British Columbia'");
+    filters.push("StandardStatus eq 'Active'");
     
     // Only add city filter if explicitly specified
     if (filterCity) {
       filters.push(`City eq '${filterCity}'`);
     }
-    // No city filter = fetch ALL BC listings
 
     let allProperties: DDFProperty[] = [];
-    let skip = 0;
+    let skip = resumeFrom;
+    let batchCount = 0;
     let hasMore = true;
-    let totalFetched = 0;
+    let totalFetched = resumeFrom;
+    let totalCount = 0;
 
-    console.log("Starting paginated fetch of all BC listings...");
+    console.log(`Starting paginated fetch from offset ${resumeFrom}...`);
 
-    // Paginate through all results
-    while (hasMore) {
+    // Paginate through results (limited batches per call)
+    while (hasMore && batchCount < maxBatches) {
       const queryParams = [
         `$top=${BATCH_SIZE}`,
         `$skip=${skip}`,
@@ -151,7 +200,7 @@ Deno.serve(async (req) => {
 
       const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
       
-      console.log(`Fetching batch: skip=${skip}, top=${BATCH_SIZE}`);
+      console.log(`Fetching batch ${batchCount + 1}: skip=${skip}`);
 
       const response = await fetch(apiUrl, {
         method: "GET",
@@ -181,9 +230,9 @@ Deno.serve(async (req) => {
 
       const data = await response.json();
       const properties: DDFProperty[] = data.value || [];
-      const totalCount = data["@odata.count"] || 0;
+      totalCount = data["@odata.count"] || 0;
 
-      console.log(`Batch fetched: ${properties.length} properties (total available: ${totalCount})`);
+      console.log(`Batch ${batchCount + 1}: ${properties.length} properties (total available: ${totalCount})`);
 
       if (properties.length === 0) {
         hasMore = false;
@@ -191,6 +240,7 @@ Deno.serve(async (req) => {
         allProperties = allProperties.concat(properties);
         totalFetched += properties.length;
         skip += BATCH_SIZE;
+        batchCount++;
 
         // Update sync log with progress
         if (syncLogId) {
@@ -209,23 +259,18 @@ Deno.serve(async (req) => {
         }
 
         // Small delay to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 50));
       }
     }
 
-    console.log(`Total fetched: ${allProperties.length} properties`);
-
-    // Log first property to see available fields
-    if (allProperties.length > 0) {
-      console.log("Sample property fields:", Object.keys(allProperties[0]));
-    }
+    console.log(`Fetched ${allProperties.length} properties in this batch`);
 
     let created = 0;
     let updated = 0;
     let errors = 0;
 
     // Process in batches for upsert
-    const UPSERT_BATCH_SIZE = 100;
+    const UPSERT_BATCH_SIZE = 50;
     
     for (let i = 0; i < allProperties.length; i += UPSERT_BATCH_SIZE) {
       const batch = allProperties.slice(i, i + UPSERT_BATCH_SIZE);
@@ -239,7 +284,7 @@ Deno.serve(async (req) => {
           listing_price: property.ListPrice || 0,
           mls_status: property.StandardStatus || "Active",
           standard_status: property.StandardStatus || "Active",
-          property_type: "Residential",
+          property_type: property.PropertyType || "Residential",
           property_sub_type: property.PropertySubType || null,
           city: property.City || "Unknown",
           state_or_province: property.StateOrProvince || "British Columbia",
@@ -247,9 +292,14 @@ Deno.serve(async (req) => {
           unparsed_address: property.UnparsedAddress,
           street_number: property.StreetNumber,
           street_name: property.StreetName,
+          street_suffix: property.StreetSuffix,
           unit_number: property.UnitNumber,
+          neighborhood: property.Subdivision,
+          subdivision_name: property.Subdivision,
           bedrooms_total: property.BedroomsTotal,
           bathrooms_total: property.BathroomsTotalInteger,
+          bathrooms_full: property.BathroomsFull,
+          bathrooms_half: property.BathroomsHalf,
           living_area: property.LivingArea,
           living_area_units: property.LivingAreaUnits || "sqft",
           year_built: property.YearBuilt,
@@ -259,8 +309,31 @@ Deno.serve(async (req) => {
           list_agent_key: property.ListAgentKey,
           list_agent_mls_id: property.ListAgentMlsId,
           list_agent_name: property.ListAgentFullName,
+          list_agent_email: property.ListAgentEmail,
+          list_agent_phone: property.ListAgentDirectPhone,
           list_office_key: property.ListOfficeKey,
+          list_office_mls_id: property.ListOfficeMlsId,
           list_office_name: property.ListOfficeName,
+          list_office_phone: property.ListOfficePhone,
+          original_list_price: property.OriginalListPrice,
+          days_on_market: property.DaysOnMarket,
+          association_fee: property.AssociationFee,
+          association_fee_frequency: property.AssociationFeeFrequency,
+          tax_annual_amount: property.TaxAnnualAmount,
+          tax_year: property.TaxYear,
+          garage_spaces: property.GarageSpaces,
+          parking_total: property.ParkingTotal,
+          stories: property.Stories,
+          virtual_tour_url: property.VirtualTourURLUnbranded,
+          view: property.View,
+          heating: property.Heating,
+          cooling: property.Cooling,
+          interior_features: property.InteriorFeatures,
+          exterior_features: property.ExteriorFeatures,
+          community_features: property.CommunityFeatures,
+          appliances: property.Appliances,
+          pool_yn: property.PoolYN,
+          waterfront_yn: property.WaterfrontYN,
           photos: property.Media ? property.Media.map(m => ({
             MediaURL: m.MediaURL,
             order: m.Order || 0,
@@ -282,43 +355,42 @@ Deno.serve(async (req) => {
       } else {
         created += batch.length;
       }
-
-      // Update progress
-      if (syncLogId && i % 500 === 0) {
-        await supabase
-          .from("mls_sync_logs")
-          .update({
-            listings_created: created,
-            error_message: `Processing... ${created} of ${allProperties.length}`,
-          })
-          .eq("id", syncLogId);
-      }
     }
+
+    // Determine if sync is complete or needs to continue
+    const isComplete = !hasMore || totalFetched >= totalCount;
+    const nextResumeFrom = hasMore ? skip : null;
 
     // Update sync log
     if (syncLogId) {
       await supabase
         .from("mls_sync_logs")
         .update({
-          status: errors > 0 ? "completed_with_errors" : "completed",
-          listings_fetched: allProperties.length,
+          status: isComplete ? (errors > 0 ? "completed_with_errors" : "completed") : "running",
+          listings_fetched: totalFetched,
           listings_created: created,
           listings_updated: updated,
-          completed_at: new Date().toISOString(),
-          error_message: errors > 0 ? `${errors} listings failed to process` : null,
+          completed_at: isComplete ? new Date().toISOString() : null,
+          error_message: isComplete 
+            ? (errors > 0 ? `${errors} listings failed to process` : null)
+            : `Processed ${totalFetched} of ${totalCount}. Resume from ${skip}.`,
         })
         .eq("id", syncLogId);
     }
 
-    console.log(`Sync completed: ${created} created, ${updated} updated, ${errors} errors`);
+    console.log(`Batch completed: ${created} processed, ${errors} errors. Complete: ${isComplete}`);
 
     return new Response(
       JSON.stringify({
         success: true,
         fetched: allProperties.length,
+        totalFetched,
+        totalCount,
         created,
         updated,
         errors,
+        isComplete,
+        nextResumeFrom,
       }),
       {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
