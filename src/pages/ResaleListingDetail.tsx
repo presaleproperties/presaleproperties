@@ -32,6 +32,7 @@ import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { NeighborhoodInsights } from "@/components/resale/NeighborhoodInsights";
+import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -636,6 +637,14 @@ export default function ResaleListingDetail() {
                 </a>
               </div>
             )}
+
+            {/* Property Value Trends */}
+            <PropertyValueTrends
+              city={listing.city}
+              neighborhood={listing.neighborhood}
+              propertyType={listing.property_sub_type || listing.property_type}
+              currentPrice={listing.listing_price}
+            />
 
             {/* Neighborhood Insights */}
             <NeighborhoodInsights
