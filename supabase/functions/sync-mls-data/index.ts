@@ -122,17 +122,15 @@ Deno.serve(async (req) => {
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
     const BATCH_SIZE = 1000; // Max records per request
     
-    // Build filter for BC (using StateOrProvince)
+    // Build filter for BC - ALL listings in the province
     const filters: string[] = [];
     filters.push("StateOrProvince eq 'British Columbia'");
     
-    // Add city filter if specified
+    // Only add city filter if explicitly specified
     if (filterCity) {
       filters.push(`City eq '${filterCity}'`);
-    } else {
-      // All major BC cities
-      filters.push("(City eq 'Vancouver' or City eq 'Surrey' or City eq 'Delta' or City eq 'Burnaby' or City eq 'Richmond' or City eq 'Coquitlam' or City eq 'Langley' or City eq 'Abbotsford' or City eq 'New Westminster' or City eq 'Port Moody' or City eq 'North Vancouver' or City eq 'West Vancouver' or City eq 'Chilliwack' or City eq 'Port Coquitlam' or City eq 'Maple Ridge' or City eq 'Pitt Meadows' or City eq 'White Rock' or City eq 'Mission' or City eq 'Squamish' or City eq 'Whistler')");
     }
+    // No city filter = fetch ALL BC listings
 
     let allProperties: DDFProperty[] = [];
     let skip = 0;
