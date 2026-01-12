@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Home, ChevronLeft, ChevronRight, Video, Calendar, Sparkles } from "lucide-react";
+import { MapPin, Home, ChevronLeft, ChevronRight, Video, Sparkles, Building } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -42,8 +42,18 @@ function getPhotoUrl(photos: any[] | null | undefined, index: number): string | 
   return photo?.MediaURL || photo?.url || (typeof photo === 'string' ? photo : null);
 }
 
-const formatPropertyType = (type: string | null) => {
-  if (!type) return "Residential";
+const formatPropertyType = (type: string | null, subType?: string | null) => {
+  if (subType) {
+    const subTypeMap: Record<string, string> = {
+      "Apartment/Condo": "Condo",
+      "Townhouse": "Townhouse",
+      "Row/Townhouse": "Townhouse",
+      "Single Family": "House",
+      "Duplex": "Duplex",
+    };
+    if (subTypeMap[subType]) return subTypeMap[subType];
+  }
+  if (!type) return "Home";
   const typeMap: Record<string, string> = {
     "Apartment/Condo": "Condo",
     "Residential": "Home",
@@ -127,16 +137,14 @@ export function ResaleListingCard({
 
   const isNew = daysOnMarket !== null && daysOnMarket !== undefined && daysOnMarket <= 7;
   const isNewConstruction = yearBuilt !== null && yearBuilt !== undefined && yearBuilt >= 2024;
-  const displayType = formatPropertyType(propertySubType || propertyType);
+  const displayType = formatPropertyType(propertyType, propertySubType);
 
-  // Build specs like REW style
+  // Build specs string
   const specsArray = [];
   if (beds !== null && beds !== undefined) specsArray.push(`${beds} Bed`);
   if (baths !== null && baths !== undefined) specsArray.push(`${baths} Bath`);
   if (sqft !== null && sqft !== undefined) specsArray.push(`${sqft.toLocaleString()} Sqft`);
-
-  // Calculate price per sqft
-  const pricePerSqft = sqft && sqft > 0 ? Math.round(price / sqft) : null;
+  const specsString = specsArray.join(" • ");
 
   return (
     <Link to={`/resale/${listingKey}`}>
@@ -160,17 +168,20 @@ export function ResaleListingCard({
                 decoding="async"
               />
               
-              {/* Badges - Top Left */}
+              {/* Status Badge - Top Left (matching presale style) */}
               <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1.5">
-                {isNewConstruction && (
+                {isNewConstruction ? (
                   <Badge className="bg-emerald-600 text-white text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1 flex items-center gap-1">
                     <Sparkles className="h-3 w-3" />
                     New Build {yearBuilt}
                   </Badge>
-                )}
-                {isNew && !isNewConstruction && (
+                ) : isNew ? (
                   <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1">
                     Just Listed
+                  </Badge>
+                ) : (
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1">
+                    Move-In Ready
                   </Badge>
                 )}
                 {virtualTourUrl && (
@@ -237,58 +248,43 @@ export function ResaleListingCard({
         </div>
 
         <CardContent className="p-3 sm:p-4">
-          {/* Price Row */}
-          <div className="flex items-start justify-between gap-2 mb-1.5">
-            <span className="text-base sm:text-lg md:text-xl font-bold text-foreground group-hover:text-primary transition-colors duration-200">
-              {formatPrice(price)}
-            </span>
-            {pricePerSqft && (
-              <span className="text-[10px] sm:text-xs text-muted-foreground shrink-0">
-                ${pricePerSqft}/sqft
-              </span>
-            )}
-          </div>
-
-          {/* Address */}
-          <h3 className="font-medium text-foreground line-clamp-1 text-sm sm:text-base mb-1">
-            {address}
-          </h3>
-
-          {/* Location */}
-          <div className="flex items-center gap-1.5 text-muted-foreground mb-1.5">
-            <MapPin className="h-3 w-3 shrink-0" />
-            <span className="text-xs sm:text-sm truncate">
-              {neighborhood ? `${neighborhood}, ${city}` : city}
-            </span>
-          </div>
-
-          {/* Specs Row - REW Style */}
-          <div className="flex items-center gap-1.5 flex-wrap text-xs sm:text-sm text-muted-foreground mb-2">
-            <span className="font-medium text-foreground">{displayType}</span>
-            {specsArray.map((spec, idx) => (
-              <span key={idx} className="flex items-center gap-1.5">
-                <span className="text-border">•</span>
-                {spec}
-              </span>
-            ))}
-          </div>
-
-          {/* Days on Market if recent */}
-          {daysOnMarket !== null && daysOnMarket <= 14 && (
-            <div className="flex items-center gap-1 text-[10px] sm:text-xs text-muted-foreground mb-2">
-              <Calendar className="h-3 w-3" />
-              <span>{daysOnMarket === 0 ? 'Listed today' : `${daysOnMarket} days on market`}</span>
-            </div>
-          )}
-
-          {/* Agent Info - REW Style */}
-          {(listAgentName || listOfficeName) && (
-            <div className="pt-2 border-t border-border">
-              <p className="text-[10px] sm:text-xs text-muted-foreground line-clamp-2">
-                {listAgentName && <span className="font-medium">{listAgentName}</span>}
-                {listAgentName && listOfficeName && <span className="mx-1">•</span>}
-                {listOfficeName && <span>{listOfficeName}</span>}
+          <div className="flex items-start justify-between gap-3">
+            {/* Left: Address, Location & Specs */}
+            <div className="flex-1 min-w-0 space-y-1">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
+                {address}
+              </h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 shrink-0" />
+                <span className="text-xs sm:text-sm truncate">
+                  {neighborhood ? `${neighborhood}, ${city}` : city}
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                {displayType} {specsString ? `• ${specsString}` : ""}
               </p>
+            </div>
+
+            {/* Right: Price */}
+            <div className="text-right shrink-0">
+              <span className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                {formatPrice(price)}
+              </span>
+              {sqft && sqft > 0 && (
+                <span className="text-[10px] sm:text-xs text-muted-foreground block leading-tight">
+                  ${Math.round(price / sqft)}/sqft
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Listed by Brokerage - Bottom badge matching presale style */}
+          {listOfficeName && (
+            <div className="mt-3 pt-2 border-t border-border">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                <Building className="h-3 w-3 shrink-0" />
+                <span className="truncate">Listed by {listOfficeName}</span>
+              </div>
             </div>
           )}
         </CardContent>
