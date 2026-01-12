@@ -18,7 +18,8 @@ import {
   ChevronDown,
   CalendarDays,
   Clock,
-  Landmark
+  Landmark,
+  RefreshCw
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -65,6 +66,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/admin/mls-sync", label: "MLS Sync", icon: RefreshCw },
       { href: "/admin/scheduler-settings", label: "Scheduler", icon: Clock },
       { href: "/admin/settings", label: "Settings", icon: Settings },
     ]
