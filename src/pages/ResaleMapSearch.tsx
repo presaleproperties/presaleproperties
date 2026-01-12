@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, lazy, Suspense, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { 
   Search, SlidersHorizontal, X, Map, LayoutGrid, 
@@ -26,6 +26,7 @@ import { Badge } from "@/components/ui/badge";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
+import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
@@ -103,6 +104,7 @@ type PresaleProject = {
 
 export default function ResaleMapSearch() {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -118,6 +120,29 @@ export default function ResaleMapSearch() {
 
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
+
+  // Fetch neighborhoods from presale projects for autocomplete
+  const { data: neighborhoodsData } = useQuery({
+    queryKey: ["neighborhoods-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("neighborhood, city")
+        .eq("is_published", true)
+        .not("neighborhood", "is", null);
+      if (error) throw error;
+      // Dedupe using object
+      const unique: Record<string, { neighborhood: string; city: string }> = {};
+      data?.forEach(row => {
+        const key = `${row.neighborhood}-${row.city}`;
+        if (!unique[key]) {
+          unique[key] = { neighborhood: row.neighborhood, city: row.city };
+        }
+      });
+      return Object.values(unique);
+    },
+    staleTime: 10 * 60 * 1000,
+  });
 
   const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
     setSelectedItemId(id);
@@ -286,6 +311,28 @@ export default function ResaleMapSearch() {
     }
     setSearchParams(newParams);
   };
+
+  // Get project names for search suggestions
+  const projectsForSearch = useMemo(() => {
+    if (!presaleProjects) return [];
+    return presaleProjects.map(p => ({ name: p.name, city: p.city, slug: p.slug }));
+  }, [presaleProjects]);
+
+  const handleSearchSuggestionSelect = useCallback((suggestion: { type: string; value: string; city?: string; label: string }) => {
+    if (suggestion.type === "city") {
+      updateFilter("city", suggestion.value);
+      setSearchQuery("");
+    } else if (suggestion.type === "neighborhood") {
+      // Filter by the city and set search query to neighborhood
+      if (suggestion.city) {
+        updateFilter("city", suggestion.city);
+      }
+      setSearchQuery(suggestion.label);
+    } else if (suggestion.type === "project") {
+      // Navigate to the project detail page
+      navigate(`/presale/${suggestion.value}`);
+    }
+  }, [navigate, updateFilter]);
 
   const clearAllFilters = () => {
     setSearchParams({});
@@ -510,16 +557,16 @@ export default function ResaleMapSearch() {
           }`}>
             {/* Search & Filter Section at top of panel */}
             <div className="shrink-0 p-4 border-b border-border space-y-3">
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="City, Neighbourhood, ..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 h-10 bg-background border-border"
-                />
-              </div>
+              {/* Search Bar with Autocomplete */}
+              <MapSearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSuggestionSelect={handleSearchSuggestionSelect}
+                placeholder="City, Neighbourhood, Project..."
+                cities={CITIES}
+                neighborhoods={neighborhoodsData || []}
+                projects={projectsForSearch}
+              />
               
               {/* Filter Row */}
               <div className="flex items-center gap-2">
