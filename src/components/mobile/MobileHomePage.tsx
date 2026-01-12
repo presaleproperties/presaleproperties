@@ -456,11 +456,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <NewConstructionBenefits />
       </div>
 
-      {/* Map Section - synced with tab */}
-      <div className="mt-4">
-        <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
-      </div>
-
       {/* ROI Calculator Teaser */}
       <div className="mt-4">
         <ROICalculatorTeaser />
@@ -469,6 +464,11 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       {/* Quick Links Section */}
       <div className="mt-4">
         <RelatedContent />
+      </div>
+
+      {/* Large Map Section - Page Ending */}
+      <div className="mt-4">
+        <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
       </div>
 
       {/* Footer - with extra bottom padding for nav */}

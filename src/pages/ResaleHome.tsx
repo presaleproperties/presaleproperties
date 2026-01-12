@@ -9,11 +9,9 @@ import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefi
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { RelatedContent } from "@/components/home/RelatedContent";
-import { BuyerCTASection } from "@/components/home/BuyerCTASection";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileResaleHome } from "@/components/mobile/MobileResaleHome";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
-
 const ResaleHome = () => {
   const isMobileOrTablet = useIsMobileOrTablet();
 
@@ -105,11 +103,6 @@ const ResaleHome = () => {
           <NewConstructionBenefits />
         </ScrollReveal>
         
-        {/* Map Section - Unified with toggle */}
-        <ScrollReveal animation="fade-up" delay={100}>
-          <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
-        </ScrollReveal>
-        
         {/* Calculator Teaser */}
         <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
@@ -120,9 +113,9 @@ const ResaleHome = () => {
           <RelatedContent />
         </ScrollReveal>
         
-        {/* CTA Section */}
-        <ScrollReveal animation="scale" delay={100}>
-          <BuyerCTASection />
+        {/* Large Map Section - Page Ending */}
+        <ScrollReveal animation="fade-up" delay={100}>
+          <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
         </ScrollReveal>
       </main>
 

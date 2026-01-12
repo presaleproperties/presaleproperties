@@ -279,11 +279,6 @@ export function MobileResaleHome() {
         <NewConstructionBenefits />
       </div>
 
-      {/* Map Section - Unified with toggle */}
-      <div className="mt-4">
-        <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
-      </div>
-
       {/* ROI Calculator Teaser */}
       <div className="mt-4">
         <ROICalculatorTeaser />
@@ -292,6 +287,11 @@ export function MobileResaleHome() {
       {/* Quick Links Section */}
       <div className="mt-4">
         <RelatedContent />
+      </div>
+
+      {/* Large Map Section - Page Ending */}
+      <div className="mt-4">
+        <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
       </div>
 
       {/* Footer - with extra bottom padding for nav */}
