@@ -1141,6 +1141,8 @@ export default function AdminProjectForm() {
         published_at: formData.is_published && !isEdit ? new Date().toISOString() : undefined,
       };
 
+      let projectId = id;
+      
       if (isEdit) {
         const { error } = await supabase
           .from("presale_projects")
@@ -1148,10 +1150,25 @@ export default function AdminProjectForm() {
           .eq("id", id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { data: insertedProject, error } = await supabase
           .from("presale_projects")
-          .insert(projectData);
+          .insert(projectData)
+          .select("id")
+          .single();
         if (error) throw error;
+        projectId = insertedProject?.id;
+      }
+
+      // Send social notification if project is being published
+      if (formData.is_published && projectId) {
+        try {
+          await supabase.functions.invoke("send-social-notification", {
+            body: { projectId }
+          });
+          console.log("Social notification sent for project:", projectId);
+        } catch (notifError) {
+          console.warn("Social notification failed (non-blocking):", notifError);
+        }
       }
 
       toast({
