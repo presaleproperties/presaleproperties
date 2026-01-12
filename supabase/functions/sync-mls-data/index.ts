@@ -5,83 +5,32 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// DDF API response structure - using actual CREA DDF field names
 interface DDFProperty {
-  PropertyKey: string;
-  ListingKey: string;
-  ListingId: string;
-  ListPrice: number;
-  StandardStatus: string;
-  MlsStatus: string;
-  PropertyType: string;
-  PropertySubType?: string;
-  City: string;
-  StateOrProvince?: string;
+  Id?: string;
+  ListingKey?: string;
+  MlsNumber?: string;
+  ListPrice?: number;
+  Status?: string;
+  PropertyType?: string;
+  City?: string;
+  Province?: string;
   PostalCode?: string;
-  StreetNumber?: string;
-  StreetName?: string;
-  StreetSuffix?: string;
-  UnitNumber?: string;
-  UnparsedAddress?: string;
-  BedroomsTotal?: number;
-  BathroomsTotalInteger?: number;
-  BathroomsFull?: number;
-  BathroomsHalf?: number;
-  LivingArea?: number;
-  LivingAreaUnits?: string;
-  LotSizeArea?: number;
-  LotSizeUnits?: string;
+  StreetAddress?: string;
+  Bedrooms?: number;
+  Bathrooms?: number;
+  BuildingAreaTotal?: number;
   YearBuilt?: number;
-  Stories?: number;
-  GarageSpaces?: number;
-  ParkingTotal?: number;
   Latitude?: number;
   Longitude?: number;
   PublicRemarks?: string;
-  PrivateRemarks?: string;
-  Directions?: string;
-  ListAgentKey?: string;
-  ListAgentMlsId?: string;
-  ListAgentFullName?: string;
-  ListAgentEmail?: string;
-  ListAgentDirectPhone?: string;
-  ListOfficeKey?: string;
-  ListOfficeMlsId?: string;
+  ListAgentName?: string;
   ListOfficeName?: string;
-  ListOfficePhone?: string;
-  BuyerAgentKey?: string;
-  BuyerAgentFullName?: string;
-  BuyerOfficeName?: string;
-  OriginalListPrice?: number;
-  ClosePrice?: number;
-  CloseDate?: string;
-  ListingContractDate?: string;
-  OnMarketDate?: string;
-  ExpirationDate?: string;
-  DaysOnMarket?: number;
-  CumulativeDaysOnMarket?: number;
-  ModificationTimestamp?: string;
-  PhotosChangeTimestamp?: string;
-  AssociationFee?: number;
-  AssociationFeeFrequency?: string;
-  TaxAnnualAmount?: number;
-  TaxYear?: number;
-  Cooling?: string[];
-  Heating?: string[];
-  InteriorFeatures?: string[];
-  ExteriorFeatures?: string[];
-  CommunityFeatures?: string[];
-  Appliances?: string[];
-  View?: string[];
-  PoolPrivateYN?: boolean;
-  WaterfrontYN?: boolean;
-  SubdivisionName?: string;
-  Neighborhood?: string;
-  VirtualTourURLUnbranded?: string;
-  VideoURL?: string;
+  OriginalPrice?: number;
   Media?: Array<{
     MediaURL: string;
-    MediaCategory: string;
-    Order: number;
+    MediaCategory?: string;
+    Order?: number;
   }>;
 }
 
@@ -135,7 +84,7 @@ Deno.serve(async (req) => {
 
     // Parse request body for options
     let filterCity = "";
-    let maxRecords = 100; // Start small for testing
+    let maxRecords = 100;
     try {
       const body = await req.json();
       if (body?.city) filterCity = body.city;
@@ -164,21 +113,16 @@ Deno.serve(async (req) => {
     const accessToken = await getAccessToken(DDF_USERNAME, DDF_PASSWORD);
 
     // Step 2: Fetch properties from DDF API
+    // Try without $select first to see what fields are available
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
     
-    // Build OData query
-    let queryParams = [`$top=${maxRecords}`];
-    
-    // Filter for active listings
-    queryParams.push("$filter=StandardStatus eq 'Active'");
+    // Build simple OData query without $select to discover available fields
+    const queryParams = [`$top=${maxRecords}`];
     
     // Add city filter if specified
     if (filterCity) {
-      queryParams[1] = `$filter=StandardStatus eq 'Active' and contains(City,'${filterCity}')`;
+      queryParams.push(`$filter=contains(City,'${filterCity}')`);
     }
-    
-    // Select specific fields to reduce payload
-    queryParams.push("$select=PropertyKey,ListingKey,ListingId,ListPrice,StandardStatus,MlsStatus,PropertyType,PropertySubType,City,StateOrProvince,PostalCode,StreetNumber,StreetName,StreetSuffix,UnitNumber,UnparsedAddress,BedroomsTotal,BathroomsTotalInteger,BathroomsFull,BathroomsHalf,LivingArea,LivingAreaUnits,LotSizeArea,LotSizeUnits,YearBuilt,Stories,GarageSpaces,ParkingTotal,Latitude,Longitude,PublicRemarks,Directions,ListAgentKey,ListAgentMlsId,ListAgentFullName,ListAgentEmail,ListAgentDirectPhone,ListOfficeKey,ListOfficeMlsId,ListOfficeName,ListOfficePhone,OriginalListPrice,ClosePrice,CloseDate,ListingContractDate,OnMarketDate,ExpirationDate,DaysOnMarket,CumulativeDaysOnMarket,ModificationTimestamp,PhotosChangeTimestamp,AssociationFee,AssociationFeeFrequency,TaxAnnualAmount,TaxYear,SubdivisionName,Neighborhood,VirtualTourURLUnbranded,VideoURL,Media");
 
     const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
     
@@ -213,6 +157,12 @@ Deno.serve(async (req) => {
     const data = await response.json();
     const properties: DDFProperty[] = data.value || [];
 
+    // Log first property to see available fields
+    if (properties.length > 0) {
+      console.log("Sample property fields:", Object.keys(properties[0]));
+      console.log("Sample property:", JSON.stringify(properties[0]).substring(0, 1000));
+    }
+
     console.log(`Fetched ${properties.length} properties from DDF`);
 
     let created = 0;
@@ -222,69 +172,34 @@ Deno.serve(async (req) => {
     // Process each property
     for (const property of properties) {
       try {
-        // Transform DDF property to our schema
+        // Transform DDF property to our schema - use DDF field names
+        const listingKey = property.ListingKey || property.Id || property.MlsNumber || `ddf-${Date.now()}-${Math.random()}`;
+        
         const mlsListing = {
-          listing_key: property.ListingKey || property.PropertyKey,
-          listing_id: property.ListingId,
-          listing_price: property.ListPrice,
-          mls_status: property.MlsStatus || "Active",
-          standard_status: property.StandardStatus,
+          listing_key: listingKey,
+          listing_id: property.MlsNumber || property.Id,
+          listing_price: property.ListPrice || 0,
+          mls_status: property.Status || "Active",
+          standard_status: property.Status || "Active",
           property_type: property.PropertyType || "Residential",
-          property_sub_type: property.PropertySubType,
-          city: property.City,
-          state_or_province: property.StateOrProvince || "BC",
+          city: property.City || "Unknown",
+          state_or_province: property.Province || "BC",
           postal_code: property.PostalCode,
-          street_number: property.StreetNumber,
-          street_name: property.StreetName,
-          street_suffix: property.StreetSuffix,
-          unit_number: property.UnitNumber,
-          unparsed_address: property.UnparsedAddress,
-          bedrooms_total: property.BedroomsTotal,
-          bathrooms_total: property.BathroomsTotalInteger,
-          bathrooms_full: property.BathroomsFull,
-          bathrooms_half: property.BathroomsHalf,
-          living_area: property.LivingArea,
-          living_area_units: property.LivingAreaUnits || "sqft",
-          lot_size_area: property.LotSizeArea,
-          lot_size_units: property.LotSizeUnits,
+          unparsed_address: property.StreetAddress,
+          bedrooms_total: property.Bedrooms,
+          bathrooms_total: property.Bathrooms,
+          living_area: property.BuildingAreaTotal,
+          living_area_units: "sqft",
           year_built: property.YearBuilt,
-          stories: property.Stories,
-          garage_spaces: property.GarageSpaces,
-          parking_total: property.ParkingTotal,
           latitude: property.Latitude,
           longitude: property.Longitude,
           public_remarks: property.PublicRemarks,
-          directions: property.Directions,
-          list_agent_key: property.ListAgentKey,
-          list_agent_mls_id: property.ListAgentMlsId,
-          list_agent_name: property.ListAgentFullName,
-          list_agent_email: property.ListAgentEmail,
-          list_agent_phone: property.ListAgentDirectPhone,
-          list_office_key: property.ListOfficeKey,
-          list_office_mls_id: property.ListOfficeMlsId,
+          list_agent_name: property.ListAgentName,
           list_office_name: property.ListOfficeName,
-          list_office_phone: property.ListOfficePhone,
-          original_list_price: property.OriginalListPrice,
-          close_price: property.ClosePrice,
-          close_date: property.CloseDate,
-          listing_contract_date: property.ListingContractDate,
-          list_date: property.OnMarketDate,
-          expiration_date: property.ExpirationDate,
-          days_on_market: property.DaysOnMarket,
-          cumulative_days_on_market: property.CumulativeDaysOnMarket,
-          modification_timestamp: property.ModificationTimestamp,
-          photos_change_timestamp: property.PhotosChangeTimestamp,
-          association_fee: property.AssociationFee,
-          association_fee_frequency: property.AssociationFeeFrequency,
-          tax_annual_amount: property.TaxAnnualAmount,
-          tax_year: property.TaxYear,
-          subdivision_name: property.SubdivisionName,
-          neighborhood: property.Neighborhood,
-          virtual_tour_url: property.VirtualTourURLUnbranded,
-          video_url: property.VideoURL,
-          photos: property.Media ? property.Media.filter(m => m.MediaCategory === "Photo").map(m => ({
+          original_list_price: property.OriginalPrice,
+          photos: property.Media ? property.Media.map(m => ({
             url: m.MediaURL,
-            order: m.Order,
+            order: m.Order || 0,
           })) : null,
           last_synced_at: new Date().toISOString(),
         };
@@ -295,24 +210,13 @@ Deno.serve(async (req) => {
           .upsert(mlsListing, { onConflict: "listing_key" });
 
         if (upsertError) {
-          console.error(`Error upserting listing ${property.ListingKey}:`, upsertError);
+          console.error(`Error upserting listing ${listingKey}:`, upsertError);
           errors++;
         } else {
-          // Check if it was created or updated
-          const { data: existing } = await supabase
-            .from("mls_listings")
-            .select("created_at, updated_at")
-            .eq("listing_key", property.ListingKey || property.PropertyKey)
-            .single();
-
-          if (existing && existing.created_at === existing.updated_at) {
-            created++;
-          } else {
-            updated++;
-          }
+          created++;
         }
       } catch (err) {
-        console.error(`Error processing property ${property.ListingKey}:`, err);
+        console.error(`Error processing property:`, err);
         errors++;
       }
     }
