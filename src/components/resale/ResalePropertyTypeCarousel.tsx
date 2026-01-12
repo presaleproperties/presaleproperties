@@ -44,10 +44,10 @@ function getAddress(listing: MLSListing): string {
   return listing.city;
 }
 
-// Property type filter mapping
+// Property type filter mapping - matches inferred types from sync
 const PROPERTY_TYPE_FILTERS = {
   condo: ["Apartment/Condo", "Condo", "Apartment"],
-  townhouse: ["Townhouse", "Row/Townhouse", "Townhome"],
+  townhouse: ["Townhouse", "Row/Townhouse", "Townhome", "Duplex"],
   house: ["Single Family", "House", "Detached", "Single Family Residential"],
 };
 

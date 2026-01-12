@@ -72,6 +72,72 @@ interface DDFProperty {
   }>;
 }
 
+// Infer property type from available data since PropertySubType is unreliable
+function inferPropertyType(property: DDFProperty): string {
+  const hasUnitNumber = property.UnitNumber && property.UnitNumber.trim() !== '';
+  const livingArea = property.LivingArea || 0;
+  const associationFee = property.AssociationFee || 0;
+  const stories = property.Stories || 0;
+  const structureType = property.StructureType || [];
+  
+  // Check structure type array for hints
+  const structureTypeStr = structureType.join(' ').toLowerCase();
+  if (structureTypeStr.includes('apartment') || structureTypeStr.includes('condo')) {
+    return 'Apartment/Condo';
+  }
+  if (structureTypeStr.includes('townhouse') || structureTypeStr.includes('row')) {
+    return 'Townhouse';
+  }
+  if (structureTypeStr.includes('duplex')) {
+    return 'Duplex';
+  }
+  
+  // Condo indicators: has unit number, smaller size, higher strata fee, often in high-rise
+  if (hasUnitNumber && livingArea < 2000 && associationFee > 200) {
+    return 'Apartment/Condo';
+  }
+  
+  // Townhouse indicators: has strata fee, medium size, typically 2-3 stories
+  if (associationFee > 100 && livingArea >= 1000 && livingArea < 2800) {
+    // If unit number looks like a townhouse (e.g., "1", "2", "A", "B" or "SL1")
+    if (hasUnitNumber) {
+      const unitNum = property.UnitNumber!.toUpperCase();
+      // High unit numbers (like 2808) are condos, low numbers are townhomes
+      const numericUnit = parseInt(unitNum.replace(/[^0-9]/g, ''));
+      if (!isNaN(numericUnit) && numericUnit > 100) {
+        return 'Apartment/Condo';
+      }
+      return 'Townhouse';
+    }
+    // Row townhomes without unit numbers but with strata fees
+    if (stories >= 2 && stories <= 3) {
+      return 'Townhouse';
+    }
+  }
+  
+  // No strata fee and no unit number = likely single family
+  if (!hasUnitNumber && associationFee === 0) {
+    return 'Single Family';
+  }
+  
+  // Duplex: 2 units, moderate size
+  if (structureTypeStr.includes('duplex') || (hasUnitNumber && livingArea > 1500 && livingArea < 2500 && associationFee < 150)) {
+    return 'Duplex';
+  }
+  
+  // Default fallback based on size
+  if (livingArea >= 2500) {
+    return 'Single Family';
+  }
+  
+  // If has strata fee, likely condo/townhouse
+  if (associationFee > 0) {
+    return livingArea < 1500 ? 'Apartment/Condo' : 'Townhouse';
+  }
+  
+  return property.PropertySubType || 'Residential';
+}
+
 async function getAccessToken(clientId: string, clientSecret: string): Promise<string> {
   const tokenUrl = "https://identity.crea.ca/connect/token";
   
@@ -297,6 +363,9 @@ Deno.serve(async (req) => {
         const toInt = (val: number | undefined | null): number | null => 
           val !== undefined && val !== null ? Math.floor(val) : null;
         
+        // Use inferred property type for more accurate categorization
+        const inferredType = inferPropertyType(property);
+        
         return {
           listing_key: listingKey,
           listing_id: property.ListingId || listingKey,
@@ -304,7 +373,7 @@ Deno.serve(async (req) => {
           mls_status: property.StandardStatus || "Active",
           standard_status: property.StandardStatus || "Active",
           property_type: property.PropertyType || "Residential",
-          property_sub_type: property.PropertySubType || null,
+          property_sub_type: inferredType, // Use inferred type instead of raw API value
           city: property.City || "Unknown",
           state_or_province: property.StateOrProvince || "British Columbia",
           postal_code: property.PostalCode,
