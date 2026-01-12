@@ -42,6 +42,7 @@ import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
+import { PriceHistoryChart } from "@/components/resale/PriceHistoryChart";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -798,6 +799,13 @@ export default function ResaleListingDetail() {
                 price={formatPrice(listing.listing_price)}
               />
             )}
+
+            {/* Price History Chart */}
+            <PriceHistoryChart
+              currentPrice={listing.listing_price}
+              originalPrice={listing.original_list_price}
+              listDate={listing.list_date}
+            />
 
             {/* Property Value Trends */}
             <PropertyValueTrends
