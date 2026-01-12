@@ -40,12 +40,13 @@ interface MobileResaleCarouselProps {
 }
 
 export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCarouselProps) {
-  // Metro Vancouver cities for filtering
+  // Metro Vancouver cities for filtering - excludes Vancouver Island (Langford, Victoria, etc.)
   const metroVancouverCities = [
     "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
     "Coquitlam", "Delta", "Abbotsford", "New Westminster", 
     "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
-    "North Vancouver", "West Vancouver"
+    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+    "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
   // 2025+ builds only

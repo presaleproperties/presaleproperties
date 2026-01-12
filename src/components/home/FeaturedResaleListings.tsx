@@ -35,12 +35,13 @@ function getAddress(listing: MLSListing): string {
 }
 
 export function FeaturedResaleListings() {
-  // Metro Vancouver cities for filtering
+  // Metro Vancouver cities for filtering - excludes Vancouver Island (Langford, Victoria, etc.)
   const metroVancouverCities = [
     "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
     "Coquitlam", "Delta", "Abbotsford", "New Westminster", 
     "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
-    "North Vancouver", "West Vancouver"
+    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+    "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
   const { data: listings, isLoading } = useQuery({
