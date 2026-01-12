@@ -50,19 +50,27 @@ const PROPERTY_TYPES = [
 
 const PRICE_RANGES = [
   { value: "any", label: "Any Price" },
-  { value: "0-500000", label: "Under $500K" },
-  { value: "500000-750000", label: "$500K - $750K" },
-  { value: "750000-1000000", label: "$750K - $1M" },
+  { value: "0-400000", label: "Under $400K" },
+  { value: "400000-600000", label: "$400K - $600K" },
+  { value: "600000-800000", label: "$600K - $800K" },
+  { value: "800000-1000000", label: "$800K - $1M" },
   { value: "1000000-1500000", label: "$1M - $1.5M" },
-  { value: "1500000-999999999", label: "$1.5M+" },
+  { value: "1500000-2000000", label: "$1.5M - $2M" },
+  { value: "2000000-999999999", label: "$2M+" },
 ];
 
 const BED_OPTIONS = [
-  { value: "any", label: "Any Beds" },
-  { value: "1", label: "1+ Bed" },
-  { value: "2", label: "2+ Beds" },
-  { value: "3", label: "3+ Beds" },
-  { value: "4", label: "4+ Beds" },
+  { value: "any", label: "Beds" },
+  { value: "1", label: "1+" },
+  { value: "2", label: "2+" },
+  { value: "3", label: "3+" },
+  { value: "4", label: "4+" },
+];
+
+const SORT_OPTIONS = [
+  { value: "newest", label: "Latest" },
+  { value: "price_asc", label: "Price (Low)" },
+  { value: "price_desc", label: "Price (High)" },
 ];
 
 type MapMode = "all" | "presale" | "resale";
@@ -190,6 +198,8 @@ export default function MapSearch() {
     propertyType: searchParams.get("type") || "any",
     priceRange: searchParams.get("price") || "any",
     beds: searchParams.get("beds") || "any",
+    sort: searchParams.get("sort") || "newest",
+  };
   };
 
   // Fetch resale listings (2025+ builds)
@@ -401,8 +411,8 @@ export default function MapSearch() {
 
         {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
-          {/* Map Section */}
-          <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/5" : "lg:w-full"}`}>
+          {/* Map Section - ~75% width when list is shown */}
+          <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/4" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
               <UnifiedMapToggle
@@ -563,42 +573,45 @@ export default function MapSearch() {
             )}
           </div>
 
-          {/* Desktop List Panel */}
+          {/* Desktop List Panel - ~25% width, REW-style */}
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
-            showList ? "w-2/5 opacity-100" : "w-0 opacity-0 overflow-hidden"
+            showList ? "w-1/4 min-w-[320px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
-            {/* Search & Filter Section at top of panel */}
-            <div className="shrink-0 p-4 border-b border-border space-y-3">
-              {/* Search Bar with Autocomplete */}
-              <MapSearchBar
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onSuggestionSelect={handleSearchSuggestionSelect}
-                placeholder="City, Neighbourhood, Project..."
-                cities={CITIES}
-                neighborhoods={neighborhoodsData || []}
-                projects={projectsForSearch}
-              />
-              
-              {/* Filter Row */}
+            {/* Top Bar - Search + Filter + Map/List toggle (REW style) */}
+            <div className="shrink-0 p-3 border-b border-border bg-background">
               <div className="flex items-center gap-2">
+                {/* Search Bar */}
+                <div className="flex-1">
+                  <MapSearchBar
+                    searchQuery={searchQuery}
+                    onSearchChange={setSearchQuery}
+                    onSuggestionSelect={handleSearchSuggestionSelect}
+                    placeholder="City, Neighbourhood, ..."
+                    cities={CITIES}
+                    neighborhoods={neighborhoodsData || []}
+                    projects={projectsForSearch}
+                    className="h-9"
+                  />
+                </div>
+                
+                {/* Filter Button */}
                 <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 shrink-0">
-                      <SlidersHorizontal className="h-3.5 w-3.5" />
-                      Filter
+                    <Button variant="outline" size="sm" className="gap-2 h-9 px-3 shrink-0">
+                      <SlidersHorizontal className="h-4 w-4" />
+                      FILTER
                       {activeFilterCount > 0 && (
-                        <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full">
+                        <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full ml-1">
                           {activeFilterCount}
                         </Badge>
                       )}
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-[300px]">
+                  <SheetContent side="right" className="w-[320px]">
                     <SheetHeader>
                       <SheetTitle>Filters</SheetTitle>
                     </SheetHeader>
-                    <div className="mt-6 space-y-4">
+                    <div className="mt-6 space-y-5">
                       <div>
                         <label className="text-sm font-medium mb-2 block">City</label>
                         <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
@@ -644,53 +657,48 @@ export default function MapSearch() {
                     </div>
                   </SheetContent>
                 </Sheet>
-
-                {/* Inline desktop filters */}
-                <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                  <SelectTrigger className="w-[120px] h-8 text-xs"><SelectValue placeholder="City" /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="any">All Cities</SelectItem>
-                    {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-                  <SelectTrigger className="w-[110px] h-8 text-xs"><SelectValue placeholder="Price" /></SelectTrigger>
-                  <SelectContent>
-                    {PRICE_RANGES.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-
-                {activeFilterCount > 0 && (
-                  <Button variant="ghost" size="sm" onClick={clearAllFilters} className="h-8 px-2">
-                    <X className="h-3.5 w-3.5" />
-                  </Button>
-                )}
-
-                <div className="flex-1" />
-
-                <Button
-                  variant={showList ? "outline" : "default"}
-                  size="sm"
-                  className="h-8 gap-1.5 text-xs"
-                  onClick={() => setShowList(!showList)}
-                >
-                  {showList ? <Map className="h-3.5 w-3.5" /> : <LayoutGrid className="h-3.5 w-3.5" />}
-                  {showList ? "Expand" : "List"}
-                </Button>
               </div>
             </div>
 
-            {/* Results Count */}
-            <div className="px-4 py-2 border-b border-border bg-muted/30">
-              <span className="text-xs text-muted-foreground">
-                {visibleItems.length} of {totalCount} properties in view
-              </span>
+            {/* Results Header - Count + Sort + Map/List Toggle */}
+            <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-muted/30">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-foreground">
+                  {totalCount} Results
+                </span>
+                <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
+                  <SelectTrigger className="w-[100px] h-7 text-xs border-0 bg-transparent shadow-none px-1 gap-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {SORT_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              {/* Map/List toggle buttons */}
+              <div className="flex items-center gap-1 border border-border rounded-md overflow-hidden">
+                <button
+                  onClick={() => setShowList(true)}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
+                    showList ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  <Map className="h-3.5 w-3.5" />
+                  Map
+                </button>
+                <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
+                    <LayoutGrid className="h-3.5 w-3.5" />
+                    List
+                  </button>
+                </Link>
+              </div>
             </div>
 
             {/* Scrollable 2-Column Grid */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
-              <div className="grid grid-cols-2 gap-3">
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-3">
+              <div className="grid grid-cols-2 gap-2.5">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
                   const data = item.data;
