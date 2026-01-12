@@ -116,11 +116,15 @@ Deno.serve(async (req) => {
     // Try without $select first to see what fields are available
     const apiBaseUrl = "https://ddfapi.realtor.ca/odata/v1/Property";
     
-    // Build OData query - always filter for BC listings
+    // Build OData query - filter for BC new construction listings
     const queryParams = [`$top=${maxRecords}`];
     
-    // Build filter - always include BC Province filter
-    const filters = ["Province eq 'British Columbia'"];
+    // Build filter for BC, new construction (2025+), specific property types
+    const filters = [
+      "Province eq 'British Columbia'",
+      "YearBuilt ge 2025",
+      "(PropertyType eq 'Condominium' or PropertyType eq 'Townhouse' or PropertyType eq 'Single Family' or PropertyType eq 'Detached' or contains(PropertyType,'Condo') or contains(PropertyType,'Town') or contains(PropertyType,'House'))"
+    ];
     
     // Add city filter if specified
     if (filterCity) {
@@ -128,6 +132,9 @@ Deno.serve(async (req) => {
     }
     
     queryParams.push(`$filter=${filters.join(' and ')}`);
+    
+    // Order by newest first
+    queryParams.push("$orderby=ListPrice desc");
 
     const apiUrl = `${apiBaseUrl}?${queryParams.join("&")}`;
     
