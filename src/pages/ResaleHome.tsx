@@ -6,7 +6,7 @@ import { HottestResaleListings } from "@/components/resale/HottestResaleListings
 import { ResalePropertyTypeSection } from "@/components/resale/ResalePropertyTypeSection";
 import { ResaleCitySectionCompact } from "@/components/resale/ResaleCitySectionCompact";
 import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
-import { ResaleMapSection } from "@/components/resale/ResaleMapSection";
+import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { BuyerCTASection } from "@/components/home/BuyerCTASection";
@@ -105,9 +105,9 @@ const ResaleHome = () => {
           <NewConstructionBenefits />
         </ScrollReveal>
         
-        {/* Map Section */}
+        {/* Map Section - Unified with toggle */}
         <ScrollReveal animation="fade-up" delay={100}>
-          <ResaleMapSection />
+          <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
         </ScrollReveal>
         
         {/* Calculator Teaser */}

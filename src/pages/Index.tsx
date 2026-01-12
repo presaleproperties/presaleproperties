@@ -14,7 +14,7 @@ import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
-import { HomeMapSection } from "@/components/home/HomeMapSection";
+import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
@@ -298,7 +298,7 @@ const Index = () => {
           <NewConstructionBenefits />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
-          <HomeMapSection />
+          <HomeUnifiedMapSection initialMode={activeTab === "projects" ? "presale" : "resale"} contextType="home" />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
