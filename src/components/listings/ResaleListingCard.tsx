@@ -278,12 +278,16 @@ export function ResaleListingCard({
             </div>
           </div>
 
-          {/* Listed by Brokerage - Bottom badge matching presale style */}
-          {listOfficeName && (
+          {/* Listed by Agent & Brokerage - Bottom badge matching presale style */}
+          {(listAgentName || listOfficeName) && (
             <div className="mt-3 pt-2 border-t border-border">
               <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
                 <Building className="h-3 w-3 shrink-0" />
-                <span className="truncate">Listed by {listOfficeName}</span>
+                <span className="truncate">
+                  Listed by {listAgentName && listOfficeName 
+                    ? `${listAgentName} • ${listOfficeName}`
+                    : listAgentName || listOfficeName}
+                </span>
               </div>
             </div>
           )}

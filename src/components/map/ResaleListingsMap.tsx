@@ -30,6 +30,8 @@ interface MLSListing {
   photos: any;
   mls_status: string;
   year_built?: number | null;
+  list_agent_name?: string | null;
+  list_office_name?: string | null;
 }
 
 interface ResaleListingsMapProps {
@@ -115,6 +117,11 @@ function popupHtml(listing: MLSListing): string {
     ? `<img src="${photo}" alt="${getAddress(listing)}" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />`
     : `<div style="width:100%;height:80px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 8px 0 0;"><span style="color:#94a3b8;">No Image</span></div>`;
   
+  // Build attribution string
+  const attribution = listing.list_agent_name && listing.list_office_name
+    ? `${listing.list_agent_name} • ${listing.list_office_name}`
+    : listing.list_agent_name || listing.list_office_name || null;
+  
   return `
     <div style="width:200px;font-family:system-ui,sans-serif;">
       ${photoHtml}
@@ -127,6 +134,7 @@ function popupHtml(listing: MLSListing): string {
           ${listing.bathrooms_total ? `<span>${listing.bathrooms_total} bath</span>` : ""}
           ${listing.living_area ? `<span>${listing.living_area} sqft</span>` : ""}
         </div>
+        ${attribution ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
         <a href="/resale/${listing.listing_key}" style="display:block;margin-top:8px;background:hsl(45, 89%, 61%);color:hsl(222, 47%, 11%);text-align:center;padding:6px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px;">View Details</a>
       </div>
     </div>
