@@ -41,14 +41,16 @@ const TOWNHOME_CITY_LINKS = [
   { slug: "burnaby", name: "Burnaby" },
 ];
 
-// Resale city links
+// Resale city links - matching 8 target cities for new construction
 const RESALE_CITY_LINKS = [
   { slug: "vancouver", name: "Vancouver" },
   { slug: "burnaby", name: "Burnaby" },
   { slug: "surrey", name: "Surrey" },
   { slug: "coquitlam", name: "Coquitlam" },
   { slug: "langley", name: "Langley" },
-  { slug: "richmond", name: "Richmond" },
+  { slug: "delta", name: "Delta" },
+  { slug: "abbotsford", name: "Abbotsford" },
+  { slug: "chilliwack", name: "Chilliwack" },
 ];
 
 export function ConversionHeader() {
@@ -199,30 +201,37 @@ export function ConversionHeader() {
                             {RESALE_CITY_LINKS.map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
-                                  to={`/resale?city=${city.name}&type=Condo/Strata`}
+                                  to={`/resale/${city.slug}`}
                                   className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
                                 >
                                   <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name} Condos
+                                  {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">TOWNHOMES BY CITY</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">QUICK LINKS</p>
                           <div className="space-y-0.5">
-                            {RESALE_CITY_LINKS.map((city) => (
-                              <NavigationMenuLink key={city.slug} asChild>
-                                <Link
-                                  to={`/resale?city=${city.name}&type=Townhouse`}
-                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
-                                >
-                                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name} Townhomes
-                                </Link>
-                              </NavigationMenuLink>
-                            ))}
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/resale-map"
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                              >
+                                <Map className="h-3 w-3 text-muted-foreground" />
+                                Map Search
+                              </Link>
+                            </NavigationMenuLink>
+                            <NavigationMenuLink asChild>
+                              <Link
+                                to="/resale?new=true"
+                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                              >
+                                <Home className="h-3 w-3 text-muted-foreground" />
+                                New Construction Only
+                              </Link>
+                            </NavigationMenuLink>
                           </div>
                         </div>
                       </div>
@@ -358,15 +367,15 @@ export function ConversionHeader() {
                           <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${resaleCitiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">Condos</p>
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">Browse by City</p>
                           {RESALE_CITY_LINKS.map((city) => (
                             <Link
-                              key={`resale-condo-${city.slug}`}
-                              to={`/resale?city=${city.name}&type=Condo/Strata`}
+                              key={`resale-city-${city.slug}`}
+                              to={`/resale/${city.slug}`}
                               onClick={() => setOpen(false)}
                               className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                             >
-                              <span className="text-sm font-medium">{city.name} Condos</span>
+                              <span className="text-sm font-medium">{city.name}</span>
                             </Link>
                           ))}
                           <p className="text-xs font-semibold text-muted-foreground px-4 py-1 pt-2">Townhomes</p>

@@ -14,7 +14,16 @@ import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { useQueryClient } from "@tanstack/react-query";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
-const TOP_CITIES = ["Vancouver", "Burnaby", "Surrey", "Coquitlam", "Langley", "Richmond"];
+const TOP_CITIES = [
+  "Vancouver", 
+  "Burnaby", 
+  "Surrey", 
+  "Coquitlam", 
+  "Langley", 
+  "Delta",
+  "Abbotsford",
+  "Chilliwack"
+];
 
 export function MobileResaleHome() {
   const navigate = useNavigate();
@@ -36,7 +45,7 @@ export function MobileResaleHome() {
 
   const handleSearch = (e?: React.FormEvent) => {
     e?.preventDefault();
-    const typeFilter = propertyType === "condos" ? "Condo/Strata" : "Townhouse";
+    const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
     if (searchQuery.trim()) {
       navigate(`/resale?q=${encodeURIComponent(searchQuery)}&type=${typeFilter}`);
     } else {
@@ -45,18 +54,17 @@ export function MobileResaleHome() {
   };
 
   const handleSuggestionSelect = (suggestion: any) => {
-    const typeFilter = propertyType === "condos" ? "Condo/Strata" : "Townhouse";
     if (suggestion.type === "city") {
-      navigate(`/resale?city=${suggestion.city}&type=${typeFilter}`);
+      navigate(`/resale/${suggestion.city.toLowerCase()}`);
     } else {
+      const typeFilter = propertyType === "condos" ? "Condo" : "Townhouse";
       navigate(`/resale?q=${encodeURIComponent(suggestion.name || suggestion.city)}&type=${typeFilter}`);
     }
     setShowSuggestions(false);
   };
 
   const handleCityClick = (city: string) => {
-    const typeFilter = propertyType === "condos" ? "Condo/Strata" : "Townhouse";
-    navigate(`/resale?city=${city}&type=${typeFilter}`);
+    navigate(`/resale/${city.toLowerCase()}`);
   };
 
   const handleRefresh = async () => {
@@ -72,7 +80,7 @@ export function MobileResaleHome() {
           <div className="absolute inset-0">
             <img
               src={heroImage}
-              alt="Metro Vancouver Real Estate"
+              alt="New Construction Condos & Townhomes in BC"
               className="h-full w-full object-cover"
               loading="eager"
             />
@@ -83,12 +91,12 @@ export function MobileResaleHome() {
           <div className="relative z-10 container px-4 text-center py-8">
             <div className="max-w-lg mx-auto space-y-4">
               <span className="inline-block text-[10px] font-medium uppercase tracking-widest text-white/80 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full">
-                MLS Listings
+                New Construction • Ready to Move In
               </span>
 
               <h1 className="text-2xl font-bold text-white leading-tight">
-                Find Your Perfect{" "}
-                <span className="text-primary">Condo or Townhome</span>
+                New <span className="text-primary">Condos & Townhomes</span>{" "}
+                for Sale in BC
               </h1>
 
               {/* Search Card */}
@@ -176,9 +184,9 @@ export function MobileResaleHome() {
                 </div>
               </div>
 
-              {/* Top Cities */}
+              {/* Top Cities - Scrollable */}
               <div className="overflow-x-auto scrollbar-hide -mx-4 px-4">
-                <div className="flex gap-2 justify-start min-w-max">
+                <div className="flex gap-2 justify-start min-w-max pb-2">
                   {TOP_CITIES.map((city) => (
                     <button
                       key={city}

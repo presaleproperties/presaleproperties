@@ -1,12 +1,14 @@
 import { ResaleCityCarousel } from "./ResaleCityCarousel";
 
 const FEATURED_CITIES = [
-  { city: "Vancouver", title: "Vancouver Listings", subtitle: "Downtown, East Van & Westside" },
-  { city: "Burnaby", title: "Burnaby Listings", subtitle: "Metrotown, Brentwood & Lougheed" },
-  { city: "Surrey", title: "Surrey Listings", subtitle: "South Surrey, Guildford & Fleetwood" },
-  { city: "Coquitlam", title: "Coquitlam Listings", subtitle: "Tri-Cities Area" },
-  { city: "Langley", title: "Langley Listings", subtitle: "Township & City of Langley" },
-  { city: "Richmond", title: "Richmond Listings", subtitle: "City Centre & Steveston" },
+  { city: "Vancouver", title: "Vancouver Condos & Townhomes", subtitle: "Downtown, East Van & Westside" },
+  { city: "Burnaby", title: "Burnaby Condos & Townhomes", subtitle: "Metrotown, Brentwood & Lougheed" },
+  { city: "Surrey", title: "Surrey Condos & Townhomes", subtitle: "South Surrey, Guildford & Fleetwood" },
+  { city: "Coquitlam", title: "Coquitlam Condos & Townhomes", subtitle: "Tri-Cities Area" },
+  { city: "Langley", title: "Langley Condos & Townhomes", subtitle: "Township & City of Langley" },
+  { city: "Delta", title: "Delta Condos & Townhomes", subtitle: "Tsawwassen, Ladner & North Delta" },
+  { city: "Abbotsford", title: "Abbotsford Condos & Townhomes", subtitle: "Fraser Valley Living" },
+  { city: "Chilliwack", title: "Chilliwack Condos & Townhomes", subtitle: "Affordable Fraser Valley" },
 ];
 
 export function ResaleCitySection() {
@@ -21,10 +23,10 @@ export function ResaleCitySection() {
             Browse by City
           </span>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-            Explore Listings by Location
+            New Construction by Location
           </h2>
           <p className="text-muted-foreground text-sm sm:text-base md:text-lg max-w-xl">
-            Discover condos and townhomes for sale in Metro Vancouver's top communities
+            Discover ready-to-move-in condos and townhomes across BC
           </p>
         </div>
 
