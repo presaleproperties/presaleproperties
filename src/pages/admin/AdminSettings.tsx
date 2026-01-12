@@ -156,125 +156,56 @@ export default function AdminSettings() {
           </div>
         ) : (
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Email Sender Configuration */}
+            {/* Email Configuration - Gmail SMTP */}
             <Card className="md:col-span-2">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Mail className="h-5 w-5" />
-                  Email Sender Configuration
+                  Email Configuration
                 </CardTitle>
                 <CardDescription>
-                  Configure the sender address for all outbound emails (leads, bookings, password resets)
+                  Transactional emails are sent via Gmail SMTP through Google Workspace
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                <div className="grid gap-6 md:grid-cols-2">
-                  {/* Sender Email Input */}
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email_sender">Email Sender Address</Label>
-                      <Input
-                        id="email_sender"
-                        type="text"
-                        placeholder="Brand Name <noreply@yourdomain.com>"
-                        value={settings.email_sender}
-                        onChange={(e) => setSettings(prev => ({ 
-                          ...prev, 
-                          email_sender: e.target.value 
-                        }))}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Format: <code className="bg-muted px-1 py-0.5 rounded">Brand Name &lt;email@domain.com&gt;</code>
-                      </p>
-                    </div>
-
-                    <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                      {isUsingCustomDomain ? (
-                        settings.email_domain_verified ? (
-                          <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
-                        ) : (
-                          <AlertCircle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                        )
-                      ) : (
-                        <Mail className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-                      )}
-                      <div className="text-sm">
-                        {isUsingCustomDomain ? (
-                          settings.email_domain_verified ? (
-                            <p className="text-green-700 font-medium">Custom domain verified and active</p>
-                          ) : (
-                            <p className="text-amber-700">Custom domain not yet verified — emails may fail to send</p>
-                          )
-                        ) : (
-                          <p className="text-muted-foreground">Using default Resend sender (recommended for testing)</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Domain Verification Checklist */}
-                  <div className="space-y-4">
-                    <Label className="text-base">Domain Verification Checklist</Label>
-                    <div className="space-y-3 text-sm">
-                      <div className="flex items-start gap-3">
-                        <Checkbox
-                          id="step1"
-                          checked={settings.email_domain_verified}
-                          onCheckedChange={(checked) => setSettings(prev => ({
-                            ...prev,
-                            email_domain_verified: !!checked
-                          }))}
-                        />
-                        <label htmlFor="step1" className="leading-tight cursor-pointer">
-                          <span className="font-medium">Domain added & verified in Resend</span>
-                          <p className="text-muted-foreground text-xs mt-0.5">
-                            Add your domain at resend.com/domains and add the required DNS records
-                          </p>
-                        </label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <Checkbox id="step2" disabled />
-                        <label htmlFor="step2" className="leading-tight text-muted-foreground">
-                          <span className="font-medium">SPF record configured</span>
-                          <p className="text-xs mt-0.5">Resend provides TXT record for SPF</p>
-                        </label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <Checkbox id="step3" disabled />
-                        <label htmlFor="step3" className="leading-tight text-muted-foreground">
-                          <span className="font-medium">DKIM record configured</span>
-                          <p className="text-xs mt-0.5">Resend provides CNAME records for DKIM</p>
-                        </label>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <Checkbox id="step4" disabled />
-                        <label htmlFor="step4" className="leading-tight text-muted-foreground">
-                          <span className="font-medium">DMARC record (optional)</span>
-                          <p className="text-xs mt-0.5">Recommended for improved deliverability</p>
-                        </label>
-                      </div>
-                    </div>
-
-                    <Button variant="outline" size="sm" className="mt-2" asChild>
-                      <a href="https://resend.com/domains" target="_blank" rel="noopener noreferrer">
-                        <ExternalLink className="h-4 w-4 mr-2" />
-                        Open Resend Domains
-                      </a>
-                    </Button>
+                <div className="flex items-start gap-3 p-4 rounded-lg bg-green-50 border border-green-200">
+                  <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                  <div className="text-sm">
+                    <p className="text-green-800 font-medium">Gmail SMTP Active</p>
+                    <p className="text-green-700 mt-1">
+                      All emails send from <code className="bg-green-100 px-1 py-0.5 rounded">info@presaleproperties.com</code> via Google Workspace.
+                    </p>
                   </div>
                 </div>
 
-                <Button onClick={saveSettings} disabled={saving}>
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  Save Email Settings
-                </Button>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2">Current Configuration</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• Sender: <code className="bg-muted px-1 rounded">Presale Properties</code></li>
+                      <li>• Email: <code className="bg-muted px-1 rounded">info@presaleproperties.com</code></li>
+                      <li>• SMTP: Gmail (Port 465, TLS)</li>
+                    </ul>
+                  </div>
+                  <div className="p-4 border rounded-lg">
+                    <h4 className="font-medium mb-2">Email Templates & Workflows</h4>
+                    <p className="text-sm text-muted-foreground mb-3">
+                      Manage transactional email templates and automated workflows.
+                    </p>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <a href="/admin/email-templates">
+                          Email Templates
+                        </a>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild>
+                        <a href="/admin/email-workflows">
+                          Workflows
+                        </a>
+                      </Button>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
