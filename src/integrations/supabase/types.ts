@@ -816,6 +816,10 @@ export type Database = {
           mls_status: string
           modification_timestamp: string | null
           neighborhood: string | null
+          open_house_date: string | null
+          open_house_end_time: string | null
+          open_house_remarks: string | null
+          open_house_start_time: string | null
           original_list_price: number | null
           parking_total: number | null
           photos: Json | null
@@ -897,6 +901,10 @@ export type Database = {
           mls_status?: string
           modification_timestamp?: string | null
           neighborhood?: string | null
+          open_house_date?: string | null
+          open_house_end_time?: string | null
+          open_house_remarks?: string | null
+          open_house_start_time?: string | null
           original_list_price?: number | null
           parking_total?: number | null
           photos?: Json | null
@@ -978,6 +986,10 @@ export type Database = {
           mls_status?: string
           modification_timestamp?: string | null
           neighborhood?: string | null
+          open_house_date?: string | null
+          open_house_end_time?: string | null
+          open_house_remarks?: string | null
+          open_house_start_time?: string | null
           original_list_price?: number | null
           parking_total?: number | null
           photos?: Json | null
