@@ -155,18 +155,26 @@ export default function ResaleListings() {
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
+  // Metro Vancouver cities - exclude Vancouver Island cities like Langford
+  const metroVancouverCities = [
+    "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley",
+    "Coquitlam", "Delta", "Abbotsford", "New Westminster",
+    "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
+    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+    "Pitt Meadows", "Tsawwassen", "Ladner"
+  ];
+
   // Featured/Hot listings query - newest 2025+ listings
   const { data: hotListings } = useQuery({
-    queryKey: ["hot-resale-listings-2025"],
+    queryKey: ["hot-resale-listings-2025", enabledCities],
     queryFn: async () => {
+      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
+      
       const { data, error } = await supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
-        .gte("latitude", 48.9)
-        .lte("latitude", 49.6)
-        .gte("longitude", -123.5)
-        .lte("longitude", -121.3)
+        .in("city", citiesToUse)
         .gte("year_built", 2025)
         .order("created_at", { ascending: false })
         .limit(8);
@@ -179,11 +187,13 @@ export default function ResaleListings() {
   const { data, isLoading } = useQuery({
     queryKey: ["resale-listings-2025", filters, currentPage, enabledCities],
     queryFn: async () => {
+      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
+      
       const buildFilters = (query: any) => {
-        if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
-          query = query.in("city", enabledCities);
-        }
-        if (filters.city !== "any") {
+        // Always filter by enabled cities when no specific city is selected
+        if (filters.city === "any") {
+          query = query.in("city", citiesToUse);
+        } else {
           query = query.eq("city", filters.city);
         }
         if (filters.propertyType !== "any") {
@@ -203,10 +213,6 @@ export default function ResaleListings() {
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
-        .gte("latitude", 48.9)
-        .lte("latitude", 49.6)
-        .gte("longitude", -123.5)
-        .lte("longitude", -121.3)
         .gte("year_built", 2025);
       countQuery = buildFilters(countQuery);
       const { count } = await countQuery;
@@ -215,10 +221,6 @@ export default function ResaleListings() {
         .from("mls_listings")
         .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
-        .gte("latitude", 48.9)
-        .lte("latitude", 49.6)
-        .gte("longitude", -123.5)
-        .lte("longitude", -121.3)
         .gte("year_built", 2025);
       query = buildFilters(query);
 

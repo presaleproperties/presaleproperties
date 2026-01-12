@@ -45,37 +45,37 @@ export function ResaleMapSection() {
     return () => observer.disconnect();
   }, []);
 
+  // Metro Vancouver cities fallback
+  const metroVancouverCities = [
+    "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley",
+    "Coquitlam", "Delta", "Abbotsford", "New Westminster",
+    "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
+    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+    "Pitt Meadows", "Tsawwassen", "Ladner"
+  ];
+
   // Optimized query - only fetch what's needed for map display
   // Limit to 500 for homepage section (full map has more) - 2025+ builds only
   const { data: listings, isLoading } = useQuery({
     queryKey: ["resale-map-section-listings-2025", enabledCities],
     queryFn: async () => {
-      let query = supabase
+      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
+      
+      const { data, error } = await supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        // Geographic bounding box for Lower Mainland / Metro Vancouver area
-        .gte("latitude", 48.9)
-        .lte("latitude", 49.6)
-        .gte("longitude", -123.5)
-        .lte("longitude", -121.3)
-        // Only 2025+ new construction
-        .gte("year_built", 2025);
-      
-      // Filter by enabled cities
-      if (enabledCities && enabledCities.length > 0) {
-        query = query.in("city", enabledCities);
-      }
-      
-      query = query.order("listing_price", { ascending: false }).limit(500);
+        .in("city", citiesToUse)
+        .gte("year_built", 2025)
+        .order("listing_price", { ascending: false })
+        .limit(500);
 
-      const { data, error } = await query;
       if (error) throw error;
       return data;
     },
-    enabled: shouldLoad && !!enabledCities,
+    enabled: shouldLoad,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes
     gcTime: 10 * 60 * 1000,
   });

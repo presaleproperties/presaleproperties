@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
-// Default Metro Vancouver & Fraser Valley cities
+// Default Metro Vancouver & Fraser Valley cities - excludes Vancouver Island (Langford, Victoria, etc.)
 const DEFAULT_ENABLED_CITIES = [
   "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
   "Coquitlam", "Delta", "Abbotsford", "New Westminster", 
   "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
-  "North Vancouver", "West Vancouver", "Chilliwack", "Mission"
+  "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+  "Pitt Meadows", "Tsawwassen", "Ladner"
 ];
 
 export function useEnabledCities() {

@@ -47,7 +47,8 @@ export function ResaleNewestCarousel() {
     "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley",
     "Coquitlam", "Delta", "Abbotsford", "New Westminster",
     "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
-    "North Vancouver", "West Vancouver", "Chilliwack", "Mission"
+    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
+    "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
   const { data: listings, isLoading } = useQuery({
