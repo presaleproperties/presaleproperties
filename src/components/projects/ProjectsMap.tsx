@@ -77,38 +77,41 @@ const getStatusLabel = (status: Project["status"]) => {
   }
 };
 
-// Presale marker with crane icon
-const createPricePillIcon = (project: Project) => {
-  const priceText = project.starting_price
-    ? formatPrice(project.starting_price)
-    : "TBD";
-
-  // SVG crane icon for presale projects
-  const craneIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20v-6"/><path d="M14 20v-6"/><path d="M2 20h20"/><path d="M19 9V4l-6 3V4L6 8v3"/><path d="M19 9h-7v6h7z"/></svg>`;
+// Presale marker - simple pin with building icon (no price)
+const createPricePillIcon = () => {
+  // Building icon for new construction
+  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
 
   return L.divIcon({
-    className: "price-pill-marker",
+    className: "presale-pin-marker",
     html: `
       <div style="
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        background: hsl(222, 47%, 15%);
-        color: white;
-        padding: 5px 10px 5px 8px;
-        border-radius: 16px;
-        font-size: 11px;
-        font-weight: 600;
-        white-space: nowrap;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-        border: 2px solid hsl(45, 89%, 55%);
-        cursor: pointer;
-        font-family: system-ui, -apple-system, sans-serif;
-      ">${craneIcon}${priceText}</div>
+        position: relative;
+        width: 32px;
+        height: 40px;
+      ">
+        <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(222, 47%, 25%)"/>
+          <circle cx="16" cy="15" r="10" fill="hsl(45, 89%, 55%)"/>
+        </svg>
+        <div style="
+          position: absolute;
+          top: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+        ">
+          ${buildingIcon}
+        </div>
+      </div>
     `,
-    iconSize: [100, 28],
-    iconAnchor: [50, 14],
-    popupAnchor: [0, -14],
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    popupAnchor: [0, -40],
   });
 };
 
@@ -320,7 +323,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     clusterGroup.clearLayers();
 
     mappedProjects.forEach((p) => {
-      const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon(p) });
+      const marker = L.marker([p.lat, p.lng], { icon: createPricePillIcon() });
       
       // Bind popup for navigation and trigger carousel selection
       marker.bindPopup(popupHtml(p), {

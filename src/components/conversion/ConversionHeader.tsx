@@ -190,30 +190,42 @@ export function ConversionHeader() {
                           <Home className="h-4 w-4 text-primary" />
                           <div>
                             <div className="text-sm font-medium">All Listings</div>
-                            <p className="text-xs text-muted-foreground">Browse all MLS listings</p>
+                            <p className="text-xs text-muted-foreground">Browse all new construction homes</p>
                           </div>
                         </Link>
                       </div>
                       <div className="grid grid-cols-2 gap-4 border-t pt-3">
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">CONDOS BY CITY</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">NEW CONDOS</p>
                           <div className="space-y-0.5">
-                            {RESALE_CITY_LINKS.map((city) => (
+                            {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
-                                  to={`/resale/${city.slug}`}
+                                  to={`/resale/${city.slug}?type=condo`}
                                   className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
                                 >
                                   <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name}
+                                  {city.name} Condos
                                 </Link>
                               </NavigationMenuLink>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">QUICK LINKS</p>
+                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">NEW TOWNHOMES</p>
                           <div className="space-y-0.5">
+                            {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
+                              <NavigationMenuLink key={`townhome-${city.slug}`} asChild>
+                                <Link
+                                  to={`/resale/${city.slug}?type=townhouse`}
+                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                >
+                                  <MapPin className="h-3 w-3 text-muted-foreground" />
+                                  {city.name} Townhomes
+                                </Link>
+                              </NavigationMenuLink>
+                            ))}
+                            <div className="border-t my-2" />
                             <NavigationMenuLink asChild>
                               <Link
                                 to="/resale-map"
@@ -221,15 +233,6 @@ export function ConversionHeader() {
                               >
                                 <Map className="h-3 w-3 text-muted-foreground" />
                                 Map Search
-                              </Link>
-                            </NavigationMenuLink>
-                            <NavigationMenuLink asChild>
-                              <Link
-                                to="/resale?new=true"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
-                              >
-                                <Home className="h-3 w-3 text-muted-foreground" />
-                                New Construction Only
                               </Link>
                             </NavigationMenuLink>
                           </div>

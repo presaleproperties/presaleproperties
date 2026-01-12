@@ -90,38 +90,42 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - crane icon with price
-function createPresalePricePillIcon(project: PresaleProject): L.DivIcon {
-  const priceText = project.starting_price ? formatPrice(project.starting_price) : "TBA";
-  
-  // SVG crane icon
-  const craneIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 20v-6"/><path d="M14 20v-6"/><path d="M2 20h20"/><path d="M19 9V4l-6 3V4L6 8v3"/><path d="M19 9h-7v6h7z"/></svg>`;
+// Presale marker - simple pin with crane/building icon (no price)
+function createPresalePinIcon(): L.DivIcon {
+  // Building/crane icon for new construction
+  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
   
   return L.divIcon({
-    className: "custom-price-marker presale-marker",
+    className: "custom-presale-pin",
     html: `
       <div style="
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        background: hsl(222, 47%, 15%);
-        color: white;
-        padding: 5px 10px 5px 8px;
-        border-radius: 20px;
-        font-weight: 600;
-        font-size: 11px;
-        white-space: nowrap;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-        border: 2px solid hsl(45, 89%, 55%);
-        cursor: pointer;
+        position: relative;
+        width: 32px;
+        height: 40px;
       ">
-        ${craneIcon}
-        ${priceText}
+        <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(222, 47%, 25%)"/>
+          <circle cx="16" cy="15" r="10" fill="hsl(45, 89%, 55%)"/>
+        </svg>
+        <div style="
+          position: absolute;
+          top: 6px;
+          left: 50%;
+          transform: translateX(-50%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 20px;
+          height: 20px;
+          color: hsl(222, 47%, 20%);
+        ">
+          ${buildingIcon}
+        </div>
       </div>
     `,
-    iconSize: [110, 32],
-    iconAnchor: [55, 32],
-    popupAnchor: [0, -34],
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    popupAnchor: [0, -40],
   });
 }
 
@@ -348,7 +352,7 @@ export function CombinedListingsMap({
     if (mode === "all" || mode === "presale") {
       for (const project of validPresaleProjects) {
         const marker = L.marker([project.map_lat!, project.map_lng!], {
-          icon: createPresalePricePillIcon(project),
+          icon: createPresalePinIcon(),
         });
 
         marker.bindPopup(presalePopupHtml(project), {
