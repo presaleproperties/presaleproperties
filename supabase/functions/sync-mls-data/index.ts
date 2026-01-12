@@ -73,6 +73,13 @@ interface DDFProperty {
     MediaCategory?: string;
     Order?: number;
   }>;
+  // Open House fields
+  OpenHouse?: Array<{
+    OpenHouseDate?: string;
+    OpenHouseStartTime?: string;
+    OpenHouseEndTime?: string;
+    OpenHouseRemarks?: string;
+  }>;
 }
 
 // Known Metro Vancouver neighborhoods by city for better matching
@@ -511,6 +518,43 @@ Deno.serve(async (req) => {
           list_date: property.OriginalEntryTimestamp ? new Date(property.OriginalEntryTimestamp).toISOString() : new Date().toISOString(),
           modification_timestamp: property.ModificationTimestamp,
           last_synced_at: new Date().toISOString(),
+          // Open House data - get the next upcoming open house
+          open_house_date: property.OpenHouse && property.OpenHouse.length > 0 
+            ? (() => {
+                const today = new Date().toISOString().split('T')[0];
+                const upcoming = property.OpenHouse
+                  .filter(oh => oh.OpenHouseDate && oh.OpenHouseDate >= today)
+                  .sort((a, b) => (a.OpenHouseDate || '').localeCompare(b.OpenHouseDate || ''))[0];
+                return upcoming?.OpenHouseDate || null;
+              })()
+            : null,
+          open_house_start_time: property.OpenHouse && property.OpenHouse.length > 0
+            ? (() => {
+                const today = new Date().toISOString().split('T')[0];
+                const upcoming = property.OpenHouse
+                  .filter(oh => oh.OpenHouseDate && oh.OpenHouseDate >= today)
+                  .sort((a, b) => (a.OpenHouseDate || '').localeCompare(b.OpenHouseDate || ''))[0];
+                return upcoming?.OpenHouseStartTime || null;
+              })()
+            : null,
+          open_house_end_time: property.OpenHouse && property.OpenHouse.length > 0
+            ? (() => {
+                const today = new Date().toISOString().split('T')[0];
+                const upcoming = property.OpenHouse
+                  .filter(oh => oh.OpenHouseDate && oh.OpenHouseDate >= today)
+                  .sort((a, b) => (a.OpenHouseDate || '').localeCompare(b.OpenHouseDate || ''))[0];
+                return upcoming?.OpenHouseEndTime || null;
+              })()
+            : null,
+          open_house_remarks: property.OpenHouse && property.OpenHouse.length > 0
+            ? (() => {
+                const today = new Date().toISOString().split('T')[0];
+                const upcoming = property.OpenHouse
+                  .filter(oh => oh.OpenHouseDate && oh.OpenHouseDate >= today)
+                  .sort((a, b) => (a.OpenHouseDate || '').localeCompare(b.OpenHouseDate || ''))[0];
+                return upcoming?.OpenHouseRemarks || null;
+              })()
+            : null,
         };
       });
 

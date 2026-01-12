@@ -119,6 +119,10 @@ type MLSListing = {
   virtual_tour_url: string | null;
   pool_yn: boolean | null;
   waterfront_yn: boolean | null;
+  open_house_date: string | null;
+  open_house_start_time: string | null;
+  open_house_end_time: string | null;
+  open_house_remarks: string | null;
 };
 
 export default function ResaleListingDetail() {
@@ -426,6 +430,15 @@ export default function ResaleListingDetail() {
                   <Badge variant="outline" className="text-xs gap-1">
                     <Clock className="h-3 w-3" />
                     {listing.days_on_market} Days on Market
+                  </Badge>
+                )}
+                {/* Open House Badge */}
+                {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
+                  <Badge className="bg-orange-500 text-white gap-1">
+                    <Calendar className="h-3 w-3" />
+                    Open House: {new Date(listing.open_house_date).toLocaleDateString('en-CA', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    {listing.open_house_start_time && ` ${listing.open_house_start_time.slice(0, 5)}`}
+                    {listing.open_house_end_time && `-${listing.open_house_end_time.slice(0, 5)}`}
                   </Badge>
                 )}
               </div>
