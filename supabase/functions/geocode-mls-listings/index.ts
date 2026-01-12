@@ -10,11 +10,16 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  try {
-    const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
-    const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+  const GOOGLE_MAPS_API_KEY = Deno.env.get("GOOGLE_MAPS_API_KEY");
+  const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+  const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
+  const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+  // Create initial log entry
+  let logId: string | null = null;
+
+  try {
     if (!GOOGLE_MAPS_API_KEY) {
       return new Response(
         JSON.stringify({ error: "Google Maps API key not configured" }),
@@ -22,23 +27,39 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-
     // Parse request body for options
-    let batchSize = 50; // Process 50 at a time to avoid rate limits
-    let onlyMissing = true; // Only geocode listings missing coordinates
+    let batchSize = 50;
+    let onlyMissing = true;
     let city: string | null = null;
+    let triggerSource = "manual";
     
     try {
       const body = await req.json();
       if (body?.batchSize) batchSize = Math.min(parseInt(body.batchSize) || 50, 100);
       if (body?.onlyMissing !== undefined) onlyMissing = body.onlyMissing;
       if (body?.city) city = body.city;
+      if (body?.triggerSource) triggerSource = body.triggerSource;
     } catch {
       // No body or invalid JSON
     }
 
-    console.log(`Geocoding MLS listings: batchSize=${batchSize}, onlyMissing=${onlyMissing}, city=${city || 'all'}`);
+    // Create log entry
+    const { data: logEntry, error: logError } = await supabase
+      .from("geocoding_logs")
+      .insert({
+        status: "running",
+        batch_size: batchSize,
+        city_filter: city,
+        trigger_source: triggerSource,
+      })
+      .select("id")
+      .single();
+
+    if (!logError && logEntry) {
+      logId = logEntry.id;
+    }
+
+    console.log(`Geocoding MLS listings: batchSize=${batchSize}, onlyMissing=${onlyMissing}, city=${city || 'all'}, logId=${logId}`);
 
     // Build query for listings that need geocoding
     let query = supabase
@@ -62,12 +83,29 @@ Deno.serve(async (req) => {
     }
 
     if (!listings || listings.length === 0) {
+      // Update log with no work needed
+      if (logId) {
+        await supabase
+          .from("geocoding_logs")
+          .update({
+            completed_at: new Date().toISOString(),
+            status: "completed",
+            listings_processed: 0,
+            listings_updated: 0,
+            listings_errors: 0,
+            remaining_count: 0,
+            api_calls_made: 0,
+          })
+          .eq("id", logId);
+      }
+
       return new Response(
         JSON.stringify({ 
           success: true, 
           message: "No listings need geocoding",
           processed: 0,
-          updated: 0 
+          updated: 0,
+          logId,
         }),
         { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
@@ -77,6 +115,7 @@ Deno.serve(async (req) => {
 
     let updated = 0;
     let errors = 0;
+    let apiCalls = 0;
 
     for (const listing of listings) {
       // Build address for geocoding
@@ -103,6 +142,7 @@ Deno.serve(async (req) => {
 
       try {
         // Call Google Geocoding API
+        apiCalls++;
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(address)}&key=${GOOGLE_MAPS_API_KEY}`
         );
@@ -156,7 +196,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`Geocoding complete: ${updated} updated, ${errors} errors`);
+    console.log(`Geocoding complete: ${updated} updated, ${errors} errors, ${apiCalls} API calls`);
 
     // Get remaining count
     let remainingQuery = supabase
@@ -171,6 +211,22 @@ Deno.serve(async (req) => {
     
     const { count: remaining } = await remainingQuery;
 
+    // Update log with results
+    if (logId) {
+      await supabase
+        .from("geocoding_logs")
+        .update({
+          completed_at: new Date().toISOString(),
+          status: errors > 0 ? "completed_with_errors" : "completed",
+          listings_processed: listings.length,
+          listings_updated: updated,
+          listings_errors: errors,
+          remaining_count: remaining || 0,
+          api_calls_made: apiCalls,
+        })
+        .eq("id", logId);
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
@@ -178,6 +234,8 @@ Deno.serve(async (req) => {
         updated,
         errors,
         remaining: remaining || 0,
+        apiCalls,
+        logId,
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
@@ -185,8 +243,21 @@ Deno.serve(async (req) => {
   } catch (error: unknown) {
     console.error("Geocoding error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+
+    // Update log with error
+    if (logId) {
+      await supabase
+        .from("geocoding_logs")
+        .update({
+          completed_at: new Date().toISOString(),
+          status: "failed",
+          error_message: errorMessage,
+        })
+        .eq("id", logId);
+    }
+
     return new Response(
-      JSON.stringify({ success: false, error: errorMessage }),
+      JSON.stringify({ success: false, error: errorMessage, logId }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

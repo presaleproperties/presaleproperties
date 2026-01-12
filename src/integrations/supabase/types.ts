@@ -485,6 +485,54 @@ export type Database = {
           },
         ]
       }
+      geocoding_logs: {
+        Row: {
+          api_calls_made: number | null
+          batch_size: number | null
+          city_filter: string | null
+          completed_at: string | null
+          error_message: string | null
+          id: string
+          listings_errors: number | null
+          listings_processed: number | null
+          listings_updated: number | null
+          remaining_count: number | null
+          started_at: string
+          status: string
+          trigger_source: string | null
+        }
+        Insert: {
+          api_calls_made?: number | null
+          batch_size?: number | null
+          city_filter?: string | null
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          listings_errors?: number | null
+          listings_processed?: number | null
+          listings_updated?: number | null
+          remaining_count?: number | null
+          started_at?: string
+          status?: string
+          trigger_source?: string | null
+        }
+        Update: {
+          api_calls_made?: number | null
+          batch_size?: number | null
+          city_filter?: string | null
+          completed_at?: string | null
+          error_message?: string | null
+          id?: string
+          listings_errors?: number | null
+          listings_processed?: number | null
+          listings_updated?: number | null
+          remaining_count?: number | null
+          started_at?: string
+          status?: string
+          trigger_source?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           agent_id: string
