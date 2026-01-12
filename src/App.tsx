@@ -104,6 +104,10 @@ const App = () => (
             <Route path="/resale/abbotsford" element={<CityResalePage />} />
             <Route path="/resale/chilliwack" element={<CityResalePage />} />
             <Route path="/resale/richmond" element={<CityResalePage />} />
+            <Route path="/resale/new-westminster" element={<CityResalePage />} />
+            <Route path="/resale/port-coquitlam" element={<CityResalePage />} />
+            <Route path="/resale/port-moody" element={<CityResalePage />} />
+            <Route path="/resale/white-rock" element={<CityResalePage />} />
             {/* Dynamic listing key route - MUST be after city routes */}
             <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
