@@ -44,6 +44,7 @@ import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { PriceHistoryChart } from "@/components/resale/PriceHistoryChart";
 import { SimilarListings } from "@/components/resale/SimilarListings";
+import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const formatPrice = (price: number) => {
@@ -861,6 +862,16 @@ export default function ResaleListingDetail() {
             city={listing.city}
             neighborhood={listing.neighborhood}
             excludeListingKey={listing.listing_key}
+          />
+        </div>
+
+        {/* Related Presale Projects */}
+        <div className="mt-8">
+          <RelatedPresaleProjects 
+            city={listing.city}
+            neighborhood={listing.neighborhood || undefined}
+            title={`Presale Projects in ${listing.city}`}
+            subtitle="Buy before completion and customize your new home"
           />
         </div>
       </main>
