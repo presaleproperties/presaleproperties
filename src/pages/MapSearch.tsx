@@ -200,7 +200,6 @@ export default function MapSearch() {
     beds: searchParams.get("beds") || "any",
     sort: searchParams.get("sort") || "newest",
   };
-  };
 
   // Fetch resale listings (2025+ builds)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
