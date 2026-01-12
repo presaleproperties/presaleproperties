@@ -21,7 +21,8 @@ import {
   MapPin,
   Eye,
   EyeOff,
-  Trash2
+  Trash2,
+  Users
 } from "lucide-react";
 import {
   AlertDialog,
@@ -250,6 +251,63 @@ export default function AdminMLSSync() {
         description: error.message,
         variant: "destructive",
       });
+    },
+  });
+
+  // Agent sync mutation
+  const agentSyncMutation = useMutation({
+    mutationFn: async () => {
+      const { data, error } = await supabase.functions.invoke("sync-mls-agents", {
+        body: {},
+      });
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Agent sync completed",
+        description: `Synced ${data.agentsSynced || 0} agents and ${data.officesSynced || 0} offices. Updated ${data.listingsUpdated || 0} listings.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["mls-agent-stats"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Agent sync failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Fetch agent/office stats
+  const { data: agentStats } = useQuery({
+    queryKey: ["mls-agent-stats"],
+    queryFn: async () => {
+      const { count: agents } = await supabase
+        .from("mls_agents")
+        .select("*", { count: "exact", head: true });
+      
+      const { count: offices } = await supabase
+        .from("mls_offices")
+        .select("*", { count: "exact", head: true });
+
+      const { count: listingsWithAgent } = await supabase
+        .from("mls_listings")
+        .select("*", { count: "exact", head: true })
+        .not("list_agent_name", "is", null);
+
+      const { count: listingsWithOffice } = await supabase
+        .from("mls_listings")
+        .select("*", { count: "exact", head: true })
+        .not("list_office_name", "is", null);
+
+      return {
+        agents: agents || 0,
+        offices: offices || 0,
+        listingsWithAgent: listingsWithAgent || 0,
+        listingsWithOffice: listingsWithOffice || 0,
+      };
     },
   });
 
@@ -557,6 +615,56 @@ export default function AdminMLSSync() {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Agent & Office Sync */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5" />
+              Agent & Brokerage Sync
+            </CardTitle>
+            <CardDescription>
+              Fetch agent and office names from the DDF API to display on listing cards. This syncs missing agent/office data in batches.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold">{agentStats?.agents || 0}</p>
+                <p className="text-xs text-muted-foreground">Agents Cached</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold">{agentStats?.offices || 0}</p>
+                <p className="text-xs text-muted-foreground">Offices Cached</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold">{agentStats?.listingsWithAgent || 0}</p>
+                <p className="text-xs text-muted-foreground">With Agent Name</p>
+              </div>
+              <div className="p-3 rounded-lg bg-muted/50 text-center">
+                <p className="text-2xl font-bold">{agentStats?.listingsWithOffice || 0}</p>
+                <p className="text-xs text-muted-foreground">With Office Name</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <Button
+                onClick={() => agentSyncMutation.mutate()}
+                disabled={agentSyncMutation.isPending}
+              >
+                {agentSyncMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Users className="h-4 w-4 mr-2" />
+                )}
+                Sync Agents & Offices
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                Fetches up to 50 agents and 50 offices per run. Run multiple times to sync all data.
+              </p>
             </div>
           </CardContent>
         </Card>
