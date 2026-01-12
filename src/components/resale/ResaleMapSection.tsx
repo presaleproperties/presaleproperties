@@ -116,6 +116,7 @@ export function ResaleMapSection() {
           </div>
           <Link to="/resale-map">
             <Button variant="outline" className="gap-2">
+              <Map className="h-4 w-4" />
               Open Full Map
               <ArrowRight className="h-4 w-4" />
             </Button>
