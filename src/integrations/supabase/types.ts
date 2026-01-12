@@ -372,6 +372,66 @@ export type Database = {
           },
         ]
       }
+      email_jobs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          meta: Json | null
+          scheduled_at: string
+          sent_at: string | null
+          status: string
+          template_id: string
+          to_email: string
+          to_name: string | null
+          variables: Json | null
+          workflow_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          meta?: Json | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          template_id: string
+          to_email: string
+          to_name?: string | null
+          variables?: Json | null
+          workflow_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          meta?: Json | null
+          scheduled_at?: string
+          sent_at?: string | null
+          status?: string
+          template_id?: string
+          to_email?: string
+          to_name?: string | null
+          variables?: Json | null
+          workflow_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_jobs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_jobs_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "email_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_logs: {
         Row: {
           campaign_id: string | null
@@ -425,34 +485,130 @@ export type Database = {
       }
       email_templates: {
         Row: {
+          audience_type: string | null
           created_at: string
           html_content: string
           id: string
           is_active: boolean
           name: string
           subject: string
+          template_key: string | null
           template_type: string
+          text_body: string | null
           updated_at: string
+          variables: Json | null
         }
         Insert: {
+          audience_type?: string | null
           created_at?: string
           html_content: string
           id?: string
           is_active?: boolean
           name: string
           subject: string
+          template_key?: string | null
           template_type?: string
+          text_body?: string | null
           updated_at?: string
+          variables?: Json | null
         }
         Update: {
+          audience_type?: string | null
           created_at?: string
           html_content?: string
           id?: string
           is_active?: boolean
           name?: string
           subject?: string
+          template_key?: string | null
           template_type?: string
+          text_body?: string | null
           updated_at?: string
+          variables?: Json | null
+        }
+        Relationships: []
+      }
+      email_workflow_steps: {
+        Row: {
+          created_at: string
+          delay_minutes: number
+          id: string
+          is_active: boolean
+          send_condition: Json | null
+          step_order: number
+          template_id: string
+          workflow_id: string
+        }
+        Insert: {
+          created_at?: string
+          delay_minutes?: number
+          id?: string
+          is_active?: boolean
+          send_condition?: Json | null
+          step_order?: number
+          template_id: string
+          workflow_id: string
+        }
+        Update: {
+          created_at?: string
+          delay_minutes?: number
+          id?: string
+          is_active?: boolean
+          send_condition?: Json | null
+          step_order?: number
+          template_id?: string
+          workflow_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_workflow_steps_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "email_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_workflow_steps_workflow_id_fkey"
+            columns: ["workflow_id"]
+            isOneToOne: false
+            referencedRelation: "email_workflows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_workflows: {
+        Row: {
+          audience_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          trigger_event: string
+          updated_at: string
+          workflow_key: string
+        }
+        Insert: {
+          audience_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          trigger_event: string
+          updated_at?: string
+          workflow_key: string
+        }
+        Update: {
+          audience_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          trigger_event?: string
+          updated_at?: string
+          workflow_key?: string
         }
         Relationships: []
       }
