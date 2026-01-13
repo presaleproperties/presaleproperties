@@ -55,6 +55,7 @@ import PresaleProjectDetail from "./pages/PresaleProjectDetail";
 import CityPresalePage from "./pages/CityPresalePage";
 import CityProductPage from "./pages/CityProductPage";
 import NeighbourhoodProductPage from "./pages/NeighbourhoodProductPage";
+import NeighborhoodLandingPage from "./pages/NeighborhoodLandingPage";
 import PriceBasedPage from "./pages/PriceBasedPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -148,6 +149,19 @@ const App = () => (
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
+            
+            {/* SEO Neighborhood Landing Pages */}
+            <Route path="/south-surrey-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/langley-willoughby-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/surrey-city-centre-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/coquitlam-burquitlam-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/burnaby-metrotown-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/vancouver-mount-pleasant-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/richmond-brighouse-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/north-vancouver-lonsdale-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/new-westminster-downtown-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/maple-ridge-town-centre-presale" element={<NeighborhoodLandingPage />} />
+            
             <Route path="/login" element={<Login />} />
             
             {/* Developer Portal Routes */}
