@@ -156,14 +156,22 @@ export function PresaleProjectCard({
                 decoding="async"
               />
               
-              {/* Status Badge - Top Left */}
-              {statusLabel && (
+              {/* Type Badge + Status Badge - Top Left */}
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1">
                 <Badge 
-                  className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1"
+                  variant="outline"
+                  className="bg-background/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-semibold border-foreground/20 shadow-sm px-1.5 py-0.5"
                 >
-                  {statusLabel}
+                  PRESALE
                 </Badge>
-              )}
+                {statusLabel && (
+                  <Badge 
+                    className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1"
+                  >
+                    {statusLabel}
+                  </Badge>
+                )}
+              </div>
               
               {/* Image navigation arrows */}
               {imageCount > 1 && (

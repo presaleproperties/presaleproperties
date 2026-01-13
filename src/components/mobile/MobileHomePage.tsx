@@ -155,10 +155,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content - Single header + subheader */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
           <h1 className="text-xl font-bold text-white leading-tight">
-            Find <span className="text-primary">{activeTab === "projects" ? "Presale" : "Resale"}</span> {activeTab === "projects" ? "Condos & Townhomes" : "Homes"}
+            <span className="text-primary">New Construction</span> Specialists
           </h1>
-          <p className="text-white/80 text-xs mt-1.5">
-            Metro Vancouver's #1 {activeTab === "projects" ? "Presale" : "Real Estate"} Marketplace
+          <p className="text-white/80 text-xs mt-1.5 max-w-xs">
+            Brand new, never lived in. 100% new construction only.
           </p>
         </div>
 
