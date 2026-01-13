@@ -436,6 +436,73 @@ export default function PresaleProjectDetail() {
                       "https://schema.org/Residence"
   };
 
+  // Product schema for enhanced rich snippets (Google Shopping, rich results)
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": `${project.name} ${project.neighborhood}`,
+    "description": project.full_description || project.short_description || seoDescription,
+    "image": project.featured_image || undefined,
+    "brand": project.developer_name ? {
+      "@type": "Organization",
+      "name": project.developer_name
+    } : undefined,
+    "offers": {
+      "@type": "AggregateOffer",
+      "url": canonicalUrl,
+      "priceCurrency": "CAD",
+      "lowPrice": project.starting_price || undefined,
+      "availability": project.status === "sold_out" ? "https://schema.org/SoldOut" : 
+                      project.status === "coming_soon" ? "https://schema.org/PreOrder" : 
+                      "https://schema.org/InStock",
+      "priceValidUntil": project.completion_year ? `${project.completion_year}-12-31` : undefined
+    },
+    "category": "Residential Real Estate",
+    "additionalProperty": [
+      {
+        "@type": "PropertyValue",
+        "name": "Property Type",
+        "value": projectTypeLabel
+      },
+      {
+        "@type": "PropertyValue",
+        "name": "Status",
+        "value": project.status === "active" ? "Now Selling" : 
+                 project.status === "coming_soon" ? "Coming Soon" :
+                 project.status === "registering" ? "Registering" : "Sold Out"
+      },
+      ...(project.completion_year ? [{
+        "@type": "PropertyValue",
+        "name": "Estimated Completion",
+        "value": project.completion_month 
+          ? `${new Date(2000, project.completion_month - 1).toLocaleString("default", { month: "long" })} ${project.completion_year}`
+          : `${project.completion_year}`
+      }] : []),
+      ...(project.deposit_structure ? [{
+        "@type": "PropertyValue",
+        "name": "Deposit Structure",
+        "value": project.deposit_structure
+      }] : [])
+    ],
+    "location": {
+      "@type": "Place",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": project.address || project.neighborhood,
+        "addressLocality": project.city,
+        "addressRegion": "BC",
+        "addressCountry": "CA"
+      },
+      ...(project.map_lat && project.map_lng ? {
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": project.map_lat,
+          "longitude": project.map_lng
+        }
+      } : {})
+    }
+  };
+
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -504,6 +571,9 @@ export default function PresaleProjectDetail() {
         {/* Structured Data */}
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(productSchema)}
         </script>
         <script type="application/ld+json">
           {JSON.stringify(breadcrumbData)}
