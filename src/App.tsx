@@ -60,6 +60,7 @@ import PriceBasedPage from "./pages/PriceBasedPage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
+import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
@@ -98,6 +99,7 @@ const App = () => (
             <BehaviorTracker />
             <MetaPixel />
             <FloatingMapButton />
+            <ExitIntentPopup />
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
