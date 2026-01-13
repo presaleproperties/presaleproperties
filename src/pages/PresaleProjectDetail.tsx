@@ -26,6 +26,7 @@ import { InlineScheduler } from "@/components/booking/InlineScheduler";
 import { FloorPlanModal } from "@/components/projects/FloorPlanModal";
 import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
 import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
+import { ProjectLeadMagnetsBar, SaveProjectButton, PriceAlertButton } from "@/components/conversion/LeadMagnets";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -718,6 +719,13 @@ export default function PresaleProjectDetail() {
                     <span>Share</span>
                   </button>
                 </div>
+
+                {/* Lead Magnets Bar - Save, Price Alert, ROI Analysis */}
+                <ProjectLeadMagnetsBar 
+                  projectId={project.id} 
+                  projectName={project.name} 
+                  city={project.city} 
+                />
 
                 {/* Quick Facts - visible on tablet and desktop, more compact */}
                 <div className="hidden md:block space-y-1.5 lg:space-y-2 mb-2 lg:mb-3">
