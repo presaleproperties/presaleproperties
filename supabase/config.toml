@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.generate-market-blog]
 verify_jwt = false
+
+[functions.send-blog-draft-notification]
+verify_jwt = false
