@@ -980,17 +980,24 @@ export default function PresaleProjectDetail() {
                 />
 
                 {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
-                <section id="faq" className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                  <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">
-                    Frequently Asked Questions About {project.name}
-                  </h2>
-                  <Accordion type="single" collapsible className="w-full space-y-1">
+                <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-2xl p-5 md:p-6 lg:p-8 border border-border/30">
+                  <div className="flex items-center gap-2 mb-4 md:mb-6">
+                    <div className="h-8 w-1 bg-primary rounded-full" />
+                    <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-foreground">
+                      Frequently Asked Questions About {project.name}
+                    </h2>
+                  </div>
+                  <Accordion type="single" collapsible className="w-full space-y-2">
                     {projectFAQs.map((item, i) => (
-                      <AccordionItem key={i} value={`faq-${i}`} className="border-b border-border/50">
-                        <AccordionTrigger className="text-left text-sm md:text-base py-3 md:py-4 font-medium hover:no-underline">
-                          {item.question}
+                      <AccordionItem 
+                        key={i} 
+                        value={`faq-${i}`} 
+                        className="bg-background/60 rounded-xl border border-border/40 px-4 data-[state=open]:bg-background/80 transition-colors"
+                      >
+                        <AccordionTrigger className="text-left text-sm md:text-base py-4 md:py-5 font-semibold text-foreground hover:no-underline gap-3 min-h-[56px]">
+                          <span className="pr-2">{item.question}</span>
                         </AccordionTrigger>
-                        <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-4">
+                        <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-5">
                           {item.answer}
                         </AccordionContent>
                       </AccordionItem>
