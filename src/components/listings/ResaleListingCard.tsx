@@ -158,10 +158,12 @@ export function ResaleListingCard({
   return (
     <Link to={`/resale/${listingKey}`} className="block h-full">
       <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
-        {/* Fixed aspect ratio image container - ensures consistent height */}
+        {/* Fixed height image container - ensures all cards have identical image size */}
         <div 
-          className="relative overflow-hidden bg-muted flex-shrink-0"
-          style={{ aspectRatio: size === "featured" ? "16/9" : size === "large" ? "3/2" : "4/3" }}
+          className={cn(
+            "relative overflow-hidden bg-muted flex-shrink-0",
+            size === "featured" ? "h-[200px] sm:h-[220px]" : size === "large" ? "h-[180px] sm:h-[200px]" : "h-[180px] sm:h-[200px]"
+          )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
