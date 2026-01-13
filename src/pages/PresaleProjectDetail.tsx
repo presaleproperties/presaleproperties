@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, lazy, Suspense } from "react";
 import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
@@ -24,6 +24,8 @@ import { NeighborhoodProjectsCarousel } from "@/components/home/NeighborhoodProj
 import { BookingModal } from "@/components/booking/BookingModal";
 import { InlineScheduler } from "@/components/booking/InlineScheduler";
 import { FloorPlanModal } from "@/components/projects/FloorPlanModal";
+import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
+import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
 
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { supabase } from "@/integrations/supabase/client";
@@ -905,6 +907,25 @@ export default function PresaleProjectDetail() {
                   </div>
                 )}
 
+                {/* Investment Analysis Section */}
+                <InvestmentAnalysis
+                  projectName={project.name}
+                  city={project.city}
+                  neighborhood={project.neighborhood}
+                  startingPrice={project.starting_price}
+                  projectType={project.project_type}
+                  completionYear={project.completion_year}
+                />
+
+                {/* Location Deep Dive */}
+                <LocationDeepDive
+                  projectName={project.name}
+                  city={project.city}
+                  neighborhood={project.neighborhood}
+                  address={project.address}
+                  mapLat={project.map_lat}
+                  mapLng={project.map_lng}
+                />
 
                 {/* FAQ */}
                 {project.faq && project.faq.length > 0 && (
