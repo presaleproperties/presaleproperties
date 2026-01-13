@@ -177,7 +177,7 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
             {/* Action Links */}
             <div className="mt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
               <Link
-                to="/resale-map"
+                to="/map-search?mode=resale"
                 className="flex items-center gap-2 text-sm font-medium text-foreground/80 hover:text-foreground transition-colors"
               >
                 <Map className="h-4 w-4" />

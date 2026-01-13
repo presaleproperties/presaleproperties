@@ -141,7 +141,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                 </button>
               </div>
               <Link
-                to={activeTab === "projects" ? "/map-search" : "/resale-map"}
+                to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
                 className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />

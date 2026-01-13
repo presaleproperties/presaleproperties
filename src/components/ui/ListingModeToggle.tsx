@@ -13,14 +13,14 @@ export function ListingModeToggle({ className, size = "default" }: ListingModeTo
   
   // Determine which mode is active based on current route
   const isResale = location.pathname.startsWith("/resale") || 
-                   location.pathname === "/resale-map";
+                   location.pathname === "/map-search";
   const isPresale = !isResale;
 
   const handlePresaleClick = () => {
     if (location.pathname === "/resale") {
       navigate("/presale-projects");
-    } else if (location.pathname === "/resale-map") {
-      navigate("/presale-projects?view=map");
+    } else if (location.pathname === "/map-search") {
+      navigate("/map-search?mode=presale");
     } else if (location.pathname.startsWith("/resale/")) {
       // City page - convert to presale city page
       const city = location.pathname.replace("/resale/", "");

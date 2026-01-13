@@ -118,7 +118,7 @@ export function ResaleMapSection() {
           </div>
           <div className="flex items-center gap-3">
             <ListingModeToggle size="sm" />
-            <Link to="/resale-map">
+            <Link to="/map-search?mode=resale">
               <Button variant="outline" className="gap-2">
                 <Map className="h-4 w-4" />
                 Full Map

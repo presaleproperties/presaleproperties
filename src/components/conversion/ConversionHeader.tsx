@@ -394,7 +394,7 @@ export function ConversionHeader() {
                           ))}
                           <div className="border-t my-2 mx-4" />
                           <Link
-                            to="/resale-map"
+                            to="/map-search?mode=resale"
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
                           >
