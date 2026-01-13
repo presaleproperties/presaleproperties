@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useRef, useState, useEffect } from "react";
+import { slugify } from "@/lib/seoUrls";
 
 interface NeighborhoodProjectsCarouselProps {
   neighborhood: string;
@@ -104,8 +105,10 @@ export function NeighborhoodProjectsCarousel({
     return null;
   }
 
-  // Create URL-friendly neighborhood slug
-  const neighborhoodSlug = `${city.toLowerCase()}-${neighborhood.toLowerCase().replace(/\s+/g, '-')}`;
+  // Create URL-friendly neighborhood slug using shared utility
+  const citySlug = slugify(city);
+  const neighborhoodSlug = slugify(neighborhood);
+  const seoUrl = `/${citySlug}-${neighborhoodSlug}-presale`;
 
   return (
     <div className="space-y-4 md:space-y-5">
@@ -140,7 +143,7 @@ export function NeighborhoodProjectsCarousel({
             </Button>
           </div>
           <Link 
-            to={`/${neighborhoodSlug}-presale`}
+            to={seoUrl}
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
           >
             View All
