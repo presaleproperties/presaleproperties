@@ -582,36 +582,36 @@ export default function ResaleListingDetail() {
             </div>
 
             {/* Price Details Section */}
-            <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-              <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Price Details</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">List Price</span>
-                  <span className="font-semibold text-foreground">{formatPrice(listing.listing_price)}</span>
+            <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6">
+              <h2 className="text-sm sm:text-base md:text-lg font-semibold text-foreground mb-2.5 sm:mb-3 md:mb-4">Price Details</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                  <span className="text-xs sm:text-sm text-muted-foreground">List Price</span>
+                  <span className="font-semibold text-sm sm:text-base text-foreground">{formatPrice(listing.listing_price)}</span>
                 </div>
                 {listing.tax_annual_amount !== null && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">
-                      Gross Taxes {listing.tax_year ? `for ${listing.tax_year}` : ''}
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
+                      Gross Taxes {listing.tax_year ? `(${listing.tax_year})` : ''}
                     </span>
-                    <span className="font-semibold text-foreground">
+                    <span className="font-semibold text-sm sm:text-base text-foreground">
                       {listing.tax_annual_amount === 0 ? '$0' : formatPrice(listing.tax_annual_amount)}
                     </span>
                   </div>
                 )}
                 {listing.association_fee !== null && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Strata Maintenance Fees</span>
-                    <span className="font-semibold text-foreground">
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Strata Fees</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">
                       {formatPrice(listing.association_fee)}
                       {listing.association_fee_frequency && ` /${listing.association_fee_frequency.toLowerCase()}`}
                     </span>
                   </div>
                 )}
                 {listing.living_area && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Price per Sqft</span>
-                    <span className="font-semibold text-foreground">
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Price per Sqft</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">
                       ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
                     </span>
                   </div>
@@ -620,84 +620,84 @@ export default function ResaleListingDetail() {
             </div>
 
             {/* Home Facts Section */}
-            <div className="bg-muted/30 rounded-xl p-4 md:p-6">
-              <h2 className="text-base md:text-lg font-semibold text-foreground mb-3 md:mb-4">Home Facts</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Bedrooms</span>
-                  <span className="font-semibold text-foreground">{listing.bedrooms_total ?? "—"}</span>
+            <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6">
+              <h2 className="text-sm sm:text-base md:text-lg font-semibold text-foreground mb-2.5 sm:mb-3 md:mb-4">Home Facts</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 sm:gap-x-4 gap-y-2 sm:gap-y-3">
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                  <span className="text-xs sm:text-sm text-muted-foreground">Bedrooms</span>
+                  <span className="font-semibold text-sm sm:text-base text-foreground">{listing.bedrooms_total ?? "—"}</span>
                 </div>
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">
-                    {listing.bathrooms_full ? 'Full Bathrooms' : 'Bathrooms'}
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                  <span className="text-xs sm:text-sm text-muted-foreground">
+                    {listing.bathrooms_full ? 'Full Baths' : 'Bathrooms'}
                   </span>
-                  <span className="font-semibold text-foreground">
+                  <span className="font-semibold text-sm sm:text-base text-foreground">
                     {listing.bathrooms_full ?? listing.bathrooms_total ?? "—"}
                   </span>
                 </div>
                 {listing.bathrooms_half !== null && listing.bathrooms_half > 0 && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Half Bathrooms</span>
-                    <span className="font-semibold text-foreground">{listing.bathrooms_half}</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Half Baths</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">{listing.bathrooms_half}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Property Type</span>
-                  <span className="font-semibold text-foreground">{formatPropertyType(listing.property_sub_type || listing.property_type)}</span>
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                  <span className="text-xs sm:text-sm text-muted-foreground">Type</span>
+                  <span className="font-semibold text-xs sm:text-sm text-foreground truncate max-w-[100px] sm:max-w-none">{formatPropertyType(listing.property_sub_type || listing.property_type)}</span>
                 </div>
                 {listing.year_built && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Year Built</span>
-                    <span className="font-semibold text-foreground">
-                      Built in {listing.year_built}
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Year Built</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">
+                      {listing.year_built}
                       {new Date().getFullYear() - listing.year_built <= 2 && (
-                        <span className="text-xs text-muted-foreground ml-1">
-                          ({new Date().getFullYear() - listing.year_built} yr{new Date().getFullYear() - listing.year_built !== 1 ? 's' : ''} old)
+                        <span className="text-[10px] sm:text-xs text-muted-foreground ml-0.5 sm:ml-1">
+                          ({new Date().getFullYear() - listing.year_built}yr)
                         </span>
                       )}
                     </span>
                   </div>
                 )}
                 {listing.living_area && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Living Area</span>
-                    <span className="font-semibold text-foreground">{listing.living_area.toLocaleString()} sqft</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Living Area</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">{listing.living_area.toLocaleString()} sqft</span>
                   </div>
                 )}
                 {listing.lot_size_area && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Lot Size</span>
-                    <span className="font-semibold text-foreground">{listing.lot_size_area.toLocaleString()} sqft</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Lot Size</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">{listing.lot_size_area.toLocaleString()} sqft</span>
                   </div>
                 )}
                 {listing.stories && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Stories</span>
-                    <span className="font-semibold text-foreground">{listing.stories}</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Stories</span>
+                    <span className="font-semibold text-sm sm:text-base text-foreground">{listing.stories}</span>
                   </div>
                 )}
-                <div className="flex justify-between items-center py-2 border-b border-border/50">
-                  <span className="text-sm text-muted-foreground">Parking</span>
-                  <span className="font-semibold text-foreground">
-                    {listing.parking_total ? `${listing.parking_total} Space${listing.parking_total > 1 ? 's' : ''}` : "—"}
+                <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                  <span className="text-xs sm:text-sm text-muted-foreground">Parking</span>
+                  <span className="font-semibold text-xs sm:text-sm text-foreground">
+                    {listing.parking_total ? `${listing.parking_total}` : "—"}
                     {listing.garage_spaces ? ` (${listing.garage_spaces} Garage)` : ""}
                   </span>
                 </div>
                 {(listing.heating && listing.heating.length > 0) && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Heating Type</span>
-                    <span className="font-semibold text-foreground text-right text-sm">{listing.heating.join(", ")}</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Heating</span>
+                    <span className="font-semibold text-xs sm:text-sm text-foreground text-right truncate max-w-[80px] sm:max-w-none">{listing.heating.join(", ")}</span>
                   </div>
                 )}
                 {(listing.cooling && listing.cooling.length > 0) && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Cooling</span>
-                    <span className="font-semibold text-foreground text-right text-sm">{listing.cooling.join(", ")}</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Cooling</span>
+                    <span className="font-semibold text-xs sm:text-sm text-foreground text-right truncate max-w-[80px] sm:max-w-none">{listing.cooling.join(", ")}</span>
                   </div>
                 )}
                 {listing.pool_yn && (
-                  <div className="flex justify-between items-center py-2 border-b border-border/50">
-                    <span className="text-sm text-muted-foreground">Pool</span>
+                  <div className="flex justify-between items-center py-1.5 sm:py-2 border-b border-border/50">
+                    <span className="text-xs sm:text-sm text-muted-foreground">Pool</span>
                     <span className="font-semibold text-foreground">Yes</span>
                   </div>
                 )}

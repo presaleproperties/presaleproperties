@@ -220,35 +220,35 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 min-w-0">
-          <div className="flex items-start justify-between gap-2 min-w-0">
+        <CardContent className="p-2.5 sm:p-3 md:p-4 min-w-0">
+          <div className="flex items-start justify-between gap-1.5 sm:gap-2 min-w-0">
             {/* Left: Name, Location & Type */}
             <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
-              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base truncate">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate">
                 {name}
               </h3>
               <div className="flex items-center gap-1 text-muted-foreground min-w-0">
-                <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                <span className="text-[11px] sm:text-xs truncate">
+                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                <span className="text-[10px] sm:text-[11px] md:text-xs truncate">
                   {city}
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
+              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
                 {formatType(projectType)} • {completionYear ? `${completionYear}` : "Coming Soon"}
               </p>
             </div>
 
             {/* Right: Price */}
-            <div className="text-right shrink-0 ml-1">
+            <div className="text-right shrink-0 ml-0.5 sm:ml-1">
               {startingPrice ? (
                 <>
-                  <span className="text-[9px] sm:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap">From</span>
-                  <span className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap">
+                  <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap">From</span>
+                  <span className="text-[13px] sm:text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap">
                     {formatPrice(startingPrice)}
                   </span>
                 </>
               ) : (
-                <span className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap">Contact for pricing</span>
+                <span className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground whitespace-nowrap">Contact</span>
               )}
             </div>
           </div>
