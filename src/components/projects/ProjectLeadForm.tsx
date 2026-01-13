@@ -236,6 +236,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         .catch((err) => console.error("Meta CAPI error:", err));
 
       localStorage.setItem("presale_persona", actualPersona);
+      localStorage.setItem("pp_form_submitted", "true");
+      localStorage.setItem("presale_lead_converted", "true");
 
       // Analytics tracking
       if (typeof window !== "undefined") {
