@@ -23,9 +23,10 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { MarketStatsUpload } from "@/components/admin/MarketStatsUpload";
+import { MarketBlogGenerator } from "@/components/admin/MarketBlogGenerator";
 
 interface MarketData {
   id: string;
@@ -167,10 +168,14 @@ export default function AdminMarketData() {
         </div>
 
         <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg">
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
               Upload Stats
+            </TabsTrigger>
+            <TabsTrigger value="blog" className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4" />
+              Generate Blog
             </TabsTrigger>
             <TabsTrigger value="manual" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
@@ -220,6 +225,11 @@ export default function AdminMarketData() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Blog Generator Tab */}
+          <TabsContent value="blog" className="mt-6 space-y-6">
+            <MarketBlogGenerator cities={marketData?.map(d => d.city) || []} />
           </TabsContent>
 
           {/* Manual Edit Tab */}
