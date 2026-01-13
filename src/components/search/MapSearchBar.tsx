@@ -1,14 +1,24 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Search, X, MapPin, Building2, Home } from "lucide-react";
+import { Search, X, MapPin, Building2, Home, Hash } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 interface SearchSuggestion {
-  type: "city" | "neighborhood" | "project";
+  type: "city" | "neighborhood" | "project" | "listing";
   label: string;
   sublabel?: string;
   value: string;
   city?: string;
+}
+
+interface MLSListingForSearch {
+  listing_key: string;
+  listing_id?: string;
+  city: string;
+  street_number?: string | null;
+  street_name?: string | null;
+  street_suffix?: string | null;
+  listing_price?: number;
 }
 
 interface MapSearchBarProps {
@@ -19,6 +29,7 @@ interface MapSearchBarProps {
   cities: string[];
   neighborhoods: { neighborhood: string; city: string }[];
   projects?: { name: string; city: string; slug: string }[];
+  listings?: MLSListingForSearch[];
   className?: string;
 }
 
@@ -26,10 +37,11 @@ export function MapSearchBar({
   searchQuery,
   onSearchChange,
   onSuggestionSelect,
-  placeholder = "Search city, neighborhood, or project...",
+  placeholder = "Search city, neighborhood, MLS#, or address...",
   cities,
   neighborhoods,
   projects = [],
+  listings = [],
   className,
 }: MapSearchBarProps) {
   const [isFocused, setIsFocused] = useState(false);
@@ -37,12 +49,47 @@ export function MapSearchBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Format price for display
+  const formatPrice = (price?: number) => {
+    if (!price) return "";
+    if (price >= 1000000) return `$${(price / 1000000).toFixed(2)}M`;
+    return `$${(price / 1000).toFixed(0)}K`;
+  };
+
   // Generate suggestions based on search query
   const suggestions = useMemo(() => {
     if (!searchQuery.trim() || searchQuery.length < 2) return [];
     
-    const q = searchQuery.toLowerCase();
+    const q = searchQuery.toLowerCase().trim();
     const results: SearchSuggestion[] = [];
+    
+    // Check if searching for MLS# (R followed by digits)
+    const isMLSSearch = /^r?\d+$/i.test(q);
+    const cleanMLSQuery = q.replace(/^r/i, "");
+    
+    // Match MLS listings by listing_key (R#) or address - prioritize if R# search
+    if (isMLSSearch || q.length >= 3) {
+      listings.forEach(l => {
+        const listingId = l.listing_key.toLowerCase();
+        const address = [l.street_number, l.street_name, l.street_suffix].filter(Boolean).join(" ").toLowerCase();
+        
+        // Match by MLS number (listing_key contains the R number)
+        const matchesMLS = isMLSSearch && listingId.includes(cleanMLSQuery);
+        // Match by address
+        const matchesAddress = !isMLSSearch && address.includes(q);
+        
+        if (matchesMLS || matchesAddress) {
+          const displayAddress = [l.street_number, l.street_name, l.street_suffix].filter(Boolean).join(" ");
+          results.push({
+            type: "listing",
+            label: displayAddress || l.listing_key,
+            sublabel: `${l.listing_key} • ${l.city}${l.listing_price ? ` • ${formatPrice(l.listing_price)}` : ""}`,
+            value: l.listing_key,
+            city: l.city,
+          });
+        }
+      });
+    }
     
     // Match cities
     cities.forEach(city => {
@@ -89,8 +136,17 @@ export function MapSearchBar({
       }
     });
     
-    return results.slice(0, 8);
-  }, [searchQuery, cities, neighborhoods, projects]);
+    // Sort: listings first if MLS search, otherwise mix
+    if (isMLSSearch) {
+      results.sort((a, b) => {
+        if (a.type === "listing" && b.type !== "listing") return -1;
+        if (a.type !== "listing" && b.type === "listing") return 1;
+        return 0;
+      });
+    }
+    
+    return results.slice(0, 10);
+  }, [searchQuery, cities, neighborhoods, projects, listings]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -135,6 +191,8 @@ export function MapSearchBar({
         return <Home className="h-4 w-4 text-muted-foreground" />;
       case "project":
         return <Building2 className="h-4 w-4 text-primary" />;
+      case "listing":
+        return <Hash className="h-4 w-4 text-primary" />;
     }
   };
 
