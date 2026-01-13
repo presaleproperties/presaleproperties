@@ -23,11 +23,12 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles, FileSearch } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles, FileSearch, BarChart3 } from "lucide-react";
 import { toast } from "sonner";
 import { MarketStatsUpload } from "@/components/admin/MarketStatsUpload";
 import { MarketBlogGenerator } from "@/components/admin/MarketBlogGenerator";
 import { ResearchImporter } from "@/components/admin/ResearchImporter";
+import { SnapStatsUploader } from "@/components/admin/SnapStatsUploader";
 
 interface MarketData {
   id: string;
@@ -168,25 +169,34 @@ export default function AdminMarketData() {
           </p>
         </div>
 
-        <Tabs defaultValue="research" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+        <Tabs defaultValue="snapstats" className="w-full">
+          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
+            <TabsTrigger value="snapstats" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Snap Stats
+            </TabsTrigger>
             <TabsTrigger value="research" className="flex items-center gap-2">
               <FileSearch className="h-4 w-4" />
-              Import Research
+              Research
             </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
-              Upload Stats
+              Legacy Upload
             </TabsTrigger>
             <TabsTrigger value="blog" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
-              Generate Blog
+              Blog Gen
             </TabsTrigger>
             <TabsTrigger value="manual" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
-              View & Edit
+              View Data
             </TabsTrigger>
           </TabsList>
+
+          {/* Snap Stats Upload Tab (NEW PRIMARY) */}
+          <TabsContent value="snapstats" className="mt-6 space-y-6">
+            <SnapStatsUploader onDataImported={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
+          </TabsContent>
 
           {/* Research Import Tab */}
           <TabsContent value="research" className="mt-6 space-y-6">
