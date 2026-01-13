@@ -106,6 +106,28 @@ export function ExitIntentPopup() {
 
       if (error && !error.message.includes("duplicate")) throw error;
 
+      // Also create a project_lead for Zapier integration
+      const leadId = crypto.randomUUID();
+      await supabase.from("project_leads").insert({
+        id: leadId,
+        name: "Guide Download",
+        email: data.email.trim(),
+        message: "7 Red Flags Guide - Exit Intent Download",
+        lead_source: "exit_intent_guide",
+        visitor_id: visitorId,
+        session_id: sessionId,
+        landing_page: landingPage,
+        referrer: referrer,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
+      });
+
+      // Send to Zapier via edge function
+      supabase.functions
+        .invoke("send-project-lead", { body: { leadId } })
+        .catch(console.error);
+
       // Track form submission
       trackFormSubmit({
         form_name: "exit_intent_guide",
@@ -136,6 +158,7 @@ export function ExitIntentPopup() {
         .catch(console.error);
 
       localStorage.setItem("presale_lead_converted", "true");
+      localStorage.setItem("pp_form_submitted", "true");
       setIsSubmitted(true);
       
       toast({
