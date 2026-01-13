@@ -4,6 +4,7 @@ import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { generateProjectCanonicalUrl, parseProjectUrl, slugify } from "@/lib/seoUrls";
+import { generateProjectFAQs, generateFAQSchema, generateSEOTitle, generateSEODescription, type FAQItem } from "@/lib/seoFaq";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { ProjectContextualLinks } from "@/components/seo/ProjectContextualLinks";
 
@@ -408,17 +409,56 @@ export default function PresaleProjectDetail() {
   
   const unitMixShort = project.unit_mix || `Studios to ${projectTypeSingular}`;
   
-  // Enhanced SEO title: "Harlowe South Surrey - Presale Townhomes from $299,900 | Presale Properties"
-  const seoTitle = project.seo_title || 
-    `${project.name} ${project.neighborhood} - Presale ${projectTypeLabel}${priceDisplay ? ` ${priceDisplay}` : ""} | Presale Properties`;
+  // Generate optimized SEO title (under 60 chars)
+  // Pattern: [Project Name] [Location] - Presale [Type] from $[Price] | [Feature]
+  const seoTitle = project.seo_title || generateSEOTitle({
+    name: project.name,
+    neighborhood: project.neighborhood,
+    city: project.city,
+    projectType: project.project_type,
+    startingPrice: project.starting_price,
+    developerName: project.developer_name,
+    unitMix: project.unit_mix,
+  });
   
-  // Enhanced SEO description with address, unit count, and CTAs
-  const seoDescription = project.seo_description || 
-    `${project.name} ${project.neighborhood} presale ${projectTypeSingular}${priceDisplay ? ` ${priceDisplay}` : ""}. ${project.address ? `${project.address}. ` : ""}${unitMixShort}. VIP pricing & floor plans available. Contact presale experts today.`;
+  // Generate optimized SEO description (155-160 chars)
+  // Pattern: "[Name] presale [type] in [location]. [Units]. [Feature]. VIP pricing & floor plans."
+  const seoDescription = project.seo_description || generateSEODescription({
+    name: project.name,
+    neighborhood: project.neighborhood,
+    city: project.city,
+    projectType: project.project_type,
+    startingPrice: project.starting_price,
+    unitMix: project.unit_mix,
+    highlights: project.highlights,
+  });
   
   // Shorter OG description for social sharing
   const ogDescription = project.short_description || 
     `Modern living in ${project.neighborhood}. Thoughtfully designed ${projectTypeSingular}${priceDisplay ? ` starting ${priceDisplay}` : ""}.`;
+  
+  // Generate comprehensive FAQs - use custom if available, otherwise auto-generate
+  const projectFAQs: FAQItem[] = (project.faq && project.faq.length > 0) 
+    ? project.faq 
+    : generateProjectFAQs({
+        name: project.name,
+        city: project.city,
+        neighborhood: project.neighborhood,
+        projectType: project.project_type,
+        startingPrice: project.starting_price,
+        depositStructure: project.deposit_structure,
+        strataFees: project.strata_fees,
+        assignmentFees: project.assignment_fees,
+        completionYear: project.completion_year,
+        completionMonth: project.completion_month,
+        developerName: project.developer_name,
+        amenities: project.amenities,
+        highlights: project.highlights,
+        incentives: project.incentives,
+      });
+  
+  // Generate FAQ schema for rich results
+  const faqSchema = generateFAQSchema(projectFAQs);
 
   // Generate SEO-friendly canonical URL
   const canonicalUrl = generateProjectCanonicalUrl({
@@ -611,6 +651,10 @@ export default function PresaleProjectDetail() {
         </script>
         <script type="application/ld+json">
           {JSON.stringify(breadcrumbData)}
+        </script>
+        {/* FAQ Schema for rich results */}
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
         </script>
       </Helmet>
 
@@ -935,24 +979,24 @@ export default function PresaleProjectDetail() {
                   mapLng={project.map_lng}
                 />
 
-                {/* FAQ */}
-                {project.faq && project.faq.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Frequently Asked Questions</h2>
-                    <Accordion type="single" collapsible className="w-full">
-                      {project.faq.map((item, i) => (
-                        <AccordionItem key={i} value={`faq-${i}`}>
-                          <AccordionTrigger className="text-left text-sm md:text-base py-3 font-medium">
-                            {item.question}
-                          </AccordionTrigger>
-                          <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed">
-                            {item.answer}
-                          </AccordionContent>
-                        </AccordionItem>
-                      ))}
-                    </Accordion>
-                  </div>
-                )}
+                {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
+                <section id="faq" className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
+                  <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">
+                    Frequently Asked Questions About {project.name}
+                  </h2>
+                  <Accordion type="single" collapsible className="w-full space-y-1">
+                    {projectFAQs.map((item, i) => (
+                      <AccordionItem key={i} value={`faq-${i}`} className="border-b border-border/50">
+                        <AccordionTrigger className="text-left text-sm md:text-base py-3 md:py-4 font-medium hover:no-underline">
+                          {item.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="text-sm md:text-base text-muted-foreground leading-relaxed pb-4">
+                          {item.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </section>
               </div>
 
               {/* Sidebar - Desktop only (tablet forms are shown above) */}
