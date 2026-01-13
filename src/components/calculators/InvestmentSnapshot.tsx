@@ -614,53 +614,6 @@ export function InvestmentSnapshot() {
                     <p className="text-[10px] text-amber-600 mt-1">Lawyer fees, inspection, etc.</p>
                   </div>
                 )}
-
-                {/* Credit Section */}
-                <div className="bg-green-50/70 rounded-xl p-3 border border-green-300">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingDown className="w-4 h-4 text-green-600" />
-                    <span className="text-xs font-semibold text-green-700 uppercase">Credit (Reduces Cash at Close)</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-green-600 block mb-1">% of Price</label>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.5"
-                          value={inputs.creditPercent}
-                          onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
-                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pr-6"
-                        />
-                        <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
-                      </div>
-                      {inputs.creditPercent > 0 && (
-                        <p className="text-[10px] text-green-600 mt-0.5 text-center">
-                          = {fmt(inputs.purchasePrice * (inputs.creditPercent / 100))}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-green-600 block mb-1">$ Amount</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
-                        <Input
-                          type="number"
-                          value={inputs.creditAmount}
-                          onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
-                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pl-6"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {results.creditTotal > 0 && (
-                    <div className="mt-2 pt-2 border-t border-green-200 flex items-center justify-between">
-                      <span className="text-xs text-green-600">Applied Credit:</span>
-                      <span className="text-sm font-bold text-green-700">-{fmt(results.creditTotal)}</span>
-                    </div>
-                  )}
-                  <p className="text-[10px] text-green-600 mt-1">Developer incentive, assignment credit, etc.</p>
-                </div>
               </div>
 
               {/* Right Column: Results */}
@@ -797,6 +750,53 @@ export function InvestmentSnapshot() {
                     </div>
                   </>
                 )}
+
+                {/* Credit Section */}
+                <div className="bg-green-50/70 rounded-xl p-3 border border-green-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingDown className="w-4 h-4 text-green-600" />
+                    <span className="text-xs font-semibold text-green-700 uppercase">Credit (Reduces Cash at Close)</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-green-600 block mb-1">% of Price</label>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          step="0.5"
+                          value={inputs.creditPercent}
+                          onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pr-6"
+                        />
+                        <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
+                      </div>
+                      {inputs.creditPercent > 0 && (
+                        <p className="text-[10px] text-green-600 mt-0.5 text-center">
+                          = {fmt(inputs.purchasePrice * (inputs.creditPercent / 100))}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-green-600 block mb-1">$ Amount</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
+                        <Input
+                          type="number"
+                          value={inputs.creditAmount}
+                          onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pl-6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {results.creditTotal > 0 && (
+                    <div className="mt-2 pt-2 border-t border-green-200 flex items-center justify-between">
+                      <span className="text-xs text-green-600">Applied Credit:</span>
+                      <span className="text-sm font-bold text-green-700">-{fmt(results.creditTotal)}</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-green-600 mt-1">Developer incentive, assignment credit, etc.</p>
+                </div>
 
                 {/* Mortgage Info - Both */}
                 <div className="bg-secondary/10 rounded-xl p-3 border border-border/30 space-y-2">
