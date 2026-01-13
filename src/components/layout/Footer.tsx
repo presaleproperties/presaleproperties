@@ -37,7 +37,7 @@ export function Footer() {
           </div>
 
           {/* Presale Condos by City */}
-          <div className="space-y-3 sm:space-y-4">
+          <nav aria-label="Presale condos by city" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Presale Condos</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
@@ -57,10 +57,10 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* More Condos + Townhomes */}
-          <div className="space-y-3 sm:space-y-4">
+          <nav aria-label="More cities" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">More Cities</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               {CONDO_CITY_LINKS.slice(5).map((city) => (
@@ -75,10 +75,10 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Presale Townhomes */}
-          <div className="space-y-3 sm:space-y-4">
+          <nav aria-label="Presale townhomes by city" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Presale Townhomes</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               {TOWNHOME_CITY_LINKS.map((city) => (
@@ -93,10 +93,10 @@ export function Footer() {
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
 
           {/* Move-In Ready Homes */}
-          <div className="space-y-3 sm:space-y-4">
+          <nav aria-label="Move-in ready homes" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Move-In Ready</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
@@ -125,9 +125,9 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
 
-          <div className="space-y-3 sm:space-y-4">
+          <nav aria-label="Resources" className="space-y-3 sm:space-y-4">
             <h4 className="text-xs sm:text-sm font-semibold">Resources</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
@@ -156,7 +156,7 @@ export function Footer() {
                 </Link>
               </li>
             </ul>
-          </div>
+          </nav>
         </div>
 
         {/* Brokerage Section */}

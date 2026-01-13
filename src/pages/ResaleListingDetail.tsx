@@ -308,21 +308,30 @@ export default function ResaleListingDetail() {
       <ConversionHeader />
       
       <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
+        <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
-          <Link to="/" className="hover:text-foreground transition-colors shrink-0">
-            <Home className="h-3.5 w-3.5" />
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
-            For Sale
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link to={`/resale?city=${listing.city}`} className="hover:text-foreground transition-colors shrink-0">
-            {listing.city}
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <span className="text-foreground font-medium truncate max-w-[200px]">{address}</span>
+          <ol className="flex items-center gap-1">
+            <li>
+              <Link to="/" className="hover:text-foreground transition-colors shrink-0">
+                <Home className="h-3.5 w-3.5" />
+              </Link>
+            </li>
+            <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
+            <li>
+              <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
+                For Sale
+              </Link>
+            </li>
+            <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
+            <li>
+              <Link to={`/resale?city=${listing.city}`} className="hover:text-foreground transition-colors shrink-0">
+                {listing.city}
+              </Link>
+            </li>
+            <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
+            <li><span className="text-foreground font-medium truncate max-w-[200px]">{address}</span></li>
+          </ol>
         </nav>
 
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
@@ -927,6 +936,7 @@ export default function ResaleListingDetail() {
             subtitle="Buy before completion and customize your new home"
           />
         </div>
+        </article>
       </main>
 
       {/* Mobile CTA Bar */}

@@ -117,7 +117,7 @@ export default function Blog() {
         </section>
 
         {/* Filters */}
-        <section className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b py-4">
+        <section aria-label="Article filters" className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b py-4">
           <div className="container">
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="relative flex-1">
@@ -145,7 +145,7 @@ export default function Blog() {
         </section>
 
         {/* Content */}
-        <section className="py-8 md:py-12">
+        <section aria-label="Blog articles" className="py-8 md:py-12">
           <div className="container">
             {loading ? (
               <div className="flex items-center justify-center py-20">
@@ -171,9 +171,10 @@ export default function Blog() {
                 {featuredPosts.length > 0 && (
                   <div>
                     <h2 className="text-2xl font-bold mb-6">Featured Articles</h2>
-                    <div className="grid md:grid-cols-2 gap-6">
+                    <div className="grid md:grid-cols-2 gap-6" role="feed" aria-label="Featured articles">
                       {featuredPosts.map((post) => (
-                        <Link key={post.id} to={`/blog/${post.slug}`}>
+                        <article key={post.id}>
+                          <Link to={`/blog/${post.slug}`}>
                           <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
                             <div className="relative aspect-[16/9] overflow-hidden">
                               {post.featured_image ? (
@@ -219,7 +220,8 @@ export default function Blog() {
                               </div>
                             </CardContent>
                           </Card>
-                        </Link>
+                          </Link>
+                        </article>
                       ))}
                     </div>
                   </div>
@@ -231,9 +233,10 @@ export default function Blog() {
                     {featuredPosts.length > 0 && (
                       <h2 className="text-2xl font-bold mb-6">Latest Articles</h2>
                     )}
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" role="feed" aria-label="Latest articles">
                       {regularPosts.map((post) => (
-                        <Link key={post.id} to={`/blog/${post.slug}`}>
+                        <article key={post.id}>
+                          <Link to={`/blog/${post.slug}`}>
                           <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
                             <div className="relative aspect-[16/10] overflow-hidden">
                               {post.featured_image ? (
@@ -273,7 +276,8 @@ export default function Blog() {
                               </div>
                             </CardContent>
                           </Card>
-                        </Link>
+                          </Link>
+                        </article>
                       ))}
                     </div>
                   </div>

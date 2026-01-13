@@ -47,7 +47,7 @@ export function Header() {
         <Logo size="xl" />
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6">
+        <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-6">
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
@@ -174,7 +174,7 @@ export function Header() {
                 <div className="border-t border-border mx-6" />
 
                 {/* Large Navigation Links - REW Style */}
-                <nav className="flex-1 pt-8 overflow-y-auto">
+                <nav aria-label="Mobile navigation" className="flex-1 pt-8 overflow-y-auto">
                   <div className="space-y-0 px-6">
                     <Link
                       to="/presale-projects"
