@@ -49,6 +49,7 @@ import AdminDeveloperProfiles from "./pages/admin/AdminDeveloperProfiles";
 import AdminMLSSync from "./pages/admin/AdminMLSSync";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
+import AdminMarketData from "./pages/admin/AdminMarketData";
 import NotFound from "./pages/NotFound";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
@@ -218,6 +219,7 @@ const App = () => (
             <Route path="/admin/mls-sync" element={<AdminProtectedRoute><AdminMLSSync /></AdminProtectedRoute>} />
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
+            <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             
             {/* SEO City Product Pages - must be before 404 */}

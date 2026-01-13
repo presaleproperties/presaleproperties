@@ -926,6 +926,54 @@ export type Database = {
         }
         Relationships: []
       }
+      market_data: {
+        Row: {
+          appreciation_5yr: number
+          avg_price_sqft: number
+          avg_rent_1br: number
+          avg_rent_2br: number
+          city: string
+          created_at: string
+          id: string
+          last_verified_date: string
+          notes: string | null
+          rental_yield: number
+          source_name: string
+          source_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          appreciation_5yr?: number
+          avg_price_sqft?: number
+          avg_rent_1br?: number
+          avg_rent_2br?: number
+          city: string
+          created_at?: string
+          id?: string
+          last_verified_date?: string
+          notes?: string | null
+          rental_yield?: number
+          source_name?: string
+          source_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          appreciation_5yr?: number
+          avg_price_sqft?: number
+          avg_rent_1br?: number
+          avg_rent_2br?: number
+          city?: string
+          created_at?: string
+          id?: string
+          last_verified_date?: string
+          notes?: string | null
+          rental_yield?: number
+          source_name?: string
+          source_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mls_agents: {
         Row: {
           agent_key: string
