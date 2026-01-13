@@ -42,7 +42,7 @@ interface SnapshotInputs {
 
 const DEFAULT_INPUTS: SnapshotInputs = {
   buyerType: 'investor',
-  purchasePrice: 599000,
+  purchasePrice: 499900,
   sqft: 550,
   firstDepositPercent: 5,
   secondDepositPercent: 5,
