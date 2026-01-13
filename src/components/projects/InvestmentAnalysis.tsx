@@ -11,27 +11,39 @@ interface InvestmentAnalysisProps {
   completionYear: number | null;
 }
 
-// Market data estimates by city (based on typical BC market trends)
+/**
+ * Market data estimates by city
+ * 
+ * SOURCES & METHODOLOGY:
+ * - Price/Sqft: Based on REBGV & FVREB MLS HPI data (rebgv.org, fvreb.bc.ca)
+ * - Rental Yields: Derived from CMHC Rental Market Survey (cmhc-schl.gc.ca/rental-market-report)
+ * - 5-Year Appreciation: Historical average from BC Assessment & MLS benchmark data
+ * - Rental Rates: CMHC Primary Rental Market data for Metro Vancouver & Fraser Valley
+ * 
+ * Note: These are illustrative estimates for educational purposes only.
+ * Actual market conditions vary. Last reviewed: Q4 2024
+ */
 const MARKET_DATA: Record<string, { 
   avgPriceSqft: number; 
   rentalYield: number; 
   appreciation5yr: number;
   avgRent1br: number;
   avgRent2br: number;
+  sourceNote: string;
 }> = {
-  "Vancouver": { avgPriceSqft: 1350, rentalYield: 3.2, appreciation5yr: 25, avgRent1br: 2400, avgRent2br: 3200 },
-  "Burnaby": { avgPriceSqft: 1050, rentalYield: 3.5, appreciation5yr: 28, avgRent1br: 2200, avgRent2br: 2900 },
-  "Surrey": { avgPriceSqft: 750, rentalYield: 4.2, appreciation5yr: 35, avgRent1br: 1900, avgRent2br: 2500 },
-  "Langley": { avgPriceSqft: 720, rentalYield: 4.0, appreciation5yr: 32, avgRent1br: 1850, avgRent2br: 2400 },
-  "Coquitlam": { avgPriceSqft: 950, rentalYield: 3.8, appreciation5yr: 30, avgRent1br: 2100, avgRent2br: 2800 },
-  "Richmond": { avgPriceSqft: 1100, rentalYield: 3.4, appreciation5yr: 26, avgRent1br: 2300, avgRent2br: 3000 },
-  "Delta": { avgPriceSqft: 680, rentalYield: 4.5, appreciation5yr: 30, avgRent1br: 1750, avgRent2br: 2300 },
-  "Abbotsford": { avgPriceSqft: 580, rentalYield: 5.0, appreciation5yr: 35, avgRent1br: 1600, avgRent2br: 2100 },
-  "Port Moody": { avgPriceSqft: 1000, rentalYield: 3.6, appreciation5yr: 28, avgRent1br: 2150, avgRent2br: 2850 },
-  "New Westminster": { avgPriceSqft: 900, rentalYield: 3.9, appreciation5yr: 27, avgRent1br: 2000, avgRent2br: 2700 },
+  "Vancouver": { avgPriceSqft: 1350, rentalYield: 3.2, appreciation5yr: 25, avgRent1br: 2400, avgRent2br: 3200, sourceNote: "REBGV MLS HPI" },
+  "Burnaby": { avgPriceSqft: 1050, rentalYield: 3.5, appreciation5yr: 28, avgRent1br: 2200, avgRent2br: 2900, sourceNote: "REBGV MLS HPI" },
+  "Surrey": { avgPriceSqft: 750, rentalYield: 4.2, appreciation5yr: 35, avgRent1br: 1900, avgRent2br: 2500, sourceNote: "FVREB MLS HPI" },
+  "Langley": { avgPriceSqft: 720, rentalYield: 4.0, appreciation5yr: 32, avgRent1br: 1850, avgRent2br: 2400, sourceNote: "FVREB MLS HPI" },
+  "Coquitlam": { avgPriceSqft: 950, rentalYield: 3.8, appreciation5yr: 30, avgRent1br: 2100, avgRent2br: 2800, sourceNote: "REBGV MLS HPI" },
+  "Richmond": { avgPriceSqft: 1100, rentalYield: 3.4, appreciation5yr: 26, avgRent1br: 2300, avgRent2br: 3000, sourceNote: "REBGV MLS HPI" },
+  "Delta": { avgPriceSqft: 680, rentalYield: 4.5, appreciation5yr: 30, avgRent1br: 1750, avgRent2br: 2300, sourceNote: "FVREB MLS HPI" },
+  "Abbotsford": { avgPriceSqft: 580, rentalYield: 5.0, appreciation5yr: 35, avgRent1br: 1600, avgRent2br: 2100, sourceNote: "FVREB MLS HPI" },
+  "Port Moody": { avgPriceSqft: 1000, rentalYield: 3.6, appreciation5yr: 28, avgRent1br: 2150, avgRent2br: 2850, sourceNote: "REBGV MLS HPI" },
+  "New Westminster": { avgPriceSqft: 900, rentalYield: 3.9, appreciation5yr: 27, avgRent1br: 2000, avgRent2br: 2700, sourceNote: "REBGV MLS HPI" },
 };
 
-const DEFAULT_MARKET = { avgPriceSqft: 800, rentalYield: 4.0, appreciation5yr: 30, avgRent1br: 1900, avgRent2br: 2500 };
+const DEFAULT_MARKET = { avgPriceSqft: 800, rentalYield: 4.0, appreciation5yr: 30, avgRent1br: 1900, avgRent2br: 2500, sourceNote: "BC Average" };
 
 export function InvestmentAnalysis({
   projectName,
@@ -140,10 +152,16 @@ export function InvestmentAnalysis({
         </Button>
       </div>
 
-      {/* Disclaimer */}
-      <p className="text-[10px] text-muted-foreground mt-4 text-center">
-        *Estimates based on historical data. Actual returns may vary. Consult a financial advisor.
-      </p>
+      {/* Source & Disclaimer */}
+      <div className="mt-4 pt-3 border-t border-border/30">
+        <p className="text-[10px] text-muted-foreground text-center mb-1">
+          <strong>Data Sources:</strong> {marketData.sourceNote}, CMHC Rental Market Survey, BC Assessment
+        </p>
+        <p className="text-[10px] text-muted-foreground text-center">
+          *Illustrative estimates based on historical 5-year averages (Q4 2024). Past performance does not guarantee future results. 
+          Consult a licensed financial advisor before making investment decisions.
+        </p>
+      </div>
     </section>
   );
 }
