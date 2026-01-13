@@ -3,6 +3,7 @@ import { useParams, Link, useSearchParams, useLocation } from "react-router-dom"
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { generateProjectCanonicalUrl, parseProjectUrl } from "@/lib/seoUrls";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -86,7 +87,7 @@ type Project = {
 };
 
 export default function PresaleProjectDetail() {
-  const { slug } = useParams();
+  const { slug, seoSlug } = useParams();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const { toast } = useToast();
@@ -188,15 +189,27 @@ export default function PresaleProjectDetail() {
     handleRequestTour(date, timePeriod);
   };
 
-  const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
+  // Will be updated with project data once loaded - for now use current URL
+  const currentUrl = `https://presaleproperties.com${location.pathname}`;
 
   const previewToken = searchParams.get("preview");
 
+  // Determine actual slug from URL params
+  // Handles both /presale-projects/:slug and /:seoSlug patterns
+  const actualSlug = slug || (() => {
+    if (seoSlug) {
+      // Parse SEO-friendly URL: {neighborhood}-presale-{type}-{slug}
+      const match = seoSlug.match(/^(.+)-presale-(condos|townhomes|homes|duplexes)-(.+)$/);
+      return match ? match[3] : seoSlug;
+    }
+    return null;
+  })();
+
   useEffect(() => {
-    if (slug) {
+    if (actualSlug) {
       fetchProject();
     }
-  }, [slug, previewToken]);
+  }, [actualSlug, previewToken]);
 
   const fetchProject = async () => {
     try {
@@ -219,7 +232,7 @@ export default function PresaleProjectDetail() {
             const { data, error } = await supabase
               .from("presale_projects")
               .select("*")
-              .eq("slug", slug)
+              .eq("slug", actualSlug)
               .maybeSingle();
 
             if (error) throw error;
@@ -241,7 +254,7 @@ export default function PresaleProjectDetail() {
       const { data, error } = await supabase
         .from("presale_projects")
         .select("*")
-        .eq("slug", slug)
+        .eq("slug", actualSlug)
         .eq("is_published", true)
         .maybeSingle();
 
@@ -402,6 +415,12 @@ export default function PresaleProjectDetail() {
   const ogDescription = project.short_description || 
     `Modern living in ${project.neighborhood}. Thoughtfully designed ${projectTypeSingular}${priceDisplay ? ` starting ${priceDisplay}` : ""}.`;
 
+  // Generate SEO-friendly canonical URL
+  const canonicalUrl = generateProjectCanonicalUrl({
+    slug: project.slug,
+    neighborhood: project.neighborhood,
+    projectType: project.project_type,
+  });
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",

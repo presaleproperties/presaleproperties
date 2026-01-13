@@ -1,8 +1,9 @@
 import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, Navigate } from "react-router-dom";
 import NotFound from "./NotFound";
 import NeighbourhoodProductPage from "./NeighbourhoodProductPage";
+import PresaleProjectDetail from "./PresaleProjectDetail";
 import { Helmet } from "react-helmet-async";
 import { ChevronRight, Building2, Home, MapPin, Shield, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -327,17 +328,33 @@ export default function CityProductPage() {
   const [sortBy, setSortBy] = useState("newest");
 
   // Parse cityProductSlug which contains "surrey-presale-condos" format
+  // Also handles SEO project URLs: "{neighborhood}-presale-{type}-{slug}"
   const parsedData = useMemo(() => {
     const slug = params.cityProductSlug || "";
+    
+    // Check for SEO project URL pattern: {neighborhood}-presale-{type}-{project-slug}
+    // e.g., "south-surrey-presale-townhomes-harlowe"
+    const projectMatch = slug.match(/^(.+)-presale-(condos|townhomes|homes|duplexes)-(.+)$/);
+    if (projectMatch) {
+      // This is a project detail page URL
+      return { 
+        citySlug: null, 
+        productType: null, 
+        isNeighbourhood: false,
+        isProjectPage: true,
+        projectSlug: projectMatch[3]
+      };
+    }
+    
     // Match pattern: {city}-presale-{condos|townhomes}
     const condoMatch = slug.match(/^(.+)-presale-condos$/);
     const townhomeMatch = slug.match(/^(.+)-presale-townhomes$/);
     
     if (condoMatch) {
-      return { citySlug: condoMatch[1], productType: "condos", isNeighbourhood: false };
+      return { citySlug: condoMatch[1], productType: "condos", isNeighbourhood: false, isProjectPage: false };
     }
     if (townhomeMatch) {
-      return { citySlug: townhomeMatch[1], productType: "townhomes", isNeighbourhood: false };
+      return { citySlug: townhomeMatch[1], productType: "townhomes", isNeighbourhood: false, isProjectPage: false };
     }
     
     // Check for neighbourhood patterns: {city}-{neighbourhood}-presale or {city}-{neighbourhood}-resale
@@ -345,13 +362,18 @@ export default function CityProductPage() {
     const neighbourhoodResaleMatch = slug.match(/^([a-z]+)-([a-z-]+)-resale$/);
     
     if (neighbourhoodPresaleMatch || neighbourhoodResaleMatch) {
-      return { citySlug: null, productType: null, isNeighbourhood: true };
+      return { citySlug: null, productType: null, isNeighbourhood: true, isProjectPage: false };
     }
     
-    return { citySlug: null, productType: null, isNeighbourhood: false };
+    return { citySlug: null, productType: null, isNeighbourhood: false, isProjectPage: false };
   }, [params.cityProductSlug]);
 
-  const { citySlug, productType, isNeighbourhood } = parsedData;
+  const { citySlug, productType, isNeighbourhood, isProjectPage } = parsedData;
+
+  // If this is a SEO-friendly project detail page, render PresaleProjectDetail
+  if (isProjectPage) {
+    return <PresaleProjectDetail />;
+  }
 
   // If this is a neighbourhood page, delegate to NeighbourhoodProductPage
   if (isNeighbourhood) {

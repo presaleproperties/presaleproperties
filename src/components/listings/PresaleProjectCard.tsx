@@ -4,6 +4,7 @@ import { MapPin, Building2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 interface PresaleProjectCardProps {
   id: string;
@@ -125,11 +126,18 @@ export function PresaleProjectCard({
   };
 
   const statusLabel = getStatusLabel(status);
+  
+  // Generate SEO-friendly URL
+  const projectUrl = generateProjectUrl({
+    slug,
+    neighborhood,
+    projectType,
+  });
 
   return (
-    <Link to={`/presale-projects/${slug}`}>
+    <Link to={projectUrl}>
       <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full">
-        <div 
+        <div
           className={cn(
             "relative overflow-hidden bg-muted",
             size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"

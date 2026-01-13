@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, MapPin, Calendar, Building2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 interface RelatedPresaleProjectsProps {
   city: string;
@@ -157,10 +158,16 @@ export const RelatedPresaleProjects = ({
 
         {/* Carousel */}
         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6 scroll-snap-x scroll-snap-mandatory">
-          {projects.map((project) => (
+          {projects.map((project) => {
+            const projectUrl = generateProjectUrl({
+              slug: project.slug,
+              neighborhood: project.neighborhood,
+              projectType: project.project_type as "condo" | "townhome" | "mixed" | "duplex" | "single_family",
+            });
+            return (
             <Link
               key={project.id}
-              to={`/presale-projects/${project.slug}`}
+              to={projectUrl}
               className="flex-shrink-0 w-[calc(100vw-72px)] sm:w-[300px] lg:w-[320px] scroll-snap-start group"
             >
               <div className="bg-card border border-border rounded-xl overflow-hidden transition-all hover:shadow-lg hover:border-primary/30">
@@ -226,7 +233,8 @@ export const RelatedPresaleProjects = ({
                 </div>
               </div>
             </Link>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>
