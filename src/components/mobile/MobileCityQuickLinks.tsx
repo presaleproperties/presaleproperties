@@ -125,15 +125,16 @@ export function MobileCityQuickLinks({ mode = "presale" }: MobileCityQuickLinksP
 
       {/* Scrollable city grid - Tablet shows more */}
       <div className="overflow-x-auto scrollbar-hide">
-        <div className="flex gap-4 md:gap-6 px-4 pb-2">
+        <div className="flex gap-3 sm:gap-4 md:gap-5 px-4 sm:px-6 pb-2" style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: '16px' }}>
           {cities.map((city) => (
             <button
               key={city.name}
               onClick={() => handleCityClick(city.name)}
-              className="flex flex-col items-center gap-2 min-w-[88px] md:min-w-[100px] group"
+              className="flex flex-col items-center gap-1.5 min-w-[72px] sm:min-w-[80px] md:min-w-[90px] group flex-shrink-0"
+              style={{ scrollSnapAlign: 'start' }}
             >
-              {/* Circle with city image - Larger on tablet */}
-              <div className="w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
+              {/* Circle with city image - Responsive sizes */}
+              <div className="w-16 h-16 sm:w-[72px] sm:h-[72px] md:w-20 md:h-20 rounded-full overflow-hidden shadow-lg ring-2 ring-white group-active:scale-95 transition-transform">
                 <img
                   src={city.image}
                   alt={`${city.name} BC`}
@@ -142,11 +143,11 @@ export function MobileCityQuickLinks({ mode = "presale" }: MobileCityQuickLinksP
                 />
               </div>
               {/* City name */}
-              <span className="text-xs md:text-sm font-semibold text-foreground text-center truncate w-full">
+              <span className="text-[11px] sm:text-xs md:text-sm font-semibold text-foreground text-center leading-tight max-w-full">
                 {city.name}
               </span>
               {/* Project/Listing count */}
-              <span className="text-[10px] md:text-xs text-muted-foreground -mt-1">
+              <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground -mt-0.5">
                 {city.count} {mode === "presale" ? (city.count !== 1 ? "projects" : "project") : (city.count !== 1 ? "listings" : "listing")}
               </span>
             </button>

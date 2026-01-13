@@ -189,14 +189,14 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
             <span className="text-[10px] sm:text-sm text-white/70 font-medium tracking-wide block mb-2">
               Top Cities
             </span>
-            <div className="flex items-center justify-center gap-1.5 sm:gap-2 md:gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3 px-2">
               {(activeTab === "projects" ? projectCities : resaleCities).map((city) => (
                 <Button
                   key={city}
                   variant="outline"
                   size="sm"
                   onClick={() => handleCityClick(city)}
-                  className="rounded-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-2.5 sm:px-3 md:px-4 h-7 sm:h-8 font-medium"
+                  className="rounded-full bg-white/10 backdrop-blur-sm text-white border-white/30 hover:bg-white hover:text-foreground hover:border-white active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-3 sm:px-3.5 md:px-4 h-8 sm:h-8 font-medium whitespace-nowrap"
                 >
                   {city}
                 </Button>
