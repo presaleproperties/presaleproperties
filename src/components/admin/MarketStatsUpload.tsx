@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Sparkles } from "lucide-react";
+import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Sparkles, Mail } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
@@ -41,6 +41,7 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [autoGenerateBlogs, setAutoGenerateBlogs] = useState(true);
+  const [sendEmailNotification, setSendEmailNotification] = useState(true);
   const [blogProgress, setBlogProgress] = useState<{ current: number; total: number; city: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -186,6 +187,7 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
       if (autoGenerateBlogs && extractedData.cities.length > 0) {
         const cities = extractedData.cities.map(c => c.city);
         let successCount = 0;
+        const generatedDrafts: { city: string; title: string; slug: string }[] = [];
 
         for (let i = 0; i < cities.length; i++) {
           const city = cities[i];
@@ -225,6 +227,11 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
 
               if (!saveError) {
                 successCount++;
+                generatedDrafts.push({
+                  city,
+                  title: blogData.data.title,
+                  slug: blogData.data.slug,
+                });
               }
             }
           } catch (e) {
@@ -236,8 +243,26 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
         }
 
         setBlogProgress(null);
+        
         if (successCount > 0) {
           toast.success(`Generated ${successCount} blog post drafts`);
+          
+          // Send email notification if enabled
+          if (sendEmailNotification && generatedDrafts.length > 0) {
+            try {
+              await supabase.functions.invoke('send-blog-draft-notification', {
+                body: {
+                  drafts: generatedDrafts,
+                  reportMonth: parseInt(reportMonth),
+                  reportYear: parseInt(reportYear),
+                  board,
+                },
+              });
+              toast.success('Email notification sent');
+            } catch (notifError) {
+              console.error('Failed to send notification:', notifError);
+            }
+          }
         }
       }
 
@@ -446,6 +471,24 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
                 disabled={isSaving}
               />
             </div>
+
+            {/* Email Notification Toggle */}
+            {autoGenerateBlogs && (
+              <div className="flex items-center justify-between p-3 bg-blue-500/5 rounded-lg border border-blue-500/20">
+                <div className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-blue-500" />
+                  <div>
+                    <p className="text-sm font-medium">Email notification</p>
+                    <p className="text-xs text-muted-foreground">Get reminded to review & publish drafts</p>
+                  </div>
+                </div>
+                <Switch 
+                  checked={sendEmailNotification} 
+                  onCheckedChange={setSendEmailNotification}
+                  disabled={isSaving}
+                />
+              </div>
+            )}
 
             {/* Blog Generation Progress */}
             {blogProgress && (
