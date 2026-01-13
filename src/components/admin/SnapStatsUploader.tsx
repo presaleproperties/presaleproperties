@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Home, AlertCircle, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorkerSrc from "pdfjs-dist/build/pdf.worker.mjs?url";
 
 interface CityStats {
   city: string;
@@ -88,45 +90,37 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
   };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
-    // Use pdf.js for proper text extraction
-    const pdfjsLib = await import('pdfjs-dist');
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-    
+    // Use bundled pdf.js worker (no CDN) to avoid CORS/network failures
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
+
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-    
+
     let fullText = '';
-    
-    // Extract text from all pages
+
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
       const textContent = await page.getTextContent();
-      
-      // Group text items by their Y position to preserve table rows
+
+      // Group items by Y to preserve rows (best-effort for tables)
       const items = textContent.items as Array<{ str: string; transform: number[] }>;
       const rows: Map<number, string[]> = new Map();
-      
+
       for (const item of items) {
-        const y = Math.round(item.transform[5]); // Y position
-        if (!rows.has(y)) {
-          rows.set(y, []);
-        }
+        const y = Math.round(item.transform[5]);
+        if (!rows.has(y)) rows.set(y, []);
         rows.get(y)!.push(item.str);
       }
-      
-      // Sort by Y position (descending - top to bottom)
+
       const sortedYs = Array.from(rows.keys()).sort((a, b) => b - a);
-      
       for (const y of sortedYs) {
-        const rowText = rows.get(y)!.join(' ');
-        if (rowText.trim()) {
-          fullText += rowText + '\n';
-        }
+        const rowText = rows.get(y)!.join(' ').replace(/\s+/g, ' ').trim();
+        if (rowText) fullText += rowText + '\n';
       }
-      
+
       fullText += '\n--- PAGE BREAK ---\n';
     }
-    
+
     return fullText.trim();
   };
 
