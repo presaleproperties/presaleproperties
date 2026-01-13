@@ -209,24 +209,32 @@ const Index = () => {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Helmet>
-          <title>Presale Condos Vancouver | New Construction Pricing & Floor Plans | PresaleProperties</title>
-          <meta name="description" content="Browse presale condos in Vancouver, Surrey, Langley, Coquitlam & Burnaby. Get VIP pricing, floor plans & incentives for new construction condos and townhomes across Metro Vancouver." />
-          <meta name="keywords" content="presale condos Vancouver, Vancouver presale condos pricing, Vancouver presale condos floor plans, new presale condos Vancouver, presale condos Surrey, Surrey new condos presale, presale condos Langley, Langley presale townhomes, presale condos Coquitlam, Burnaby presale condos, Delta presale condos, Abbotsford presale condos, Fraser Valley presale condos, VIP presale access, presale register" />
+          <title>Vancouver Presale Condos & Townhomes | New Construction Experts</title>
+          <meta name="title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
+          <meta name="description" content="Vancouver's presale experts. Browse 50+ new construction condos & townhomes in Surrey, Langley, Coquitlam & Burnaby. ROI-focused presale investment guidance. Get VIP pricing & floor plans." />
+          <meta name="keywords" content="Vancouver presale condos, Surrey presale townhomes, Langley new construction, presale investment Vancouver, new condos Surrey, BC presale projects, Metro Vancouver new homes" />
           <link rel="canonical" href="https://presaleproperties.com/" />
+          <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
           
           <meta property="og:type" content="website" />
-          <meta property="og:title" content="Presale Condos Vancouver | VIP Pricing & Floor Plans" />
-          <meta property="og:description" content="Browse presale condos in Vancouver, Surrey, Langley & Coquitlam. Get VIP pricing, floor plans & incentives for new construction projects." />
           <meta property="og:url" content="https://presaleproperties.com/" />
+          <meta property="og:title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
+          <meta property="og:description" content="Vancouver's presale experts. Browse 50+ new construction condos & townhomes. Get VIP pricing, floor plans & incentives." />
+          <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
           <meta property="og:site_name" content="PresaleProperties.com" />
           <meta property="og:locale" content="en_CA" />
           
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:title" content="Presale Condos Vancouver | New Construction Pricing" />
+          <meta name="twitter:url" content="https://presaleproperties.com/" />
+          <meta name="twitter:title" content="Vancouver Presale Condos | New Construction Pricing" />
           <meta name="twitter:description" content="Browse presale condos in Metro Vancouver. VIP pricing, floor plans & early access to new construction." />
+          <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
           
           <meta name="geo.region" content="CA-BC" />
           <meta name="geo.placename" content="Vancouver" />
+          <meta name="author" content="PresaleProperties.com" />
           
           <script type="application/ld+json">
             {JSON.stringify(organizationSchema)}
@@ -251,24 +259,32 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Presale Condos Vancouver | New Construction Pricing & Floor Plans | PresaleProperties</title>
-        <meta name="description" content="Browse presale condos in Vancouver, Surrey, Langley, Coquitlam & Burnaby. Get VIP pricing, floor plans & incentives for new construction condos and townhomes across Metro Vancouver." />
-        <meta name="keywords" content="presale condos Vancouver, Vancouver presale condos pricing, Vancouver presale condos floor plans, new presale condos Vancouver, presale condos Surrey, Surrey new condos presale, presale condos Langley, Langley presale townhomes, presale condos Coquitlam, Burnaby presale condos, Delta presale condos, Abbotsford presale condos, Fraser Valley presale condos, VIP presale access, presale register" />
+        <title>Vancouver Presale Condos & Townhomes | New Construction Experts</title>
+        <meta name="title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
+        <meta name="description" content="Vancouver's presale experts. Browse 50+ new construction condos & townhomes in Surrey, Langley, Coquitlam & Burnaby. ROI-focused presale investment guidance. Get VIP pricing & floor plans." />
+        <meta name="keywords" content="Vancouver presale condos, Surrey presale townhomes, Langley new construction, presale investment Vancouver, new condos Surrey, BC presale projects, Metro Vancouver new homes" />
         <link rel="canonical" href="https://presaleproperties.com/" />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Presale Condos Vancouver | VIP Pricing & Floor Plans" />
-        <meta property="og:description" content="Browse presale condos in Vancouver, Surrey, Langley & Coquitlam. Get VIP pricing, floor plans & incentives for new construction projects." />
         <meta property="og:url" content="https://presaleproperties.com/" />
+        <meta property="og:title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
+        <meta property="og:description" content="Vancouver's presale experts. Browse 50+ new construction condos & townhomes. Get VIP pricing, floor plans & incentives." />
+        <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="PresaleProperties.com" />
         <meta property="og:locale" content="en_CA" />
         
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="Presale Condos Vancouver | New Construction Pricing" />
+        <meta name="twitter:url" content="https://presaleproperties.com/" />
+        <meta name="twitter:title" content="Vancouver Presale Condos | New Construction Pricing" />
         <meta name="twitter:description" content="Browse presale condos in Metro Vancouver. VIP pricing, floor plans & early access to new construction." />
+        <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
         
         <meta name="geo.region" content="CA-BC" />
         <meta name="geo.placename" content="Vancouver" />
+        <meta name="author" content="PresaleProperties.com" />
         
         <script type="application/ld+json">
           {JSON.stringify(organizationSchema)}

@@ -595,26 +595,34 @@ export default function PresaleProjects() {
     <>
       <Helmet>
         <title>{getSeoTitle()}</title>
+        <meta name="title" content={getSeoTitle()} />
         <meta name="description" content={getSeoDescription()} />
         <meta name="keywords" content={`presale ${filters.city !== "any" ? filters.city : "Vancouver Surrey Langley Coquitlam Burnaby Delta Abbotsford"}, new construction condos, presale townhomes, pre-construction homes, VIP presale pricing, floor plans, Metro Vancouver real estate`} />
         <link rel="canonical" href={canonicalUrl} />
+        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
+        <meta property="og:url" content={canonicalUrl} />
         <meta property="og:title" content={getSeoTitle()} />
         <meta property="og:description" content={getSeoDescription()} />
-        <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
         <meta property="og:site_name" content="PresaleProperties.com" />
         <meta property="og:locale" content="en_CA" />
         
         {/* Twitter */}
         <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:url" content={canonicalUrl} />
         <meta name="twitter:title" content={getSeoTitle()} />
         <meta name="twitter:description" content={getSeoDescription()} />
+        <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
         
         {/* Geo */}
         <meta name="geo.region" content="CA-BC" />
         <meta name="geo.placename" content={filters.city !== "any" ? filters.city : "Metro Vancouver"} />
+        <meta name="author" content="PresaleProperties.com" />
         
         {/* Structured Data */}
         <script type="application/ld+json">
