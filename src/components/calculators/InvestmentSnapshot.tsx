@@ -36,6 +36,8 @@ interface SnapshotInputs {
   includeGST: boolean;
   holdingPeriodYears: number;
   appreciationRate: number;
+  creditPercent: number;
+  creditAmount: number;
 }
 
 const DEFAULT_INPUTS: SnapshotInputs = {
@@ -54,6 +56,8 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   includeGST: true,
   holdingPeriodYears: 5,
   appreciationRate: 3,
+  creditPercent: 0,
+  creditAmount: 0,
 };
 
 function calculateCMHCPremium(mortgageAmount: number, downPaymentPercent: number): number {
@@ -131,6 +135,10 @@ function parseUrlParams(searchParams: URLSearchParams): Partial<SnapshotInputs> 
   if (hold) parsed.holdingPeriodYears = Number(hold);
   const app = searchParams.get('app');
   if (app) parsed.appreciationRate = Number(app);
+  const crp = searchParams.get('crp');
+  if (crp) parsed.creditPercent = Number(crp);
+  const cra = searchParams.get('cra');
+  if (cra) parsed.creditAmount = Number(cra);
   return parsed;
 }
 
@@ -188,7 +196,14 @@ export function InvestmentSnapshot() {
     const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
     const closingCosts = inputs.closingCosts;
-    const cashAtCompletion = remainingDownPayment + ptt + closingCosts;
+    
+    // Calculate credit (from % or $ amount - use whichever is greater if both set)
+    const creditFromPercent = inputs.purchasePrice * (inputs.creditPercent / 100);
+    const creditTotal = Math.max(creditFromPercent, inputs.creditAmount);
+    
+    // Cash at completion = remaining down + PTT + closing costs - credit
+    const cashAtCompletionBeforeCredit = remainingDownPayment + ptt + closingCosts;
+    const cashAtCompletion = Math.max(0, cashAtCompletionBeforeCredit - creditTotal);
     const totalCashRequired = totalDeposits + cashAtCompletion;
     const totalMonthlyExpenses = monthlyMortgage + inputs.strataFees + inputs.propertyTax;
     const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
@@ -213,7 +228,7 @@ export function InvestmentSnapshot() {
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
       baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, 
-      closingCosts, cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
+      closingCosts, creditTotal, cashAtCompletionBeforeCredit, cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
       principalPaid, remainingBalance, futureValue, appreciation, totalEquityBuilt,
       equityFromPaydown, totalCashFlowOverPeriod, totalReturn, roiPercent,
     };
@@ -243,6 +258,8 @@ export function InvestmentSnapshot() {
       bt: inputs.buyerType === 'firstTimeBuyer' ? 'ftb' : 'inv',
       hold: inputs.holdingPeriodYears.toString(),
       app: inputs.appreciationRate.toString(),
+      crp: inputs.creditPercent.toString(),
+      cra: inputs.creditAmount.toString(),
     });
     return `${window.location.origin}/calculator?${params.toString()}`;
   };
@@ -294,6 +311,7 @@ export function InvestmentSnapshot() {
       mortgageAmount: results.mortgageAmount,
       monthlyMortgage: results.monthlyMortgage,
       totalMonthlyExpenses: results.totalMonthlyExpenses,
+      creditTotal: results.creditTotal,
     });
     
     if (success) {
@@ -596,6 +614,53 @@ export function InvestmentSnapshot() {
                     <p className="text-[10px] text-amber-600 mt-1">Lawyer fees, inspection, etc.</p>
                   </div>
                 )}
+
+                {/* Credit Section */}
+                <div className="bg-green-50/70 rounded-xl p-3 border border-green-300">
+                  <div className="flex items-center gap-2 mb-2">
+                    <TrendingDown className="w-4 h-4 text-green-600" />
+                    <span className="text-xs font-semibold text-green-700 uppercase">Credit (Reduces Cash at Close)</span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[10px] text-green-600 block mb-1">% of Price</label>
+                      <div className="relative">
+                        <Input
+                          type="number"
+                          step="0.5"
+                          value={inputs.creditPercent}
+                          onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pr-6"
+                        />
+                        <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
+                      </div>
+                      {inputs.creditPercent > 0 && (
+                        <p className="text-[10px] text-green-600 mt-0.5 text-center">
+                          = {fmt(inputs.purchasePrice * (inputs.creditPercent / 100))}
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <label className="text-[10px] text-green-600 block mb-1">$ Amount</label>
+                      <div className="relative">
+                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
+                        <Input
+                          type="number"
+                          value={inputs.creditAmount}
+                          onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pl-6"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  {results.creditTotal > 0 && (
+                    <div className="mt-2 pt-2 border-t border-green-200 flex items-center justify-between">
+                      <span className="text-xs text-green-600">Applied Credit:</span>
+                      <span className="text-sm font-bold text-green-700">-{fmt(results.creditTotal)}</span>
+                    </div>
+                  )}
+                  <p className="text-[10px] text-green-600 mt-1">Developer incentive, assignment credit, etc.</p>
+                </div>
               </div>
 
               {/* Right Column: Results */}
@@ -656,7 +721,11 @@ export function InvestmentSnapshot() {
                       <div className="bg-foreground text-background rounded-xl p-3">
                         <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
                         <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                        <p className="text-[10px] opacity-60">Balance + Closing</p>
+                        {results.creditTotal > 0 ? (
+                          <p className="text-[10px] opacity-60">After -{fmt(results.creditTotal)} credit</p>
+                        ) : (
+                          <p className="text-[10px] opacity-60">Balance + Closing</p>
+                        )}
                       </div>
                       <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
                         <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Cash Needed</div>
@@ -714,7 +783,11 @@ export function InvestmentSnapshot() {
                       <div className="bg-foreground text-background rounded-xl p-3">
                         <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
                         <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                        <p className="text-[10px] opacity-60">Balance + PTT + Closing</p>
+                        {results.creditTotal > 0 ? (
+                          <p className="text-[10px] opacity-60">After -{fmt(results.creditTotal)} credit</p>
+                        ) : (
+                          <p className="text-[10px] opacity-60">Balance + PTT + Closing</p>
+                        )}
                       </div>
                       <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
                         <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
