@@ -498,17 +498,17 @@ export default function CityProductPage() {
 
       <main className="flex-grow">
         {/* Breadcrumbs */}
-        <div className="px-4 sm:px-6 pt-4 pb-2">
-          <nav className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-            <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">Home</Link>
-            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Link to="/presale-projects" className="text-foreground hover:text-primary transition-colors font-medium">Presale Projects</Link>
-            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <Link to={`/presale-condos/${citySlug}`} className="text-foreground hover:text-primary transition-colors font-medium">{config.cityName}</Link>
-            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-            <span className="text-muted-foreground">{productType === "condos" ? "Condos" : "Townhomes"}</span>
-          </nav>
-        </div>
+        <nav aria-label="Breadcrumb" className="px-4 sm:px-6 pt-4 pb-2">
+          <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+            <li><Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">Home</Link></li>
+            <li><ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" /></li>
+            <li><Link to="/presale-projects" className="text-foreground hover:text-primary transition-colors font-medium">Presale Projects</Link></li>
+            <li><ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" /></li>
+            <li><Link to={`/presale-condos/${citySlug}`} className="text-foreground hover:text-primary transition-colors font-medium">{config.cityName}</Link></li>
+            <li><ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" /></li>
+            <li><span className="text-muted-foreground">{productType === "condos" ? "Condos" : "Townhomes"}</span></li>
+          </ol>
+        </nav>
 
         {/* Hero Section */}
         <section className="px-4 sm:px-6 py-6 md:py-10">
@@ -597,7 +597,7 @@ export default function CityProductPage() {
         </section>
 
         {/* Project Grid */}
-        <section className="px-4 sm:px-6 pb-12">
+        <section aria-label="Project listings" className="px-4 sm:px-6 pb-12">
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -639,7 +639,7 @@ export default function CityProductPage() {
         </section>
 
         {/* Buyer Protection Section */}
-        <section className="px-4 sm:px-6 py-12">
+        <section aria-label="Buyer protection information" className="px-4 sm:px-6 py-12">
           <div className="bg-muted/30 rounded-xl p-6 md:p-8">
             <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
               <Shield className="h-5 w-5 text-primary" />
@@ -678,7 +678,7 @@ export default function CityProductPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="px-4 sm:px-6 py-12">
+        <section aria-label="Frequently asked questions" className="px-4 sm:px-6 py-12">
           <h2 className="text-2xl font-bold mb-6">
             Frequently Asked Questions: {config.cityName} Presale {productType === "condos" ? "Condos" : "Townhomes"}
           </h2>
@@ -695,7 +695,7 @@ export default function CityProductPage() {
         </section>
 
         {/* Internal Links Section */}
-        <section className="px-4 sm:px-6 py-12 border-t">
+        <nav aria-label="Explore more projects" className="px-4 sm:px-6 py-12 border-t">
           <h2 className="text-xl font-semibold mb-6">Explore More Presale Projects</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link to={`/presale-condos/${citySlug}`} className="text-sm text-primary hover:underline">
@@ -711,7 +711,7 @@ export default function CityProductPage() {
               Mortgage Calculator
             </Link>
           </div>
-        </section>
+        </nav>
       </main>
 
       <Footer />

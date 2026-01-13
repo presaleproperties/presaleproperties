@@ -602,6 +602,7 @@ export default function PresaleProjectDetail() {
       <ConversionHeader />
 
       <main className="min-h-screen bg-background pb-24 lg:pb-0">
+        <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Preview Mode Banner */}
         {isPreviewMode && (
           <div className="bg-yellow-500 text-yellow-950 py-2 px-4 text-center text-sm font-medium">
@@ -909,7 +910,7 @@ export default function PresaleProjectDetail() {
               </div>
 
               {/* Sidebar - Desktop only (tablet forms are shown above) */}
-              <div className="hidden lg:block lg:col-span-1">
+              <aside className="hidden lg:block lg:col-span-1" aria-label="Contact form and actions">
                 <div
                   ref={formRef}
                   id="contact-form"
@@ -931,7 +932,7 @@ export default function PresaleProjectDetail() {
                     </a>
                   </Button>
                 </div>
-              </div>
+              </aside>
               
               {/* Mobile-only InlineScheduler - positioned after FAQ for separation */}
               <div className="md:hidden">
@@ -952,6 +953,7 @@ export default function PresaleProjectDetail() {
             </div>
           </div>
         </section>
+        </article>
       </main>
 
       {/* Mobile Sticky CTA */}

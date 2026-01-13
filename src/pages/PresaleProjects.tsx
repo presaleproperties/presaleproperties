@@ -869,7 +869,7 @@ export default function PresaleProjects() {
 
           <div className="flex gap-6 lg:gap-8">
             {/* Desktop Sidebar Filters */}
-            <aside className="hidden lg:block w-60 flex-shrink-0">
+            <aside aria-label="Project filters" className="hidden lg:block w-60 flex-shrink-0">
               <div className="sticky top-6 bg-card border border-border rounded-xl p-4">
                 <h3 className="font-semibold mb-4">Filter Projects</h3>
                 <FilterControls />
@@ -877,7 +877,7 @@ export default function PresaleProjects() {
             </aside>
 
             {/* Main Content */}
-            <div className="flex-1 min-w-0">
+            <section aria-label="Project listings" className="flex-1 min-w-0">
               {isLoading ? (
                 <LoadingSkeleton />
               ) : filteredProjects.length === 0 ? (
@@ -937,7 +937,7 @@ export default function PresaleProjects() {
                   <PaginationControls />
                 </>
               )}
-            </div>
+            </section>
           </div>
         </main>
 

@@ -315,7 +315,7 @@ export default function BlogPost() {
 
         {/* Related Posts */}
         {relatedPosts.length > 0 && (
-          <section className="py-12 bg-muted/30">
+          <aside aria-label="Related articles" className="py-12 bg-muted/30">
             <div className="container">
               <h2 className="text-2xl font-bold mb-8">Related Articles</h2>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -358,7 +358,7 @@ export default function BlogPost() {
                 ))}
               </div>
             </div>
-          </section>
+          </aside>
         )}
       </main>
 
