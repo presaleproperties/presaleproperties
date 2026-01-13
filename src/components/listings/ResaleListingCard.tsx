@@ -156,13 +156,12 @@ export function ResaleListingCard({
   const specsString = specsArray.join(" • ");
 
   return (
-    <Link to={`/resale/${listingKey}`}>
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full">
+    <Link to={`/resale/${listingKey}`} className="block h-full">
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
+        {/* Fixed aspect ratio image container - ensures consistent height */}
         <div 
-          className={cn(
-            "relative overflow-hidden bg-muted",
-            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
-          )}
+          className="relative overflow-hidden bg-muted flex-shrink-0"
+          style={{ aspectRatio: size === "featured" ? "16/9" : size === "large" ? "3/2" : "4/3" }}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
@@ -256,7 +255,7 @@ export function ResaleListingCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4">
+        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
           <div className="flex items-start justify-between gap-3">
             {/* Left: Address, Location & Specs */}
             <div className="flex-1 min-w-0 space-y-1">
@@ -288,18 +287,20 @@ export function ResaleListingCard({
           </div>
 
           {/* Listed by Agent & Brokerage - Bottom badge matching presale style */}
-          {(listAgentName || listOfficeName) && (
-            <div className="mt-3 pt-2 border-t border-border">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
-                <Building className="h-3 w-3 shrink-0" />
-                <span className="truncate">
-                  Listed by {listAgentName && listOfficeName 
-                    ? `${listAgentName} • ${listOfficeName}`
-                    : listAgentName || listOfficeName}
-                </span>
+          <div className="mt-auto pt-2">
+            {(listAgentName || listOfficeName) && (
+              <div className="pt-2 border-t border-border">
+                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                  <Building className="h-3 w-3 shrink-0" />
+                  <span className="truncate">
+                    Listed by {listAgentName && listOfficeName 
+                      ? `${listOfficeName}`
+                      : listAgentName || listOfficeName}
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </CardContent>
       </Card>
     </Link>
