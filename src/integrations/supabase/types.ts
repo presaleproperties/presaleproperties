@@ -235,6 +235,90 @@ export type Database = {
           },
         ]
       }
+      city_market_stats: {
+        Row: {
+          avg_price_sqft: number | null
+          avg_rent_1br: number | null
+          avg_rent_2br: number | null
+          benchmark_price: number | null
+          city: string
+          created_at: string
+          days_on_market: number | null
+          hottest_price_band: string | null
+          hottest_price_band_ratio: number | null
+          id: string
+          market_type: string | null
+          median_sale_price: number | null
+          mom_price_change: number | null
+          property_type: string
+          rental_yield: number | null
+          report_month: number
+          report_summary: string | null
+          report_year: number
+          sale_to_list_ratio: number | null
+          sales_ratio: number | null
+          source_board: string | null
+          total_inventory: number | null
+          total_sales: number | null
+          updated_at: string
+          yoy_price_change: number | null
+        }
+        Insert: {
+          avg_price_sqft?: number | null
+          avg_rent_1br?: number | null
+          avg_rent_2br?: number | null
+          benchmark_price?: number | null
+          city: string
+          created_at?: string
+          days_on_market?: number | null
+          hottest_price_band?: string | null
+          hottest_price_band_ratio?: number | null
+          id?: string
+          market_type?: string | null
+          median_sale_price?: number | null
+          mom_price_change?: number | null
+          property_type: string
+          rental_yield?: number | null
+          report_month: number
+          report_summary?: string | null
+          report_year: number
+          sale_to_list_ratio?: number | null
+          sales_ratio?: number | null
+          source_board?: string | null
+          total_inventory?: number | null
+          total_sales?: number | null
+          updated_at?: string
+          yoy_price_change?: number | null
+        }
+        Update: {
+          avg_price_sqft?: number | null
+          avg_rent_1br?: number | null
+          avg_rent_2br?: number | null
+          benchmark_price?: number | null
+          city?: string
+          created_at?: string
+          days_on_market?: number | null
+          hottest_price_band?: string | null
+          hottest_price_band_ratio?: number | null
+          id?: string
+          market_type?: string | null
+          median_sale_price?: number | null
+          mom_price_change?: number | null
+          property_type?: string
+          rental_yield?: number | null
+          report_month?: number
+          report_summary?: string | null
+          report_year?: number
+          sale_to_list_ratio?: number | null
+          sales_ratio?: number | null
+          source_board?: string | null
+          total_inventory?: number | null
+          total_sales?: number | null
+          updated_at?: string
+          yoy_price_change?: number | null
+        }
+        Relationships: []
+      }
       developer_profiles: {
         Row: {
           company_name: string
