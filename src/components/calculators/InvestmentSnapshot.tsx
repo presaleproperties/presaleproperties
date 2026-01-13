@@ -764,8 +764,10 @@ export function InvestmentSnapshot() {
                         <Input
                           type="number"
                           step="0.5"
-                          value={inputs.creditPercent}
+                          value={inputs.creditPercent || ''}
                           onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                          onBlur={(e) => { if (e.target.value === '') updateInput('creditPercent', 0); }}
+                          placeholder="0"
                           className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pr-6"
                         />
                         <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
@@ -782,8 +784,10 @@ export function InvestmentSnapshot() {
                         <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
                         <Input
                           type="number"
-                          value={inputs.creditAmount}
+                          value={inputs.creditAmount || ''}
                           onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                          onBlur={(e) => { if (e.target.value === '') updateInput('creditAmount', 0); }}
+                          placeholder="0"
                           className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pl-6"
                         />
                       </div>
