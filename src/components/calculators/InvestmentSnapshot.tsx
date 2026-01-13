@@ -183,7 +183,8 @@ export function InvestmentSnapshot() {
     const mortgageAmount = baseMortgageAmount + cmhcPremium;
     
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
-    // First time buyers are exempt from PTT on properties under $500k (full) or partial up to $525k
+    // First time buyers on new construction get full PTT exemption (primary residence + new build)
+    // For new construction as primary residence, PTT is exempt regardless of price
     const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
     const closingCosts = inputs.closingCosts;
