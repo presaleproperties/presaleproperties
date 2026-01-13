@@ -23,10 +23,11 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles, FileSearch } from "lucide-react";
 import { toast } from "sonner";
 import { MarketStatsUpload } from "@/components/admin/MarketStatsUpload";
 import { MarketBlogGenerator } from "@/components/admin/MarketBlogGenerator";
+import { ResearchImporter } from "@/components/admin/ResearchImporter";
 
 interface MarketData {
   id: string;
@@ -167,8 +168,12 @@ export default function AdminMarketData() {
           </p>
         </div>
 
-        <Tabs defaultValue="upload" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 max-w-lg">
+        <Tabs defaultValue="research" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 max-w-2xl">
+            <TabsTrigger value="research" className="flex items-center gap-2">
+              <FileSearch className="h-4 w-4" />
+              Import Research
+            </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
               Upload Stats
@@ -182,6 +187,50 @@ export default function AdminMarketData() {
               View & Edit
             </TabsTrigger>
           </TabsList>
+
+          {/* Research Import Tab */}
+          <TabsContent value="research" className="mt-6 space-y-6">
+            <ResearchImporter onImportComplete={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
+            
+            {/* Research Sources Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Research Sources</CardTitle>
+                <CardDescription>Paste links from these presale intelligence providers</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-3">
+                  <a 
+                    href="https://mlacanada.com/research" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-muted rounded-lg text-sm hover:bg-muted/80 transition-colors"
+                  >
+                    MLA Canada Research
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                  <a 
+                    href="https://www.rennie.com/intelligence" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-muted rounded-lg text-sm hover:bg-muted/80 transition-colors"
+                  >
+                    Rennie Intelligence
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                  <a 
+                    href="https://presalepulse.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-muted rounded-lg text-sm hover:bg-muted/80 transition-colors"
+                  >
+                    Presale Pulse
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           {/* Upload Tab */}
           <TabsContent value="upload" className="mt-6 space-y-6">

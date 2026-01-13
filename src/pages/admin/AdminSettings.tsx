@@ -28,6 +28,7 @@ interface AppSettings {
   zapier_listing_leads_webhook: string;
   zapier_bookings_webhook: string;
   zapier_social_webhook: string;
+  zapier_research_webhook: string;
   lofty_tracking_webhook: string;
   zapier_behavior_webhook: string;
   meta_pixel_id: string;
@@ -47,6 +48,7 @@ export default function AdminSettings() {
     zapier_listing_leads_webhook: "",
     zapier_bookings_webhook: "",
     zapier_social_webhook: "",
+    zapier_research_webhook: "",
     lofty_tracking_webhook: "",
     zapier_behavior_webhook: "",
     meta_pixel_id: "",
@@ -79,6 +81,7 @@ export default function AdminSettings() {
         if (item.key === "zapier_listing_leads_webhook") settingsMap.zapier_listing_leads_webhook = item.value as string;
         if (item.key === "zapier_bookings_webhook") settingsMap.zapier_bookings_webhook = item.value as string;
         if (item.key === "zapier_social_webhook") settingsMap.zapier_social_webhook = item.value as string;
+        if (item.key === "zapier_research_webhook") settingsMap.zapier_research_webhook = item.value as string;
         if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
         if (item.key === "zapier_behavior_webhook") settingsMap.zapier_behavior_webhook = item.value as string;
         if (item.key === "meta_pixel_id") settingsMap.meta_pixel_id = item.value as string;
@@ -106,6 +109,7 @@ export default function AdminSettings() {
         { key: "zapier_listing_leads_webhook", value: settings.zapier_listing_leads_webhook },
         { key: "zapier_bookings_webhook", value: settings.zapier_bookings_webhook },
         { key: "zapier_social_webhook", value: settings.zapier_social_webhook },
+        { key: "zapier_research_webhook", value: settings.zapier_research_webhook },
         { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
         { key: "zapier_behavior_webhook", value: settings.zapier_behavior_webhook },
         { key: "meta_pixel_id", value: settings.meta_pixel_id },
@@ -343,7 +347,7 @@ export default function AdminSettings() {
 
                 {/* Social Media Automation */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-sm">Social Media Automation</h4>
+                  <h4 className="font-medium text-sm">Social Media & Research Automation</h4>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
                       <Label htmlFor="zapier_social_webhook">New Project Notification Webhook</Label>
@@ -358,7 +362,23 @@ export default function AdminSettings() {
                         }))}
                       />
                       <p className="text-xs text-muted-foreground">
-                        <strong>Social posting:</strong> When you publish a project, a formatted notification with ready-to-post Marketplace description, images, and hashtags is sent here. Connect to Slack, Email, or a notification channel for quick manual posting.
+                        <strong>Social posting:</strong> When you publish a project, a formatted notification with ready-to-post Marketplace description, images, and hashtags is sent here.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="zapier_research_webhook">Research Import Webhook</Label>
+                      <Input
+                        id="zapier_research_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.zapier_research_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          zapier_research_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        <strong>WhatsApp → Blog:</strong> Send MLA/Rennie research links via WhatsApp → Zapier webhook. Auto-generates blog drafts and updates market data.
                       </p>
                     </div>
                   </div>
