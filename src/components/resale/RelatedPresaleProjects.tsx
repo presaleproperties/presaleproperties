@@ -157,7 +157,7 @@ export const RelatedPresaleProjects = ({
         </div>
 
         {/* Carousel */}
-        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6 scroll-snap-x scroll-snap-mandatory">
+        <div className="flex gap-3 sm:gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6 scroll-snap-x scroll-snap-mandatory">
           {projects.map((project) => {
             const projectUrl = generateProjectUrl({
               slug: project.slug,
@@ -168,9 +168,9 @@ export const RelatedPresaleProjects = ({
             <Link
               key={project.id}
               to={projectUrl}
-              className="flex-shrink-0 w-[calc(100vw-72px)] sm:w-[300px] lg:w-[320px] scroll-snap-start group"
+              className="flex-shrink-0 w-[calc(100vw-72px)] sm:w-[280px] lg:w-[300px] scroll-snap-start group"
             >
-              <div className="bg-card border border-border rounded-xl overflow-hidden transition-all hover:shadow-lg hover:border-primary/30">
+              <div className="bg-card border border-border rounded-xl overflow-hidden transition-all hover:shadow-lg hover:border-primary/30 h-full">
                 {/* Image */}
                 <div className="relative aspect-[4/3] overflow-hidden">
                   <img
@@ -180,44 +180,44 @@ export const RelatedPresaleProjects = ({
                     loading="lazy"
                   />
                   {/* Status badge */}
-                  <Badge className={`absolute top-3 left-3 ${STATUS_COLORS[project.status] || "bg-primary text-primary-foreground"}`}>
+                  <Badge className={`absolute top-2 left-2 sm:top-3 sm:left-3 text-[10px] sm:text-xs ${STATUS_COLORS[project.status] || "bg-primary text-primary-foreground"}`}>
                     {STATUS_LABELS[project.status] || project.status}
                   </Badge>
                   {/* Project type badge */}
-                  <Badge variant="secondary" className="absolute top-3 right-3 bg-background/80 backdrop-blur-sm">
+                  <Badge variant="secondary" className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-background/80 backdrop-blur-sm text-[10px] sm:text-xs">
                     {project.project_type === "condo" ? "Condo" : project.project_type === "townhouse" ? "Townhouse" : project.project_type}
                   </Badge>
                 </div>
 
                 {/* Content */}
-                <div className="p-4">
-                  <h3 className="font-semibold text-foreground text-lg mb-1 line-clamp-1 group-hover:text-primary transition-colors">
+                <div className="p-3 sm:p-4">
+                  <h3 className="font-semibold text-foreground text-sm sm:text-base mb-1 line-clamp-1 group-hover:text-primary transition-colors">
                     {project.name}
                   </h3>
                   
-                  <div className="flex items-center text-sm text-muted-foreground mb-3">
-                    <MapPin className="h-3.5 w-3.5 mr-1 flex-shrink-0" />
-                    <span className="line-clamp-1">{project.neighborhood}, {project.city}</span>
+                  <div className="flex items-center text-[11px] sm:text-sm text-muted-foreground mb-2 sm:mb-3">
+                    <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 flex-shrink-0" />
+                    <span className="line-clamp-1 truncate">{project.neighborhood}, {project.city}</span>
                   </div>
 
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     {/* Price */}
-                    <div>
+                    <div className="min-w-0">
                       {project.starting_price ? (
-                        <p className="font-bold text-foreground">
+                        <p className="font-bold text-foreground text-sm sm:text-base whitespace-nowrap">
                           From {formatPrice(project.starting_price)}
                         </p>
                       ) : project.price_range ? (
-                        <p className="font-bold text-foreground text-sm">{project.price_range}</p>
+                        <p className="font-bold text-foreground text-xs sm:text-sm truncate">{project.price_range}</p>
                       ) : (
-                        <p className="text-sm text-muted-foreground">Contact for pricing</p>
+                        <p className="text-[11px] sm:text-sm text-muted-foreground">Contact for pricing</p>
                       )}
                     </div>
 
                     {/* Completion */}
                     {project.completion_year && (
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Calendar className="h-3.5 w-3.5 mr-1" />
+                      <div className="flex items-center text-[11px] sm:text-sm text-muted-foreground shrink-0">
+                        <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1" />
                         {getCompletionText(project.completion_year, project.completion_month)}
                       </div>
                     )}
@@ -225,9 +225,9 @@ export const RelatedPresaleProjects = ({
 
                   {/* Developer */}
                   {project.developer_name && (
-                    <div className="flex items-center text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
-                      <Building2 className="h-3 w-3 mr-1" />
-                      <span className="line-clamp-1">{project.developer_name}</span>
+                    <div className="flex items-center text-[10px] sm:text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
+                      <Building2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1 shrink-0" />
+                      <span className="line-clamp-1 truncate">{project.developer_name}</span>
                     </div>
                   )}
                 </div>

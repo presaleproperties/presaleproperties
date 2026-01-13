@@ -156,13 +156,15 @@ export function ResaleListingCard({
   const specsString = specsArray.join(" • ");
 
   return (
-    <Link to={`/resale/${listingKey}`} className="block h-full">
+    <Link to={`/resale/${listingKey}`} className="block h-full w-full">
       <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
         {/* Fixed height image container - ensures all cards have identical image size */}
         <div 
           className={cn(
             "relative overflow-hidden bg-muted flex-shrink-0",
-            size === "featured" ? "h-[200px] sm:h-[220px]" : size === "large" ? "h-[180px] sm:h-[200px]" : "h-[180px] sm:h-[200px]"
+            size === "featured" ? "h-[160px] sm:h-[200px] md:h-[220px]" : 
+            size === "large" ? "h-[140px] sm:h-[180px] md:h-[200px]" : 
+            "h-[140px] sm:h-[160px] md:h-[180px]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
@@ -257,31 +259,31 @@ export function ResaleListingCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
-          <div className="flex items-start justify-between gap-3">
+        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col min-w-0">
+          <div className="flex items-start justify-between gap-2 min-w-0">
             {/* Left: Address, Location & Specs */}
-            <div className="flex-1 min-w-0 space-y-1">
-              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
+            <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base truncate">
                 {address}
               </h3>
-              <div className="flex items-center gap-1.5 text-muted-foreground">
-                <MapPin className="h-3.5 w-3.5 shrink-0" />
-                <span className="text-xs sm:text-sm truncate">
+              <div className="flex items-center gap-1 text-muted-foreground min-w-0">
+                <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                <span className="text-[11px] sm:text-xs truncate">
                   {neighborhood ? `${neighborhood}, ${city}` : city}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground">
+              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
                 {displayType} {specsString ? `• ${specsString}` : ""}
               </p>
             </div>
 
             {/* Right: Price */}
-            <div className="text-right shrink-0">
-              <span className="text-sm sm:text-base md:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+            <div className="text-right shrink-0 ml-1">
+              <span className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap">
                 {formatPrice(price)}
               </span>
               {sqft && sqft > 0 && (
-                <span className="text-[10px] sm:text-xs text-muted-foreground block leading-tight">
+                <span className="text-[9px] sm:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap">
                   ${Math.round(price / sqft)}/sqft
                 </span>
               )}
@@ -289,10 +291,10 @@ export function ResaleListingCard({
           </div>
 
           {/* Listed by Agent & Brokerage - Always show, required for compliance */}
-          <div className="mt-auto pt-2">
-            <div className="pt-2 border-t border-border">
-              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
-                <Building className="h-3 w-3 shrink-0" />
+          <div className="mt-auto pt-1.5 sm:pt-2">
+            <div className="pt-1.5 sm:pt-2 border-t border-border">
+              <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-muted-foreground min-w-0">
+                <Building className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
                 <span className="truncate">
                   Listed by {listOfficeName || "MLS®"}
                 </span>

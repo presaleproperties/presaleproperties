@@ -141,26 +141,26 @@ export function ProjectHighlights({
   if (standardTiles.length === 0 && !completionValue && !developerName) return null;
 
   return (
-    <div className="bg-gradient-to-br from-muted/60 to-muted/30 rounded-2xl p-5 border border-border/50">
-      <div className="flex items-center gap-2 mb-4">
-        <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
-          <Building2 className="h-4 w-4 text-primary" />
+    <div className="bg-gradient-to-br from-muted/60 to-muted/30 rounded-2xl p-4 sm:p-5 border border-border/50">
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+          <Building2 className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
         </div>
-        <h2 className="text-lg font-bold text-foreground">Project Details</h2>
+        <h2 className="text-base sm:text-lg font-bold text-foreground">Project Details</h2>
       </div>
 
       {/* Featured Completion Tile - Full Width */}
       {completionValue && (
         <div className="mb-3">
-          <div className="group flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-background/80 backdrop-blur-sm border border-primary/20 hover:border-primary/40 hover:shadow-md transition-all duration-200">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-200">
-              <Calendar className="h-7 w-7 text-primary" />
+          <div className="group flex items-center gap-3 sm:gap-4 p-3 sm:p-4 rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-background/80 backdrop-blur-sm border border-primary/20 hover:border-primary/40 hover:shadow-md transition-all duration-200">
+            <div className="w-11 h-11 sm:w-14 sm:h-14 rounded-xl bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center group-hover:scale-105 transition-transform duration-200 shrink-0">
+              <Calendar className="h-5 w-5 sm:h-7 sm:w-7 text-primary" />
             </div>
-            <div>
-              <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-0.5">
+            <div className="min-w-0">
+              <div className="text-[9px] sm:text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-0.5">
                 Est. Completion
               </div>
-              <div className="font-bold text-xl text-foreground">
+              <div className="font-bold text-lg sm:text-xl text-foreground truncate">
                 {completionValue}
               </div>
             </div>
@@ -169,21 +169,21 @@ export function ProjectHighlights({
       )}
 
       {/* Standard 2-column grid */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
         {standardTiles.map((item, index) => (
           <div 
             key={index} 
-            className="group flex flex-col items-center text-center p-4 rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200"
+            className="group flex flex-col items-center text-center p-3 sm:p-4 rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200 min-w-0 overflow-hidden"
           >
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-105 transition-transform duration-200 shrink-0">
               <div className="text-primary">
                 {item.icon}
               </div>
             </div>
-            <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-1">
+            <div className="text-[9px] sm:text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-0.5 sm:mb-1">
               {item.label}
             </div>
-            <div className="font-bold text-sm text-foreground leading-tight">
+            <div className="font-bold text-xs sm:text-sm text-foreground leading-tight truncate w-full px-1">
               {item.value}
             </div>
           </div>
@@ -191,15 +191,15 @@ export function ProjectHighlights({
 
         {/* Developer Tile - with link if available */}
         {developerName && (
-          <div className="group flex flex-col items-center text-center p-4 rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-3 group-hover:scale-105 transition-transform duration-200 overflow-hidden">
+          <div className="group flex flex-col items-center text-center p-3 sm:p-4 rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200 min-w-0 overflow-hidden">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-2 sm:mb-3 group-hover:scale-105 transition-transform duration-200 overflow-hidden shrink-0">
               {developer?.logo_url ? (
-                <img src={developer.logo_url} alt={developerName} className="w-full h-full object-contain p-1.5" />
+                <img src={developer.logo_url} alt={developerName} className="w-full h-full object-contain p-1" />
               ) : (
-                <Landmark className="h-5 w-5 text-primary" />
+                <Landmark className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
               )}
             </div>
-            <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-1">
+            <div className="text-[9px] sm:text-[10px] text-muted-foreground font-semibold uppercase tracking-widest mb-0.5 sm:mb-1">
               Developer
             </div>
             {developer?.website_url ? (
@@ -207,17 +207,17 @@ export function ProjectHighlights({
                 href={developer.website_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="font-bold text-sm text-primary hover:underline leading-tight flex items-center gap-1"
+                className="font-bold text-xs sm:text-sm text-primary hover:underline leading-tight flex items-center gap-0.5 truncate w-full justify-center px-1"
               >
-                {developerName.length > 18 ? developerName.substring(0, 18) + "..." : developerName}
-                <ExternalLink className="h-3 w-3" />
+                <span className="truncate">{developerName.length > 14 ? developerName.substring(0, 14) + "..." : developerName}</span>
+                <ExternalLink className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
               </a>
             ) : (
               <Link
                 to={`/developers`}
-                className="font-bold text-sm text-foreground hover:text-primary leading-tight transition-colors"
+                className="font-bold text-xs sm:text-sm text-foreground hover:text-primary leading-tight transition-colors truncate w-full px-1"
               >
-                {developerName.length > 20 ? developerName.substring(0, 20) + "..." : developerName}
+                {developerName.length > 16 ? developerName.substring(0, 16) + "..." : developerName}
               </Link>
             )}
           </div>
