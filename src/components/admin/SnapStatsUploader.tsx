@@ -126,6 +126,11 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
       return;
     }
 
+    const isPaymentRequired = (err: unknown) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      return msg.includes('402') || msg.toLowerCase().includes('payment required') || msg.toLowerCase().includes('not enough credits');
+    };
+
     setIsProcessing(true);
     const allStats: CityStats[] = [];
     const allInsights: string[] = [];
@@ -133,13 +138,13 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
 
     for (let i = 0; i < files.length; i++) {
       const uploadedFile = files[i];
-      setFiles(prev => prev.map((f, idx) => 
+      setFiles(prev => prev.map((f, idx) =>
         idx === i ? { ...f, status: 'processing' } : f
       ));
 
       try {
         const documentText = await extractTextFromPDF(uploadedFile.file);
-        
+
         if (documentText.length < 100) {
           throw new Error('Could not extract text from PDF');
         }
@@ -160,8 +165,8 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
           allStats.push(...extracted.city_stats);
           allInsights.push(...(extracted.key_insights || []));
           combinedSummary += `${uploadedFile.edition}: ${extracted.market_summary} `;
-          
-          setFiles(prev => prev.map((f, idx) => 
+
+          setFiles(prev => prev.map((f, idx) =>
             idx === i ? { ...f, status: 'done', data: extracted } : f
           ));
         } else {
@@ -169,7 +174,18 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
         }
       } catch (err) {
         console.error(`Error processing ${uploadedFile.file.name}:`, err);
-        setFiles(prev => prev.map((f, idx) => 
+
+        // If the AI gateway is out of credits / billing-limited, stop immediately to avoid repeated failures.
+        if (isPaymentRequired(err)) {
+          const message = "AI parsing is temporarily blocked due to workspace AI credit/billing limits. Please check Workspace → Usage (AI) and try again.";
+          toast.error(message);
+          setFiles(prev => prev.map((f, idx) =>
+            idx === i ? { ...f, status: 'error', error: message } : f
+          ));
+          break;
+        }
+
+        setFiles(prev => prev.map((f, idx) =>
           idx === i ? { ...f, status: 'error', error: err instanceof Error ? err.message : 'Unknown error' } : f
         ));
       }
