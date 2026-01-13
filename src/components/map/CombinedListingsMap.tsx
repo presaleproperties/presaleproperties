@@ -279,19 +279,18 @@ export function CombinedListingsMap({
       maxZoom: 19 
     }).addTo(map);
 
-    // Disabled clustering - show individual pins for each property
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       chunkDelay: 50,
       chunkInterval: 100,
-      maxClusterRadius: 0, // Disabled - show all individual pins
-      spiderfyOnMaxZoom: false,
+      maxClusterRadius: 80, // Increased from 60 - more aggressive clustering
+      spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 1, // Disable clustering at all zoom levels
+      disableClusteringAtZoom: 18, // Increased from 17 - cluster until very zoomed in
       animate: false,
       removeOutsideVisibleBounds: true,
       iconCreateFunction: createClusterIcon,
-      zoomToBoundsOnClick: false,
+      spiderfyDistanceMultiplier: 1.5, // Spread out spiderfied markers more
     });
 
     map.addLayer(clusterGroup);
