@@ -15,6 +15,8 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { TwoWaysToBuy } from "@/components/home/TwoWaysToBuy";
+import { NewConstructionTrustBar } from "@/components/home/NewConstructionTrustBar";
 // Homepage FAQs for structured data - optimized for AI snippet extraction with clear, quotable answers
 const HOME_FAQS = [
   {
@@ -302,6 +304,10 @@ const Index = () => {
       <ConversionHeader />
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
+        <NewConstructionTrustBar />
+        <ScrollReveal animation="fade-up">
+          <TwoWaysToBuy />
+        </ScrollReveal>
         <ScrollReveal animation="fade-up">
           {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
         </ScrollReveal>

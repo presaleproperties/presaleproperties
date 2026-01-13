@@ -180,24 +180,23 @@ export function ResaleListingCard({
                 decoding="async"
               />
               
-              {/* Status Badge - Top Left (matching presale style) */}
-              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1.5">
-                {isNewConstruction ? (
-                  <Badge className="bg-emerald-600 text-white text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1 flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    New Build {yearBuilt}
+              {/* Type + Status Badges - Top Left */}
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1">
+                <Badge className="bg-emerald-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
+                  MOVE-IN READY
+                </Badge>
+                {isNewConstruction && (
+                  <Badge className="bg-background/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-medium shadow-sm px-1.5 py-0.5 border border-border/50">
+                    Built {yearBuilt}
                   </Badge>
-                ) : isNew ? (
-                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1">
+                )}
+                {isNew && !isNewConstruction && (
+                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5">
                     Just Listed
-                  </Badge>
-                ) : (
-                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1">
-                    Move-In Ready
                   </Badge>
                 )}
                 {virtualTourUrl && (
-                  <Badge className="bg-foreground text-background text-[10px] sm:text-xs font-medium flex items-center gap-1 px-1.5 py-0.5 sm:px-2 sm:py-1">
+                  <Badge className="bg-foreground text-background text-[10px] sm:text-xs font-medium flex items-center gap-1 px-1.5 py-0.5">
                     <Video className="h-3 w-3" />
                     3D Tour
                   </Badge>

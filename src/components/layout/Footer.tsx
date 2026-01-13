@@ -194,6 +194,9 @@ export function Footer() {
             Delta presale condos, and Abbotsford presale developments. Get VIP access to floor plans, 
             pricing, incentives, and early registration across Metro Vancouver and the Fraser Valley.
           </p>
+          <p className="text-[10px] text-muted-foreground/70 text-center mt-3 max-w-2xl mx-auto">
+            We specialize exclusively in new construction: presale projects and move-in ready homes under 6 months old. No resale properties.
+          </p>
         </div>
 
         <div className="mt-6 sm:mt-8 pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
