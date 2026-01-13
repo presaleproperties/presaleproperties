@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.fetch-developer-logo]
 verify_jwt = false
+
+[functions.parse-market-stats]
+verify_jwt = false
