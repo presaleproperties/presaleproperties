@@ -17,6 +17,8 @@ export interface SavedSnapshot {
     strataFees: number;
     propertyTax: number;
     includeGST: boolean;
+    creditPercent?: number;
+    creditAmount?: number;
   };
   results: {
     totalCashRequired: number;
@@ -26,6 +28,7 @@ export interface SavedSnapshot {
     mortgageAmount: number;
     monthlyMortgage: number;
     totalMonthlyExpenses: number;
+    creditTotal?: number;
   };
 }
 
