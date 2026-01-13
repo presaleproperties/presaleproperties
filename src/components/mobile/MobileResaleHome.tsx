@@ -139,7 +139,7 @@ export function MobileResaleHome() {
                 Search New Homes
               </span>
               <button 
-                onClick={() => navigate("/resale-map")}
+                onClick={() => navigate("/map-search?mode=resale")}
                 className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
                 <MapPin className="h-4 w-4" />

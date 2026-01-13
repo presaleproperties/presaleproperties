@@ -688,7 +688,7 @@ export default function ResaleListings() {
               <Button 
                 variant="outline" 
                 className="h-10 px-3"
-                onClick={() => navigate('/resale-map')}
+                onClick={() => navigate('/map-search?mode=resale')}
               >
                 <Map className="h-4 w-4 mr-2" />
                 <span className="text-sm">Map</span>
@@ -893,7 +893,7 @@ export default function ResaleListings() {
                 </div>
               </Suspense>
               <div className="text-center mt-4">
-                <Link to="/resale-map">
+                <Link to="/map-search?mode=resale">
                   <Button variant="outline" className="gap-2">
                     <Map className="h-4 w-4" />
                     Open Full Map Search

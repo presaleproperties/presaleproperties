@@ -33,7 +33,7 @@ export function FloatingMapButton() {
   const ticking = useRef(false);
   
   // Hide on map search pages and detail pages (they have their own CTAs)
-  const isMapPage = location.pathname === "/map-search" || location.pathname === "/resale-map";
+  const isMapPage = location.pathname === "/map-search";
   const isPresaleDetailPage = location.pathname.startsWith("/presale/") || location.pathname.startsWith("/presale-projects/");
   const isResaleDetailPage = /^\/resale\/[^/]+$/.test(location.pathname) && !["vancouver", "surrey", "burnaby", "langley", "coquitlam", "richmond", "delta", "abbotsford", "chilliwack"].includes(location.pathname.split("/")[2] || "");
   const isDetailPage = isPresaleDetailPage || isResaleDetailPage;
@@ -132,9 +132,9 @@ export function FloatingMapButton() {
   
   // Build the map URL with context-aware params
   const buildMapUrl = () => {
-    // For resale pages, link to resale map
+    // For resale pages, link to unified map with resale mode
     if (mapContext.isResale) {
-      return "/resale-map";
+      return "/map-search?mode=resale";
     }
     
     const params = new URLSearchParams();

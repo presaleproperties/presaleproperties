@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, lazy, Suspense, useRef } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
@@ -140,9 +140,14 @@ export default function MapSearch() {
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   
-  // Read initial mode from URL param, default to "all"
-  const initialMode = (searchParams.get("mode") as MapMode) || "all";
-  const [mapMode, setMapMode] = useState<MapMode>(initialMode);
+  // Read mode from URL param, sync state when URL changes
+  const urlMode = (searchParams.get("mode") as MapMode) || "all";
+  const [mapMode, setMapMode] = useState<MapMode>(urlMode);
+  
+  // Sync mapMode when URL changes (e.g., navigating from another page)
+  useEffect(() => {
+    setMapMode(urlMode);
+  }, [urlMode]);
   
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
