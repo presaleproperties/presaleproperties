@@ -96,7 +96,7 @@ export function HomeUnifiedMapSection({
       
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status")
+        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
