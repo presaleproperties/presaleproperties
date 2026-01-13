@@ -70,13 +70,18 @@ export function ResaleHeroSection() {
         <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
           {/* Tagline */}
           <p className="text-primary text-xs sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
-            Metro Vancouver's Marketplace for Move-In Ready New Homes
+            New Construction Specialists
           </p>
           
           {/* Main Heading - SEO optimized H1 */}
           <h1 className="text-[26px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.15] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
-            <span className="text-primary">Move-In Ready</span> New Built Homes
+            Presale Projects & <span className="text-primary">Move-In Ready</span> Homes
           </h1>
+          
+          {/* Subheadline */}
+          <p className="text-white/80 text-sm sm:text-base animate-fade-in max-w-lg mx-auto" style={{ animationDelay: "0.15s" }}>
+            Every property is brand new, never lived in. 100% new construction only.
+          </p>
 
           {/* Floating Search Card - Compact on mobile */}
           <div 
