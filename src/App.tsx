@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
@@ -87,6 +87,12 @@ const queryClient = new QueryClient({
   },
 });
 
+// Redirect component for legacy /presale/:slug routes
+function PresaleRedirect() {
+  const slug = window.location.pathname.replace('/presale/', '');
+  return <Navigate to={`/presale-projects/${slug}`} replace />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -107,6 +113,8 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
+            {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
+            <Route path="/presale/:slug" element={<PresaleRedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
             <Route path="/resale" element={<ResaleListings />} />
             {/* City-specific resale pages - MUST be before :listingKey route */}

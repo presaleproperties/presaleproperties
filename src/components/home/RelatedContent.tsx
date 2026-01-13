@@ -66,7 +66,7 @@ export function RelatedContent() {
               {POPULAR_CITIES.slice(0, 6).map((city) => (
                 <Link 
                   key={city.slug} 
-                  to={`/presale-condos-${city.slug}`}
+                  to={`/presale-condos/${city.slug}`}
                   className="group"
                 >
                   <Card className="hover:shadow-md transition-all duration-200 hover:border-primary/50">
