@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle2, AlertCircle, Loader2, TrendingUp, Building2 } from "lucide-react";
+import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 interface ExtractedCity {
   city: string;
@@ -38,6 +40,8 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [autoGenerateBlogs, setAutoGenerateBlogs] = useState(true);
+  const [blogProgress, setBlogProgress] = useState<{ current: number; total: number; city: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -177,6 +181,66 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
       }
 
       toast.success(`Updated market data for ${updates.length} cities`);
+
+      // Auto-generate blog posts if enabled
+      if (autoGenerateBlogs && extractedData.cities.length > 0) {
+        const cities = extractedData.cities.map(c => c.city);
+        let successCount = 0;
+
+        for (let i = 0; i < cities.length; i++) {
+          const city = cities[i];
+          setBlogProgress({ current: i + 1, total: cities.length, city });
+
+          try {
+            // Generate blog
+            const { data: blogData, error: genError } = await supabase.functions.invoke('generate-market-blog', {
+              body: {
+                city,
+                reportMonth: parseInt(reportMonth),
+                reportYear: parseInt(reportYear),
+              },
+            });
+
+            if (genError) {
+              console.error(`Error generating blog for ${city}:`, genError);
+              continue;
+            }
+
+            if (blogData?.success && blogData?.data) {
+              // Save as draft
+              const { error: saveError } = await supabase
+                .from('blog_posts')
+                .insert({
+                  title: blogData.data.title,
+                  slug: blogData.data.slug,
+                  excerpt: blogData.data.excerpt,
+                  content: blogData.data.content,
+                  seo_title: blogData.data.seo_title,
+                  seo_description: blogData.data.seo_description,
+                  tags: blogData.data.tags,
+                  category: 'Market Updates',
+                  is_published: false,
+                  is_featured: false,
+                });
+
+              if (!saveError) {
+                successCount++;
+              }
+            }
+          } catch (e) {
+            console.error(`Error with blog for ${city}:`, e);
+          }
+
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
+        setBlogProgress(null);
+        if (successCount > 0) {
+          toast.success(`Generated ${successCount} blog post drafts`);
+        }
+      }
+
       setExtractedData(null);
       setFile(null);
       onDataImported?.();
@@ -185,6 +249,7 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
       toast.error('Failed to save data. Please try again.');
     } finally {
       setIsSaving(false);
+      setBlogProgress(null);
     }
   };
 
@@ -366,12 +431,45 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
               ))}
             </div>
 
+            {/* Auto-Generate Toggle */}
+            <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg border border-primary/20">
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Auto-generate blog posts</p>
+                  <p className="text-xs text-muted-foreground">Create market update drafts for each city</p>
+                </div>
+              </div>
+              <Switch 
+                checked={autoGenerateBlogs} 
+                onCheckedChange={setAutoGenerateBlogs}
+                disabled={isSaving}
+              />
+            </div>
+
+            {/* Blog Generation Progress */}
+            {blogProgress && (
+              <div className="space-y-2 p-3 bg-muted/50 rounded-lg">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Generating blog for <strong>{blogProgress.city}</strong>
+                  </span>
+                  <span className="text-muted-foreground">
+                    {blogProgress.current} / {blogProgress.total}
+                  </span>
+                </div>
+                <Progress value={(blogProgress.current / blogProgress.total) * 100} className="h-2" />
+              </div>
+            )}
+
             {/* Save Button */}
             <div className="flex gap-3 pt-2">
               <Button
                 variant="outline"
                 onClick={() => setExtractedData(null)}
                 className="flex-1"
+                disabled={isSaving}
               >
                 Cancel
               </Button>
@@ -383,12 +481,12 @@ export function MarketStatsUpload({ onDataImported }: MarketStatsUploadProps) {
                 {isSaving ? (
                   <>
                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    Saving...
+                    {blogProgress ? 'Generating Blogs...' : 'Saving...'}
                   </>
                 ) : (
                   <>
                     <CheckCircle2 className="h-4 w-4 mr-2" />
-                    Save to Database ({extractedData.cities.length} cities)
+                    Save{autoGenerateBlogs ? ' & Generate Blogs' : ''} ({extractedData.cities.length} cities)
                   </>
                 )}
               </Button>
