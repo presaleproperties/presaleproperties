@@ -197,12 +197,12 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
           {/* Top Cities */}
           <div className="pt-4">
             <p className="text-white/60 text-xs mb-3 uppercase tracking-wider">Browse by City</p>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5 px-2">
               {TOP_CITIES.map((city) => (
                 <button
                   key={city}
                   onClick={() => handleCityClick(city)}
-                  className="px-4 py-2 text-sm font-medium text-white/90 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all hover:scale-105"
+                  className="px-3 sm:px-4 py-2 text-xs sm:text-sm font-medium text-white/90 bg-white/10 backdrop-blur-sm rounded-full hover:bg-white/20 transition-all hover:scale-105 whitespace-nowrap"
                 >
                   {city}
                 </button>
