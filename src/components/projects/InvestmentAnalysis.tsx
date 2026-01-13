@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
-import { TrendingUp, DollarSign, Home, Calculator, BarChart3 } from "lucide-react";
+import { TrendingUp, DollarSign, Home, Calculator, BarChart3, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface InvestmentAnalysisProps {
   projectName: string;
@@ -11,39 +14,29 @@ interface InvestmentAnalysisProps {
   completionYear: number | null;
 }
 
-/**
- * Market data estimates by city
- * 
- * SOURCES & METHODOLOGY:
- * - Price/Sqft: Based on REBGV & FVREB MLS HPI data (rebgv.org, fvreb.bc.ca)
- * - Rental Yields: Derived from CMHC Rental Market Survey (cmhc-schl.gc.ca/rental-market-report)
- * - 5-Year Appreciation: Historical average from BC Assessment & MLS benchmark data
- * - Rental Rates: CMHC Primary Rental Market data for Metro Vancouver & Fraser Valley
- * 
- * Note: These are illustrative estimates for educational purposes only.
- * Actual market conditions vary. Last reviewed: Q4 2024
- */
-const MARKET_DATA: Record<string, { 
-  avgPriceSqft: number; 
-  rentalYield: number; 
-  appreciation5yr: number;
-  avgRent1br: number;
-  avgRent2br: number;
-  sourceNote: string;
-}> = {
-  "Vancouver": { avgPriceSqft: 1350, rentalYield: 3.2, appreciation5yr: 25, avgRent1br: 2400, avgRent2br: 3200, sourceNote: "REBGV MLS HPI" },
-  "Burnaby": { avgPriceSqft: 1050, rentalYield: 3.5, appreciation5yr: 28, avgRent1br: 2200, avgRent2br: 2900, sourceNote: "REBGV MLS HPI" },
-  "Surrey": { avgPriceSqft: 750, rentalYield: 4.2, appreciation5yr: 35, avgRent1br: 1900, avgRent2br: 2500, sourceNote: "FVREB MLS HPI" },
-  "Langley": { avgPriceSqft: 720, rentalYield: 4.0, appreciation5yr: 32, avgRent1br: 1850, avgRent2br: 2400, sourceNote: "FVREB MLS HPI" },
-  "Coquitlam": { avgPriceSqft: 950, rentalYield: 3.8, appreciation5yr: 30, avgRent1br: 2100, avgRent2br: 2800, sourceNote: "REBGV MLS HPI" },
-  "Richmond": { avgPriceSqft: 1100, rentalYield: 3.4, appreciation5yr: 26, avgRent1br: 2300, avgRent2br: 3000, sourceNote: "REBGV MLS HPI" },
-  "Delta": { avgPriceSqft: 680, rentalYield: 4.5, appreciation5yr: 30, avgRent1br: 1750, avgRent2br: 2300, sourceNote: "FVREB MLS HPI" },
-  "Abbotsford": { avgPriceSqft: 580, rentalYield: 5.0, appreciation5yr: 35, avgRent1br: 1600, avgRent2br: 2100, sourceNote: "FVREB MLS HPI" },
-  "Port Moody": { avgPriceSqft: 1000, rentalYield: 3.6, appreciation5yr: 28, avgRent1br: 2150, avgRent2br: 2850, sourceNote: "REBGV MLS HPI" },
-  "New Westminster": { avgPriceSqft: 900, rentalYield: 3.9, appreciation5yr: 27, avgRent1br: 2000, avgRent2br: 2700, sourceNote: "REBGV MLS HPI" },
-};
+interface MarketData {
+  city: string;
+  avg_price_sqft: number;
+  rental_yield: number;
+  appreciation_5yr: number;
+  avg_rent_1br: number;
+  avg_rent_2br: number;
+  source_name: string;
+  source_url: string | null;
+  last_verified_date: string;
+}
 
-const DEFAULT_MARKET = { avgPriceSqft: 800, rentalYield: 4.0, appreciation5yr: 30, avgRent1br: 1900, avgRent2br: 2500, sourceNote: "BC Average" };
+const DEFAULT_MARKET: MarketData = {
+  city: "BC Average",
+  avg_price_sqft: 800,
+  rental_yield: 4.0,
+  appreciation_5yr: 30,
+  avg_rent_1br: 1900,
+  avg_rent_2br: 2500,
+  source_name: "BC Average",
+  source_url: null,
+  last_verified_date: new Date().toISOString().split('T')[0],
+};
 
 export function InvestmentAnalysis({
   projectName,
@@ -53,18 +46,38 @@ export function InvestmentAnalysis({
   projectType,
   completionYear,
 }: InvestmentAnalysisProps) {
-  const marketData = MARKET_DATA[city] || DEFAULT_MARKET;
+  // Fetch market data from database
+  const { data: marketData, isLoading } = useQuery({
+    queryKey: ['market-data', city],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('market_data')
+        .select('*')
+        .ilike('city', city)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching market data:', error);
+        return DEFAULT_MARKET;
+      }
+      
+      return data || DEFAULT_MARKET;
+    },
+    staleTime: 1000 * 60 * 60, // 1 hour cache
+  });
+
+  const data = marketData || DEFAULT_MARKET;
   
   // Calculate estimated metrics
   const estimatedSqft = projectType === "townhome" ? 1400 : projectType === "condo" ? 650 : 800;
-  const pricePerSqft = startingPrice ? Math.round(startingPrice / estimatedSqft) : marketData.avgPriceSqft;
+  const pricePerSqft = startingPrice ? Math.round(startingPrice / estimatedSqft) : data.avg_price_sqft;
   
   const estimatedRent = projectType === "townhome" 
-    ? Math.round(marketData.avgRent2br * 1.3) 
-    : marketData.avgRent2br;
+    ? Math.round(data.avg_rent_2br * 1.3) 
+    : data.avg_rent_2br;
   
   const yearsToCompletion = completionYear ? Math.max(0, completionYear - new Date().getFullYear()) : 2;
-  const appreciationAtCompletion = Math.round(marketData.appreciation5yr * (yearsToCompletion / 5) * 10) / 10;
+  const appreciationAtCompletion = Math.round(data.appreciation_5yr * (yearsToCompletion / 5) * 10) / 10;
   
   const futureValue = startingPrice 
     ? Math.round(startingPrice * (1 + appreciationAtCompletion / 100))
@@ -77,6 +90,27 @@ export function InvestmentAnalysis({
       maximumFractionDigits: 0,
     }).format(price);
   };
+
+  const formatDate = (dateStr: string) => {
+    return new Date(dateStr).toLocaleDateString('en-CA', { 
+      month: 'short', 
+      year: 'numeric' 
+    });
+  };
+
+  if (isLoading) {
+    return (
+      <section className="bg-gradient-to-br from-primary/5 via-background to-primary/5 rounded-2xl p-5 md:p-6 border border-primary/20">
+        <Skeleton className="h-8 w-48 mb-5" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-5">
+          {[1, 2, 3, 4].map((i) => (
+            <Skeleton key={i} className="h-24 rounded-xl" />
+          ))}
+        </div>
+        <Skeleton className="h-20 rounded-xl" />
+      </section>
+    );
+  }
 
   return (
     <section 
@@ -97,7 +131,7 @@ export function InvestmentAnalysis({
           <DollarSign className="h-5 w-5 text-primary mx-auto mb-1.5" />
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Price/Sq Ft</p>
           <p className="text-lg font-bold text-foreground">${pricePerSqft}</p>
-          <p className="text-[10px] text-muted-foreground">vs ${marketData.avgPriceSqft} avg</p>
+          <p className="text-[10px] text-muted-foreground">vs ${data.avg_price_sqft} avg</p>
         </div>
 
         <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center">
@@ -110,14 +144,14 @@ export function InvestmentAnalysis({
         <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center">
           <BarChart3 className="h-5 w-5 text-green-500 mx-auto mb-1.5" />
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Rental Yield</p>
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">{marketData.rentalYield}%</p>
+          <p className="text-lg font-bold text-green-600 dark:text-green-400">{data.rental_yield}%</p>
           <p className="text-[10px] text-muted-foreground">{city} average</p>
         </div>
 
         <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center">
           <TrendingUp className="h-5 w-5 text-green-500 mx-auto mb-1.5" />
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">5-Year Growth</p>
-          <p className="text-lg font-bold text-green-600 dark:text-green-400">+{marketData.appreciation5yr}%</p>
+          <p className="text-lg font-bold text-green-600 dark:text-green-400">+{data.appreciation_5yr}%</p>
           <p className="text-[10px] text-muted-foreground">{neighborhood} trend</p>
         </div>
       </div>
@@ -126,7 +160,7 @@ export function InvestmentAnalysis({
       <div className="bg-background/60 rounded-xl p-4 border border-border/30 mb-5">
         <p className="text-sm text-muted-foreground leading-relaxed">
           Based on current {neighborhood} market data, <strong className="text-foreground">{projectName}</strong> presents 
-          {pricePerSqft < marketData.avgPriceSqft ? " strong" : " competitive"} investment potential.
+          {pricePerSqft < data.avg_price_sqft ? " strong" : " competitive"} investment potential.
           {futureValue && startingPrice && (
             <> At {formatPrice(startingPrice)}, the estimated value at completion ({completionYear}) 
             could reach <strong className="text-green-600 dark:text-green-400">{formatPrice(futureValue)}</strong> based on 
@@ -154,11 +188,26 @@ export function InvestmentAnalysis({
 
       {/* Source & Disclaimer */}
       <div className="mt-4 pt-3 border-t border-border/30">
-        <p className="text-[10px] text-muted-foreground text-center mb-1">
-          <strong>Data Sources:</strong> {marketData.sourceNote}, CMHC Rental Market Survey, BC Assessment
-        </p>
+        <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-[10px] text-muted-foreground mb-1">
+          <span className="font-medium">Source:</span>
+          {data.source_url ? (
+            <a 
+              href={data.source_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-0.5 text-primary hover:underline"
+            >
+              {data.source_name}
+              <ExternalLink className="h-2.5 w-2.5" />
+            </a>
+          ) : (
+            <span>{data.source_name}</span>
+          )}
+          <span className="text-muted-foreground/60">•</span>
+          <span>Verified {formatDate(data.last_verified_date)}</span>
+        </div>
         <p className="text-[10px] text-muted-foreground text-center">
-          *Illustrative estimates based on historical 5-year averages (Q4 2024). Past performance does not guarantee future results. 
+          *Illustrative estimates based on historical 5-year averages. Past performance does not guarantee future results. 
           Consult a licensed financial advisor before making investment decisions.
         </p>
       </div>

@@ -21,7 +21,8 @@ import {
   Landmark,
   RefreshCw,
   Mail,
-  Workflow
+  Workflow,
+  TrendingUp
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -68,6 +69,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/admin/market-data", label: "Market Data", icon: TrendingUp },
       { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
       { href: "/admin/email-workflows", label: "Email Workflows", icon: Workflow },
       { href: "/admin/mls-sync", label: "MLS Sync", icon: RefreshCw },
