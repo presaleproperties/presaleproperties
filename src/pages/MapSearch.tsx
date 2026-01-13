@@ -372,6 +372,19 @@ export default function MapSearch() {
     return presaleProjects.map(p => ({ name: p.name, city: p.city, slug: p.slug }));
   }, [presaleProjects]);
 
+  // Listings for search bar autocomplete (MLS# and address search)
+  const listingsForSearch = useMemo(() => {
+    if (!resaleListings) return [];
+    return resaleListings.map(l => ({
+      listing_key: l.listing_key,
+      city: l.city,
+      street_number: l.street_number,
+      street_name: l.street_name,
+      street_suffix: l.street_suffix,
+      listing_price: l.listing_price,
+    }));
+  }, [resaleListings]);
+
   const handleSearchSuggestionSelect = useCallback((suggestion: { type: string; value: string; city?: string; label: string }) => {
     if (suggestion.type === "city") {
       updateFilter("city", suggestion.value);
@@ -383,6 +396,8 @@ export default function MapSearch() {
       setSearchQuery(suggestion.label);
     } else if (suggestion.type === "project") {
       navigate(`/presale/${suggestion.value}`);
+    } else if (suggestion.type === "listing") {
+      navigate(`/resale/${suggestion.value}`);
     }
   }, [navigate, updateFilter]);
 
@@ -644,10 +659,11 @@ export default function MapSearch() {
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                     onSuggestionSelect={handleSearchSuggestionSelect}
-                    placeholder="City, Neighbourhood, ..."
+                    placeholder="City, MLS#, Address..."
                     cities={CITIES}
                     neighborhoods={neighborhoodsData || []}
                     projects={projectsForSearch}
+                    listings={listingsForSearch}
                     className="h-9"
                   />
                 </div>
