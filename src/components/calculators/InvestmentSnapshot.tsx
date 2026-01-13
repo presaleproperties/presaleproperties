@@ -217,8 +217,12 @@ export function InvestmentSnapshot() {
       inputs.holdingPeriodYears
     );
     
-    const futureValue = priceWithGST * Math.pow(1 + inputs.appreciationRate / 100, inputs.holdingPeriodYears);
-    const appreciation = futureValue - priceWithGST;
+    // Future value is based on purchase price (market value), not including GST
+    // GST is a one-time tax paid at purchase, doesn't appreciate with property
+    const futureValue = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, inputs.holdingPeriodYears);
+    const appreciation = futureValue - inputs.purchasePrice;
+    
+    // Equity includes down payment on full price (with GST), principal paid, and appreciation
     const totalEquityBuilt = downPayment + principalPaid + appreciation;
     const equityFromPaydown = principalPaid;
     const totalCashFlowOverPeriod = annualCashFlow * inputs.holdingPeriodYears;
