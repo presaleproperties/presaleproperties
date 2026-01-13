@@ -67,7 +67,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
     
     // Navigate directly to presale project page
     if ((type === "presale" || type === "project") && slug) {
-      navigate(`/presale/${slug}`);
+      navigate(`/presale-projects/${slug}`);
       return;
     }
     

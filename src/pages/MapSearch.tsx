@@ -400,7 +400,7 @@ export default function MapSearch() {
       }
       setSearchQuery(suggestion.label);
     } else if (suggestion.type === "project") {
-      navigate(`/presale/${suggestion.value}`);
+      navigate(`/presale-projects/${suggestion.value}`);
     } else if (suggestion.type === "listing") {
       navigate(`/resale/${suggestion.value}`);
     }
@@ -576,7 +576,7 @@ export default function MapSearch() {
                       const data = item.data;
                       const id = isPresale ? (data as PresaleProject).id : (data as MLSListing).id;
                       const link = isPresale 
-                        ? `/presale/${(data as PresaleProject).slug}` 
+                        ? `/presale-projects/${(data as PresaleProject).slug}` 
                         : `/resale/${(data as MLSListing).listing_key}`;
                       
                       return (
