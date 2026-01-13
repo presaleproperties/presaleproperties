@@ -379,11 +379,28 @@ export default function PresaleProjectDetail() {
                            project.project_type === "mixed" ? "Mixed-Use Development" :
                            project.project_type === "duplex" ? "Duplexes" : "Single Family Homes";
   
-  const seoTitle = project.seo_title || 
-    `${project.name} | New ${projectTypeLabel} in ${project.neighborhood}, ${project.city}`;
+  const projectTypeSingular = project.project_type === "condo" ? "condos" : 
+                              project.project_type === "townhome" ? "townhomes" : 
+                              project.project_type === "mixed" ? "residences" :
+                              project.project_type === "duplex" ? "duplexes" : "homes";
   
-  const seoDescription = project.seo_description || project.short_description ||
-    `${project.name} - New presale ${project.project_type} development in ${project.neighborhood}, ${project.city}. ${project.starting_price ? `Starting from $${project.starting_price.toLocaleString()}.` : ""} ${project.completion_year ? `Estimated completion ${project.completion_year}.` : ""} View floor plans, pricing & register for VIP access.`;
+  const priceDisplay = project.starting_price 
+    ? `from ${formatPrice(project.starting_price)}` 
+    : "";
+  
+  const unitMixShort = project.unit_mix || `Studios to ${projectTypeSingular}`;
+  
+  // Enhanced SEO title: "Harlowe South Surrey - Presale Townhomes from $299,900 | Presale Properties"
+  const seoTitle = project.seo_title || 
+    `${project.name} ${project.neighborhood} - Presale ${projectTypeLabel}${priceDisplay ? ` ${priceDisplay}` : ""} | Presale Properties`;
+  
+  // Enhanced SEO description with address, unit count, and CTAs
+  const seoDescription = project.seo_description || 
+    `${project.name} ${project.neighborhood} presale ${projectTypeSingular}${priceDisplay ? ` ${priceDisplay}` : ""}. ${project.address ? `${project.address}. ` : ""}${unitMixShort}. VIP pricing & floor plans available. Contact presale experts today.`;
+  
+  // Shorter OG description for social sharing
+  const ogDescription = project.short_description || 
+    `Modern living in ${project.neighborhood}. Thoughtfully designed ${projectTypeSingular}${priceDisplay ? ` starting ${priceDisplay}` : ""}.`;
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -455,27 +472,34 @@ export default function PresaleProjectDetail() {
       <Helmet>
         <title>{seoTitle}</title>
         <meta name="description" content={seoDescription} />
-        <meta name="keywords" content={`${project.name}, presale ${project.city}, new ${project.project_type} ${project.neighborhood}, ${project.developer_name || ""} development, pre-construction ${project.city}, ${project.neighborhood} new homes`} />
+        <meta name="keywords" content={`${project.name}, ${project.name} presale, ${project.neighborhood} presale ${projectTypeSingular}, ${project.city} presale ${projectTypeSingular}, new construction ${project.city}, ${project.developer_name || ""} ${project.city}, pre-construction ${project.neighborhood}, VIP presale ${project.city}`} />
         <link rel="canonical" href={canonicalUrl} />
         
-        {/* Open Graph */}
-        <meta property="og:type" content="realestate.listing" />
-        <meta property="og:title" content={seoTitle} />
-        <meta property="og:description" content={seoDescription} />
+        {/* Open Graph - optimized for social sharing */}
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content={`${project.name} ${project.neighborhood} Presale ${projectTypeLabel}${priceDisplay ? ` | ${priceDisplay.charAt(0).toUpperCase() + priceDisplay.slice(1)}` : ""}`} />
+        <meta property="og:description" content={ogDescription} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:site_name" content="PresaleProperties.com" />
+        <meta property="og:site_name" content="Presale Properties" />
         {project.featured_image && <meta property="og:image" content={project.featured_image} />}
+        {project.featured_image && <meta property="og:image:alt" content={`${project.name} - ${project.neighborhood} presale ${projectTypeSingular}`} />}
         <meta property="og:locale" content="en_CA" />
         
-        {/* Twitter */}
+        {/* Twitter Card */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={seoTitle} />
-        <meta name="twitter:description" content={seoDescription} />
+        <meta name="twitter:title" content={`${project.name} ${project.neighborhood} Presale ${projectTypeLabel}${priceDisplay ? ` | ${priceDisplay.charAt(0).toUpperCase() + priceDisplay.slice(1)}` : ""}`} />
+        <meta name="twitter:description" content={ogDescription} />
         {project.featured_image && <meta name="twitter:image" content={project.featured_image} />}
         
-        {/* Geo */}
+        {/* Geo targeting for local SEO */}
         <meta name="geo.region" content="CA-BC" />
-        <meta name="geo.placename" content={project.city} />
+        <meta name="geo.placename" content={`${project.neighborhood}, ${project.city}`} />
+        {project.map_lat && project.map_lng && (
+          <meta name="geo.position" content={`${project.map_lat};${project.map_lng}`} />
+        )}
+        {project.map_lat && project.map_lng && (
+          <meta name="ICBM" content={`${project.map_lat}, ${project.map_lng}`} />
+        )}
         
         {/* Structured Data */}
         <script type="application/ld+json">
