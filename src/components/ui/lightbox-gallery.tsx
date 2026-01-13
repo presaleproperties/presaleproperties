@@ -289,12 +289,12 @@ export function LightboxGallery({
             </div>
           </div>
 
-          {/* Previous button */}
+          {/* Previous button - larger touch target */}
           {images.length > 1 && scale <= 1 && (
             <Button
               variant="ghost"
               size="icon"
-              className="absolute left-2 md:left-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+              className="absolute left-2 md:left-4 z-50 text-white hover:bg-white/20 h-14 w-14 min-h-[56px] min-w-[56px] touch-active"
               onClick={(e) => {
                 e.stopPropagation();
                 goToPrev();
@@ -336,12 +336,12 @@ export function LightboxGallery({
             />
           </div>
 
-          {/* Next button */}
+          {/* Next button - larger touch target */}
           {images.length > 1 && scale <= 1 && (
             <Button
               variant="ghost"
               size="icon"
-              className="absolute right-2 md:right-4 z-50 text-white hover:bg-white/20 h-12 w-12"
+              className="absolute right-2 md:right-4 z-50 text-white hover:bg-white/20 h-14 w-14 min-h-[56px] min-w-[56px] touch-active"
               onClick={(e) => {
                 e.stopPropagation();
                 goToNext();
@@ -351,21 +351,21 @@ export function LightboxGallery({
             </Button>
           )}
 
-          {/* Thumbnail strip - lifted for mobile safe-area */}
+          {/* Thumbnail strip - larger touch targets, lifted for mobile safe-area */}
           {images.length > 1 && scale <= 1 && (
             <div
-              className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 rounded-lg max-w-[90vw] overflow-x-auto"
-              style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+              className="absolute left-1/2 -translate-x-1/2 z-50 flex gap-2 p-2 bg-black/40 backdrop-blur-sm rounded-xl max-w-[90vw] overflow-x-auto scroll-smooth-mobile"
+              style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 20px)" }}
               onClick={(e) => e.stopPropagation()}
             >
               {images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setCurrentIndex(i)}
-                  className={`shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-md overflow-hidden border-2 transition-all ${
+                  className={`shrink-0 w-14 h-14 md:w-16 md:h-16 min-w-[56px] min-h-[56px] rounded-lg overflow-hidden border-2 transition-all touch-active ${
                     currentIndex === i
                       ? "border-white scale-105"
-                      : "border-transparent opacity-60 hover:opacity-100"
+                      : "border-transparent opacity-70 hover:opacity-100 active:opacity-100"
                   }`}
                 >
                   <img
@@ -373,6 +373,7 @@ export function LightboxGallery({
                     alt=""
                     className="w-full h-full object-cover"
                     loading="lazy"
+                    decoding="async"
                   />
                 </button>
               ))}
@@ -482,22 +483,24 @@ export function GalleryWithLightbox({
   return (
     <>
       <div className="space-y-2 md:space-y-3">
-        {/* Main image with navigation arrows and swipe support */}
+        {/* Main image with navigation arrows and swipe support - GPU accelerated */}
         <div 
-          className="relative group overflow-hidden"
+          className="relative group overflow-hidden swipe-container"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
         >
           <div
             onClick={() => openLightbox(selectedIndex)}
-            className={`relative w-full ${mainAspectClass} rounded-lg md:rounded-xl overflow-hidden bg-muted cursor-pointer`}
+            className={`relative w-full ${mainAspectClass} rounded-lg md:rounded-xl overflow-hidden bg-muted cursor-pointer aspect-placeholder`}
           >
             <img
               src={images[selectedIndex]}
               alt={alt}
               className="w-full h-full object-cover transition-transform duration-300 ease-out"
-              style={{ 
+              loading="eager"
+              decoding="async"
+              style={{
                 transform: `translateX(${swipeOffset}px)`,
                 transition: isTransitioning || !touchStart ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' : 'none'
               }}

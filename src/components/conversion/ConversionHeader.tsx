@@ -266,13 +266,13 @@ export function ConversionHeader() {
             </Button>
           </div>
 
-          {/* Mobile Menu */}
-          <div className="flex items-center gap-0.5 lg:hidden">
-            {/* Mobile Home Button */}
+          {/* Mobile Menu - Improved touch targets */}
+          <div className="flex items-center gap-1 lg:hidden">
+            {/* Mobile Home Button - 48x48 minimum */}
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-10 w-10 shrink-0" 
+              className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 touch-active" 
               asChild
             >
               <Link to="/">
@@ -283,9 +283,9 @@ export function ConversionHeader() {
             
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-10 w-10 shrink-0">
+                <Button variant="ghost" size="icon" className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 touch-active">
                   <span className="sr-only">Toggle menu</span>
-                  {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                  {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                 </Button>
               </SheetTrigger>
               <SheetContent 
@@ -293,53 +293,54 @@ export function ConversionHeader() {
                 className="w-[300px] p-0 bg-background border-l-0 shadow-2xl"
               >
                 <div className="flex flex-col h-full">
-                  <nav className="flex-1 pt-6 overflow-y-auto">
+                  <nav className="flex-1 pt-6 overflow-y-auto scroll-smooth-mobile">
                     <div className="space-y-1 px-4">
+                      {/* Mobile nav items - minimum 48px height for touch */}
                       <Link
                         to="/presale-projects"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
+                        className={`flex items-center justify-between px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 group touch-active ${
                           isActive("/presale-projects") 
                             ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted"
+                            : "text-foreground hover:bg-muted active:bg-muted"
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <Building2 className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
                           <span className="text-base font-medium">Presale</span>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                        <ChevronRight className="h-5 w-5 text-muted-foreground/50" />
                       </Link>
 
                       <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
+                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 text-foreground hover:bg-muted active:bg-muted touch-active">
                           <div className="flex items-center gap-3">
                             <MapPin className="h-5 w-5 text-muted-foreground" />
                             <span className="text-base font-medium">Browse by City</span>
                           </div>
-                          <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`h-5 w-5 text-muted-foreground/50 transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">Condos</p>
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2">Condos</p>
                           {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
                             <Link
                               key={`condo-${city.slug}`}
                               to={`/${city.slug}-presale-condos`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
                             >
-                              <span className="text-sm font-medium">{city.name} Condos</span>
+                              <span className="text-base font-medium">{city.name} Condos</span>
                             </Link>
                           ))}
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1 pt-2">Townhomes</p>
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2 pt-3">Townhomes</p>
                           {TOWNHOME_CITY_LINKS.map((city) => (
                             <Link
                               key={`townhome-${city.slug}`}
                               to={`/${city.slug}-presale-townhomes`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
                             >
-                              <span className="text-sm font-medium">{city.name} Townhomes</span>
+                              <span className="text-base font-medium">{city.name} Townhomes</span>
                             </Link>
                           ))}
                         </CollapsibleContent>
@@ -348,58 +349,58 @@ export function ConversionHeader() {
                       <Link
                         to="/resale"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
+                        className={`flex items-center justify-between px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 group touch-active ${
                           isActive("/resale") 
                             ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted"
+                            : "text-foreground hover:bg-muted active:bg-muted"
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <Home className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
                           <span className="text-base font-medium">Move-In Ready</span>
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                        <ChevronRight className="h-5 w-5 text-muted-foreground/50" />
                       </Link>
 
                       <Collapsible open={resaleCitiesOpen} onOpenChange={setResaleCitiesOpen}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3.5 rounded-xl transition-all duration-200 text-foreground hover:bg-muted">
+                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 text-foreground hover:bg-muted active:bg-muted touch-active">
                           <div className="flex items-center gap-3">
                             <Map className="h-5 w-5 text-muted-foreground" />
                             <span className="text-base font-medium">Browse by City</span>
                           </div>
-                          <ChevronDown className={`h-4 w-4 text-muted-foreground/50 transition-transform duration-200 ${resaleCitiesOpen ? "rotate-180" : ""}`} />
+                          <ChevronDown className={`h-5 w-5 text-muted-foreground/50 transition-transform duration-200 ${resaleCitiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1">New Condos</p>
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2">New Condos</p>
                           {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                             <Link
                               key={`resale-condo-${city.slug}`}
                               to={`/resale/${city.slug}?type=condo`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
                             >
-                              <span className="text-sm font-medium">{city.name} Condos</span>
+                              <span className="text-base font-medium">{city.name} Condos</span>
                             </Link>
                           ))}
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-1 pt-2">New Townhomes</p>
+                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2 pt-3">New Townhomes</p>
                           {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
                             <Link
                               key={`resale-townhome-${city.slug}`}
                               to={`/resale/${city.slug}?type=townhouse`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
                             >
-                              <span className="text-sm font-medium">{city.name} Townhomes</span>
+                              <span className="text-base font-medium">{city.name} Townhomes</span>
                             </Link>
                           ))}
                           <div className="border-t my-2 mx-4" />
                           <Link
                             to="/map-search?mode=resale"
                             onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted"
+                            className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
                           >
                             <Map className="h-4 w-4" />
-                            <span className="text-sm font-medium">Map Search</span>
+                            <span className="text-base font-medium">Map Search</span>
                           </Link>
                         </CollapsibleContent>
                       </Collapsible>
