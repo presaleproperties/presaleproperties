@@ -82,6 +82,42 @@ interface DDFProperty {
   }>;
 }
 
+// BC geographic boundaries for coordinate validation
+// Latitude: ~48.3 (southern border) to ~60.0 (northern border)
+// Longitude: ~-139.0 (western coast) to ~-114.0 (eastern border with Alberta)
+const BC_BOUNDS = {
+  minLat: 48.2,
+  maxLat: 60.5,
+  minLng: -139.5,
+  maxLng: -114.0,
+};
+
+// Validate coordinates are within BC boundaries
+function validateBCCoordinates(lat: number | undefined, lng: number | undefined): { latitude: number | null; longitude: number | null } {
+  // If either coordinate is missing, return null for both
+  if (lat === undefined || lat === null || lng === undefined || lng === null) {
+    return { latitude: null, longitude: null };
+  }
+  
+  // Check for obvious errors: negative latitude (should be positive in BC)
+  const correctedLat = lat < 0 ? Math.abs(lat) : lat;
+  
+  // Check for obvious errors: positive longitude (should be negative in BC)
+  const correctedLng = lng > 0 ? -lng : lng;
+  
+  // Validate corrected coordinates are within BC bounds
+  const isValidLat = correctedLat >= BC_BOUNDS.minLat && correctedLat <= BC_BOUNDS.maxLat;
+  const isValidLng = correctedLng >= BC_BOUNDS.minLng && correctedLng <= BC_BOUNDS.maxLng;
+  
+  if (isValidLat && isValidLng) {
+    return { latitude: correctedLat, longitude: correctedLng };
+  }
+  
+  // Coordinates are outside BC - null them out
+  console.log(`Invalid coordinates detected: lat=${lat}, lng=${lng} - outside BC bounds, setting to null`);
+  return { latitude: null, longitude: null };
+}
+
 // Known Metro Vancouver neighborhoods by city for better matching
 const CITY_NEIGHBORHOODS: Record<string, string[]> = {
   "Vancouver": ["Downtown", "Yaletown", "Gastown", "Coal Harbour", "West End", "Kitsilano", "Point Grey", "Kerrisdale", "Dunbar", "Southlands", "Marpole", "South Cambie", "Oakridge", "Shaughnessy", "Arbutus Ridge", "Riley Park", "Mount Pleasant", "Fairview", "Cambie", "Strathcona", "Grandview-Woodland", "Hastings-Sunrise", "Renfrew-Collingwood", "Killarney", "Victoria-Fraserview", "Sunset", "Kensington-Cedar Cottage"],
@@ -477,8 +513,8 @@ Deno.serve(async (req) => {
           living_area: toInt(property.LivingArea),
           living_area_units: property.LivingAreaUnits || "sqft",
           year_built: toInt(property.YearBuilt),
-          latitude: property.Latitude,
-          longitude: property.Longitude,
+          // Validate coordinates are within BC boundaries
+          ...validateBCCoordinates(property.Latitude, property.Longitude),
           public_remarks: property.PublicRemarks,
           list_agent_key: property.ListAgentKey,
           list_agent_mls_id: property.ListAgentMlsId,
