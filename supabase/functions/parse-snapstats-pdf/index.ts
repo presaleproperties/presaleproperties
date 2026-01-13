@@ -40,48 +40,61 @@ const RENT_ESTIMATES: Record<string, { rent1br: number; rent2br: number }> = {
 };
 
 function extractRelevantSections(text: string, cities: string[]): string {
-  // Extract just the sections we need - condos and townhomes data
-  // Look for key patterns that indicate data sections
+  // Extract sections relevant to condos/townhomes market data
   const lines = text.split('\n');
   const relevantLines: string[] = [];
-  let inRelevantSection = false;
-  let sectionCount = 0;
   
   const cityPatterns = cities.map(c => c.toLowerCase());
-  const keywords = ['condo', 'townhome', 'townhouse', 'apartment', 'benchmark', 'median', 
-    'active listings', 'sales', 'inventory', 'days on market', 'dom', 'price', 
-    'sale to list', 'market summary', 'snapshot', 'market trend'];
+  const keywords = [
+    'condo', 'townhome', 'townhouse', 'apartment', 'attached', 'row',
+    'benchmark', 'median', 'average', 'price', 'sold',
+    'active listing', 'sales', 'inventory', 'new listing',
+    'days on market', 'dom', 'sale to list', 'sale-to-list',
+    'market type', 'buyer', 'seller', 'balanced',
+    'yoy', 'y-o-y', 'year over year', 'mom', 'm-o-m', 'month over month',
+    'price band', 'price range', 'hottest',
+    'summary', 'snapshot', 'trend', 'overview'
+  ];
+  
+  // Track which cities we've found data for
+  const citiesFound = new Set<string>();
   
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const lowerLine = line.toLowerCase();
     
-    // Check if this line contains relevant data
-    const hasCity = cityPatterns.some(c => lowerLine.includes(c));
+    // Check if this line is relevant
+    const matchedCity = cityPatterns.find(c => lowerLine.includes(c));
     const hasKeyword = keywords.some(k => lowerLine.includes(k));
-    const hasNumbers = /\$[\d,]+|\d{1,3},\d{3}|\d+%/.test(line);
+    // Match prices like $500,000 or 500000 or percentages like 15% or -2.5%
+    const hasPrice = /\$[\d,]+|\d{3},\d{3}/.test(line);
+    const hasPercent = /[-+]?\d+\.?\d*%/.test(line);
+    const hasDays = /\d+\s*days?/i.test(line);
     
-    if (hasCity || hasKeyword || hasNumbers) {
-      // Include context lines around important data
-      const startIdx = Math.max(0, i - 2);
-      const endIdx = Math.min(lines.length - 1, i + 2);
+    if (matchedCity) citiesFound.add(matchedCity);
+    
+    if (matchedCity || hasKeyword || hasPrice || hasPercent || hasDays) {
+      // Include some context around this line
+      const startIdx = Math.max(0, i - 1);
+      const endIdx = Math.min(lines.length - 1, i + 1);
       
       for (let j = startIdx; j <= endIdx; j++) {
-        if (!relevantLines.includes(lines[j])) {
-          relevantLines.push(lines[j]);
+        const contextLine = lines[j].trim();
+        if (contextLine && !relevantLines.includes(contextLine)) {
+          relevantLines.push(contextLine);
         }
       }
-      sectionCount++;
     }
     
-    // Stop if we've collected enough data (keep it under token limits)
-    if (relevantLines.length > 2000) break;
+    // Keep collecting until we have good coverage
+    if (relevantLines.length > 3000) break;
   }
   
   console.log(`Extracted ${relevantLines.length} relevant lines from ${lines.length} total lines`);
+  console.log(`Found references to cities: ${Array.from(citiesFound).join(', ')}`);
   
-  // Return condensed text, max ~50k chars to keep token count reasonable
-  return relevantLines.join('\n').slice(0, 50000);
+  // Return condensed text, limit to ~80k chars to keep under token limits
+  return relevantLines.join('\n').slice(0, 80000);
 }
 
 serve(async (req) => {

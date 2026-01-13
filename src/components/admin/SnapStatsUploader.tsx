@@ -88,36 +88,46 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
   };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
-    const arrayBuffer = await file.arrayBuffer();
-    const bytes = new Uint8Array(arrayBuffer);
-    const decoder = new TextDecoder('utf-8', { fatal: false });
-    const pdfContent = decoder.decode(bytes);
+    // Use pdf.js for proper text extraction
+    const pdfjsLib = await import('pdfjs-dist');
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
     
-    let text = '';
-    const textMatches = pdfContent.match(/\(([^)]+)\)/g) || [];
-    for (const match of textMatches) {
-      const content = match.slice(1, -1);
-      if (content.length > 2 && /[a-zA-Z0-9$%]/.test(content)) {
-        text += content + ' ';
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = '';
+    
+    // Extract text from all pages
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+      const textContent = await page.getTextContent();
+      
+      // Group text items by their Y position to preserve table rows
+      const items = textContent.items as Array<{ str: string; transform: number[] }>;
+      const rows: Map<number, string[]> = new Map();
+      
+      for (const item of items) {
+        const y = Math.round(item.transform[5]); // Y position
+        if (!rows.has(y)) {
+          rows.set(y, []);
+        }
+        rows.get(y)!.push(item.str);
       }
-    }
-
-    const streamRegex = /stream\n([\s\S]*?)\nendstream/g;
-    let streamMatch;
-    while ((streamMatch = streamRegex.exec(pdfContent)) !== null) {
-      const streamContent = streamMatch[1];
-      if (streamContent && streamContent.length < 10000) {
-        const tokens = streamContent.match(/\(([^)]{2,100})\)/g) || [];
-        for (const token of tokens) {
-          const t = token.slice(1, -1);
-          if (/[a-zA-Z0-9$%]/.test(t)) {
-            text += t + ' ';
-          }
+      
+      // Sort by Y position (descending - top to bottom)
+      const sortedYs = Array.from(rows.keys()).sort((a, b) => b - a);
+      
+      for (const y of sortedYs) {
+        const rowText = rows.get(y)!.join(' ');
+        if (rowText.trim()) {
+          fullText += rowText + '\n';
         }
       }
+      
+      fullText += '\n--- PAGE BREAK ---\n';
     }
-
-    return text.trim();
+    
+    return fullText.trim();
   };
 
   const processAllFiles = async () => {
