@@ -185,7 +185,7 @@ export function MobileResaleHome() {
 
       {/* Top Cities - Horizontal Scroll */}
       <div className="pt-20 pb-6 px-4 sm:px-6 bg-background">
-        <div className="flex items-center gap-3 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
           </span>
@@ -193,7 +193,7 @@ export function MobileResaleHome() {
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95"
+              className="px-3.5 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
             >
               {city.name}
             </button>
