@@ -60,8 +60,19 @@ export function ROILeadCapture({ inputs, results, onTrackEvent }: ROILeadCapture
     setIsSubmitting(true);
 
     try {
-      // Store lead in project_leads table
+      // Get tracking info
+      const visitorId = localStorage.getItem("pp_vid") || crypto.randomUUID();
+      const sessionId = sessionStorage.getItem("pp_sid") || crypto.randomUUID();
+      const utmSource = sessionStorage.getItem("utm_source") || null;
+      const utmMedium = sessionStorage.getItem("utm_medium") || null;
+      const utmCampaign = sessionStorage.getItem("utm_campaign") || null;
+      const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
+      const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
+
+      // Store lead in project_leads table with UUID
+      const leadId = crypto.randomUUID();
       const { error } = await supabase.from("project_leads").insert({
+        id: leadId,
         name: formData.name.trim(),
         email: formData.email.trim(),
         phone: formData.phone?.trim() || null,
@@ -72,13 +83,22 @@ export function ROILeadCapture({ inputs, results, onTrackEvent }: ROILeadCapture
 - Property Type: ${inputs.purchase.propertyType}
 - Total Investment: ${formatCurrency(results.totalCashInvested)}
 - 5-Year Return: ${results.totalReturnPercent.toFixed(1)}%`,
-        landing_page: window.location.pathname,
-        referrer: document.referrer || null,
+        landing_page: landingPage,
+        referrer: referrer,
+        visitor_id: visitorId,
+        session_id: sessionId,
+        utm_source: utmSource,
+        utm_medium: utmMedium,
+        utm_campaign: utmCampaign,
       });
 
       if (error) throw error;
 
+      // Send to Zapier via edge function
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
+
       onTrackEvent?.("roi_email_report_submitted");
+      localStorage.setItem("pp_form_submitted", "true");
       setIsSubmitted(true);
       toast.success("Report request submitted! Check your email.");
     } catch (error) {
