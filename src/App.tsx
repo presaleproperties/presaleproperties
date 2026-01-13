@@ -75,6 +75,8 @@ import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
 import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
 import ResalePriceRangePage from "./pages/ResalePriceRangePage";
+import ContentHub from "./pages/ContentHub";
+import BlogCategoryPage from "./pages/BlogCategoryPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -140,6 +142,10 @@ const App = () => (
             <Route path="/presale-townhomes-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            
+            {/* Content Hub & Category Pages */}
+            <Route path="/guides" element={<ContentHub />} />
+            <Route path="/guides/:categorySlug" element={<BlogCategoryPage />} />
             <Route path="/assignments" element={<Assignments />} />
             <Route path="/assignments/:id" element={<ListingDetail />} />
             <Route path="/about" element={<About />} />

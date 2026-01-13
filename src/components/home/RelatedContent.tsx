@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, MapPin, Building2, FileText, BookOpen, Calculator } from "lucide-react";
+import { ArrowRight, MapPin, Building2, BookOpen, Calculator, FileText } from "lucide-react";
 
 const POPULAR_CITIES = [
   { name: "Vancouver", slug: "vancouver", count: "50+" },
@@ -16,22 +16,22 @@ const POPULAR_CITIES = [
 
 const QUICK_LINKS = [
   { 
+    title: "Guides & Resources", 
+    description: "Expert presale education hub",
+    href: "/guides",
+    icon: BookOpen 
+  },
+  { 
     title: "Investment Calculator", 
     description: "Analyze your ROI and cash flow",
     href: "/calculator",
     icon: Calculator 
   },
   { 
-    title: "Presale Guide", 
-    description: "Learn how to buy a presale condo",
-    href: "/presale-guide",
-    icon: Building2 
-  },
-  { 
-    title: "New Construction", 
-    description: "Browse 2025+ new homes for sale",
-    href: "/resale",
-    icon: BookOpen 
+    title: "Market Updates", 
+    description: "Latest BC presale trends",
+    href: "/guides/market-updates",
+    icon: FileText 
   },
   { 
     title: "Browse Presales", 
