@@ -117,14 +117,17 @@ export function MobileResaleHome() {
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60" />
         </div>
 
-        {/* Hero Content */}
+        {/* Hero Content - Synced with desktop */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
           <p className="text-primary text-xs font-medium tracking-wide mb-1">
-            Metro Vancouver's Marketplace for Move-In Ready New Homes
+            New Construction Specialists
           </p>
           <h1 className="text-xl font-bold text-white leading-tight">
-            <span className="text-primary">Move-In Ready</span> New Built Homes
+            Presale Projects & <span className="text-primary">Move-In Ready</span> Homes
           </h1>
+          <p className="text-white/80 text-xs mt-1.5 max-w-xs">
+            Every property is brand new, never lived in. 100% new construction only.
+          </p>
         </div>
 
         {/* Floating Search Card */}
