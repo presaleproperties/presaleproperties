@@ -851,43 +851,43 @@ export default function PresaleProjectDetail() {
         </section>
 
         {/* Details Grid */}
-        <section className="py-3 md:py-5 lg:py-8">
+        <section className="py-2 sm:py-3 md:py-5 lg:py-8">
           <div className="container px-3 md:px-4">
-            <div className="grid lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+            <div className="grid lg:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 lg:gap-6">
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-4 md:space-y-5 lg:space-y-6">
+              <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
                 {/* Deposit, Fees & Developer - Combined section */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && (
-                  <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-2xl p-5 md:p-6 border border-border/40">
+                  <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 border border-border/40">
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
                       {project.developer_name && (
-                        <div className="hidden md:block bg-background/70 rounded-xl p-4 border border-border/30">
-                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Developer</p>
-                          <p className="font-semibold text-foreground">{project.developer_name}</p>
+                        <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Developer</p>
+                          <p className="font-semibold text-sm sm:text-base text-foreground">{project.developer_name}</p>
                         </div>
                       )}
                       {project.strata_fees && (
-                        <div className="hidden md:block bg-background/70 rounded-xl p-4 border border-border/30">
-                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Strata Fees</p>
-                          <p className="font-semibold text-foreground">{project.strata_fees}</p>
+                        <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Strata Fees</p>
+                          <p className="font-semibold text-sm sm:text-base text-foreground">{project.strata_fees}</p>
                         </div>
                       )}
                       {project.assignment_fees && (
-                        <div className="hidden md:block bg-background/70 rounded-xl p-4 border border-border/30">
-                          <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Assignment</p>
-                          <p className="font-semibold text-foreground">{project.assignment_fees}</p>
+                        <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
+                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Assignment</p>
+                          <p className="font-semibold text-sm sm:text-base text-foreground">{project.assignment_fees}</p>
                         </div>
                       )}
                     </div>
                     
                     {project.incentives && (
-                      <div className="mt-3 bg-green-50 dark:bg-green-950/30 rounded-xl p-4 border border-green-200/50 dark:border-green-800/30">
+                      <div className="mt-2 sm:mt-3 bg-green-50 dark:bg-green-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200/50 dark:border-green-800/30">
                         <div className="flex items-start gap-2">
-                          <Gift className="h-4 w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                          <Gift className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
                           <div>
-                            <p className="text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-1">Current Incentives</p>
-                            <p className="text-sm text-green-800 dark:text-green-300">{project.incentives}</p>
+                            <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Current Incentives</p>
+                            <p className="text-xs sm:text-sm text-green-800 dark:text-green-300">{project.incentives}</p>
                           </div>
                         </div>
                       </div>
@@ -897,13 +897,13 @@ export default function PresaleProjectDetail() {
 
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 md:gap-3">
+                  <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2.5 sm:mb-3 md:mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
                       {project.amenities.map((a, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
-                          <span className="text-sm md:text-base text-foreground">{a}</span>
+                        <div key={i} className="flex items-center gap-1.5 sm:gap-2">
+                          <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
+                          <span className="text-xs sm:text-sm md:text-base text-foreground">{a}</span>
                         </div>
                       ))}
                     </div>
@@ -912,9 +912,9 @@ export default function PresaleProjectDetail() {
 
                 {/* Description */}
                 {project.full_description && (
-                  <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-3">
+                  <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2.5 sm:mb-3 md:mb-4">Development Features</h2>
+                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-2 sm:space-y-3">
                       {project.full_description.split("\n").map((line, i) => {
                         // Handle bullet points
                         const isBullet = line.trim().startsWith("•") || line.trim().startsWith("-");
@@ -925,7 +925,7 @@ export default function PresaleProjectDetail() {
                           const bulletContent = line.trim().replace(/^[•\-]\s*/, "");
                           const parsedBullet = bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
                           return (
-                            <div key={i} className="flex items-start gap-2 text-sm lg:text-base">
+                            <div key={i} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm lg:text-base">
                               <span className="text-primary mt-0.5">•</span>
                               <span dangerouslySetInnerHTML={{ __html: parsedBullet }} />
                             </div>
@@ -937,7 +937,7 @@ export default function PresaleProjectDetail() {
                         return (
                           <p 
                             key={i} 
-                            className="text-sm lg:text-base leading-relaxed"
+                            className="text-xs sm:text-sm lg:text-base leading-relaxed"
                             dangerouslySetInnerHTML={{ __html: parsedLine }}
                           />
                         );

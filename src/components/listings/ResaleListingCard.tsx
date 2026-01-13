@@ -259,31 +259,31 @@ export function ResaleListingCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 flex-1 flex flex-col min-w-0">
-          <div className="flex items-start justify-between gap-2 min-w-0">
+        <CardContent className="p-2.5 sm:p-3 md:p-4 flex-1 flex flex-col min-w-0">
+          <div className="flex items-start justify-between gap-1.5 sm:gap-2 min-w-0">
             {/* Left: Address, Location & Specs */}
             <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
-              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base truncate">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate">
                 {address}
               </h3>
               <div className="flex items-center gap-1 text-muted-foreground min-w-0">
-                <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                <span className="text-[11px] sm:text-xs truncate">
+                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                <span className="text-[10px] sm:text-[11px] md:text-xs truncate">
                   {neighborhood ? `${neighborhood}, ${city}` : city}
                 </span>
               </div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground truncate">
+              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
                 {displayType} {specsString ? `• ${specsString}` : ""}
               </p>
             </div>
 
             {/* Right: Price */}
-            <div className="text-right shrink-0 ml-1">
-              <span className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap">
+            <div className="text-right shrink-0 ml-0.5 sm:ml-1">
+              <span className="text-[13px] sm:text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap">
                 {formatPrice(price)}
               </span>
               {sqft && sqft > 0 && (
-                <span className="text-[9px] sm:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap">
+                <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap">
                   ${Math.round(price / sqft)}/sqft
                 </span>
               )}
@@ -291,10 +291,10 @@ export function ResaleListingCard({
           </div>
 
           {/* Listed by Agent & Brokerage - Always show, required for compliance */}
-          <div className="mt-auto pt-1.5 sm:pt-2">
-            <div className="pt-1.5 sm:pt-2 border-t border-border">
-              <div className="flex items-center gap-1 text-[9px] sm:text-[10px] text-muted-foreground min-w-0">
-                <Building className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+          <div className="mt-auto pt-1 sm:pt-1.5">
+            <div className="pt-1 sm:pt-1.5 border-t border-border">
+              <div className="flex items-center gap-1 text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground min-w-0">
+                <Building className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 shrink-0" />
                 <span className="truncate">
                   Listed by {listOfficeName || "MLS®"}
                 </span>
