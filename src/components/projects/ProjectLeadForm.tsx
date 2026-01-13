@@ -378,84 +378,90 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         </h3>
       </div>
 
-      {/* Form - optimized for conversion */}
+      {/* Form - optimized for conversion & mobile UX */}
       <div className="p-4 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-3">
-          {/* First Name & Last Name - side by side */}
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4">
+          {/* First Name & Last Name - side by side with proper touch targets */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="lead-firstName" className="text-xs font-medium text-muted-foreground mb-1 block">
+              <Label htmlFor="lead-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
                 First Name
               </Label>
               <Input
                 id="lead-firstName"
                 placeholder="John"
                 autoComplete="given-name"
+                enterKeyHint="next"
                 {...form.register("firstName")}
-                className="h-11 text-base rounded-lg border-border"
+                className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div>
-              <Label htmlFor="lead-lastName" className="text-xs font-medium text-muted-foreground mb-1 block">
+              <Label htmlFor="lead-lastName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
                 Last Name
               </Label>
               <Input
                 id="lead-lastName"
                 placeholder="Smith"
                 autoComplete="family-name"
+                enterKeyHint="next"
                 {...form.register("lastName")}
-                className="h-11 text-base rounded-lg border-border"
+                className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
 
-          {/* Email */}
+          {/* Email - auto-complete friendly */}
           <div>
-            <Label htmlFor="lead-email" className="text-xs font-medium text-muted-foreground mb-1 block">
+            <Label htmlFor="lead-email" className="text-sm font-medium text-muted-foreground mb-1.5 block">
               Email
             </Label>
             <Input
               id="lead-email"
               type="email"
+              inputMode="email"
               placeholder="john@email.com"
               autoComplete="email"
+              enterKeyHint="next"
               {...form.register("email")}
-              className="h-11 text-base rounded-lg border-border"
+              className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
-          {/* Phone */}
+          {/* Phone - numeric keyboard on mobile */}
           <div>
-            <Label htmlFor="lead-phone" className="text-xs font-medium text-muted-foreground mb-1 block">
+            <Label htmlFor="lead-phone" className="text-sm font-medium text-muted-foreground mb-1.5 block">
               Phone
             </Label>
             <Input
               id="lead-phone"
               type="tel"
+              inputMode="tel"
               placeholder="604-555-0123"
               autoComplete="tel"
+              enterKeyHint="done"
               {...form.register("phone")}
-              className="h-11 text-base rounded-lg border-border"
+              className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
-          {/* I am a... */}
+          {/* I am a... - Large touch targets */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
               I am a...
             </Label>
             <RadioGroup
               value={form.watch("persona")}
               onValueChange={(v) => form.setValue("persona", v as any)}
-              className="grid grid-cols-2 gap-2"
+              className="grid grid-cols-2 gap-3"
             >
               {PERSONAS.map((p) => (
                 <Label
                   key={p.value}
-                  className={`flex items-center justify-center h-10 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center h-12 min-h-[48px] rounded-xl border-2 cursor-pointer text-base font-medium transition-all touch-active ${
                     form.watch("persona") === p.value
                       ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-muted-foreground/50"
+                      : "border-border hover:border-muted-foreground/50 active:bg-muted"
                   }`}
                 >
                   <RadioGroupItem value={p.value} className="sr-only" />
@@ -465,9 +471,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </RadioGroup>
           </div>
 
-          {/* Working with agent */}
+          {/* Working with agent - Touch-friendly */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
               Working with a Realtor?
             </Label>
             <RadioGroup
@@ -478,10 +484,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               {AGENT_OPTIONS.map((a) => (
                 <Label
                   key={a.value}
-                  className={`flex items-center justify-center h-10 rounded-lg border cursor-pointer text-xs font-medium transition-all text-center px-1 ${
+                  className={`flex items-center justify-center h-11 min-h-[44px] rounded-xl border-2 cursor-pointer text-sm font-medium transition-all text-center px-2 touch-active ${
                     form.watch("workingWithAgent") === a.value
                       ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-muted-foreground/50"
+                      : "border-border hover:border-muted-foreground/50 active:bg-muted"
                   }`}
                 >
                   <RadioGroupItem value={a.value} className="sr-only" />
@@ -491,9 +497,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </RadioGroup>
           </div>
 
-          {/* Interested in Home Size */}
+          {/* Interested in Home Size - Touch-friendly */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
               Home Size
             </Label>
             <RadioGroup
@@ -504,10 +510,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               {HOME_SIZES.map((size) => (
                 <Label
                   key={size.value}
-                  className={`flex items-center justify-center h-10 rounded-lg border cursor-pointer text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center h-11 min-h-[44px] rounded-xl border-2 cursor-pointer text-sm font-medium transition-all touch-active ${
                     form.watch("homeSize") === size.value
                       ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-muted-foreground/50"
+                      : "border-border hover:border-muted-foreground/50 active:bg-muted"
                   }`}
                 >
                   <RadioGroupItem value={size.value} className="sr-only" />
@@ -517,16 +523,16 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </RadioGroup>
           </div>
 
-          {/* Submit Button */}
+          {/* Submit Button - Large touch target */}
           <Button
             type="submit"
-            className="w-full h-12 text-base font-bold rounded-lg gap-2 shadow-md"
+            className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-md touch-active"
             size="lg"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
-                <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                 Submitting...
               </span>
             ) : (

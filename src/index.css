@@ -125,22 +125,78 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     -webkit-tap-highlight-color: transparent;
+    /* Improve text rendering on mobile */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Prevent layout shift from scrollbar */
+    overflow-y: scroll;
   }
 
-  /* Prevent iOS Safari auto-zoom on input focus */
+  /* Prevent iOS Safari auto-zoom on input focus - CRITICAL for mobile UX */
   input, select, textarea {
     font-size: 16px !important;
+    /* Ensure proper touch targets */
+    min-height: 44px;
   }
 
-  /* Improve touch targets on mobile */
-  @media (max-width: 640px) {
-    button, a, input, select, textarea {
+  /* Mobile-first touch target improvements */
+  @media (max-width: 768px) {
+    /* Minimum 44x44px touch targets (Apple HIG / WCAG) */
+    button, 
+    [role="button"], 
+    a:not(.inline-link), 
+    input[type="checkbox"], 
+    input[type="radio"] {
       min-height: 44px;
+      min-width: 44px;
+    }
+
+    /* Interactive elements inside buttons should inherit */
+    button *, [role="button"] * {
+      pointer-events: none;
+    }
+
+    /* Ensure readable text without zooming (16px minimum) */
+    p, li, span, label {
+      font-size: max(1rem, 16px);
+      line-height: 1.5;
+    }
+
+    /* Larger tap areas for form radio/checkbox labels */
+    label:has(input[type="radio"]),
+    label:has(input[type="checkbox"]) {
+      padding: 12px;
+    }
+  }
+
+  /* Prevent content jump when keyboard opens - push content up smoothly */
+  @supports (height: 100dvh) {
+    .keyboard-aware {
+      min-height: 100dvh;
+    }
+  }
+
+  /* Ensure sticky elements stay visible when keyboard is open */
+  @media (max-width: 768px) {
+    .sticky-cta-mobile {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 50;
+      /* Smooth transition when keyboard appears */
+      transition: transform 0.2s ease-out;
+    }
+
+    /* Hide sticky CTA when form input is focused to prevent overlap */
+    body:has(input:focus, textarea:focus, select:focus) .hide-on-keyboard {
+      transform: translateY(100%);
+      pointer-events: none;
     }
   }
 }
@@ -184,9 +240,42 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 
-  /* Touch-friendly active states */
+  .safe-area-pb {
+    padding-bottom: max(env(safe-area-inset-bottom), 12px);
+  }
+
+  /* Touch-friendly active states with visual feedback */
   .touch-active {
     @apply active:scale-[0.98] transition-transform;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Smooth gallery swiping - GPU accelerated */
+  .swipe-container {
+    touch-action: pan-x pan-y;
+    will-change: transform;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Prevent content layout shift during image load */
+  .aspect-placeholder {
+    background: linear-gradient(90deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.5) 50%, hsl(var(--muted)) 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* Improved scrolling performance on mobile */
+  .scroll-smooth-mobile {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   /* Leaflet map popup styling */
