@@ -131,18 +131,28 @@ export function Footer() {
             <h4 className="text-xs sm:text-sm font-semibold">Resources</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
+                <Link to="/guides" className="hover:text-foreground transition-colors">
+                  Guides & Resources
+                </Link>
+              </li>
+              <li>
                 <Link to="/calculator" className="hover:text-foreground transition-colors">
                   Calculator
                 </Link>
               </li>
               <li>
-                <Link to="/buyers-guide" className="hover:text-foreground transition-colors">
-                  Presale Buyer's Guide
+                <Link to="/guides/presale-guides" className="hover:text-foreground transition-colors">
+                  Presale Guides
+                </Link>
+              </li>
+              <li>
+                <Link to="/guides/market-updates" className="hover:text-foreground transition-colors">
+                  Market Updates
                 </Link>
               </li>
               <li>
                 <Link to="/blog" className="hover:text-foreground transition-colors">
-                  Presale News & Blog
+                  Blog
                 </Link>
               </li>
               <li>
