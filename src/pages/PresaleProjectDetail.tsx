@@ -93,7 +93,7 @@ type Project = {
 };
 
 export default function PresaleProjectDetail() {
-  const { slug, seoSlug } = useParams();
+  const { slug, seoSlug, cityProductSlug } = useParams();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const { toast } = useToast();
@@ -201,12 +201,14 @@ export default function PresaleProjectDetail() {
   const previewToken = searchParams.get("preview");
 
   // Determine actual slug from URL params
-  // Handles both /presale-projects/:slug and /:seoSlug patterns
+  // Handles /presale-projects/:slug, /:seoSlug, and /:cityProductSlug patterns
   const actualSlug = slug || (() => {
-    if (seoSlug) {
+    // Check both seoSlug and cityProductSlug (from CityProductPage routing)
+    const urlSlug = seoSlug || cityProductSlug;
+    if (urlSlug) {
       // Parse SEO-friendly URL: {neighborhood}-presale-{type}-{slug}
-      const match = seoSlug.match(/^(.+)-presale-(condos|townhomes|homes|duplexes)-(.+)$/);
-      return match ? match[3] : seoSlug;
+      const match = urlSlug.match(/^(.+)-presale-(condos|townhomes|homes|duplexes)-(.+)$/);
+      return match ? match[3] : urlSlug;
     }
     return null;
   })();
