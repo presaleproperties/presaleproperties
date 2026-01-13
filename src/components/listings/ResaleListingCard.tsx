@@ -288,20 +288,16 @@ export function ResaleListingCard({
             </div>
           </div>
 
-          {/* Listed by Agent & Brokerage - Bottom badge matching presale style */}
+          {/* Listed by Agent & Brokerage - Always show, required for compliance */}
           <div className="mt-auto pt-2">
-            {(listAgentName || listOfficeName) && (
-              <div className="pt-2 border-t border-border">
-                <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
-                  <Building className="h-3 w-3 shrink-0" />
-                  <span className="truncate">
-                    Listed by {listAgentName && listOfficeName 
-                      ? `${listOfficeName}`
-                      : listAgentName || listOfficeName}
-                  </span>
-                </div>
+            <div className="pt-2 border-t border-border">
+              <div className="flex items-center gap-1.5 text-[10px] sm:text-xs text-muted-foreground">
+                <Building className="h-3 w-3 shrink-0" />
+                <span className="truncate">
+                  Listed by {listOfficeName || "MLS®"}
+                </span>
               </div>
-            )}
+            </div>
           </div>
         </CardContent>
       </Card>
