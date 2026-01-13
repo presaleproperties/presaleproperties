@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Building2, MapPin, MapPinned, HardHat, TrendingUp } from "lucide-react";
+import { Building2, MapPin, MapPinned, HardHat, TrendingUp, Hash } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
-type SuggestionType = "project" | "neighborhood" | "city" | "developer" | "presale";
+type SuggestionType = "project" | "neighborhood" | "city" | "developer" | "presale" | "listing";
 
 interface SearchSuggestionsProps {
   query: string;
@@ -20,6 +20,7 @@ interface Suggestion {
   type: SuggestionType;
   count: number;
   slug?: string;
+  sublabel?: string;
 }
 
 export type { SuggestionType };
@@ -156,17 +157,61 @@ export function SearchSuggestions({
           results.push({ value, type: "developer", count });
         });
       } else {
-        // Search MLS listings for resale
+        // Search MLS listings for resale - include MLS# and address search
+        const lowerQuery = query.toLowerCase().trim();
+        
+        // Check if searching for MLS# (R followed by digits)
+        const isMLSSearch = /^r?\d+$/i.test(lowerQuery);
+        const cleanMLSQuery = lowerQuery.replace(/^r/i, "");
+        
+        // Fetch more data to support MLS# and address search
         const { data: listings } = await supabase
           .from("mls_listings")
-          .select("city, neighborhood, street_name")
+          .select("listing_key, city, neighborhood, street_number, street_name, street_suffix, listing_price")
           .eq("mls_status", "Active")
-          .limit(200);
+          .gte("year_built", 2024)
+          .limit(500);
 
         const neighborhoodCounts = new Map<string, number>();
         const cityCounts = new Map<string, number>();
 
+        // Format price for display
+        const formatPrice = (price?: number) => {
+          if (!price) return "";
+          if (price >= 1000000) return `$${(price / 1000000).toFixed(2)}M`;
+          return `$${(price / 1000).toFixed(0)}K`;
+        };
+
         listings?.forEach((listing) => {
+          const listingKey = listing.listing_key?.toLowerCase() || "";
+          const address = [listing.street_number, listing.street_name, listing.street_suffix].filter(Boolean).join(" ");
+          const addressLower = address.toLowerCase();
+          
+          // Match by MLS number
+          if (isMLSSearch && listingKey.includes(cleanMLSQuery)) {
+            const displayAddress = address || listing.listing_key;
+            const priceStr = formatPrice(listing.listing_price);
+            results.push({
+              value: listing.listing_key, // Use listing_key as the value for navigation
+              type: "listing" as SuggestionType,
+              count: 1,
+              slug: listing.listing_key,
+              sublabel: `${displayAddress} • ${listing.city}${priceStr ? ` • ${priceStr}` : ""}`
+            });
+          }
+          // Match by address
+          else if (!isMLSSearch && addressLower.includes(lowerQuery)) {
+            const priceStr = formatPrice(listing.listing_price);
+            results.push({
+              value: listing.listing_key,
+              type: "listing" as SuggestionType,
+              count: 1,
+              slug: listing.listing_key,
+              sublabel: `${address} • ${listing.city}${priceStr ? ` • ${priceStr}` : ""}`
+            });
+          }
+          
+          // Also match neighborhoods and cities
           if (listing.neighborhood?.toLowerCase().includes(lowerQuery)) {
             neighborhoodCounts.set(listing.neighborhood, (neighborhoodCounts.get(listing.neighborhood) || 0) + 1);
           }
@@ -175,6 +220,7 @@ export function SearchSuggestions({
           }
         });
 
+        // Add neighborhood and city results after listings
         neighborhoodCounts.forEach((count, value) => {
           results.push({ value, type: "neighborhood", count });
         });
@@ -183,7 +229,18 @@ export function SearchSuggestions({
         });
       }
 
-      return results.sort((a, b) => b.count - a.count).slice(0, 8);
+      // Sort: listings first if MLS search, then by count
+      if (/^r?\d+$/i.test(query.trim())) {
+        results.sort((a, b) => {
+          if (a.type === "listing" && b.type !== "listing") return -1;
+          if (a.type !== "listing" && b.type === "listing") return 1;
+          return b.count - a.count;
+        });
+      } else {
+        results.sort((a, b) => b.count - a.count);
+      }
+
+      return results.slice(0, 10);
     },
     enabled: query.length >= 2 && isVisible,
   });
@@ -243,10 +300,15 @@ export function SearchSuggestions({
         return <MapPinned className={cn("h-4 w-4 shrink-0", iconClass)} />;
       case "developer":
         return <HardHat className={cn("h-4 w-4 shrink-0", iconClass)} />;
+      case "listing":
+        return <Hash className={cn("h-4 w-4 shrink-0", iconClass)} />;
     }
   };
 
-  const getLabel = (type: SuggestionType) => {
+  const getLabel = (type: SuggestionType, sublabel?: string) => {
+    if (type === "listing" && sublabel) {
+      return sublabel;
+    }
     switch (type) {
       case "project":
         return "Presale";
@@ -258,6 +320,8 @@ export function SearchSuggestions({
         return "City";
       case "developer":
         return "Developer";
+      case "listing":
+        return "MLS Listing";
     }
   };
 
@@ -292,14 +356,14 @@ export function SearchSuggestions({
               "font-medium truncate text-sm",
               glassStyle ? "text-white" : "text-foreground"
             )}>
-              {suggestion.value}
+              {suggestion.type === "listing" ? suggestion.sublabel?.split(" • ")[0] || suggestion.value : suggestion.value}
             </p>
             <p className={cn(
-              "text-xs",
+              "text-xs truncate",
               glassStyle ? "text-white/60" : "text-muted-foreground"
             )}>
-              {getLabel(suggestion.type)}
-              {suggestion.count > 1 && ` · ${suggestion.count} ${suggestion.type === "presale" ? "project" : "listing"}${suggestion.count !== 1 ? "s" : ""}`}
+              {getLabel(suggestion.type, suggestion.sublabel)}
+              {suggestion.type !== "listing" && suggestion.count > 1 && ` · ${suggestion.count} ${suggestion.type === "presale" ? "project" : "listing"}${suggestion.count !== 1 ? "s" : ""}`}
             </p>
           </div>
         </button>

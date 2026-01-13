@@ -56,9 +56,23 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
     }
   };
 
-  const handleSuggestionSelect = (value: string, type: string) => {
-    setSearchQuery(value);
+  const handleSuggestionSelect = (value: string, type: string, slug?: string) => {
     setShowSuggestions(false);
+    
+    // Navigate directly to listing page for MLS listing type
+    if (type === "listing" && slug) {
+      navigate(`/resale/${slug}`);
+      return;
+    }
+    
+    // Navigate directly to presale project page
+    if ((type === "presale" || type === "project") && slug) {
+      navigate(`/presale/${slug}`);
+      return;
+    }
+    
+    // For cities and neighborhoods, go to search results
+    setSearchQuery(value);
     const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
   };
