@@ -380,6 +380,8 @@ export function BookingModal({
       }
 
       setIsSuccess(true);
+      localStorage.setItem("pp_booking_submitted", "true");
+      localStorage.setItem("presale_lead_converted", "true");
       toast({
         title: "Booking request submitted!",
         description: "We'll confirm your appointment soon.",

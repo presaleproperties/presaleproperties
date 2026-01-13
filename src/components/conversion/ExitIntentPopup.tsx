@@ -30,11 +30,17 @@ export function ExitIntentPopup() {
   });
 
   useEffect(() => {
-    // Check if already shown in this session or if user has already converted
+    // Check if already shown in this session or if user has already converted via ANY form
     const hasShown = sessionStorage.getItem("exit_intent_shown");
     const hasConverted = localStorage.getItem("presale_lead_converted");
+    const hasSubmittedAnyForm = localStorage.getItem("pp_form_submitted");
+    const hasBooking = localStorage.getItem("pp_booking_submitted");
     
-    if (hasShown || hasConverted) return;
+    // Don't show if user already engaged with any form
+    if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking) return;
+
+    // Don't show on calculator page - users are actively engaged
+    if (window.location.pathname === '/calculator') return;
 
     let timeout: NodeJS.Timeout;
     
@@ -58,10 +64,10 @@ export function ExitIntentPopup() {
       }
     };
 
-    // Delay adding listener to avoid immediate triggers
+    // Delay adding listener to avoid immediate triggers - increased to 15 seconds
     const addListener = setTimeout(() => {
       document.addEventListener("mouseleave", handleMouseLeave);
-    }, 5000);
+    }, 15000);
 
     return () => {
       clearTimeout(addListener);
