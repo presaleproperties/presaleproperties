@@ -4,6 +4,7 @@ import { Calendar, Building2, MapPin, ChevronLeft, ChevronRight } from "lucide-r
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 interface MobileProjectCardProps {
   id: string;
@@ -152,9 +153,16 @@ export function MobileProjectCard({
 
   const isLarge = size === "large";
 
+  // Generate SEO-friendly URL
+  const projectUrl = generateProjectUrl({
+    slug,
+    neighborhood,
+    projectType,
+  });
+
   return (
     <Link 
-      to={`/presale-projects/${slug}`} 
+      to={projectUrl} 
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
