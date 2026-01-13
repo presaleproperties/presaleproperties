@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useRef, useState, useEffect } from "react";
+import { slugify } from "@/lib/seoUrls";
 
 interface CityProjectsCarouselProps {
   city: string;
@@ -96,6 +97,8 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
     return null;
   }
 
+  const citySlug = slugify(city);
+
   return (
     <div className="space-y-4 md:space-y-5">
       {/* Header */}
@@ -129,7 +132,7 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
             </Button>
           </div>
           <Link 
-            to={`/presale-projects?city=${encodeURIComponent(city)}`}
+            to={`/${citySlug}-presale-condos`}
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
           >
             View All

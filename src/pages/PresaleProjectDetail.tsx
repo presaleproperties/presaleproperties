@@ -3,7 +3,9 @@ import { useParams, Link, useSearchParams, useLocation } from "react-router-dom"
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { generateProjectCanonicalUrl, parseProjectUrl } from "@/lib/seoUrls";
+import { generateProjectCanonicalUrl, parseProjectUrl, slugify } from "@/lib/seoUrls";
+import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { ProjectContextualLinks } from "@/components/seo/ProjectContextualLinks";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -522,6 +524,16 @@ export default function PresaleProjectDetail() {
     }
   };
 
+  // Build breadcrumb items for visual and structured data
+  const citySlugForBreadcrumb = slugify(project.city);
+  const neighborhoodSlugForBreadcrumb = slugify(project.neighborhood);
+  
+  const breadcrumbItems = [
+    { label: `${project.city} Presale`, href: `/${citySlugForBreadcrumb}-presale-condos` },
+    { label: project.neighborhood, href: `/${citySlugForBreadcrumb}-${neighborhoodSlugForBreadcrumb}-presale` },
+    { label: project.name }
+  ];
+
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -535,14 +547,14 @@ export default function PresaleProjectDetail() {
       {
         "@type": "ListItem",
         "position": 2,
-        "name": "Presale Projects",
-        "item": "https://presaleproperties.com/presale-projects"
+        "name": `${project.city} Presale Properties`,
+        "item": `https://presaleproperties.com/${citySlugForBreadcrumb}-presale-condos`
       },
       {
         "@type": "ListItem",
         "position": 3,
-        "name": project.city,
-        "item": `https://presaleproperties.com/presale-projects?city=${encodeURIComponent(project.city)}`
+        "name": project.neighborhood,
+        "item": `https://presaleproperties.com/${citySlugForBreadcrumb}-${neighborhoodSlugForBreadcrumb}-presale`
       },
       {
         "@type": "ListItem",
@@ -609,6 +621,11 @@ export default function PresaleProjectDetail() {
             Preview Mode — This project is not published yet
           </div>
         )}
+
+        {/* Breadcrumbs */}
+        <div className="container px-3 md:px-4 pt-3 md:pt-4">
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
 
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
@@ -985,6 +1002,15 @@ export default function PresaleProjectDetail() {
         projectName={project.name}
         status={project.status}
         brochureUrl={project.brochure_files?.[0] || null}
+      />
+
+      {/* Contextual Internal Links */}
+      <ProjectContextualLinks
+        projectName={project.name}
+        neighborhood={project.neighborhood}
+        city={project.city}
+        projectType={project.project_type}
+        startingPrice={project.starting_price}
       />
 
       {/* More Projects in Same Neighborhood */}
