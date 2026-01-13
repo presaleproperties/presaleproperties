@@ -77,3 +77,9 @@ verify_jwt = false
 
 [functions.send-blog-draft-notification]
 verify_jwt = false
+
+[functions.scrape-research-report]
+verify_jwt = false
+
+[functions.process-research-webhook]
+verify_jwt = false
