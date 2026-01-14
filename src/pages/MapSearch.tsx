@@ -944,8 +944,8 @@ export default function MapSearch() {
                           ? 'ring-2 ring-primary' 
                           : ''
                       }`}>
-                        {/* Large Image - 3:2 aspect ratio for bigger photos like REW */}
-                        <div className="relative w-full aspect-[3/2] bg-muted overflow-hidden">
+                        {/* Large Image - Square aspect ratio for maximum image size */}
+                        <div className="relative w-full aspect-square bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
