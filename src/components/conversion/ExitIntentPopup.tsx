@@ -42,6 +42,11 @@ export function ExitIntentPopup() {
     // Don't show on calculator page - users are actively engaged
     if (window.location.pathname === '/calculator') return;
 
+    // Don't show on admin, developer, or dashboard pages
+    if (window.location.pathname.startsWith('/admin') || 
+        window.location.pathname.startsWith('/developer') ||
+        window.location.pathname.startsWith('/dashboard')) return;
+
     let timeout: NodeJS.Timeout;
     
     const handleMouseLeave = (e: MouseEvent) => {
