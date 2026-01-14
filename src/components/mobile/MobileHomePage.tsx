@@ -252,9 +252,23 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="flex items-center gap-2 mt-6">
             <button
               onClick={() => handleTabChange("projects")}
-              className="px-5 py-2.5 rounded-full text-sm font-semibold transition-all bg-primary text-primary-foreground shadow-lg"
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                activeTab === "projects" 
+                  ? "bg-primary text-primary-foreground shadow-lg" 
+                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
+              }`}
             >
-              Presale & Move-In Ready
+              Presale
+            </button>
+            <button
+              onClick={() => handleTabChange("resale")}
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+                activeTab === "resale" 
+                  ? "bg-primary text-primary-foreground shadow-lg" 
+                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
+              }`}
+            >
+              Move-In Ready
             </button>
           </div>
         </div>
