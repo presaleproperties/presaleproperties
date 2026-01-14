@@ -179,7 +179,7 @@ export function InvestmentAnalysis({
           </Link>
         </Button>
         <Button variant="outline" asChild className="flex-1 h-11">
-          <Link to={`/blog/${city.toLowerCase()}-presales-2026`}>
+          <Link to={`/market-report/${city.toLowerCase().replace(/\s+/g, '-')}`}>
             <BarChart3 className="h-4 w-4 mr-2" />
             {city} Market Report
           </Link>
