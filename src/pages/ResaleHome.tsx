@@ -32,14 +32,10 @@ const ResaleHome = () => {
       "addressCountry": "CA"
     },
     "areaServed": [
-      { "@type": "City", "name": "Vancouver" },
-      { "@type": "City", "name": "Surrey" },
       { "@type": "City", "name": "Burnaby" },
+      { "@type": "City", "name": "Vancouver" },
       { "@type": "City", "name": "Coquitlam" },
-      { "@type": "City", "name": "Langley" },
-      { "@type": "City", "name": "Richmond" },
-      { "@type": "City", "name": "Delta" },
-      { "@type": "City", "name": "Abbotsford" }
+      { "@type": "City", "name": "Langley" }
     ],
     "knowsAbout": [
       "New Construction Homes",
