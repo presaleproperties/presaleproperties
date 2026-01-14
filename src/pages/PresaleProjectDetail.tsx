@@ -460,6 +460,7 @@ export default function PresaleProjectDetail() {
   };
 
   // Product schema for enhanced rich snippets (Google Shopping, rich results)
+  // Use simple Offer instead of AggregateOffer to avoid missing field warnings
   const productSchema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -471,10 +472,10 @@ export default function PresaleProjectDetail() {
       "name": project.developer_name
     } : undefined,
     "offers": {
-      "@type": "AggregateOffer",
+      "@type": "Offer",
       "url": canonicalUrl,
       "priceCurrency": "CAD",
-      "lowPrice": project.starting_price || undefined,
+      "price": project.starting_price || undefined,
       "availability": project.status === "sold_out" ? "https://schema.org/SoldOut" : project.status === "coming_soon" ? "https://schema.org/PreOrder" : "https://schema.org/InStock",
       "priceValidUntil": project.completion_year ? `${project.completion_year}-12-31` : undefined
     },
