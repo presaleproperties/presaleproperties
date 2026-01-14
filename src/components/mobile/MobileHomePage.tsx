@@ -188,9 +188,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content - Centered Brand Style */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
           {/* Main Headline - Bold & Short */}
-          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-none text-center mb-8 tracking-tight">
-            New Homes.<br />
-            <span className="text-primary">Zero Compromise.</span>
+          <h1 className="text-3xl sm:text-4xl font-extrabold text-white leading-tight text-center mb-8 tracking-tight">
+            Presale Condos & Townhomes<br />
+            <span className="text-primary">Move-In Ready Now</span><br />
+            <span className="text-white/90 text-2xl sm:text-3xl font-bold">Vancouver & Beyond</span>
           </h1>
           
           {/* Search Container */}
