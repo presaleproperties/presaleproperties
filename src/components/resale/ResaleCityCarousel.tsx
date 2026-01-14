@@ -122,23 +122,16 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-5">
       {/* Header */}
-      <div className="flex justify-between items-end">
+      <div className="flex items-center justify-between gap-4">
         <div>
-          <h3 className="text-xl md:text-2xl font-bold text-foreground">{title}</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground">{title}</h3>
           {subtitle && (
             <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <Link 
-            to={`/resale/${city.toLowerCase()}`}
-            className="hidden sm:flex items-center gap-1 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            View All
-            <ArrowRight className="h-4 w-4" />
-          </Link>
           {/* Desktop scroll buttons */}
           <div className="hidden md:flex items-center gap-1">
             <Button
@@ -160,19 +153,25 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
+          <Link 
+            to={`/resale/${city.toLowerCase()}`}
+            className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
+          >
+            View All
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
 
-      {/* Carousel */}
+      {/* Scrollable cards */}
       <div
         ref={scrollRef}
-        className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-2 -mx-4 px-4 scrollbar-hide"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 scroll-snap-x scroll-snap-mandatory"
       >
         {listings.map((listing) => (
           <div
             key={listing.id}
-            className="w-[280px] sm:w-[300px] flex-shrink-0 snap-start"
+            className="shrink-0 w-[calc(100vw-80px)] sm:w-[260px] md:w-[280px] lg:w-[300px] scroll-snap-start"
           >
             <ResaleListingCard
               id={listing.id}
@@ -195,15 +194,6 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
             />
           </div>
         ))}
-      </div>
-
-      {/* Mobile View All */}
-      <div className="sm:hidden">
-        <Link to={`/resale/${city.toLowerCase()}`}>
-          <Button variant="outline" className="w-full">
-            View All {city} Listings
-          </Button>
-        </Link>
       </div>
     </div>
   );
