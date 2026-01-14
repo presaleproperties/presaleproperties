@@ -126,7 +126,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
           >
             {/* Search Header with Tabs */}
             <div className="flex items-center justify-between border-b border-border/50 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-transparent via-muted/30 to-transparent">
-              <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2">
                 <button
                   onClick={() => handleTabChange("projects")}
                   className={`px-3.5 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all duration-200 ${
@@ -135,7 +135,17 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  Presale & Move-In Ready
+                  Presale
+                </button>
+                <button
+                  onClick={() => handleTabChange("resale")}
+                  className={`px-3.5 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all duration-200 ${
+                    activeTab === "resale" 
+                      ? "bg-foreground text-background shadow-elevated" 
+                      : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
+                  Move-In Ready
                 </button>
               </div>
               <Link
