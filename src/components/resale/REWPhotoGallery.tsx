@@ -114,13 +114,6 @@ export function REWPhotoGallery({
               {selectedIndex + 1} / {photos.length}
             </div>
 
-            {/* Expand hint on hover */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <div className="bg-black/60 text-white px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2">
-                <Expand className="h-4 w-4" />
-                View All Photos
-              </div>
-            </div>
           </div>
 
           {/* Nav arrows on preview */}
