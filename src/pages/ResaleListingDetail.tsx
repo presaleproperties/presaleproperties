@@ -90,6 +90,7 @@ type MLSListing = {
   bathrooms_half: number | null;
   living_area: number | null;
   lot_size_area: number | null;
+  lot_size_units: string | null;
   year_built: number | null;
   stories: number | null;
   parking_total: number | null;
@@ -723,94 +724,339 @@ export default function ResaleListingDetail() {
               </div>
             )}
 
-            {/* Property Details - Collapsible on Mobile */}
-            <div className="space-y-4">
-              <h2 className="text-lg md:text-xl font-bold text-foreground">Property Details</h2>
-              
-              {/* Key Details Grid */}
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                <div className="bg-muted/30 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1">Property Type</p>
-                  <p className="font-semibold text-sm text-foreground">{formatPropertyType(listing.property_sub_type || listing.property_type)}</p>
+            {/* Home Facts & Features - Comprehensive REW-style */}
+            <div className="space-y-6">
+              <h2 className="text-lg md:text-xl font-bold text-foreground flex items-center gap-2">
+                <FileText className="h-5 w-5 text-primary" />
+                Home Facts & Features
+              </h2>
+
+              {/* Price Details Section */}
+              <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-primary" />
+                  Price Details
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">List Price</span>
+                    <span className="font-semibold text-foreground">{formatPrice(listing.listing_price)}</span>
+                  </div>
+                  {listing.original_list_price && listing.original_list_price !== listing.listing_price && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Original Price</span>
+                      <span className="font-semibold text-foreground line-through">{formatPrice(listing.original_list_price)}</span>
+                    </div>
+                  )}
+                  {listing.tax_annual_amount !== null && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Gross Taxes {listing.tax_year ? `(${listing.tax_year})` : ''}</span>
+                      <span className="font-semibold text-foreground">{formatPrice(listing.tax_annual_amount)}</span>
+                    </div>
+                  )}
+                  {listing.association_fee !== null && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Strata Maintenance Fees</span>
+                      <span className="font-semibold text-foreground">
+                        {formatPrice(listing.association_fee)}{listing.association_fee_frequency ? `/${listing.association_fee_frequency === 'Monthly' ? 'mo' : listing.association_fee_frequency.toLowerCase()}` : '/mo'}
+                      </span>
+                    </div>
+                  )}
+                  {listing.living_area && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Price per Sqft</span>
+                      <span className="font-semibold text-foreground">${Math.round(listing.listing_price / listing.living_area).toLocaleString()}</span>
+                    </div>
+                  )}
                 </div>
-                {listing.tax_annual_amount !== null && (
-                  <div className="bg-muted/30 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Annual Taxes</p>
-                    <p className="font-semibold text-sm text-foreground">{formatPrice(listing.tax_annual_amount)}</p>
+              </div>
+
+              {/* Home Facts Section */}
+              <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Home className="h-4 w-4 text-primary" />
+                  Home Facts
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {listing.bedrooms_total !== null && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Bedrooms</span>
+                      <span className="font-semibold text-foreground">{listing.bedrooms_total}</span>
+                    </div>
+                  )}
+                  {listing.bathrooms_total !== null && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Bathrooms</span>
+                      <span className="font-semibold text-foreground">
+                        {listing.bathrooms_total}
+                        {listing.bathrooms_full && listing.bathrooms_half && ` (${listing.bathrooms_full} Full, ${listing.bathrooms_half} Half)`}
+                      </span>
+                    </div>
+                  )}
+                  {listing.living_area && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Living Area</span>
+                      <span className="font-semibold text-foreground">{listing.living_area.toLocaleString()} sqft</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">Property Type</span>
+                    <span className="font-semibold text-foreground">{formatPropertyType(listing.property_sub_type || listing.property_type)}</span>
                   </div>
-                )}
-                {listing.association_fee !== null && (
-                  <div className="bg-muted/30 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Strata Fee</p>
-                    <p className="font-semibold text-sm text-foreground">
-                      {formatPrice(listing.association_fee)}/mo
-                    </p>
+                  {listing.year_built && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Year Built</span>
+                      <span className="font-semibold text-foreground">
+                        {listing.year_built} ({new Date().getFullYear() - listing.year_built} yrs old)
+                      </span>
+                    </div>
+                  )}
+                  {listing.stories && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Stories</span>
+                      <span className="font-semibold text-foreground">{listing.stories}</span>
+                    </div>
+                  )}
+                  {listing.lot_size_area && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Lot Size</span>
+                      <span className="font-semibold text-foreground">
+                        {listing.lot_size_area.toLocaleString()} {listing.lot_size_units || 'sqft'}
+                      </span>
+                    </div>
+                  )}
+                  {listing.parking_total !== null && listing.parking_total > 0 && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Parking</span>
+                      <span className="font-semibold text-foreground">
+                        {listing.parking_total} space{listing.parking_total > 1 ? 's' : ''}
+                        {listing.garage_spaces ? ` (${listing.garage_spaces} garage)` : ''}
+                      </span>
+                    </div>
+                  )}
+                  {listing.subdivision_name && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Community</span>
+                      <span className="font-semibold text-foreground">{listing.subdivision_name}</span>
+                    </div>
+                  )}
+                  {(listing.pool_yn || listing.waterfront_yn) && (
+                    <>
+                      {listing.pool_yn && (
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-sm text-muted-foreground">Pool</span>
+                          <span className="font-semibold text-foreground text-green-600">Yes</span>
+                        </div>
+                      )}
+                      {listing.waterfront_yn && (
+                        <div className="flex justify-between items-center py-2 border-b border-border/50">
+                          <span className="text-sm text-muted-foreground">Waterfront</span>
+                          <span className="font-semibold text-foreground text-green-600">Yes</span>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              </div>
+
+              {/* Heating & Cooling Section */}
+              {(listing.heating?.length || listing.cooling?.length) && (
+                <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Flame className="h-4 w-4 text-primary" />
+                    Heating & Cooling
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {listing.heating && listing.heating.length > 0 && (
+                      <div className="flex justify-between items-start py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Heating</span>
+                        <span className="font-semibold text-foreground text-right max-w-[60%]">{listing.heating.join(", ")}</span>
+                      </div>
+                    )}
+                    {listing.cooling && listing.cooling.length > 0 && (
+                      <div className="flex justify-between items-start py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground flex items-center gap-1">
+                          <Snowflake className="h-3 w-3" /> Cooling
+                        </span>
+                        <span className="font-semibold text-foreground text-right max-w-[60%]">{listing.cooling.join(", ")}</span>
+                      </div>
+                    )}
                   </div>
-                )}
-                {listing.parking_total !== null && (
-                  <div className="bg-muted/30 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Parking</p>
-                    <p className="font-semibold text-sm text-foreground">
-                      {listing.parking_total} {listing.garage_spaces ? `(${listing.garage_spaces} Garage)` : ''}
-                    </p>
+                </div>
+              )}
+
+              {/* Features Section */}
+              {listing.interior_features && listing.interior_features.length > 0 && (
+                <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    Features
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {listing.interior_features.map((feature, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
                   </div>
-                )}
-                {listing.stories && (
-                  <div className="bg-muted/30 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Stories</p>
-                    <p className="font-semibold text-sm text-foreground">{listing.stories}</p>
+                </div>
+              )}
+
+              {/* Amenities Section */}
+              {listing.community_features && listing.community_features.length > 0 && (
+                <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Users className="h-4 w-4 text-primary" />
+                    Amenities
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {listing.community_features.map((feature, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {feature}
+                      </Badge>
+                    ))}
                   </div>
-                )}
-                {listing.lot_size_area && (
-                  <div className="bg-muted/30 rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1">Lot Size</p>
-                    <p className="font-semibold text-sm text-foreground">{listing.lot_size_area.toLocaleString()} sqft</p>
+                </div>
+              )}
+
+              {/* Appliances Section */}
+              {listing.appliances && listing.appliances.length > 0 && (
+                <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Layers className="h-4 w-4 text-primary" />
+                    Appliances
+                  </h3>
+                  <div className="flex flex-wrap gap-2">
+                    {listing.appliances.map((appliance, idx) => (
+                      <Badge key={idx} variant="secondary" className="text-xs">
+                        {appliance}
+                      </Badge>
+                    ))}
                   </div>
-                )}
+                </div>
+              )}
+
+              {/* Exterior Features & View */}
+              {(listing.exterior_features?.length || listing.view?.length) && (
+                <div className="bg-muted/30 rounded-xl p-4 md:p-5 space-y-4">
+                  {listing.exterior_features && listing.exterior_features.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <TreePine className="h-4 w-4 text-primary" />
+                        Exterior Features
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {listing.exterior_features.map((feature, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {feature}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {listing.view && listing.view.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-primary" />
+                        View
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {listing.view.map((v, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {v}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Agent Details Section */}
+              {(listing.list_agent_name || listing.list_office_name || listing.buyer_agent_name) && (
+                <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    Agent Details
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {listing.list_agent_name && (
+                      <div className="flex justify-between items-center py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Listing Agent</span>
+                        <span className="font-semibold text-foreground">{listing.list_agent_name}</span>
+                      </div>
+                    )}
+                    {listing.list_office_name && (
+                      <div className="flex justify-between items-center py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Brokerage</span>
+                        <span className="font-semibold text-foreground">{listing.list_office_name}</span>
+                      </div>
+                    )}
+                    {listing.list_agent_phone && (
+                      <div className="flex justify-between items-center py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Agent Phone</span>
+                        <a href={`tel:${listing.list_agent_phone}`} className="font-semibold text-primary hover:underline">
+                          {listing.list_agent_phone}
+                        </a>
+                      </div>
+                    )}
+                    {listing.buyer_agent_name && (
+                      <div className="flex justify-between items-center py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Buyer's Agent</span>
+                        <span className="font-semibold text-foreground">{listing.buyer_agent_name}</span>
+                      </div>
+                    )}
+                    {listing.buyer_office_name && (
+                      <div className="flex justify-between items-center py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Buyer's Brokerage</span>
+                        <span className="font-semibold text-foreground">{listing.buyer_office_name}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Listing Details Section */}
+              <div className="bg-muted/30 rounded-xl p-4 md:p-5">
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  Listing Details
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {daysOnMarket !== null && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Days on Market</span>
+                      <span className="font-semibold text-foreground">{daysOnMarket} Days</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">MLS® Number</span>
+                    <span className="font-semibold text-foreground">{listing.listing_id}</span>
+                  </div>
+                  {listing.list_date && (
+                    <div className="flex justify-between items-center py-2 border-b border-border/50">
+                      <span className="text-sm text-muted-foreground">Listed Date</span>
+                      <span className="font-semibold text-foreground">
+                        {new Date(listing.list_date).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">Status</span>
+                    <Badge 
+                      variant="secondary" 
+                      className={listing.mls_status === "Active" ? "bg-green-500/10 text-green-700 border-green-200" : ""}
+                    >
+                      {listing.mls_status}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between items-center py-2 border-b border-border/50">
+                    <span className="text-sm text-muted-foreground">Source</span>
+                    <span className="font-semibold text-foreground text-xs">CREA DDF®</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Features & Amenities */}
-            {(listing.interior_features?.length || listing.exterior_features?.length || listing.appliances?.length || listing.community_features?.length || listing.view?.length) && (
-              <div className="bg-muted/30 rounded-xl p-4 md:p-6 space-y-4">
-                <h2 className="text-base md:text-lg font-semibold text-foreground">Features & Amenities</h2>
-                
-                {listing.interior_features && listing.interior_features.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-2">Features</h3>
-                    <p className="text-sm text-muted-foreground">{listing.interior_features.join(", ")}</p>
-                  </div>
-                )}
-                
-                {listing.community_features && listing.community_features.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-2">Amenities</h3>
-                    <p className="text-sm text-muted-foreground">{listing.community_features.join(", ")}</p>
-                  </div>
-                )}
-                
-                {listing.appliances && listing.appliances.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-2">Appliances</h3>
-                    <p className="text-sm text-muted-foreground">{listing.appliances.join(", ")}</p>
-                  </div>
-                )}
-
-                {listing.exterior_features && listing.exterior_features.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-2">Exterior Features</h3>
-                    <p className="text-sm text-muted-foreground">{listing.exterior_features.join(", ")}</p>
-                  </div>
-                )}
-
-                {listing.view && listing.view.length > 0 && (
-                  <div>
-                    <h3 className="text-sm font-medium text-foreground mb-2">View</h3>
-                    <p className="text-sm text-muted-foreground">{listing.view.join(", ")}</p>
-                  </div>
-                )}
-              </div>
-            )}
 
             {/* Virtual Tour */}
             {listing.virtual_tour_url && (
