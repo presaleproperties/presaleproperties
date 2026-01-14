@@ -401,9 +401,9 @@ export default function ResaleListingDetail() {
                   )}
                 </div>
 
-                {/* Price - Larger than address (match desktop ratio) */}
+                {/* Price - MUST be the largest text on mobile/tablet */}
                 <div className="flex items-baseline gap-4 flex-wrap">
-                  <span className="text-5xl font-bold leading-none text-foreground">
+                  <span className="text-6xl font-bold leading-none text-foreground">
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && (
@@ -419,7 +419,7 @@ export default function ResaleListingDetail() {
                     Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
                   </span>
                   <span className="text-muted-foreground">•</span>
-                  <button 
+                  <button
                     onClick={scrollToForm}
                     className="text-base text-primary hover:underline font-medium"
                   >
@@ -427,8 +427,8 @@ export default function ResaleListingDetail() {
                   </button>
                 </div>
 
-                {/* Address - Large & Bold */}
-                <h1 className="text-2xl font-bold text-foreground">{address}</h1>
+                {/* Address - intentionally smaller than price (desktop-like ratio) */}
+                <h1 className="text-3xl font-bold leading-tight text-foreground">{address}</h1>
 
                 {/* City, BC, Postal */}
                 <div className="flex items-center gap-1 text-lg text-muted-foreground">
