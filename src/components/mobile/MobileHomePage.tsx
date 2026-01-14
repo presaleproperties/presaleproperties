@@ -244,24 +244,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             />
           </div>
 
-          {/* Action Buttons - REW Style */}
-          <div className="flex gap-3 mt-6 w-full max-w-md">
-            <button
-              onClick={() => navigate("/map-search")}
-              className="flex-1 h-12 rounded-xl bg-foreground/90 backdrop-blur-sm text-background font-semibold text-sm flex items-center justify-center gap-2 hover:bg-foreground transition-all active:scale-[0.98]"
-            >
-              <Map className="h-4 w-4" />
-              SEARCH BY MAP
-            </button>
-            <button
-              onClick={() => navigate("/presale-projects")}
-              className="flex-1 h-12 rounded-xl bg-foreground/90 backdrop-blur-sm text-background font-semibold text-sm flex items-center justify-center gap-2 hover:bg-foreground transition-all active:scale-[0.98]"
-            >
-              <Building2 className="h-4 w-4" />
-              ALL PROJECTS
-            </button>
-          </div>
-
           {/* Mode Toggle Pills */}
           <div className="flex items-center gap-2 mt-6">
             <button
