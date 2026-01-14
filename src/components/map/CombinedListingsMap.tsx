@@ -107,16 +107,16 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
       ">
         <div style="
           background: hsl(222, 47%, 20%);
-          width: 32px;
-          height: 32px;
+          width: 24px;
+          height: 24px;
           border-radius: 50% 50% 50% 0;
           transform: rotate(-45deg);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="hsl(45, 89%, 55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="hsl(45, 89%, 55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
             <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
             <path d="M9 22v-4h6v4"></path>
             <path d="M8 6h.01"></path>
@@ -132,9 +132,9 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
         </div>
       </div>
     `,
-    iconSize: [32, 38],
-    iconAnchor: [16, 38],
-    popupAnchor: [0, -38],
+    iconSize: [24, 28],
+    iconAnchor: [12, 28],
+    popupAnchor: [0, -28],
   });
 }
 
