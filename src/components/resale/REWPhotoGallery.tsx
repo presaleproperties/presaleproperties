@@ -230,9 +230,9 @@ export function REWPhotoGallery({
               loading="eager"
             />
             
-            {/* Photo counter badge */}
-            <div className="absolute bottom-3 right-3 bg-black/70 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
-              {selectedIndex + 1} / {photos.length}
+            {/* Photo counter badge - minimalist top right */}
+            <div className="absolute top-2.5 right-2.5 bg-black/50 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+              {selectedIndex + 1}/{photos.length}
             </div>
           </div>
 
