@@ -23,14 +23,14 @@ export function FeaturedProjects() {
   });
 
   return (
-    <section className="py-14 sm:py-18 md:py-24 lg:py-32 bg-gradient-to-b from-background via-muted/10 to-muted/30 relative">
-      {/* Top divider with gold accent */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-muted/20 relative">
+      {/* Top divider */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
       <div className="container px-4">
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-10 sm:mb-12 md:mb-14">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10 md:mb-12">
           <div className="space-y-2 sm:space-y-3">
-            <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-primary bg-primary/10 px-3 py-1 rounded-full">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
               Don't Miss Out
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
@@ -40,7 +40,7 @@ export function FeaturedProjects() {
               The most in-demand new developments across Metro Vancouver
             </p>
           </div>
-          <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group hover:shadow-gold hover:border-primary/50 transition-all duration-300">
+          <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">
             <Link to="/presale-projects">
               View All Projects
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />

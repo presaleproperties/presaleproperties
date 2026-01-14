@@ -149,14 +149,14 @@ export function FeaturedResaleListings() {
   }
 
   return (
-    <section className="py-14 sm:py-18 md:py-24 bg-gradient-to-b from-muted/30 to-background relative">
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+    <section className="py-12 sm:py-16 md:py-20 bg-muted/20 relative">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
       <div className="container px-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-8 sm:mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="space-y-2">
-            <span className="inline-block text-[10px] sm:text-xs font-bold uppercase tracking-widest text-emerald-600 bg-emerald-500/10 px-3 py-1 rounded-full">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
               Just Added
             </span>
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">

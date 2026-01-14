@@ -134,7 +134,7 @@ export default function MapSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
-  const [showCarousel, setShowCarousel] = useState(false); // Hidden by default on mobile, shows when property clicked
+  const [showCarousel, setShowCarousel] = useState(true);
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
@@ -202,13 +202,6 @@ export default function MapSearch() {
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
   }, []);
-
-  // Hide carousel when user starts panning/zooming the map on mobile
-  const handleMapInteraction = useCallback(() => {
-    if (isMobile) {
-      setShowCarousel(false);
-    }
-  }, [isMobile]);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
     setMapMode(newMode);
@@ -526,8 +519,8 @@ export default function MapSearch() {
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader alwaysVisible stickyOnMobile />
 
-        {/* Main Content - Map + Panel Layout - flex-1 with min-h-0 to prevent overflow */}
-        <div className="flex-1 min-h-0 flex overflow-hidden relative isolate">
+        {/* Main Content - Map + Panel Layout */}
+        <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
@@ -570,7 +563,6 @@ export default function MapSearch() {
                       mode={mapMode}
                       onListingSelect={handleItemSelect}
                       onVisibleItemsChange={handleVisibleItemsChange}
-                      onMapInteraction={handleMapInteraction}
                     />
                   )}
                 </Suspense>

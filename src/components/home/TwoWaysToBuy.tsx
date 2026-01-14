@@ -6,23 +6,20 @@ import { Button } from "@/components/ui/button";
 
 export function TwoWaysToBuy() {
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-b from-background to-muted/20">
+    <section className="py-10 sm:py-14 bg-background">
       <div className="container px-4">
-        <div className="text-center mb-10">
-          <Badge className="bg-primary/10 text-primary border-none mb-3 text-xs font-semibold">
-            100% New Construction
-          </Badge>
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+        <div className="text-center mb-8">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
             Two Ways to Buy New
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
-            Every home is brand new and never lived in. Choose your path to ownership.
+          <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">
+            100% new construction only. Every home is brand new, never lived in.
           </p>
         </div>
 
         <div className="grid gap-4 sm:gap-6 md:grid-cols-2 max-w-4xl mx-auto">
           {/* Presale Card */}
-          <Card className="relative overflow-hidden border-border hover:border-primary/40 hover:shadow-gold-glow transition-all duration-300 group bg-card">
+          <Card className="relative overflow-hidden border-border hover:border-primary/40 hover:shadow-lg transition-all duration-300 group">
             <CardContent className="p-5 sm:p-6">
               <div className="flex items-start gap-4">
                 <div className="shrink-0 h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -52,7 +49,7 @@ export function TwoWaysToBuy() {
           </Card>
 
           {/* Move-In Ready Card */}
-          <Card className="relative overflow-hidden border-border hover:border-emerald-500/40 hover:shadow-[0_0_30px_hsl(142_76%_36%/0.2)] transition-all duration-300 group bg-card">
+          <Card className="relative overflow-hidden border-border hover:border-primary/40 hover:shadow-lg transition-all duration-300 group">
             <CardContent className="p-5 sm:p-6">
               <div className="flex items-start gap-4">
                 <div className="shrink-0 h-12 w-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
