@@ -136,18 +136,22 @@ export function InlineScheduler({
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-elevated overflow-hidden hover:shadow-premium transition-shadow duration-300">
-      {/* Header - Premium gradient */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 md:px-5 md:py-4 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-        <h3 className="text-base md:text-lg lg:text-xl font-bold text-background relative">Schedule a Tour</h3>
-        <p className="text-xs md:text-sm text-background/70 mt-0.5 relative">Tour with a buyer's agent</p>
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300">
+      {/* Header - Premium gradient with shine effect */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-4 md:px-5 md:py-5 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+        <div className="absolute top-2 right-2 flex items-center gap-1 bg-green-500/90 text-white text-[10px] font-semibold px-2 py-0.5 rounded-full">
+          <span className="h-1.5 w-1.5 bg-white rounded-full animate-pulse"></span>
+          Available
+        </div>
+        <h3 className="text-lg md:text-xl lg:text-2xl font-bold text-background relative">Schedule a Tour</h3>
+        <p className="text-xs md:text-sm text-background/70 mt-0.5 relative">Tour with a buyer's agent — no cost to you</p>
       </div>
 
-      {/* Content - Optimized spacing for mobile */}
-      <div className="p-4 md:p-5">
-        {/* Date Selection - Larger touch targets on mobile */}
-        <div className="flex items-center justify-center gap-1.5 md:gap-2 mb-3 md:mb-4">
+      {/* Content - Better spacing */}
+      <div className="p-4 md:p-5 lg:p-6">
+        {/* Date Selection */}
+        <div className="flex items-center justify-center gap-1.5 md:gap-2 mb-4">
           <button
             onClick={handlePrev}
             disabled={!canGoBack}
@@ -160,7 +164,7 @@ export function InlineScheduler({
             <ChevronLeft className="h-5 w-5" />
           </button>
 
-          <div className="flex gap-1.5 md:gap-2">
+          <div className="flex gap-2 md:gap-2.5">
             {visibleDates.map((date) => {
               const isSelected = selectedDate && isSameDay(date, selectedDate);
               return (
@@ -168,16 +172,16 @@ export function InlineScheduler({
                   key={date.toISOString()}
                   onClick={() => setSelectedDate(date)}
                   className={cn(
-                    "flex flex-col items-center justify-center w-[68px] h-[68px] md:w-[72px] md:h-[72px] lg:w-20 lg:h-20 rounded-xl border-2 transition-all active:scale-95",
+                    "flex flex-col items-center justify-center w-[72px] h-[76px] md:w-20 md:h-[84px] lg:w-[88px] lg:h-[92px] rounded-xl border-2 transition-all active:scale-95",
                     isSelected
-                      ? "border-foreground bg-foreground/5"
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-foreground bg-foreground/5 shadow-md"
+                      : "border-border hover:border-muted-foreground/50 hover:bg-muted/30"
                   )}
                 >
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
                     {format(date, "EEE")}
                   </span>
-                  <span className="text-xl md:text-2xl font-bold text-foreground">
+                  <span className="text-2xl md:text-3xl font-bold text-foreground">
                     {format(date, "d")}
                   </span>
                   <span className="text-[10px] font-medium text-muted-foreground uppercase">
@@ -201,8 +205,8 @@ export function InlineScheduler({
           </button>
         </div>
 
-        {/* Time Period Selection - Better mobile spacing */}
-        <div className="grid grid-cols-3 gap-1.5 md:gap-2 mb-3 md:mb-4">
+        {/* Time Period Selection - Larger on desktop */}
+        <div className="grid grid-cols-3 gap-2 md:gap-2.5 mb-4 md:mb-5">
           {TIME_PERIODS.map((period) => {
             const isSelected = selectedPeriod === period.value;
             return (
@@ -210,16 +214,16 @@ export function InlineScheduler({
                 key={period.value}
                 onClick={() => setSelectedPeriod(period.value)}
                 className={cn(
-                  "flex flex-col items-center justify-center py-2 md:py-2.5 px-1 md:px-2 rounded-xl border-2 transition-all active:scale-95",
+                  "flex flex-col items-center justify-center py-2.5 md:py-3 px-2 rounded-xl border-2 transition-all active:scale-95",
                   isSelected
-                    ? "border-foreground bg-foreground/5"
-                    : "border-border hover:border-muted-foreground/50"
+                    ? "border-foreground bg-foreground/5 shadow-sm"
+                    : "border-border hover:border-muted-foreground/50 hover:bg-muted/30"
                 )}
               >
-                <span className="text-xs font-semibold text-foreground">
+                <span className="text-sm md:text-base font-semibold text-foreground">
                   {period.label}
                 </span>
-                <span className="text-[9px] text-muted-foreground mt-0.5">
+                <span className="text-[9px] md:text-[10px] text-muted-foreground mt-0.5">
                   {period.subLabel}
                 </span>
               </button>
@@ -227,14 +231,19 @@ export function InlineScheduler({
           })}
         </div>
 
-        {/* CTA Button - Full height for better touch */}
+        {/* CTA Button - More prominent */}
         <Button
           onClick={handleRequestTour}
           disabled={!selectedDate}
-          className="w-full h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background shadow-lg hover:shadow-xl transition-all duration-200"
+          className="w-full h-12 md:h-14 text-sm md:text-base font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background shadow-lg hover:shadow-xl transition-all duration-200"
         >
           Request a Tour
         </Button>
+        
+        {/* Trust indicator */}
+        <p className="text-[10px] md:text-xs text-center text-muted-foreground mt-3">
+          ✓ No obligation · ✓ Responds same day
+        </p>
       </div>
     </div>
   );

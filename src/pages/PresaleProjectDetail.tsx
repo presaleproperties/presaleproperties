@@ -836,19 +836,31 @@ export default function PresaleProjectDetail() {
                 </section>
               </div>
 
-              {/* Sidebar - Desktop only (tablet forms are shown above) */}
+              {/* Sidebar - Desktop only - More prominent positioning */}
               <aside className="hidden lg:block lg:col-span-1" aria-label="Contact form and actions">
                 <div ref={formRef} id="contact-form" className="w-full lg:sticky lg:top-20 space-y-4">
-                  {/* Lead Form */}
+                  {/* Section Header for visibility */}
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="h-6 w-1 bg-primary rounded-full" />
+                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Get Started</h3>
+                  </div>
+                  
+                  {/* Lead Form - Primary conversion point */}
                   <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                   
                   {/* Quick Actions Below Form */}
-                  <Button variant="outline" size="default" className="w-full justify-center h-10 text-sm" asChild>
-                    <a href="tel:+16722581100">
-                      <Phone className="h-4 w-4 mr-1.5" />
-                      Call Now
-                    </a>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" asChild>
+                      <a href="tel:+16722581100">
+                        <Phone className="h-4 w-4 mr-1.5" />
+                        Call
+                      </a>
+                    </Button>
+                    <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" onClick={handleShare}>
+                      <Share2 className="h-4 w-4 mr-1.5" />
+                      Share
+                    </Button>
+                  </div>
                 </div>
               </aside>
               
