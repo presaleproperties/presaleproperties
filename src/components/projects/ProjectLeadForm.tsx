@@ -369,19 +369,15 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-5 pr-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
         
-        {/* Urgency/scarcity indicator */}
-        <div className="flex items-center gap-2 flex-wrap mb-2 relative">
-          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-primary/90 px-2.5 py-1 rounded-full shadow-sm">
-            <span className="h-1.5 w-1.5 bg-white rounded-full animate-pulse"></span>
-            Agents Available Now
-          </span>
-          {brochureUrl && (
+        {/* Brochure Ready indicator */}
+        {brochureUrl && (
+          <div className="flex items-center gap-2 flex-wrap mb-2 relative">
             <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-sm">
               <Download className="h-3 w-3" />
               Brochure Ready
             </span>
-          )}
-        </div>
+          </div>
+        )}
         
         <h3 className="text-lg lg:text-xl font-bold text-background leading-snug relative">
           {content.title}
