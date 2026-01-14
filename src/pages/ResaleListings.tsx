@@ -112,20 +112,20 @@ type MLSListing = {
   created_at: string | null;
 };
 
-// Presale/Move-In Ready Toggle Component
+// Presale/Move-In Ready Toggle Component - Compact for mobile
 function ListingTypeToggle() {
   const navigate = useNavigate();
   
   return (
-    <div className="inline-flex items-center gap-1 p-1 bg-muted rounded-full">
+    <div className="inline-flex items-center gap-0.5 p-0.5 bg-muted rounded-full">
       <button
         onClick={() => navigate("/presale-projects")}
-        className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-background/50 whitespace-nowrap"
+        className="px-2.5 py-1.5 rounded-full text-xs font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-background/50 whitespace-nowrap"
       >
         Presale
       </button>
       <button
-        className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all bg-foreground text-background shadow-sm cursor-default whitespace-nowrap"
+        className="px-2.5 py-1.5 rounded-full text-xs font-medium transition-all bg-foreground text-background shadow-sm cursor-default whitespace-nowrap"
       >
         Move-In Ready
       </button>
@@ -541,35 +541,36 @@ export default function ResaleListings() {
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
         
-        <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
+        <section className="bg-background border-b border-border py-2 sm:py-6 md:py-10">
           <div className="container px-4">
-            {/* Breadcrumbs */}
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+            {/* Breadcrumbs - more compact */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-muted-foreground mb-2 sm:mb-4 overflow-x-auto">
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
-                <Home className="h-3.5 w-3.5" />
+                <Home className="h-3 w-3" />
               </Link>
-              <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
+              <ChevronRightIcon className="h-3 w-3 shrink-0" />
               <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
                 Move-In Ready
               </Link>
               {filters.city !== "any" && (
                 <>
-                  <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
+                  <ChevronRightIcon className="h-3 w-3 shrink-0" />
                   <span className="text-foreground font-medium shrink-0">{filters.city}</span>
                 </>
               )}
             </nav>
 
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="max-w-3xl">
-                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+            {/* Title row with toggle inline on mobile */}
+            <div className="flex items-start justify-between gap-2 mb-1.5 sm:mb-3">
+              <div className="flex-1 min-w-0">
+                <h1 className="text-lg sm:text-2xl md:text-4xl font-bold text-foreground leading-tight">
                   {filters.city !== "any" 
-                    ? `Move-In Ready Homes in ${filters.city}` 
-                    : "Move-In Ready New Homes"}
+                    ? `Move-In Ready in ${filters.city}` 
+                    : "Move-In Ready Homes"}
                 </h1>
-                <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
-                  <span className="font-medium text-foreground">{totalCount.toLocaleString()}</span>
-                  <span>active listings</span>
+                <p className="text-muted-foreground flex items-center gap-1.5 flex-wrap text-xs sm:text-sm mt-0.5">
+                  <span className="font-semibold text-foreground">{totalCount.toLocaleString()}</span>
+                  <span>listings</span>
                   {activeFilterCount > 0 && (
                     <>
                       <span className="text-border">•</span>
@@ -577,7 +578,7 @@ export default function ResaleListings() {
                         onClick={clearAllFilters}
                         className="text-primary hover:underline"
                       >
-                        Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                        Clear {activeFilterCount}
                       </button>
                     </>
                   )}
@@ -586,24 +587,24 @@ export default function ResaleListings() {
               <ListingTypeToggle />
             </div>
             
-            {/* Quick City Filter Chips */}
-            <div className="mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-2 pb-1">
+            {/* Quick City Filter Chips - smaller on mobile */}
+            <div className="-mx-4 px-4 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1.5 pb-1">
                 <button
                   onClick={() => updateFilter("city", "any")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                     filters.city === "any"
                       ? "bg-foreground text-background"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   }`}
                 >
-                  All Cities
+                  All
                 </button>
-                {["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Richmond", "Langley", "Delta", "Abbotsford"].map((city) => (
+                {["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Richmond", "Langley"].map((city) => (
                   <button
                     key={city}
                     onClick={() => updateFilter("city", city)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
                       filters.city === city
                         ? "bg-foreground text-background"
                         : "bg-muted hover:bg-muted/80 text-foreground"
@@ -671,37 +672,37 @@ export default function ResaleListings() {
           </ScrollReveal>
         )}
 
-        <main className="container px-4 py-4 md:py-8">
-          {/* Search & Sort Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <main className="container px-4 py-2 md:py-6">
+          {/* Search & Sort Bar - Compact single row on mobile */}
+          <div className="flex gap-2 mb-3 md:mb-6">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
               <Input
-                placeholder="Search by city, neighborhood, address..."
+                placeholder="Search city, address..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10"
+                className="pl-8 h-9 text-sm"
               />
             </div>
-            <div className="flex gap-2">
-              {/* Map Button */}
+            <div className="flex gap-1.5">
+              {/* Map Button - icon only on mobile */}
               <Button 
                 variant="outline" 
-                className="h-10 px-3"
+                className="h-9 px-2.5"
                 onClick={() => navigate('/map-search?mode=resale')}
               >
-                <Map className="h-4 w-4 mr-2" />
-                <span className="text-sm">Map</span>
+                <Map className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline text-xs ml-1.5">Map</span>
               </Button>
               
               {/* Mobile Filters */}
               <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden relative h-10 px-3">
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Filters</span>
+                  <Button variant="outline" className="lg:hidden relative h-9 px-2.5">
+                    <SlidersHorizontal className="h-3.5 w-3.5" />
+                    <span className="hidden sm:inline text-xs ml-1.5">Filters</span>
                     {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      <Badge className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
                         {activeFilterCount}
                       </Badge>
                     )}
@@ -717,10 +718,10 @@ export default function ResaleListings() {
                 </SheetContent>
               </Sheet>
 
-              {/* Sort */}
+              {/* Sort - compact */}
               <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                <SelectTrigger className="w-[140px] sm:w-[180px] h-10 text-sm">
-                  <SelectValue placeholder="Sort by" />
+                <SelectTrigger className="w-[90px] sm:w-[140px] h-9 text-xs">
+                  <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_OPTIONS.map((opt) => (
@@ -734,26 +735,26 @@ export default function ResaleListings() {
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
-                  className="rounded-none h-10 px-3"
+                  className="rounded-none h-9 px-2.5"
                   onClick={() => setViewMode("grid")}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-3.5 w-3.5" />
                 </Button>
                 <Button
                   variant={viewMode === "map" ? "default" : "ghost"}
                   size="sm"
-                  className="rounded-none h-10 px-3"
+                  className="rounded-none h-9 px-2.5"
                   onClick={() => setViewMode("map")}
                 >
-                  <Map className="h-4 w-4" />
+                  <Map className="h-3.5 w-3.5" />
                 </Button>
               </div>
             </div>
           </div>
 
-          {/* Active Filters Pills */}
+          {/* Active Filters Pills - more compact */}
           {activeFilterCount > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+            <div className="flex flex-wrap gap-1.5 mb-2 md:mb-4">
               {filters.city !== "any" && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {filters.city}
