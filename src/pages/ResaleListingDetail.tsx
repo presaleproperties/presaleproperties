@@ -2,6 +2,12 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useRef, useState, useEffect } from "react";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { 
   Bed, 
   Bath, 
@@ -135,6 +141,7 @@ export default function ResaleListingDetail() {
   
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
+  const [showMobileScheduler, setShowMobileScheduler] = useState(false);
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -1190,13 +1197,29 @@ export default function ResaleListingDetail() {
           <Phone className="h-5 w-5" />
         </Button>
         <Button 
-          onClick={scrollToForm} 
+          onClick={() => setShowMobileScheduler(true)} 
           className="flex-1 h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold"
         >
           <Calendar className="h-4 w-4 mr-2" />
           Schedule Showing
         </Button>
       </div>
+
+      {/* Mobile Scheduler Sheet */}
+      <Sheet open={showMobileScheduler} onOpenChange={setShowMobileScheduler}>
+        <SheetContent side="bottom" className="h-auto max-h-[90vh] rounded-t-2xl">
+          <SheetHeader className="pb-2">
+            <SheetTitle className="text-left">{address}</SheetTitle>
+          </SheetHeader>
+          <div className="overflow-y-auto max-h-[calc(90vh-80px)] -mx-6 px-6 pb-safe">
+            <ResaleScheduleForm
+              listingId={listing.id}
+              listingAddress={address}
+              listingCity={listing.city}
+            />
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <Footer />
     </div>
