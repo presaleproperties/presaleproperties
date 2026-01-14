@@ -401,13 +401,13 @@ export default function ResaleListingDetail() {
                   )}
                 </div>
 
-                {/* Price - Very Large */}
+                {/* Price - Larger than address (match desktop ratio) */}
                 <div className="flex items-baseline gap-4 flex-wrap">
-                  <span className="text-4xl font-bold text-foreground">
+                  <span className="text-5xl font-bold leading-none text-foreground">
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && (
-                    <span className="text-xl text-muted-foreground">
+                    <span className="text-2xl text-muted-foreground">
                       ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
                     </span>
                   )}
