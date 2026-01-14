@@ -116,18 +116,14 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
           justify-content: center;
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="hsl(45, 89%, 55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
-            <rect x="4" y="2" width="16" height="20" rx="2" ry="2"></rect>
-            <path d="M9 22v-4h6v4"></path>
-            <path d="M8 6h.01"></path>
-            <path d="M16 6h.01"></path>
-            <path d="M12 6h.01"></path>
-            <path d="M12 10h.01"></path>
-            <path d="M12 14h.01"></path>
-            <path d="M16 10h.01"></path>
-            <path d="M16 14h.01"></path>
-            <path d="M8 10h.01"></path>
-            <path d="M8 14h.01"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(45, 89%, 55%)" stroke="none" style="transform: rotate(45deg);">
+            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
+            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
+            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
+            <path d="M10 6h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
+            <path d="M10 10h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
+            <path d="M10 14h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
+            <path d="M10 18h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
           </svg>
         </div>
       </div>
