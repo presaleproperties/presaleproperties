@@ -94,7 +94,7 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - dark navy teardrop with gold construction crane icon
+// Presale marker - dark navy teardrop with gold tower crane icon
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
   return L.divIcon({
     className: "custom-presale-pin",
@@ -116,7 +116,20 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
           justify-content: center;
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         ">
-          <span style="transform: rotate(45deg); font-size: 12px; line-height: 1;">🏗️</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" style="transform: rotate(45deg);">
+            <!-- Crane tower -->
+            <rect x="10" y="8" width="4" height="14" fill="hsl(45, 89%, 55%)"/>
+            <!-- Crane arm -->
+            <rect x="4" y="6" width="16" height="3" fill="hsl(45, 89%, 55%)"/>
+            <!-- Crane top -->
+            <rect x="11" y="2" width="2" height="5" fill="hsl(45, 89%, 55%)"/>
+            <!-- Hook line -->
+            <rect x="17" y="9" width="1.5" height="6" fill="hsl(45, 89%, 55%)"/>
+            <!-- Hook -->
+            <path d="M16 15 L19 15 L19 17 L17.5 17 L17.5 16 L16 16 Z" fill="hsl(45, 89%, 55%)"/>
+            <!-- Base -->
+            <rect x="8" y="20" width="8" height="2" fill="hsl(45, 89%, 55%)"/>
+          </svg>
         </div>
       </div>
     `,
