@@ -78,8 +78,12 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
   };
 
   const handleCityClick = (city: string) => {
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
-    navigate(`${basePath}?city=${encodeURIComponent(city)}`);
+    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    if (activeTab === "projects") {
+      navigate(`/${citySlug}-presale-condos`);
+    } else {
+      navigate(`/resale/${citySlug}`);
+    }
   };
 
   return (
