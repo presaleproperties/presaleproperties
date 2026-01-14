@@ -23,12 +23,13 @@ interface NearbyPlace {
   category: string;
 }
 
+// Neutral, muted colors for a cleaner look
 const amenityCategories = [
-  { key: "schools", label: "Schools", icon: School, color: "#3B82F6" },
-  { key: "transit", label: "Transit", icon: Train, color: "#8B5CF6" },
-  { key: "parks", label: "Parks", icon: TreePine, color: "#22C55E" },
-  { key: "grocery", label: "Shops", icon: ShoppingBag, color: "#10B981" },
-  { key: "healthcare", label: "Health", icon: Stethoscope, color: "#EF4444" },
+  { key: "schools", label: "Schools", icon: School, color: "#64748B" },
+  { key: "transit", label: "Transit", icon: Train, color: "#64748B" },
+  { key: "parks", label: "Parks", icon: TreePine, color: "#64748B" },
+  { key: "grocery", label: "Shops", icon: ShoppingBag, color: "#64748B" },
+  { key: "healthcare", label: "Health", icon: Stethoscope, color: "#64748B" },
 ];
 
 // Build Overpass query for nearby amenities
@@ -148,12 +149,12 @@ export function ResaleListingMiniMap({
     const markersLayer = L.layerGroup().addTo(map);
     markersLayerRef.current = markersLayer;
 
-    // Property marker with custom icon
+    // Property marker with custom icon - smaller and cleaner
     const propertyIcon = L.divIcon({
       html: `
         <div class="property-marker-pin">
           <div class="property-marker-inner">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
@@ -161,8 +162,8 @@ export function ResaleListingMiniMap({
         </div>
       `,
       className: "property-marker-icon",
-      iconSize: [36, 44],
-      iconAnchor: [18, 44],
+      iconSize: [28, 34],
+      iconAnchor: [14, 34],
     });
 
     L.marker([latitude, longitude], { icon: propertyIcon, zIndexOffset: 1000 }).addTo(map);
@@ -199,8 +200,8 @@ export function ResaleListingMiniMap({
             </div>
           `,
           className: "amenity-marker-icon",
-          iconSize: [20, 20],
-          iconAnchor: [10, 10],
+          iconSize: [12, 12],
+          iconAnchor: [6, 6],
         });
 
         const marker = L.marker([place.lat, place.lon], { icon });
@@ -240,22 +241,23 @@ export function ResaleListingMiniMap({
   };
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg md:text-xl font-bold text-foreground">Location & Nearby</h2>
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-2">
+        <h2 className="text-base md:text-xl font-bold text-foreground truncate">Location</h2>
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 px-2 text-xs gap-1 text-primary hover:text-primary"
+          className="h-7 px-2 text-xs gap-1 text-primary hover:text-primary shrink-0"
           onClick={handleOpenFullMap}
         >
           <ExternalLink className="h-3 w-3" />
-          Open Maps
+          <span className="hidden sm:inline">Open Maps</span>
+          <span className="sm:hidden">Maps</span>
         </Button>
       </div>
 
       {/* Map Container */}
-      <div className="relative rounded-xl overflow-hidden border border-border bg-muted">
+      <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted">
         <style>{`
           .property-marker-icon {
             background: transparent !important;
@@ -263,44 +265,46 @@ export function ResaleListingMiniMap({
           }
           .property-marker-pin {
             position: relative;
-            width: 36px;
-            height: 44px;
+            width: 28px;
+            height: 34px;
           }
           .property-marker-inner {
             position: absolute;
             top: 0;
             left: 50%;
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)/0.8) 100%);
+            width: 24px;
+            height: 24px;
+            background: hsl(var(--foreground));
             border-radius: 50% 50% 50% 0;
             transform: translateX(-50%) rotate(-45deg);
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.25);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
           }
           .property-marker-inner svg {
             transform: rotate(45deg);
-            color: hsl(var(--primary-foreground));
+            color: hsl(var(--background));
+            width: 12px;
+            height: 12px;
           }
           .amenity-marker-icon {
             background: transparent !important;
             border: none !important;
           }
           .amenity-marker {
-            width: 20px;
-            height: 20px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+            border: 1.5px solid white;
           }
           .amenity-marker-dot {
-            width: 6px;
-            height: 6px;
+            width: 4px;
+            height: 4px;
             background: white;
             border-radius: 50%;
           }
@@ -319,43 +323,42 @@ export function ResaleListingMiniMap({
             padding: 6px 10px;
           }
           .amenity-popup-name {
-            font-size: 12px;
-            font-weight: 600;
+            font-size: 11px;
+            font-weight: 500;
             color: #1f2937;
           }
           .amenity-popup-type {
-            font-size: 10px;
+            font-size: 9px;
             color: #6B7280;
           }
         `}</style>
 
-        <div ref={mapContainerRef} className="w-full h-[280px] md:h-[320px]" />
+        <div ref={mapContainerRef} className="w-full h-[340px] md:h-[380px]" />
         
-        {/* Compact overlay toggles on map */}
-        <div className="absolute top-2 left-2 z-[1000] flex flex-wrap gap-1">
-          {amenityCategories.map(({ key, icon: Icon, color }) => {
+        {/* Minimal filter pills at bottom */}
+        <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
+          {amenityCategories.map(({ key, icon: Icon }) => {
             const isActive = activeCategories.has(key);
             return (
               <button
                 key={key}
                 onClick={() => toggleCategory(key)}
                 className={`
-                  w-7 h-7 rounded-full flex items-center justify-center transition-all shadow-sm
+                  w-6 h-6 rounded-full flex items-center justify-center transition-all
                   ${isActive 
-                    ? 'text-white shadow-md' 
-                    : 'bg-background/90 text-muted-foreground hover:bg-background border border-border/50'
+                    ? 'bg-foreground text-background shadow-sm' 
+                    : 'bg-background/80 text-muted-foreground hover:bg-background border border-border/30'
                   }
                 `}
-                style={isActive ? { backgroundColor: color } : undefined}
                 title={key.charAt(0).toUpperCase() + key.slice(1)}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-3 w-3" />
               </button>
             );
           })}
           {isLoading && (
-            <div className="w-7 h-7 rounded-full bg-background/90 flex items-center justify-center">
-              <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+            <div className="w-6 h-6 rounded-full bg-background/80 flex items-center justify-center">
+              <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
             </div>
           )}
         </div>
