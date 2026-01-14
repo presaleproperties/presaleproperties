@@ -187,10 +187,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
-          {/* Main Headline - Simple & Bold */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">
+          {/* Main Headline - Premium styling with glow */}
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight drop-shadow-lg">
             New Homes For Sale<br />
-            <span className="text-primary">Metro Vancouver</span>
+            <span className="text-primary drop-shadow-[0_0_20px_hsl(43_96%_56%/0.5)]">Metro Vancouver</span>
           </h1>
           
           {/* Search Container */}
@@ -248,24 +248,24 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             />
           </div>
 
-          {/* Mode Toggle Pills - Brand Gold Accent */}
+          {/* Mode Toggle Pills - Premium Gold Accent with glow */}
           <div className="flex items-center gap-2 mt-6">
             <button
               onClick={() => handleTabChange("projects")}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                 activeTab === "projects" 
-                  ? "bg-primary text-primary-foreground shadow-lg" 
-                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
+                  ? "bg-primary text-primary-foreground shadow-gold-glow" 
+                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20 hover:bg-white/25"
               }`}
             >
               Presale
             </button>
             <button
               onClick={() => handleTabChange("resale")}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-300 ${
                 activeTab === "resale" 
-                  ? "bg-primary text-primary-foreground shadow-lg" 
-                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
+                  ? "bg-primary text-primary-foreground shadow-gold-glow" 
+                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20 hover:bg-white/25"
               }`}
             >
               Move-In Ready
@@ -284,7 +284,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-card backdrop-blur-md border border-border shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
+              className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-card backdrop-blur-md border border-border shadow-sm hover:border-primary hover:shadow-gold hover:bg-primary/5 transition-all duration-300 active:scale-95 flex-shrink-0"
             >
               {city.name}
             </button>

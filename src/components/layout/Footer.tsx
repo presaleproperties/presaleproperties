@@ -26,7 +26,7 @@ const TOWNHOME_CITY_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-muted/30">
+    <footer className="border-t border-border bg-gradient-to-b from-muted/20 to-muted/40">
       <div className="py-8 sm:py-12 px-4 lg:container lg:px-4">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-6">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
@@ -169,18 +169,18 @@ export function Footer() {
           </nav>
         </div>
 
-        {/* Brokerage Section */}
-        <div className="mt-8 pt-6 border-t border-border">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 justify-center">
+        {/* Brokerage Section - Premium styling */}
+        <div className="mt-10 pt-8 border-t border-border/60">
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 justify-center bg-background/50 rounded-xl p-4 sm:p-6 max-w-md mx-auto shadow-xs">
             <img 
               src={realBrokerLogo} 
               alt="Real Broker" 
               className="h-10 sm:h-12 w-auto object-contain"
             />
             <div className="text-center sm:text-left">
-              <p className="text-sm font-medium text-foreground">Real Broker</p>
-              <p className="text-xs text-muted-foreground">
-                666 Burrard St, Suite 500, Vancouver, British Columbia V6C 3P6
+              <p className="text-sm font-semibold text-foreground">Real Broker</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                666 Burrard St, Suite 500, Vancouver, BC V6C 3P6
               </p>
             </div>
           </div>
