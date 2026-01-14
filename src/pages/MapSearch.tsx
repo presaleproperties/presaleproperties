@@ -517,10 +517,7 @@ export default function MapSearch() {
       </Helmet>
 
       <div className="h-screen bg-background flex flex-col overflow-hidden">
-        <ConversionHeader alwaysVisible />
-        
-        {/* Spacer for fixed header on mobile/tablet */}
-        <div className="h-14 md:h-16 shrink-0 lg:hidden" />
+        <ConversionHeader alwaysVisible stickyOnMobile />
 
         {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
