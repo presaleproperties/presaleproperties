@@ -38,7 +38,13 @@ export function PropertyStickyHeader({
   if (!isMobileOrTablet) return null;
 
   return (
-    <div className="sticky top-0 z-50 bg-background/98 backdrop-blur-lg border-b border-border shadow-sm lg:hidden">
+    <div 
+      className="fixed top-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-lg border-b border-border shadow-sm lg:hidden"
+      style={{
+        // Add safe area padding for notch/dynamic island
+        paddingTop: 'env(safe-area-inset-top)'
+      }}
+    >
       {/* Main Header Row */}
       <div className="flex items-center justify-between px-3 py-2.5 gap-2">
         {/* Back Button + Price/Specs */}
