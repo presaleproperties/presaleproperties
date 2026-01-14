@@ -35,10 +35,19 @@ export function PullToRefreshIndicator({
     } else if (wasRefreshing && !isRefreshing) {
       setShowSuccess(true);
       setWasRefreshing(false);
-      const timer = setTimeout(() => setShowSuccess(false), 1000);
+      // Auto-hide after 800ms
+      const timer = setTimeout(() => setShowSuccess(false), 800);
       return () => clearTimeout(timer);
     }
   }, [isRefreshing, wasRefreshing]);
+
+  // Reset success state when pullDistance is 0 (fully released)
+  useEffect(() => {
+    if (pullDistance === 0 && !isRefreshing) {
+      const timer = setTimeout(() => setShowSuccess(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [pullDistance, isRefreshing]);
 
   // Hide indicator completely when not in use
   const shouldShow = pullDistance > 10 || isRefreshing || showSuccess;
