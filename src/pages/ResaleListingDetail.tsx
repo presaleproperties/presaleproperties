@@ -330,10 +330,10 @@ export default function ResaleListingDetail() {
       </Helmet>
       <ConversionHeader />
       
-      <main className="container px-4 py-2 lg:py-2 pb-24 lg:pb-8">
+      <main className="container px-4 py-3 lg:py-4 pb-24 lg:pb-8">
         <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-muted-foreground mb-2 lg:mb-1.5 overflow-x-auto">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-3 lg:mb-2 overflow-x-auto">
           <ol className="flex items-center gap-1">
             <li>
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
@@ -357,9 +357,9 @@ export default function ResaleListingDetail() {
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-3 gap-3 lg:gap-5">
+        <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Left Column - Images & Details */}
-          <div className="lg:col-span-2 space-y-3 lg:space-y-3">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-5">
             {/* Image Gallery - REW Style */}
             <REWPhotoGallery
               photos={photos}
@@ -596,9 +596,9 @@ export default function ResaleListingDetail() {
             </div>
 
             {/* Desktop Price Section */}
-            <div className="hidden lg:block space-y-1">
+            <div className="hidden lg:block space-y-1.5">
               {/* Badges Row */}
-              <div className="flex flex-wrap items-center gap-1.5">
+              <div className="flex flex-wrap items-center gap-2">
                 {listing.year_built && listing.year_built >= 2024 && (
                   <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1">
                     <Sparkles className="h-3 w-3" />
@@ -638,8 +638,8 @@ export default function ResaleListingDetail() {
               </div>
               
               {/* Price with Est. Monthly */}
-              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                <span className="text-2xl md:text-3xl font-bold text-foreground">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <span className="text-3xl md:text-4xl font-bold text-foreground">
                   {formatPrice(listing.listing_price)}
                 </span>
                 {listing.living_area && (
@@ -664,7 +664,7 @@ export default function ResaleListingDetail() {
               </div>
 
               {/* Full Address */}
-              <h1 className="text-lg md:text-xl font-semibold text-foreground">
+              <h1 className="text-xl md:text-2xl font-semibold text-foreground">
                 {address}
               </h1>
               
@@ -684,7 +684,7 @@ export default function ResaleListingDetail() {
               </div>
 
               {/* Beds • Baths • Sqft • Year - Inline with icons */}
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-foreground">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-base text-foreground">
                 {listing.bedrooms_total !== null && (
                   <span className="flex items-center gap-1.5">
                     <Bed className="h-4 w-4 text-muted-foreground" />

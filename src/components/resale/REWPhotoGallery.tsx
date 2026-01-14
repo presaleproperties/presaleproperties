@@ -220,7 +220,7 @@ export function REWPhotoGallery({
         >
           <div
             onClick={() => openGallery(selectedIndex)}
-            className="relative aspect-[4/3] lg:aspect-[2.5/1] rounded-xl overflow-hidden bg-muted"
+            className="relative aspect-[4/3] lg:aspect-[16/9] rounded-xl overflow-hidden bg-muted"
           >
             <img
               src={photos[selectedIndex]?.url}
