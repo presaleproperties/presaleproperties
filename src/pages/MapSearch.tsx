@@ -388,6 +388,13 @@ export default function MapSearch() {
     return items.slice(0, 40);
   }, [visibleResaleListings, visiblePresaleProjects]);
 
+  // Actual count of properties in view (not capped) for display
+  const propertiesInViewCount = useMemo(() => {
+    const resaleCount = mapMode === "presale" ? 0 : visibleResaleIds.length;
+    const presaleCount = mapMode === "resale" ? 0 : visiblePresaleIds.length;
+    return resaleCount + presaleCount;
+  }, [visibleResaleIds, visiblePresaleIds, mapMode]);
+
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
     if (value === "any" || value === "") {
@@ -580,7 +587,7 @@ export default function MapSearch() {
               <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden safe-bottom">
                 <div className="flex items-center justify-between px-4 pb-2 pt-1">
                   <span className="text-xs font-medium text-muted-foreground bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    {visibleItems.length} properties in view
+                    {propertiesInViewCount} properties in view
                   </span>
                   <button
                     onClick={() => setShowCarousel(false)}
@@ -914,7 +921,7 @@ export default function MapSearch() {
             <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-muted/30">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-foreground">
-                  {totalCount} Results
+                  {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "Results"}
                 </span>
                 <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
                   <SelectTrigger className="w-[100px] h-7 text-xs border-0 bg-transparent shadow-none px-1 gap-1">
