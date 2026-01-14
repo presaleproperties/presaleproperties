@@ -8,8 +8,6 @@ import { toast } from "sonner";
 import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Home, AlertCircle, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import * as pdfjsLib from "pdfjs-dist";
-import pdfjsWorkerSrc from "pdfjs-dist/build/pdf.worker.mjs?url";
 
 interface CityStats {
   city: string;
@@ -90,45 +88,36 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
   };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
-    // Use bundled pdf.js worker (no CDN) to avoid CORS/network failures.
-    // Prefer workerPort to fully prevent any dynamic worker fetching.
-    try {
-      const worker = new Worker(pdfjsWorkerSrc, { type: 'module' });
-      pdfjsLib.GlobalWorkerOptions.workerPort = worker;
-    } catch {
-      // Fallback: workerSrc string URL
-      pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
-    }
-
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-
-    let fullText = '';
-
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
-      const textContent = await page.getTextContent();
-
-      // Group items by Y to preserve rows (best-effort for tables)
-      const items = textContent.items as Array<{ str: string; transform: number[] }>;
-      const rows: Map<number, string[]> = new Map();
-
-      for (const item of items) {
-        const y = Math.round(item.transform[5]);
-        if (!rows.has(y)) rows.set(y, []);
-        rows.get(y)!.push(item.str);
+    const bytes = new Uint8Array(arrayBuffer);
+    const decoder = new TextDecoder('utf-8', { fatal: false });
+    const pdfContent = decoder.decode(bytes);
+    
+    let text = '';
+    const textMatches = pdfContent.match(/\(([^)]+)\)/g) || [];
+    for (const match of textMatches) {
+      const content = match.slice(1, -1);
+      if (content.length > 2 && /[a-zA-Z0-9$%]/.test(content)) {
+        text += content + ' ';
       }
-
-      const sortedYs = Array.from(rows.keys()).sort((a, b) => b - a);
-      for (const y of sortedYs) {
-        const rowText = rows.get(y)!.join(' ').replace(/\s+/g, ' ').trim();
-        if (rowText) fullText += rowText + '\n';
-      }
-
-      fullText += '\n--- PAGE BREAK ---\n';
     }
 
-    return fullText.trim();
+    const streamRegex = /stream\n([\s\S]*?)\nendstream/g;
+    let streamMatch;
+    while ((streamMatch = streamRegex.exec(pdfContent)) !== null) {
+      const streamContent = streamMatch[1];
+      if (streamContent && streamContent.length < 10000) {
+        const tokens = streamContent.match(/\(([^)]{2,100})\)/g) || [];
+        for (const token of tokens) {
+          const t = token.slice(1, -1);
+          if (/[a-zA-Z0-9$%]/.test(t)) {
+            text += t + ' ';
+          }
+        }
+      }
+    }
+
+    return text.trim();
   };
 
   const processAllFiles = async () => {
