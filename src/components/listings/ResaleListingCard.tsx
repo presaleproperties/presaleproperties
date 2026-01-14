@@ -276,11 +276,14 @@ export function ResaleListingCard({
 
             {/* Right: Price */}
             <div className="text-right shrink-0 ml-0.5 sm:ml-1">
-              <span className="text-[13px] sm:text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap">
+              <span 
+                className="font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap"
+                style={{ fontSize: '1.5rem', lineHeight: 1.1 }}
+              >
                 {formatPrice(price)}
               </span>
               {sqft && sqft > 0 && (
-                <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap">
+                <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground block leading-tight whitespace-nowrap">
                   ${Math.round(price / sqft)}/sqft
                 </span>
               )}
