@@ -365,26 +365,36 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         </button>
       )}
       
-      {/* Header - Premium gradient */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 pr-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
-        <div className="flex items-center gap-2 flex-wrap mb-1 relative">
+      {/* Header - Premium gradient with animated shine */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-5 pr-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+        
+        {/* Urgency/scarcity indicator */}
+        <div className="flex items-center gap-2 flex-wrap mb-2 relative">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-primary/90 px-2.5 py-1 rounded-full shadow-sm">
+            <span className="h-1.5 w-1.5 bg-white rounded-full animate-pulse"></span>
+            Agents Available Now
+          </span>
           {brochureUrl && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-sm">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-sm">
               <Download className="h-3 w-3" />
-              Brochure Available
+              Brochure Ready
             </span>
           )}
         </div>
-        <h3 className="text-lg font-bold text-background leading-snug relative">
+        
+        <h3 className="text-lg lg:text-xl font-bold text-background leading-snug relative">
           {content.title}
         </h3>
+        <p className="text-xs text-background/70 mt-1 relative">
+          Get instant access — no obligation
+        </p>
       </div>
 
-      {/* Form - optimized for conversion & mobile UX */}
-      <div className="p-4 bg-card">
+      {/* Form - optimized for conversion & autofill */}
+      <div className="p-4 lg:p-5 bg-card">
         <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4">
-          {/* First Name & Last Name - side by side with proper touch targets */}
+          {/* First Name & Last Name - side by side with proper autofill */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label htmlFor="lead-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
@@ -392,11 +402,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               </Label>
               <Input
                 id="lead-firstName"
+                name="fname"
                 placeholder="John"
                 autoComplete="given-name"
+                autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("firstName")}
-                className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div>
@@ -405,46 +417,51 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               </Label>
               <Input
                 id="lead-lastName"
+                name="lname"
                 placeholder="Smith"
                 autoComplete="family-name"
+                autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("lastName")}
-                className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
 
-          {/* Email - auto-complete friendly */}
+          {/* Email */}
           <div>
             <Label htmlFor="lead-email" className="text-sm font-medium text-muted-foreground mb-1.5 block">
               Email
             </Label>
             <Input
               id="lead-email"
+              name="email"
               type="email"
               inputMode="email"
               placeholder="john@email.com"
               autoComplete="email"
+              autoCapitalize="none"
               enterKeyHint="next"
               {...form.register("email")}
-              className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+              className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
-          {/* Phone - numeric keyboard on mobile */}
+          {/* Phone */}
           <div>
             <Label htmlFor="lead-phone" className="text-sm font-medium text-muted-foreground mb-1.5 block">
               Phone
             </Label>
             <Input
               id="lead-phone"
+              name="phone"
               type="tel"
               inputMode="tel"
               placeholder="604-555-0123"
               autoComplete="tel"
               enterKeyHint="done"
               {...form.register("phone")}
-              className="h-12 min-h-[48px] text-base rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+              className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
@@ -526,10 +543,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </RadioGroup>
           </div>
 
-          {/* Submit Button - Large touch target */}
+          {/* Submit Button - High contrast, prominent */}
           <Button
             type="submit"
-            className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-md touch-active"
+            className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
             size="lg"
             disabled={isSubmitting}
           >
@@ -539,14 +556,26 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
                 Submitting...
               </span>
             ) : (
-              "Submit"
+              <>
+                <Send className="h-4 w-4" />
+                {content.buttonText}
+              </>
             )}
           </Button>
 
-          {/* Optimized Disclaimer */}
-          <p className="text-[10px] leading-relaxed text-muted-foreground text-center pt-1">
-            By submitting, you agree to receive communications from PresaleProperties about this listing and similar properties. 
-            This is not a condition of purchase. Message and data rates may apply. 
+          {/* Trust indicators */}
+          <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
+            <span className="flex items-center gap-1">
+              <span className="text-green-500">✓</span> No spam
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="text-green-500">✓</span> Same-day response
+            </span>
+          </div>
+
+          {/* Disclaimer */}
+          <p className="text-[10px] leading-relaxed text-muted-foreground text-center">
+            By submitting, you agree to receive communications from PresaleProperties. 
             View our{" "}
             <a href="/privacy" className="underline hover:text-foreground">
               Privacy Policy
