@@ -184,12 +184,12 @@ function resalePopupHtml(listing: MLSListing): string {
   const brokerage = listing.list_office_name || '';
   
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${address}" style="width:130px;height:100%;min-height:110px;object-fit:cover;border-radius:0;" />`
-    : `<div style="width:130px;min-height:110px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${address}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
+    : `<div style="width:160px;min-height:120px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
   
   return `
     <div style="position:relative;">
-      <a href="/resale/${listing.listing_key}" style="display:flex;width:340px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(222,47%,20%);">
+      <a href="/resale/${listing.listing_key}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(222,47%,20%);">
         <div style="flex-shrink:0;position:relative;">
           ${photoHtml}
           <span style="position:absolute;top:6px;left:6px;background:hsl(222,47%,20%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">MOVE-IN READY</span>
