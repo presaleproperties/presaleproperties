@@ -922,9 +922,9 @@ export default function MapSearch() {
               </div>
             </div>
 
-            {/* Scrollable Grid - REW-style 2-column layout with large images */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-2">
-              <div className="grid grid-cols-2 gap-2">
+            {/* Scrollable Grid - REW-style sizing with our branding */}
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-3">
+              <div className="grid grid-cols-2 gap-3">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
                   const data = item.data;
@@ -939,13 +939,13 @@ export default function MapSearch() {
                       to={link}
                       data-item-id={id}
                     >
-                      <div className={`overflow-hidden transition-all hover:shadow-lg group bg-card ${
+                      <div className={`rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card ${
                         selectedItemId === id 
-                          ? 'ring-2 ring-primary' 
-                          : ''
+                          ? 'border-primary ring-2 ring-primary/20' 
+                          : 'border-border hover:border-primary/50'
                       }`}>
-                        {/* Large Image - Square aspect ratio for maximum image size */}
-                        <div className="relative w-full aspect-square bg-muted overflow-hidden">
+                        {/* Large Image - 4:3 aspect ratio like REW without cutting */}
+                        <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -964,20 +964,20 @@ export default function MapSearch() {
                             )
                           )}
                           {/* Badge overlay */}
-                          <Badge className={`absolute top-2 left-2 text-[9px] px-2 py-0.5 font-bold shadow-md ${
+                          <Badge className={`absolute top-2.5 left-2.5 text-[9px] px-2 py-0.5 font-bold shadow-md ${
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : 'bg-primary text-primary-foreground'
                           }`}>
-                            {isPresale ? 'PRESALE' : 'MOVE-IN'}
+                            {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
                           </Badge>
                         </div>
                         
-                        {/* Content - Clean minimal layout like REW */}
-                        <div className="p-3 space-y-1">
-                          {/* Price - Large and prominent like REW */}
+                        {/* Content - Our branded style */}
+                        <div className="p-3 space-y-1.5">
+                          {/* Price - Large and prominent */}
                           <div className="font-bold text-foreground text-lg leading-tight">
-                            {isPresale 
+                            {isPresale
                               ? formatPrice((data as PresaleProject).starting_price)
                               : formatPrice((data as MLSListing).listing_price)
                             }
