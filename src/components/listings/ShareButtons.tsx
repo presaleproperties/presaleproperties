@@ -1,4 +1,4 @@
-import { Facebook, Twitter, Share2 } from "lucide-react";
+import { Facebook, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -43,20 +43,6 @@ export function ShareButtons({ title, url }: ShareButtonsProps) {
             </Button>
           </TooltipTrigger>
           <TooltipContent>Share on Facebook</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-8 w-8"
-              onClick={() => handleShare("twitter")}
-            >
-              <Twitter className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Share on X</TooltipContent>
         </Tooltip>
 
         <Tooltip>

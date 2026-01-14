@@ -370,14 +370,39 @@ export default function ResaleListingDetail() {
 
             {/* Mobile & Tablet Hero Info - Optimized Above the Fold */}
             {isMobileOrTablet && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Tablet: Two-column layout for price/info + quick form */}
                 <div className="md:grid md:grid-cols-2 md:gap-6">
                   {/* Left: Price & Property Info */}
-                  <div className="space-y-3">
-                    {/* Price - Primary */}
+                  <div className="space-y-2.5">
+                    {/* Key Badges - FIRST, right under photo */}
+                    <div className="flex flex-wrap items-center gap-2">
+                      {listing.year_built && listing.year_built >= 2024 && (
+                        <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
+                          <Sparkles className="h-3 w-3" />
+                          Move-In Ready
+                        </Badge>
+                      )}
+                      {daysOnMarket !== null && (
+                        <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
+                          <Clock className="h-3 w-3" />
+                          {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
+                        </Badge>
+                      )}
+                      <Badge variant="secondary" className="text-xs">
+                        {formatPropertyType(listing.property_sub_type || listing.property_type)}
+                      </Badge>
+                      {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
+                        <Badge className="bg-orange-500 text-white gap-1 text-xs">
+                          <Calendar className="h-3 w-3" />
+                          Open House
+                        </Badge>
+                      )}
+                    </div>
+
+                    {/* Price - Large & Primary */}
                     <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="text-2xl md:text-3xl font-bold text-foreground">
+                      <span className="text-3xl md:text-4xl font-bold text-foreground">
                         {formatPrice(listing.listing_price)}
                       </span>
                       {listing.living_area && (
@@ -387,8 +412,8 @@ export default function ResaleListingDetail() {
                       )}
                     </div>
 
-                    {/* Address */}
-                    <h1 className="text-base md:text-lg font-medium text-foreground">{address}</h1>
+                    {/* Address - Smaller */}
+                    <h1 className="text-sm md:text-base font-medium text-muted-foreground">{address}</h1>
 
                     {/* City & Neighborhood */}
                     <div className="flex items-center gap-2 text-sm">
@@ -403,8 +428,8 @@ export default function ResaleListingDetail() {
                       )}
                     </div>
 
-                    {/* Bed/Bath/Sqft/Year - Grid on tablet, inline on mobile */}
-                    <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm">
+                    {/* Bed/Bath/Sqft/Year - Compact */}
+                    <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm pt-1">
                       {listing.bedrooms_total !== null && (
                         <span className="flex items-center gap-1.5">
                           <Bed className="h-4 w-4 text-primary" />
@@ -434,39 +459,9 @@ export default function ResaleListingDetail() {
                       )}
                     </div>
 
-                    {/* Key Badges */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      {listing.year_built && listing.year_built >= 2024 && (
-                        <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
-                          <Sparkles className="h-3 w-3" />
-                          Move-In Ready
-                        </Badge>
-                      )}
-                      {daysOnMarket !== null && daysOnMarket <= 7 && (
-                        <Badge className="bg-blue-600 text-white gap-1 text-xs">
-                          <Clock className="h-3 w-3" />
-                          {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
-                        </Badge>
-                      )}
-                      {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
-                        <Badge className="bg-orange-500 text-white gap-1 text-xs">
-                          <Calendar className="h-3 w-3" />
-                          Open House
-                        </Badge>
-                      )}
-                      <Badge variant="secondary" className="text-xs">
-                        {formatPropertyType(listing.property_sub_type || listing.property_type)}
-                      </Badge>
-                      {listing.mls_status === "Active" && (
-                        <Badge variant="secondary" className="text-xs bg-green-500/10 text-green-700 border-green-200">
-                          Active
-                        </Badge>
-                      )}
-                    </div>
-
                     {/* Listed By - Compact */}
                     {(listing.list_agent_name || listing.list_office_name) && (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground pt-1">
                         Listed by: {listing.list_agent_name}{listing.list_office_name && ` • ${listing.list_office_name}`}
                       </p>
                     )}
