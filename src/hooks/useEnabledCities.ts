@@ -19,11 +19,13 @@ export function useEnabledCities() {
         .select("value")
         .eq("key", "mls_enabled_cities")
         .maybeSingle();
-      
+
       // Return saved cities or defaults
       return (data?.value as string[] | null) || DEFAULT_ENABLED_CITIES;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    // Keep this fairly fresh so newly-synced cities appear quickly site-wide.
+    staleTime: 30 * 1000,
+    refetchInterval: 60 * 1000,
   });
 }
 
