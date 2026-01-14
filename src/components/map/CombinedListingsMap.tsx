@@ -118,7 +118,16 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
           border: 2px solid hsl(45, 89%, 55%);
         ">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(45, 89%, 55%)" stroke="none" style="transform: rotate(45deg);">
-            <path d="M3 21h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V7H3v2zm0-6v2h18V3H3z"/>
+            <!-- Building body -->
+            <rect x="4" y="4" width="16" height="18" rx="1"/>
+            <!-- Windows row 1 -->
+            <rect x="7" y="7" width="3" height="2" fill="hsl(222, 47%, 20%)"/>
+            <rect x="14" y="7" width="3" height="2" fill="hsl(222, 47%, 20%)"/>
+            <!-- Windows row 2 -->
+            <rect x="7" y="11" width="3" height="2" fill="hsl(222, 47%, 20%)"/>
+            <rect x="14" y="11" width="3" height="2" fill="hsl(222, 47%, 20%)"/>
+            <!-- Door -->
+            <rect x="10" y="16" width="4" height="6" fill="hsl(222, 47%, 20%)"/>
           </svg>
         </div>
       </div>
