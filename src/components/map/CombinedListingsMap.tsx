@@ -60,13 +60,12 @@ interface CombinedListingsMapProps {
 function formatPrice(price: number): string {
   if (price >= 1000000) {
     const millions = price / 1000000;
-    // Show one decimal if not a whole number
     return millions % 1 === 0 ? `$${millions}M` : `$${millions.toFixed(1)}M`;
   }
   return `$${Math.round(price / 1000)}K`;
 }
 
-// REW-style price pill - small, dark navy with white text
+// Gold price pill - brand style, compact
 function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   const priceText = formatPrice(listing.listing_price);
   
@@ -74,15 +73,15 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
     className: "custom-price-marker resale-marker",
     html: `
       <div style="
-        background: hsl(222, 47%, 20%);
-        color: white;
+        background: hsl(45, 89%, 55%);
+        color: hsl(222, 47%, 11%);
         padding: 3px 8px;
-        border-radius: 4px;
+        border-radius: 12px;
         font-weight: 600;
         font-size: 11px;
         white-space: nowrap;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        border: 1px solid hsl(222, 47%, 30%);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        border: 1.5px solid white;
         cursor: pointer;
         line-height: 1.2;
       ">
@@ -95,23 +94,23 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - similar style but slightly different shade
+// Presale marker - dark with gold border
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
-  const priceText = project.starting_price ? `From ${formatPrice(project.starting_price)}` : 'TBA';
+  const priceText = project.starting_price ? `From ${formatPrice(project.starting_price)}` : 'Presale';
   
   return L.divIcon({
     className: "custom-presale-pin",
     html: `
       <div style="
-        background: hsl(222, 47%, 25%);
+        background: hsl(222, 47%, 20%);
         color: white;
         padding: 3px 8px;
-        border-radius: 4px;
+        border-radius: 12px;
         font-weight: 600;
         font-size: 10px;
         white-space: nowrap;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
-        border: 1px solid hsl(45, 89%, 55%);
+        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+        border: 1.5px solid hsl(45, 89%, 55%);
         cursor: pointer;
         line-height: 1.2;
       ">
@@ -124,7 +123,7 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
   });
 }
 
-// REW-style cluster - shows "X Units" text
+// Cluster showing "X Units"
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
   const label = count === 1 ? '1 Unit' : `${count} Units`;
@@ -134,12 +133,12 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
       background: hsl(222, 47%, 20%);
       color: white;
       padding: 4px 10px;
-      border-radius: 4px;
+      border-radius: 12px;
       font-weight: 600;
       font-size: 11px;
       white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-      border: 1px solid hsl(222, 47%, 35%);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+      border: 1.5px solid hsl(45, 89%, 55%);
       line-height: 1.2;
     ">${label}</div>`,
     className: "marker-cluster-custom",
