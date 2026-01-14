@@ -301,7 +301,7 @@ export default function ResaleListingDetail() {
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>
-      <ConversionHeader />
+      <ConversionHeader hideOnMobile />
 
       {/* Mobile/Tablet Scroll-Up Sticky Header */}
       <PropertyStickyHeader
