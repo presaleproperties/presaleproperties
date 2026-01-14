@@ -733,49 +733,49 @@ export default function PresaleProjectDetail() {
               {/* Main Content */}
               <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
                 {/* Deposit, Fees & Developer - Combined section */}
-                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 border border-border/40">
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-                      {project.developer_name && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Developer</p>
-                          <p className="font-semibold text-sm sm:text-base text-foreground">{project.developer_name}</p>
+                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 border border-border/40">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4">Project Details</h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+                      {project.developer_name && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-border/30">
+                          <p className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wide mb-1 sm:mb-1.5">Developer</p>
+                          <p className="font-semibold text-base sm:text-lg text-foreground">{project.developer_name}</p>
                         </div>}
-                      {project.strata_fees && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Strata Fees</p>
-                          <p className="font-semibold text-sm sm:text-base text-foreground">{project.strata_fees}</p>
+                      {project.strata_fees && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-border/30">
+                          <p className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wide mb-1 sm:mb-1.5">Strata Fees</p>
+                          <p className="font-semibold text-base sm:text-lg text-foreground">{project.strata_fees}</p>
                         </div>}
-                      {project.assignment_fees && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
-                          <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Assignment</p>
-                          <p className="font-semibold text-sm sm:text-base text-foreground">{project.assignment_fees}</p>
+                      {project.assignment_fees && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-border/30">
+                          <p className="text-xs sm:text-sm text-muted-foreground font-medium uppercase tracking-wide mb-1 sm:mb-1.5">Assignment</p>
+                          <p className="font-semibold text-base sm:text-lg text-foreground">{project.assignment_fees}</p>
                         </div>}
                     </div>
                     
-                    {project.incentives && <div className="mt-2 sm:mt-3 bg-green-50 dark:bg-green-950/30 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-green-200/50 dark:border-green-800/30">
-                        <div className="flex items-start gap-2">
-                          <Gift className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                    {project.incentives && <div className="mt-3 sm:mt-4 bg-green-50 dark:bg-green-950/30 rounded-lg sm:rounded-xl p-4 sm:p-5 border border-green-200/50 dark:border-green-800/30">
+                        <div className="flex items-start gap-2.5">
+                          <Gift className="h-4 w-4 sm:h-5 sm:w-5 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
                           <div>
-                            <p className="text-[10px] sm:text-xs text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-0.5 sm:mb-1">Current Incentives</p>
-                            <p className="text-xs sm:text-sm text-green-800 dark:text-green-300">{project.incentives}</p>
+                            <p className="text-xs sm:text-sm text-green-700 dark:text-green-400 font-semibold uppercase tracking-wide mb-1 sm:mb-1.5">Current Incentives</p>
+                            <p className="text-sm sm:text-base text-green-800 dark:text-green-300 leading-relaxed">{project.incentives}</p>
                           </div>
                         </div>
                       </div>}
                   </div>}
 
                 {/* Amenities */}
-                {project.amenities && project.amenities.length > 0 && <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2.5 sm:mb-3 md:mb-4">Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
-                      {project.amenities.map((a, i) => <div key={i} className="flex items-center gap-1.5 sm:gap-2">
-                          <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
-                          <span className="text-xs sm:text-sm md:text-base text-foreground">{a}</span>
+                {project.amenities && project.amenities.length > 0 && <div className="bg-muted/30 rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 lg:p-8">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-5">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4">
+                      {project.amenities.map((a, i) => <div key={i} className="flex items-center gap-2 sm:gap-2.5">
+                          <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-green-500 shrink-0" />
+                          <span className="text-sm sm:text-base text-foreground">{a}</span>
                         </div>)}
                     </div>
                   </div>}
 
                 {/* Description */}
-                {project.full_description && <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2.5 sm:mb-3 md:mb-4">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-2 sm:space-y-3">
+                {project.full_description && <div className="bg-muted/30 rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 lg:p-8">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-3 sm:mb-4 md:mb-5">Development Features</h2>
+                    <div className="prose prose-base max-w-none text-muted-foreground space-y-2.5 sm:space-y-3 md:space-y-4">
                       {project.full_description.split("\n").map((line, i) => {
                       // Handle bullet points
                       const isBullet = line.trim().startsWith("•") || line.trim().startsWith("-");
@@ -784,15 +784,15 @@ export default function PresaleProjectDetail() {
                       if (isBullet) {
                         const bulletContent = line.trim().replace(/^[•\-]\s*/, "");
                         const parsedBullet = bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
-                        return <div key={i} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm lg:text-base">
-                              <span className="text-primary mt-0.5">•</span>
+                        return <div key={i} className="flex items-start gap-2 sm:gap-2.5 text-sm sm:text-base lg:text-lg">
+                              <span className="text-primary mt-0.5 text-lg">•</span>
                               <span dangerouslySetInnerHTML={{
                             __html: parsedBullet
                           }} />
                             </div>;
                       }
                       if (!line.trim()) return null;
-                      return <p key={i} className="text-xs sm:text-sm lg:text-base leading-relaxed" dangerouslySetInnerHTML={{
+                      return <p key={i} className="text-sm sm:text-base lg:text-lg leading-relaxed" dangerouslySetInnerHTML={{
                         __html: parsedLine
                       }} />;
                     })}
@@ -800,12 +800,12 @@ export default function PresaleProjectDetail() {
                   </div>}
 
                 {/* Highlights */}
-                {project.highlights && project.highlights.length > 0 && <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Key Highlights</h2>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-3">
-                      {project.highlights.map((h, i) => <li key={i} className="flex items-start gap-2">
-                          <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0 mt-0.5" />
-                          <span className="text-sm md:text-base text-foreground">{h}</span>
+                {project.highlights && project.highlights.length > 0 && <div className="bg-muted/30 rounded-xl p-4 sm:p-5 md:p-6 lg:p-8">
+                    <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-3 sm:mb-4 md:mb-5">Key Highlights</h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+                      {project.highlights.map((h, i) => <li key={i} className="flex items-start gap-2.5">
+                          <CheckCircle className="h-5 w-5 md:h-6 md:w-6 text-green-500 shrink-0 mt-0.5" />
+                          <span className="text-sm sm:text-base md:text-lg text-foreground leading-relaxed">{h}</span>
                         </li>)}
                     </ul>
                   </div>}
