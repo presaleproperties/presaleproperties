@@ -129,9 +129,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
   const handleCityClick = (slug: string) => {
     if (activeTab === "projects") {
-      navigate(`/presale-condos/${slug}`);
+      navigate(`/${slug}-presale-condos`);
     } else {
-      navigate(`/resale?city=${slug}`);
+      navigate(`/resale/${slug}`);
     }
   };
 
