@@ -251,7 +251,7 @@ const Index = () => {
 
         <FAQSchema faqs={HOME_FAQS} />
         
-        <ConversionHeader />
+        <ConversionHeader hideOnMobile />
         <MobileHomePage activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
     );
