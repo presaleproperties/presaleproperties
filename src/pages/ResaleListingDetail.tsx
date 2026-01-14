@@ -357,12 +357,15 @@ export default function ResaleListingDetail() {
                 </div>
 
                 {/* Price - Large & Primary */}
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="font-bold text-foreground tabular-nums tracking-tight leading-none text-4xl sm:text-5xl md:text-6xl">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span 
+                    className="font-bold text-foreground"
+                    style={{ fontSize: '2.5rem', lineHeight: 1, letterSpacing: '-0.02em' }}
+                  >
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && (
-                    <span className="text-muted-foreground text-xs">
+                    <span className="text-muted-foreground text-sm">
                       ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
                     </span>
                   )}
