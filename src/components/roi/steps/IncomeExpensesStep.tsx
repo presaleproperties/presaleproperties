@@ -2,28 +2,56 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Home, TrendingUp, AlertCircle, Building, FileText, Shield, Wrench } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Home, TrendingUp, AlertCircle, Building, FileText, Shield, Wrench, ShieldCheck, Sparkles } from "lucide-react";
 import { RentalIncomeDetails, OperatingExpenses } from "@/types/roi";
+import { useLatestCMHCData } from "@/hooks/useCMHCRentalData";
 
 interface IncomeExpensesStepProps {
   rental: RentalIncomeDetails;
   expenses: OperatingExpenses;
+  city?: string;
+  propertyType?: 'condo' | 'townhome';
   updateRental: (field: string, value: number) => void;
   updateExpenses: (field: string, value: number) => void;
 }
 
 export function IncomeExpensesStep({ 
   rental, 
-  expenses, 
+  expenses,
+  city,
+  propertyType = 'condo',
   updateRental, 
   updateExpenses 
 }: IncomeExpensesStepProps) {
+  // Fetch CMHC verified rental data for the selected city
+  const { data: cmhcData, isLoading: isCMHCLoading } = useLatestCMHCData(city || '');
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-CA", {
       style: "currency",
       currency: "CAD",
       maximumFractionDigits: 0,
     }).format(value);
+  };
+
+  // Get suggested rent from CMHC data based on property type
+  const suggestedRent = cmhcData 
+    ? propertyType === 'townhome' 
+      ? Math.round((cmhcData.avg_rent_2br || 2000) * 1.25) // Townhomes ~25% higher
+      : cmhcData.avg_rent_2br 
+    : null;
+
+  const suggestedVacancy = cmhcData?.vacancy_rate_overall || null;
+
+  const handleApplyCMHCRent = () => {
+    if (suggestedRent) {
+      updateRental("monthlyRentStart", suggestedRent);
+    }
+    if (suggestedVacancy !== null) {
+      updateRental("vacancyPercent", Math.round(suggestedVacancy));
+    }
   };
 
   // Income calculations
@@ -48,6 +76,52 @@ export function IncomeExpensesStep({
 
   return (
     <div className="space-y-4">
+      {/* CMHC Verified Data Banner */}
+      {cmhcData && city && (
+        <div className="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
+              <span className="text-sm font-medium text-green-700 dark:text-green-400">
+                CMHC Verified Data for {city}
+              </span>
+              <Badge variant="outline" className="text-[10px] bg-white dark:bg-background">
+                {cmhcData.report_year}
+              </Badge>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleApplyCMHCRent}
+              className="h-7 text-xs border-green-300 text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-400 dark:hover:bg-green-950"
+            >
+              <Sparkles className="h-3 w-3 mr-1" />
+              Apply Verified Data
+            </Button>
+          </div>
+          <div className="grid grid-cols-3 gap-3 mt-2 text-center">
+            {cmhcData.avg_rent_1br && (
+              <div>
+                <p className="text-[10px] text-muted-foreground">1BR Avg</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(cmhcData.avg_rent_1br)}</p>
+              </div>
+            )}
+            {cmhcData.avg_rent_2br && (
+              <div>
+                <p className="text-[10px] text-muted-foreground">2BR Avg</p>
+                <p className="text-sm font-semibold text-foreground">{formatCurrency(cmhcData.avg_rent_2br)}</p>
+              </div>
+            )}
+            {cmhcData.vacancy_rate_overall !== null && (
+              <div>
+                <p className="text-[10px] text-muted-foreground">Vacancy</p>
+                <p className="text-sm font-semibold text-foreground">{cmhcData.vacancy_rate_overall}%</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Rental Income */}
       <Card>
         <CardHeader className="pb-3">
@@ -71,6 +145,12 @@ export function IncomeExpensesStep({
                 placeholder="2400"
               />
             </div>
+            {suggestedRent && rental.monthlyRentStart !== suggestedRent && (
+              <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1">
+                <ShieldCheck className="h-3 w-3" />
+                CMHC suggests {formatCurrency(suggestedRent)}/mo for {propertyType === 'townhome' ? 'townhomes' : '2BR'} in {city}
+              </p>
+            )}
           </div>
 
           {/* Rent Growth & Vacancy */}

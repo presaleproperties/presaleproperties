@@ -89,6 +89,8 @@ export function ROIWizard({
           <IncomeExpensesStep
             rental={inputs.rental}
             expenses={inputs.expenses}
+            city={inputs.purchase.city}
+            propertyType={inputs.purchase.propertyType}
             updateRental={(field, value) => updateInputs("rental", field, value)}
             updateExpenses={(field, value) => updateInputs("expenses", field, value)}
           />
