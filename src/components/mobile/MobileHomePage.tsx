@@ -185,23 +185,13 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/40 to-foreground/70" />
         </div>
 
-        {/* Hero Content - Matching Desktop Style */}
+        {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
-          {/* Tagline */}
-          <p className="text-primary font-semibold text-sm tracking-wide uppercase mb-3">
-            Vancouver's New Construction Experts
-          </p>
-          
-          {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-4 tracking-tight">
-            Find Your <span className="text-primary">Brand New</span> Home
+          {/* Main Headline - Simple & Bold */}
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">
+            New Homes<br />
+            <span className="text-primary">Presales & Move-In Ready</span>
           </h1>
-          
-          {/* Subheadline */}
-          <p className="text-white/90 text-base font-medium text-center mb-8 max-w-sm">
-            Presale condos & move-in ready homes.<br />
-            <span className="text-white/70">Never lived in. Full warranty included.</span>
-          </p>
           
           {/* Search Container */}
           <div 
