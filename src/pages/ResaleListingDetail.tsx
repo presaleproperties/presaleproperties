@@ -368,121 +368,102 @@ export default function ResaleListingDetail() {
               </div>
             )}
 
-            {/* Mobile & Tablet Hero Info - Optimized Above the Fold */}
+            {/* Mobile & Tablet Hero Info - Unified single-column layout */}
             {isMobileOrTablet && (
-              <div className="space-y-3">
-                {/* Tablet: Two-column layout for price/info + quick form */}
-                <div className="md:grid md:grid-cols-2 md:gap-6">
-                  {/* Left: Price & Property Info */}
-                  <div className="space-y-2.5">
-                    {/* Key Badges - FIRST, right under photo */}
-                    <div className="flex flex-wrap items-center gap-2">
-                      {listing.year_built && listing.year_built >= 2024 && (
-                        <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
-                          <Sparkles className="h-3 w-3" />
-                          Move-In Ready
-                        </Badge>
-                      )}
-                      {daysOnMarket !== null && (
-                        <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
-                          <Clock className="h-3 w-3" />
-                          {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
-                        </Badge>
-                      )}
-                      <Badge variant="secondary" className="text-xs">
-                        {formatPropertyType(listing.property_sub_type || listing.property_type)}
-                      </Badge>
-                      {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
-                        <Badge className="bg-orange-500 text-white gap-1 text-xs">
-                          <Calendar className="h-3 w-3" />
-                          Open House
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Price - Large & Primary */}
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="text-3xl md:text-4xl font-bold text-foreground">
-                        {formatPrice(listing.listing_price)}
-                      </span>
-                      {listing.living_area && (
-                        <span className="text-sm text-muted-foreground">
-                          ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Address - Smaller */}
-                    <h1 className="text-sm md:text-base font-medium text-muted-foreground">{address}</h1>
-
-                    {/* City & Neighborhood */}
-                    <div className="flex items-center gap-2 text-sm">
-                      <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
-                        {listing.city}
-                      </Link>
-                      {listing.neighborhood && (
-                        <>
-                          <span className="text-muted-foreground">•</span>
-                          <span className="text-muted-foreground">{listing.neighborhood}</span>
-                        </>
-                      )}
-                    </div>
-
-                    {/* Bed/Bath/Sqft/Year - Compact */}
-                    <div className="flex flex-wrap items-center gap-3 md:gap-4 text-sm pt-1">
-                      {listing.bedrooms_total !== null && (
-                        <span className="flex items-center gap-1.5">
-                          <Bed className="h-4 w-4 text-primary" />
-                          <span className="font-semibold">{listing.bedrooms_total}</span>
-                          <span className="text-muted-foreground">Bed</span>
-                        </span>
-                      )}
-                      {listing.bathrooms_total !== null && (
-                        <span className="flex items-center gap-1.5">
-                          <Bath className="h-4 w-4 text-primary" />
-                          <span className="font-semibold">{listing.bathrooms_total}</span>
-                          <span className="text-muted-foreground">Bath</span>
-                        </span>
-                      )}
-                      {listing.living_area && (
-                        <span className="flex items-center gap-1.5">
-                          <Maximize className="h-4 w-4 text-primary" />
-                          <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
-                          <span className="text-muted-foreground">sqft</span>
-                        </span>
-                      )}
-                      {listing.year_built && (
-                        <span className="flex items-center gap-1.5">
-                          <Calendar className="h-4 w-4 text-primary" />
-                          <span className="font-semibold">{listing.year_built}</span>
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Listed By - Compact */}
-                    {(listing.list_agent_name || listing.list_office_name) && (
-                      <p className="text-xs text-muted-foreground pt-1">
-                        Listed by: {listing.list_agent_name}{listing.list_office_name && ` • ${listing.list_office_name}`}
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Right: Quick Schedule Form (Tablet only) */}
-                  {!isMobile && (
-                    <div className="hidden md:block lg:hidden mt-4 md:mt-0">
-                      <div className="bg-card border rounded-xl p-4 shadow-sm">
-                        <ResaleScheduleForm 
-                          listingId={listing.id}
-                          listingAddress={address}
-                          listingCity={listing.city}
-                        />
-                      </div>
-                    </div>
+              <div className="space-y-4">
+                {/* Key Badges - FIRST, right under photo */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {listing.year_built && listing.year_built >= 2024 && (
+                    <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
+                      <Sparkles className="h-3 w-3" />
+                      Move-In Ready
+                    </Badge>
+                  )}
+                  {daysOnMarket !== null && (
+                    <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
+                      <Clock className="h-3 w-3" />
+                      {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
+                    </Badge>
+                  )}
+                  <Badge variant="secondary" className="text-xs">
+                    {formatPropertyType(listing.property_sub_type || listing.property_type)}
+                  </Badge>
+                  {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
+                    <Badge className="bg-orange-500 text-white gap-1 text-xs">
+                      <Calendar className="h-3 w-3" />
+                      Open House
+                    </Badge>
                   )}
                 </div>
 
-                {/* Quick Actions - Maps, Street View, Share - Below on mobile, inline on tablet */}
-                <div className="flex items-center gap-2 pt-2 border-t md:border-0 md:pt-0">
+                {/* Price - Large & Primary */}
+                <div className="flex items-baseline gap-2 flex-wrap">
+                  <span className="text-3xl font-bold text-foreground">
+                    {formatPrice(listing.listing_price)}
+                  </span>
+                  {listing.living_area && (
+                    <span className="text-sm text-muted-foreground">
+                      ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
+                    </span>
+                  )}
+                </div>
+
+                {/* Address - Smaller */}
+                <h1 className="text-sm font-medium text-muted-foreground">{address}</h1>
+
+                {/* City & Neighborhood */}
+                <div className="flex items-center gap-2 text-sm">
+                  <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
+                    {listing.city}
+                  </Link>
+                  {listing.neighborhood && (
+                    <>
+                      <span className="text-muted-foreground">•</span>
+                      <span className="text-muted-foreground">{listing.neighborhood}</span>
+                    </>
+                  )}
+                </div>
+
+                {/* Bed/Bath/Sqft/Year - Compact Row */}
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  {listing.bedrooms_total !== null && (
+                    <span className="flex items-center gap-1.5">
+                      <Bed className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{listing.bedrooms_total}</span>
+                      <span className="text-muted-foreground">Bed</span>
+                    </span>
+                  )}
+                  {listing.bathrooms_total !== null && (
+                    <span className="flex items-center gap-1.5">
+                      <Bath className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{listing.bathrooms_total}</span>
+                      <span className="text-muted-foreground">Bath</span>
+                    </span>
+                  )}
+                  {listing.living_area && (
+                    <span className="flex items-center gap-1.5">
+                      <Maximize className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
+                      <span className="text-muted-foreground">sqft</span>
+                    </span>
+                  )}
+                  {listing.year_built && (
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{listing.year_built}</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Listed By */}
+                {(listing.list_agent_name || listing.list_office_name) && (
+                  <p className="text-xs text-muted-foreground">
+                    Listed by: {listing.list_agent_name}{listing.list_office_name && ` • ${listing.list_office_name}`}
+                  </p>
+                )}
+
+                {/* Quick Actions - Maps, Street View, Share */}
+                <div className="flex items-center gap-2 pt-2 border-t">
                   <Button
                     variant="outline"
                     size="sm"
@@ -527,6 +508,15 @@ export default function ResaleListingDetail() {
                   <div className="ml-auto">
                     <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
                   </div>
+                </div>
+
+                {/* Schedule Form - Full width on both mobile and tablet */}
+                <div className="bg-card border rounded-xl p-4 shadow-sm">
+                  <ResaleScheduleForm 
+                    listingId={listing.id}
+                    listingAddress={address}
+                    listingCity={listing.city}
+                  />
                 </div>
               </div>
             )}
