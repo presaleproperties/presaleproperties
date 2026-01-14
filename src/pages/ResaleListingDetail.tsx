@@ -945,18 +945,15 @@ export default function ResaleListingDetail() {
       </main>
 
       {/* Mobile CTA Bar - Only on mobile, not tablet (form is inline on tablet) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-40 shadow-lg safe-area-pb hide-on-keyboard">
-        <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 min-w-[48px] min-h-[48px] shrink-0 rounded-xl">
+      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-40 shadow-lg safe-area-pb">
+        <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 shrink-0 rounded-xl">
           <Phone className="h-5 w-5" />
         </Button>
-        <Button onClick={() => setShowMobileScheduler(true)} className="flex-1 h-12 min-h-[48px] bg-foreground hover:bg-foreground/90 text-background font-semibold rounded-xl">
+        <Button onClick={() => setShowMobileScheduler(true)} className="flex-1 h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold">
           <Calendar className="h-4 w-4 mr-2" />
           Schedule Showing
         </Button>
       </div>
-      
-      {/* Spacer for mobile CTA bar */}
-      <div className="h-24 md:hidden" aria-hidden="true" />
 
       {/* Mobile Scheduler Sheet */}
       <Sheet open={showMobileScheduler} onOpenChange={setShowMobileScheduler}>

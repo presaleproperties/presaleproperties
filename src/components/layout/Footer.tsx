@@ -26,7 +26,7 @@ const TOWNHOME_CITY_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-gradient-to-b from-muted/20 to-muted/40" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0px)' }}>
+    <footer className="border-t border-border bg-gradient-to-b from-muted/20 to-muted/40">
       <div className="py-8 sm:py-12 px-4 lg:container lg:px-4">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-6">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
