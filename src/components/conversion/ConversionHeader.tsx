@@ -71,6 +71,17 @@ export function ConversionHeader() {
     const handleScroll = () => {
       if (!ticking.current) {
         window.requestAnimationFrame(() => {
+          // Desktop (lg+): header is always visible, no hide/show behavior
+          const isDesktop = window.innerWidth >= 1024;
+          if (isDesktop) {
+            setIsVisible(true);
+            setIsAtTop(window.scrollY < 10);
+            lastScrollY.current = window.scrollY;
+            ticking.current = false;
+            return;
+          }
+
+          // Mobile/Tablet: hide on scroll down, show on scroll up
           const currentScrollY = window.scrollY;
           const scrollDelta = currentScrollY - lastScrollY.current;
           
