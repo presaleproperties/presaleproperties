@@ -39,13 +39,22 @@ export function ExitIntentPopup() {
     // Don't show if user already engaged with any form
     if (hasShown || hasConverted || hasSubmittedAnyForm || hasBooking) return;
 
-    // Don't show on calculator page - users are actively engaged
-    if (window.location.pathname === '/calculator') return;
-
-    // Don't show on admin, developer, or dashboard pages
-    if (window.location.pathname.startsWith('/admin') || 
-        window.location.pathname.startsWith('/developer') ||
-        window.location.pathname.startsWith('/dashboard')) return;
+    const pathname = window.location.pathname;
+    
+    // Only show on consumer-facing pages (presale projects, resale, blog, guides, homepage)
+    const isConsumerPage = 
+      pathname === '/' ||
+      pathname.startsWith('/presale-projects') ||
+      pathname.endsWith('-presale-condos') ||
+      pathname.endsWith('-presale-townhomes') ||
+      pathname.startsWith('/resale') ||
+      pathname.startsWith('/blog') ||
+      pathname.startsWith('/guides') ||
+      pathname === '/calculator' ||
+      pathname === '/mortgage-calculator';
+    
+    // Skip non-consumer pages entirely
+    if (!isConsumerPage) return;
 
     let timeout: NodeJS.Timeout;
     
@@ -69,10 +78,10 @@ export function ExitIntentPopup() {
       }
     };
 
-    // Delay adding listener to avoid immediate triggers - increased to 15 seconds
+    // Delay adding listener - 30 seconds to be less intrusive
     const addListener = setTimeout(() => {
       document.addEventListener("mouseleave", handleMouseLeave);
-    }, 15000);
+    }, 30000);
 
     return () => {
       clearTimeout(addListener);
