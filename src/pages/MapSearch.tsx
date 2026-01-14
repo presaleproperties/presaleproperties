@@ -241,7 +241,8 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .gte("year_built", 2020);
+        // Many MLS records have missing year_built; include them so totals match reality.
+        .or("year_built.is.null,year_built.gte.2020");
 
       // Filter by enabled cities from admin portal when no specific city selected
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {

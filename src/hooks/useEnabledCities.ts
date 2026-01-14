@@ -23,8 +23,10 @@ export function useEnabledCities() {
       // Return saved cities or defaults
       return (data?.value as string[] | null) || DEFAULT_ENABLED_CITIES;
     },
-    // Keep this fairly fresh so newly-synced cities appear quickly site-wide.
-    staleTime: 30 * 1000,
+    // Force near-immediate propagation after admin changes / sync updates.
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
     refetchInterval: 60 * 1000,
   });
 }
