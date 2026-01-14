@@ -369,16 +369,13 @@ export default function ResaleListingDetail() {
                 {/* Address - Smaller */}
                 <h1 className="font-medium text-muted-foreground text-base">{address}</h1>
 
-                {/* City & Neighborhood */}
-                <div className="flex items-center gap-2 text-sm">
+                {/* City & Neighborhood - Inline */}
+                <p className="text-sm">
                   <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                     {listing.city}
                   </Link>
-                  {listing.neighborhood && <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">{listing.neighborhood}</span>
-                    </>}
-                </div>
+                  {listing.neighborhood && <span className="text-muted-foreground">, {listing.neighborhood}</span>}
+                </p>
 
                 {/* Bed/Bath/Sqft/Year - Compact Row */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
