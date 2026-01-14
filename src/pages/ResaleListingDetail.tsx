@@ -335,11 +335,30 @@ export default function ResaleListingDetail() {
             {/* Image Gallery - REW Style */}
             <REWPhotoGallery photos={photos} virtualTourUrl={listing.virtual_tour_url} alt={address} />
 
-            {/* Mobile & Tablet Hero Info - Compact layout for above-the-fold */}
-            {isMobileOrTablet && <div className="space-y-2">
+            {/* Mobile & Tablet Hero Info - Unified single-column layout */}
+            {isMobileOrTablet && <div className="space-y-4">
+                {/* Key Badges - FIRST, right under photo */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
+                      <Sparkles className="h-3 w-3" />
+                      Move-In Ready
+                    </Badge>}
+                  {daysOnMarket !== null && <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
+                      <Clock className="h-3 w-3" />
+                      {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
+                    </Badge>}
+                  <Badge variant="secondary" className="text-xs">
+                    {formatPropertyType(listing.property_sub_type || listing.property_type)}
+                  </Badge>
+                  {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && <Badge className="bg-orange-500 text-white gap-1 text-xs">
+                      <Calendar className="h-3 w-3" />
+                      Open House
+                    </Badge>}
+                </div>
+
                 {/* Price - Large & Primary */}
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="font-bold text-foreground text-3xl sm:text-4xl">
+                  <span className="font-bold text-foreground sm:text-4xl text-3xl">
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && <span className="text-muted-foreground text-xs">
@@ -347,53 +366,38 @@ export default function ResaleListingDetail() {
                     </span>}
                 </div>
 
-                {/* Address */}
-                <h1 className="font-medium text-foreground text-base sm:text-lg">{address}</h1>
+                {/* Address - Smaller */}
+                <h1 className="font-medium text-muted-foreground text-base">{address}</h1>
 
-                {/* City & Neighborhood + Bed/Bath - Same row on tablet */}
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm">
+                {/* City & Neighborhood - Inline */}
+                <p className="text-sm">
                   <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                     {listing.city}
                   </Link>
-                  {listing.neighborhood && <span className="text-muted-foreground">{listing.neighborhood}</span>}
-                  <span className="text-muted-foreground hidden sm:inline">|</span>
-                  {listing.bedrooms_total !== null && <span className="flex items-center gap-1">
+                  {listing.neighborhood && <span className="text-muted-foreground">, {listing.neighborhood}</span>}
+                </p>
+
+                {/* Bed/Bath/Sqft/Year - Compact Row */}
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  {listing.bedrooms_total !== null && <span className="flex items-center gap-1.5">
                       <Bed className="h-4 w-4 text-primary" />
                       <span className="font-semibold">{listing.bedrooms_total}</span>
                       <span className="text-muted-foreground">Bed</span>
                     </span>}
-                  {listing.bathrooms_total !== null && <span className="flex items-center gap-1">
+                  {listing.bathrooms_total !== null && <span className="flex items-center gap-1.5">
                       <Bath className="h-4 w-4 text-primary" />
                       <span className="font-semibold">{listing.bathrooms_total}</span>
                       <span className="text-muted-foreground">Bath</span>
                     </span>}
-                  {listing.living_area && <span className="flex items-center gap-1">
+                  {listing.living_area && <span className="flex items-center gap-1.5">
                       <Maximize className="h-4 w-4 text-primary" />
                       <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
                       <span className="text-muted-foreground">sqft</span>
                     </span>}
-                </div>
-
-                {/* Key Badges - Compact row */}
-                <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs py-0.5">
-                      <Sparkles className="h-3 w-3" />
-                      Move-In Ready
-                    </Badge>}
-                  {daysOnMarket !== null && <Badge className={`gap-1 text-xs py-0.5 ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
-                      <Clock className="h-3 w-3" />
-                      {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
-                    </Badge>}
-                  <Badge variant="secondary" className="text-xs py-0.5">
-                    {formatPropertyType(listing.property_sub_type || listing.property_type)}
-                  </Badge>
-                  {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && <Badge className="bg-orange-500 text-white gap-1 text-xs py-0.5">
-                      <Calendar className="h-3 w-3" />
-                      Open House
-                    </Badge>}
-                  {listing.year_built && <Badge variant="outline" className="text-xs py-0.5">
-                      Built {listing.year_built}
-                    </Badge>}
+                  {listing.year_built && <span className="flex items-center gap-1.5">
+                      <Calendar className="h-4 w-4 text-primary" />
+                      <span className="font-semibold">{listing.year_built}</span>
+                    </span>}
                 </div>
 
                 {/* Listed By */}
