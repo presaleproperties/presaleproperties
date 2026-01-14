@@ -92,9 +92,16 @@ export function CityMarketSnapshot({ city, propertyType = 'condo', compact = fal
           {city} {propertyType === 'condo' ? 'Condo' : 'Townhome'} Market
         </h3>
         {reportDate && (
-          <span className="text-xs text-muted-foreground">
-            Data: {reportDate.label}
-          </span>
+          <div className="flex items-center gap-2">
+            {stats.source_board === 'MLS New Construction' && (
+              <Badge variant="outline" className="text-xs bg-green-500/10 text-green-700 border-green-200">
+                ✓ MLS Verified
+              </Badge>
+            )}
+            <span className="text-xs text-muted-foreground">
+              Data: {reportDate.label}
+            </span>
+          </div>
         )}
       </div>
 

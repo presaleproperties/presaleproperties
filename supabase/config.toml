@@ -83,3 +83,6 @@ verify_jwt = false
 
 [functions.process-research-webhook]
 verify_jwt = false
+
+[functions.calculate-price-sqft]
+verify_jwt = false
