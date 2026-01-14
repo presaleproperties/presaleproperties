@@ -455,7 +455,6 @@ export function ProjectLeadMagnetsBar({ projectId, projectName, city }: LeadMagn
     <div className="flex flex-wrap items-center gap-2 py-3 border-y border-border">
       <span className="text-xs text-muted-foreground mr-2 hidden sm:inline">Quick actions:</span>
       <SaveProjectButton projectId={projectId} projectName={projectName} />
-      <PriceAlertButton projectId={projectId} projectName={projectName} />
       <ROIAnalysisButton projectId={projectId} projectName={projectName} />
     </div>
   );
