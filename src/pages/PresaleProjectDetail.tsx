@@ -36,7 +36,6 @@ import { useLoftyProjectTracking } from "@/hooks/useLoftyTracking";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { trackFloorplanView, trackFloorplanDownload, trackCTAClick } from "@/lib/tracking";
 import { MetaEvents, MetaCustomEvents } from "@/components/tracking/MetaPixel";
-import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { 
   MapPin,
   Calendar,
@@ -107,7 +106,6 @@ export default function PresaleProjectDetail() {
   const [bookingDate, setBookingDate] = useState<Date | undefined>();
   const [bookingTimePeriod, setBookingTimePeriod] = useState<string | undefined>();
   const [floorPlanModalOpen, setFloorPlanModalOpen] = useState(false);
-  const isMobileOrTablet = useIsMobileOrTablet();
 
   // Track project view to Lofty CRM (legacy)
   useLoftyProjectTracking(project);
@@ -678,161 +676,25 @@ export default function PresaleProjectDetail() {
           <Breadcrumbs items={breadcrumbItems} />
         </div>
 
-        {/* Hero - Single column on mobile/tablet, side-by-side on desktop */}
+        {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
-          <div className="container px-3 py-3 lg:px-4 lg:py-6">
-            {/* Desktop: Side-by-side layout */}
-            {!isMobileOrTablet && (
-              <div className="grid lg:grid-cols-5 gap-6">
-                {/* Gallery - 3 columns on desktop */}
-                <div className="lg:col-span-3">
-                  <GalleryWithLightbox
-                    images={allImages}
-                    selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
-                    onSelectIndex={(index) => setSelectedImage(allImages[index])}
-                    alt={project.name}
-                    compact
-                  />
-                </div>
-
-                {/* Project Info - 2 columns on desktop */}
-                <div className="lg:col-span-2 flex flex-col">
-                  {/* Status Badge Row */}
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    {getStatusBadge(project.status)}
-                    {project.is_featured && (
-                      <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
-                        <Star className="h-3 w-3 mr-1 fill-current" />
-                        Featured
-                      </Badge>
-                    )}
-                  </div>
-
-                  {/* Title */}
-                  <h1 className="text-2xl lg:text-3xl font-bold text-foreground leading-tight mb-2">{project.name}</h1>
-                  
-                  {project.starting_price ? (
-                    <div className="mb-3">
-                      <span className="text-xl font-semibold text-primary">
-                        From {formatPrice(project.starting_price)}
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="text-lg text-muted-foreground mb-3">Contact for pricing</div>
-                  )}
-
-                  {/* City/Neighborhood */}
-                  <div className="flex items-center gap-2 text-muted-foreground text-sm mb-3">
-                    <MapPin className="h-3.5 w-3.5 shrink-0" />
-                    <span className="font-medium text-foreground">{project.neighborhood}, {project.city}</span>
-                  </div>
-
-                  {/* Quick Action Buttons - Map, Street View, Share */}
-                  <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {project.map_lat && project.map_lng && (
-                      <Link
-                        to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16&project=${project.slug}`}
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
-                      >
-                        <MapPin className="h-3.5 w-3.5 text-primary" />
-                        <span>Map</span>
-                      </Link>
-                    )}
-                    {project.map_lat && project.map_lng && (
-                      <a
-                        href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
-                      >
-                        <Eye className="h-3.5 w-3.5 text-primary" />
-                        <span>Street View</span>
-                      </a>
-                    )}
-                    <button
-                      onClick={handleShare}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
-                    >
-                      <Share2 className="h-3.5 w-3.5 text-primary" />
-                      <span>Share</span>
-                    </button>
-                  </div>
-
-                  {/* Lead Magnets Bar */}
-                  <ProjectLeadMagnetsBar 
-                    projectId={project.id} 
-                    projectName={project.name} 
-                    city={project.city} 
-                  />
-
-                  {/* Quick Facts - Desktop only */}
-                  <div className="space-y-2 mb-3">
-                    {project.developer_name && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-muted-foreground">Developer:</span>
-                        <span className="font-medium truncate">{project.developer_name}</span>
-                      </div>
-                    )}
-                    {project.completion_year && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-muted-foreground">Completion:</span>
-                        <span className="font-medium">
-                          {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
-                        </span>
-                      </div>
-                    )}
-                    {project.unit_mix && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <Home className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-muted-foreground">Units:</span>
-                        <span className="font-medium truncate">{project.unit_mix}</span>
-                      </div>
-                    )}
-                    {project.deposit_structure && (
-                      <div className="flex items-center gap-2 text-xs">
-                        <DollarSign className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                        <span className="text-muted-foreground">Deposit:</span>
-                        <span className="font-medium truncate">{project.deposit_structure}</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Short description */}
-                  {project.short_description && (
-                    <p className="text-base text-muted-foreground mt-3 leading-relaxed">
-                      {project.short_description}
-                    </p>
-                  )}
-
-                  {/* Inline Scheduler - Desktop */}
-                  <div className="mt-3">
-                    <InlineScheduler
-                      projectId={project.id}
-                      projectName={project.name}
-                      projectCity={project.city}
-                      projectNeighborhood={project.neighborhood}
-                      onRequestTour={handleScheduleTourClick}
-                    />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Mobile & Tablet: Single column, unified layout */}
-            {isMobileOrTablet && (
-              <div className="space-y-4">
-                {/* Gallery - Full width */}
+          <div className="container px-3 py-3 md:px-4 md:py-5 lg:py-6">
+            <div className="grid lg:grid-cols-5 gap-3 md:gap-5 lg:gap-6">
+              {/* Gallery - Full width on mobile/tablet, 3 columns on desktop */}
+              <div className="lg:col-span-3">
                 <GalleryWithLightbox
                   images={allImages}
                   selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
                   onSelectIndex={(index) => setSelectedImage(allImages[index])}
                   alt={project.name}
+                  compact
                 />
+              </div>
 
+              {/* Project Info - Full width on mobile/tablet, 2 columns on desktop */}
+              <div className="lg:col-span-2 flex flex-col">
                 {/* Status Badge Row */}
-                <div className="flex flex-wrap items-center gap-1.5">
+                <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
                   {project.is_featured && (
                     <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white text-xs px-2 py-0.5">
@@ -843,39 +705,38 @@ export default function PresaleProjectDetail() {
                 </div>
 
                 {/* Title and City Badge */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl font-bold text-foreground leading-tight">{project.name}</h1>
-                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0.5 font-medium">
+                <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{project.name}</h1>
+                  <Badge variant="secondary" className="md:hidden text-[10px] px-1.5 py-0.5 font-medium">
                     {project.city}
                   </Badge>
                 </div>
                 
-                {/* Price */}
                 {project.starting_price ? (
-                  <div>
-                    <span className="text-xl font-semibold text-primary">
+                  <div className="mb-2 md:mb-3">
+                    <span className="text-lg md:text-xl font-semibold text-primary">
                       From {formatPrice(project.starting_price)}
                     </span>
                   </div>
                 ) : (
-                  <div className="text-base text-muted-foreground">Contact for pricing</div>
+                  <div className="text-base md:text-lg text-muted-foreground mb-2 md:mb-3">Contact for pricing</div>
                 )}
 
-                {/* City/Neighborhood */}
-                <div className="flex items-center gap-2 text-muted-foreground text-sm">
+                {/* City/Neighborhood - shown prominently on mobile */}
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-3">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
                   <span className="font-medium text-foreground">{project.neighborhood}, {project.city}</span>
                 </div>
                 
-                {/* Full Address - if different from neighborhood */}
+                {/* Full Address - shown below on mobile, hidden if same as neighborhood */}
                 {project.address && project.address !== `${project.neighborhood}, ${project.city}` && (
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs">
+                  <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2 md:hidden">
                     <span className="ml-5 truncate">{project.address}</span>
                   </div>
                 )}
 
                 {/* Quick Action Buttons - Map, Street View, Share */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t">
+                <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
                   {project.map_lat && project.map_lng && (
                     <Link
                       to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16&project=${project.slug}`}
@@ -905,15 +766,57 @@ export default function PresaleProjectDetail() {
                   </button>
                 </div>
 
-                {/* Lead Magnets Bar */}
+                {/* Lead Magnets Bar - Save, Price Alert, ROI Analysis */}
                 <ProjectLeadMagnetsBar 
                   projectId={project.id} 
                   projectName={project.name} 
                   city={project.city} 
                 />
 
-                {/* Inline Scheduler - Full width on mobile/tablet */}
-                <div className="bg-card border rounded-xl p-4 shadow-sm">
+                {/* Quick Facts - visible on tablet and desktop, more compact */}
+                <div className="hidden md:block space-y-1.5 lg:space-y-2 mb-2 lg:mb-3">
+                  {project.developer_name && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground">Developer:</span>
+                      <span className="font-medium truncate">{project.developer_name}</span>
+                    </div>
+                  )}
+                  {project.completion_year && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground">Completion:</span>
+                      <span className="font-medium">
+                        {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
+                      </span>
+                    </div>
+                  )}
+                  {project.unit_mix && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <Home className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground">Units:</span>
+                      <span className="font-medium truncate">{project.unit_mix}</span>
+                    </div>
+                  )}
+                  {project.deposit_structure && (
+                    <div className="flex items-center gap-2 text-xs">
+                      <DollarSign className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                      <span className="text-muted-foreground">Deposit:</span>
+                      <span className="font-medium truncate">{project.deposit_structure}</span>
+                    </div>
+                  )}
+                </div>
+
+
+                {/* Short description - visible on all screen sizes */}
+                {project.short_description && (
+                  <p className="text-sm md:text-sm lg:text-base text-muted-foreground mt-2 md:mt-3 leading-relaxed">
+                    {project.short_description}
+                  </p>
+                )}
+
+                {/* Inline Scheduler - Tablet and Desktop, directly under project info */}
+                <div className="hidden md:block mt-4 lg:mt-3">
                   <InlineScheduler
                     projectId={project.id}
                     projectName={project.name}
@@ -923,31 +826,29 @@ export default function PresaleProjectDetail() {
                   />
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </section>
 
-        {/* Mobile & Tablet Project Highlights Section */}
-        {isMobileOrTablet && (
-          <section className="border-t">
-            <div className="container px-3 py-4">
-              <ProjectHighlights
-                projectType={project.project_type}
-                unitMix={project.unit_mix}
-                completionMonth={project.completion_month}
-                completionYear={project.completion_year}
-                city={project.city}
-                neighborhood={project.neighborhood}
-                depositStructure={project.deposit_structure}
-                incentives={project.incentives}
-                developerId={project.developer_id}
-                developerName={project.developer_name}
-                strataFees={project.strata_fees}
-                assignmentFees={project.assignment_fees}
-              />
-            </div>
-          </section>
-        )}
+        {/* Mobile-only Project Highlights Section */}
+        <section className="border-t md:hidden">
+          <div className="container px-3 py-4">
+            <ProjectHighlights
+              projectType={project.project_type}
+              unitMix={project.unit_mix}
+              completionMonth={project.completion_month}
+              completionYear={project.completion_year}
+              city={project.city}
+              neighborhood={project.neighborhood}
+              depositStructure={project.deposit_structure}
+              incentives={project.incentives}
+              developerId={project.developer_id}
+              developerName={project.developer_name}
+              strataFees={project.strata_fees}
+              assignmentFees={project.assignment_fees}
+            />
+          </div>
+        </section>
 
         {/* Details Grid */}
         <section className="py-2 sm:py-3 md:py-5 lg:py-8">
