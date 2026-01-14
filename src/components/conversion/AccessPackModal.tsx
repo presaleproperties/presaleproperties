@@ -283,7 +283,7 @@ export function AccessPackModal({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-lg p-0 overflow-hidden bg-background max-h-[95vh] overflow-y-auto"
+        className="sm:max-w-lg p-0 overflow-hidden bg-background max-h-[90dvh] overflow-y-auto"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         <VisuallyHidden>
@@ -293,8 +293,8 @@ export function AccessPackModal({
         </VisuallyHidden>
 
         {!isSuccess ? (
-          <div className="p-4 sm:p-6">
-            <div className="text-center mb-3 sm:mb-6">
+          <div className="p-5 sm:p-6 pb-8">
+            <div className="text-center mb-4 sm:mb-6">
               <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full mb-2">
                 {variant === "floorplans" ? (
                   <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -315,20 +315,22 @@ export function AccessPackModal({
               </p>
             </div>
 
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2.5 sm:space-y-4">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3 sm:space-y-4">
               {/* Contact Info - First/Last Name side by side */}
-              <div className="space-y-2 sm:space-y-3">
-                <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label htmlFor="firstName" className="text-xs sm:text-sm">
                       First Name <span className="text-destructive">*</span>
                     </Label>
                     <Input
                       id="firstName"
+                      name="fname"
                       placeholder="John"
                       autoComplete="given-name"
+                      autoCapitalize="words"
                       {...form.register("firstName")}
-                      className="h-9 sm:h-11 mt-0.5 text-base"
+                      className="h-11 mt-1 text-[16px]"
                     />
                   </div>
                   <div>
@@ -337,10 +339,12 @@ export function AccessPackModal({
                     </Label>
                     <Input
                       id="lastName"
+                      name="lname"
                       placeholder="Smith"
                       autoComplete="family-name"
+                      autoCapitalize="words"
                       {...form.register("lastName")}
-                      className="h-9 sm:h-11 mt-0.5 text-base"
+                      className="h-11 mt-1 text-[16px]"
                     />
                   </div>
                 </div>
@@ -351,11 +355,14 @@ export function AccessPackModal({
                   </Label>
                   <Input
                     id="email"
+                    name="email"
                     type="email"
+                    inputMode="email"
                     placeholder="john@email.com"
                     autoComplete="email"
+                    autoCapitalize="none"
                     {...form.register("email")}
-                    className="h-9 sm:h-11 mt-0.5 text-base"
+                    className="h-11 mt-1 text-[16px]"
                   />
                 </div>
 
@@ -365,11 +372,13 @@ export function AccessPackModal({
                   </Label>
                   <Input
                     id="phone"
+                    name="phone"
                     type="tel"
+                    inputMode="tel"
                     placeholder="604-555-0123"
                     autoComplete="tel"
                     {...form.register("phone")}
-                    className="h-9 sm:h-11 mt-0.5 text-base"
+                    className="h-11 mt-1 text-[16px]"
                   />
                 </div>
               </div>
@@ -382,12 +391,12 @@ export function AccessPackModal({
                 <RadioGroup
                   value={form.watch("persona")}
                   onValueChange={(v) => form.setValue("persona", v as any)}
-                  className="grid grid-cols-2 gap-1.5 sm:gap-2 mt-1"
+                  className="grid grid-cols-2 gap-2 mt-1.5"
                 >
                   {PERSONAS.map((p) => (
                     <Label
                       key={p.value}
-                      className={`flex items-center justify-center h-8 sm:h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
                         form.watch("persona") === p.value
                           ? "border-primary bg-primary/10 text-primary font-medium"
                           : "border-border hover:border-muted-foreground/50"
@@ -408,12 +417,12 @@ export function AccessPackModal({
                 <RadioGroup
                   value={form.watch("workingWithAgent")}
                   onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-                  className="grid grid-cols-3 gap-1.5 sm:gap-2 mt-1"
+                  className="grid grid-cols-3 gap-2 mt-1.5"
                 >
                   {AGENT_OPTIONS.map((a) => (
                     <Label
                       key={a.value}
-                      className={`flex items-center justify-center h-8 sm:h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                      className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
                         form.watch("workingWithAgent") === a.value
                           ? "border-primary bg-primary/10 text-primary font-medium"
                           : "border-border hover:border-muted-foreground/50"
@@ -427,7 +436,7 @@ export function AccessPackModal({
               </div>
 
               {/* Timeline & Property Type - side by side on mobile */}
-              <div className="grid grid-cols-2 gap-2 sm:gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
                   <Label className="text-xs sm:text-sm font-medium">
                     Timeline <span className="text-destructive">*</span>
@@ -435,12 +444,12 @@ export function AccessPackModal({
                   <RadioGroup
                     value={form.watch("timeline")}
                     onValueChange={(v) => form.setValue("timeline", v as any)}
-                    className="grid grid-cols-1 gap-1.5 sm:gap-2 mt-1"
+                    className="grid grid-cols-1 gap-2 mt-1.5"
                   >
                     {TIMELINES.map((t) => (
                       <Label
                         key={t.value}
-                        className={`flex items-center justify-center h-8 sm:h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                        className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
                           form.watch("timeline") === t.value
                             ? "border-primary bg-primary/10 text-primary font-medium"
                             : "border-border hover:border-muted-foreground/50"
@@ -460,12 +469,12 @@ export function AccessPackModal({
                   <RadioGroup
                     value={form.watch("propertyType")}
                     onValueChange={(v) => form.setValue("propertyType", v as any)}
-                    className="grid grid-cols-1 gap-1.5 sm:gap-2 mt-1"
+                    className="grid grid-cols-1 gap-2 mt-1.5"
                   >
                     {PROPERTY_TYPES.map((pt) => (
                       <Label
                         key={pt.value}
-                        className={`flex items-center justify-center h-8 sm:h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
+                        className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs sm:text-sm transition-all ${
                           form.watch("propertyType") === pt.value
                             ? "border-primary bg-primary/10 text-primary font-medium"
                             : "border-border hover:border-muted-foreground/50"
@@ -479,7 +488,7 @@ export function AccessPackModal({
                 </div>
               </div>
 
-              <Button type="submit" className="w-full h-10 sm:h-12 font-semibold text-sm sm:text-base" disabled={isSubmitting}>
+              <Button type="submit" className="w-full h-12 font-semibold text-sm sm:text-base mt-2" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -493,7 +502,7 @@ export function AccessPackModal({
                 )}
               </Button>
 
-              <p className="text-[9px] sm:text-[10px] text-center text-muted-foreground leading-relaxed">
+              <p className="text-[10px] text-center text-muted-foreground leading-relaxed pb-2">
                 By submitting, you agree to receive communications from PresaleProperties. 
                 This is not a condition of purchase. View our{" "}
                 <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
