@@ -94,7 +94,7 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - dark navy teardrop with gold tower crane icon
+// Presale marker - dark navy teardrop with gold ring and building icon
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
   return L.divIcon({
     className: "custom-presale-pin",
@@ -107,35 +107,25 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
       ">
         <div style="
           background: hsl(222, 47%, 20%);
-          width: 24px;
-          height: 24px;
+          width: 28px;
+          height: 28px;
           border-radius: 50% 50% 50% 0;
           transform: rotate(-45deg);
           display: flex;
           align-items: center;
           justify-content: center;
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+          border: 2px solid hsl(45, 89%, 55%);
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" style="transform: rotate(45deg);">
-            <!-- Crane tower -->
-            <rect x="10" y="8" width="4" height="14" fill="hsl(45, 89%, 55%)"/>
-            <!-- Crane arm -->
-            <rect x="4" y="6" width="16" height="3" fill="hsl(45, 89%, 55%)"/>
-            <!-- Crane top -->
-            <rect x="11" y="2" width="2" height="5" fill="hsl(45, 89%, 55%)"/>
-            <!-- Hook line -->
-            <rect x="17" y="9" width="1.5" height="6" fill="hsl(45, 89%, 55%)"/>
-            <!-- Hook -->
-            <path d="M16 15 L19 15 L19 17 L17.5 17 L17.5 16 L16 16 Z" fill="hsl(45, 89%, 55%)"/>
-            <!-- Base -->
-            <rect x="8" y="20" width="8" height="2" fill="hsl(45, 89%, 55%)"/>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(45, 89%, 55%)" stroke="none" style="transform: rotate(45deg);">
+            <path d="M3 21h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V7H3v2zm0-6v2h18V3H3z"/>
           </svg>
         </div>
       </div>
     `,
-    iconSize: [24, 28],
-    iconAnchor: [12, 28],
-    popupAnchor: [0, -28],
+    iconSize: [28, 34],
+    iconAnchor: [14, 34],
+    popupAnchor: [0, -34],
   });
 }
 
