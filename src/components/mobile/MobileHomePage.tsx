@@ -166,7 +166,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         isRefreshing={isRefreshing} 
       />
 
-      {/* Full-Screen Hero Section - REW Style */}
+      {/* Full-Screen Hero Section - Brand Luxe Style */}
       <div 
         className="relative min-h-[75vh] flex flex-col"
         style={{ 
@@ -181,12 +181,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             alt="Modern home interior" 
             className="w-full h-full object-cover"
           />
-          {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
+          {/* Gradient overlay - warmer, more luxe feel */}
+          <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/40 to-foreground/70" />
         </div>
 
-        {/* Hero Content - Centered REW Style */}
+        {/* Hero Content - Centered Brand Style */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
+          {/* Tagline */}
+          <p className="text-primary font-semibold text-sm tracking-wide uppercase mb-3">
+            Vancouver's New Construction Experts
+          </p>
+          
           {/* Main Headline */}
           <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight text-center mb-8">
             Find Your Brand New Home
@@ -197,7 +202,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             ref={searchContainerRef}
             className="w-full max-w-md relative"
           >
-            {/* Search Input */}
+            {/* Search Input - Brand styled */}
             <form onSubmit={handleSearch} className="relative">
               <Input
                 type="text"
@@ -206,12 +211,12 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
                 onBlur={() => setIsSearchFocused(false)}
-                className="h-14 text-base pl-4 pr-14 rounded-xl bg-white border-0 shadow-lg focus:ring-2 focus:ring-primary/50 transition-all"
+                className="h-14 text-base pl-4 pr-14 rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
                 autoComplete="off"
               />
               <button 
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
               >
                 <Search className="h-5 w-5" />
               </button>
@@ -219,12 +224,12 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             
             {/* Location Dropdown - Shows when search is focused and empty */}
             {showLocationOption && (
-              <div className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-border overflow-hidden z-50">
+              <div className="absolute left-0 right-0 mt-2 bg-card rounded-xl shadow-xl border border-border/50 overflow-hidden z-50">
                 <button
                   onClick={handleUseLocation}
                   className="w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/50 transition-colors text-left"
                 >
-                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
                     <Navigation className="h-5 w-5 text-primary" />
                   </div>
                   <div>
@@ -244,24 +249,24 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             />
           </div>
 
-          {/* Mode Toggle Pills */}
+          {/* Mode Toggle Pills - Brand Gold Accent */}
           <div className="flex items-center gap-2 mt-6">
             <button
               onClick={() => handleTabChange("projects")}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
                 activeTab === "projects" 
-                  ? "bg-white text-foreground shadow-md" 
-                  : "bg-white/20 text-white backdrop-blur-sm"
+                  ? "bg-primary text-primary-foreground shadow-lg" 
+                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
               }`}
             >
               Presale
             </button>
             <button
               onClick={() => handleTabChange("resale")}
-              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
                 activeTab === "resale" 
-                  ? "bg-white text-foreground shadow-md" 
-                  : "bg-white/20 text-white backdrop-blur-sm"
+                  ? "bg-primary text-primary-foreground shadow-lg" 
+                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
               }`}
             >
               Move-In Ready
@@ -270,17 +275,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-      {/* Top Cities - Liquid Glass Style */}
+      {/* Top Cities - Liquid Glass Style with Brand Accents */}
       <div className="py-6 px-4 sm:px-6 bg-background">
         <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:-mx-6 sm:px-6">
-          <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
+          <span className="text-sm font-medium text-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
           </span>
           {TOP_CITIES.map((city) => (
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-background/80 backdrop-blur-md border border-border/50 shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
+              className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-card backdrop-blur-md border border-border shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
             >
               {city.name}
             </button>
