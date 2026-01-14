@@ -237,6 +237,7 @@ export function REWPhotoGallery({
               className="w-full h-full object-cover transition-transform duration-300"
               style={{ transform: `translateX(${swipeOffset}px)` }}
               loading="eager"
+              fetchPriority="high"
             />
             
             {/* Photo counter badge - top right on mobile, bottom right on tablet/desktop */}
@@ -380,6 +381,7 @@ export function REWPhotoGallery({
                             alt={photo.alt || `${alt} - Photo ${i + 1}`}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
                             loading={i < 4 ? "eager" : "lazy"}
+                            fetchPriority={i < 4 ? "high" : "auto"}
                           />
                         </div>
                       ))}
@@ -433,6 +435,8 @@ export function REWPhotoGallery({
                   src={photos[zoomedIndex]?.url}
                   alt={photos[zoomedIndex]?.alt || `${alt} - Photo ${zoomedIndex + 1}`}
                   className="max-w-full max-h-full object-contain select-none"
+                  loading="eager"
+                  fetchPriority="high"
                   style={{
                     transform: `scale(${scale}) translate(${position.x / scale}px, ${position.y / scale}px)`,
                     transition: isDragging ? 'none' : 'transform 0.2s ease-out',

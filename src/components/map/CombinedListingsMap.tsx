@@ -216,12 +216,12 @@ function presalePopupHtml(project: PresaleProject): string {
                       project.status === "coming_soon" ? "Coming Soon" : project.status;
   
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${project.name}" style="width:130px;height:100%;min-height:110px;object-fit:cover;border-radius:0;" />`
-    : `<div style="width:130px;min-height:110px;background:hsl(45,89%,95%);display:flex;align-items:center;justify-content:center;"><span style="color:hsl(45,89%,40%);font-size:11px;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${project.name}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
+    : `<div style="width:160px;min-height:120px;background:hsl(45,89%,95%);display:flex;align-items:center;justify-content:center;"><span style="color:hsl(45,89%,40%);font-size:11px;">No Image</span></div>`;
   
   return `
     <div style="position:relative;">
-      <a href="/presale-projects/${project.slug}" style="display:flex;width:360px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(45,89%,50%);">
+      <a href="/presale-projects/${project.slug}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(45,89%,50%);">
         <div style="flex-shrink:0;position:relative;">
           ${photoHtml}
           <span style="position:absolute;top:6px;left:6px;background:hsl(45,89%,50%);color:hsl(222,47%,15%);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">PRESALE</span>

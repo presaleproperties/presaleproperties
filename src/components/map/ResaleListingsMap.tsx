@@ -114,8 +114,8 @@ function getPhoto(listing: MLSListing): string | null {
 function popupHtml(listing: MLSListing): string {
   const photo = getPhoto(listing);
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${getAddress(listing)}" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />`
-    : `<div style="width:100%;height:80px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 8px 0 0;"><span style="color:#94a3b8;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${getAddress(listing)}" style="width:100%;height:120px;object-fit:cover;border-radius:8px 8px 0 0;" loading="eager" />`
+    : `<div style="width:100%;height:120px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 8px 0 0;"><span style="color:#94a3b8;">No Image</span></div>`;
   
   // Build attribution string
   const attribution = listing.list_agent_name && listing.list_office_name
