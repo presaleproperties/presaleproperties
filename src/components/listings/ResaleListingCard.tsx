@@ -158,13 +158,11 @@ export function ResaleListingCard({
   return (
     <Link to={`/resale/${listingKey}`} className="block h-full w-full">
       <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
-        {/* Fixed height image container - ensures all cards have identical image size */}
+        {/* Aspect ratio image container - matches PresaleProjectCard for consistent sizing */}
         <div 
           className={cn(
             "relative overflow-hidden bg-muted flex-shrink-0",
-            size === "featured" ? "h-[160px] sm:h-[200px] md:h-[220px]" : 
-            size === "large" ? "h-[140px] sm:h-[180px] md:h-[200px]" : 
-            "h-[140px] sm:h-[160px] md:h-[180px]"
+            size === "featured" ? "aspect-[16/9]" : size === "large" ? "aspect-[3/2]" : "aspect-[4/3]"
           )}
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
