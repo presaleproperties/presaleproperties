@@ -23,12 +23,13 @@ import {
 } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles, FileSearch, BarChart3 } from "lucide-react";
+import { Plus, Pencil, Trash2, ExternalLink, TrendingUp, RefreshCw, Upload, FileText, Sparkles, FileSearch, BarChart3, Home } from "lucide-react";
 import { toast } from "sonner";
 import { MarketStatsUpload } from "@/components/admin/MarketStatsUpload";
 import { MarketBlogGenerator } from "@/components/admin/MarketBlogGenerator";
 import { ResearchImporter } from "@/components/admin/ResearchImporter";
 import { SnapStatsUploader } from "@/components/admin/SnapStatsUploader";
+import { CMHCRentalUploader } from "@/components/admin/CMHCRentalUploader";
 
 interface MarketData {
   id: string;
@@ -170,10 +171,14 @@ export default function AdminMarketData() {
         </div>
 
         <Tabs defaultValue="snapstats" className="w-full">
-          <TabsList className="grid w-full grid-cols-5 max-w-3xl">
+          <TabsList className="grid w-full grid-cols-6 max-w-4xl">
             <TabsTrigger value="snapstats" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Snap Stats
+            </TabsTrigger>
+            <TabsTrigger value="cmhc" className="flex items-center gap-2">
+              <Home className="h-4 w-4" />
+              CMHC Rentals
             </TabsTrigger>
             <TabsTrigger value="research" className="flex items-center gap-2">
               <FileSearch className="h-4 w-4" />
@@ -181,7 +186,7 @@ export default function AdminMarketData() {
             </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
-              Legacy Upload
+              Legacy
             </TabsTrigger>
             <TabsTrigger value="blog" className="flex items-center gap-2">
               <Sparkles className="h-4 w-4" />
@@ -196,6 +201,11 @@ export default function AdminMarketData() {
           {/* Snap Stats Upload Tab (NEW PRIMARY) */}
           <TabsContent value="snapstats" className="mt-6 space-y-6">
             <SnapStatsUploader onDataImported={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
+          </TabsContent>
+
+          {/* CMHC Rental Data Tab */}
+          <TabsContent value="cmhc" className="mt-6 space-y-6">
+            <CMHCRentalUploader onDataUpdated={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
           </TabsContent>
 
           {/* Research Import Tab */}

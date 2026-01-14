@@ -251,6 +251,7 @@ export type Database = {
           median_sale_price: number | null
           mom_price_change: number | null
           property_type: string
+          rental_source: string | null
           rental_yield: number | null
           report_month: number
           report_summary: string | null
@@ -278,6 +279,7 @@ export type Database = {
           median_sale_price?: number | null
           mom_price_change?: number | null
           property_type: string
+          rental_source?: string | null
           rental_yield?: number | null
           report_month: number
           report_summary?: string | null
@@ -305,6 +307,7 @@ export type Database = {
           median_sale_price?: number | null
           mom_price_change?: number | null
           property_type?: string
+          rental_source?: string | null
           rental_yield?: number | null
           report_month?: number
           report_summary?: string | null
@@ -316,6 +319,81 @@ export type Database = {
           total_sales?: number | null
           updated_at?: string
           yoy_price_change?: number | null
+        }
+        Relationships: []
+      }
+      cmhc_rental_data: {
+        Row: {
+          avg_rent_1br: number | null
+          avg_rent_2br: number | null
+          avg_rent_3br: number | null
+          avg_rent_bachelor: number | null
+          city: string
+          created_at: string
+          data_quality: string | null
+          id: string
+          rental_universe: number | null
+          report_month: number | null
+          report_year: number
+          source_report: string | null
+          source_url: string | null
+          updated_at: string
+          vacancy_rate_1br: number | null
+          vacancy_rate_2br: number | null
+          vacancy_rate_3br: number | null
+          vacancy_rate_bachelor: number | null
+          vacancy_rate_overall: number | null
+          yoy_rent_change_1br: number | null
+          yoy_rent_change_2br: number | null
+          zone: string | null
+        }
+        Insert: {
+          avg_rent_1br?: number | null
+          avg_rent_2br?: number | null
+          avg_rent_3br?: number | null
+          avg_rent_bachelor?: number | null
+          city: string
+          created_at?: string
+          data_quality?: string | null
+          id?: string
+          rental_universe?: number | null
+          report_month?: number | null
+          report_year: number
+          source_report?: string | null
+          source_url?: string | null
+          updated_at?: string
+          vacancy_rate_1br?: number | null
+          vacancy_rate_2br?: number | null
+          vacancy_rate_3br?: number | null
+          vacancy_rate_bachelor?: number | null
+          vacancy_rate_overall?: number | null
+          yoy_rent_change_1br?: number | null
+          yoy_rent_change_2br?: number | null
+          zone?: string | null
+        }
+        Update: {
+          avg_rent_1br?: number | null
+          avg_rent_2br?: number | null
+          avg_rent_3br?: number | null
+          avg_rent_bachelor?: number | null
+          city?: string
+          created_at?: string
+          data_quality?: string | null
+          id?: string
+          rental_universe?: number | null
+          report_month?: number | null
+          report_year?: number
+          source_report?: string | null
+          source_url?: string | null
+          updated_at?: string
+          vacancy_rate_1br?: number | null
+          vacancy_rate_2br?: number | null
+          vacancy_rate_3br?: number | null
+          vacancy_rate_bachelor?: number | null
+          vacancy_rate_overall?: number | null
+          yoy_rent_change_1br?: number | null
+          yoy_rent_change_2br?: number | null
+          zone?: string | null
         }
         Relationships: []
       }

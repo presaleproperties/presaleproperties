@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { useLatestCMHCData, calculateRentalYield } from "@/hooks/useCMHCRentalData";
 import {
   TrendingUp,
   TrendingDown,
@@ -26,7 +27,8 @@ import {
   MapPin,
   ArrowRight,
   ShieldCheck,
-  FileText
+  FileText,
+  Percent
 } from "lucide-react";
 import {
   AreaChart,
@@ -97,11 +99,20 @@ export default function CityMarketReport() {
     enabled: !!cityName,
   });
 
+  // Fetch CMHC rental data
+  const { data: cmhcData } = useLatestCMHCData(cityName);
+
   // Get latest stats for selected property type
   const latestStats = useMemo(() => {
     if (!allStats) return null;
     return allStats.find(s => s.property_type === propertyType);
   }, [allStats, propertyType]);
+
+  // Calculate rental yield from verified sources
+  const rentalYield = useMemo(() => {
+    if (!cmhcData?.avg_rent_2br || !latestStats?.benchmark_price) return null;
+    return calculateRentalYield(cmhcData.avg_rent_2br, latestStats.benchmark_price);
+  }, [cmhcData, latestStats]);
 
   // Get historical data for charts (last 12 months)
   const historicalData = useMemo(() => {
@@ -392,7 +403,53 @@ export default function CityMarketReport() {
                 )}
               </div>
 
-              {/* Price Trend Chart */}
+              {/* CMHC Rental Data Section */}
+              {cmhcData && (
+                <Card className="mb-8 border-blue-200 bg-blue-50/30 dark:bg-blue-950/20">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Home className="h-5 w-5 text-blue-600" />
+                      Rental Market Data
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 ml-2">
+                        <CheckCircle2 className="h-3 w-3 mr-1" />
+                        CMHC Verified
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <div className="text-center p-3 bg-background rounded-lg">
+                        <p className="text-xs text-muted-foreground mb-1">Avg 1BR Rent</p>
+                        <p className="text-xl font-bold">${cmhcData.avg_rent_1br?.toLocaleString() || '—'}</p>
+                      </div>
+                      <div className="text-center p-3 bg-background rounded-lg">
+                        <p className="text-xs text-muted-foreground mb-1">Avg 2BR Rent</p>
+                        <p className="text-xl font-bold">${cmhcData.avg_rent_2br?.toLocaleString() || '—'}</p>
+                      </div>
+                      <div className="text-center p-3 bg-background rounded-lg">
+                        <p className="text-xs text-muted-foreground mb-1">Vacancy Rate</p>
+                        <p className="text-xl font-bold">{cmhcData.vacancy_rate_overall || '—'}%</p>
+                      </div>
+                      <div className="text-center p-3 bg-background rounded-lg">
+                        <p className="text-xs text-muted-foreground mb-1">Rental Yield</p>
+                        <p className="text-xl font-bold text-green-600">{rentalYield || '—'}%</p>
+                        <p className="text-[10px] text-muted-foreground">Based on 2BR rent</p>
+                      </div>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>Source: CMHC Rental Market Report {cmhcData.report_year}</span>
+                      <a 
+                        href="https://www.cmhc-schl.gc.ca/professionals/housing-markets-data-and-research/market-reports/rental-market-reports-major-centres"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline flex items-center gap-1"
+                      >
+                        View Source <ExternalLink className="h-3 w-3" />
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               {historicalData.length > 1 && (
                 <Card className="mb-8">
                   <CardHeader>
