@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, MapPin } from "lucide-react";
+import { Search, MapPin, Navigation, Map, Building2 } from "lucide-react";
 import { SuggestionType } from "@/components/home/SearchSuggestions";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
@@ -48,6 +48,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   const [selectedCity, setSelectedCity] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showLocationOption, setShowLocationOption] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
@@ -58,6 +59,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
     const handleClickOutside = (e: MouseEvent) => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
         setShowSuggestions(false);
+        setShowLocationOption(false);
       }
     };
 
@@ -68,6 +70,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
+    setShowLocationOption(false);
     const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
     if (searchQuery.trim()) {
       navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
@@ -76,9 +79,39 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
     }
   };
 
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+    if (!searchQuery.trim()) {
+      setShowLocationOption(true);
+      setShowSuggestions(false);
+    } else {
+      setShowSuggestions(true);
+      setShowLocationOption(false);
+    }
+  };
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (value.trim()) {
+      setShowSuggestions(true);
+      setShowLocationOption(false);
+    } else {
+      setShowSuggestions(false);
+      setShowLocationOption(true);
+    }
+  };
+
+  const handleUseLocation = () => {
+    setShowLocationOption(false);
+    // Navigate to map page - it will auto-locate the user
+    navigate("/map-search");
+  };
+
   const handleSuggestionSelect = (value: string, type: SuggestionType, slug?: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
+    setShowLocationOption(false);
 
     if (activeTab === "projects") {
       // Navigate directly to project detail if a presale project is selected
@@ -133,9 +166,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         isRefreshing={isRefreshing} 
       />
 
-      {/* Hero Section - Compact, above the fold */}
+      {/* Full-Screen Hero Section - REW Style */}
       <div 
-        className="relative min-h-[28vh] flex flex-col"
+        className="relative min-h-[75vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -149,87 +182,58 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             className="w-full h-full object-cover"
           />
           {/* Gradient overlay for text readability */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/60" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
         </div>
 
-        {/* Hero Content - Compact mobile messaging */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-4 pt-14 pb-4 text-center">
-          <h1 className="text-xl font-bold text-white leading-tight">
-            Presale & <span className="text-primary">Move-In Ready</span> Homes
+        {/* Hero Content - Centered REW Style */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
+          {/* Main Headline */}
+          <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight text-center mb-8">
+            Find Your Brand New Home
           </h1>
-          <p className="text-white/80 text-xs mt-1.5">
-            Brand new. Never lived in.
-          </p>
-        </div>
-
-        {/* Floating Search Card */}
-        <div className="relative px-4 -mb-14 z-10">
+          
+          {/* Search Container */}
           <div 
             ref={searchContainerRef}
-            className="bg-card rounded-xl shadow-lg border border-border p-4"
+            className="w-full max-w-md relative"
           >
-            {/* Search Header with Tabs */}
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-1.5">
-                <button
-                  onClick={() => handleTabChange("projects")}
-                  className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                    activeTab === "projects" 
-                      ? "bg-foreground text-background" 
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  Presale
-                </button>
-                <button
-                  onClick={() => handleTabChange("resale")}
-                  className={`px-3 py-1.5 rounded-full text-sm font-semibold transition-all ${
-                    activeTab === "resale" 
-                      ? "bg-foreground text-background" 
-                      : "bg-muted text-muted-foreground"
-                  }`}
-                >
-                  Move-In Ready
-                </button>
-              </div>
-              
-              <button 
-                onClick={() => navigate("/map-search")}
-                className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <MapPin className="h-4 w-4" />
-                <span className="hidden xs:inline">Map</span>
-              </button>
-            </div>
-
             {/* Search Input */}
             <form onSubmit={handleSearch} className="relative">
               <Input
                 type="text"
-                placeholder={activeTab === "projects" 
-                  ? "City, Neighbourhood, Project..." 
-                  : "City, Neighbourhood, Address..."
-                }
+                placeholder="City, Neighbourhood, Address..."
                 value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setShowSuggestions(true);
-                }}
-                onFocus={() => {
-                  setShowSuggestions(true);
-                  setIsSearchFocused(true);
-                }}
+                onChange={handleSearchChange}
+                onFocus={handleSearchFocus}
                 onBlur={() => setIsSearchFocused(false)}
-                className="h-14 text-base pl-4 pr-14 rounded-xl bg-muted/50 border-border focus:bg-background focus:border-primary/50 transition-all"
+                className="h-14 text-base pl-4 pr-14 rounded-xl bg-white border-0 shadow-lg focus:ring-2 focus:ring-primary/50 transition-all"
                 autoComplete="off"
               />
               <button 
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
+                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-all"
               >
                 <Search className="h-5 w-5" />
               </button>
             </form>
+            
+            {/* Location Dropdown - Shows when search is focused and empty */}
+            {showLocationOption && (
+              <div className="absolute left-0 right-0 mt-2 bg-white rounded-xl shadow-lg border border-border overflow-hidden z-50">
+                <button
+                  onClick={handleUseLocation}
+                  className="w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/50 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Navigation className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <span className="font-medium text-foreground">Use my location</span>
+                    <p className="text-sm text-muted-foreground">Find homes near you</p>
+                  </div>
+                </button>
+              </div>
+            )}
             
             <SearchSuggestions
               query={searchQuery}
@@ -239,10 +243,53 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               searchMode={activeTab}
             />
           </div>
+
+          {/* Action Buttons - REW Style */}
+          <div className="flex gap-3 mt-6 w-full max-w-md">
+            <button
+              onClick={() => navigate("/map-search")}
+              className="flex-1 h-12 rounded-xl bg-foreground/90 backdrop-blur-sm text-background font-semibold text-sm flex items-center justify-center gap-2 hover:bg-foreground transition-all active:scale-[0.98]"
+            >
+              <Map className="h-4 w-4" />
+              SEARCH BY MAP
+            </button>
+            <button
+              onClick={() => navigate("/presale-projects")}
+              className="flex-1 h-12 rounded-xl bg-foreground/90 backdrop-blur-sm text-background font-semibold text-sm flex items-center justify-center gap-2 hover:bg-foreground transition-all active:scale-[0.98]"
+            >
+              <Building2 className="h-4 w-4" />
+              ALL PROJECTS
+            </button>
+          </div>
+
+          {/* Mode Toggle Pills */}
+          <div className="flex items-center gap-2 mt-6">
+            <button
+              onClick={() => handleTabChange("projects")}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                activeTab === "projects" 
+                  ? "bg-white text-foreground shadow-md" 
+                  : "bg-white/20 text-white backdrop-blur-sm"
+              }`}
+            >
+              Presale
+            </button>
+            <button
+              onClick={() => handleTabChange("resale")}
+              className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+                activeTab === "resale" 
+                  ? "bg-white text-foreground shadow-md" 
+                  : "bg-white/20 text-white backdrop-blur-sm"
+              }`}
+            >
+              Move-In Ready
+            </button>
+          </div>
         </div>
       </div>
-      {/* Top Cities - Horizontal Scroll with adaptive padding */}
-      <div className="pt-20 pb-6 px-4 sm:px-6 bg-background">
+
+      {/* Top Cities - Liquid Glass Style */}
+      <div className="py-6 px-4 sm:px-6 bg-background">
         <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:-mx-6 sm:px-6">
           <span className="text-sm text-muted-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
@@ -251,7 +298,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="px-3.5 py-2 rounded-full text-sm font-medium whitespace-nowrap border border-border bg-card hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
+              className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-background/80 backdrop-blur-md border border-border/50 shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
             >
               {city.name}
             </button>
