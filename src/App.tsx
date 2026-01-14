@@ -81,7 +81,6 @@ import ContentHub from "./pages/ContentHub";
 import BlogCategoryPage from "./pages/BlogCategoryPage";
 import MarketTrends from "./pages/MarketTrends"; // Temporarily hidden from public nav
 import CityMarketReport from "./pages/CityMarketReport"; // Temporarily hidden from public nav
-import TeslaStyleHome from "./pages/TeslaStyleHome";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -116,7 +115,6 @@ const App = () => (
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
-            <Route path="/tesla-home" element={<TeslaStyleHome />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
             <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
             {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
