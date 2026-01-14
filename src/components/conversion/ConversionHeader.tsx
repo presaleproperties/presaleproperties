@@ -58,9 +58,11 @@ const RESALE_CITY_LINKS = [
 interface ConversionHeaderProps {
   /** Hide header on mobile/tablet - useful for property detail pages with custom sticky headers */
   hideOnMobile?: boolean;
+  /** Always keep header visible (disable scroll-hide behavior) - useful for map pages */
+  alwaysVisible?: boolean;
 }
 
-export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps) {
+export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false }: ConversionHeaderProps) {
   const [open, setOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
   const [resaleCitiesOpen, setResaleCitiesOpen] = useState(false);
@@ -131,8 +133,8 @@ export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps
           !hideOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-transform max-lg:duration-300 max-lg:ease-out",
           // Hide completely on mobile/tablet for property pages with custom headers
           hideOnMobile && "hidden lg:block",
-          // Scroll-based hide/show for mobile/tablet (slide up when hidden)
-          !hideOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
+          // Scroll-based hide/show for mobile/tablet (slide up when hidden) - skip if alwaysVisible
+          !hideOnMobile && !alwaysVisible && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
       >
         {/* Desktop: standard height with oversized logo */}
