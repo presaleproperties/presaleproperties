@@ -295,18 +295,19 @@ export function CombinedListingsMap({
     }).addTo(map);
 
     // Cluster group for resale listings only
+    // Low radius = fewer/smaller clusters → more individual pins visible
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       chunkDelay: 50,
       chunkInterval: 100,
-      maxClusterRadius: 80,
+      maxClusterRadius: 35, // tighter clustering – more individual pins
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 18,
+      disableClusteringAtZoom: 15, // unclustered at neighborhood zoom
       animate: false,
       removeOutsideVisibleBounds: true,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.5,
+      spiderfyDistanceMultiplier: 1.8,
     });
 
     // Separate layer for presale projects (no clustering)
