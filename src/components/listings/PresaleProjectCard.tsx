@@ -154,6 +154,7 @@ export function PresaleProjectCard({
                 className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
                 loading="lazy"
                 decoding="async"
+                fetchPriority="auto"
               />
               
               {/* Status Badge - Top Left */}
