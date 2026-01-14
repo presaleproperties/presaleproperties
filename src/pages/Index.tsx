@@ -302,7 +302,7 @@ const Index = () => {
       <FAQSchema faqs={HOME_FAQS} />
       
       <ConversionHeader />
-      <main className="flex-1">
+      <main className="flex-1 pt-14 md:pt-16">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         <ScrollReveal animation="fade-up">
           {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}

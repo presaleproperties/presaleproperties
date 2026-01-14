@@ -88,7 +88,7 @@ export default function ForAgents() {
 
       <ConversionHeader />
 
-      <main>
+      <main className="pt-14 md:pt-16">
         {/* Hero Section */}
         <section className="relative py-16 lg:py-24 bg-gradient-to-b from-background to-muted/30">
           <div className="container max-w-3xl text-center">

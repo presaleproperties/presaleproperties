@@ -649,7 +649,7 @@ export default function MortgageCalculatorPage() {
 
       <ConversionHeader />
 
-      <main className="flex-1">
+      <main className="flex-1 pt-14 md:pt-16">
         {/* Breadcrumb */}
         <div className="border-b bg-muted/30">
           <div className="container px-4 py-3">

@@ -16,7 +16,7 @@ export default function InvestmentSnapshotPage() {
 
       <ConversionHeader />
       
-      <main className="min-h-screen bg-secondary/30 py-8 px-4">
+      <main className="min-h-screen bg-secondary/30 py-8 px-4 pt-16 md:pt-20">
         <div className="max-w-lg mx-auto mb-6 text-center">
           <p className="text-muted-foreground text-sm">
             Plug in your numbers and instantly see your investment cash flow

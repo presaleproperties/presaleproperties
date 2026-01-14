@@ -79,7 +79,7 @@ export default function About() {
     <div className="min-h-screen flex flex-col bg-background">
       <ConversionHeader />
       
-      <main className="flex-1">
+      <main className="flex-1 pt-14 md:pt-16">
         {/* Hero Section */}
         <section className="py-16 md:py-24 bg-gradient-to-b from-muted/50 to-background">
           <div className="container">

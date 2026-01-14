@@ -498,7 +498,7 @@ export default function CityProductPage() {
 
       <ConversionHeader />
 
-      <main className="flex-grow">
+      <main className="flex-grow pt-14 md:pt-16">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="px-4 sm:px-6 pt-4 pb-2">
           <ol className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
