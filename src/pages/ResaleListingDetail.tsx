@@ -396,22 +396,22 @@ export default function ResaleListingDetail() {
                 </div>
 
                 {/* Price - Large & Primary */}
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-5xl sm:text-3xl font-bold text-foreground">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="text-5xl font-bold text-foreground">
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && (
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-lg text-muted-foreground">
                       ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
                     </span>
                   )}
                 </div>
 
-                {/* Address - Smaller */}
-                <h1 className="text-sm font-medium text-muted-foreground">{address}</h1>
+                {/* Address - Prominent */}
+                <h1 className="text-2xl font-semibold text-foreground">{address}</h1>
 
                 {/* City & Neighborhood */}
-                <div className="flex items-center gap-2 text-sm">
+                <div className="flex items-center gap-2 text-xl">
                   <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                     {listing.city}
                   </Link>
@@ -423,33 +423,33 @@ export default function ResaleListingDetail() {
                   )}
                 </div>
 
-                {/* Bed/Bath/Sqft/Year - Compact Row */}
-                <div className="flex flex-wrap items-center gap-4 text-sm">
+                {/* Bed/Bath/Sqft/Year - Large Row */}
+                <div className="flex flex-wrap items-center gap-5 text-xl">
                   {listing.bedrooms_total !== null && (
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.bedrooms_total}</span>
+                    <span className="flex items-center gap-2">
+                      <Bed className="h-6 w-6 text-primary" />
+                      <span className="font-bold">{listing.bedrooms_total}</span>
                       <span className="text-muted-foreground">Bed</span>
                     </span>
                   )}
                   {listing.bathrooms_total !== null && (
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.bathrooms_total}</span>
+                    <span className="flex items-center gap-2">
+                      <Bath className="h-6 w-6 text-primary" />
+                      <span className="font-bold">{listing.bathrooms_total}</span>
                       <span className="text-muted-foreground">Bath</span>
                     </span>
                   )}
                   {listing.living_area && (
-                    <span className="flex items-center gap-1.5">
-                      <Maximize className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
+                    <span className="flex items-center gap-2">
+                      <Maximize className="h-6 w-6 text-primary" />
+                      <span className="font-bold">{listing.living_area.toLocaleString()}</span>
                       <span className="text-muted-foreground">sqft</span>
                     </span>
                   )}
                   {listing.year_built && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.year_built}</span>
+                    <span className="flex items-center gap-2">
+                      <Calendar className="h-6 w-6 text-primary" />
+                      <span className="font-bold">{listing.year_built}</span>
                     </span>
                   )}
                 </div>
