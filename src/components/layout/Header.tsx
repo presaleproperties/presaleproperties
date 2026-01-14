@@ -17,6 +17,9 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { useScrollHeader } from "@/hooks/useScrollHeader";
+import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 const CITY_LINKS = [
   { slug: "vancouver", name: "Vancouver" },
@@ -33,6 +36,10 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
   const location = useLocation();
+  
+  // Scroll-based header visibility for mobile/tablet
+  const { isVisible } = useScrollHeader({ threshold: 100, sensitivity: 8 });
+  const isMobileOrTablet = useIsMobileOrTablet();
 
   const navLinks = [
     { to: "/presale-projects", label: "Presale Projects", icon: Building2 },
@@ -42,7 +49,13 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header 
+      className={cn(
+        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ease-out",
+        // Scroll-based hide/show for mobile/tablet (slide up when hidden)
+        isMobileOrTablet && !isVisible && "-translate-y-full"
+      )}
+    >
       <div className="flex h-16 items-center justify-between px-4 lg:container lg:px-4">
         <Logo size="xl" />
 
