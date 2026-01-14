@@ -187,14 +187,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
         {/* Hero Content - Centered Brand Style */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
-          {/* Tagline */}
-          <p className="text-primary font-semibold text-sm tracking-wide uppercase mb-3">
-            Vancouver's New Construction Experts
-          </p>
-          
-          {/* Main Headline */}
-          <h1 className="text-3xl sm:text-4xl font-bold text-white leading-tight text-center mb-8">
-            Find Your Brand New Home
+          {/* Main Headline - Bold & Short */}
+          <h1 className="text-4xl sm:text-5xl font-extrabold text-white leading-none text-center mb-8 tracking-tight">
+            New Homes.<br />
+            <span className="text-primary">Zero Compromise.</span>
           </h1>
           
           {/* Search Container */}
