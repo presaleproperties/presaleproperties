@@ -167,9 +167,9 @@ export const DEFAULT_INPUTS: ROIInputs = {
     mortgageTermYears: 5,
   },
   rental: {
-    monthlyRentStart: 2400,
+    monthlyRentStart: 2650, // 2025 CMHC Vancouver 2BR average
     annualRentGrowthPercent: 2.5,
-    vacancyPercent: 3,
+    vacancyPercent: 3, // 2025 CMHC Vancouver CMA vacancy 3.7%
     otherIncomeMonthly: 0,
     managementPercent: 0,
   },

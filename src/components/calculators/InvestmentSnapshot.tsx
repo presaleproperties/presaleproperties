@@ -50,9 +50,9 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   interestRate: 3.79,
   amortizationYears: 30,
   closingCosts: 2000,
-  monthlyRent: 2100,
-  strataFees: 275,
-  propertyTax: 125,
+  monthlyRent: 2150, // Updated to 2025 CMHC Metro Vancouver average
+  strataFees: 300,   // Updated to 2025 typical strata
+  propertyTax: 130,  // Updated
   includeGST: true,
   holdingPeriodYears: 5,
   appreciationRate: 3,
