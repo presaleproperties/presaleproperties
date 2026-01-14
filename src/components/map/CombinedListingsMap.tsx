@@ -59,12 +59,14 @@ interface CombinedListingsMapProps {
 
 function formatPrice(price: number): string {
   if (price >= 1000000) {
-    return `$${(price / 1000000).toFixed(1)}M`;
+    const millions = price / 1000000;
+    // Show one decimal if not a whole number
+    return millions % 1 === 0 ? `$${millions}M` : `$${millions.toFixed(1)}M`;
   }
   return `$${Math.round(price / 1000)}K`;
 }
 
-// Resale marker - yellow pill
+// REW-style price pill - small, dark navy with white text
 function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   const priceText = formatPrice(listing.listing_price);
   
@@ -72,84 +74,77 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
     className: "custom-price-marker resale-marker",
     html: `
       <div style="
-        background: hsl(45, 89%, 61%);
-        color: hsl(222, 47%, 11%);
-        padding: 4px 8px;
-        border-radius: 16px;
+        background: hsl(222, 47%, 20%);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 4px;
         font-weight: 600;
         font-size: 11px;
         white-space: nowrap;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        border: 2px solid white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        border: 1px solid hsl(222, 47%, 30%);
         cursor: pointer;
+        line-height: 1.2;
       ">
         ${priceText}
       </div>
     `,
-    iconSize: [80, 28],
-    iconAnchor: [40, 28],
-    popupAnchor: [0, -30],
+    iconSize: [60, 22],
+    iconAnchor: [30, 22],
+    popupAnchor: [0, -24],
   });
 }
 
-// Presale marker - simple pin with crane/building icon (no price)
-function createPresalePinIcon(): L.DivIcon {
-  // Building icon for new construction
-  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
+// Presale marker - similar style but slightly different shade
+function createPresalePinIcon(project: PresaleProject): L.DivIcon {
+  const priceText = project.starting_price ? `From ${formatPrice(project.starting_price)}` : 'TBA';
   
   return L.divIcon({
     className: "custom-presale-pin",
     html: `
       <div style="
-        position: relative;
-        width: 24px;
-        height: 30px;
+        background: hsl(222, 47%, 25%);
+        color: white;
+        padding: 3px 8px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 10px;
+        white-space: nowrap;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        border: 1px solid hsl(45, 89%, 55%);
+        cursor: pointer;
+        line-height: 1.2;
       ">
-        <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 7.5 12 18 12 18s12-10.5 12-18c0-6.627-5.373-12-12-12z" fill="hsl(222, 47%, 25%)"/>
-          <circle cx="12" cy="11" r="7" fill="hsl(45, 89%, 55%)"/>
-        </svg>
-        <div style="
-          position: absolute;
-          top: 5px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 14px;
-          height: 14px;
-        ">
-          ${buildingIcon}
-        </div>
+        ${priceText}
       </div>
     `,
-    iconSize: [24, 30],
-    iconAnchor: [12, 30],
-    popupAnchor: [0, -30],
+    iconSize: [80, 22],
+    iconAnchor: [40, 22],
+    popupAnchor: [0, -24],
   });
 }
 
+// REW-style cluster - shows "X Units" text
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
+  const label = count === 1 ? '1 Unit' : `${count} Units`;
+  
   return L.divIcon({
     html: `<div style="
       background: hsl(222, 47%, 20%);
       color: white;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 13px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      border: 2px solid white;
-    ">${count}</div>`,
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 11px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      border: 1px solid hsl(222, 47%, 35%);
+      line-height: 1.2;
+    ">${label}</div>`,
     className: "marker-cluster-custom",
-    iconSize: L.point(36, 36),
-    iconAnchor: L.point(18, 18),
+    iconSize: L.point(70, 26),
+    iconAnchor: L.point(35, 13),
   });
 }
 
@@ -362,7 +357,7 @@ export function CombinedListingsMap({
     if (mode === "all" || mode === "presale") {
       for (const project of validPresaleProjects) {
         const marker = L.marker([project.map_lat!, project.map_lng!], {
-          icon: createPresalePinIcon(),
+          icon: createPresalePinIcon(project),
         });
 
         marker.bindPopup(presalePopupHtml(project), {
