@@ -67,9 +67,15 @@ const navGroups = [
     ]
   },
   {
+    label: "Analytics",
+    items: [
+      { href: "/admin/market-dashboard", label: "Market Dashboard", icon: TrendingUp },
+      { href: "/admin/market-data", label: "Upload Data", icon: TrendingUp },
+    ]
+  },
+  {
     label: "System",
     items: [
-      { href: "/admin/market-data", label: "Market Data", icon: TrendingUp },
       { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
       { href: "/admin/email-workflows", label: "Email Workflows", icon: Workflow },
       { href: "/admin/mls-sync", label: "MLS Sync", icon: RefreshCw },
