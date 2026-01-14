@@ -80,7 +80,7 @@ export function MobileResalePropertyTypeCarousel({
         .eq("mls_status", "Active")
         .in("city", METRO_VANCOUVER_CITIES)
         .in("property_sub_type", typeFilters)
-        .gte("year_built", 2020)
+        .gte("year_built", 2024)
         .order("created_at", { ascending: false })
         .limit(16);
 

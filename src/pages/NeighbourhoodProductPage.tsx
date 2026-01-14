@@ -258,6 +258,7 @@ export default function NeighbourhoodProductPage() {
         .eq("mls_status", "Active")
         .eq("city", cityName)
         .ilike("neighborhood", `%${neighbourhoodConfig.displayName}%`)
+        .gte("year_built", 2024)
         .order("list_date", { ascending: false })
         .limit(24);
 

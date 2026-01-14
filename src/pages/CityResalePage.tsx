@@ -236,13 +236,13 @@ export default function CityResalePage() {
     queryFn: async () => {
       if (!cityConfig) return { listings: [], totalCount: 0 };
 
-      // First, get total count - always filter for 2020+ builds (new construction)
+      // First, get total count - always filter for 2024+ builds (move-in ready new construction)
       let countQuery = supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
-        .gte("year_built", 2020);
+        .gte("year_built", 2024);
 
       // Apply filters to count query
       if (filters.propertyType !== "any") {
@@ -258,13 +258,13 @@ export default function CityResalePage() {
 
       const { count } = await countQuery;
 
-      // Then get paginated data - always filter for 2020+ builds (new construction)
+      // Then get paginated data - always filter for 2024+ builds (move-in ready new construction)
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, list_date, year_built")
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
-        .gte("year_built", 2020);
+        .gte("year_built", 2024);
 
       // Apply filters
       if (filters.propertyType !== "any") {

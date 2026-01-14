@@ -231,9 +231,9 @@ export default function MapSearch() {
     filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE,
   ]);
 
-  // Fetch resale listings (2020+ builds for new construction - wider net)
+  // Fetch resale listings (2024+ builds only - move-in ready new construction)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-2020", filters, enabledCities],
+    queryKey: ["unified-map-resale-2024", filters, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -241,8 +241,7 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        // Many MLS records have missing year_built; include them so totals match reality.
-        .or("year_built.is.null,year_built.gte.2020");
+        .gte("year_built", 2024);
 
       // Filter by enabled cities from admin portal when no specific city selected
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {

@@ -43,9 +43,9 @@ function getAddress(listing: MLSListing): string {
 }
 
 export function RelatedCityListings({ city, neighborhood, excludeListingKey }: RelatedCityListingsProps) {
-  // First try to get listings from same neighborhood - 2020+ builds (new construction)
+  // First try to get listings from same neighborhood - 2024+ builds (move-in ready)
   const { data: neighborhoodListings } = useQuery({
-    queryKey: ["related-neighborhood-listings-2020", neighborhood, excludeListingKey],
+    queryKey: ["related-neighborhood-listings-2024", neighborhood, excludeListingKey],
     queryFn: async () => {
       if (!neighborhood) return [];
       
@@ -55,7 +55,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("neighborhood", neighborhood)
         .neq("listing_key", excludeListingKey)
-        .gte("year_built", 2020)
+        .gte("year_built", 2024)
         .order("list_date", { ascending: false })
         .limit(12);
 
@@ -65,9 +65,9 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
     enabled: !!neighborhood,
   });
 
-  // Get listings from same city - 2020+ builds (new construction)
+  // Get listings from same city - 2024+ builds (move-in ready)
   const { data: cityListings, isLoading } = useQuery({
-    queryKey: ["related-city-listings-2020", city, excludeListingKey],
+    queryKey: ["related-city-listings-2024", city, excludeListingKey],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
@@ -75,7 +75,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("city", city)
         .neq("listing_key", excludeListingKey)
-        .gte("year_built", 2020)
+        .gte("year_built", 2024)
         .order("list_date", { ascending: false })
         .limit(16);
 

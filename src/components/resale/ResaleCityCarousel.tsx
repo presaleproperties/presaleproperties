@@ -48,16 +48,16 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
 
-  // Optimized query with caching for city carousels - 2020+ builds, newest first
+  // Optimized query with caching for city carousels - 2024+ builds, newest first
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-city-carousel-2020", city],
+    queryKey: ["resale-city-carousel-2024", city],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
         .ilike("city", city)
-        .gte("year_built", 2020)
+        .gte("year_built", 2024)
         .order("created_at", { ascending: false }) // Newest listings first
         .limit(16);
 
