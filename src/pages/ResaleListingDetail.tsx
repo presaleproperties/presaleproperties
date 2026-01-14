@@ -367,72 +367,11 @@ export default function ResaleListingDetail() {
               </div>
             )}
 
-            {/* Mobile: Quick Actions under photo - Map, Street View, Share */}
-            <div className="lg:hidden flex items-center gap-2 -mt-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-3 text-xs rounded-full gap-1.5"
-                onClick={() => {
-                  if (listing.latitude && listing.longitude) {
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`, "_blank");
-                  }
-                }}
-                disabled={!listing.latitude || !listing.longitude}
-              >
-                <Map className="h-3.5 w-3.5" />
-                Map
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-9 px-3 text-xs rounded-full gap-1.5"
-                onClick={() => {
-                  if (listing.latitude && listing.longitude) {
-                    window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${listing.latitude},${listing.longitude}`, "_blank");
-                  }
-                }}
-                disabled={!listing.latitude || !listing.longitude}
-              >
-                <MapPin className="h-3.5 w-3.5" />
-                Street View
-              </Button>
-              {listing.virtual_tour_url && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 px-3 text-xs rounded-full gap-1.5"
-                  asChild
-                >
-                  <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
-                    <Navigation className="h-3.5 w-3.5" />
-                    Tour
-                  </a>
-                </Button>
-              )}
-              <div className="ml-auto">
-                <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
-              </div>
-            </div>
-
-            {/* Mobile Hero Info */}
-            <div className="lg:hidden space-y-2">
-              {/* City & Neighborhood - Top */}
-              <div className="flex items-center gap-2 text-sm">
-                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-semibold">
-                  {listing.city}
-                </Link>
-                {listing.neighborhood && (
-                  <>
-                    <span className="text-muted-foreground">•</span>
-                    <span className="font-medium text-foreground">{listing.neighborhood}</span>
-                  </>
-                )}
-              </div>
-
-              {/* Price - Large & Primary */}
+            {/* Mobile Hero Info - Optimized Above the Fold */}
+            <div className="lg:hidden space-y-3">
+              {/* Price - Primary */}
               <div className="flex items-baseline gap-2 flex-wrap">
-                <span className="text-4xl font-bold text-foreground">
+                <span className="text-3xl font-bold text-foreground">
                   {formatPrice(listing.listing_price)}
                 </span>
                 {listing.living_area && (
@@ -442,11 +381,24 @@ export default function ResaleListingDetail() {
                 )}
               </div>
 
-              {/* Address - Smaller */}
-              <h1 className="text-sm text-muted-foreground">{address}</h1>
+              {/* Address */}
+              <h1 className="text-base font-medium text-foreground">{address}</h1>
+
+              {/* City & Neighborhood */}
+              <div className="flex items-center gap-2 text-sm">
+                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
+                  {listing.city}
+                </Link>
+                {listing.neighborhood && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">{listing.neighborhood}</span>
+                  </>
+                )}
+              </div>
 
               {/* Bed/Bath/Sqft/Year - Compact Inline */}
-              <div className="flex items-center gap-3 text-sm pt-1">
+              <div className="flex items-center gap-3 text-sm">
                 {listing.bedrooms_total !== null && (
                   <span className="flex items-center gap-1">
                     <Bed className="h-4 w-4 text-primary" />
@@ -476,8 +428,56 @@ export default function ResaleListingDetail() {
                 )}
               </div>
 
+              {/* Quick Actions - Maps, Street View, Share - Above Fold */}
+              <div className="flex items-center gap-2 pt-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-xs rounded-full gap-1.5"
+                  onClick={() => {
+                    if (listing.latitude && listing.longitude) {
+                      window.open(`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`, "_blank");
+                    }
+                  }}
+                  disabled={!listing.latitude || !listing.longitude}
+                >
+                  <Map className="h-3.5 w-3.5" />
+                  Map
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-9 px-3 text-xs rounded-full gap-1.5"
+                  onClick={() => {
+                    if (listing.latitude && listing.longitude) {
+                      window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${listing.latitude},${listing.longitude}`, "_blank");
+                    }
+                  }}
+                  disabled={!listing.latitude || !listing.longitude}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  Street
+                </Button>
+                {listing.virtual_tour_url && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-3 text-xs rounded-full gap-1.5"
+                    asChild
+                  >
+                    <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
+                      <Navigation className="h-3.5 w-3.5" />
+                      Tour
+                    </a>
+                  </Button>
+                )}
+                <div className="ml-auto">
+                  <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
+                </div>
+              </div>
+
               {/* Key Badges */}
-              <div className="flex flex-wrap items-center gap-2 pt-1">
+              <div className="flex flex-wrap items-center gap-2">
                 {listing.year_built && listing.year_built >= 2024 && (
                   <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
                     <Sparkles className="h-3 w-3" />
