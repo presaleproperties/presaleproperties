@@ -238,6 +238,7 @@ export function CombinedListingsMap({
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
+  const hasInitializedViewRef = useRef(false);
 
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
@@ -382,10 +383,11 @@ export function CombinedListingsMap({
 
     clusterGroup.addLayers(markers);
 
-    // Fit bounds to show all items
-    if (allCoords.length > 0) {
+    // Only fit bounds on initial load, not when toggling mode or filters
+    if (!hasInitializedViewRef.current && allCoords.length > 0) {
       const bounds = L.latLngBounds(allCoords);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13, animate: false });
+      hasInitializedViewRef.current = true;
     }
 
     requestAnimationFrame(() => {
