@@ -648,11 +648,30 @@ export default function MarketTrends() {
                 </CardContent>
               </Card>
 
-              {/* Data Source */}
-              <p className="text-xs text-muted-foreground text-center">
-                Data sourced from REBGV, FVREB, and CMHC. Updated monthly. 
-                For investment decisions, please consult with a licensed real estate professional.
-              </p>
+              {/* Data Source & Freshness Indicator */}
+              <Card className="bg-muted/50 border-dashed">
+                <CardContent className="pt-6">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-green-100 flex items-center justify-center">
+                        <Activity className="h-5 w-5 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-medium">Data Last Updated</p>
+                        <p className="text-sm text-muted-foreground">
+                          {latestStats ? `${MONTH_NAMES[latestStats.report_month - 1]} ${latestStats.report_year}` : 'N/A'} • Updated monthly
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-center sm:text-right">
+                      <p className="text-xs text-muted-foreground">
+                        Data sourced from REBGV, FVREB, and CMHC.<br />
+                        For investment decisions, please consult with a licensed real estate professional.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </>
           )}
         </div>
