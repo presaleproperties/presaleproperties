@@ -15,6 +15,11 @@ interface REWPhotoGalleryProps {
   virtualTourUrl?: string | null;
   alt?: string;
   className?: string;
+  /**
+   * Override the preview image aspect ratio classes.
+   * Default: "aspect-[4/3] lg:aspect-[16/9]" (REW-style).
+   */
+  previewAspectClassName?: string;
 }
 
 type GalleryTab = "photos" | "virtualTour";
@@ -25,6 +30,7 @@ export function REWPhotoGallery({
   virtualTourUrl,
   alt = "Property",
   className = "",
+  previewAspectClassName = "aspect-[4/3] lg:aspect-[16/9]",
 }: REWPhotoGalleryProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<GalleryTab>("photos");
@@ -219,8 +225,11 @@ export function REWPhotoGallery({
           onTouchEnd={onTouchEnd}
         >
           <div
-          onClick={() => openGallery(selectedIndex)}
-            className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted"
+            onClick={() => openGallery(selectedIndex)}
+            className={cn(
+              "relative rounded-xl overflow-hidden bg-muted",
+              previewAspectClassName
+            )}
           >
             <img
               src={photos[selectedIndex]?.url}
