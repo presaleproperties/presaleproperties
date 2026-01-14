@@ -287,9 +287,9 @@ export default function PresaleProjectDetail() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "coming_soon":
-        return <Badge className="bg-blue-500 hover:bg-blue-600 text-xs px-2 py-0.5">Coming Soon</Badge>;
+        return <Badge className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-2 py-0.5">Coming Soon</Badge>;
       case "active":
-        return <Badge className="bg-green-500 hover:bg-green-600 text-xs px-2 py-0.5">Now Selling</Badge>;
+        return <Badge className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs px-2 py-0.5">Now Selling</Badge>;
       case "sold_out":
         return <Badge variant="secondary" className="text-xs px-2 py-0.5">Sold Out</Badge>;
       default:
