@@ -475,8 +475,8 @@ export function GalleryWithLightbox({
     );
   }
 
-  // Use consistent 4:3 aspect ratio across all breakpoints for better photo display
-  const mainAspectClass = "aspect-[4/3]";
+  // Use 4:3 on mobile/tablet, more compact 3:2 on desktop for better above-fold content
+  const mainAspectClass = "aspect-[4/3] lg:aspect-[3/2]";
 
   return (
     <>

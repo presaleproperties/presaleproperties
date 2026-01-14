@@ -323,36 +323,36 @@ export default function ResaleListingDetail() {
       </Helmet>
       <ConversionHeader />
       
-      <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
+      <main className="container px-4 py-3 md:py-6 pb-24 lg:pb-8">
         <article itemScope itemType="https://schema.org/RealEstateListing">
-        {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+        {/* Breadcrumbs - Compact */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-muted-foreground mb-3 overflow-x-auto">
           <ol className="flex items-center gap-1">
             <li>
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
-                <Home className="h-3.5 w-3.5" />
+                <Home className="h-3 w-3" />
               </Link>
             </li>
-            <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
+            <li><ChevronRight className="h-3 w-3 shrink-0" /></li>
             <li>
               <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
                 For Sale
               </Link>
             </li>
-            <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
+            <li><ChevronRight className="h-3 w-3 shrink-0" /></li>
             <li>
               <Link to={`/resale?city=${listing.city}`} className="hover:text-foreground transition-colors shrink-0">
                 {listing.city}
               </Link>
             </li>
-            <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
+            <li><ChevronRight className="h-3 w-3 shrink-0" /></li>
             <li><span className="text-foreground font-medium truncate max-w-[200px]">{address}</span></li>
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-5 gap-4 lg:gap-6">
           {/* Left Column - Images & Details */}
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          <div className="lg:col-span-3 space-y-4 md:space-y-6">
             {/* Image Gallery */}
             {photos.length > 0 ? (
               <GalleryWithLightbox
@@ -1131,10 +1131,10 @@ export default function ResaleListingDetail() {
           </div>
 
           {/* Right Column - Contact Form & Calculator (Desktop Only) */}
-          <div className="hidden lg:block space-y-6">
-            <div ref={formRef} className="sticky top-24">
+          <div className="hidden lg:block lg:col-span-2 space-y-4">
+            <div ref={formRef} className="sticky top-20">
               {/* Schedule Tour Form */}
-              <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm mb-6">
+              <div className="bg-card border rounded-xl p-4 shadow-sm mb-4">
                 <ResaleScheduleForm 
                   listingId={listing.id}
                   listingAddress={address}
