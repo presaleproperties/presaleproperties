@@ -571,6 +571,7 @@ export default function MapSearch() {
                       onListingSelect={handleItemSelect}
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
+                      disablePopupsOnMobile={isMobile}
                     />
                   )}
                 </Suspense>

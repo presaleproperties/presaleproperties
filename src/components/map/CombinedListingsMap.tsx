@@ -56,6 +56,8 @@ interface CombinedListingsMapProps {
   onListingSelect?: (id: string, type: "resale" | "presale") => void;
   onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[]) => void;
   onMapInteraction?: () => void;
+  /** On mobile, skip popups and just use carousel */
+  disablePopupsOnMobile?: boolean;
 }
 
 function formatPrice(price: number): string {
@@ -245,7 +247,8 @@ export function CombinedListingsMap({
   mode,
   onListingSelect, 
   onVisibleItemsChange,
-  onMapInteraction
+  onMapInteraction,
+  disablePopupsOnMobile = false
 }: CombinedListingsMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -407,16 +410,19 @@ export function CombinedListingsMap({
           icon: createResalePricePillIcon(listing),
         });
 
-        marker.bindPopup(resalePopupHtml(listing), {
-          maxWidth: 400,
-          minWidth: 340,
-          closeButton: true,
-          className: "resale-listing-popup",
-          offset: L.point(0, -10),
-          autoPan: true,
-          autoPanPaddingTopLeft: L.point(50, 100),
-          autoPanPaddingBottomRight: L.point(50, 50),
-        });
+        // Only bind popup if not disabled (mobile uses carousel instead)
+        if (!disablePopupsOnMobile) {
+          marker.bindPopup(resalePopupHtml(listing), {
+            maxWidth: 400,
+            minWidth: 340,
+            closeButton: true,
+            className: "resale-listing-popup",
+            offset: L.point(0, -10),
+            autoPan: true,
+            autoPanPaddingTopLeft: L.point(50, 100),
+            autoPanPaddingBottomRight: L.point(50, 50),
+          });
+        }
 
         marker.on("click", () => {
           onListingSelect?.(listing.id, "resale");
@@ -436,16 +442,19 @@ export function CombinedListingsMap({
           zIndexOffset: 1000, // Keep presale pins above resale clusters
         });
 
-        marker.bindPopup(presalePopupHtml(project), {
-          maxWidth: 420,
-          minWidth: 360,
-          closeButton: true,
-          className: "presale-project-popup",
-          offset: L.point(0, -20),
-          autoPan: true,
-          autoPanPaddingTopLeft: L.point(50, 100),
-          autoPanPaddingBottomRight: L.point(50, 50),
-        });
+        // Only bind popup if not disabled (mobile uses carousel instead)
+        if (!disablePopupsOnMobile) {
+          marker.bindPopup(presalePopupHtml(project), {
+            maxWidth: 420,
+            minWidth: 360,
+            closeButton: true,
+            className: "presale-project-popup",
+            offset: L.point(0, -20),
+            autoPan: true,
+            autoPanPaddingTopLeft: L.point(50, 100),
+            autoPanPaddingBottomRight: L.point(50, 50),
+          });
+        }
 
         marker.on("click", () => {
           onListingSelect?.(project.id, "presale");
