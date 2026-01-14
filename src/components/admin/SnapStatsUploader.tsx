@@ -5,9 +5,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Home, AlertCircle, ArrowRight } from "lucide-react";
+import { Upload, FileText, CheckCircle2, Loader2, TrendingUp, Building2, Home, AlertCircle, ArrowRight, Link2, FolderOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CityStats {
   city: string;
@@ -69,6 +71,9 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
   const [marketSummary, setMarketSummary] = useState<string>('');
   const [keyInsights, setKeyInsights] = useState<string[]>([]);
   const [bulkMode, setBulkMode] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'file' | 'drive'>('file');
+  const [driveUrl, setDriveUrl] = useState('');
+  const [isFetchingDrive, setIsFetchingDrive] = useState(false);
 
   const detectEdition = (fileName: string): 'FVR' | 'GVR' | 'MVR' => {
     const upper = fileName.toUpperCase();
@@ -134,6 +139,69 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
     
     setFiles(prev => [...prev, ...newFiles]);
     setAllExtracted([]);
+  };
+
+  const handleDriveFetch = async () => {
+    if (!driveUrl.trim()) {
+      toast.error('Please enter a Google Drive folder URL');
+      return;
+    }
+
+    setIsFetchingDrive(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('fetch-drive-folder', {
+        body: { folderUrl: driveUrl.trim(), includeAll: true }
+      });
+
+      if (error || !data?.success) {
+        toast.error(data?.error || error?.message || 'Failed to fetch Drive folder');
+        return;
+      }
+
+      if (data.pdfFileIds && data.pdfFileIds.length > 0) {
+        toast.success(`Found ${data.pdfFileIds.length} PDF(s) in folder`);
+        
+        // Download each PDF and add to files
+        for (const fileId of data.pdfFileIds) {
+          try {
+            const downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
+            const response = await fetch(downloadUrl);
+            
+            if (!response.ok) {
+              console.error('Failed to download PDF:', fileId);
+              continue;
+            }
+            
+            const blob = await response.blob();
+            const fileName = `SnapStats_${fileId}.pdf`;
+            const file = new File([blob], fileName, { type: 'application/pdf' });
+            
+            const detected = detectMonthYear(fileName);
+            const newFile: UploadedFile = {
+              file,
+              edition: detectEdition(fileName),
+              status: 'pending',
+              detectedMonth: detected?.month,
+              detectedYear: detected?.year,
+            };
+            
+            setFiles(prev => [...prev, newFile]);
+          } catch (downloadError) {
+            console.error('Error downloading PDF:', fileId, downloadError);
+          }
+        }
+        
+        setDriveUrl('');
+        toast.success('PDFs loaded! Review editions below, then extract data.');
+      } else {
+        toast.error('No PDF files found in the folder');
+      }
+    } catch (err) {
+      console.error('Drive fetch error:', err);
+      toast.error('Failed to fetch from Google Drive');
+    } finally {
+      setIsFetchingDrive(false);
+    }
   };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
@@ -419,28 +487,84 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
           </div>
         )}
 
-        {/* File Upload Area */}
-        <div>
-          <Label>Upload PDFs {bulkMode && "(name files like: FVR_2025_September.pdf)"}</Label>
-          <label className="mt-1.5 flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
-            <Upload className="h-8 w-8 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">
-              {bulkMode 
-                ? "Drop multiple months of PDFs here (e.g., Jan-Dec 2025)" 
-                : "Drop Snap Stats PDFs here or click to upload"}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              Supports FVR, GVR, MVR editions • Multiple files allowed
-            </span>
-            <input
-              type="file"
-              accept=".pdf"
-              multiple
-              onChange={handleFileSelect}
-              className="hidden"
-            />
-          </label>
-        </div>
+        {/* Upload Method Tabs */}
+        <Tabs value={uploadMode} onValueChange={(v) => setUploadMode(v as 'file' | 'drive')} className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="file" className="gap-2">
+              <Upload className="h-4 w-4" />
+              Upload Files
+            </TabsTrigger>
+            <TabsTrigger value="drive" className="gap-2">
+              <FolderOpen className="h-4 w-4" />
+              Google Drive Link
+            </TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="file" className="mt-4">
+            <Label>Upload PDFs {bulkMode && "(name files like: FVR_2025_September.pdf)"}</Label>
+            <label className="mt-1.5 flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">
+                {bulkMode 
+                  ? "Drop multiple months of PDFs here (e.g., Jan-Dec 2025)" 
+                  : "Drop Snap Stats PDFs here or click to upload"}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                Supports FVR, GVR, MVR editions • Multiple files allowed
+              </span>
+              <input
+                type="file"
+                accept=".pdf"
+                multiple
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+            </label>
+          </TabsContent>
+          
+          <TabsContent value="drive" className="mt-4 space-y-4">
+            <div>
+              <Label>Google Drive Folder URL</Label>
+              <p className="text-xs text-muted-foreground mt-1 mb-2">
+                Share your folder as "Anyone with the link can view" and paste the URL below
+              </p>
+              <div className="flex gap-2">
+                <Input
+                  placeholder="https://drive.google.com/drive/folders/..."
+                  value={driveUrl}
+                  onChange={(e) => setDriveUrl(e.target.value)}
+                  className="flex-1"
+                />
+                <Button
+                  onClick={handleDriveFetch}
+                  disabled={isFetchingDrive || !driveUrl.trim()}
+                >
+                  {isFetchingDrive ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Fetching...
+                    </>
+                  ) : (
+                    <>
+                      <Link2 className="h-4 w-4 mr-2" />
+                      Fetch PDFs
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+            
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <p className="text-sm text-blue-800 font-medium">How to share a Google Drive folder:</p>
+              <ol className="text-xs text-blue-700 mt-2 space-y-1 list-decimal list-inside">
+                <li>Right-click your folder in Google Drive</li>
+                <li>Click "Share" → "Get link"</li>
+                <li>Change to "Anyone with the link"</li>
+                <li>Copy the link and paste above</li>
+              </ol>
+            </div>
+          </TabsContent>
+        </Tabs>
 
         {/* Uploaded Files List */}
         {files.length > 0 && (
