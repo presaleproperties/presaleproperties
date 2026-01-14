@@ -128,7 +128,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
     <>
       <header 
         className={cn(
-          "w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm z-50 shrink-0",
+          "w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm z-50 shrink-0 overflow-hidden",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
           // Mobile/tablet: sticky if stickyOnMobile, otherwise fixed for edge-to-edge

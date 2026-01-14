@@ -526,8 +526,8 @@ export default function MapSearch() {
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader alwaysVisible stickyOnMobile />
 
-        {/* Main Content - Map + Panel Layout */}
-        <div className="flex-1 flex overflow-hidden relative isolate">
+        {/* Main Content - Map + Panel Layout - flex-1 with min-h-0 to prevent overflow */}
+        <div className="flex-1 min-h-0 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
