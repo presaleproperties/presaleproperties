@@ -502,8 +502,8 @@ export default function ResaleListingDetail() {
                   </div>
                 </div>
 
-                {/* Schedule Form - Full width on both mobile and tablet */}
-                <div className="bg-card border rounded-xl p-4 shadow-sm">
+                {/* Schedule Form - Hidden on mobile, show on tablet */}
+                <div className="hidden sm:block bg-card border rounded-xl p-4 shadow-sm">
                   <ResaleScheduleForm 
                     listingId={listing.id}
                     listingAddress={address}
