@@ -33,49 +33,12 @@ export function PropertyStickyHeader({
 }: PropertyStickyHeaderProps) {
   const navigate = useNavigate();
   const isMobileOrTablet = useIsMobileOrTablet();
-  const [isVisible, setIsVisible] = useState(false);
-  const [scrollThresholdPassed, setScrollThresholdPassed] = useState(false);
-  const lastScrollY = useRef(0);
-  const scrollThreshold = 300; // Show after scrolling down 300px
-
-  useEffect(() => {
-    if (!isMobileOrTablet) {
-      setIsVisible(false);
-      return;
-    }
-
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      const isScrollingUp = currentScrollY < lastScrollY.current;
-      const pastThreshold = currentScrollY > scrollThreshold;
-
-      setScrollThresholdPassed(pastThreshold);
-      
-      // Show when scrolling up AND past threshold
-      // Hide when scrolling down OR before threshold
-      if (pastThreshold && isScrollingUp) {
-        setIsVisible(true);
-      } else if (!isScrollingUp || currentScrollY < 100) {
-        setIsVisible(false);
-      }
-
-      lastScrollY.current = currentScrollY;
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isMobileOrTablet]);
 
   // Don't render on desktop
   if (!isMobileOrTablet) return null;
 
   return (
-    <div
-      className={cn(
-        "fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-b border-border shadow-sm transition-transform duration-300 lg:hidden",
-        isVisible ? "translate-y-0" : "-translate-y-full"
-      )}
-    >
+    <div className="sticky top-0 z-50 bg-background/98 backdrop-blur-lg border-b border-border shadow-sm lg:hidden">
       {/* Main Header Row */}
       <div className="flex items-center justify-between px-3 py-2.5 gap-2">
         {/* Back Button + Price/Specs */}
@@ -83,7 +46,7 @@ export function PropertyStickyHeader({
           <Button
             variant="ghost"
             size="icon"
-            className="shrink-0 h-9 w-9"
+            className="shrink-0 h-10 w-10 min-h-[44px] min-w-[44px]"
             onClick={() => navigate(-1)}
           >
             <ChevronLeft className="h-5 w-5" />
@@ -95,27 +58,27 @@ export function PropertyStickyHeader({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1.5 shrink-0">
           {onSave && (
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-2.5 text-xs gap-1 rounded-md"
+              className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg"
               onClick={onSave}
             >
-              <Heart className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Follow</span>
+              <Heart className="h-4 w-4" />
+              <span className="sr-only">Save</span>
             </Button>
           )}
           {onShare && (
             <Button
               variant="outline"
               size="sm"
-              className="h-8 px-2.5 text-xs gap-1 rounded-md"
+              className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg"
               onClick={onShare}
             >
-              <Share2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Share</span>
+              <Share2 className="h-4 w-4" />
+              <span className="sr-only">Share</span>
             </Button>
           )}
         </div>

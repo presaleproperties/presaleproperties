@@ -599,7 +599,7 @@ export default function PresaleProjectDetail() {
         </script>
       </Helmet>
 
-      <ConversionHeader />
+      <ConversionHeader hideOnMobile />
 
       {/* Mobile/Tablet Scroll-Up Sticky Header */}
       <PropertyStickyHeader

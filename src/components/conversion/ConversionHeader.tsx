@@ -53,7 +53,12 @@ const RESALE_CITY_LINKS = [
   { slug: "chilliwack", name: "Chilliwack" },
 ];
 
-export function ConversionHeader() {
+interface ConversionHeaderProps {
+  /** Hide header on mobile/tablet - useful for property detail pages with custom sticky headers */
+  hideOnMobile?: boolean;
+}
+
+export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps) {
   const [open, setOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
   const [resaleCitiesOpen, setResaleCitiesOpen] = useState(false);
@@ -111,7 +116,7 @@ export function ConversionHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      <header className={`sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm ${hideOnMobile ? 'hidden lg:block' : ''}`}>
         {/* Desktop: standard height with oversized logo */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
           <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
