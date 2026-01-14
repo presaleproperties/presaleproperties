@@ -94,7 +94,7 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - dark navy teardrop with gold crane icon
+// Presale marker - dark navy teardrop with gold hardhat icon
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
   return L.divIcon({
     className: "custom-presale-pin",
@@ -117,13 +117,9 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         ">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="hsl(45, 89%, 55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
-            <path d="M10 2v16"></path>
-            <path d="M2 6h16"></path>
-            <path d="M10 6l8-4"></path>
-            <path d="M18 6v4"></path>
-            <path d="M16 10h4"></path>
-            <path d="M18 10v8"></path>
-            <path d="M6 18h12"></path>
+            <path d="M2 18a1 1 0 0 0 1 1h18a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v2z"></path>
+            <path d="M10 15V7a3 3 0 0 1 3-3h1a3 3 0 0 1 3 3v8"></path>
+            <path d="M5 15v-3a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v3"></path>
           </svg>
         </div>
       </div>
