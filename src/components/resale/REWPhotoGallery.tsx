@@ -139,31 +139,6 @@ export function REWPhotoGallery({
           )}
         </div>
 
-        {/* Thumbnail strip */}
-        {photos.length > 1 && (
-          <div className="hidden md:flex gap-2 overflow-x-auto pb-1">
-            {photos.slice(0, 6).map((photo, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedIndex(i)}
-                className={cn(
-                  "shrink-0 w-20 h-16 rounded-lg overflow-hidden border-2 transition-all",
-                  selectedIndex === i ? "border-primary ring-1 ring-primary" : "border-transparent opacity-70 hover:opacity-100"
-                )}
-              >
-                <img src={photo.url} alt="" className="w-full h-full object-cover" loading="lazy" />
-              </button>
-            ))}
-            {photos.length > 6 && (
-              <button
-                onClick={() => openGallery(6)}
-                className="shrink-0 w-20 h-16 rounded-lg overflow-hidden bg-muted flex items-center justify-center text-sm font-medium text-muted-foreground hover:bg-muted/80 transition-colors"
-              >
-                +{photos.length - 6}
-              </button>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Full Screen Gallery Modal - REW Style */}
