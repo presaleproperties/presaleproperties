@@ -308,26 +308,43 @@ export default function AdminMarketDashboard() {
           </div>
         </div>
 
-        {/* Data Coverage Alert */}
-        {dateRange.months < 12 && (
-          <Card className="border-amber-200 bg-amber-50/50">
-            <CardContent className="py-4">
-              <div className="flex items-start gap-3">
-                <Info className="h-5 w-5 text-amber-600 mt-0.5" />
-                <div>
-                  <p className="font-medium text-amber-800">Limited Historical Data</p>
-                  <p className="text-sm text-amber-700 mt-1">
-                    You have <strong>{dateRange.months} month(s)</strong> of data 
-                    {dateRange.earliest && dateRange.latest && (
-                      <> from {MONTH_NAMES[dateRange.earliest.month - 1]} {dateRange.earliest.year} to {MONTH_NAMES[dateRange.latest.month - 1]} {dateRange.latest.year}</>
-                    )}.
-                    For full trend analysis, upload at least 12 months of Snap Stats PDFs.
-                  </p>
+        {/* Data Coverage & Missing Months Alert */}
+        <Card className="border-blue-200 bg-blue-50/50">
+          <CardContent className="py-4">
+            <div className="flex items-start gap-3">
+              <Info className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div className="flex-1">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-blue-800">Data Coverage Status</p>
+                  {dateRange.latest && (
+                    <Badge variant="outline" className="bg-white">
+                      Latest: {MONTH_NAMES[dateRange.latest.month - 1]} {dateRange.latest.year}
+                    </Badge>
+                  )}
                 </div>
+                <p className="text-sm text-blue-700 mt-1">
+                  You have <strong>{dateRange.months} month(s)</strong> of data
+                  {dateRange.earliest && dateRange.latest && (
+                    <> from {MONTH_NAMES[dateRange.earliest.month - 1]} {dateRange.earliest.year} to {MONTH_NAMES[dateRange.latest.month - 1]} {dateRange.latest.year}</>
+                  )}.
+                </p>
+                {allStats && (() => {
+                  // Find months with estimated data
+                  const estimatedMonths = [...new Set(allStats.filter(s => s.source_board === 'Estimated').map(s => `${MONTH_NAMES[s.report_month - 1]} ${s.report_year}`))];
+                  if (estimatedMonths.length > 0) {
+                    return (
+                      <p className="text-sm text-amber-700 mt-2 flex items-center gap-2">
+                        <span className="inline-block w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span><strong>Estimated data:</strong> {estimatedMonths.join(', ')} — Upload actual Snap Stats to replace</span>
+                      </p>
+                    );
+                  }
+                  return null;
+                })()}
               </div>
-            </CardContent>
-          </Card>
-        )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Filters */}
         <div className="flex flex-wrap items-center gap-3">
