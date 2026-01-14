@@ -358,7 +358,7 @@ export default function ResaleListingDetail() {
 
                 {/* Price - Large & Primary */}
                 <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="font-bold text-foreground sm:text-4xl text-3xl">
+                  <span className="font-bold text-foreground text-4xl sm:text-5xl">
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && <span className="text-muted-foreground text-xs">
