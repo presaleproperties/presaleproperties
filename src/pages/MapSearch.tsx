@@ -231,9 +231,9 @@ export default function MapSearch() {
     filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE,
   ]);
 
-  // Fetch resale listings (2023+ builds for more "newer" homes)
+  // Fetch resale listings (2020+ builds for new construction - wider net)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-2023", filters, enabledCities],
+    queryKey: ["unified-map-resale-2020", filters, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -241,7 +241,7 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .gte("year_built", 2023);
+        .gte("year_built", 2020);
 
       // Filter by enabled cities from admin portal when no specific city selected
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
@@ -272,14 +272,14 @@ export default function MapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      // Order by recency - increased limit for more coverage
-      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(5000);
+      // Order by recency - max limit for full coverage
+      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(10000);
 
       const { data, error } = await query;
       if (error) throw error;
       return data as MLSListing[];
     },
-    staleTime: 2 * 60 * 1000,
+    staleTime: 60 * 1000, // 1 minute stale time for fresher data
   });
 
   // Fetch presale projects

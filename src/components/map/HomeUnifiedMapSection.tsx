@@ -88,9 +88,9 @@ export function HomeUnifiedMapSection({
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch resale listings (2025+ builds)
+  // Fetch resale listings (2020+ builds for new construction)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-listings", enabledCities],
+    queryKey: ["unified-map-resale-listings-2020", enabledCities],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
@@ -101,16 +101,16 @@ export function HomeUnifiedMapSection({
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .in("city", citiesToUse)
-        .gte("year_built", 2024)
-        // Order by recency so lower-priced listings aren't dropped by the 2000 marker cap
+        .gte("year_built", 2020)
+        // Order by recency so lower-priced listings aren't dropped by the marker cap
         .order("list_date", { ascending: false, nullsFirst: false })
-        .limit(2000);
+        .limit(5000);
 
       if (error) throw error;
       return data || [];
     },
     enabled: shouldLoad,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
