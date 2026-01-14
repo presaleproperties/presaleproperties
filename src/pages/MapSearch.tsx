@@ -536,6 +536,19 @@ export default function MapSearch() {
               </SafeMapWrapper>
             </div>
 
+            {/* Show Carousel Button - When hidden - positioned high to avoid Safari UI */}
+            {!showCarousel && visibleItems.length > 0 && (
+              <div className="absolute bottom-20 right-4 z-[1001] lg:hidden">
+                <button
+                  onClick={() => setShowCarousel(true)}
+                  className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/40 flex items-center justify-center"
+                  aria-label="Show properties"
+                >
+                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                </button>
+              </div>
+            )}
+
             {/* Bottom Carousel - Mobile/Tablet - Floating above map */}
             {showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden safe-bottom">
@@ -556,19 +569,6 @@ export default function MapSearch() {
                   className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
-
-            {/* Show Carousel Button - When hidden */}
-            {!showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-4 right-4 z-[1000] lg:hidden safe-bottom">
-                <button
-                  onClick={() => setShowCarousel(true)}
-                  className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center"
-                  aria-label="Show properties"
-                >
-                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                </button>
-              </div>
-            )}
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
                     const data = item.data;
