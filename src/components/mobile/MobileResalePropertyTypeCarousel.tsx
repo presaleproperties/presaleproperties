@@ -116,34 +116,33 @@ export function MobileResalePropertyTypeCarousel({
   }
 
   return (
-    <div>
+    <div className="space-y-4">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 sm:px-6 mb-4">
+      <div className="flex items-center justify-between gap-4 px-4 sm:px-6">
         <div className="flex items-center gap-2">
           <Icon className="h-5 w-5 text-primary" />
           <div>
-            <h2 className="text-lg font-bold text-foreground">{title}</h2>
+            <h2 className="text-xl font-bold text-foreground">{title}</h2>
             {subtitle && (
-              <p className="text-sm text-muted-foreground">{subtitle}</p>
+              <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
             )}
           </div>
         </div>
         <Link
           to={`/resale?type=${propertyType}`}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium text-muted-foreground bg-muted hover:bg-muted/80 transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted transition-colors shrink-0"
         >
-          See all
-          <ArrowRight className="h-3.5 w-3.5" />
+          View All
+          <ArrowRight className="h-4 w-4" />
         </Link>
       </div>
 
-      {/* Carousel */}
+      {/* Scrollable cards */}
       <div 
-        className="flex gap-3 overflow-x-auto scrollbar-hide px-4 sm:px-6 pb-2 snap-x snap-mandatory"
-        style={{ scrollPaddingLeft: '16px' }}
+        className="flex gap-2.5 overflow-x-auto scrollbar-hide px-4 sm:px-6 pb-2 scroll-snap-x scroll-snap-mandatory"
       >
         {listings.map((listing) => (
-          <div key={listing.id} className="w-[calc(100vw-72px)] flex-shrink-0 snap-start">
+          <div key={listing.id} className="shrink-0 w-[calc(100vw-80px)] scroll-snap-start">
             <ResaleListingCard
               id={listing.id}
               listingKey={listing.listing_key}

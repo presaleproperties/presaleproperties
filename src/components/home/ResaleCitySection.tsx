@@ -131,17 +131,18 @@ function CityCarousel({ city }: CityCarouselProps) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 md:space-y-5">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <MapPin className="h-5 w-5 text-primary" />
-          <h3 className="text-xl font-bold text-foreground">{city}</h3>
+          <h3 className="text-xl sm:text-2xl font-bold text-foreground">{city}</h3>
           <span className="text-sm text-muted-foreground">
-            ({listings.length} listings)
+            ({listings.length})
           </span>
         </div>
         <div className="flex items-center gap-2">
+          {/* Desktop scroll buttons */}
           <div className="hidden md:flex items-center gap-1">
             <Button
               variant="outline"
@@ -162,50 +163,47 @@ function CityCarousel({ city }: CityCarouselProps) {
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-          <Button variant="ghost" size="sm" asChild className="text-primary">
-            <Link to={`/resale?city=${encodeURIComponent(city)}`}>
-              View All
-              <ArrowRight className="h-4 w-4 ml-1" />
-            </Link>
-          </Button>
+          <Link 
+            to={`/resale?city=${encodeURIComponent(city)}`}
+            className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
+          >
+            View All
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
 
-      {/* Carousel */}
+      {/* Scrollable cards */}
       <div
         ref={scrollContainerRef}
-        className="-mx-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
-        style={{ scrollSnapType: "x mandatory", scrollPaddingLeft: "16px" }}
+        className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 scroll-snap-x scroll-snap-mandatory"
       >
-        <div className="flex gap-3 md:gap-4 pb-2">
-          {listings.map((listing) => (
-            <div
-              key={listing.id}
-              className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px]"
-              style={{ scrollSnapAlign: "start" }}
-            >
-              <ResaleListingCard
-                id={listing.id}
-                listingKey={listing.listing_key}
-                price={listing.listing_price}
-                address={getAddress(listing)}
-                city={listing.city}
-                neighborhood={listing.neighborhood}
-                propertyType={listing.property_type}
-                propertySubType={listing.property_sub_type}
-                beds={listing.bedrooms_total}
-                baths={listing.bathrooms_total}
-                sqft={listing.living_area}
-                photos={Array.isArray(listing.photos) ? listing.photos : []}
-                daysOnMarket={listing.days_on_market}
-                status={listing.mls_status}
-                listAgentName={listing.list_agent_name}
-                listOfficeName={listing.list_office_name}
-                virtualTourUrl={listing.virtual_tour_url}
-              />
-            </div>
-          ))}
-        </div>
+        {listings.map((listing) => (
+          <div
+            key={listing.id}
+            className="shrink-0 w-[calc(100vw-80px)] sm:w-[260px] md:w-[280px] lg:w-[300px] scroll-snap-start"
+          >
+            <ResaleListingCard
+              id={listing.id}
+              listingKey={listing.listing_key}
+              price={listing.listing_price}
+              address={getAddress(listing)}
+              city={listing.city}
+              neighborhood={listing.neighborhood}
+              propertyType={listing.property_type}
+              propertySubType={listing.property_sub_type}
+              beds={listing.bedrooms_total}
+              baths={listing.bathrooms_total}
+              sqft={listing.living_area}
+              photos={Array.isArray(listing.photos) ? listing.photos : []}
+              daysOnMarket={listing.days_on_market}
+              status={listing.mls_status}
+              listAgentName={listing.list_agent_name}
+              listOfficeName={listing.list_office_name}
+              virtualTourUrl={listing.virtual_tour_url}
+            />
+          </div>
+        ))}
       </div>
     </div>
   );
