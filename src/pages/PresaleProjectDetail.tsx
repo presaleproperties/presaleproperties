@@ -643,8 +643,9 @@ export default function PresaleProjectDetail() {
                 </div>
                 
                 {project.starting_price ? <div className="mb-2 md:mb-3">
+                    <span className="text-muted-foreground text-sm md:text-base font-medium mr-1">From</span>
                     <span className="font-bold text-primary !text-[28px] sm:!text-[32px] md:!text-[36px] lg:!text-[40px] leading-tight">
-                      From {formatPrice(project.starting_price)}
+                      {formatPrice(project.starting_price)}
                     </span>
                   </div> : <div className="!text-xl md:!text-2xl text-muted-foreground mb-2 md:mb-3 font-semibold">Contact for pricing</div>}
 
