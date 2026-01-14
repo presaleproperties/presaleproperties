@@ -37,7 +37,7 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { ShareButtons } from "@/components/listings/ShareButtons";
 import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
-import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
+import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
@@ -132,7 +132,7 @@ type MLSListing = {
 export default function ResaleListingDetail() {
   const { listingKey } = useParams<{ listingKey: string }>();
   const formRef = useRef<HTMLDivElement>(null);
-  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
 
@@ -353,20 +353,12 @@ export default function ResaleListingDetail() {
         <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {/* Image Gallery */}
-            {photos.length > 0 ? (
-              <GalleryWithLightbox
-                images={photos.map(p => p.url)}
-                selectedIndex={selectedImageIndex}
-                onSelectIndex={setSelectedImageIndex}
-                alt={address}
-                className="rounded-xl overflow-hidden"
-              />
-            ) : (
-              <div className="aspect-[4/3] bg-muted rounded-xl flex items-center justify-center">
-                <Home className="h-16 w-16 text-muted-foreground/50" />
-              </div>
-            )}
+            {/* Image Gallery - REW Style */}
+            <REWPhotoGallery
+              photos={photos}
+              virtualTourUrl={listing.virtual_tour_url}
+              alt={address}
+            />
 
             {/* Mobile & Tablet Hero Info - Unified single-column layout */}
             {isMobileOrTablet && (
