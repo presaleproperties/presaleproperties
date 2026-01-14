@@ -90,8 +90,15 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
   };
 
   const extractTextFromPDF = async (file: File): Promise<string> => {
-    // Use bundled pdf.js worker (no CDN) to avoid CORS/network failures
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
+    // Use bundled pdf.js worker (no CDN) to avoid CORS/network failures.
+    // Prefer workerPort to fully prevent any dynamic worker fetching.
+    try {
+      const worker = new Worker(pdfjsWorkerSrc, { type: 'module' });
+      pdfjsLib.GlobalWorkerOptions.workerPort = worker;
+    } catch {
+      // Fallback: workerSrc string URL
+      pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorkerSrc;
+    }
 
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
