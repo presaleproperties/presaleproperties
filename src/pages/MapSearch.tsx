@@ -923,9 +923,9 @@ export default function MapSearch() {
               </div>
             </div>
 
-            {/* Scrollable Grid - Single column for larger cards */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
-              <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            {/* Scrollable Grid - REW-style 2-column layout with large images */}
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-3">
+              <div className="grid grid-cols-2 gap-3">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
                   const data = item.data;
@@ -940,19 +940,19 @@ export default function MapSearch() {
                       to={link}
                       data-item-id={id}
                     >
-                      <div className={`rounded-xl border-2 overflow-hidden transition-all hover:shadow-lg group ${
+                      <div className={`rounded-lg overflow-hidden transition-all hover:shadow-lg group bg-card ${
                         selectedItemId === id 
-                          ? 'border-primary ring-2 ring-primary/20' 
-                          : 'border-border hover:border-primary/50'
+                          ? 'ring-2 ring-primary' 
+                          : 'hover:ring-1 hover:ring-border'
                       }`}>
-                        {/* Image */}
-                        <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
+                        {/* Large Image - 4:3 aspect ratio like REW */}
+                        <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Building2 className="h-10 w-10 text-muted-foreground" />
+                                <Building2 className="h-12 w-12 text-muted-foreground" />
                               </div>
                             )
                           ) : (
@@ -960,75 +960,65 @@ export default function MapSearch() {
                               <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Home className="h-10 w-10 text-muted-foreground" />
+                                <Home className="h-12 w-12 text-muted-foreground" />
                               </div>
                             )
                           )}
-                          <Badge className={`absolute top-2 left-2 text-[10px] px-2.5 py-1 font-semibold ${
+                          {/* Badge overlay */}
+                          <Badge className={`absolute top-2.5 left-2.5 text-[9px] px-2 py-0.5 font-bold shadow-md ${
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : 'bg-primary text-primary-foreground'
                           }`}>
-                            {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
+                            {isPresale ? 'PRESALE' : 'MOVE-IN'}
                           </Badge>
                         </div>
                         
-                        {/* Content */}
-                        <div className="p-4 space-y-2">
-                          {/* Price */}
-                          <div className="font-bold text-foreground text-lg">
+                        {/* Content - Clean minimal layout */}
+                        <div className="p-3 space-y-1.5">
+                          {/* Price - Large and prominent like REW */}
+                          <div className="font-bold text-foreground text-xl leading-tight">
                             {isPresale 
                               ? formatPrice((data as PresaleProject).starting_price)
                               : formatPrice((data as MLSListing).listing_price)
                             }
                           </div>
                           
-                          {/* Name/Address */}
-                          <h4 className="font-semibold text-foreground text-base line-clamp-1">
+                          {/* Address */}
+                          <h4 className="font-medium text-foreground text-sm line-clamp-1">
                             {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
                           </h4>
                           
                           {/* Location */}
-                          <div className="flex items-center gap-1.5 text-muted-foreground">
-                            <MapPin className="h-3.5 w-3.5 shrink-0" />
-                            <span className="text-sm truncate">
-                              {isPresale 
-                                ? `${(data as PresaleProject).neighborhood}, ${(data as PresaleProject).city}`
-                                : `${(data as MLSListing).neighborhood || ''} ${(data as MLSListing).city}`.trim()
-                              }
-                            </span>
+                          <div className="text-muted-foreground text-xs line-clamp-1">
+                            {isPresale 
+                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).city}`
+                              : `${(data as MLSListing).neighborhood || ''} • ${(data as MLSListing).city}`.replace(' • ', (data as MLSListing).neighborhood ? ' • ' : '')
+                            }
                           </div>
                           
-                          {/* Specs for resale */}
+                          {/* Specs for resale - compact inline */}
                           {!isPresale && (
-                            <div className="flex items-center gap-4 text-sm text-muted-foreground pt-1">
-                              {(data as MLSListing).bedrooms_total && (
-                                <span className="flex items-center gap-1.5">
-                                  <Bed className="h-4 w-4" /> {(data as MLSListing).bedrooms_total} bed
-                                </span>
-                              )}
-                              {(data as MLSListing).bathrooms_total && (
-                                <span className="flex items-center gap-1.5">
-                                  <Bath className="h-4 w-4" /> {(data as MLSListing).bathrooms_total} bath
-                                </span>
-                              )}
-                              {(data as MLSListing).living_area && (
-                                <span>{(data as MLSListing).living_area?.toLocaleString()} sqft</span>
-                              )}
+                            <div className="text-muted-foreground text-xs">
+                              {(data as MLSListing).bedrooms_total && `${(data as MLSListing).bedrooms_total} bd`}
+                              {(data as MLSListing).bedrooms_total && (data as MLSListing).bathrooms_total && ' • '}
+                              {(data as MLSListing).bathrooms_total && `${(data as MLSListing).bathrooms_total} ba`}
+                              {((data as MLSListing).bedrooms_total || (data as MLSListing).bathrooms_total) && (data as MLSListing).living_area && ' • '}
+                              {(data as MLSListing).living_area && `${(data as MLSListing).living_area?.toLocaleString()} sf`}
                             </div>
                           )}
                           
                           {/* Status for presale */}
                           {isPresale && (
-                            <div className="text-sm text-muted-foreground capitalize">
+                            <div className="text-xs text-muted-foreground capitalize">
                               {(data as PresaleProject).project_type?.replace(/_/g, ' ')} • {(data as PresaleProject).status?.replace(/_/g, ' ')}
                             </div>
                           )}
                           
-                          {/* Brokerage for resale */}
+                          {/* Brokerage for resale - small gray text */}
                           {!isPresale && (data as MLSListing).list_office_name && (
-                            <div className="text-xs text-muted-foreground/70 pt-2 line-clamp-1 border-t border-border/50">
-                              Listed by {(data as MLSListing).list_agent_name ? `${(data as MLSListing).list_agent_name} • ` : ''}{(data as MLSListing).list_office_name}
+                            <div className="text-[10px] text-muted-foreground/60 pt-1.5 line-clamp-1">
+                              {(data as MLSListing).list_office_name}
                             </div>
                           )}
                         </div>
