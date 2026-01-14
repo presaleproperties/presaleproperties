@@ -115,8 +115,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
           
           {/* Subheadline */}
           <p className="text-white/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed" style={{ animationDelay: "0.15s" }}>
-            Presale condos & move-in ready homes.<br className="hidden sm:block" />
-            <span className="text-white/70">Never lived in. Full warranty included.</span>
+            Presale condos & move-in ready homes.
           </p>
 
 
@@ -136,7 +135,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  {activeTab === "projects" ? "Search Projects" : "Presale"}
+                  Presale
                 </button>
                 <button
                   onClick={() => handleTabChange("resale")}
@@ -146,7 +145,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  {activeTab === "resale" ? "Search Locations" : "Move-In Ready"}
+                  Move-In Ready
                 </button>
               </div>
               <Link
