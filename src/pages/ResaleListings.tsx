@@ -117,15 +117,15 @@ function ListingTypeToggle() {
   const navigate = useNavigate();
   
   return (
-    <div className="flex items-center justify-center gap-1 p-1 bg-muted rounded-full">
+    <div className="flex items-center gap-1 p-1 bg-muted rounded-full shrink-0">
       <button
         onClick={() => navigate("/presale-projects")}
-        className="px-4 py-2 rounded-full text-sm font-medium transition-all text-muted-foreground hover:text-foreground"
+        className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-background/50"
       >
         Presale
       </button>
       <button
-        className="px-4 py-2 rounded-full text-sm font-medium transition-all bg-foreground text-background shadow-sm"
+        className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all bg-foreground text-background shadow-sm cursor-default"
       >
         Move-In Ready
       </button>
