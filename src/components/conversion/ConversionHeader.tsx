@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Calculator, Home, Map, TrendingUp } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
@@ -61,6 +61,46 @@ export function ConversionHeader() {
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const location = useLocation();
 
+  // Smart header hide/show state
+  const [isVisible, setIsVisible] = useState(true);
+  const [isAtTop, setIsAtTop] = useState(true);
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const scrollDelta = currentScrollY - lastScrollY.current;
+          
+          // At top of page - always show
+          if (currentScrollY < 10) {
+            setIsVisible(true);
+            setIsAtTop(true);
+          } else {
+            setIsAtTop(false);
+            // Scrolling down more than 5px - hide
+            if (scrollDelta > 5 && currentScrollY > 60) {
+              setIsVisible(false);
+            }
+            // Scrolling up more than 5px - show
+            else if (scrollDelta < -5) {
+              setIsVisible(true);
+            }
+          }
+          
+          lastScrollY.current = currentScrollY;
+          ticking.current = false;
+        });
+        ticking.current = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   useEffect(() => {
     const fetchWhatsapp = async () => {
       const { data } = await supabase
@@ -111,7 +151,11 @@ export function ConversionHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 transition-transform duration-300 ease-out ${
+          isVisible ? 'translate-y-0' : '-translate-y-full'
+        } ${!isAtTop ? 'shadow-md' : 'shadow-sm'}`}
+      >
         {/* Desktop: standard height with oversized logo */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
           <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
@@ -380,7 +424,9 @@ export function ConversionHeader() {
           </div>
         </div>
       </header>
-
+      
+      {/* Spacer to prevent content jump when header is fixed */}
+      <div className="h-14 md:h-16" />
       <AccessPackModal
         open={modalOpen}
         onOpenChange={setModalOpen}
