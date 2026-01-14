@@ -94,7 +94,7 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - distinctive gold pin with building icon
+// Presale marker - dark navy teardrop with gold crane icon
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
   return L.divIcon({
     className: "custom-presale-pin",
@@ -106,27 +106,28 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
         align-items: center;
       ">
         <div style="
-          background: linear-gradient(135deg, hsl(45, 89%, 55%) 0%, hsl(45, 89%, 45%) 100%);
-          width: 36px;
-          height: 36px;
+          background: hsl(222, 47%, 20%);
+          width: 32px;
+          height: 32px;
           border-radius: 50% 50% 50% 0;
           transform: rotate(-45deg);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 3px 10px rgba(0,0,0,0.3);
-          border: 2px solid white;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(222, 47%, 15%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="hsl(45, 89%, 55%)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
+            <rect x="2" y="6" width="4" height="16" rx="1"></rect>
+            <path d="M10 6h8l4 4v10a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z"></path>
+            <path d="m17 2-5 4"></path>
+            <path d="m22 2-5 4"></path>
           </svg>
         </div>
       </div>
     `,
-    iconSize: [36, 42],
-    iconAnchor: [18, 42],
-    popupAnchor: [0, -42],
+    iconSize: [32, 38],
+    iconAnchor: [16, 38],
+    popupAnchor: [0, -38],
   });
 }
 
