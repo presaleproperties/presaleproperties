@@ -370,32 +370,17 @@ export default function CityProductPage() {
 
   const { citySlug, productType, isNeighbourhood, isProjectPage } = parsedData;
 
-  // If this is a SEO-friendly project detail page, render PresaleProjectDetail
-  if (isProjectPage) {
-    return <PresaleProjectDetail />;
-  }
-
-  // If this is a neighbourhood page, delegate to NeighbourhoodProductPage
-  if (isNeighbourhood) {
-    return <NeighbourhoodProductPage />;
-  }
-
-  // Get page configuration
+  // Get page configuration - computed before hooks
   const config = citySlug && productType ? CITY_PRODUCT_CONFIG[citySlug]?.[productType] : null;
 
-  // If URL doesn't match expected pattern, show 404
-  if (!citySlug || !productType || !config) {
-    return <NotFound />;
-  }
-
-  // Track city interest when page loads
+  // Track city interest when page loads - MUST be called before any early returns
   useEffect(() => {
     if (config?.cityName) {
       addCityInterest(config.cityName);
     }
   }, [config?.cityName]);
 
-  // Fetch projects filtered by city and product type
+  // Fetch projects filtered by city and product type - MUST be called before any early returns
   const { data: projects, isLoading } = useQuery({
     queryKey: ["city-product-projects", citySlug, productType],
     queryFn: async () => {
@@ -417,7 +402,7 @@ export default function CityProductPage() {
     enabled: !!config,
   });
 
-  // Sort projects
+  // Sort projects - MUST be called before any early returns
   const sortedProjects = useMemo(() => {
     if (!projects) return [];
     
@@ -437,6 +422,23 @@ export default function CityProductPage() {
         return sorted.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
     }
   }, [projects, sortBy]);
+
+  // === Early returns AFTER all hooks are called ===
+  
+  // If this is a SEO-friendly project detail page, render PresaleProjectDetail
+  if (isProjectPage) {
+    return <PresaleProjectDetail />;
+  }
+
+  // If this is a neighbourhood page, delegate to NeighbourhoodProductPage
+  if (isNeighbourhood) {
+    return <NeighbourhoodProductPage />;
+  }
+
+  // If URL doesn't match expected pattern, show 404
+  if (!citySlug || !productType || !config) {
+    return <NotFound />;
+  }
 
   // 404 if invalid city/product combination
   if (!config) {
