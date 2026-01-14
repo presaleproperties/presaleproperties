@@ -94,7 +94,7 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - dark navy teardrop with gold building icon
+// Presale marker - dark navy teardrop with gold crane icon
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
   return L.divIcon({
     className: "custom-presale-pin",
@@ -116,14 +116,14 @@ function createPresalePinIcon(project: PresaleProject): L.DivIcon {
           justify-content: center;
           box-shadow: 0 2px 4px rgba(0,0,0,0.3);
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(45, 89%, 55%)" stroke="none" style="transform: rotate(45deg);">
-            <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"></path>
-            <path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"></path>
-            <path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"></path>
-            <path d="M10 6h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
-            <path d="M10 10h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
-            <path d="M10 14h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
-            <path d="M10 18h4" fill="none" stroke="hsl(222, 47%, 20%)" stroke-width="2"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="hsl(45, 89%, 55%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
+            <path d="M10 2v16"></path>
+            <path d="M2 6h16"></path>
+            <path d="M10 6l8-4"></path>
+            <path d="M18 6v4"></path>
+            <path d="M16 10h4"></path>
+            <path d="M18 10v8"></path>
+            <path d="M6 18h12"></path>
           </svg>
         </div>
       </div>
