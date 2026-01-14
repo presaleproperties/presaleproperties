@@ -430,28 +430,69 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
           Monthly Snap Stats Upload
         </CardTitle>
         <CardDescription>
-          Upload all 3 Snap Stats PDFs (Fraser Valley, Greater Vancouver, Metro Vancouver) to update market data across the entire site.
+          Upload Snap Stats PDFs to update market data across the entire site. Supports bulk uploads for multiple months.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Bulk Mode Toggle */}
-        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
-          <div>
-            <p className="font-medium text-sm">Bulk Upload Mode</p>
-            <p className="text-xs text-muted-foreground">
-              {bulkMode 
-                ? "Each file uses its detected month/year from filename" 
-                : "All files use the same report period below"}
-            </p>
-          </div>
-          <Button 
-            variant={bulkMode ? "default" : "outline"} 
-            size="sm"
-            onClick={() => setBulkMode(!bulkMode)}
+        {/* Quick Actions for FVREB Bulk Upload */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div 
+            className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              bulkMode 
+                ? 'border-primary bg-primary/5' 
+                : 'border-dashed border-muted-foreground/30 hover:border-primary/50'
+            }`}
+            onClick={() => setBulkMode(true)}
           >
-            {bulkMode ? "Bulk Mode ON" : "Enable Bulk Mode"}
-          </Button>
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <FolderOpen className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Bulk Monthly Upload</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Upload multiple months at once (e.g., Jan-Dec 2025). Each file uses its detected month/year from filename.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div 
+            className={`p-4 border-2 rounded-xl cursor-pointer transition-all ${
+              !bulkMode 
+                ? 'border-primary bg-primary/5' 
+                : 'border-dashed border-muted-foreground/30 hover:border-primary/50'
+            }`}
+            onClick={() => setBulkMode(false)}
+          >
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-muted rounded-lg">
+                <FileText className="h-5 w-5 text-muted-foreground" />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Single Month Upload</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Upload PDFs for a specific month. All files use the same report period.
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        {/* File Naming Convention Help */}
+        {bulkMode && (
+          <div className="bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">📁 File Naming Convention</p>
+            <p className="text-xs text-blue-700 dark:text-blue-300 mb-2">
+              Name your files so the month and year can be detected automatically:
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">FVR_2025_January.pdf</code>
+              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">FVR_Feb_2025.pdf</code>
+              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">2025_03_FVR.pdf</code>
+              <code className="bg-blue-100 dark:bg-blue-900/50 px-2 py-1 rounded">FVR_2025-04.pdf</code>
+            </div>
+          </div>
+        )}
 
         {/* Report Period - only show when not in bulk mode */}
         {!bulkMode && (
@@ -568,10 +609,17 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
 
         {/* Uploaded Files List */}
         {files.length > 0 && (
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Uploaded Files ({files.length})</Label>
-              {files.length > 3 && (
+              <Label className="flex items-center gap-2">
+                Uploaded Files ({files.length})
+                {isProcessing && (
+                  <span className="text-xs text-muted-foreground">
+                    Processing {files.filter(f => f.status === 'done').length + 1} of {files.length}
+                  </span>
+                )}
+              </Label>
+              {files.length > 1 && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -582,13 +630,41 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                 </Button>
               )}
             </div>
+            
+            {/* Progress Bar for Bulk Processing */}
+            {isProcessing && files.length > 1 && (
+              <div className="space-y-1">
+                <Progress 
+                  value={(files.filter(f => f.status === 'done').length / files.length) * 100} 
+                  className="h-2"
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  {files.filter(f => f.status === 'done').length} of {files.length} files processed
+                </p>
+              </div>
+            )}
+            
             <div className="max-h-[400px] overflow-y-auto space-y-2 pr-1">
               {files.map((f, i) => (
-                <div key={i} className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                  <FileText className="h-5 w-5 text-primary shrink-0" />
+                <div key={i} className={`flex items-center gap-2 p-3 rounded-lg transition-all ${
+                  f.status === 'processing' ? 'bg-primary/10 border border-primary/30' :
+                  f.status === 'done' ? 'bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800' :
+                  f.status === 'error' ? 'bg-destructive/10 border border-destructive/30' :
+                  'bg-muted/50'
+                }`}>
+                  <FileText className={`h-5 w-5 shrink-0 ${
+                    f.status === 'done' ? 'text-green-600' : 'text-primary'
+                  }`} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium truncate">{f.file.name}</p>
-                    <p className="text-xs text-muted-foreground">{EDITION_LABELS[f.edition]}</p>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span>{EDITION_LABELS[f.edition]}</span>
+                      {bulkMode && f.detectedMonth && f.detectedYear && (
+                        <Badge variant="outline" className="text-[10px] h-5">
+                          {new Date(2000, f.detectedMonth - 1).toLocaleString('en', { month: 'short' })} {f.detectedYear}
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   
                   {/* Edition Selector */}
@@ -597,6 +673,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                     onValueChange={(val) => setFiles(prev => 
                       prev.map((file, idx) => idx === i ? { ...file, edition: val as 'FVR' | 'GVR' | 'MVR' } : file)
                     )}
+                    disabled={isProcessing}
                   >
                     <SelectTrigger className="w-16 h-8 text-xs">
                       <SelectValue />
@@ -616,6 +693,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                         onValueChange={(val) => setFiles(prev => 
                           prev.map((file, idx) => idx === i ? { ...file, detectedMonth: parseInt(val) } : file)
                         )}
+                        disabled={isProcessing}
                       >
                         <SelectTrigger className="w-20 h-8 text-xs">
                           <SelectValue />
@@ -633,6 +711,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                         onValueChange={(val) => setFiles(prev => 
                           prev.map((file, idx) => idx === i ? { ...file, detectedYear: parseInt(val) } : file)
                         )}
+                        disabled={isProcessing}
                       >
                         <SelectTrigger className="w-20 h-8 text-xs">
                           <SelectValue />
@@ -647,9 +726,16 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
                   )}
                   
                   {/* Status Indicators */}
-                  {f.status === 'processing' && <Loader2 className="h-4 w-4 animate-spin shrink-0" />}
+                  {f.status === 'processing' && <Loader2 className="h-4 w-4 animate-spin shrink-0 text-primary" />}
                   {f.status === 'done' && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
-                  {f.status === 'error' && <AlertCircle className="h-4 w-4 text-destructive shrink-0" />}
+                  {f.status === 'error' && (
+                    <div className="flex items-center gap-1">
+                      <AlertCircle className="h-4 w-4 text-destructive shrink-0" />
+                      <span className="text-xs text-destructive truncate max-w-[100px]" title={f.error}>
+                        {f.error?.slice(0, 20)}...
+                      </span>
+                    </div>
+                  )}
                   
                   <Button 
                     variant="ghost" 
@@ -665,14 +751,17 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
             </div>
             
             {/* Summary of detected periods in bulk mode */}
-            {bulkMode && files.length > 0 && (
-              <div className="text-xs text-muted-foreground bg-primary/5 rounded-lg p-2">
-                <strong>Detected periods:</strong>{' '}
-                {[...new Set(files.map(f => 
-                  f.detectedMonth && f.detectedYear 
-                    ? `${new Date(2000, f.detectedMonth - 1).toLocaleString('en', { month: 'short' })} ${f.detectedYear}`
-                    : 'Unknown'
-                ))].join(', ')}
+            {bulkMode && files.length > 0 && !isProcessing && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground bg-primary/5 rounded-lg p-3">
+                <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                <div>
+                  <strong>Ready to process:</strong>{' '}
+                  {[...new Set(files.map(f => 
+                    f.detectedMonth && f.detectedYear 
+                      ? `${new Date(2000, f.detectedMonth - 1).toLocaleString('en', { month: 'short' })} ${f.detectedYear}`
+                      : 'Unknown'
+                  ))].join(', ')}
+                </div>
               </div>
             )}
           </div>
