@@ -17,7 +17,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Separator } from "@/components/ui/separator";
-import { GalleryWithLightbox } from "@/components/ui/lightbox-gallery";
+import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
@@ -682,12 +682,9 @@ export default function PresaleProjectDetail() {
             <div className="grid lg:grid-cols-5 gap-3 md:gap-5 lg:gap-6">
               {/* Gallery - Full width on mobile/tablet, 3 columns on desktop */}
               <div className="lg:col-span-3">
-                <GalleryWithLightbox
-                  images={allImages}
-                  selectedIndex={allImages.indexOf(selectedImage || allImages[0])}
-                  onSelectIndex={(index) => setSelectedImage(allImages[index])}
+                <REWPhotoGallery
+                  photos={allImages.map(url => ({ url }))}
                   alt={project.name}
-                  compact
                 />
               </div>
 
