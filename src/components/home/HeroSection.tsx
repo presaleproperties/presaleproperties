@@ -113,8 +113,8 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
           </p>
           
           {/* Main Heading - SEO optimized H1 */}
-          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05] drop-shadow-lg" style={{ animationDelay: "0.1s" }}>
-            Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(43_96%_56%/0.5)]">Brand New</span> Home
+          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05]" style={{ animationDelay: "0.1s", textShadow: "0 4px 24px rgba(0,0,0,0.4)" }}>
+            Find Your <span className="text-primary" style={{ textShadow: "0 0 40px hsl(43 96% 56% / 0.5)" }}>Brand New</span> Home
           </h1>
           
           {/* Subheadline */}
@@ -125,7 +125,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
 
           {/* Floating Search Card - Premium glass effect */}
           <div 
-            className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-premium max-w-2xl mx-auto animate-fade-in overflow-hidden border border-white/50"
+            className="bg-white/[0.97] backdrop-blur-2xl rounded-2xl shadow-premium max-w-2xl mx-auto animate-fade-in overflow-hidden border border-white/60 ring-1 ring-black/[0.03]"
             style={{ animationDelay: "0.2s" }}
           >
             {/* Search Header with Tabs */}
