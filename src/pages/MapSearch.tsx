@@ -134,7 +134,7 @@ export default function MapSearch() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
-  const [showCarousel, setShowCarousel] = useState(true);
+  const [showCarousel, setShowCarousel] = useState(false); // Hidden by default on mobile, shows when property clicked
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
@@ -202,6 +202,13 @@ export default function MapSearch() {
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
   }, []);
+
+  // Hide carousel when user starts panning/zooming the map on mobile
+  const handleMapInteraction = useCallback(() => {
+    if (isMobile) {
+      setShowCarousel(false);
+    }
+  }, [isMobile]);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
     setMapMode(newMode);
@@ -563,6 +570,7 @@ export default function MapSearch() {
                       mode={mapMode}
                       onListingSelect={handleItemSelect}
                       onVisibleItemsChange={handleVisibleItemsChange}
+                      onMapInteraction={handleMapInteraction}
                     />
                   )}
                 </Suspense>

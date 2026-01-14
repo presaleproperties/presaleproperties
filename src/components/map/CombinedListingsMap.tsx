@@ -55,6 +55,7 @@ interface CombinedListingsMapProps {
   mode: "all" | "presale" | "resale";
   onListingSelect?: (id: string, type: "resale" | "presale") => void;
   onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[]) => void;
+  onMapInteraction?: () => void;
 }
 
 function formatPrice(price: number): string {
@@ -243,7 +244,8 @@ export function CombinedListingsMap({
   presaleProjects,
   mode,
   onListingSelect, 
-  onVisibleItemsChange 
+  onVisibleItemsChange,
+  onMapInteraction
 }: CombinedListingsMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -322,6 +324,11 @@ export function CombinedListingsMap({
 
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
+    
+    // Notify parent when user starts interacting with map (drag/zoom)
+    map.on("movestart", () => {
+      if (onMapInteraction) onMapInteraction();
+    });
 
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
