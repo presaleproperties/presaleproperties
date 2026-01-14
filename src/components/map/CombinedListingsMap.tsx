@@ -206,18 +206,18 @@ function presalePopupHtml(project: PresaleProject): string {
                       project.status === "coming_soon" ? "Coming Soon" : project.status;
   
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${project.name}" style="width:120px;height:100%;min-height:100px;object-fit:cover;border-radius:8px 0 0 8px;" />`
-    : `<div style="width:120px;min-height:100px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 8px;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${project.name}" style="width:130px;height:100%;min-height:110px;object-fit:cover;border-radius:8px 0 0 8px;" />`
+    : `<div style="width:130px;min-height:110px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 8px;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
   
   return `
-    <a href="/presale-projects/${project.slug}" style="display:flex;width:320px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+    <a href="/presale-projects/${project.slug}" style="display:flex;width:360px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
       <div style="flex-shrink:0;position:relative;">
         ${photoHtml}
         <span style="position:absolute;top:6px;left:6px;background:hsl(222,47%,20%);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">PRESALE</span>
       </div>
-      <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;">
-        <div style="font-weight:700;font-size:16px;color:#1e293b;margin-bottom:2px;">${fullPrice}</div>
-        <div style="font-size:14px;color:#475569;font-weight:600;margin-bottom:2px;">${project.name}</div>
+      <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+        <div style="font-weight:700;font-size:18px;color:#1e293b;margin-bottom:3px;white-space:nowrap;">${fullPrice}</div>
+        <div style="font-size:14px;color:#475569;font-weight:600;margin-bottom:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${project.name}</div>
         <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${project.neighborhood}, ${project.city}</div>
         <div style="font-size:11px;color:#64748b;">${project.project_type || 'Condo'} • ${statusLabel}</div>
       </div>
