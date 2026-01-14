@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.39.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,90 +13,6 @@ const EDITION_CITIES: Record<string, string[]> = {
   'GVR': ['Burnaby', 'New Westminster', 'Coquitlam', 'Port Coquitlam', 'Port Moody', 'Pitt Meadows', 'Maple Ridge'],
   'MVR': ['Vancouver', 'Richmond', 'North Vancouver', 'West Vancouver', 'Delta', 'Ladner', 'Tsawwassen'],
 };
-
-// Rent estimates for yield calculations
-const RENT_ESTIMATES: Record<string, { rent1br: number; rent2br: number }> = {
-  'Surrey': { rent1br: 1800, rent2br: 2300 },
-  'South Surrey': { rent1br: 2000, rent2br: 2600 },
-  'White Rock': { rent1br: 1900, rent2br: 2500 },
-  'Langley': { rent1br: 1850, rent2br: 2400 },
-  'Abbotsford': { rent1br: 1600, rent2br: 2100 },
-  'Mission': { rent1br: 1500, rent2br: 2000 },
-  'Cloverdale': { rent1br: 1750, rent2br: 2300 },
-  'North Delta': { rent1br: 1700, rent2br: 2200 },
-  'Burnaby': { rent1br: 2200, rent2br: 2800 },
-  'Vancouver': { rent1br: 2500, rent2br: 3300 },
-  'Richmond': { rent1br: 2100, rent2br: 2700 },
-  'Coquitlam': { rent1br: 2000, rent2br: 2600 },
-  'Port Coquitlam': { rent1br: 1900, rent2br: 2400 },
-  'Port Moody': { rent1br: 2100, rent2br: 2700 },
-  'Pitt Meadows': { rent1br: 1800, rent2br: 2300 },
-  'Maple Ridge': { rent1br: 1700, rent2br: 2200 },
-  'New Westminster': { rent1br: 1900, rent2br: 2500 },
-  'North Vancouver': { rent1br: 2300, rent2br: 3000 },
-  'West Vancouver': { rent1br: 2600, rent2br: 3500 },
-  'Delta': { rent1br: 1800, rent2br: 2300 },
-  'Ladner': { rent1br: 1850, rent2br: 2400 },
-  'Tsawwassen': { rent1br: 1900, rent2br: 2500 },
-};
-
-function extractRelevantSections(text: string, cities: string[]): string {
-  // Extract sections relevant to condos/townhomes market data
-  const lines = text.split('\n');
-  const relevantLines: string[] = [];
-  
-  const cityPatterns = cities.map(c => c.toLowerCase());
-  const keywords = [
-    'condo', 'townhome', 'townhouse', 'apartment', 'attached', 'row',
-    'benchmark', 'median', 'average', 'price', 'sold',
-    'active listing', 'sales', 'inventory', 'new listing',
-    'days on market', 'dom', 'sale to list', 'sale-to-list',
-    'market type', 'buyer', 'seller', 'balanced',
-    'yoy', 'y-o-y', 'year over year', 'mom', 'm-o-m', 'month over month',
-    'price band', 'price range', 'hottest',
-    'summary', 'snapshot', 'trend', 'overview'
-  ];
-  
-  // Track which cities we've found data for
-  const citiesFound = new Set<string>();
-  
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const lowerLine = line.toLowerCase();
-    
-    // Check if this line is relevant
-    const matchedCity = cityPatterns.find(c => lowerLine.includes(c));
-    const hasKeyword = keywords.some(k => lowerLine.includes(k));
-    // Match prices like $500,000 or 500000 or percentages like 15% or -2.5%
-    const hasPrice = /\$[\d,]+|\d{3},\d{3}/.test(line);
-    const hasPercent = /[-+]?\d+\.?\d*%/.test(line);
-    const hasDays = /\d+\s*days?/i.test(line);
-    
-    if (matchedCity) citiesFound.add(matchedCity);
-    
-    if (matchedCity || hasKeyword || hasPrice || hasPercent || hasDays) {
-      // Include some context around this line
-      const startIdx = Math.max(0, i - 1);
-      const endIdx = Math.min(lines.length - 1, i + 1);
-      
-      for (let j = startIdx; j <= endIdx; j++) {
-        const contextLine = lines[j].trim();
-        if (contextLine && !relevantLines.includes(contextLine)) {
-          relevantLines.push(contextLine);
-        }
-      }
-    }
-    
-    // Keep collecting until we have good coverage
-    if (relevantLines.length > 3000) break;
-  }
-  
-  console.log(`Extracted ${relevantLines.length} relevant lines from ${lines.length} total lines`);
-  console.log(`Found references to cities: ${Array.from(citiesFound).join(', ')}`);
-  
-  // Return condensed text, limit to ~80k chars to keep under token limits
-  return relevantLines.join('\n').slice(0, 80000);
-}
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -112,6 +29,8 @@ serve(async (req) => {
       );
     }
 
+    console.log(`Parsing ${edition} Snap Stats for ${reportMonth}/${reportYear}, text length:`, documentText.length);
+
     const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
       return new Response(
@@ -125,28 +44,38 @@ serve(async (req) => {
                     : edition === 'GVR' ? 'Greater Vancouver REALTORS®'
                     : 'Metro Vancouver Real Estate Board';
 
-    // Extract only relevant sections to reduce token usage
-    const condensedText = extractRelevantSections(documentText, cities);
-    console.log(`Parsing ${edition} Snap Stats for ${reportMonth}/${reportYear}, condensed text length: ${condensedText.length} (original: ${documentText.length})`);
+    const systemPrompt = `You are a real estate market data extraction expert for BC Canada. Extract DETAILED statistics from this ${boardName} Snap Stats report.
 
-    const systemPrompt = `You are a real estate market data extraction expert. Extract condo and townhome statistics from this ${boardName} Snap Stats report.
+CITIES TO EXTRACT: ${cities.join(', ')}
 
-TARGET CITIES: ${cities.join(', ')}
+For EACH CITY, extract data separately for CONDOS and TOWNHOMES. The report has separate pages for each property type.
 
-For EACH CITY, extract data for CONDOS and TOWNHOMES separately:
-- benchmark_price: The benchmark/typical sale price
-- total_inventory: Active listings count  
-- total_sales: Number of units sold
-- sales_ratio: Sales-to-listings percentage
-- days_on_market: Average DOM
-- sale_to_list_ratio: % of list price achieved (e.g., 97 means 97%)
-- hottest_price_band: Price range with most activity
-- hottest_price_band_ratio: Sales ratio for that band
-- market_type: "buyers" (<12%), "balanced" (12-20%), "sellers" (>20%)
-- yoy_price_change: Year-over-year % change
-- mom_price_change: Month-over-month % change
+Extract these fields for each city + property_type combination:
 
-Be thorough - extract every city and property type you can find.`;
+1. **benchmark_price** or **median_sale_price**: The benchmark/median sale price for the property type
+2. **avg_price_sqft**: Calculate from sale_price / typical_sqft (750 for condos, 1200 for townhomes)
+3. **total_inventory**: Active listings count
+4. **total_sales**: Number of sold units
+5. **sales_ratio**: Sales-to-listings ratio percentage (if 84 sold out of 1188 inventory = 7%)
+6. **days_on_market**: Average DOM
+7. **sale_to_list_ratio**: e.g., 97% means selling 3% below list
+8. **hottest_price_band**: The price range with highest sales ratio (e.g., "$1M - $1.25M")
+9. **hottest_price_band_ratio**: The sales ratio for that band (e.g., 27)
+10. **market_type**: "buyers" if sales_ratio < 12%, "balanced" if 12-20%, "sellers" if > 20%
+11. **yoy_price_change**: Year-over-year % change if available from 13-month trend
+12. **mom_price_change**: Month-over-month % change from trend data
+
+IMPORTANT:
+- Extract BOTH condo AND townhome data separately for each city
+- Look for "CONDOS & TOWNHOMES" sections but also dedicated TOWNHOMES sections
+- The Market Summary section contains key insights
+- Use the 13-Month Market Trend charts for price trend data
+- If a city shows "S SURREY WHITE ROCK", map to "South Surrey"
+- If combining data, note which cities are combined`;
+
+    const userPrompt = `Extract all condo and townhome market statistics from this ${boardName} Snap Stats report for ${reportMonth}/${reportYear}:
+
+${documentText}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -155,45 +84,69 @@ Be thorough - extract every city and property type you can find.`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite', // Use lighter model for cost efficiency
+        model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Extract market stats from this ${edition} Snap Stats report for ${reportMonth}/${reportYear}:\n\n${condensedText}` }
+          { role: 'user', content: userPrompt }
         ],
         tools: [
           {
             type: 'function',
             function: {
               name: 'extract_snapstats',
-              description: 'Extract condo and townhome market statistics',
+              description: 'Extract structured condo and townhome market statistics from Snap Stats report.',
               parameters: {
                 type: 'object',
+                additionalProperties: false,
                 properties: {
+                  report_period: {
+                    type: 'object',
+                    properties: {
+                      month: { type: 'number' },
+                      year: { type: 'number' },
+                      edition: { type: 'string' },
+                      board: { type: 'string' },
+                    },
+                    required: ['month', 'year', 'edition', 'board'],
+                  },
                   city_stats: {
                     type: 'array',
                     items: {
                       type: 'object',
+                      additionalProperties: false,
                       properties: {
                         city: { type: 'string' },
                         property_type: { type: 'string', enum: ['condo', 'townhome'] },
-                        benchmark_price: { type: 'number' },
-                        total_inventory: { type: 'number' },
-                        total_sales: { type: 'number' },
-                        sales_ratio: { type: 'number' },
-                        days_on_market: { type: 'number' },
-                        sale_to_list_ratio: { type: 'number' },
-                        hottest_price_band: { type: 'string' },
-                        hottest_price_band_ratio: { type: 'number' },
-                        market_type: { type: 'string' },
-                        yoy_price_change: { type: 'number' },
-                        mom_price_change: { type: 'number' },
+                        benchmark_price: { type: ['number', 'null'] },
+                        avg_price_sqft: { type: ['number', 'null'] },
+                        median_sale_price: { type: ['number', 'null'] },
+                        total_inventory: { type: ['number', 'null'] },
+                        total_sales: { type: ['number', 'null'] },
+                        sales_ratio: { type: ['number', 'null'] },
+                        days_on_market: { type: ['number', 'null'] },
+                        sale_to_list_ratio: { type: ['number', 'null'] },
+                        hottest_price_band: { type: ['string', 'null'] },
+                        hottest_price_band_ratio: { type: ['number', 'null'] },
+                        market_type: { type: ['string', 'null'], enum: ['buyers', 'balanced', 'sellers', null] },
+                        yoy_price_change: { type: ['number', 'null'] },
+                        mom_price_change: { type: ['number', 'null'] },
+                        avg_rent_1br: { type: ['number', 'null'] },
+                        avg_rent_2br: { type: ['number', 'null'] },
                       },
                       required: ['city', 'property_type'],
                     },
                   },
-                  market_summary: { type: 'string' },
+                  market_summary: {
+                    type: 'string',
+                    description: 'Overall 2-3 sentence summary of the regional market conditions',
+                  },
+                  key_insights: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: '4-6 key market insights or trends from the report',
+                  },
                 },
-                required: ['city_stats'],
+                required: ['report_period', 'city_stats', 'market_summary', 'key_insights'],
               },
             },
           },
@@ -208,20 +161,13 @@ Be thorough - extract every city and property type you can find.`;
       
       if (response.status === 429) {
         return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment and try again.' }),
+          JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment.' }),
           { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      if (response.status === 402) {
-        return new Response(
-          JSON.stringify({ error: 'AI service credit limit reached. Please try again later.' }),
-          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
 
       return new Response(
-        JSON.stringify({ error: `AI service error: ${response.status}` }),
+        JSON.stringify({ error: 'Failed to process with AI' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -231,7 +177,6 @@ Be thorough - extract every city and property type you can find.`;
     const argsStr = toolCall?.function?.arguments;
 
     if (!argsStr) {
-      console.error('No tool call in response:', JSON.stringify(data));
       return new Response(
         JSON.stringify({ error: 'AI did not return structured data' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -242,56 +187,47 @@ Be thorough - extract every city and property type you can find.`;
     try {
       extractedData = JSON.parse(argsStr);
     } catch (e) {
-      console.error('Failed to parse AI response:', argsStr);
       return new Response(
         JSON.stringify({ error: 'Failed to parse AI response' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Enrich with rental estimates and yield calculations
-    for (const stat of extractedData.city_stats || []) {
+    // Calculate rental yields for condos if missing
+    const RENT_ESTIMATES: Record<string, { rent1br: number; rent2br: number }> = {
+      'Surrey': { rent1br: 1800, rent2br: 2300 },
+      'South Surrey': { rent1br: 2000, rent2br: 2600 },
+      'Langley': { rent1br: 1850, rent2br: 2400 },
+      'Abbotsford': { rent1br: 1600, rent2br: 2100 },
+      'Burnaby': { rent1br: 2200, rent2br: 2800 },
+      'Vancouver': { rent1br: 2500, rent2br: 3300 },
+      'Richmond': { rent1br: 2100, rent2br: 2700 },
+      'Coquitlam': { rent1br: 2000, rent2br: 2600 },
+      'New Westminster': { rent1br: 1900, rent2br: 2500 },
+      'North Vancouver': { rent1br: 2300, rent2br: 3000 },
+    };
+
+    for (const stat of extractedData.city_stats) {
       if (stat.property_type === 'condo') {
         const rents = RENT_ESTIMATES[stat.city] || { rent1br: 1900, rent2br: 2500 };
-        stat.avg_rent_1br = rents.rent1br;
-        stat.avg_rent_2br = rents.rent2br;
+        if (!stat.avg_rent_1br) stat.avg_rent_1br = rents.rent1br;
+        if (!stat.avg_rent_2br) stat.avg_rent_2br = rents.rent2br;
         
-        // Calculate rental yield
+        // Calculate rental yield if we have price and rent
         const price = stat.benchmark_price || stat.median_sale_price;
         if (price && stat.avg_rent_2br) {
           stat.rental_yield = Number(((stat.avg_rent_2br * 12) / price * 100).toFixed(2));
         }
-        
-        // Calculate price per sqft (estimate 750 sqft avg for condos)
-        if (price) {
-          stat.avg_price_sqft = Math.round(price / 750);
-        }
-      } else if (stat.property_type === 'townhome') {
-        // Townhomes - estimate 1200 sqft avg
-        const price = stat.benchmark_price;
-        if (price) {
-          stat.avg_price_sqft = Math.round(price / 1200);
-        }
       }
     }
 
-    console.log(`Extracted ${extractedData.city_stats?.length || 0} city/type combinations`);
+    console.log(`Extracted ${extractedData.city_stats.length} city/type combinations`);
 
     return new Response(
       JSON.stringify({ 
         success: true, 
-        data: {
-          report_period: {
-            month: reportMonth,
-            year: reportYear,
-            edition: edition,
-            board: boardName,
-          },
-          city_stats: extractedData.city_stats || [],
-          market_summary: extractedData.market_summary || '',
-          key_insights: [],
-        },
-        statsCount: extractedData.city_stats?.length || 0,
+        data: extractedData,
+        statsCount: extractedData.city_stats.length,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
