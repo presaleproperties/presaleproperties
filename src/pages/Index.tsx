@@ -304,10 +304,6 @@ const Index = () => {
       <ConversionHeader />
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
-        <NewConstructionTrustBar />
-        <ScrollReveal animation="fade-up">
-          <TwoWaysToBuy />
-        </ScrollReveal>
         <ScrollReveal animation="fade-up">
           {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
         </ScrollReveal>
