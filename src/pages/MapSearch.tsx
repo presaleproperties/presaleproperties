@@ -510,7 +510,7 @@ export default function MapSearch() {
       </Helmet>
 
       <div className="h-screen bg-background flex flex-col overflow-hidden">
-        <ConversionHeader />
+        <ConversionHeader alwaysVisible />
 
         {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
