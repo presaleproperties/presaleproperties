@@ -163,11 +163,11 @@ export default function Contact() {
           </section>
 
           {/* Contact Content */}
-          <section className="py-16">
-            <div className="container">
-              <div className="grid lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <section className="py-8 sm:py-16">
+            <div className="container px-4 sm:px-6">
+              <div className="grid lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
                 {/* Contact Info Cards */}
-                <div className="space-y-6">
+                <div className="space-y-4 sm:space-y-6">
                   <Card>
                     <CardContent className="flex items-start gap-4 p-6">
                       <div className="p-3 rounded-lg bg-primary/10">
@@ -220,31 +220,31 @@ export default function Contact() {
 
                 {/* Contact Form */}
                 <Card className="lg:col-span-2">
-                  <CardHeader>
-                    <CardTitle>Send Us a Message</CardTitle>
-                    <CardDescription>
+                  <CardHeader className="p-4 sm:p-6">
+                    <CardTitle className="text-lg sm:text-xl">Send Us a Message</CardTitle>
+                    <CardDescription className="text-sm">
                       Fill out the form below and we'll get back to you as soon as possible.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                      <div className="grid sm:grid-cols-2 gap-4">
+                  <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+                    <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="name">Name *</Label>
+                          <Label htmlFor="name" className="text-sm">Name *</Label>
                           <Input
                             id="name"
                             name="name"
                             placeholder="Your name"
                             value={formData.name}
                             onChange={handleChange}
-                            className={errors.name ? "border-destructive" : ""}
+                            className={`text-base ${errors.name ? "border-destructive" : ""}`}
                           />
                           {errors.name && (
-                            <p className="text-sm text-destructive">{errors.name}</p>
+                            <p className="text-xs sm:text-sm text-destructive">{errors.name}</p>
                           )}
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email *</Label>
+                          <Label htmlFor="email" className="text-sm">Email *</Label>
                           <Input
                             id="email"
                             name="email"
@@ -252,17 +252,18 @@ export default function Contact() {
                             placeholder="your@email.com"
                             value={formData.email}
                             onChange={handleChange}
-                            className={errors.email ? "border-destructive" : ""}
+                            inputMode="email"
+                            className={`text-base ${errors.email ? "border-destructive" : ""}`}
                           />
                           {errors.email && (
-                            <p className="text-sm text-destructive">{errors.email}</p>
+                            <p className="text-xs sm:text-sm text-destructive">{errors.email}</p>
                           )}
                         </div>
                       </div>
 
-                      <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
-                          <Label htmlFor="phone">Phone</Label>
+                          <Label htmlFor="phone" className="text-sm">Phone</Label>
                           <Input
                             id="phone"
                             name="phone"
@@ -270,45 +271,46 @@ export default function Contact() {
                             placeholder="(672) 258-1100"
                             value={formData.phone}
                             onChange={handleChange}
-                            className={errors.phone ? "border-destructive" : ""}
+                            inputMode="tel"
+                            className={`text-base ${errors.phone ? "border-destructive" : ""}`}
                           />
                           {errors.phone && (
-                            <p className="text-sm text-destructive">{errors.phone}</p>
+                            <p className="text-xs sm:text-sm text-destructive">{errors.phone}</p>
                           )}
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="subject">Subject *</Label>
+                          <Label htmlFor="subject" className="text-sm">Subject *</Label>
                           <Input
                             id="subject"
                             name="subject"
                             placeholder="How can we help?"
                             value={formData.subject}
                             onChange={handleChange}
-                            className={errors.subject ? "border-destructive" : ""}
+                            className={`text-base ${errors.subject ? "border-destructive" : ""}`}
                           />
                           {errors.subject && (
-                            <p className="text-sm text-destructive">{errors.subject}</p>
+                            <p className="text-xs sm:text-sm text-destructive">{errors.subject}</p>
                           )}
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="message">Message *</Label>
+                        <Label htmlFor="message" className="text-sm">Message *</Label>
                         <Textarea
                           id="message"
                           name="message"
                           placeholder="Tell us more about your inquiry..."
-                          rows={5}
+                          rows={4}
                           value={formData.message}
                           onChange={handleChange}
-                          className={errors.message ? "border-destructive" : ""}
+                          className={`text-base min-h-[100px] ${errors.message ? "border-destructive" : ""}`}
                         />
                         {errors.message && (
-                          <p className="text-sm text-destructive">{errors.message}</p>
+                          <p className="text-xs sm:text-sm text-destructive">{errors.message}</p>
                         )}
                       </div>
 
-                      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto">
+                      <Button type="submit" size="lg" disabled={isSubmitting} className="w-full sm:w-auto h-12">
                         {isSubmitting ? (
                           "Sending..."
                         ) : (
