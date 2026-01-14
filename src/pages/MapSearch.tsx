@@ -231,9 +231,9 @@ export default function MapSearch() {
     filters.priceMax ? parseInt(filters.priceMax) : MAX_PRICE,
   ]);
 
-  // Fetch resale listings (2025+ builds)
+  // Fetch resale listings (2023+ builds for more "newer" homes)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-2025", filters, enabledCities],
+    queryKey: ["unified-map-resale-2023", filters, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -241,7 +241,7 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .gte("year_built", 2024);
+        .gte("year_built", 2023);
 
       // Filter by enabled cities from admin portal when no specific city selected
       if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
@@ -272,8 +272,8 @@ export default function MapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      // Order by recency - no hard cap, show all results for accurate count
-      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(3000);
+      // Order by recency - increased limit for more coverage
+      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(5000);
 
       const { data, error } = await query;
       if (error) throw error;
