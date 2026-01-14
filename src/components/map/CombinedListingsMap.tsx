@@ -161,62 +161,67 @@ function getResalePhoto(listing: MLSListing): string | null {
 
 function resalePopupHtml(listing: MLSListing): string {
   const photo = getResalePhoto(listing);
-  const photoHtml = photo 
-    ? `<img src="${photo}" alt="${getResaleAddress(listing)}" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />`
-    : `<div style="width:100%;height:80px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 8px 0 0;"><span style="color:#94a3b8;">No Image</span></div>`;
+  const fullPrice = `$${listing.listing_price.toLocaleString()}`;
+  const address = getResaleAddress(listing);
   
-  // Build attribution string
-  const attribution = listing.list_agent_name && listing.list_office_name
-    ? `${listing.list_agent_name} • ${listing.list_office_name}`
-    : listing.list_agent_name || listing.list_office_name || null;
+  // Build specs string like "3 bd • 2 ba • 1200 sq"
+  const specs = [
+    listing.bedrooms_total ? `${listing.bedrooms_total} bd` : null,
+    listing.bathrooms_total ? `${listing.bathrooms_total} ba` : null,
+    listing.living_area ? `${listing.living_area.toLocaleString()} sq` : null,
+  ].filter(Boolean).join(' • ');
+  
+  // Property type
+  const propType = listing.property_sub_type || listing.property_type || '';
+  
+  // Brokerage
+  const brokerage = listing.list_office_name || '';
+  
+  const photoHtml = photo 
+    ? `<img src="${photo}" alt="${address}" style="width:120px;height:100%;min-height:100px;object-fit:cover;border-radius:8px 0 0 8px;" />`
+    : `<div style="width:120px;min-height:100px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 8px;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
   
   return `
-    <div style="width:200px;font-family:system-ui,sans-serif;">
-      ${photoHtml}
-      <div style="padding:10px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-          <span style="background:hsl(45,89%,61%);color:hsl(222,47%,11%);font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">MOVE-IN READY</span>
-        </div>
-        <div style="font-weight:700;font-size:16px;color:#1e293b;">${formatPrice(listing.listing_price)}</div>
-        <div style="font-size:13px;color:#64748b;margin-top:2px;">${getResaleAddress(listing)}</div>
-        <div style="font-size:12px;color:#94a3b8;">${listing.city}</div>
-        <div style="display:flex;gap:10px;margin-top:6px;font-size:12px;color:#64748b;">
-          ${listing.bedrooms_total ? `<span>${listing.bedrooms_total} bed</span>` : ""}
-          ${listing.bathrooms_total ? `<span>${listing.bathrooms_total} bath</span>` : ""}
-          ${listing.living_area ? `<span>${listing.living_area} sqft</span>` : ""}
-        </div>
-        ${attribution ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
-        <a href="/resale/${listing.listing_key}" style="display:block;margin-top:8px;background:hsl(45, 89%, 61%);color:hsl(222, 47%, 11%);text-align:center;padding:6px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px;">View Details</a>
+    <a href="/resale/${listing.listing_key}" style="display:flex;width:320px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+      <div style="flex-shrink:0;position:relative;">
+        ${photoHtml}
       </div>
-    </div>
+      <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-weight:700;font-size:18px;color:#1e293b;margin-bottom:2px;">${fullPrice}</div>
+        <div style="font-size:13px;color:#475569;margin-bottom:2px;">${address}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${specs}</div>
+        ${propType ? `<div style="font-size:11px;color:#64748b;">${propType}</div>` : ''}
+        ${brokerage ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${brokerage}</div>` : ''}
+      </div>
+    </a>
   `;
 }
 
 function presalePopupHtml(project: PresaleProject): string {
   const photo = project.featured_image;
-  const photoHtml = photo 
-    ? `<img src="${photo}" alt="${project.name}" style="width:100%;height:100px;object-fit:cover;border-radius:8px 8px 0 0;" />`
-    : `<div style="width:100%;height:80px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 8px 0 0;"><span style="color:#94a3b8;">No Image</span></div>`;
+  const fullPrice = project.starting_price ? `From $${project.starting_price.toLocaleString()}` : 'Price TBA';
   
   const statusLabel = project.status === "active" ? "Selling Now" : 
                       project.status === "registering" ? "Registering" : 
                       project.status === "coming_soon" ? "Coming Soon" : project.status;
   
+  const photoHtml = photo 
+    ? `<img src="${photo}" alt="${project.name}" style="width:120px;height:100%;min-height:100px;object-fit:cover;border-radius:8px 0 0 8px;" />`
+    : `<div style="width:120px;min-height:100px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 0 0 8px;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
+  
   return `
-    <div style="width:200px;font-family:system-ui,sans-serif;">
-      ${photoHtml}
-      <div style="padding:10px;">
-        <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-          <span style="background:hsl(222,47%,20%);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">PRESALE</span>
-          <span style="font-size:10px;color:#64748b;">${statusLabel}</span>
-        </div>
-        <div style="font-weight:700;font-size:15px;color:#1e293b;">${project.name}</div>
-        <div style="font-size:13px;color:#64748b;margin-top:2px;">${project.neighborhood}</div>
-        <div style="font-size:12px;color:#94a3b8;">${project.city}</div>
-        ${project.starting_price ? `<div style="font-weight:600;font-size:14px;color:#1e293b;margin-top:4px;">From ${formatPrice(project.starting_price)}</div>` : ""}
-        <a href="/presale-projects/${project.slug}" style="display:block;margin-top:8px;background:hsl(222, 47%, 20%);color:white;text-align:center;padding:6px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px;">View Project</a>
+    <a href="/presale-projects/${project.slug}" style="display:flex;width:320px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:8px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.12);">
+      <div style="flex-shrink:0;position:relative;">
+        ${photoHtml}
+        <span style="position:absolute;top:6px;left:6px;background:hsl(222,47%,20%);color:white;font-size:9px;font-weight:700;padding:2px 6px;border-radius:4px;">PRESALE</span>
       </div>
-    </div>
+      <div style="flex:1;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;">
+        <div style="font-weight:700;font-size:16px;color:#1e293b;margin-bottom:2px;">${fullPrice}</div>
+        <div style="font-size:14px;color:#475569;font-weight:600;margin-bottom:2px;">${project.name}</div>
+        <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${project.neighborhood}, ${project.city}</div>
+        <div style="font-size:11px;color:#64748b;">${project.project_type || 'Condo'} • ${statusLabel}</div>
+      </div>
+    </a>
   `;
 }
 
