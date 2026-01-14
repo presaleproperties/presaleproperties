@@ -541,10 +541,10 @@ export default function ResaleListings() {
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
         
-        <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
+        <section className="bg-background border-b border-border py-3 sm:py-6 md:py-10">
           <div className="container px-4">
-            {/* Breadcrumbs */}
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+            {/* Breadcrumbs - hidden on mobile to save space */}
+            <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground mb-3 overflow-x-auto">
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
                 <Home className="h-3.5 w-3.5" />
               </Link>
@@ -560,7 +560,16 @@ export default function ResaleListings() {
               )}
             </nav>
 
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            {/* Mobile: Compact header with title + count inline */}
+            <div className="sm:hidden flex items-center justify-between gap-2 mb-2">
+              <h1 className="text-lg font-bold text-foreground truncate">
+                {filters.city !== "any" ? filters.city : "Move-In Ready"}
+              </h1>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">{totalCount.toLocaleString()} homes</span>
+            </div>
+
+            {/* Desktop: Full header */}
+            <div className="hidden sm:flex sm:flex-row sm:items-start sm:justify-between gap-4">
               <div className="max-w-3xl">
                 <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
                   {filters.city !== "any" 
@@ -586,24 +595,24 @@ export default function ResaleListings() {
               <ListingTypeToggle />
             </div>
             
-            {/* Quick City Filter Chips */}
-            <div className="mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-2 pb-1">
+            {/* Quick City Filter Chips - smaller on mobile */}
+            <div className="mt-2 sm:mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-1.5 sm:gap-2 pb-1">
                 <button
                   onClick={() => updateFilter("city", "any")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
                     filters.city === "any"
                       ? "bg-foreground text-background"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   }`}
                 >
-                  All Cities
+                  All
                 </button>
-                {["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Richmond", "Langley", "Delta", "Abbotsford"].map((city) => (
+                {["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Langley"].map((city) => (
                   <button
                     key={city}
                     onClick={() => updateFilter("city", city)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    className={`flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
                       filters.city === city
                         ? "bg-foreground text-background"
                         : "bg-muted hover:bg-muted/80 text-foreground"
@@ -671,10 +680,11 @@ export default function ResaleListings() {
           </ScrollReveal>
         )}
 
-        <main className="container px-4 py-4 md:py-8">
-          {/* Search & Sort Bar */}
-          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
-            <div className="relative flex-1">
+        <main className="container px-4 py-3 md:py-6">
+          {/* Search & Sort Bar - more compact on mobile */}
+          <div className="flex items-center gap-2 mb-3 md:mb-6">
+            {/* Search - hidden on mobile, shown on larger screens */}
+            <div className="relative hidden sm:flex flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search by city, neighborhood, address..."
@@ -683,25 +693,28 @@ export default function ResaleListings() {
                 className="pl-10 h-10"
               />
             </div>
-            <div className="flex gap-2">
+            
+            {/* Mobile: Compact action bar */}
+            <div className="flex gap-2 flex-1 sm:flex-none justify-between sm:justify-end">
               {/* Map Button */}
               <Button 
                 variant="outline" 
-                className="h-10 px-3"
+                size="sm"
+                className="h-9 px-3"
                 onClick={() => navigate('/map-search?mode=resale')}
               >
-                <Map className="h-4 w-4 mr-2" />
-                <span className="text-sm">Map</span>
+                <Map className="h-4 w-4" />
+                <span className="ml-1.5 text-xs sm:text-sm">Map</span>
               </Button>
               
               {/* Mobile Filters */}
               <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" className="lg:hidden relative h-10 px-3">
-                    <SlidersHorizontal className="h-4 w-4 mr-2" />
-                    <span className="text-sm">Filters</span>
+                  <Button variant="outline" size="sm" className="lg:hidden relative h-9 px-3">
+                    <SlidersHorizontal className="h-4 w-4" />
+                    <span className="ml-1.5 text-xs sm:text-sm">Filters</span>
                     {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      <Badge className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
                         {activeFilterCount}
                       </Badge>
                     )}
@@ -719,8 +732,8 @@ export default function ResaleListings() {
 
               {/* Sort */}
               <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                <SelectTrigger className="w-[140px] sm:w-[180px] h-10 text-sm">
-                  <SelectValue placeholder="Sort by" />
+                <SelectTrigger className="w-[100px] sm:w-[160px] h-9 text-xs sm:text-sm">
+                  <SelectValue placeholder="Sort" />
                 </SelectTrigger>
                 <SelectContent>
                   {SORT_OPTIONS.map((opt) => (
@@ -729,12 +742,12 @@ export default function ResaleListings() {
                 </SelectContent>
               </Select>
 
-              {/* View Mode Toggle */}
-              <div className="flex border rounded-lg overflow-hidden">
+              {/* View Mode Toggle - hidden on mobile */}
+              <div className="hidden sm:flex border rounded-lg overflow-hidden">
                 <Button
                   variant={viewMode === "grid" ? "default" : "ghost"}
                   size="sm"
-                  className="rounded-none h-10 px-3"
+                  className="rounded-none h-9 px-3"
                   onClick={() => setViewMode("grid")}
                 >
                   <LayoutGrid className="h-4 w-4" />
@@ -742,7 +755,7 @@ export default function ResaleListings() {
                 <Button
                   variant={viewMode === "map" ? "default" : "ghost"}
                   size="sm"
-                  className="rounded-none h-10 px-3"
+                  className="rounded-none h-9 px-3"
                   onClick={() => setViewMode("map")}
                 >
                   <Map className="h-4 w-4" />
@@ -751,9 +764,9 @@ export default function ResaleListings() {
             </div>
           </div>
 
-          {/* Active Filters Pills */}
-          {activeFilterCount > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
+          {/* Active Filters Pills - only on desktop or if many filters */}
+          {activeFilterCount > 1 && (
+            <div className="hidden sm:flex flex-wrap gap-2 mb-4 md:mb-6">
               {filters.city !== "any" && (
                 <Badge variant="secondary" className="gap-1 text-xs">
                   {filters.city}
