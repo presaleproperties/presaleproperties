@@ -410,7 +410,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
       </header>
 
       {/* Spacer for fixed header on mobile/tablet - prevents content from hiding under header */}
-      {!hideOnMobile && (
+      {/* Only show spacer when header is fixed (not when stickyOnMobile makes it relative) */}
+      {!hideOnMobile && !stickyOnMobile && (
         <div className="h-14 md:h-16 lg:hidden" aria-hidden="true" />
       )}
 
