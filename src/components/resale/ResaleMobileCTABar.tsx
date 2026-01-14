@@ -34,7 +34,7 @@ export const ResaleMobileCTABar = ({
   return (
     <>
       {/* Fixed bottom CTA bar - mobile only with keyboard-aware visibility */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.12)] hide-on-keyboard safe-area-pb">
+      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] hide-on-keyboard safe-area-pb">
         <div className="px-4 py-3 flex items-center gap-3">
           {/* Price display */}
           {formattedPrice && (
@@ -42,7 +42,7 @@ export const ResaleMobileCTABar = ({
               <p className="text-3xl sm:text-4xl leading-none font-bold text-foreground tabular-nums tracking-tight">
                 {formattedPrice}
               </p>
-              <p className="text-[10px] text-muted-foreground">List Price</p>
+              <p className="text-[10px] text-muted-foreground font-medium">List Price</p>
             </div>
           )}
 
@@ -58,10 +58,10 @@ export const ResaleMobileCTABar = ({
               <Phone className="h-5 w-5" />
             </Button>
 
-            {/* Schedule showing button - Large touch target */}
+            {/* Schedule showing button - Large touch target with premium styling */}
             <Sheet open={showScheduler} onOpenChange={setShowScheduler}>
               <SheetTrigger asChild>
-                <Button className="h-14 min-h-[56px] px-5 gap-2 bg-foreground hover:bg-foreground/90 text-background font-semibold text-base rounded-xl touch-active">
+                <Button className="h-14 min-h-[56px] px-5 gap-2 bg-foreground hover:bg-foreground/90 text-background font-semibold text-base rounded-xl touch-active shadow-lg hover:shadow-xl transition-all duration-200">
                   <Calendar className="h-5 w-5" />
                   <span className="hidden xs:inline">Schedule</span> Showing
                 </Button>

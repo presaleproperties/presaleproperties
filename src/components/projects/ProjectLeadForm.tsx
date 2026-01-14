@@ -353,7 +353,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const content = getFormContent();
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl relative">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative">
       {/* Close button */}
       {onClose && (
         <button
@@ -365,17 +365,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         </button>
       )}
       
-      {/* Header */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 pr-12">
-        <div className="flex items-center gap-2 flex-wrap mb-1">
+      {/* Header - Premium gradient */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 pr-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+        <div className="flex items-center gap-2 flex-wrap mb-1 relative">
           {brochureUrl && (
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-sm">
               <Download className="h-3 w-3" />
               Brochure Available
             </span>
           )}
         </div>
-        <h3 className="text-lg font-bold text-background leading-snug">
+        <h3 className="text-lg font-bold text-background leading-snug relative">
           {content.title}
         </h3>
       </div>

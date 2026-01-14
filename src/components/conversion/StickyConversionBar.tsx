@@ -69,12 +69,12 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
 
   return (
     <>
-      {/* Desktop Floating Bar Only */}
+      {/* Desktop Floating Bar Only - Premium glass morphism */}
       <div className="hidden lg:block fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-        <div className="bg-background/95 backdrop-blur border border-border rounded-full shadow-2xl px-2 py-2 flex items-center gap-2">
+        <div className="bg-background/95 backdrop-blur-lg border border-border/80 rounded-full shadow-premium px-2 py-2 flex items-center gap-2">
           <Button 
             onClick={openChatNow}
-            className="h-11 px-6 font-semibold rounded-full"
+            className="h-11 px-6 font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <MessageCircle className="h-4 w-4 mr-2" />
             Chat Now
@@ -82,14 +82,14 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
           <Button 
             variant="outline" 
             onClick={openCallBack}
-            className="h-11 px-6 rounded-full"
+            className="h-11 px-6 rounded-full hover:bg-muted transition-all duration-200"
           >
             <Phone className="h-4 w-4 mr-2" />
             Request a Call Back
           </Button>
           <button 
             onClick={() => setDismissed(true)}
-            className="p-2 hover:bg-muted rounded-full transition-colors"
+            className="p-2 hover:bg-muted rounded-full transition-all duration-200"
           >
             <X className="h-4 w-4 text-muted-foreground" />
           </button>

@@ -136,11 +136,12 @@ export function InlineScheduler({
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
-      {/* Header - More compact on mobile */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 md:px-5 md:py-4 text-center">
-        <h3 className="text-base md:text-lg lg:text-xl font-bold text-background">Schedule a Tour</h3>
-        <p className="text-xs md:text-sm text-background/70 mt-0.5">Tour with a buyer's agent</p>
+    <div className="bg-card border border-border rounded-2xl shadow-elevated overflow-hidden hover:shadow-premium transition-shadow duration-300">
+      {/* Header - Premium gradient */}
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 md:px-5 md:py-4 text-center relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent"></div>
+        <h3 className="text-base md:text-lg lg:text-xl font-bold text-background relative">Schedule a Tour</h3>
+        <p className="text-xs md:text-sm text-background/70 mt-0.5 relative">Tour with a buyer's agent</p>
       </div>
 
       {/* Content - Optimized spacing for mobile */}
@@ -230,7 +231,7 @@ export function InlineScheduler({
         <Button
           onClick={handleRequestTour}
           disabled={!selectedDate}
-          className="w-full h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background"
+          className="w-full h-12 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background shadow-lg hover:shadow-xl transition-all duration-200"
         >
           Request a Tour
         </Button>
