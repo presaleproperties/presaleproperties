@@ -359,8 +359,44 @@ export function CombinedListingsMap({
 
     // Add resale listings to cluster group if mode is "all" or "resale"
     if (mode === "all" || mode === "resale") {
+      // Many MLS feeds reuse the exact same lat/lng for multiple units in the same building.
+      // When clustering is loosened, those price pills stack perfectly and become unreadable.
+      // We apply a tiny deterministic "fan" offset for identical coordinates so pins stay distinct.
+      const counts = new globalThis.Map<string, number>();
+      const nextIndex = new globalThis.Map<string, number>();
+
+      const coordKey = (lat: number, lng: number) => `${lat.toFixed(6)},${lng.toFixed(6)}`;
+
+      for (const l of validResaleListings) {
+        const lat = l.latitude!;
+        const lng = l.longitude!;
+        const key = coordKey(lat, lng);
+        counts.set(key, (counts.get(key) || 0) + 1);
+      }
+
+      const jitter = (lat: number, lng: number, idx: number) => {
+        // ~8–14m ring around the original point depending on idx
+        const baseMeters = 10;
+        const radiusMeters = baseMeters + (idx % 3) * 2;
+        const angle = (idx * 2.399963229728653) % (Math.PI * 2); // golden angle
+
+        const dLat = (radiusMeters * Math.cos(angle)) / 111320;
+        const dLng = (radiusMeters * Math.sin(angle)) / (111320 * Math.cos((lat * Math.PI) / 180));
+        return [lat + dLat, lng + dLng] as L.LatLngTuple;
+      };
+
       for (const listing of validResaleListings) {
-        const marker = L.marker([listing.latitude!, listing.longitude!], {
+        const baseLat = listing.latitude!;
+        const baseLng = listing.longitude!;
+        const key = coordKey(baseLat, baseLng);
+
+        const dupCount = counts.get(key) || 0;
+        const idx = nextIndex.get(key) || 0;
+        nextIndex.set(key, idx + 1);
+
+        const position: L.LatLngTuple = dupCount > 1 ? jitter(baseLat, baseLng, idx) : [baseLat, baseLng];
+
+        const marker = L.marker(position, {
           icon: createResalePricePillIcon(listing),
         });
 
@@ -380,7 +416,8 @@ export function CombinedListingsMap({
         });
 
         resaleMarkers.push(marker);
-        allCoords.push([listing.latitude!, listing.longitude!]);
+        // Use the *original* coordinate for fitBounds so the view doesn't drift.
+        allCoords.push([baseLat, baseLng]);
       }
     }
 
