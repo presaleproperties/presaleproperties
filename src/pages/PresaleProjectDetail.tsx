@@ -683,8 +683,9 @@ export default function PresaleProjectDetail() {
               {/* Gallery - Full width on mobile/tablet, 3 columns on desktop */}
               <div className="lg:col-span-3">
                 <REWPhotoGallery
-                  photos={allImages.map(url => ({ url }))}
+                  photos={allImages.map((url) => ({ url }))}
                   alt={project.name}
+                  previewAspectClassName="aspect-[4/3] lg:aspect-[5/4]"
                 />
               </div>
 
