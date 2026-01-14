@@ -43,6 +43,8 @@ interface UploadedFile {
   status: 'pending' | 'processing' | 'done' | 'error';
   data?: ExtractedData;
   error?: string;
+  detectedMonth?: number;
+  detectedYear?: number;
 }
 
 interface SnapStatsUploaderProps {
@@ -64,6 +66,7 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
   const [allExtracted, setAllExtracted] = useState<CityStats[]>([]);
   const [marketSummary, setMarketSummary] = useState<string>('');
   const [keyInsights, setKeyInsights] = useState<string[]>([]);
+  const [bulkMode, setBulkMode] = useState(false);
 
   const detectEdition = (fileName: string): 'FVR' | 'GVR' | 'MVR' => {
     const upper = fileName.toUpperCase();
@@ -73,15 +76,59 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
     return 'FVR';
   };
 
+  const detectMonthYear = (fileName: string): { month: number; year: number } | null => {
+    const upper = fileName.toUpperCase();
+    
+    // Common patterns: "2025_September", "September_2025", "2025-09", "09-2025"
+    const monthNames = ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL', 'MAY', 'JUNE', 
+                        'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER'];
+    const shortMonths = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+    
+    // Try full month names
+    for (let i = 0; i < monthNames.length; i++) {
+      if (upper.includes(monthNames[i]) || upper.includes(shortMonths[i])) {
+        // Look for year
+        const yearMatch = fileName.match(/20(2[4-9])/);
+        if (yearMatch) {
+          return { month: i + 1, year: parseInt('20' + yearMatch[1]) };
+        }
+      }
+    }
+    
+    // Try numeric patterns like 2025_01 or 01_2025
+    const numericPattern = fileName.match(/(20[2-9]\d)[_-]?(0[1-9]|1[0-2])|(0[1-9]|1[0-2])[_-]?(20[2-9]\d)/);
+    if (numericPattern) {
+      if (numericPattern[1] && numericPattern[2]) {
+        return { year: parseInt(numericPattern[1]), month: parseInt(numericPattern[2]) };
+      }
+      if (numericPattern[3] && numericPattern[4]) {
+        return { month: parseInt(numericPattern[3]), year: parseInt(numericPattern[4]) };
+      }
+    }
+    
+    return null;
+  };
+
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = Array.from(e.target.files || []);
     const newFiles: UploadedFile[] = selectedFiles
       .filter(f => f.type === 'application/pdf')
-      .map(f => ({
-        file: f,
-        edition: detectEdition(f.name),
-        status: 'pending' as const,
-      }));
+      .map(f => {
+        const detected = detectMonthYear(f.name);
+        return {
+          file: f,
+          edition: detectEdition(f.name),
+          status: 'pending' as const,
+          detectedMonth: detected?.month,
+          detectedYear: detected?.year,
+        };
+      });
+    
+    // Auto-enable bulk mode if we detect different months/years
+    const uniquePeriods = new Set(newFiles.map(f => `${f.detectedMonth}-${f.detectedYear}`));
+    if (uniquePeriods.size > 1) {
+      setBulkMode(true);
+    }
     
     setFiles(prev => [...prev, ...newFiles]);
     setAllExtracted([]);
@@ -144,12 +191,16 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
           throw new Error('Could not extract text from PDF');
         }
 
+        // Use per-file month/year in bulk mode, otherwise use global settings
+        const fileMonth = bulkMode && uploadedFile.detectedMonth ? uploadedFile.detectedMonth : parseInt(reportMonth);
+        const fileYear = bulkMode && uploadedFile.detectedYear ? uploadedFile.detectedYear : parseInt(reportYear);
+
         const { data, error } = await supabase.functions.invoke('parse-snapstats-pdf', {
           body: {
             documentText,
             edition: uploadedFile.edition,
-            reportMonth: parseInt(reportMonth),
-            reportYear: parseInt(reportYear),
+            reportMonth: fileMonth,
+            reportYear: fileYear,
           },
         });
 
@@ -302,48 +353,71 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Report Period */}
-        <div className="flex gap-4 items-end">
-          <div className="flex-1">
-            <Label>Report Month</Label>
-            <Select value={reportMonth} onValueChange={setReportMonth}>
-              <SelectTrigger className="mt-1.5">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 12 }, (_, i) => (
-                  <SelectItem key={i + 1} value={String(i + 1)}>
-                    {new Date(2000, i).toLocaleString('en', { month: 'long' })}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+        {/* Bulk Mode Toggle */}
+        <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div>
+            <p className="font-medium text-sm">Bulk Upload Mode</p>
+            <p className="text-xs text-muted-foreground">
+              {bulkMode 
+                ? "Each file uses its detected month/year from filename" 
+                : "All files use the same report period below"}
+            </p>
           </div>
-          <div className="w-28">
-            <Label>Year</Label>
-            <Select value={reportYear} onValueChange={setReportYear}>
-              <SelectTrigger className="mt-1.5">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[2024, 2025, 2026].map(y => (
-                  <SelectItem key={y} value={String(y)}>{y}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Button 
+            variant={bulkMode ? "default" : "outline"} 
+            size="sm"
+            onClick={() => setBulkMode(!bulkMode)}
+          >
+            {bulkMode ? "Bulk Mode ON" : "Enable Bulk Mode"}
+          </Button>
         </div>
+
+        {/* Report Period - only show when not in bulk mode */}
+        {!bulkMode && (
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <Label>Report Month</Label>
+              <Select value={reportMonth} onValueChange={setReportMonth}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 12 }, (_, i) => (
+                    <SelectItem key={i + 1} value={String(i + 1)}>
+                      {new Date(2000, i).toLocaleString('en', { month: 'long' })}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="w-28">
+              <Label>Year</Label>
+              <Select value={reportYear} onValueChange={setReportYear}>
+                <SelectTrigger className="mt-1.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[2024, 2025, 2026].map(y => (
+                    <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
 
         {/* File Upload Area */}
         <div>
-          <Label>Upload PDFs</Label>
+          <Label>Upload PDFs {bulkMode && "(name files like: FVR_2025_September.pdf)"}</Label>
           <label className="mt-1.5 flex flex-col items-center justify-center gap-2 px-4 py-8 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50 transition-colors">
             <Upload className="h-8 w-8 text-muted-foreground" />
             <span className="text-sm text-muted-foreground">
-              Drop Snap Stats PDFs here or click to upload
+              {bulkMode 
+                ? "Drop multiple months of PDFs here (e.g., Jan-Dec 2025)" 
+                : "Drop Snap Stats PDFs here or click to upload"}
             </span>
             <span className="text-xs text-muted-foreground">
-              Supports FVR, GVR, MVR editions
+              Supports FVR, GVR, MVR editions • Multiple files allowed
             </span>
             <input
               type="file"
@@ -358,42 +432,112 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
         {/* Uploaded Files List */}
         {files.length > 0 && (
           <div className="space-y-2">
-            <Label>Uploaded Files ({files.length})</Label>
-            {files.map((f, i) => (
-              <div key={i} className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                <FileText className="h-5 w-5 text-primary shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{f.file.name}</p>
-                  <p className="text-xs text-muted-foreground">{EDITION_LABELS[f.edition]}</p>
-                </div>
-                <Select 
-                  value={f.edition} 
-                  onValueChange={(val) => setFiles(prev => 
-                    prev.map((file, idx) => idx === i ? { ...file, edition: val as 'FVR' | 'GVR' | 'MVR' } : file)
-                  )}
-                >
-                  <SelectTrigger className="w-20 h-8">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="FVR">FVR</SelectItem>
-                    <SelectItem value="GVR">GVR</SelectItem>
-                    <SelectItem value="MVR">MVR</SelectItem>
-                  </SelectContent>
-                </Select>
-                {f.status === 'processing' && <Loader2 className="h-4 w-4 animate-spin" />}
-                {f.status === 'done' && <CheckCircle2 className="h-4 w-4 text-green-500" />}
-                {f.status === 'error' && <AlertCircle className="h-4 w-4 text-destructive" />}
+            <div className="flex items-center justify-between">
+              <Label>Uploaded Files ({files.length})</Label>
+              {files.length > 3 && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => removeFile(i)}
+                  onClick={() => setFiles([])}
                   disabled={isProcessing}
                 >
-                  ×
+                  Clear All
                 </Button>
+              )}
+            </div>
+            <div className="max-h-[400px] overflow-y-auto space-y-2 pr-1">
+              {files.map((f, i) => (
+                <div key={i} className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                  <FileText className="h-5 w-5 text-primary shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">{f.file.name}</p>
+                    <p className="text-xs text-muted-foreground">{EDITION_LABELS[f.edition]}</p>
+                  </div>
+                  
+                  {/* Edition Selector */}
+                  <Select 
+                    value={f.edition} 
+                    onValueChange={(val) => setFiles(prev => 
+                      prev.map((file, idx) => idx === i ? { ...file, edition: val as 'FVR' | 'GVR' | 'MVR' } : file)
+                    )}
+                  >
+                    <SelectTrigger className="w-16 h-8 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="FVR">FVR</SelectItem>
+                      <SelectItem value="GVR">GVR</SelectItem>
+                      <SelectItem value="MVR">MVR</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {/* Month/Year Selectors in Bulk Mode */}
+                  {bulkMode && (
+                    <>
+                      <Select 
+                        value={String(f.detectedMonth || 1)} 
+                        onValueChange={(val) => setFiles(prev => 
+                          prev.map((file, idx) => idx === i ? { ...file, detectedMonth: parseInt(val) } : file)
+                        )}
+                      >
+                        <SelectTrigger className="w-20 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, m) => (
+                            <SelectItem key={m + 1} value={String(m + 1)}>
+                              {new Date(2000, m).toLocaleString('en', { month: 'short' })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select 
+                        value={String(f.detectedYear || 2025)} 
+                        onValueChange={(val) => setFiles(prev => 
+                          prev.map((file, idx) => idx === i ? { ...file, detectedYear: parseInt(val) } : file)
+                        )}
+                      >
+                        <SelectTrigger className="w-20 h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {[2024, 2025, 2026].map(y => (
+                            <SelectItem key={y} value={String(y)}>{y}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  )}
+                  
+                  {/* Status Indicators */}
+                  {f.status === 'processing' && <Loader2 className="h-4 w-4 animate-spin shrink-0" />}
+                  {f.status === 'done' && <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />}
+                  {f.status === 'error' && <AlertCircle className="h-4 w-4 text-destructive shrink-0" />}
+                  
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 w-8 p-0 shrink-0"
+                    onClick={() => removeFile(i)}
+                    disabled={isProcessing}
+                  >
+                    ×
+                  </Button>
+                </div>
+              ))}
+            </div>
+            
+            {/* Summary of detected periods in bulk mode */}
+            {bulkMode && files.length > 0 && (
+              <div className="text-xs text-muted-foreground bg-primary/5 rounded-lg p-2">
+                <strong>Detected periods:</strong>{' '}
+                {[...new Set(files.map(f => 
+                  f.detectedMonth && f.detectedYear 
+                    ? `${new Date(2000, f.detectedMonth - 1).toLocaleString('en', { month: 'short' })} ${f.detectedYear}`
+                    : 'Unknown'
+                ))].join(', ')}
               </div>
-            ))}
+            )}
           </div>
         )}
 
