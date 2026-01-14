@@ -348,10 +348,14 @@ export function CombinedListingsMap({
         });
 
         marker.bindPopup(resalePopupHtml(listing), {
-          maxWidth: 220,
-          minWidth: 200,
+          maxWidth: 400,
+          minWidth: 340,
           closeButton: true,
           className: "resale-listing-popup",
+          offset: L.point(0, -10),
+          autoPan: true,
+          autoPanPaddingTopLeft: L.point(50, 100),
+          autoPanPaddingBottomRight: L.point(50, 50),
         });
 
         marker.on("click", () => {
@@ -371,10 +375,14 @@ export function CombinedListingsMap({
         });
 
         marker.bindPopup(presalePopupHtml(project), {
-          maxWidth: 220,
-          minWidth: 200,
+          maxWidth: 420,
+          minWidth: 360,
           closeButton: true,
           className: "presale-project-popup",
+          offset: L.point(0, -10),
+          autoPan: true,
+          autoPanPaddingTopLeft: L.point(50, 100),
+          autoPanPaddingBottomRight: L.point(50, 50),
         });
 
         marker.on("click", () => {
