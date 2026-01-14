@@ -274,9 +274,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-      {/* Top Cities - Liquid Glass Style with Brand Accents */}
-      <div className="py-6 px-4 sm:px-6 bg-background">
-        <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-hide pb-1 -mx-4 px-4 sm:-mx-6 sm:px-6">
+      {/* Top Cities - Liquid Glass Style with Brand Accents - Edge to edge scrolling */}
+      <div className="py-6 bg-background">
+        <div className="flex items-center gap-2.5 overflow-x-auto scrollbar-hide pb-1 px-4">
           <span className="text-sm font-medium text-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
           </span>
@@ -306,7 +306,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             {/* Condos */}
             <CarouselSection delay={50}>
@@ -317,7 +317,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             {/* Townhomes */}
             <CarouselSection delay={50}>
@@ -328,7 +328,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             {/* Single-Family / Detached */}
             <CarouselSection delay={100}>
@@ -339,7 +339,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             {/* Projects Near You - City Quick Links */}
             <CarouselSection delay={125}>
@@ -356,57 +356,57 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             {/* City Quick Links for Resale */}
             <CarouselSection delay={50}>
               <MobileCityQuickLinks mode="resale" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             {/* Resale City Carousels */}
             <CarouselSection delay={100}>
               <MobileResaleCityCarousel city="Vancouver" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={150}>
               <MobileResaleCityCarousel city="Surrey" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={200}>
               <MobileResaleCityCarousel city="Burnaby" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={250}>
               <MobileResaleCityCarousel city="Langley" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={300}>
               <MobileResaleCityCarousel city="Coquitlam" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={350}>
               <MobileResaleCityCarousel city="Richmond" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={400}>
               <MobileResaleCityCarousel city="Delta" />
             </CarouselSection>
 
-            <div className="my-6 mx-4 sm:mx-6 border-t border-border/50" />
+            <div className="my-6 border-t border-border/50" />
 
             <CarouselSection delay={450}>
               <MobileResaleCityCarousel city="Abbotsford" />
