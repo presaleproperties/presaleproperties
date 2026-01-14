@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobilePhotoViewer } from "./MobilePhotoViewer";
 
 interface Photo {
   id: string;
@@ -19,13 +21,23 @@ interface ImageGalleryProps {
 export function ImageGallery({ photos, title }: ImageGalleryProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isMobileViewerOpen, setIsMobileViewerOpen] = useState(false);
   const touchStartX = useRef<number | null>(null);
   const touchEndX = useRef<number | null>(null);
   const [swipeOffset, setSwipeOffset] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const isMobile = useIsMobile();
 
   const hasPhotos = photos.length > 0;
   const currentPhoto = hasPhotos ? photos[currentIndex] : null;
+
+  const handleImageClick = () => {
+    if (isMobile) {
+      setIsMobileViewerOpen(true);
+    } else {
+      setIsLightboxOpen(true);
+    }
+  };
 
   const goToPrevious = () => {
     if (isTransitioning) return;
@@ -115,7 +127,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
                 ? 'transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)' 
                 : 'none'
             }}
-            onClick={() => setIsLightboxOpen(true)}
+            onClick={handleImageClick}
           />
         </div>
         
@@ -146,7 +158,7 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
           variant="secondary"
           size="icon"
           className="absolute top-3 right-3 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity bg-background/80 hover:bg-background h-10 w-10 rounded-full shadow-md"
-          onClick={() => setIsLightboxOpen(true)}
+          onClick={handleImageClick}
         >
           <Expand className="h-4 w-4" />
         </Button>
@@ -262,6 +274,15 @@ export function ImageGallery({ photos, title }: ImageGalleryProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Mobile Photo Viewer */}
+      <MobilePhotoViewer
+        photos={photos}
+        title={title}
+        isOpen={isMobileViewerOpen}
+        onClose={() => setIsMobileViewerOpen(false)}
+        initialIndex={currentIndex}
+      />
     </>
   );
 }
