@@ -367,96 +367,113 @@ export default function ResaleListingDetail() {
               alt={address}
             />
 
-            {/* Mobile & Tablet Hero Info - Unified single-column layout */}
+            {/* Mobile & Tablet Hero Info - Matches desktop ratios */}
             {isMobileOrTablet && (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {/* Key Badges - FIRST, right under photo */}
                 <div className="flex flex-wrap items-center gap-2">
                   {listing.year_built && listing.year_built >= 2024 && (
-                    <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
-                      <Sparkles className="h-3 w-3" />
-                      Move-In Ready
+                    <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-sm px-3 py-1">
+                      <Sparkles className="h-3.5 w-3.5" />
+                      New Construction
                     </Badge>
                   )}
-                  {daysOnMarket !== null && (
-                    <Badge className={`gap-1 text-xs ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
-                      <Clock className="h-3 w-3" />
-                      {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
-                    </Badge>
-                  )}
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-sm px-3 py-1">
                     {formatPropertyType(listing.property_sub_type || listing.property_type)}
                   </Badge>
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-sm px-3 py-1 ${listing.mls_status === "Active" ? "bg-green-500/10 text-green-700 border-green-200" : ""}`}
+                  >
+                    {listing.mls_status}
+                  </Badge>
+                  {daysOnMarket !== null && daysOnMarket >= 0 && (
+                    <Badge className={`gap-1 text-sm px-3 py-1 ${daysOnMarket <= 7 ? 'bg-blue-600 text-white' : 'bg-muted text-muted-foreground'}`}>
+                      <Clock className="h-3.5 w-3.5" />
+                      {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket} Days on Market`}
+                    </Badge>
+                  )}
                   {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
-                    <Badge className="bg-orange-500 text-white gap-1 text-xs">
-                      <Calendar className="h-3 w-3" />
+                    <Badge className="bg-orange-500 text-white gap-1 text-sm px-3 py-1">
+                      <Calendar className="h-3.5 w-3.5" />
                       Open House
                     </Badge>
                   )}
                 </div>
 
-                {/* Price - Large & Primary */}
-                <div className="flex items-baseline gap-3 flex-wrap">
-                  <span className="text-5xl font-bold text-foreground">
+                {/* Price - Very Large */}
+                <div className="flex items-baseline gap-4 flex-wrap">
+                  <span className="text-4xl font-bold text-foreground">
                     {formatPrice(listing.listing_price)}
                   </span>
                   {listing.living_area && (
-                    <span className="text-lg text-muted-foreground">
+                    <span className="text-xl text-muted-foreground">
                       ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
                     </span>
                   )}
                 </div>
 
-                {/* Address - Prominent */}
-                <h1 className="text-2xl font-semibold text-foreground">{address}</h1>
+                {/* Estimated Monthly */}
+                <div className="flex items-center gap-2">
+                  <span className="text-base text-muted-foreground">
+                    Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
+                  </span>
+                  <span className="text-muted-foreground">•</span>
+                  <button 
+                    onClick={scrollToForm}
+                    className="text-base text-primary hover:underline font-medium"
+                  >
+                    Get pre-approved
+                  </button>
+                </div>
 
-                {/* City & Neighborhood */}
-                <div className="flex items-center gap-2 text-xl">
+                {/* Address - Large & Bold */}
+                <h1 className="text-2xl font-bold text-foreground">{address}</h1>
+
+                {/* City, BC, Postal */}
+                <div className="flex items-center gap-1 text-lg text-muted-foreground">
                   <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                     {listing.city}
                   </Link>
-                  {listing.neighborhood && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">{listing.neighborhood}</span>
-                    </>
-                  )}
+                  <span>, BC</span>
+                  {listing.postal_code && <span>, {listing.postal_code}</span>}
                 </div>
 
-                {/* Bed/Bath/Sqft/Year - Large Row */}
-                <div className="flex flex-wrap items-center gap-5 text-xl">
+                {/* Bed/Bath/Sqft/Year - Icons with text */}
+                <div className="flex flex-wrap items-center gap-4 text-lg">
                   {listing.bedrooms_total !== null && (
-                    <span className="flex items-center gap-2">
-                      <Bed className="h-6 w-6 text-primary" />
-                      <span className="font-bold">{listing.bedrooms_total}</span>
-                      <span className="text-muted-foreground">Bed</span>
+                    <span className="flex items-center gap-1.5">
+                      <Bed className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold">{listing.bedrooms_total}</span>
+                      <span className="text-muted-foreground">Beds</span>
                     </span>
                   )}
                   {listing.bathrooms_total !== null && (
-                    <span className="flex items-center gap-2">
-                      <Bath className="h-6 w-6 text-primary" />
-                      <span className="font-bold">{listing.bathrooms_total}</span>
-                      <span className="text-muted-foreground">Bath</span>
+                    <span className="flex items-center gap-1.5">
+                      <Bath className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold">{listing.bathrooms_total}</span>
+                      <span className="text-muted-foreground">Baths</span>
                     </span>
                   )}
                   {listing.living_area && (
-                    <span className="flex items-center gap-2">
-                      <Maximize className="h-6 w-6 text-primary" />
-                      <span className="font-bold">{listing.living_area.toLocaleString()}</span>
-                      <span className="text-muted-foreground">sqft</span>
+                    <span className="flex items-center gap-1.5">
+                      <Maximize className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
+                      <span className="text-muted-foreground">Sqft</span>
                     </span>
                   )}
                   {listing.year_built && (
-                    <span className="flex items-center gap-2">
-                      <Calendar className="h-6 w-6 text-primary" />
-                      <span className="font-bold">{listing.year_built}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <span className="font-semibold">{listing.year_built}</span>
+                      <span className="text-muted-foreground">Built</span>
                     </span>
                   )}
                 </div>
 
                 {/* Listed By */}
                 {(listing.list_agent_name || listing.list_office_name) && (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-sm text-muted-foreground">
                     Listed by: {listing.list_agent_name}{listing.list_office_name && ` • ${listing.list_office_name}`}
                   </p>
                 )}
