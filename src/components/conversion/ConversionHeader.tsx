@@ -257,10 +257,10 @@ export function ConversionHeader() {
               Calculator
             </Link>
             <Link
-              to="/market-trends"
+              to="/calculator"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              Market Trends
+              Calculator
             </Link>
           </nav>
 
@@ -378,13 +378,6 @@ export function ConversionHeader() {
                         Calculator
                       </Link>
 
-                      <Link
-                        to="/market-trends"
-                        onClick={() => setOpen(false)}
-                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
-                      >
-                        Market Trends
-                      </Link>
                     </div>
                   </nav>
                 </div>
