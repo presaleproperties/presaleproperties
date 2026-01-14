@@ -254,6 +254,9 @@ export function CombinedListingsMap({
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
+  
+  // Detect mobile/tablet for direct navigation on marker tap
+  const isMobileOrTablet = typeof window !== 'undefined' && window.matchMedia('(max-width: 1024px)').matches;
 
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
@@ -419,7 +422,12 @@ export function CombinedListingsMap({
         });
 
         marker.on("click", () => {
-          onListingSelect?.(listing.id, "resale");
+          // On mobile/tablet, navigate directly to listing page for better UX
+          if (isMobileOrTablet) {
+            window.location.href = `/resale/${listing.listing_key}`;
+          } else {
+            onListingSelect?.(listing.id, "resale");
+          }
         });
 
         resaleMarkers.push(marker);
@@ -448,7 +456,12 @@ export function CombinedListingsMap({
         });
 
         marker.on("click", () => {
-          onListingSelect?.(project.id, "presale");
+          // On mobile/tablet, navigate directly to project page for better UX
+          if (isMobileOrTablet) {
+            window.location.href = `/presale-projects/${project.slug}`;
+          } else {
+            onListingSelect?.(project.id, "presale");
+          }
         });
 
         presaleLayer.addLayer(marker);
