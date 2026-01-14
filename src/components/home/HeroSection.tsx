@@ -136,7 +136,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  Presale
+                  {activeTab === "projects" ? "Search Projects" : "Presale"}
                 </button>
                 <button
                   onClick={() => handleTabChange("resale")}
@@ -146,7 +146,7 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                       : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"
                   }`}
                 >
-                  Move-In Ready
+                  {activeTab === "resale" ? "Search Locations" : "Move-In Ready"}
                 </button>
               </div>
               <Link
