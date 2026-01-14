@@ -163,7 +163,7 @@ export function HomeUnifiedMapSection({
   return (
     <section 
       ref={sectionRef}
-      className="py-12 md:py-16 lg:py-20 bg-muted/30"
+      className="py-12 md:py-16 lg:py-20 bg-muted/30 relative z-0"
     >
       <div className="container px-4">
         {/* Section Header */}
