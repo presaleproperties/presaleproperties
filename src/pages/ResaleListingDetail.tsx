@@ -302,7 +302,7 @@ export default function ResaleListingDetail() {
       </Helmet>
       <ConversionHeader />
       
-      <main className="container px-4 py-3 lg:py-4 pb-24 lg:pb-8">
+      <main className="container px-4 pt-3 lg:pt-20 pb-24 lg:pb-8">
         <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-3 lg:mb-2 overflow-x-auto">
