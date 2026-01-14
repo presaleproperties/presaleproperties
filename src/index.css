@@ -515,3 +515,42 @@
     display: none !important;
   }
 }
+
+/* ===== Edge-to-Edge Mobile Experience ===== */
+/* Safe area utilities for devices with notches/dynamic island */
+@supports (padding-top: env(safe-area-inset-top)) {
+  /* Remove body safe-area padding on mobile for true edge-to-edge */
+  @media (max-width: 1024px) {
+    body {
+      padding-top: 0 !important;
+      padding-bottom: 0 !important;
+    }
+  }
+  
+  /* Safe area padding utilities */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Fixed elements need safe area margin on mobile */
+  @media (max-width: 1024px) {
+    .fixed-safe-top {
+      top: env(safe-area-inset-top);
+    }
+    
+    .fixed-safe-bottom {
+      bottom: env(safe-area-inset-bottom);
+    }
+  }
+}
