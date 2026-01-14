@@ -132,63 +132,62 @@ export function StickySearchHeader() {
   return (
     <div
       className={cn(
-        "fixed top-0 left-0 right-0 z-40 transition-all duration-300 ease-out",
+        "fixed top-3 left-4 right-4 z-40 transition-all duration-300 ease-out",
         isVisible 
           ? "translate-y-0 opacity-100" 
           : "-translate-y-full opacity-0 pointer-events-none"
       )}
     >
-      <div className="bg-background/98 backdrop-blur-lg border-b border-border shadow-sm">
-        <div className="container px-4 py-2">
-          <div ref={searchRef} className="relative max-w-2xl mx-auto">
-            <form onSubmit={handleSearch}>
-              <div className="relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  ref={inputRef}
-                  type="text"
-                  placeholder={searchMode === "resale" 
-                    ? "City, Neighbourhood, Address, MLS#" 
-                    : "City, Neighbourhood, Project Name"
-                  }
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="h-11 pl-11 pr-10 text-base rounded-xl border-border bg-card"
-                />
-                {searchQuery && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8"
-                    onClick={() => {
-                      setSearchQuery("");
-                      inputRef.current?.focus();
-                    }}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </form>
-
-            {showSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-1 z-50">
-                <SearchSuggestions
-                  query={searchQuery}
-                  onSelect={handleSelect}
-                  isVisible={showSuggestions}
-                  onClose={() => setShowSuggestions(false)}
-                  searchMode={searchMode}
-                />
-              </div>
+      <div ref={searchRef} className="relative max-w-xl mx-auto">
+        <form onSubmit={handleSearch}>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+            <Input
+              ref={inputRef}
+              type="text"
+              placeholder={searchMode === "resale" 
+                ? "City, Neighbourhood, Address, MLS#" 
+                : "City, Neighbourhood, Project Name"
+              }
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              className="h-12 pl-11 pr-10 text-base rounded-2xl border-0 bg-background/70 backdrop-blur-xl shadow-lg ring-1 ring-border/50"
+            />
+            {searchQuery && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="absolute right-1 top-1/2 -translate-y-1/2 h-9 w-9 rounded-xl"
+                onClick={() => {
+                  setSearchQuery("");
+                  inputRef.current?.focus();
+                }}
+              >
+                <X className="h-4 w-4" />
+              </Button>
             )}
           </div>
-        </div>
+        </form>
+
+        {showSuggestions && (
+          <div className="absolute top-full left-0 right-0 mt-2 z-50">
+            <div className="bg-background/80 backdrop-blur-xl rounded-2xl shadow-xl ring-1 ring-border/50 overflow-hidden">
+              <SearchSuggestions
+                query={searchQuery}
+                onSelect={handleSelect}
+                isVisible={showSuggestions}
+                onClose={() => setShowSuggestions(false)}
+                searchMode={searchMode}
+                glassStyle={true}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
