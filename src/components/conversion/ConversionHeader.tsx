@@ -256,12 +256,6 @@ export function ConversionHeader() {
             >
               Calculator
             </Link>
-            <Link
-              to="/calculator"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Calculator
-            </Link>
           </nav>
 
           {/* Desktop CTA */}

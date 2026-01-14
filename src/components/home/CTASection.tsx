@@ -23,16 +23,16 @@ export function CTASection() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-            <Link to="/agents">
+            <Link to="/presale-projects">
               <Button
                 size="lg"
                 className="w-full sm:w-auto text-base px-8"
               >
-                Get Started Free
+                Browse Projects
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
-            <Link to="/how-it-works">
+            <Link to="/presale-guide">
               <Button
                 size="lg"
                 variant="outline"
