@@ -679,18 +679,18 @@ export default function PresaleProjectDetail() {
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="container px-3 py-3 md:px-4 md:py-5 lg:py-6">
-            <div className="grid lg:grid-cols-5 gap-3 md:gap-5 lg:gap-6">
-              {/* Gallery - Full width on mobile/tablet, 3 columns on desktop */}
-              <div className="lg:col-span-3">
+            <div className="grid lg:grid-cols-12 gap-3 md:gap-5 lg:gap-6">
+              {/* Gallery - Full width on mobile/tablet, 7 columns on desktop */}
+              <div className="lg:col-span-7">
                 <REWPhotoGallery
                   photos={allImages.map((url) => ({ url }))}
                   alt={project.name}
-                  previewAspectClassName="aspect-[4/3] lg:aspect-[5/4]"
+                  previewAspectClassName="aspect-[4/3] lg:aspect-[4/3]"
                 />
               </div>
 
-              {/* Project Info - Full width on mobile/tablet, 2 columns on desktop */}
-              <div className="lg:col-span-2 flex flex-col">
+              {/* Project Info - Full width on mobile/tablet, 5 columns on desktop */}
+              <div className="lg:col-span-5 flex flex-col">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
@@ -721,7 +721,7 @@ export default function PresaleProjectDetail() {
                 )}
 
                 {/* City/Neighborhood - shown prominently on mobile */}
-                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-3">
+                <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-2">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
                   <span className="font-medium text-foreground">{project.neighborhood}, {project.city}</span>
                 </div>
@@ -734,11 +734,11 @@ export default function PresaleProjectDetail() {
                 )}
 
                 {/* Quick Action Buttons - Map, Street View, Share */}
-                <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-4">
+                <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-3">
                   {project.map_lat && project.map_lng && (
                     <Link
                       to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16&project=${project.slug}`}
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
                     >
                       <MapPin className="h-3.5 w-3.5 text-primary" />
                       <span>Map</span>
@@ -749,7 +749,7 @@ export default function PresaleProjectDetail() {
                       href={`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
                     >
                       <Eye className="h-3.5 w-3.5 text-primary" />
                       <span>Street View</span>
@@ -757,7 +757,7 @@ export default function PresaleProjectDetail() {
                   )}
                   <button
                     onClick={handleShare}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors"
                   >
                     <Share2 className="h-3.5 w-3.5 text-primary" />
                     <span>Share</span>
@@ -772,7 +772,7 @@ export default function PresaleProjectDetail() {
                 />
 
                 {/* Quick Facts - visible on tablet and desktop, more compact */}
-                <div className="hidden md:block space-y-1.5 lg:space-y-2 mb-2 lg:mb-3">
+                <div className="hidden md:block space-y-1.5 mb-2">
                   {project.developer_name && (
                     <div className="flex items-center gap-2 text-xs">
                       <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -805,16 +805,15 @@ export default function PresaleProjectDetail() {
                   )}
                 </div>
 
-
                 {/* Short description - visible on all screen sizes */}
                 {project.short_description && (
-                  <p className="text-sm md:text-sm lg:text-base text-muted-foreground mt-2 md:mt-3 leading-relaxed">
+                  <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-3 lg:line-clamp-4">
                     {project.short_description}
                   </p>
                 )}
 
                 {/* Inline Scheduler - Tablet and Desktop, directly under project info */}
-                <div className="hidden md:block mt-4 lg:mt-3">
+                <div className="hidden md:block mt-3">
                   <InlineScheduler
                     projectId={project.id}
                     projectName={project.name}
