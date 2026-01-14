@@ -894,6 +894,9 @@ export default function PresaleProjectDetail() {
 
       {/* Mobile Sticky CTA */}
       <ProjectMobileCTA projectName={project.name} status={project.status} startingPrice={project.starting_price} onRegisterClick={handleGetPlansClick} />
+      
+      {/* Spacer for mobile CTA bar */}
+      <div className="h-24 lg:hidden" aria-hidden="true" />
 
       {/* Booking Modal */}
       <BookingModal open={bookingOpen} onOpenChange={setBookingOpen} projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} projectUrl={canonicalUrl} initialDate={bookingDate} initialTimePeriod={bookingTimePeriod} />

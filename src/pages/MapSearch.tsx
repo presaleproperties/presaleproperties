@@ -543,7 +543,7 @@ export default function MapSearch() {
             {/* List View Button - Mobile/Tablet - top right */}
             <div className="absolute top-3 right-3 z-[1001] lg:hidden">
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors">
+                <button className="w-10 h-10 min-w-[44px] min-h-[44px] rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors touch-active">
                   <LayoutGrid className="h-4 w-4 text-muted-foreground" />
                 </button>
               </Link>
@@ -582,7 +582,7 @@ export default function MapSearch() {
               <div className="absolute bottom-20 right-4 z-[1001] lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
-                  className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/40 flex items-center justify-center"
+                  className="w-11 h-11 min-w-[44px] min-h-[44px] rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/40 flex items-center justify-center touch-active"
                   aria-label="Show properties"
                 >
                   <ChevronUp className="h-5 w-5 text-muted-foreground" />
@@ -592,14 +592,14 @@ export default function MapSearch() {
 
             {/* Bottom Carousel - Mobile/Tablet - Floating above map */}
             {showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden safe-bottom">
+              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 8px)' }}>
                 <div className="flex items-center justify-between px-4 pb-2 pt-1">
                   <span className="text-xs font-medium text-muted-foreground bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     {propertiesInViewCount} properties in view
                   </span>
                   <button
                     onClick={() => setShowCarousel(false)}
-                    className="w-7 h-7 rounded-full bg-background/90 backdrop-blur-sm border border-border/40 flex items-center justify-center"
+                    className="w-8 h-8 min-w-[44px] min-h-[44px] rounded-full bg-background/90 backdrop-blur-sm border border-border/40 flex items-center justify-center"
                     aria-label="Hide properties"
                   >
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -607,8 +607,8 @@ export default function MapSearch() {
                 </div>
                 <div 
                   ref={carouselRef}
-                  className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory scroll-smooth-mobile"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch' }}
                 >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
