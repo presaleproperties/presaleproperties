@@ -164,9 +164,9 @@ export function FloatingMapButton() {
         "active:scale-95",
         "transition-all duration-300",
         "lg:right-6",
-        // Blue glow effect on first impression
+        // Subtle glow effect on first impression
         isPulsing 
-          ? "ring-blue-400/70 shadow-[0_0_20px_6px_rgba(59,130,246,0.5),0_4px_24px_rgba(0,0,0,0.3)] animate-bounce"
+          ? "ring-blue-400/50 shadow-[0_0_12px_3px_rgba(59,130,246,0.35),0_4px_24px_rgba(0,0,0,0.3)]"
           : "ring-background/20 hover:ring-background/30",
         isVisible 
           ? "translate-y-0 opacity-100" 
@@ -174,12 +174,9 @@ export function FloatingMapButton() {
       )}
       aria-label={`View ${mapContext.city || "all"} projects on map`}
     >
-      {/* Blue pulse ring animation on first impression */}
+      {/* Subtle pulse ring animation on first impression */}
       {isPulsing && (
-        <>
-          <span className="absolute inset-0 rounded-full animate-ping bg-blue-400/50" />
-          <span className="absolute -inset-1 rounded-full bg-blue-400/20 animate-pulse" />
-        </>
+        <span className="absolute -inset-1 rounded-full bg-blue-400/15 animate-pulse" />
       )}
       <Map className="h-5 w-5 relative z-10" />
     </Link>
