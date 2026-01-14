@@ -60,9 +60,11 @@ interface ConversionHeaderProps {
   hideOnMobile?: boolean;
   /** Always keep header visible (disable scroll-hide behavior) - useful for map pages */
   alwaysVisible?: boolean;
+  /** Use sticky instead of fixed on mobile - useful for full-height layouts like map search */
+  stickyOnMobile?: boolean;
 }
 
-export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false }: ConversionHeaderProps) {
+export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, stickyOnMobile = false }: ConversionHeaderProps) {
   const [open, setOpen] = useState(false);
   const [citiesOpen, setCitiesOpen] = useState(false);
   const [resaleCitiesOpen, setResaleCitiesOpen] = useState(false);
@@ -129,12 +131,13 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false }
           "w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm z-50",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
-          // Mobile/tablet: fixed for edge-to-edge, with smooth transition
-          !hideOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-transform max-lg:duration-300 max-lg:ease-out",
+          // Mobile/tablet: sticky if stickyOnMobile, otherwise fixed for edge-to-edge
+          stickyOnMobile && "max-lg:sticky max-lg:top-0",
+          !stickyOnMobile && !hideOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-transform max-lg:duration-300 max-lg:ease-out",
           // Hide completely on mobile/tablet for property pages with custom headers
           hideOnMobile && "hidden lg:block",
-          // Scroll-based hide/show for mobile/tablet (slide up when hidden) - skip if alwaysVisible
-          !hideOnMobile && !alwaysVisible && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
+          // Scroll-based hide/show for mobile/tablet (slide up when hidden) - skip if alwaysVisible or stickyOnMobile
+          !hideOnMobile && !alwaysVisible && !stickyOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
       >
         {/* Desktop: standard height with oversized logo */}
