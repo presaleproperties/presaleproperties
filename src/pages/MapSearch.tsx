@@ -536,36 +536,39 @@ export default function MapSearch() {
               </SafeMapWrapper>
             </div>
 
-            {/* Carousel Toggle Button - Inline with map controls (top-right) */}
-            {visibleItems.length > 0 && (
-              <div className="absolute top-36 right-3 z-[1001] lg:hidden">
-                <button
-                  onClick={() => setShowCarousel(!showCarousel)}
-                  className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
-                  aria-label={showCarousel ? "Hide properties" : "Show properties"}
-                >
-                  {showCarousel ? (
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
-                  ) : (
-                    <ChevronUp className="h-5 w-5 text-muted-foreground" />
-                  )}
-                </button>
-              </div>
-            )}
-
             {/* Bottom Carousel - Mobile/Tablet - Floating above map */}
             {showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden safe-bottom">
-                <div className="px-4 pb-2 pt-1">
+                <div className="flex items-center justify-between px-4 pb-2 pt-1">
                   <span className="text-xs font-medium text-muted-foreground bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
                     {visibleItems.length} properties in view
                   </span>
+                  <button
+                    onClick={() => setShowCarousel(false)}
+                    className="w-7 h-7 rounded-full bg-background/90 backdrop-blur-sm border border-border/40 flex items-center justify-center"
+                    aria-label="Hide properties"
+                  >
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </button>
                 </div>
                 <div 
                   ref={carouselRef}
                   className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
                 >
+
+            {/* Show Carousel Button - When hidden */}
+            {!showCarousel && visibleItems.length > 0 && (
+              <div className="absolute bottom-4 right-4 z-[1000] lg:hidden safe-bottom">
+                <button
+                  onClick={() => setShowCarousel(true)}
+                  className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center"
+                  aria-label="Show properties"
+                >
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+            )}
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
                     const data = item.data;
