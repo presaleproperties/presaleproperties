@@ -168,12 +168,12 @@ export function REWPhotoGallery({
 
       {/* Full Screen Gallery Modal - REW Style */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-gray-50 border-none rounded-none [&>button]:hidden">
+        <DialogContent className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-gray-50 border-none rounded-none [&>button]:hidden overflow-hidden">
           <VisuallyHidden>
             <DialogTitle>Photo Gallery - {alt}</DialogTitle>
           </VisuallyHidden>
           
-          <div className="flex flex-col h-full">
+          <div className="flex flex-col h-full overflow-hidden">
             {/* Header with tabs */}
             <header className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-50">
               {/* Back button */}
@@ -226,9 +226,9 @@ export function REWPhotoGallery({
             </header>
 
             {/* Content Area */}
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto overscroll-contain touch-pan-y">
               {activeTab === "photos" ? (
-                <div className="p-4 md:p-8 lg:p-12">
+                <div className="p-4 md:p-8 lg:p-12 pb-20">
                   {/* 2-column grid of photos */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-6xl mx-auto">
                     {photos.map((photo, i) => (
