@@ -158,7 +158,11 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-background lg:hidden"
+      className="min-h-screen min-h-[100dvh] bg-background lg:hidden"
+      style={{
+        // Allow content to extend behind status bar
+        marginTop: 'calc(-1 * env(safe-area-inset-top, 0px))'
+      }}
     >
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator 
@@ -166,15 +170,18 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         isRefreshing={isRefreshing} 
       />
 
-      {/* Full-Screen Hero Section - Brand Luxe Style */}
+      {/* Full-Screen Hero Section - True edge-to-edge behind status bar */}
       <div 
         className="relative min-h-[75vh] flex flex-col"
         style={{ 
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
-          transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
+          transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined,
+          // Add extra height to extend behind status bar
+          minHeight: 'calc(75vh + env(safe-area-inset-top, 0px))',
+          paddingTop: 'env(safe-area-inset-top, 0px)'
         }}
       >
-        {/* Background Image */}
+        {/* Background Image - fills entire hero including behind status bar */}
         <div className="absolute inset-0">
           <img 
             src={heroImage} 
@@ -185,8 +192,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/40 to-foreground/70" />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
+        {/* Hero Content - respects safe area */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-16 pb-8">
           {/* Main Headline - Simple & Bold */}
           <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">
             New Homes For Sale<br />
