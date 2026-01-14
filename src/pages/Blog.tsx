@@ -94,7 +94,7 @@ export default function Blog() {
 
       <ConversionHeader />
       
-      <main className="min-h-screen bg-background">
+      <main className="min-h-screen bg-background pt-14 md:pt-16">
         {/* Breadcrumb */}
         <div className="border-b bg-muted/30">
           <div className="container py-3">

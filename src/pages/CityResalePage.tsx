@@ -504,7 +504,7 @@ export default function CityResalePage() {
       <ConversionHeader />
 
       <PullToRefresh onRefresh={handleRefresh}>
-        <main className="min-h-screen bg-background">
+        <main className="min-h-screen bg-background pt-14 md:pt-16">
           {/* Hero Section */}
           <section className="bg-gradient-to-b from-muted/50 to-background pt-20 pb-8 md:pt-24 md:pb-12">
             <div className="container px-4 sm:px-6">

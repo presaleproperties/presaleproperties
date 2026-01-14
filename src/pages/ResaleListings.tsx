@@ -541,7 +541,7 @@ export default function ResaleListings() {
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
         
-        <section className="bg-background border-b border-border py-3 sm:py-6 md:py-10">
+        <section className="bg-background border-b border-border py-3 sm:py-6 md:py-10 pt-16 md:pt-20">
           <div className="container px-4">
             {/* Breadcrumbs - hidden on mobile to save space */}
             <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground mb-3 overflow-x-auto">

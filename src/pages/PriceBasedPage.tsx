@@ -200,7 +200,7 @@ export default function PriceBasedPage() {
 
       <ConversionHeader />
 
-      <main className="flex-grow">
+      <main className="flex-grow pt-14 md:pt-16">
         {/* Breadcrumbs */}
         <div className="container px-4 pt-4">
           <nav className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
