@@ -1,7 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +43,7 @@ function getAddress(listing: MLSListing): string {
 }
 
 export function RelatedCityListings({ city, neighborhood, excludeListingKey }: RelatedCityListingsProps) {
-  // First try to get listings from same neighborhood - 2025+ builds only
+  // First try to get listings from same neighborhood - 2024+ builds only
   const { data: neighborhoodListings } = useQuery({
     queryKey: ["related-neighborhood-listings-2025", neighborhood, excludeListingKey],
     queryFn: async () => {
@@ -58,7 +57,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .neq("listing_key", excludeListingKey)
         .gte("year_built", 2024)
         .order("list_date", { ascending: false })
-        .limit(6);
+        .limit(10);
 
       if (error) throw error;
       return data as MLSListing[];
@@ -66,7 +65,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
     enabled: !!neighborhood,
   });
 
-  // Get listings from same city - 2025+ builds only
+  // Get listings from same city - 2024+ builds only
   const { data: cityListings, isLoading } = useQuery({
     queryKey: ["related-city-listings-2025", city, excludeListingKey],
     queryFn: async () => {
@@ -78,7 +77,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .neq("listing_key", excludeListingKey)
         .gte("year_built", 2024)
         .order("list_date", { ascending: false })
-        .limit(10);
+        .limit(12);
 
       if (error) throw error;
       return data as MLSListing[];
@@ -87,14 +86,17 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
 
   if (isLoading) {
     return (
-      <section className="py-8 md:py-12">
-        <Skeleton className="h-8 w-64 mb-6" />
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="space-y-3">
+      <section className="py-6 md:py-8">
+        <div className="px-4 sm:px-6 lg:px-0">
+          <Skeleton className="h-6 w-48 mb-2" />
+          <Skeleton className="h-4 w-64 mb-4" />
+        </div>
+        <div className="flex gap-3 overflow-hidden px-4 sm:px-6 lg:px-0">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="shrink-0 w-[280px] md:w-[300px]">
               <Skeleton className="aspect-[4/3] rounded-xl" />
-              <Skeleton className="h-4 w-3/4" />
-              <Skeleton className="h-4 w-1/2" />
+              <Skeleton className="h-5 w-3/4 mt-3" />
+              <Skeleton className="h-4 w-1/2 mt-2" />
             </div>
           ))}
         </div>
@@ -108,108 +110,119 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
   if (!hasNeighborhoodListings && !hasCityListings) return null;
 
   return (
-    <div className="space-y-12">
-      {/* Neighborhood Listings */}
+    <div className="space-y-8 md:space-y-10">
+      {/* Neighborhood Listings Carousel */}
       {hasNeighborhoodListings && (
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+        <section className="space-y-4">
+          {/* Header - Matches site carousel pattern */}
+          <div className="flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-0">
+            <div className="min-w-0">
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-1 block">
+                Same Neighborhood
+              </span>
+              <h2 className="text-xl font-bold text-foreground leading-tight">
                 More in {neighborhood}
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Similar properties in this neighborhood
+              <p className="text-sm text-muted-foreground mt-1">
+                Similar properties nearby
               </p>
             </div>
-            <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-              <Link to={`/resale/${city.toLowerCase()}?neighborhood=${encodeURIComponent(neighborhood || '')}`}>
-                View All
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <Link 
+              to={`/resale/${city.toLowerCase()}?neighborhood=${encodeURIComponent(neighborhood || '')}`}
+              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
+            >
+              See all
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {neighborhoodListings.slice(0, 4).map((listing) => (
-              <ResaleListingCard
-                key={listing.id}
-                id={listing.id}
-                listingKey={listing.listing_key}
-                price={listing.listing_price}
-                address={getAddress(listing)}
-                city={listing.city}
-                neighborhood={listing.neighborhood}
-                propertyType={listing.property_type}
-                propertySubType={listing.property_sub_type}
-                beds={listing.bedrooms_total}
-                baths={listing.bathrooms_total}
-                sqft={listing.living_area}
-                photos={Array.isArray(listing.photos) ? listing.photos : []}
-                daysOnMarket={listing.days_on_market}
-                status={listing.mls_status}
-                listAgentName={listing.list_agent_name}
-                listOfficeName={listing.list_office_name}
-                virtualTourUrl={listing.virtual_tour_url}
-                yearBuilt={listing.year_built}
-              />
+          {/* Horizontal Scrollable Carousel */}
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory px-4 sm:px-6 lg:px-0 scroll-px-4 sm:scroll-px-6 lg:scroll-px-0">
+            {neighborhoodListings.map((listing) => (
+              <div 
+                key={listing.id} 
+                className="snap-start shrink-0 w-[280px] md:w-[300px] lg:w-[320px]"
+              >
+                <ResaleListingCard
+                  id={listing.id}
+                  listingKey={listing.listing_key}
+                  price={listing.listing_price}
+                  address={getAddress(listing)}
+                  city={listing.city}
+                  neighborhood={listing.neighborhood}
+                  propertyType={listing.property_type}
+                  propertySubType={listing.property_sub_type}
+                  beds={listing.bedrooms_total}
+                  baths={listing.bathrooms_total}
+                  sqft={listing.living_area}
+                  photos={Array.isArray(listing.photos) ? listing.photos : []}
+                  daysOnMarket={listing.days_on_market}
+                  status={listing.mls_status}
+                  listAgentName={listing.list_agent_name}
+                  listOfficeName={listing.list_office_name}
+                  virtualTourUrl={listing.virtual_tour_url}
+                  yearBuilt={listing.year_built}
+                />
+              </div>
             ))}
           </div>
         </section>
       )}
 
-      {/* City Listings */}
+      {/* City Listings Carousel */}
       {hasCityListings && (
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-foreground">
+        <section className="space-y-4">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-4 px-4 sm:px-6 lg:px-0">
+            <div className="min-w-0">
+              <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-1 block">
+                Explore More
+              </span>
+              <h2 className="text-xl font-bold text-foreground leading-tight">
                 More in {city}
               </h2>
-              <p className="text-sm text-muted-foreground">
-                Browse more condos & townhomes in {city}
+              <p className="text-sm text-muted-foreground mt-1">
+                Browse more new homes in {city}
               </p>
             </div>
-            <Button variant="outline" size="sm" asChild className="hidden sm:flex">
-              <Link to={`/resale/${city.toLowerCase()}`}>
-                View All {city}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
+            <Link 
+              to={`/resale/${city.toLowerCase()}`}
+              className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
+            >
+              See all
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
-            {cityListings.slice(0, 8).map((listing) => (
-              <ResaleListingCard
-                key={listing.id}
-                id={listing.id}
-                listingKey={listing.listing_key}
-                price={listing.listing_price}
-                address={getAddress(listing)}
-                city={listing.city}
-                neighborhood={listing.neighborhood}
-                propertyType={listing.property_type}
-                propertySubType={listing.property_sub_type}
-                beds={listing.bedrooms_total}
-                baths={listing.bathrooms_total}
-                sqft={listing.living_area}
-                photos={Array.isArray(listing.photos) ? listing.photos : []}
-                daysOnMarket={listing.days_on_market}
-                status={listing.mls_status}
-                listAgentName={listing.list_agent_name}
-                listOfficeName={listing.list_office_name}
-                virtualTourUrl={listing.virtual_tour_url}
-                yearBuilt={listing.year_built}
-              />
+          {/* Horizontal Scrollable Carousel */}
+          <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 snap-x snap-mandatory px-4 sm:px-6 lg:px-0 scroll-px-4 sm:scroll-px-6 lg:scroll-px-0">
+            {cityListings.map((listing) => (
+              <div 
+                key={listing.id} 
+                className="snap-start shrink-0 w-[280px] md:w-[300px] lg:w-[320px]"
+              >
+                <ResaleListingCard
+                  id={listing.id}
+                  listingKey={listing.listing_key}
+                  price={listing.listing_price}
+                  address={getAddress(listing)}
+                  city={listing.city}
+                  neighborhood={listing.neighborhood}
+                  propertyType={listing.property_type}
+                  propertySubType={listing.property_sub_type}
+                  beds={listing.bedrooms_total}
+                  baths={listing.bathrooms_total}
+                  sqft={listing.living_area}
+                  photos={Array.isArray(listing.photos) ? listing.photos : []}
+                  daysOnMarket={listing.days_on_market}
+                  status={listing.mls_status}
+                  listAgentName={listing.list_agent_name}
+                  listOfficeName={listing.list_office_name}
+                  virtualTourUrl={listing.virtual_tour_url}
+                  yearBuilt={listing.year_built}
+                />
+              </div>
             ))}
-          </div>
-
-          {/* Mobile View All Button */}
-          <div className="mt-6 sm:hidden">
-            <Button variant="outline" className="w-full" asChild>
-              <Link to={`/resale/${city.toLowerCase()}`}>
-                View All {city} Listings
-              </Link>
-            </Button>
           </div>
         </section>
       )}
