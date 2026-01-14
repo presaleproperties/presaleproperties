@@ -937,12 +937,12 @@ export default function MapSearch() {
                               </div>
                             )
                           )}
-                          <Badge className={`absolute top-2 left-2 text-[9px] px-2 py-0.5 ${
+                          <Badge className={`absolute top-1.5 left-1.5 text-[8px] sm:text-[9px] px-1.5 sm:px-2 py-0.5 font-semibold ${
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : 'bg-primary text-primary-foreground'
                           }`}>
-                            {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
+                            {isPresale ? 'PRESALE' : 'MOVE-IN'}
                           </Badge>
                         </div>
                         
