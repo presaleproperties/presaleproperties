@@ -635,7 +635,7 @@ export default function PresaleProjects() {
         
         {/* Compact Hero Section */}
         <section className="bg-gradient-to-b from-muted/50 to-background border-b border-border">
-          <div className="container px-4 pt-3 pb-4 md:pt-4 md:pb-6">
+          <div className="px-3 lg:container lg:px-4 pt-3 pb-4 md:pt-4 md:pb-6">
             {/* Breadcrumb - Single Line */}
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
               <Link to="/" className="hover:text-foreground transition-colors">

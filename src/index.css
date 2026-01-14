@@ -517,16 +517,21 @@
 }
 
 /* ===== Edge-to-Edge Mobile Experience ===== */
-/* Safe area utilities for devices with notches/dynamic island */
-@supports (padding-top: env(safe-area-inset-top)) {
-  /* Remove body safe-area padding on mobile for true edge-to-edge */
-  @media (max-width: 1024px) {
-    body {
-      padding-top: 0 !important;
-      padding-bottom: 0 !important;
-    }
+/* True edge-to-edge scrolling behind status bar */
+@media (max-width: 1024px) {
+  /* Hero sections extend behind status bar */
+  .hero-edge-to-edge {
+    margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+    padding-top: env(safe-area-inset-top, 0px);
   }
   
+  .hero-edge-to-edge > .hero-bg {
+    top: calc(-1 * env(safe-area-inset-top, 0px));
+  }
+}
+
+/* Safe area utilities for devices with notches/dynamic island */
+@supports (padding-top: env(safe-area-inset-top)) {
   /* Safe area padding utilities */
   .safe-area-top {
     padding-top: env(safe-area-inset-top);
