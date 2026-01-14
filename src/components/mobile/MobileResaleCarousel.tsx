@@ -40,13 +40,9 @@ interface MobileResaleCarouselProps {
 }
 
 export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCarouselProps) {
-  // Metro Vancouver cities for filtering - excludes Vancouver Island (Langford, Victoria, etc.)
-  const metroVancouverCities = [
-    "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
-    "Coquitlam", "Delta", "Abbotsford", "New Westminster", 
-    "Port Coquitlam", "Port Moody", "Maple Ridge", "White Rock",
-    "North Vancouver", "West Vancouver", "Chilliwack", "Mission",
-    "Pitt Meadows", "Tsawwassen", "Ladner"
+  // Featured cities for Move-In Ready homes
+  const featuredCities = [
+    "Burnaby", "Vancouver", "Coquitlam", "Langley"
   ];
 
   // 2025+ builds only
@@ -64,8 +60,8 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
       if (city && city !== "all") {
         query = query.ilike("city", city);
       } else {
-        // If no city specified, filter to Metro Vancouver
-        query = query.in("city", metroVancouverCities);
+        // If no city specified, filter to featured cities only
+        query = query.in("city", featuredCities);
       }
 
       const { data, error } = await query;
