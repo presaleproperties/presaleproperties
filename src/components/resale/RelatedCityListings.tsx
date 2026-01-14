@@ -43,9 +43,9 @@ function getAddress(listing: MLSListing): string {
 }
 
 export function RelatedCityListings({ city, neighborhood, excludeListingKey }: RelatedCityListingsProps) {
-  // First try to get listings from same neighborhood - 2024+ builds only
+  // First try to get listings from same neighborhood - 2020+ builds (new construction)
   const { data: neighborhoodListings } = useQuery({
-    queryKey: ["related-neighborhood-listings-2025", neighborhood, excludeListingKey],
+    queryKey: ["related-neighborhood-listings-2020", neighborhood, excludeListingKey],
     queryFn: async () => {
       if (!neighborhood) return [];
       
@@ -55,9 +55,9 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("neighborhood", neighborhood)
         .neq("listing_key", excludeListingKey)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .order("list_date", { ascending: false })
-        .limit(10);
+        .limit(12);
 
       if (error) throw error;
       return data as MLSListing[];
@@ -65,9 +65,9 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
     enabled: !!neighborhood,
   });
 
-  // Get listings from same city - 2024+ builds only
+  // Get listings from same city - 2020+ builds (new construction)
   const { data: cityListings, isLoading } = useQuery({
-    queryKey: ["related-city-listings-2025", city, excludeListingKey],
+    queryKey: ["related-city-listings-2020", city, excludeListingKey],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
@@ -75,9 +75,9 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         .eq("mls_status", "Active")
         .ilike("city", city)
         .neq("listing_key", excludeListingKey)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .order("list_date", { ascending: false })
-        .limit(12);
+        .limit(16);
 
       if (error) throw error;
       return data as MLSListing[];

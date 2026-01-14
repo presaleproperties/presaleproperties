@@ -42,7 +42,7 @@ export function SimilarListings({
         .neq("listing_key", excludeListingKey)
         .gte("listing_price", minPrice)
         .lte("listing_price", maxPrice)
-        .gte("year_built", 2024);
+        .gte("year_built", 2020);
 
       // Match bedrooms if available (±1)
       if (bedrooms !== null) {

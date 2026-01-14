@@ -164,9 +164,9 @@ export default function ResaleListings() {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
-  // Featured/Hot listings query - newest 2025+ listings
+  // Featured/Hot listings query - newest 2020+ listings (new construction)
   const { data: hotListings } = useQuery({
-    queryKey: ["hot-resale-listings-2025", enabledCities],
+    queryKey: ["hot-resale-listings-2020", enabledCities],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
@@ -175,9 +175,9 @@ export default function ResaleListings() {
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
         .in("city", citiesToUse)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .order("created_at", { ascending: false })
-        .limit(8);
+        .limit(12);
 
       if (error) throw error;
       return data as MLSListing[];
@@ -213,7 +213,7 @@ export default function ResaleListings() {
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
-        .gte("year_built", 2024);
+        .gte("year_built", 2020);
       countQuery = buildFilters(countQuery);
       const { count } = await countQuery;
 
@@ -221,7 +221,7 @@ export default function ResaleListings() {
         .from("mls_listings")
         .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
-        .gte("year_built", 2024);
+        .gte("year_built", 2020);
       query = buildFilters(query);
 
       switch (filters.sort) {

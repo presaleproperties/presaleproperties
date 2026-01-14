@@ -169,8 +169,8 @@ export function SearchSuggestions({
           .from("mls_listings")
           .select("listing_key, city, neighborhood, street_number, street_name, street_suffix, listing_price")
           .eq("mls_status", "Active")
-          .gte("year_built", 2024)
-          .limit(500);
+          .gte("year_built", 2020)
+          .limit(1000);
 
         const neighborhoodCounts = new Map<string, number>();
         const cityCounts = new Map<string, number>();
