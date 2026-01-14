@@ -633,135 +633,62 @@ export default function PresaleProjects() {
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
         
-        {/* Optimized Above-the-Fold Section */}
-        <section className="bg-background border-b border-border">
-          <div className="container px-4 pt-2 pb-3 md:pt-4 md:pb-5">
-            {/* Breadcrumb - Compact */}
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+        {/* Compact Hero Section */}
+        <section className="bg-gradient-to-b from-muted/50 to-background border-b border-border">
+          <div className="container px-4 pt-3 pb-4 md:pt-4 md:pb-6">
+            {/* Breadcrumb - Single Line */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
               <Link to="/" className="hover:text-foreground transition-colors">
-                <Home className="h-3 w-3" />
+                <Home className="h-3.5 w-3.5" />
               </Link>
-              <ChevronRightIcon className="h-3 w-3" />
-              <span className="text-foreground">Presale Projects</span>
+              <ChevronRightIcon className="h-3.5 w-3.5" />
+              <span className="text-foreground font-medium">Presale Projects</span>
               {filters.city !== "any" && (
                 <>
-                  <ChevronRightIcon className="h-3 w-3" />
-                  <span className="text-foreground">{filters.city}</span>
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
+                  <span className="text-foreground font-medium">{filters.city}</span>
                 </>
               )}
             </nav>
 
-            {/* Title + Count - Inline */}
-            <div className="flex items-baseline justify-between gap-2 mb-3">
-              <h1 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground truncate">
-                {filters.city !== "any" ? `${filters.city} Presales` : "Pre-Construction Homes"}
-              </h1>
-              <span className="text-xs text-muted-foreground whitespace-nowrap">
-                {totalCount} projects
-              </span>
-            </div>
-
-            {/* Search Bar */}
-            <div className="relative mb-3">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by project, neighborhood..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11 text-base bg-muted/50 border-muted"
-              />
-            </div>
-
-            {/* Control Bar: Map | Filters | Sort | Grid/Map Toggle */}
-            <div className="flex items-center gap-2">
-              {/* Map Button */}
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-9 px-3 gap-1.5"
-                onClick={() => window.location.href = '/map-search'}
-              >
-                <Map className="h-4 w-4" />
-                <span className="text-sm">Map</span>
-              </Button>
-
-              {/* Mobile Filters */}
-              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="lg:hidden relative h-9 px-3 gap-1.5">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="text-sm">Filters</span>
-                    {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
-                        {activeFilterCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] sm:w-80">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    <FilterControls />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* Sort - Compact */}
-              <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                <SelectTrigger className="w-[100px] sm:w-[140px] h-9 text-sm">
-                  <SelectValue placeholder="Sort" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* Spacer */}
-              <div className="flex-1" />
-
-              {/* View Mode Toggle */}
-              <div className="flex border rounded-lg overflow-hidden">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  className="rounded-none h-9 px-2.5"
-                  onClick={() => setViewMode("grid")}
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "map" ? "default" : "ghost"}
-                  size="sm"
-                  className="rounded-none h-9 px-2.5"
-                  onClick={() => setViewMode("map")}
-                >
-                  <Map className="h-4 w-4" />
-                </Button>
+            {/* Title Row - Title left, Toggle right */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
+                  {filters.city !== "any" 
+                    ? `Presale Projects in ${filters.city}` 
+                    : "Pre-Construction New Homes"}
+                </h1>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  <span className="font-semibold text-foreground">{totalCount}</span> projects available
+                  {activeFilterCount > 0 && (
+                    <button onClick={clearAllFilters} className="ml-2 text-primary hover:underline">
+                      Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                    </button>
+                  )}
+                </p>
               </div>
+              <PresaleToggle />
             </div>
-
-            {/* City Filter Chips - Scrollable */}
-            <div className="-mx-4 px-4 mt-3 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-1.5 pb-1">
+            
+            {/* City Filter Chips - Compact */}
+            <div className="-mx-4 px-4 overflow-x-auto scrollbar-hide">
+              <div className="flex gap-2 pb-1">
                 <button
                   onClick={() => updateFilter("city", "any")}
-                  className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     filters.city === "any"
                       ? "bg-foreground text-background"
                       : "bg-muted hover:bg-muted/80 text-foreground"
                   }`}
                 >
-                  All
+                  All Cities
                 </button>
-                {["Surrey", "Langley", "Coquitlam", "Burnaby", "Vancouver", "Richmond"].map((city) => (
+                {["Surrey", "Langley", "Coquitlam", "Burnaby", "Vancouver", "Richmond", "Delta", "Abbotsford"].map((city) => (
                   <button
                     key={city}
                     onClick={() => updateFilter("city", city)}
-                    className={`flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium transition-colors ${
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                       filters.city === city
                         ? "bg-foreground text-background"
                         : "bg-muted hover:bg-muted/80 text-foreground"
@@ -770,30 +697,19 @@ export default function PresaleProjects() {
                     {city}
                   </button>
                 ))}
-                <button
-                  onClick={() => setMobileFiltersOpen(true)}
-                  className="flex-shrink-0 px-2.5 py-1 rounded-full text-xs font-medium bg-muted hover:bg-muted/80 text-muted-foreground lg:hidden"
-                >
-                  More...
-                </button>
               </div>
-            </div>
-
-            {/* Presale/Move-In Toggle - Below filters */}
-            <div className="mt-3 flex justify-center">
-              <PresaleToggle />
             </div>
           </div>
         </section>
 
-        {/* Hot Projects Carousel - Hidden on mobile for cleaner UX, shown on tablet+ */}
+        {/* Hot Projects Carousel - only show when no filters active */}
         {activeFilterCount === 0 && hotProjects && hotProjects.length > 0 && (
           <ScrollReveal animation="fade-up">
-            <section className="hidden md:block py-6 bg-muted/30 border-b border-border">
+            <section className="py-6 md:py-8 bg-muted/30 border-b border-border">
               <div className="container px-4">
                 <div className="flex items-center gap-2 mb-4">
                   <Flame className="h-5 w-5 text-orange-500 animate-pulse" />
-                  <h2 className="text-lg font-semibold text-foreground">
+                  <h2 className="text-lg md:text-xl font-semibold text-foreground">
                     Hottest Projects Right Now
                   </h2>
                 </div>
@@ -801,11 +717,11 @@ export default function PresaleProjects() {
                   className="-mx-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
                   style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: '16px' }}
                 >
-                  <div className="flex gap-4 pb-2">
+                  <div className="flex gap-3 md:gap-4 pb-2">
                     {hotProjects.map((project, index) => (
                       <div 
                         key={project.id} 
-                        className="flex-shrink-0 w-[300px] md:w-[320px] animate-fade-in"
+                        className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] animate-fade-in"
                         style={{ 
                           scrollSnapAlign: 'start',
                           animationDelay: `${index * 75}ms`,
@@ -835,13 +751,91 @@ export default function PresaleProjects() {
           </ScrollReveal>
         )}
 
-        <main className="container px-4 py-4 md:py-6">
+        <main className="container px-4 py-4 md:py-8">
+
+          {/* Search & Sort Bar */}
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 mb-4 md:mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search by project, neighborhood..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-10"
+              />
+            </div>
+            <div className="flex gap-2">
+              {/* Map Button */}
+              <Button 
+                variant="outline" 
+                className="h-10 px-3"
+                onClick={() => window.location.href = '/map-search'}
+              >
+                <Map className="h-4 w-4 mr-2" />
+                <span className="text-sm">Map</span>
+              </Button>
+              {/* Mobile Filters */}
+              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" className="lg:hidden relative h-10 px-3">
+                    <SlidersHorizontal className="h-4 w-4 mr-2" />
+                    <span className="text-sm">Filters</span>
+                    {activeFilterCount > 0 && (
+                      <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                        {activeFilterCount}
+                      </Badge>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="left" className="w-[300px] sm:w-80">
+                  <SheetHeader>
+                    <SheetTitle>Filters</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6">
+                    <FilterControls />
+                  </div>
+                </SheetContent>
+              </Sheet>
+
+              {/* Sort */}
+              <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
+                <SelectTrigger className="w-[140px] sm:w-[180px] h-10 text-sm">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* View Mode Toggle */}
+              <div className="flex border rounded-lg overflow-hidden">
+                <Button
+                  variant={viewMode === "grid" ? "default" : "ghost"}
+                  size="sm"
+                  className="rounded-none h-10 px-3"
+                  onClick={() => setViewMode("grid")}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === "map" ? "default" : "ghost"}
+                  size="sm"
+                  className="rounded-none h-10 px-3"
+                  onClick={() => setViewMode("map")}
+                >
+                  <Map className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+
           {/* Active Filters Pills */}
           {activeFilterCount > 0 && (
-            <div className="flex flex-wrap items-center gap-2 mb-3">
-              <span className="text-xs text-muted-foreground">Active:</span>
+            <div className="flex flex-wrap gap-2 mb-4 md:mb-6">
               {filters.city !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs h-6">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   {filters.city}
                   <button onClick={() => updateFilter("city", "any")}>
                     <X className="h-3 w-3" />
@@ -849,7 +843,7 @@ export default function PresaleProjects() {
                 </Badge>
               )}
               {filters.projectType !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs h-6">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   {TYPE_OPTIONS.find((t) => t.value === filters.projectType)?.label}
                   <button onClick={() => updateFilter("type", "any")}>
                     <X className="h-3 w-3" />
@@ -857,19 +851,13 @@ export default function PresaleProjects() {
                 </Badge>
               )}
               {filters.priceRange !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs h-6">
+                <Badge variant="secondary" className="gap-1 text-xs">
                   {PRICE_RANGES.find((p) => p.value === filters.priceRange)?.label}
                   <button onClick={() => updateFilter("price", "any")}>
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              <button 
-                onClick={clearAllFilters} 
-                className="text-xs text-primary hover:underline"
-              >
-                Clear all
-              </button>
             </div>
           )}
 
