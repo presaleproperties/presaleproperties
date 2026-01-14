@@ -488,8 +488,8 @@ export default function MapSearch() {
 
         {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
-          {/* Map Section - ~75% width when list is shown */}
-          <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-3/4" : "lg:w-full"}`}>
+          {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
+          <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
             <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
               <UnifiedMapToggle
@@ -677,9 +677,9 @@ export default function MapSearch() {
             )}
           </div>
 
-          {/* Desktop List Panel - ~30% width for better card display */}
+          {/* Desktop List Panel - ~40% width for REW-style layout */}
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
-            showList ? "w-[30%] min-w-[380px] max-w-[480px] opacity-100" : "w-0 opacity-0 overflow-hidden"
+            showList ? "w-[40%] min-w-[420px] max-w-[560px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
             {/* Top Bar - Search + Filter + Map/List toggle (REW style) */}
             <div className="shrink-0 p-3 border-b border-border bg-background">
@@ -923,8 +923,8 @@ export default function MapSearch() {
             </div>
 
             {/* Scrollable Grid - REW-style sizing with our branding */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-3">
-              <div className="grid grid-cols-2 gap-3">
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
+              <div className="grid grid-cols-2 gap-4">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
                   const data = item.data;
@@ -944,14 +944,14 @@ export default function MapSearch() {
                           ? 'border-primary ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/50'
                       }`}>
-                        {/* Large Image - 5:4 aspect ratio for bigger photos */}
-                        <div className="relative w-full aspect-[5/4] bg-muted overflow-hidden">
+                        {/* Large Image - 3:2 aspect ratio matching REW */}
+                        <div className="relative w-full aspect-[3/2] bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Building2 className="h-12 w-12 text-muted-foreground" />
+                                <Building2 className="h-10 w-10 text-muted-foreground" />
                               </div>
                             )
                           ) : (
@@ -959,12 +959,12 @@ export default function MapSearch() {
                               <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <Home className="h-12 w-12 text-muted-foreground" />
+                                <Home className="h-10 w-10 text-muted-foreground" />
                               </div>
                             )
                           )}
                           {/* Badge overlay */}
-                          <Badge className={`absolute top-2 left-2 text-[8px] px-1.5 py-0.5 font-bold shadow-md ${
+                          <Badge className={`absolute top-2 left-2 text-[9px] px-1.5 py-0.5 font-semibold shadow-md ${
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : 'bg-primary text-primary-foreground'
@@ -973,10 +973,10 @@ export default function MapSearch() {
                           </Badge>
                         </div>
                         
-                        {/* Content - Compact text for more image space */}
-                        <div className="p-2 space-y-0.5">
-                          {/* Price */}
-                          <div className="font-bold text-foreground text-sm leading-tight">
+                        {/* Content - REW-style compact info */}
+                        <div className="p-2.5 space-y-1">
+                          {/* Price - Prominent */}
+                          <div className="font-bold text-foreground text-base leading-tight">
                             {isPresale
                               ? formatPrice((data as PresaleProject).starting_price)
                               : formatPrice((data as MLSListing).listing_price)
@@ -984,17 +984,24 @@ export default function MapSearch() {
                           </div>
                           
                           {/* Address */}
-                          <h4 className="font-medium text-foreground text-xs line-clamp-1">
+                          <h4 className="font-medium text-foreground text-sm line-clamp-1">
                             {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
                           </h4>
                           
-                          {/* Location + Specs combined */}
-                          <div className="text-muted-foreground text-[10px] line-clamp-1">
+                          {/* Location */}
+                          <div className="text-muted-foreground text-xs line-clamp-1">
                             {isPresale 
-                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).status?.replace(/_/g, ' ')}`
-                              : `${(data as MLSListing).bedrooms_total || '-'} bd • ${(data as MLSListing).bathrooms_total || '-'} ba${(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()} sf` : ''}`
+                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).city}`
+                              : `${(data as MLSListing).neighborhood || (data as MLSListing).city}`
                             }
                           </div>
+                          
+                          {/* Specs for resale */}
+                          {!isPresale && (
+                            <div className="text-muted-foreground text-xs">
+                              {(data as MLSListing).bedrooms_total || '-'} bd • {(data as MLSListing).bathrooms_total || '-'} ba{(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()} sf` : ''}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Link>
