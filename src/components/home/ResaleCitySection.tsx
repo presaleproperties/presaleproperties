@@ -8,14 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 
 const RESALE_CITIES = [
-  "Vancouver",
-  "Surrey", 
-  "Burnaby",
-  "Langley",
   "Coquitlam",
+  "Langley",
+  "Burnaby",
+  "Surrey", 
   "Richmond",
   "Delta",
   "Abbotsford",
+  "Vancouver",
 ];
 
 type MLSListing = {

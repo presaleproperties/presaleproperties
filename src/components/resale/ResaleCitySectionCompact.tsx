@@ -1,14 +1,14 @@
 import { ResaleCityCarousel } from "./ResaleCityCarousel";
 
 const FEATURED_CITIES = [
-  { city: "Vancouver", title: "Vancouver", subtitle: "Brand new homes ready for move-in" },
-  { city: "Surrey", title: "Surrey", subtitle: "Brand new, never lived in" },
-  { city: "Burnaby", title: "Burnaby", subtitle: "Brand new homes ready for move-in" },
   { city: "Coquitlam", title: "Coquitlam", subtitle: "Brand new, never lived in" },
   { city: "Langley", title: "Langley", subtitle: "Brand new homes ready for move-in" },
+  { city: "Burnaby", title: "Burnaby", subtitle: "Brand new homes ready for move-in" },
+  { city: "Surrey", title: "Surrey", subtitle: "Brand new, never lived in" },
   { city: "Richmond", title: "Richmond", subtitle: "Brand new, never lived in" },
   { city: "Delta", title: "Delta", subtitle: "Brand new homes ready for move-in" },
   { city: "Abbotsford", title: "Abbotsford", subtitle: "Brand new, never lived in" },
+  { city: "Vancouver", title: "Vancouver", subtitle: "Brand new homes ready for move-in" },
 ];
 
 export function ResaleCitySectionCompact() {

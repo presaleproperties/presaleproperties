@@ -3,12 +3,12 @@ import { ResalePropertyTypeCarousel } from "./ResalePropertyTypeCarousel";
 import { ResaleCityCarousel } from "./ResaleCityCarousel";
 
 const FEATURED_CITIES = [
-  { city: "Vancouver", title: "Vancouver", subtitle: "Downtown, East Van & West Side" },
-  { city: "Surrey", title: "Surrey", subtitle: "South Surrey, Guildford & Fleetwood" },
-  { city: "Burnaby", title: "Burnaby", subtitle: "Metrotown, Brentwood & Lougheed" },
   { city: "Coquitlam", title: "Coquitlam", subtitle: "Tri-Cities Area" },
   { city: "Langley", title: "Langley", subtitle: "Township & City of Langley" },
+  { city: "Burnaby", title: "Burnaby", subtitle: "Metrotown, Brentwood & Lougheed" },
+  { city: "Surrey", title: "Surrey", subtitle: "South Surrey, Guildford & Fleetwood" },
   { city: "Richmond", title: "Richmond", subtitle: "City Centre & Steveston" },
+  { city: "Vancouver", title: "Vancouver", subtitle: "Downtown, East Van & West Side" },
 ];
 
 export function ResaleCitySection() {

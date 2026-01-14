@@ -17,22 +17,22 @@ import { useQueryClient } from "@tanstack/react-query";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
 const TOP_CITIES = [
-  { name: "Vancouver", slug: "vancouver" },
-  { name: "Surrey", slug: "surrey" },
-  { name: "Burnaby", slug: "burnaby" },
   { name: "Coquitlam", slug: "coquitlam" },
   { name: "Langley", slug: "langley" },
+  { name: "Burnaby", slug: "burnaby" },
+  { name: "Surrey", slug: "surrey" },
+  { name: "Vancouver", slug: "vancouver" },
 ];
 
 const CITY_CAROUSELS = [
-  { city: "Vancouver", title: "Vancouver", subtitle: "Brand new homes ready for move-in" },
-  { city: "Surrey", title: "Surrey", subtitle: "Brand new, never lived in" },
-  { city: "Burnaby", title: "Burnaby", subtitle: "Brand new homes ready for move-in" },
   { city: "Coquitlam", title: "Coquitlam", subtitle: "Brand new, never lived in" },
   { city: "Langley", title: "Langley", subtitle: "Brand new homes ready for move-in" },
+  { city: "Burnaby", title: "Burnaby", subtitle: "Brand new homes ready for move-in" },
+  { city: "Surrey", title: "Surrey", subtitle: "Brand new, never lived in" },
   { city: "Richmond", title: "Richmond", subtitle: "Brand new, never lived in" },
   { city: "Delta", title: "Delta", subtitle: "Brand new homes ready for move-in" },
   { city: "Abbotsford", title: "Abbotsford", subtitle: "Brand new, never lived in" },
+  { city: "Vancouver", title: "Vancouver", subtitle: "Brand new homes ready for move-in" },
 ];
 
 export function MobileResaleHome() {
