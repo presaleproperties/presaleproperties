@@ -79,8 +79,8 @@ import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
 import ResalePriceRangePage from "./pages/ResalePriceRangePage";
 import ContentHub from "./pages/ContentHub";
 import BlogCategoryPage from "./pages/BlogCategoryPage";
-import MarketTrends from "./pages/MarketTrends";
-import CityMarketReport from "./pages/CityMarketReport";
+import MarketTrends from "./pages/MarketTrends"; // Temporarily hidden from public nav
+import CityMarketReport from "./pages/CityMarketReport"; // Temporarily hidden from public nav
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -168,8 +168,9 @@ const App = () => (
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
-            <Route path="/market-trends" element={<MarketTrends />} />
-            <Route path="/market-report/:city" element={<CityMarketReport />} />
+            {/* Market stats pages - hidden from public nav until data is clean */}
+            {/* <Route path="/market-trends" element={<MarketTrends />} /> */}
+            {/* <Route path="/market-report/:city" element={<CityMarketReport />} /> */}
             <Route path="/developers" element={<Developers />} />
             
             {/* SEO Neighborhood Landing Pages */}
