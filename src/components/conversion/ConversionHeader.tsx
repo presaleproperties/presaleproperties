@@ -120,18 +120,19 @@ export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps
     }
   };
 
-  // Determine if header should be hidden on mobile/tablet
-  const shouldHideOnMobile = hideOnMobile || (isMobileOrTablet && !isVisible);
-
   return (
     <>
       <header 
         className={cn(
-          "sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm transition-transform duration-300 ease-out",
+          "w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm z-50",
+          // Desktop: sticky positioning (normal behavior)
+          "lg:sticky lg:top-0",
+          // Mobile/tablet: fixed for edge-to-edge, with smooth transition
+          !hideOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-transform max-lg:duration-300 max-lg:ease-out",
           // Hide completely on mobile/tablet for property pages with custom headers
           hideOnMobile && "hidden lg:block",
           // Scroll-based hide/show for mobile/tablet (slide up when hidden)
-          !hideOnMobile && isMobileOrTablet && !isVisible && "-translate-y-full"
+          !hideOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
       >
         {/* Desktop: standard height with oversized logo */}

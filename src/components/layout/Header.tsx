@@ -51,9 +51,13 @@ export function Header() {
   return (
     <header 
       className={cn(
-        "sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-transform duration-300 ease-out",
+        "w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50",
+        // Desktop: sticky positioning (normal behavior)
+        "lg:sticky lg:top-0",
+        // Mobile/tablet: fixed for edge-to-edge, with smooth transition
+        "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-transform max-lg:duration-300 max-lg:ease-out",
         // Scroll-based hide/show for mobile/tablet (slide up when hidden)
-        isMobileOrTablet && !isVisible && "-translate-y-full"
+        isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
       )}
     >
       <div className="flex h-16 items-center justify-between px-4 lg:container lg:px-4">
