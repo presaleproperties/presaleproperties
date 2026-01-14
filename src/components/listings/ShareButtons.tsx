@@ -1,4 +1,5 @@
-import { Facebook, Share2 } from "lucide-react";
+import { Heart, Share2 } from "lucide-react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -13,6 +14,7 @@ interface ShareButtonsProps {
 }
 
 export function ShareButtons({ title, url }: ShareButtonsProps) {
+  const [isFavorited, setIsFavorited] = useState(false);
   const shareUrl = url || (typeof window !== "undefined" ? window.location.href : "");
   const encodedUrl = encodeURIComponent(shareUrl);
   const encodedTitle = encodeURIComponent(title);
@@ -30,19 +32,18 @@ export function ShareButtons({ title, url }: ShareButtonsProps) {
   return (
     <TooltipProvider>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground mr-1">Share:</span>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
               variant="outline"
               size="icon"
               className="h-8 w-8"
-              onClick={() => handleShare("facebook")}
+              onClick={() => setIsFavorited(!isFavorited)}
             >
-              <Facebook className="h-4 w-4" />
+              <Heart className={`h-4 w-4 ${isFavorited ? "fill-red-500 text-red-500" : ""}`} />
             </Button>
           </TooltipTrigger>
-          <TooltipContent>Share on Facebook</TooltipContent>
+          <TooltipContent>{isFavorited ? "Remove from favorites" : "Add to favorites"}</TooltipContent>
         </Tooltip>
 
         <Tooltip>
