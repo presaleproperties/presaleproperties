@@ -330,10 +330,10 @@ export default function ResaleListingDetail() {
       </Helmet>
       <ConversionHeader />
       
-      <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
+      <main className="container px-4 py-3 lg:py-4 pb-24 lg:pb-8">
         <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-3 lg:mb-2 overflow-x-auto">
           <ol className="flex items-center gap-1">
             <li>
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
@@ -357,9 +357,9 @@ export default function ResaleListingDetail() {
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid lg:grid-cols-3 gap-4 lg:gap-6">
           {/* Left Column - Images & Details */}
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          <div className="lg:col-span-2 space-y-4 lg:space-y-5">
             {/* Image Gallery - REW Style */}
             <REWPhotoGallery
               photos={photos}
@@ -596,9 +596,9 @@ export default function ResaleListingDetail() {
             </div>
 
             {/* Desktop Price Section */}
-            <div className="hidden lg:block">
+            <div className="hidden lg:block space-y-1.5">
               {/* Badges Row */}
-              <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="flex flex-wrap items-center gap-2">
                 {listing.year_built && listing.year_built >= 2024 && (
                   <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1">
                     <Sparkles className="h-3 w-3" />
@@ -638,7 +638,7 @@ export default function ResaleListingDetail() {
               </div>
               
               {/* Price with Est. Monthly */}
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-2">
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                 <span className="text-3xl md:text-4xl font-bold text-foreground">
                   {formatPrice(listing.listing_price)}
                 </span>
@@ -650,7 +650,7 @@ export default function ResaleListingDetail() {
               </div>
 
               {/* Estimated Monthly */}
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">
                   Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
                 </span>
@@ -664,12 +664,12 @@ export default function ResaleListingDetail() {
               </div>
 
               {/* Full Address */}
-              <h1 className="text-xl md:text-2xl font-semibold text-foreground mb-1">
+              <h1 className="text-xl md:text-2xl font-semibold text-foreground">
                 {address}
               </h1>
               
               {/* City, Province, Postal • Neighborhood */}
-              <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground mb-3">
+              <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
                 <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                   {listing.city}
                 </Link>
