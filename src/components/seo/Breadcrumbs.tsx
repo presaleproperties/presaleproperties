@@ -46,30 +46,29 @@ export function Breadcrumbs({ items, className = "" }: BreadcrumbsProps) {
         aria-label="Breadcrumb" 
         className={`flex items-center text-sm text-muted-foreground ${className}`}
       >
-        <ol className="flex items-center flex-wrap gap-1">
+        <ol className="flex items-center flex-wrap">
           <li className="flex items-center">
             <Link 
               to="/" 
-              className="hover:text-foreground transition-colors flex items-center gap-1"
+              className="hover:text-foreground transition-colors flex items-center"
               aria-label="Home"
             >
               <Home className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only">Home</span>
             </Link>
           </li>
           
           {items.map((item, index) => (
             <li key={index} className="flex items-center">
-              <ChevronRight className="h-3.5 w-3.5 mx-1 text-muted-foreground/50" />
+              <ChevronRight className="h-3.5 w-3.5 mx-1.5 text-muted-foreground/50 shrink-0" />
               {item.href && index < items.length - 1 ? (
                 <Link 
                   to={item.href}
-                  className="hover:text-foreground transition-colors"
+                  className="hover:text-foreground transition-colors whitespace-nowrap"
                 >
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-foreground font-medium" aria-current="page">
+                <span className="text-foreground font-medium whitespace-nowrap" aria-current="page">
                   {item.label}
                 </span>
               )}
