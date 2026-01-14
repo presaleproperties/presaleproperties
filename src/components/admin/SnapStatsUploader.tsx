@@ -12,6 +12,8 @@ import { Progress } from "@/components/ui/progress";
 interface CityStats {
   city: string;
   property_type: 'condo' | 'townhome';
+  report_month?: number;
+  report_year?: number;
   benchmark_price?: number | null;
   avg_price_sqft?: number | null;
   median_sale_price?: number | null;
@@ -208,7 +210,13 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
 
         if (data?.success && data?.data) {
           const extracted = data.data as ExtractedData;
-          allStats.push(...extracted.city_stats);
+          // Add the report period to each stat for bulk mode
+          const statsWithPeriod = extracted.city_stats.map(stat => ({
+            ...stat,
+            report_month: fileMonth,
+            report_year: fileYear,
+          }));
+          allStats.push(...statsWithPeriod);
           allInsights.push(...(extracted.key_insights || []));
           combinedSummary += `${uploadedFile.edition}: ${extracted.market_summary} `;
           
@@ -246,12 +254,17 @@ export function SnapStatsUploader({ onDataImported }: SnapStatsUploaderProps) {
 
     setIsSaving(true);
     try {
-      const month = parseInt(reportMonth);
-      const year = parseInt(reportYear);
+      // Fallback month/year for non-bulk mode
+      const fallbackMonth = parseInt(reportMonth);
+      const fallbackYear = parseInt(reportYear);
       
       let savedCount = 0;
       
       for (const stat of allExtracted) {
+        // Use per-stat month/year if available (bulk mode), otherwise use global
+        const month = stat.report_month || fallbackMonth;
+        const year = stat.report_year || fallbackYear;
+        
         // Determine source board
         const board = stat.city.includes('Surrey') || stat.city.includes('Langley') || 
                       stat.city.includes('Abbotsford') ? 'FVREB' : 'REBGV';
