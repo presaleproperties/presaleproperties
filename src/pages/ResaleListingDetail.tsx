@@ -412,17 +412,14 @@ export default function ResaleListingDetail() {
                 <h1 className="text-sm font-medium text-muted-foreground">{address}</h1>
 
                 {/* City & Neighborhood */}
-                <div className="flex items-center gap-2 text-sm">
+                <p className="text-sm">
                   <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
                     {listing.city}
                   </Link>
                   {listing.neighborhood && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">{listing.neighborhood}</span>
-                    </>
+                    <span className="text-muted-foreground"> • {listing.neighborhood}</span>
                   )}
-                </div>
+                </p>
 
                 {/* Bed/Bath/Sqft/Year - Compact Row */}
                 <div className="flex flex-wrap items-center gap-4 text-sm">
@@ -510,8 +507,8 @@ export default function ResaleListingDetail() {
                   </div>
                 </div>
 
-                {/* Schedule Form - Full width on both mobile and tablet */}
-                <div className="bg-card border rounded-xl p-4 shadow-sm">
+                {/* Schedule Form - Tablet only (mobile has bottom CTA bar) */}
+                <div className="hidden md:block lg:hidden bg-card border rounded-xl p-4 shadow-sm">
                   <ResaleScheduleForm 
                     listingId={listing.id}
                     listingAddress={address}
