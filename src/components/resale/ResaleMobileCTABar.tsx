@@ -39,8 +39,8 @@ export const ResaleMobileCTABar = ({
           {/* Price display */}
           {formattedPrice && (
             <div className="flex-shrink-0">
-              <p className="text-lg font-bold text-foreground">{formattedPrice}</p>
-              <p className="text-xs text-muted-foreground">List Price</p>
+              <p className="text-3xl leading-none font-bold text-foreground">{formattedPrice}</p>
+              <p className="text-[10px] text-muted-foreground">List Price</p>
             </div>
           )}
 
