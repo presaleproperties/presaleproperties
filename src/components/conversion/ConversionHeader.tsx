@@ -18,6 +18,7 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { AccessPackModal } from "./AccessPackModal";
+import { StickySearchHeader } from "./StickySearchHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
 
@@ -425,7 +426,9 @@ export function ConversionHeader() {
         </div>
       </header>
       
-      {/* No spacer - content goes edge-to-edge, header overlays on top */}
+      {/* Sticky search header for browse pages */}
+      <StickySearchHeader />
+      
       <AccessPackModal
         open={modalOpen}
         onOpenChange={setModalOpen}
