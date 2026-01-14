@@ -552,15 +552,13 @@ export default function MapSearch() {
             {/* Bottom Carousel - Mobile/Tablet - Enhanced with more data */}
             {showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden">
-                <div className="bg-background/98 backdrop-blur-md border-t border-border/30 pt-2 safe-bottom">
-                  <div className="flex items-center justify-between px-4 pb-2">
-                    <span className="text-xs font-medium text-muted-foreground">
-                      {visibleItems.length} properties in view
-                    </span>
+                <div className="bg-background/98 backdrop-blur-md border-t border-border/30 safe-bottom">
+                  {/* Minimal drag handle bar */}
+                  <div className="flex items-center justify-center py-1">
                     <button
                       onClick={() => setShowCarousel(false)}
-                      className="p-1.5 -mr-1.5 rounded-full hover:bg-muted/50 transition-colors"
-                      aria-label="Hide"
+                      className="p-1 rounded-full hover:bg-muted/50 transition-colors"
+                      aria-label="Hide listings"
                     >
                       <ChevronDown className="h-4 w-4 text-muted-foreground" />
                     </button>
