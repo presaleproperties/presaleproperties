@@ -219,8 +219,8 @@ export function REWPhotoGallery({
           onTouchEnd={onTouchEnd}
         >
           <div
-            onClick={() => openGallery(selectedIndex)}
-            className="relative aspect-[4/3] lg:aspect-[16/9] rounded-xl overflow-hidden bg-muted"
+          onClick={() => openGallery(selectedIndex)}
+            className="relative aspect-[4/3] rounded-xl overflow-hidden bg-muted"
           >
             <img
               src={photos[selectedIndex]?.url}
