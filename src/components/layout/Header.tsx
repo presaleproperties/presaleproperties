@@ -49,6 +49,7 @@ export function Header() {
   const isActive = (path: string) => location.pathname === path;
 
   return (
+    <>
     <header 
       className={cn(
         "w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 z-50",
@@ -260,5 +261,9 @@ export function Header() {
         </div>
       </div>
     </header>
+    
+    {/* Spacer for fixed header on mobile/tablet - prevents content from hiding under header */}
+    <div className="h-16 lg:hidden" aria-hidden="true" />
+    </>
   );
 }

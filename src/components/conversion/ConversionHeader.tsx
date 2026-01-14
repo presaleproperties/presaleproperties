@@ -404,6 +404,11 @@ export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps
         </div>
       </header>
 
+      {/* Spacer for fixed header on mobile/tablet - prevents content from hiding under header */}
+      {!hideOnMobile && (
+        <div className="h-14 md:h-16 lg:hidden" aria-hidden="true" />
+      )}
+
       <AccessPackModal
         open={modalOpen}
         onOpenChange={setModalOpen}
