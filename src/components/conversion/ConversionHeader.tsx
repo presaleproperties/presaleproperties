@@ -20,7 +20,9 @@ import {
 import { AccessPackModal } from "./AccessPackModal";
 import { supabase } from "@/integrations/supabase/client";
 import { trackCTAClick } from "@/hooks/useLoftyTracking";
-
+import { useScrollHeader } from "@/hooks/useScrollHeader";
+import { useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 // City links for condos (primary navigation)
 const CONDO_CITY_LINKS = [
   { slug: "surrey", name: "Surrey" },
@@ -65,6 +67,10 @@ export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps
   const [modalOpen, setModalOpen] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const location = useLocation();
+  
+  // Scroll-based header visibility for mobile/tablet
+  const { isVisible } = useScrollHeader({ threshold: 100, sensitivity: 8 });
+  const isMobileOrTablet = useIsMobileOrTablet();
 
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -114,9 +120,20 @@ export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps
     }
   };
 
+  // Determine if header should be hidden on mobile/tablet
+  const shouldHideOnMobile = hideOnMobile || (isMobileOrTablet && !isVisible);
+
   return (
     <>
-      <header className={`sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm ${hideOnMobile ? 'hidden lg:block' : ''}`}>
+      <header 
+        className={cn(
+          "sticky top-0 z-50 w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm transition-transform duration-300 ease-out",
+          // Hide completely on mobile/tablet for property pages with custom headers
+          hideOnMobile && "hidden lg:block",
+          // Scroll-based hide/show for mobile/tablet (slide up when hidden)
+          !hideOnMobile && isMobileOrTablet && !isVisible && "-translate-y-full"
+        )}
+      >
         {/* Desktop: standard height with oversized logo */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
           <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
