@@ -21,6 +21,7 @@ import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
+import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 const formatPrice = (price: number) => {
@@ -301,6 +302,21 @@ export default function ResaleListingDetail() {
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>
       <ConversionHeader />
+
+      {/* Mobile/Tablet Scroll-Up Sticky Header */}
+      <PropertyStickyHeader
+        price={formatPrice(listing.listing_price)}
+        specs={`${listing.bedrooms_total || 0} bd • ${listing.bathrooms_total || 0} ba${listing.living_area ? ` • ${listing.living_area.toLocaleString()} sf` : ""} • ${formatPropertyType(listing.property_sub_type || listing.property_type)}`}
+        onShare={() => {
+          const shareUrl = window.location.href;
+          if (navigator.share && navigator.canShare?.({ url: shareUrl })) {
+            navigator.share({ title: address, url: shareUrl });
+          } else {
+            navigator.clipboard.writeText(shareUrl);
+          }
+        }}
+        backPath="/resale"
+      />
       
       <main className="container px-4 py-3 lg:py-4 pb-24 lg:pb-8">
         <article itemScope itemType="https://schema.org/RealEstateListing">

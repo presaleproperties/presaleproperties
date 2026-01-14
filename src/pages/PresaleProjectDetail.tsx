@@ -23,6 +23,7 @@ import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
 import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
 import { ProjectLeadMagnetsBar, SaveProjectButton, PriceAlertButton } from "@/components/conversion/LeadMagnets";
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
+import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLoftyProjectTracking } from "@/hooks/useLoftyTracking";
@@ -599,6 +600,14 @@ export default function PresaleProjectDetail() {
       </Helmet>
 
       <ConversionHeader />
+
+      {/* Mobile/Tablet Scroll-Up Sticky Header */}
+      <PropertyStickyHeader
+        price={project.starting_price ? formatPrice(project.starting_price) : "Contact for pricing"}
+        specs={`${project.project_type === "condo" ? "Condos" : project.project_type === "townhome" ? "Townhomes" : project.project_type === "mixed" ? "Mixed" : project.project_type === "duplex" ? "Duplexes" : "Homes"} • ${project.neighborhood} • ${project.completion_year || "TBD"}`}
+        onShare={handleShare}
+        backPath="/presale-projects"
+      />
 
       <main className="min-h-screen bg-background pb-24 lg:pb-0">
         <article itemScope itemType="https://schema.org/RealEstateListing">
