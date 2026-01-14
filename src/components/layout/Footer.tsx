@@ -26,8 +26,8 @@ const TOWNHOME_CITY_LINKS = [
 
 export function Footer() {
   return (
-    <footer className="border-t border-border bg-muted/30">
-      <div className="container py-8 sm:py-12 px-4">
+    <footer className="border-t border-border/80 bg-gradient-to-b from-muted/20 to-muted/40">
+      <div className="container py-10 sm:py-14 px-4">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-6">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
             <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
