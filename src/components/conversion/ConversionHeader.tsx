@@ -425,7 +425,8 @@ export function ConversionHeader() {
         </div>
       </header>
       
-      {/* No spacer - content goes edge-to-edge, header overlays on top */}
+      {/* Spacer to prevent content jump when header is fixed */}
+      <div className="h-14 md:h-16" />
       <AccessPackModal
         open={modalOpen}
         onOpenChange={setModalOpen}

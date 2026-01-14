@@ -158,7 +158,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen bg-background lg:hidden -mt-14"
+      className="min-h-screen bg-background lg:hidden"
     >
       {/* Pull to Refresh Indicator */}
       <PullToRefreshIndicator 

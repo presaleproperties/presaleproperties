@@ -209,7 +209,7 @@ const Index = () => {
   // Mobile & Tablet: Show discovery-style layout
   if (isMobileOrTablet) {
     return (
-      <div className="min-h-screen flex flex-col bg-background pt-14 md:pt-16">
+      <div className="min-h-screen flex flex-col bg-background">
         <Helmet>
           <title>Vancouver Presale Condos & Townhomes | New Construction Experts</title>
           <meta name="title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
