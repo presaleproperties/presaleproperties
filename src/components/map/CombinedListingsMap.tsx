@@ -237,6 +237,7 @@ export function CombinedListingsMap({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
+  const userMarkerRef = useRef<L.Marker | null>(null);
 
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
@@ -392,17 +393,81 @@ export function CombinedListingsMap({
     });
   }, [validResaleListings, validPresaleProjects, mode, onListingSelect, updateVisibleItems]);
 
+  // Create user location marker icon
+  const createUserLocationIcon = useCallback(() => {
+    return L.divIcon({
+      className: "user-location-marker",
+      html: `
+        <div style="
+          position: relative;
+          width: 20px;
+          height: 20px;
+        ">
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: hsl(217, 91%, 60%);
+            border: 3px solid white;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
+          "></div>
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 40px;
+            background: hsla(217, 91%, 60%, 0.2);
+            border-radius: 50%;
+            animation: pulse 2s ease-out infinite;
+          "></div>
+        </div>
+        <style>
+          @keyframes pulse {
+            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
+          }
+        </style>
+      `,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20],
+    });
+  }, []);
+
+  // Add or update user location marker
+  const updateUserLocationMarker = useCallback((loc: L.LatLng) => {
+    if (!mapInstanceRef.current) return;
+    
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLatLng(loc);
+    } else {
+      const marker = L.marker(loc, { 
+        icon: createUserLocationIcon(),
+        zIndexOffset: 1000 
+      });
+      marker.addTo(mapInstanceRef.current);
+      userMarkerRef.current = marker;
+    }
+  }, [createUserLocationIcon]);
+
   const handleLocateUser = () => {
-    if (userLocation && mapInstanceRef.current) {
-      mapInstanceRef.current.setView(userLocation, 14);
-    } else if (navigator.geolocation) {
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = L.latLng(pos.coords.latitude, pos.coords.longitude);
           setUserLocation(loc);
+          updateUserLocationMarker(loc);
           mapInstanceRef.current?.setView(loc, 14);
         },
-        () => {}
+        (error) => {
+          console.log("Geolocation error:", error.message);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
       );
     }
   };
@@ -414,30 +479,30 @@ export function CombinedListingsMap({
     <div className="relative w-full h-full">
       <div ref={mapRef} className="w-full h-full" />
       
-      {/* Custom Controls - Bottom right on mobile to avoid conflicts */}
-      <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
+      {/* Custom Controls - Top right to avoid being covered by carousel */}
+      <div className="absolute top-20 lg:top-4 right-3 z-[900] flex flex-col gap-1.5">
         <button
           onClick={handleLocateUser}
-          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
+          className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
           aria-label="Find my location"
         >
-          <Crosshair className="h-4 w-4 text-muted-foreground" />
+          <Crosshair className="h-5 w-5 text-primary" />
         </button>
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={handleZoomIn}
-            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             aria-label="Zoom in"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-5 w-5" />
           </button>
           <div className="w-full h-px bg-border/50" />
           <button
             onClick={handleZoomOut}
-            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
             aria-label="Zoom out"
           >
-            <Minus className="h-4 w-4" />
+            <Minus className="h-5 w-5" />
           </button>
         </div>
       </div>
