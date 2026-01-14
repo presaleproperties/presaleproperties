@@ -259,7 +259,7 @@ const Index = () => {
 
   // Desktop: Original layout
   return (
-    <div className="min-h-screen flex flex-col bg-background pt-14 md:pt-16">
+    <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
         <title>Vancouver Presale Condos & Townhomes | New Construction Experts</title>
         <meta name="title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
@@ -302,7 +302,7 @@ const Index = () => {
       <FAQSchema faqs={HOME_FAQS} />
       
       <ConversionHeader />
-      <main className="flex-1 -mt-14 md:-mt-16">
+      <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
         <ScrollReveal animation="fade-up">
           {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
