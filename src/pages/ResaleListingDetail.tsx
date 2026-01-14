@@ -407,8 +407,8 @@ export default function ResaleListingDetail() {
                   )}
                 </div>
 
-                {/* Address - Large on mobile/tablet */}
-                <h1 className="text-2xl sm:text-3xl font-semibold text-foreground">{address}</h1>
+                {/* Address - Smaller */}
+                <h1 className="text-sm font-medium text-muted-foreground">{address}</h1>
 
                 {/* City & Neighborhood */}
                 <div className="flex items-center gap-2 text-sm">
