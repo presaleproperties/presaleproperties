@@ -202,7 +202,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <form onSubmit={handleSearch} className="relative">
               <Input
                 type="text"
-                placeholder="City, Neighbourhood, Address..."
+                placeholder={activeTab === "projects" 
+                  ? "Search projects, developers..." 
+                  : "City, neighbourhood, address..."
+                }
                 value={searchQuery}
                 onChange={handleSearchChange}
                 onFocus={handleSearchFocus}
