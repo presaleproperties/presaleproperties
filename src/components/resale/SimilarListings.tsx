@@ -26,7 +26,7 @@ export function SimilarListings({
   const maxPrice = Math.round(price * 1.2);
 
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["similar-listings", city, bedrooms, bathrooms, price, excludeListingKey],
+    queryKey: ["similar-listings-2024", city, bedrooms, bathrooms, price, excludeListingKey],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -42,7 +42,7 @@ export function SimilarListings({
         .neq("listing_key", excludeListingKey)
         .gte("listing_price", minPrice)
         .lte("listing_price", maxPrice)
-        .gte("year_built", 2020);
+        .gte("year_built", 2024);
 
       // Match bedrooms if available (±1)
       if (bedrooms !== null) {

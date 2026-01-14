@@ -45,15 +45,15 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
     "Burnaby", "Vancouver", "Coquitlam", "Langley"
   ];
 
-  // 2020+ builds only (new construction)
+  // 2024+ builds only (move-in ready new construction)
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["mobile-resale-carousel-2020", city],
+    queryKey: ["mobile-resale-carousel-2024", city],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, created_at")
         .eq("mls_status", "Active")
-        .gte("year_built", 2020)
+        .gte("year_built", 2024)
         .order("created_at", { ascending: false })
         .limit(16);
 

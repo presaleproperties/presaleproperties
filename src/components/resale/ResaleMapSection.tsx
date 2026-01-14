@@ -56,9 +56,9 @@ export function ResaleMapSection() {
   ];
 
   // Optimized query - fetch more listings for better map coverage
-  // Increased to 2000 to show all available listings - 2024+ builds only
+  // 2024+ builds only (move-in ready new construction)
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings-2020-v4", enabledCities],
+    queryKey: ["resale-map-section-listings-2024", enabledCities],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
@@ -69,7 +69,7 @@ export function ResaleMapSection() {
         .not("latitude", "is", null)
         .not("longitude", "is", null)
         .in("city", citiesToUse)
-        .gte("year_built", 2020)
+        .gte("year_built", 2024)
         // Order by recency so lower-priced condos aren't dropped by the marker cap
         .order("list_date", { ascending: false, nullsFirst: false })
         .limit(5000);
