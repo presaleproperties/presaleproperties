@@ -624,16 +624,16 @@ export default function PresaleProjectDetail() {
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
-            <div className="grid lg:grid-cols-12 gap-0 lg:gap-6">
-              {/* Gallery - Full width edge-to-edge on mobile/tablet, 7 columns on desktop */}
-              <div className="lg:col-span-7">
+            <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
+              {/* Gallery - Full width edge-to-edge on mobile/tablet, 3 columns on desktop with constrained height */}
+              <div className="lg:col-span-3">
                 <REWPhotoGallery photos={allImages.map(url => ({
                   url
-                }))} alt={project.name} previewAspectClassName="aspect-[4/3] lg:aspect-[4/3]" />
+                }))} alt={project.name} previewAspectClassName="aspect-[4/3] lg:aspect-[3/2]" />
               </div>
 
-              {/* Project Info - Full width on mobile/tablet with internal padding, 5 columns on desktop */}
-              <div className="lg:col-span-5 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
+              {/* Project Info - Full width on mobile/tablet with internal padding, 2 columns on desktop */}
+              <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
