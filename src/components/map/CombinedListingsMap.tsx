@@ -94,32 +94,39 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - dark with gold border
+// Presale marker - distinctive gold pin with building icon
 function createPresalePinIcon(project: PresaleProject): L.DivIcon {
-  const priceText = project.starting_price ? `From ${formatPrice(project.starting_price)}` : 'Presale';
-  
   return L.divIcon({
     className: "custom-presale-pin",
     html: `
       <div style="
-        background: hsl(222, 47%, 20%);
-        color: white;
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 10px;
-        white-space: nowrap;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-        border: 1.5px solid hsl(45, 89%, 55%);
-        cursor: pointer;
-        line-height: 1.2;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       ">
-        ${priceText}
+        <div style="
+          background: linear-gradient(135deg, hsl(45, 89%, 55%) 0%, hsl(45, 89%, 45%) 100%);
+          width: 36px;
+          height: 36px;
+          border-radius: 50% 50% 50% 0;
+          transform: rotate(-45deg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+          border: 2px solid white;
+        ">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="hsl(222, 47%, 15%)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform: rotate(45deg);">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+        </div>
       </div>
     `,
-    iconSize: [80, 22],
-    iconAnchor: [40, 22],
-    popupAnchor: [0, -24],
+    iconSize: [36, 42],
+    iconAnchor: [18, 42],
+    popupAnchor: [0, -42],
   });
 }
 
@@ -242,6 +249,7 @@ export function CombinedListingsMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
+  const presaleLayerRef = useRef<L.LayerGroup | null>(null);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
@@ -287,24 +295,30 @@ export function CombinedListingsMap({
       maxZoom: 19 
     }).addTo(map);
 
+    // Cluster group for resale listings only
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
       chunkDelay: 50,
       chunkInterval: 100,
-      maxClusterRadius: 80, // Increased from 60 - more aggressive clustering
+      maxClusterRadius: 80,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 18, // Increased from 17 - cluster until very zoomed in
+      disableClusteringAtZoom: 18,
       animate: false,
       removeOutsideVisibleBounds: true,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.5, // Spread out spiderfied markers more
+      spiderfyDistanceMultiplier: 1.5,
     });
 
+    // Separate layer for presale projects (no clustering)
+    const presaleLayer = L.layerGroup();
+
     map.addLayer(clusterGroup);
+    map.addLayer(presaleLayer);
     
     mapInstanceRef.current = map;
     markerClusterRef.current = clusterGroup;
+    presaleLayerRef.current = presaleLayer;
 
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
@@ -334,14 +348,16 @@ export function CombinedListingsMap({
   useEffect(() => {
     const map = mapInstanceRef.current;
     const clusterGroup = markerClusterRef.current;
-    if (!map || !clusterGroup) return;
+    const presaleLayer = presaleLayerRef.current;
+    if (!map || !clusterGroup || !presaleLayer) return;
 
     clusterGroup.clearLayers();
+    presaleLayer.clearLayers();
 
-    const markers: L.Marker[] = [];
+    const resaleMarkers: L.Marker[] = [];
     const allCoords: L.LatLngTuple[] = [];
 
-    // Add resale listings if mode is "all" or "resale"
+    // Add resale listings to cluster group if mode is "all" or "resale"
     if (mode === "all" || mode === "resale") {
       for (const listing of validResaleListings) {
         const marker = L.marker([listing.latitude!, listing.longitude!], {
@@ -363,16 +379,17 @@ export function CombinedListingsMap({
           onListingSelect?.(listing.id, "resale");
         });
 
-        markers.push(marker);
+        resaleMarkers.push(marker);
         allCoords.push([listing.latitude!, listing.longitude!]);
       }
     }
 
-    // Add presale projects if mode is "all" or "presale"
+    // Add presale projects as individual pins (not clustered) if mode is "all" or "presale"
     if (mode === "all" || mode === "presale") {
       for (const project of validPresaleProjects) {
         const marker = L.marker([project.map_lat!, project.map_lng!], {
           icon: createPresalePinIcon(project),
+          zIndexOffset: 1000, // Keep presale pins above resale clusters
         });
 
         marker.bindPopup(presalePopupHtml(project), {
@@ -380,7 +397,7 @@ export function CombinedListingsMap({
           minWidth: 360,
           closeButton: true,
           className: "presale-project-popup",
-          offset: L.point(0, -10),
+          offset: L.point(0, -20),
           autoPan: true,
           autoPanPaddingTopLeft: L.point(50, 100),
           autoPanPaddingBottomRight: L.point(50, 50),
@@ -390,12 +407,12 @@ export function CombinedListingsMap({
           onListingSelect?.(project.id, "presale");
         });
 
-        markers.push(marker);
+        presaleLayer.addLayer(marker);
         allCoords.push([project.map_lat!, project.map_lng!]);
       }
     }
 
-    clusterGroup.addLayers(markers);
+    clusterGroup.addLayers(resaleMarkers);
 
     // Only fit bounds on initial load, not when toggling mode or filters
     if (!hasInitializedViewRef.current && allCoords.length > 0) {
