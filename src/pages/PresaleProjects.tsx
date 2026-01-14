@@ -632,57 +632,51 @@ export default function PresaleProjects() {
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
-        <section className="bg-background border-b border-border py-4 sm:py-8 md:py-12">
-          <div className="container px-4">
-            {/* Breadcrumbs */}
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
-              <Link to="/" className="hover:text-foreground transition-colors shrink-0">
+        
+        {/* Compact Hero Section */}
+        <section className="bg-gradient-to-b from-muted/50 to-background border-b border-border">
+          <div className="container px-4 pt-3 pb-4 md:pt-4 md:pb-6">
+            {/* Breadcrumb - Single Line */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+              <Link to="/" className="hover:text-foreground transition-colors">
                 <Home className="h-3.5 w-3.5" />
               </Link>
-              <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
-              <Link to="/presale-projects" className="hover:text-foreground transition-colors shrink-0">
-                Presale Projects
-              </Link>
+              <ChevronRightIcon className="h-3.5 w-3.5" />
+              <span className="text-foreground font-medium">Presale Projects</span>
               {filters.city !== "any" && (
                 <>
-                  <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="text-foreground font-medium shrink-0">{filters.city}</span>
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
+                  <span className="text-foreground font-medium">{filters.city}</span>
                 </>
               )}
             </nav>
 
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="max-w-3xl">
-                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+            {/* Title Row - Title left, Toggle right */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+              <div>
+                <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                   {filters.city !== "any" 
                     ? `Presale Projects in ${filters.city}` 
                     : "Pre-Construction New Homes"}
                 </h1>
-                <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
-                  <span className="font-medium text-foreground">{totalCount}</span>
-                  <span>projects available</span>
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  <span className="font-semibold text-foreground">{totalCount}</span> projects available
                   {activeFilterCount > 0 && (
-                    <>
-                      <span className="text-border">•</span>
-                      <button 
-                        onClick={clearAllFilters}
-                        className="text-primary hover:underline"
-                      >
-                        Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
-                      </button>
-                    </>
+                    <button onClick={clearAllFilters} className="ml-2 text-primary hover:underline">
+                      Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                    </button>
                   )}
                 </p>
               </div>
               <PresaleToggle />
             </div>
             
-            {/* Quick City Filter Chips */}
-            <div className="mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
+            {/* City Filter Chips - Compact */}
+            <div className="-mx-4 px-4 overflow-x-auto scrollbar-hide">
               <div className="flex gap-2 pb-1">
                 <button
                   onClick={() => updateFilter("city", "any")}
-                  className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                     filters.city === "any"
                       ? "bg-foreground text-background"
                       : "bg-muted hover:bg-muted/80 text-foreground"
@@ -694,7 +688,7 @@ export default function PresaleProjects() {
                   <button
                     key={city}
                     onClick={() => updateFilter("city", city)}
-                    className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                    className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
                       filters.city === city
                         ? "bg-foreground text-background"
                         : "bg-muted hover:bg-muted/80 text-foreground"
