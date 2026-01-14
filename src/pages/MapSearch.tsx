@@ -234,7 +234,7 @@ export default function MapSearch() {
   // Fetch resale listings (2024+ builds only - move-in ready new construction)
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
   // We intentionally keep this query “hot” so the count and markers update immediately.
-  const { data: resaleListings, isLoading: resaleLoading } = useQuery({
+  const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
     queryKey: ["unified-map-resale-2024", filters, enabledCities],
     queryFn: async () => {
       let query = supabase
@@ -278,15 +278,29 @@ export default function MapSearch() {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
-      // Order by recency - max limit for full coverage
-      query = query
-        .order("list_date", { ascending: false, nullsFirst: false })
-        .order("listing_price", { ascending: false })
-        .limit(10000);
+      // NOTE: The backend caps max rows per request, so we page in chunks and merge.
+      // Keep the total bounded for performance.
+      const pageSize = 1000;
+      const maxRows = 6000;
 
-      const { data, error } = await query;
-      if (error) throw error;
-      return data as MLSListing[];
+      const all: MLSListing[] = [];
+      for (let offset = 0; offset < maxRows; offset += pageSize) {
+        const { data, error } = await query
+          .order("list_date", { ascending: false, nullsFirst: false })
+          .order("listing_price", { ascending: false })
+          .range(offset, offset + pageSize - 1);
+
+        if (error) throw error;
+        const chunk = (data || []) as MLSListing[];
+        all.push(...chunk);
+
+        if (chunk.length < pageSize) break;
+      }
+
+      // De-dupe defensively (shouldn't happen, but cheap).
+      const byId = new globalThis.Map<string, MLSListing>();
+      for (const l of all) byId.set(l.id, l);
+      return Array.from(byId.values());
     },
     staleTime: 0,
     refetchOnMount: "always",
@@ -295,7 +309,7 @@ export default function MapSearch() {
   });
 
   // Fetch presale projects
-  const { data: presaleProjects, isLoading: presaleLoading } = useQuery({
+  const { data: presaleProjects, isLoading: presaleLoading } = useQuery<PresaleProject[]>({
     queryKey: ["unified-map-presale", filters],
     queryFn: async () => {
       let query = supabase
