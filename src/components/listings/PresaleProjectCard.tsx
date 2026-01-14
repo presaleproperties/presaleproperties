@@ -136,7 +136,7 @@ export function PresaleProjectCard({
 
   return (
     <Link to={projectUrl}>
-      <Card className="group overflow-hidden border-border/60 bg-card shadow-card hover:shadow-premium hover:border-primary/25 hover:-translate-y-2 transition-all duration-300 ease-out h-full">
+      <Card className="group overflow-hidden border-border/80 bg-card shadow-card hover:shadow-premium hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out h-full">
         <div
           className={cn(
             "relative overflow-hidden bg-muted",
@@ -160,7 +160,7 @@ export function PresaleProjectCard({
               {statusLabel && (
                 <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
                   <Badge 
-                    className="bg-primary text-primary-foreground text-[9px] sm:text-xs font-bold shadow-gold px-2.5 py-0.5 tracking-wide border border-primary-deep/20"
+                    className="bg-primary text-primary-foreground text-[9px] sm:text-xs font-bold shadow-gold px-2.5 py-0.5 tracking-wide"
                   >
                     {statusLabel}
                   </Badge>

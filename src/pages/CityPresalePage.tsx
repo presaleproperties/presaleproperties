@@ -738,7 +738,7 @@ export default function CityPresalePage() {
 
       <ConversionHeader />
 
-      <main className="min-h-screen bg-background pt-14 md:pt-16">
+      <main className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="bg-gradient-to-br from-primary/10 via-background to-background border-b border-border">
           <div className="container px-4 py-12 md:py-16 lg:py-20">

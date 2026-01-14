@@ -166,7 +166,7 @@ export default function ROICalculator() {
 
       <ConversionHeader />
 
-      <main className="min-h-screen bg-background pt-14 md:pt-16">
+      <main className="min-h-screen bg-background">
         {/* Hero Section - Light theme matching site design */}
         <section className="bg-gradient-to-b from-muted/50 to-background border-b py-6 md:py-12">
           <div className="container px-4">

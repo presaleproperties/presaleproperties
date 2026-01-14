@@ -600,7 +600,7 @@ export default function PresaleProjectDetail() {
 
       <ConversionHeader />
 
-      <main className="min-h-screen bg-background pb-24 lg:pb-0 pt-14 md:pt-16">
+      <main className="min-h-screen bg-background pb-24 lg:pb-0">
         <article itemScope itemType="https://schema.org/RealEstateListing">
         {/* Preview Mode Banner */}
         {isPreviewMode && <div className="bg-yellow-500 text-yellow-950 py-2 px-4 text-center text-sm font-medium">

@@ -266,7 +266,7 @@ export default function PresaleGuide() {
 
       <ConversionHeader />
 
-      <main className="flex-1 pt-14 md:pt-16">
+      <main className="flex-1">
         {/* Breadcrumb */}
         <div className="border-b bg-muted/30">
           <div className="container px-4 py-3">

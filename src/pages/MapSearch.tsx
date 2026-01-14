@@ -483,7 +483,7 @@ export default function MapSearch() {
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 
-      <div className="h-screen bg-background flex flex-col overflow-hidden pt-14 md:pt-16">
+      <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader />
 
         {/* Main Content - Map + Panel Layout */}

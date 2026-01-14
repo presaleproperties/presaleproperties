@@ -29,7 +29,7 @@ export default function ForDevelopers() {
 
       <ConversionHeader />
 
-      <main className="pt-14 md:pt-16">
+      <main>
         {/* Hero Section */}
         <section className="relative py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
           <div className="container max-w-4xl text-center">

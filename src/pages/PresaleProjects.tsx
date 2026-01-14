@@ -634,7 +634,7 @@ export default function PresaleProjects() {
         <ConversionHeader />
         
         {/* Compact Hero Section */}
-        <section className="bg-gradient-to-b from-muted/50 to-background border-b border-border pt-14 md:pt-16">
+        <section className="bg-gradient-to-b from-muted/50 to-background border-b border-border">
           <div className="container px-4 pt-3 pb-4 md:pt-4 md:pb-6">
             {/* Breadcrumb - Single Line */}
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">

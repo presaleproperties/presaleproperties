@@ -327,7 +327,7 @@ export default function ResalePropertyTypePage() {
 
       <ConversionHeader />
 
-      <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8 pt-16 md:pt-20">
+      <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
           <Link to="/" className="hover:text-foreground transition-colors shrink-0"><Home className="h-3.5 w-3.5" /></Link>

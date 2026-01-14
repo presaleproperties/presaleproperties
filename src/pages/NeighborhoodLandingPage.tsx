@@ -669,7 +669,7 @@ export default function NeighborhoodLandingPage() {
       <div className="min-h-screen bg-background">
         <ConversionHeader />
 
-        <main className="container py-6 md:py-8 pt-16 md:pt-20">
+        <main className="container py-6 md:py-8">
           {/* Breadcrumbs */}
           <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-6 overflow-x-auto">
             <Link to="/" className="hover:text-foreground transition-colors shrink-0">

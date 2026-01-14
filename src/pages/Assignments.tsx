@@ -412,7 +412,7 @@ export default function Assignments() {
       <ConversionHeader />
 
       {/* Breadcrumb */}
-      <div className="border-b bg-muted/30 pt-14 md:pt-16">
+      <div className="border-b bg-muted/30">
         <div className="container px-4 py-3">
           <Breadcrumbs items={[{ label: "Assignments" }]} />
         </div>

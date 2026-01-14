@@ -5,17 +5,17 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.97]",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold ring-offset-background transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 active:scale-[0.98]",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-gold hover:shadow-gold-glow hover:bg-primary/90 hover:-translate-y-0.5",
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm hover:-translate-y-0.5",
-        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/50 shadow-xs hover:shadow-card hover:-translate-y-0.5",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs hover:shadow-card hover:-translate-y-0.5",
+        default: "bg-primary text-primary-foreground shadow-gold hover:shadow-gold-glow hover:bg-primary/90",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+        outline: "border border-input bg-background hover:bg-accent hover:text-accent-foreground hover:border-primary/50 shadow-xs",
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80 shadow-xs",
         ghost: "hover:bg-accent/80 hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        premium: "bg-gradient-to-r from-primary via-primary-glow to-primary-deep text-primary-foreground shadow-gold hover:shadow-gold-glow hover:-translate-y-0.5 hover:scale-[1.02]",
+        premium: "bg-gradient-to-r from-primary via-primary-glow to-primary-deep text-primary-foreground shadow-gold hover:shadow-gold-glow",
       },
       size: {
         default: "h-11 px-5 py-2.5",
