@@ -49,7 +49,9 @@ Deno.serve(async (req) => {
       { url: "/assignments", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/resale", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/map-search", priority: "0.85", changefreq: "daily", lastmod: now },
+      { url: "/market-trends", priority: "0.85", changefreq: "weekly", lastmod: now },
       { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
+      { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/presale-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/calculator", priority: "0.85", changefreq: "monthly", lastmod: now },
@@ -87,6 +89,13 @@ Deno.serve(async (req) => {
       { url: `/resale/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
     ]);
 
+    // City Market Report pages
+    const marketReportPages = allCities.map(city => ({
+      url: `/market-report/${city}`,
+      priority: "0.8",
+      changefreq: "monthly",
+      lastmod: now
+    }));
     // Price-based SEO pages
     const pricePoints = ["500k", "700k", "900k", "1000k"];
     const priceCities = primaryCities;
@@ -178,6 +187,7 @@ Deno.serve(async (req) => {
     const allPages = [
       ...staticPages,
       ...cityProductPages,
+      ...marketReportPages,
       ...projectPages, // Projects now have SEO-friendly URLs and high priority
       ...neighborhoodPages,
       ...resaleCityPages,

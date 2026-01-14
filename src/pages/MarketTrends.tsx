@@ -1,9 +1,11 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,7 +21,10 @@ import {
   Clock,
   BarChart3,
   Info,
-  MapPin
+  MapPin,
+  ArrowRight,
+  FileText,
+  ShieldCheck
 } from "lucide-react";
 import {
   AreaChart,
@@ -604,6 +609,40 @@ export default function MarketTrends() {
                   </CardContent>
                 </Card>
               )}
+
+              {/* City Market Reports */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5 text-primary" />
+                    Detailed City Market Reports
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground mb-4">
+                    View verified market data for individual cities. Each report includes benchmark prices, 
+                    sales ratios, price trends, and official source citations.
+                  </p>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                    {availableCities.filter(c => c !== 'All Cities').map(city => (
+                      <Button
+                        key={city}
+                        asChild
+                        variant="outline"
+                        className="h-auto py-3 flex-col items-start"
+                      >
+                        <Link to={`/market-report/${city.toLowerCase().replace(/\s+/g, '-')}`}>
+                          <span className="font-medium text-sm">{city}</span>
+                          <span className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                            <ShieldCheck className="h-3 w-3 text-green-600" />
+                            Verified Data
+                          </span>
+                        </Link>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
               {/* Understanding the Numbers */}
               <Card className="bg-muted/30">
