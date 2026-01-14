@@ -719,8 +719,9 @@ export default function PresaleProjectDetail() {
                     {project.short_description}
                   </p>}
 
-                {/* Inline Scheduler - Tablet and Desktop, directly under project info */}
-                <div className="hidden md:block mt-3">
+                {/* Tablet-only Lead Form and Scheduler - positioned under project info */}
+                <div className="hidden md:block lg:hidden mt-3 space-y-4">
+                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                   <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
                 </div>
               </div>
@@ -858,7 +859,10 @@ export default function PresaleProjectDetail() {
                   {/* Lead Form - Primary conversion point */}
                   <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                   
-                  {/* Quick Actions Below Form */}
+                  {/* Inline Scheduler - Below lead form on desktop */}
+                  <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
+                  
+                  {/* Quick Actions Below Scheduler */}
                   <div className="flex gap-2">
                     <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" asChild>
                       <a href="tel:+16722581100">
@@ -874,11 +878,12 @@ export default function PresaleProjectDetail() {
                 </div>
               </aside>
               
-              {/* Mobile-only InlineScheduler - positioned after FAQ for separation */}
-              <div className="md:hidden">
+              {/* Mobile-only Lead Form and Scheduler - positioned after FAQ */}
+              <div className="md:hidden space-y-4">
                 <div ref={formRef} id="contact-form-mobile" className="w-full">
-                  <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
+                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                 </div>
+                <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
               </div>
             </div>
           </div>
