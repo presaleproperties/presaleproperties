@@ -352,90 +352,135 @@ export default function ResaleListingDetail() {
 
         {/* Desktop Hero: Gallery + Form side by side */}
         <div className="hidden lg:grid lg:grid-cols-5 gap-6 mb-6">
-          {/* Left: Gallery with overlaid action buttons */}
-          <div className="lg:col-span-3 relative">
-            {photos.length > 0 ? (
-              <div className="relative">
-                <GalleryWithLightbox
-                  images={photos.map(p => p.url)}
-                  selectedIndex={selectedImageIndex}
-                  onSelectIndex={setSelectedImageIndex}
-                  alt={address}
-                  className="rounded-xl overflow-hidden"
-                />
-                {/* Action buttons overlaid at bottom of image */}
-                <div className="absolute bottom-3 left-3 flex flex-wrap gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
-                    onClick={() => setSelectedImageIndex(0)}
-                  >
-                    <Eye className="h-3.5 w-3.5" />
-                    {photos.length} Photos
-                  </Button>
-                  {listing.virtual_tour_url && (
+          {/* Left: Gallery + Price/Specs stacked */}
+          <div className="lg:col-span-3 space-y-3">
+            {/* Gallery with overlaid action buttons */}
+            <div className="relative">
+              {photos.length > 0 ? (
+                <div className="relative">
+                  <GalleryWithLightbox
+                    images={photos.map(p => p.url)}
+                    selectedIndex={selectedImageIndex}
+                    onSelectIndex={setSelectedImageIndex}
+                    alt={address}
+                    className="rounded-xl overflow-hidden"
+                  />
+                  {/* Action buttons overlaid at bottom of image */}
+                  <div className="absolute bottom-3 left-3 flex flex-wrap gap-2">
                     <Button
                       variant="secondary"
                       size="sm"
                       className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
-                      asChild
+                      onClick={() => setSelectedImageIndex(0)}
                     >
-                      <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
-                        <Navigation className="h-3.5 w-3.5" />
-                        Virtual Tour
-                      </a>
+                      <Eye className="h-3.5 w-3.5" />
+                      {photos.length} Photos
                     </Button>
-                  )}
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
-                    onClick={() => {
-                      if (listing.latitude && listing.longitude) {
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`, "_blank");
-                      }
-                    }}
-                    disabled={!listing.latitude || !listing.longitude}
-                  >
-                    <Map className="h-3.5 w-3.5" />
-                    Map
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
-                    onClick={() => {
-                      if (listing.latitude && listing.longitude) {
-                        window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${listing.latitude},${listing.longitude}`, "_blank");
-                      }
-                    }}
-                    disabled={!listing.latitude || !listing.longitude}
-                  >
-                    <MapPin className="h-3.5 w-3.5" />
-                    Street View
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
-                    onClick={() => {
-                      if (listing.latitude && listing.longitude) {
-                        window.open(`https://www.google.com/maps/dir/?api=1&destination=${listing.latitude},${listing.longitude}`, "_blank");
-                      }
-                    }}
-                    disabled={!listing.latitude || !listing.longitude}
-                  >
-                    <Navigation className="h-3.5 w-3.5" />
-                    Directions
-                  </Button>
+                    {listing.virtual_tour_url && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
+                        asChild
+                      >
+                        <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
+                          <Navigation className="h-3.5 w-3.5" />
+                          Virtual Tour
+                        </a>
+                      </Button>
+                    )}
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
+                      onClick={() => {
+                        if (listing.latitude && listing.longitude) {
+                          window.open(`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`, "_blank");
+                        }
+                      }}
+                      disabled={!listing.latitude || !listing.longitude}
+                    >
+                      <Map className="h-3.5 w-3.5" />
+                      Map
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
+                      onClick={() => {
+                        if (listing.latitude && listing.longitude) {
+                          window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${listing.latitude},${listing.longitude}`, "_blank");
+                        }
+                      }}
+                      disabled={!listing.latitude || !listing.longitude}
+                    >
+                      <MapPin className="h-3.5 w-3.5" />
+                      Street View
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 px-3 text-xs gap-1.5 bg-background/90 hover:bg-background shadow-md"
+                      onClick={() => {
+                        if (listing.latitude && listing.longitude) {
+                          window.open(`https://www.google.com/maps/dir/?api=1&destination=${listing.latitude},${listing.longitude}`, "_blank");
+                        }
+                      }}
+                      disabled={!listing.latitude || !listing.longitude}
+                    >
+                      <Navigation className="h-3.5 w-3.5" />
+                      Directions
+                    </Button>
+                  </div>
                 </div>
+              ) : (
+                <div className="aspect-[3/2] bg-muted rounded-xl flex items-center justify-center">
+                  <Home className="h-16 w-16 text-muted-foreground/50" />
+                </div>
+              )}
+            </div>
+
+            {/* Price & Property Info - Directly under gallery */}
+            <div className="pt-2">
+              {/* Price with Est. Monthly */}
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
+                <span className="text-3xl font-bold text-foreground">
+                  {formatPrice(listing.listing_price)}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
+                </span>
+                <button 
+                  onClick={scrollToForm}
+                  className="text-sm text-primary hover:underline font-medium"
+                >
+                  Get pre-approved
+                </button>
               </div>
-            ) : (
-              <div className="aspect-[3/2] bg-muted rounded-xl flex items-center justify-center">
-                <Home className="h-16 w-16 text-muted-foreground/50" />
+
+              {/* Address */}
+              <h1 className="text-lg font-semibold text-foreground mb-1">
+                {address}
+              </h1>
+              
+              {/* City, Beds/Baths/Sqft inline */}
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
+                  {listing.city}
+                </Link>
+                {listing.neighborhood && (
+                  <>
+                    <span className="text-muted-foreground/50">•</span>
+                    <span>{listing.neighborhood}</span>
+                  </>
+                )}
+                <span className="text-muted-foreground/50">•</span>
+                {listing.bedrooms_total !== null && <span>{listing.bedrooms_total} Beds</span>}
+                {listing.bathrooms_total !== null && <span className="ml-1">{listing.bathrooms_total} Baths</span>}
+                {listing.living_area && <span className="ml-1">{listing.living_area.toLocaleString()} Sqft</span>}
+                {listing.year_built && <span className="ml-1">Built {listing.year_built}</span>}
               </div>
-            )}
+            </div>
           </div>
 
           {/* Right: Schedule Form */}
@@ -452,48 +497,6 @@ export default function ResaleListingDetail() {
                 listingCity={listing.city}
               />
             </div>
-          </div>
-        </div>
-
-        {/* Desktop: Price & Address below gallery (spans gallery width only) */}
-        <div className="hidden lg:block lg:max-w-[60%] mb-8">
-          {/* Price with Est. Monthly */}
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
-            <span className="text-4xl font-bold text-foreground">
-              {formatPrice(listing.listing_price)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
-            </span>
-            <button 
-              onClick={scrollToForm}
-              className="text-sm text-primary hover:underline font-medium"
-            >
-              Get pre-approved
-            </button>
-          </div>
-
-          {/* Full Address */}
-          <h1 className="text-xl font-semibold text-foreground mb-1">
-            {address}
-          </h1>
-          
-          {/* City, Neighborhood, Beds/Baths/Sqft inline */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-            <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
-              {listing.city}
-            </Link>
-            {listing.neighborhood && (
-              <>
-                <span>•</span>
-                <span>{listing.neighborhood}</span>
-              </>
-            )}
-            <span>•</span>
-            {listing.bedrooms_total !== null && <span>{listing.bedrooms_total} Beds</span>}
-            {listing.bathrooms_total !== null && <span>{listing.bathrooms_total} Baths</span>}
-            {listing.living_area && <span>{listing.living_area.toLocaleString()} Sqft</span>}
-            {listing.year_built && <span>Built {listing.year_built}</span>}
           </div>
         </div>
 
