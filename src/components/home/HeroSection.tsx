@@ -101,18 +101,19 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
       <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
         <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
           {/* Tagline */}
-          <p className="text-primary text-xs sm:text-sm md:text-base animate-fade-in font-medium tracking-wide">
-            New Construction Specialists
+          <p className="text-primary text-sm sm:text-base md:text-lg animate-fade-in font-semibold tracking-wide uppercase">
+            Vancouver's New Construction Experts
           </p>
           
           {/* Main Heading - SEO optimized H1 */}
-          <h1 className="text-[26px] sm:text-3xl md:text-5xl lg:text-6xl font-bold tracking-tight text-white animate-fade-in leading-[1.15] sm:leading-tight" style={{ animationDelay: "0.1s" }}>
-            Presale Projects & <span className="text-primary">Move-In Ready</span> Homes
+          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white animate-fade-in leading-[1.1]" style={{ animationDelay: "0.1s" }}>
+            Find Your <span className="text-primary">Brand New</span> Home
           </h1>
           
           {/* Subheadline */}
-          <p className="text-white/80 text-sm sm:text-base animate-fade-in max-w-lg mx-auto" style={{ animationDelay: "0.15s" }}>
-            Every property is brand new, never lived in. 100% new construction only.
+          <p className="text-white/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed" style={{ animationDelay: "0.15s" }}>
+            Presale condos & move-in ready homes.<br className="hidden sm:block" />
+            <span className="text-white/70">Never lived in. Full warranty included.</span>
           </p>
 
 
