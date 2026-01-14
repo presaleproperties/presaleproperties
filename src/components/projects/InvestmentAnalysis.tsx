@@ -48,7 +48,35 @@ export function InvestmentAnalysis({
   projectType,
   completionYear,
 }: InvestmentAnalysisProps) {
-  // Fetch market data from database
+  // Determine property type for city_market_stats query
+  const statsPropertyType = projectType === "townhome" ? "townhome" : "condo";
+  
+  // Fetch verified price/sqft from city_market_stats (MLS New Construction data)
+  const { data: cityStats, isLoading: isCityStatsLoading } = useQuery({
+    queryKey: ['city-market-stats-price-sqft', city, statsPropertyType],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('city_market_stats')
+        .select('avg_price_sqft, source_board, report_month, report_year')
+        .ilike('city', city)
+        .eq('property_type', statsPropertyType)
+        .not('avg_price_sqft', 'is', null)
+        .order('report_year', { ascending: false })
+        .order('report_month', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      if (error) {
+        console.error('Error fetching city stats:', error);
+        return null;
+      }
+      
+      return data;
+    },
+    staleTime: 1000 * 60 * 60,
+  });
+  
+  // Fetch market data from database (fallback)
   const { data: marketData, isLoading: isMarketLoading } = useQuery({
     queryKey: ['market-data', city],
     queryFn: async () => {
@@ -65,18 +93,24 @@ export function InvestmentAnalysis({
       
       return data || DEFAULT_MARKET;
     },
-    staleTime: 1000 * 60 * 60, // 1 hour cache
+    staleTime: 1000 * 60 * 60,
   });
 
   // Fetch verified CMHC rental data
   const { data: cmhcData, isLoading: isCMHCLoading } = useLatestCMHCData(city);
 
   const data = marketData || DEFAULT_MARKET;
-  const isLoading = isMarketLoading || isCMHCLoading;
+  const isLoading = isMarketLoading || isCMHCLoading || isCityStatsLoading;
+  
+  // Use verified MLS price/sqft if available
+  const verifiedPriceSqft = cityStats?.avg_price_sqft || null;
+  const isPriceSqftVerified = !!verifiedPriceSqft && cityStats?.source_board === 'MLS New Construction';
   
   // Calculate estimated metrics
   const estimatedSqft = projectType === "townhome" ? 1400 : projectType === "condo" ? 650 : 800;
-  const pricePerSqft = startingPrice ? Math.round(startingPrice / estimatedSqft) : data.avg_price_sqft;
+  const pricePerSqft = startingPrice 
+    ? Math.round(startingPrice / estimatedSqft) 
+    : (verifiedPriceSqft || data.avg_price_sqft);
   
   // Use CMHC verified rent data if available, otherwise fall back to market_data
   const hasCMHCData = !!cmhcData;
@@ -150,21 +184,38 @@ export function InvestmentAnalysis({
           </div>
           <h2 className="text-lg md:text-xl font-bold text-foreground">Investment Potential</h2>
         </div>
-        {hasCMHCData && (
-          <Badge variant="outline" className="bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-[10px]">
-            <ShieldCheck className="h-3 w-3 mr-1" />
-            CMHC Verified
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {isPriceSqftVerified && (
+            <Badge variant="outline" className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 border-blue-200 dark:border-blue-800 text-[10px]">
+              <ShieldCheck className="h-3 w-3 mr-1" />
+              MLS Data
+            </Badge>
+          )}
+          {hasCMHCData && (
+            <Badge variant="outline" className="bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800 text-[10px]">
+              <ShieldCheck className="h-3 w-3 mr-1" />
+              CMHC Rents
+            </Badge>
+          )}
+        </div>
       </div>
 
       {/* Key Metrics Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-5">
-        <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center">
+        <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center relative">
           <DollarSign className="h-5 w-5 text-primary mx-auto mb-1.5" />
           <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide mb-1">Price/Sq Ft</p>
           <p className="text-lg font-bold text-foreground">${pricePerSqft}</p>
-          <p className="text-[10px] text-muted-foreground">vs ${data.avg_price_sqft} avg</p>
+          <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1">
+            {isPriceSqftVerified ? (
+              <>
+                <ShieldCheck className="h-2.5 w-2.5 text-green-500" />
+                <span className="text-green-600 dark:text-green-400">MLS Verified</span>
+              </>
+            ) : (
+              <>vs ${verifiedPriceSqft || data.avg_price_sqft} avg</>
+            )}
+          </p>
         </div>
 
         <div className="bg-background/80 rounded-xl p-4 border border-border/50 text-center relative">

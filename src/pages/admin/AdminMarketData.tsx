@@ -30,6 +30,7 @@ import { MarketBlogGenerator } from "@/components/admin/MarketBlogGenerator";
 import { ResearchImporter } from "@/components/admin/ResearchImporter";
 import { SnapStatsUploader } from "@/components/admin/SnapStatsUploader";
 import { CMHCRentalUploader } from "@/components/admin/CMHCRentalUploader";
+import { PriceSqftCalculator } from "@/components/admin/PriceSqftCalculator";
 
 interface MarketData {
   id: string;
@@ -200,10 +201,25 @@ export default function AdminMarketData() {
 
           {/* Snap Stats Upload Tab (NEW PRIMARY) */}
           <TabsContent value="snapstats" className="mt-6 space-y-6">
+            {/* Calculate Price/Sqft from MLS Card */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base flex items-center gap-2">
+                  <BarChart3 className="h-4 w-4" />
+                  New Construction Price/Sqft Calculator
+                </CardTitle>
+                <CardDescription>
+                  Auto-calculate verified price per sqft from MLS listings (properties under 1 year old). 
+                  This runs automatically after MLS sync but can be triggered manually.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PriceSqftCalculator onCalculated={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
+              </CardContent>
+            </Card>
+            
             <SnapStatsUploader onDataImported={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
           </TabsContent>
-
-          {/* CMHC Rental Data Tab */}
           <TabsContent value="cmhc" className="mt-6 space-y-6">
             <CMHCRentalUploader onDataUpdated={() => queryClient.invalidateQueries({ queryKey: ['admin-market-data'] })} />
           </TabsContent>
