@@ -625,11 +625,11 @@ export default function PresaleProjectDetail() {
         <section className="bg-gradient-to-b from-muted/30 to-background">
           <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
             <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
-              {/* Gallery - Full width edge-to-edge on mobile/tablet, 3 columns on desktop with constrained height */}
-              <div className="lg:col-span-3">
+              {/* Gallery - Full width edge-to-edge on mobile/tablet, 3 columns on desktop */}
+              <div className="lg:col-span-3 -mx-0 lg:mx-0">
                 <REWPhotoGallery photos={allImages.map(url => ({
                   url
-                }))} alt={project.name} previewAspectClassName="aspect-[4/3] lg:aspect-[3/2]" />
+                }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" />
               </div>
 
               {/* Project Info - Full width on mobile/tablet with internal padding, 2 columns on desktop */}
