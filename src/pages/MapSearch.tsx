@@ -232,12 +232,16 @@ export default function MapSearch() {
   ]);
 
   // Fetch resale listings (2024+ builds only - move-in ready new construction)
+  // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
+  // We intentionally keep this query “hot” so the count and markers update immediately.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
     queryKey: ["unified-map-resale-2024", filters, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
+        .select(
+          "id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name"
+        )
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
@@ -252,7 +256,9 @@ export default function MapSearch() {
         query = query.eq("city", filters.city);
       }
       if (filters.propertyType !== "any") {
-        query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+        query = query.or(
+          `property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`
+        );
       }
       if (filters.priceMin) {
         query = query.gte("listing_price", parseInt(filters.priceMin));
@@ -266,20 +272,26 @@ export default function MapSearch() {
       if (filters.daysOnSite !== "any") {
         const daysAgo = new Date();
         daysAgo.setDate(daysAgo.getDate() - parseInt(filters.daysOnSite));
-        query = query.gte("list_date", daysAgo.toISOString().split('T')[0]);
+        query = query.gte("list_date", daysAgo.toISOString().split("T")[0]);
       }
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
 
       // Order by recency - max limit for full coverage
-      query = query.order("list_date", { ascending: false, nullsFirst: false }).order("listing_price", { ascending: false }).limit(10000);
+      query = query
+        .order("list_date", { ascending: false, nullsFirst: false })
+        .order("listing_price", { ascending: false })
+        .limit(10000);
 
       const { data, error } = await query;
       if (error) throw error;
       return data as MLSListing[];
     },
-    staleTime: 60 * 1000, // 1 minute stale time for fresher data
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+    refetchInterval: 60 * 1000,
   });
 
   // Fetch presale projects
