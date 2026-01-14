@@ -944,8 +944,8 @@ export default function MapSearch() {
                           ? 'border-primary ring-2 ring-primary/20' 
                           : 'border-border hover:border-primary/50'
                       }`}>
-                        {/* Large Image - 4:3 aspect ratio like REW without cutting */}
-                        <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">
+                        {/* Large Image - 5:4 aspect ratio for bigger photos */}
+                        <div className="relative w-full aspect-[5/4] bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -964,19 +964,19 @@ export default function MapSearch() {
                             )
                           )}
                           {/* Badge overlay */}
-                          <Badge className={`absolute top-2.5 left-2.5 text-[9px] px-2 py-0.5 font-bold shadow-md ${
+                          <Badge className={`absolute top-2 left-2 text-[8px] px-1.5 py-0.5 font-bold shadow-md ${
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : 'bg-primary text-primary-foreground'
                           }`}>
-                            {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
+                            {isPresale ? 'PRESALE' : 'MOVE-IN'}
                           </Badge>
                         </div>
                         
-                        {/* Content - Our branded style */}
-                        <div className="p-3 space-y-1.5">
-                          {/* Price - Large and prominent */}
-                          <div className="font-bold text-foreground text-lg leading-tight">
+                        {/* Content - Compact text for more image space */}
+                        <div className="p-2 space-y-0.5">
+                          {/* Price */}
+                          <div className="font-bold text-foreground text-sm leading-tight">
                             {isPresale
                               ? formatPrice((data as PresaleProject).starting_price)
                               : formatPrice((data as MLSListing).listing_price)
@@ -984,42 +984,17 @@ export default function MapSearch() {
                           </div>
                           
                           {/* Address */}
-                          <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                          <h4 className="font-medium text-foreground text-xs line-clamp-1">
                             {isPresale ? (data as PresaleProject).name : getResaleAddress(data as MLSListing)}
                           </h4>
                           
-                          {/* Location */}
-                          <div className="text-muted-foreground text-xs line-clamp-1">
+                          {/* Location + Specs combined */}
+                          <div className="text-muted-foreground text-[10px] line-clamp-1">
                             {isPresale 
-                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).city}`
-                              : `${(data as MLSListing).neighborhood || ''} • ${(data as MLSListing).city}`.replace(' • ', (data as MLSListing).neighborhood ? ' • ' : '')
+                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).status?.replace(/_/g, ' ')}`
+                              : `${(data as MLSListing).bedrooms_total || '-'} bd • ${(data as MLSListing).bathrooms_total || '-'} ba${(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()} sf` : ''}`
                             }
                           </div>
-                          
-                          {/* Specs for resale - compact inline */}
-                          {!isPresale && (
-                            <div className="text-muted-foreground text-xs">
-                              {(data as MLSListing).bedrooms_total && `${(data as MLSListing).bedrooms_total} bd`}
-                              {(data as MLSListing).bedrooms_total && (data as MLSListing).bathrooms_total && ' • '}
-                              {(data as MLSListing).bathrooms_total && `${(data as MLSListing).bathrooms_total} ba`}
-                              {((data as MLSListing).bedrooms_total || (data as MLSListing).bathrooms_total) && (data as MLSListing).living_area && ' • '}
-                              {(data as MLSListing).living_area && `${(data as MLSListing).living_area?.toLocaleString()} sf`}
-                            </div>
-                          )}
-                          
-                          {/* Status for presale */}
-                          {isPresale && (
-                            <div className="text-xs text-muted-foreground capitalize">
-                              {(data as PresaleProject).project_type?.replace(/_/g, ' ')} • {(data as PresaleProject).status?.replace(/_/g, ' ')}
-                            </div>
-                          )}
-                          
-                          {/* Brokerage for resale - small gray text */}
-                          {!isPresale && (data as MLSListing).list_office_name && (
-                            <div className="text-[10px] text-muted-foreground/60 pt-1.5 line-clamp-1">
-                              {(data as MLSListing).list_office_name}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </Link>
