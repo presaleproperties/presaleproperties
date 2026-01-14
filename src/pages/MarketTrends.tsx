@@ -73,16 +73,16 @@ const CITIES = [
 const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 const TIME_RANGES = [
-  { value: '1', label: '1 Month' },
   { value: '3', label: '3 Months' },
   { value: '6', label: '6 Months' },
   { value: '12', label: '1 Year' },
+  { value: 'all', label: 'All Data' },
 ];
 
 export default function MarketTrends() {
   const [selectedCity, setSelectedCity] = useState("All Cities");
   const [propertyType, setPropertyType] = useState<"condo" | "townhome">("condo");
-  const [timeRange, setTimeRange] = useState("6");
+  const [timeRange, setTimeRange] = useState("all");
 
   // Fetch all market stats
   const { data: allStats, isLoading } = useQuery({
@@ -117,15 +117,21 @@ export default function MarketTrends() {
       filtered = filtered.filter(s => s.city === selectedCity);
     }
 
-    // Filter by time range
-    const monthsBack = parseInt(timeRange);
-    const now = new Date();
-    const cutoffDate = new Date(now.getFullYear(), now.getMonth() - monthsBack, 1);
-    
-    filtered = filtered.filter(s => {
-      const statDate = new Date(s.report_year, s.report_month - 1, 1);
-      return statDate >= cutoffDate;
-    });
+    // Filter by time range (skip if 'all')
+    if (timeRange !== 'all') {
+      const monthsBack = parseInt(timeRange);
+      // Use the latest data date as reference, not current date
+      const latestEntry = allStats.find(s => s.property_type === propertyType);
+      if (latestEntry) {
+        const latestDate = new Date(latestEntry.report_year, latestEntry.report_month - 1, 1);
+        const cutoffDate = new Date(latestDate.getFullYear(), latestDate.getMonth() - monthsBack, 1);
+        
+        filtered = filtered.filter(s => {
+          const statDate = new Date(s.report_year, s.report_month - 1, 1);
+          return statDate >= cutoffDate;
+        });
+      }
+    }
 
     return filtered;
   }, [allStats, selectedCity, propertyType, timeRange]);
