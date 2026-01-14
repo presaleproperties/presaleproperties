@@ -27,7 +27,8 @@ import {
   Users,
   Waves,
   TreePine,
-  MessageSquare
+  MessageSquare,
+  Heart
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -43,12 +44,14 @@ import { RelatedCityListings } from "@/components/resale/RelatedCityListings";
 import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
-
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { ResaleSectionTabs } from "@/components/resale/ResaleSectionTabs";
+import { ResaleVerticalPhotoViewer } from "@/components/resale/ResaleVerticalPhotoViewer";
+import { ResaleQuickActions } from "@/components/resale/ResaleQuickActions";
 
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
@@ -133,11 +136,17 @@ export default function ResaleListingDetail() {
   const { listingKey } = useParams<{ listingKey: string }>();
   const formRef = useRef<HTMLDivElement>(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isPhotoViewerOpen, setIsPhotoViewerOpen] = useState(false);
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
 
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const openPhotoViewer = (index: number = 0) => {
+    setSelectedImageIndex(index);
+    setIsPhotoViewerOpen(true);
   };
 
   const { data: listing, isLoading, error } = useQuery({
@@ -323,10 +332,27 @@ export default function ResaleListingDetail() {
       </Helmet>
       <ConversionHeader />
       
+      {/* Mobile/Tablet Section Tabs */}
+      {isMobileOrTablet && (
+        <ResaleSectionTabs 
+          photoCount={photos.length}
+          onPhotoClick={() => openPhotoViewer(0)}
+        />
+      )}
+
+      {/* Vertical Photo Viewer for Mobile */}
+      <ResaleVerticalPhotoViewer
+        photos={photos.map(p => p.url)}
+        title={address}
+        isOpen={isPhotoViewerOpen}
+        onClose={() => setIsPhotoViewerOpen(false)}
+        initialIndex={selectedImageIndex}
+      />
+      
       <main className="container px-4 py-4 md:py-8 pb-24 lg:pb-8">
         <article itemScope itemType="https://schema.org/RealEstateListing">
-        {/* Breadcrumbs */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
+        {/* Breadcrumbs - Desktop only */}
+        <nav aria-label="Breadcrumb" className="hidden lg:flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
           <ol className="flex items-center gap-1">
             <li>
               <Link to="/" className="hover:text-foreground transition-colors shrink-0">
@@ -350,28 +376,113 @@ export default function ResaleListingDetail() {
           </ol>
         </nav>
 
-        <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
+        {/* Mobile Breadcrumb - Compact */}
+        {isMobileOrTablet && (
+          <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-xs text-muted-foreground mb-3 overflow-x-auto scrollbar-hide">
+            <Link to="/" className="hover:text-foreground shrink-0">Home</Link>
+            <ChevronRight className="h-3 w-3 shrink-0" />
+            <Link to="/resale" className="hover:text-foreground shrink-0">For Sale</Link>
+            <ChevronRight className="h-3 w-3 shrink-0" />
+            <Link to={`/resale?city=${listing.city}`} className="text-primary font-medium shrink-0">{listing.city}</Link>
+            {listing.neighborhood && (
+              <>
+                <ChevronRight className="h-3 w-3 shrink-0" />
+                <span className="text-foreground truncate max-w-[100px]">{listing.neighborhood}</span>
+              </>
+            )}
+          </nav>
+        )}
+
+        <div id="overview" className="grid lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-6 md:space-y-8">
-            {/* Image Gallery */}
+            {/* Image Gallery - Click opens vertical viewer on mobile */}
             {photos.length > 0 ? (
-              <GalleryWithLightbox
-                images={photos.map(p => p.url)}
-                selectedIndex={selectedImageIndex}
-                onSelectIndex={setSelectedImageIndex}
-                alt={address}
-                className="rounded-xl overflow-hidden"
-              />
+              <div 
+                className="relative cursor-pointer lg:cursor-default"
+                onClick={() => isMobileOrTablet && openPhotoViewer(selectedImageIndex)}
+              >
+                <GalleryWithLightbox
+                  images={photos.map(p => p.url)}
+                  selectedIndex={selectedImageIndex}
+                  onSelectIndex={setSelectedImageIndex}
+                  alt={address}
+                  className="rounded-xl overflow-hidden"
+                />
+              </div>
             ) : (
               <div className="aspect-[4/3] bg-muted rounded-xl flex items-center justify-center">
                 <Home className="h-16 w-16 text-muted-foreground/50" />
               </div>
             )}
 
-            {/* Mobile & Tablet Hero Info - Unified single-column layout */}
+            {/* Mobile & Tablet Hero Info - REW-inspired layout */}
             {isMobileOrTablet && (
               <div className="space-y-4">
-                {/* Key Badges - FIRST, right under photo */}
+                {/* Quick Actions Bar - REW style (Photos, Map, Street View, Directions) */}
+                <ResaleQuickActions
+                  photoCount={photos.length}
+                  latitude={listing.latitude}
+                  longitude={listing.longitude}
+                  virtualTourUrl={listing.virtual_tour_url}
+                  onPhotosClick={() => openPhotoViewer(0)}
+                />
+
+                {/* Price Row - Large price with est. monthly */}
+                <div className="space-y-1">
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <h1 className="text-3xl md:text-4xl font-bold text-foreground">
+                      {formatPrice(listing.listing_price)}
+                    </h1>
+                    <span className="text-sm text-muted-foreground">
+                      Est. {formatPrice(Math.round(listing.listing_price * 0.00507))}/mo
+                    </span>
+                    <button 
+                      onClick={scrollToForm}
+                      className="text-sm text-primary hover:underline font-medium"
+                    >
+                      Get pre-approved
+                    </button>
+                  </div>
+                </div>
+
+                {/* Address Row - Underlined unit number like REW */}
+                <div className="space-y-1">
+                  <p className="text-base font-medium text-foreground">
+                    {listing.unit_number && (
+                      <span className="text-primary underline">{listing.unit_number} - </span>
+                    )}
+                    {listing.street_number} {listing.street_name} {listing.street_suffix}
+                  </p>
+                  <p className="text-sm">
+                    <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline">
+                      {listing.city}
+                    </Link>
+                    <span className="text-muted-foreground">, BC</span>
+                    {listing.postal_code && <span className="text-muted-foreground"> {listing.postal_code}</span>}
+                    {listing.neighborhood && (
+                      <>
+                        <span className="text-muted-foreground mx-2">•</span>
+                        <Link to={`/resale?neighborhood=${listing.neighborhood}`} className="text-primary hover:underline">
+                          {listing.neighborhood}
+                        </Link>
+                      </>
+                    )}
+                  </p>
+                </div>
+
+                {/* Property Specs - Single line */}
+                <p className="text-sm text-foreground">
+                  {listing.bedrooms_total !== null && <span>{listing.bedrooms_total} Bed</span>}
+                  {listing.bathrooms_total !== null && <span className="mx-1">•</span>}
+                  {listing.bathrooms_total !== null && <span>{listing.bathrooms_total} Bath</span>}
+                  {listing.living_area && <span className="mx-1">•</span>}
+                  {listing.living_area && <span>{listing.living_area.toLocaleString()} Sqft</span>}
+                  {listing.property_type && <span className="mx-1">•</span>}
+                  {listing.property_type && <span>{formatPropertyType(listing.property_sub_type || listing.property_type)}</span>}
+                </p>
+
+                {/* Badges Row */}
                 <div className="flex flex-wrap items-center gap-2">
                   {listing.year_built && listing.year_built >= 2024 && (
                     <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
@@ -385,9 +496,6 @@ export default function ResaleListingDetail() {
                       {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
                     </Badge>
                   )}
-                  <Badge variant="secondary" className="text-xs">
-                    {formatPropertyType(listing.property_sub_type || listing.property_type)}
-                  </Badge>
                   {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
                     <Badge className="bg-orange-500 text-white gap-1 text-xs">
                       <Calendar className="h-3 w-3" />
@@ -396,128 +504,26 @@ export default function ResaleListingDetail() {
                   )}
                 </div>
 
-                {/* Price - Large & Primary */}
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <span className="text-3xl font-bold text-foreground">
-                    {formatPrice(listing.listing_price)}
-                  </span>
-                  {listing.living_area && (
-                    <span className="text-sm text-muted-foreground">
-                      ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
-                    </span>
-                  )}
-                </div>
-
-                {/* Address - Smaller */}
-                <h1 className="text-sm font-medium text-muted-foreground">{address}</h1>
-
-                {/* City & Neighborhood */}
-                <div className="flex items-center gap-2 text-sm">
-                  <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
-                    {listing.city}
-                  </Link>
-                  {listing.neighborhood && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <span className="text-muted-foreground">{listing.neighborhood}</span>
-                    </>
-                  )}
-                </div>
-
-                {/* Bed/Bath/Sqft/Year - Compact Row */}
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  {listing.bedrooms_total !== null && (
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.bedrooms_total}</span>
-                      <span className="text-muted-foreground">Bed</span>
-                    </span>
-                  )}
-                  {listing.bathrooms_total !== null && (
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.bathrooms_total}</span>
-                      <span className="text-muted-foreground">Bath</span>
-                    </span>
-                  )}
-                  {listing.living_area && (
-                    <span className="flex items-center gap-1.5">
-                      <Maximize className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
-                      <span className="text-muted-foreground">sqft</span>
-                    </span>
-                  )}
-                  {listing.year_built && (
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4 text-primary" />
-                      <span className="font-semibold">{listing.year_built}</span>
-                    </span>
-                  )}
-                </div>
-
-                {/* Listed By */}
-                {(listing.list_agent_name || listing.list_office_name) && (
-                  <p className="text-xs text-muted-foreground">
-                    Listed by: {listing.list_agent_name}{listing.list_office_name && ` • ${listing.list_office_name}`}
-                  </p>
-                )}
-
-                {/* Quick Actions - Maps, Street View, Share */}
-                <div className="flex items-center gap-2 pt-2 border-t">
+                {/* Action Buttons - Follow & Share */}
+                <div className="flex items-center gap-3 pt-2 border-t">
                   <Button
                     variant="outline"
-                    size="sm"
-                    className="h-9 px-3 text-xs rounded-full gap-1.5"
-                    onClick={() => {
-                      if (listing.latitude && listing.longitude) {
-                        window.open(`https://www.google.com/maps/search/?api=1&query=${listing.latitude},${listing.longitude}`, "_blank");
-                      }
-                    }}
-                    disabled={!listing.latitude || !listing.longitude}
+                    className="flex-1 h-11 gap-2"
                   >
-                    <Map className="h-3.5 w-3.5" />
-                    Map
+                    <Heart className="h-4 w-4" />
+                    Follow
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 px-3 text-xs rounded-full gap-1.5"
-                    onClick={() => {
-                      if (listing.latitude && listing.longitude) {
-                        window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${listing.latitude},${listing.longitude}`, "_blank");
-                      }
-                    }}
-                    disabled={!listing.latitude || !listing.longitude}
-                  >
-                    <MapPin className="h-3.5 w-3.5" />
-                    Street
-                  </Button>
-                  {listing.virtual_tour_url && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-9 px-3 text-xs rounded-full gap-1.5"
-                      asChild
-                    >
-                      <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
-                        <Navigation className="h-3.5 w-3.5" />
-                        Tour
-                      </a>
-                    </Button>
-                  )}
-                  <div className="ml-auto">
+                  <div className="flex-1">
                     <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
                   </div>
                 </div>
 
-                {/* Schedule Form - Full width on both mobile and tablet */}
-                <div className="bg-card border rounded-xl p-4 shadow-sm">
-                  <ResaleScheduleForm 
-                    listingId={listing.id}
-                    listingAddress={address}
-                    listingCity={listing.city}
-                  />
-                </div>
+                {/* Listed By */}
+                {(listing.list_agent_name || listing.list_office_name) && (
+                  <p className="text-xs text-muted-foreground pt-2">
+                    Listed by: {listing.list_agent_name}{listing.list_office_name && ` • ${listing.list_office_name}`}
+                  </p>
+                )}
               </div>
             )}
 
