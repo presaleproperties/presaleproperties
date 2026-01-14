@@ -458,8 +458,7 @@ export default function MapSearch() {
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'TBA';
-    if (price >= 1000000) return `$${(price / 1000000).toFixed(2)}M`;
-    return `$${(price / 1000).toFixed(0)}K`;
+    return `$${price.toLocaleString()}`;
   };
 
   const getResaleAddress = (listing: MLSListing) => {
@@ -924,8 +923,8 @@ export default function MapSearch() {
             </div>
 
             {/* Scrollable Grid - REW-style 2-column layout with large images */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-3">
-              <div className="grid grid-cols-2 gap-3">
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-2">
+              <div className="grid grid-cols-2 gap-2">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
                   const data = item.data;
@@ -940,13 +939,13 @@ export default function MapSearch() {
                       to={link}
                       data-item-id={id}
                     >
-                      <div className={`rounded-lg overflow-hidden transition-all hover:shadow-lg group bg-card ${
+                      <div className={`overflow-hidden transition-all hover:shadow-lg group bg-card ${
                         selectedItemId === id 
                           ? 'ring-2 ring-primary' 
-                          : 'hover:ring-1 hover:ring-border'
+                          : ''
                       }`}>
-                        {/* Large Image - 4:3 aspect ratio like REW */}
-                        <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">
+                        {/* Large Image - 3:2 aspect ratio for bigger photos like REW */}
+                        <div className="relative w-full aspect-[3/2] bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -965,7 +964,7 @@ export default function MapSearch() {
                             )
                           )}
                           {/* Badge overlay */}
-                          <Badge className={`absolute top-2.5 left-2.5 text-[9px] px-2 py-0.5 font-bold shadow-md ${
+                          <Badge className={`absolute top-2 left-2 text-[9px] px-2 py-0.5 font-bold shadow-md ${
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : 'bg-primary text-primary-foreground'
@@ -974,10 +973,10 @@ export default function MapSearch() {
                           </Badge>
                         </div>
                         
-                        {/* Content - Clean minimal layout */}
-                        <div className="p-3 space-y-1.5">
+                        {/* Content - Clean minimal layout like REW */}
+                        <div className="p-3 space-y-1">
                           {/* Price - Large and prominent like REW */}
-                          <div className="font-bold text-foreground text-xl leading-tight">
+                          <div className="font-bold text-foreground text-lg leading-tight">
                             {isPresale 
                               ? formatPrice((data as PresaleProject).starting_price)
                               : formatPrice((data as MLSListing).listing_price)
