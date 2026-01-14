@@ -517,10 +517,7 @@ export default function MapSearch() {
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
-            <div
-              className="absolute left-1/2 -translate-x-1/2 z-[1000]"
-              style={{ top: isMobile ? "calc(env(safe-area-inset-top, 0px) + 72px)" : "12px" }}
-            >
+            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
               <UnifiedMapToggle
                 mode={mapMode}
                 onModeChange={handleModeChange}
@@ -530,10 +527,7 @@ export default function MapSearch() {
             </div>
 
             {/* List View Button - Mobile/Tablet - top right */}
-            <div
-              className="absolute right-3 z-[1001] lg:hidden"
-              style={{ top: isMobile ? "calc(env(safe-area-inset-top, 0px) + 72px)" : "12px" }}
-            >
+            <div className="absolute top-3 right-3 z-[1001] lg:hidden">
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
                 <button className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors">
                   <LayoutGrid className="h-4 w-4 text-muted-foreground" />
