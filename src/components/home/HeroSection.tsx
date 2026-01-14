@@ -164,8 +164,8 @@ export function HeroSection({ activeTab: controlledTab, onTabChange }: HeroSecti
                 <Input
                   type="text"
                   placeholder={activeTab === "projects" 
-                    ? "City, Neighbourhood, Developer..." 
-                    : "City, Neighbourhood, Address..."
+                    ? "Search projects, developers..." 
+                    : "City, neighbourhood, address..."
                   }
                   value={searchQuery}
                   onChange={(e) => {
