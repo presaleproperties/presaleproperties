@@ -367,105 +367,69 @@ export default function ResaleListingDetail() {
               </div>
             )}
 
-            {/* Mobile Hero Info - Clean & Skimmable */}
-            <div className="lg:hidden space-y-4">
-              {/* Price & Key Badges */}
-              <div className="flex flex-wrap items-center gap-2">
-                {listing.year_built && listing.year_built >= 2024 && (
-                  <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Move-In Ready
-                  </Badge>
-                )}
-                {daysOnMarket !== null && daysOnMarket <= 7 && (
-                  <Badge className="bg-blue-600 text-white gap-1">
-                    <Clock className="h-3 w-3" />
-                    {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
-                  </Badge>
-                )}
-                {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
-                  <Badge className="bg-orange-500 text-white gap-1">
-                    <Calendar className="h-3 w-3" />
-                    Open House
-                  </Badge>
-                )}
-              </div>
-
-              {/* Price */}
-              <div>
+            {/* Mobile Hero Info - Optimized Above the Fold */}
+            <div className="lg:hidden space-y-3">
+              {/* Price - Primary */}
+              <div className="flex items-baseline gap-2 flex-wrap">
                 <span className="text-3xl font-bold text-foreground">
                   {formatPrice(listing.listing_price)}
                 </span>
                 {listing.living_area && (
-                  <span className="text-sm text-muted-foreground ml-2">
+                  <span className="text-sm text-muted-foreground">
                     ${Math.round(listing.listing_price / listing.living_area).toLocaleString()}/sqft
                   </span>
                 )}
               </div>
 
-              {/* Address & Location */}
-              <div>
-                <h1 className="text-lg font-semibold text-foreground">{address}</h1>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                  <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
-                    {listing.city}
-                  </Link>
-                  {listing.neighborhood && (
-                    <>
-                      <span>•</span>
-                      <span>{listing.neighborhood}</span>
-                    </>
-                  )}
-                </div>
+              {/* Address */}
+              <h1 className="text-base font-medium text-foreground">{address}</h1>
+
+              {/* City & Neighborhood */}
+              <div className="flex items-center gap-2 text-sm">
+                <Link to={`/resale?city=${listing.city}`} className="text-primary hover:underline font-medium">
+                  {listing.city}
+                </Link>
+                {listing.neighborhood && (
+                  <>
+                    <span className="text-muted-foreground">•</span>
+                    <span className="text-muted-foreground">{listing.neighborhood}</span>
+                  </>
+                )}
               </div>
 
-              {/* Quick Highlights Grid - Like Presale */}
-              <div className="grid grid-cols-4 gap-2">
+              {/* Bed/Bath/Sqft/Year - Compact Inline */}
+              <div className="flex items-center gap-3 text-sm">
                 {listing.bedrooms_total !== null && (
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <Bed className="h-4 w-4 mx-auto text-primary mb-1" />
-                    <p className="text-base font-bold text-foreground">{listing.bedrooms_total}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Beds</p>
-                  </div>
+                  <span className="flex items-center gap-1">
+                    <Bed className="h-4 w-4 text-primary" />
+                    <span className="font-semibold">{listing.bedrooms_total}</span>
+                    <span className="text-muted-foreground">Bed</span>
+                  </span>
                 )}
                 {listing.bathrooms_total !== null && (
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <Bath className="h-4 w-4 mx-auto text-primary mb-1" />
-                    <p className="text-base font-bold text-foreground">{listing.bathrooms_total}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Baths</p>
-                  </div>
+                  <span className="flex items-center gap-1">
+                    <Bath className="h-4 w-4 text-primary" />
+                    <span className="font-semibold">{listing.bathrooms_total}</span>
+                    <span className="text-muted-foreground">Bath</span>
+                  </span>
                 )}
                 {listing.living_area && (
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <Maximize className="h-4 w-4 mx-auto text-primary mb-1" />
-                    <p className="text-base font-bold text-foreground">{listing.living_area.toLocaleString()}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Sqft</p>
-                  </div>
+                  <span className="flex items-center gap-1">
+                    <Maximize className="h-4 w-4 text-primary" />
+                    <span className="font-semibold">{listing.living_area.toLocaleString()}</span>
+                    <span className="text-muted-foreground">sqft</span>
+                  </span>
                 )}
                 {listing.year_built && (
-                  <div className="bg-muted/50 rounded-lg p-3 text-center">
-                    <Calendar className="h-4 w-4 mx-auto text-primary mb-1" />
-                    <p className="text-base font-bold text-foreground">{listing.year_built}</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">Built</p>
-                  </div>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4 text-primary" />
+                    <span className="font-semibold">{listing.year_built}</span>
+                  </span>
                 )}
               </div>
 
-              {/* Quick Actions Row */}
-              <div className="flex flex-wrap items-center gap-2">
-                {listing.virtual_tour_url && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 px-3 text-xs rounded-full gap-1.5"
-                    asChild
-                  >
-                    <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
-                      <Navigation className="h-3.5 w-3.5" />
-                      Tour
-                    </a>
-                  </Button>
-                )}
+              {/* Quick Actions - Maps, Street View, Share - Above Fold */}
+              <div className="flex items-center gap-2 pt-1">
                 <Button
                   variant="outline"
                   size="sm"
@@ -494,9 +458,47 @@ export default function ResaleListingDetail() {
                   <MapPin className="h-3.5 w-3.5" />
                   Street
                 </Button>
+                {listing.virtual_tour_url && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 px-3 text-xs rounded-full gap-1.5"
+                    asChild
+                  >
+                    <a href={listing.virtual_tour_url} target="_blank" rel="noopener noreferrer">
+                      <Navigation className="h-3.5 w-3.5" />
+                      Tour
+                    </a>
+                  </Button>
+                )}
                 <div className="ml-auto">
                   <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
                 </div>
+              </div>
+
+              {/* Key Badges */}
+              <div className="flex flex-wrap items-center gap-2">
+                {listing.year_built && listing.year_built >= 2024 && (
+                  <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
+                    <Sparkles className="h-3 w-3" />
+                    Move-In Ready
+                  </Badge>
+                )}
+                {daysOnMarket !== null && daysOnMarket <= 7 && (
+                  <Badge className="bg-blue-600 text-white gap-1 text-xs">
+                    <Clock className="h-3 w-3" />
+                    {daysOnMarket === 0 ? 'New Today' : `${daysOnMarket}d ago`}
+                  </Badge>
+                )}
+                {listing.open_house_date && new Date(listing.open_house_date) >= new Date(new Date().toDateString()) && (
+                  <Badge className="bg-orange-500 text-white gap-1 text-xs">
+                    <Calendar className="h-3 w-3" />
+                    Open House
+                  </Badge>
+                )}
+                <Badge variant="secondary" className="text-xs">
+                  {formatPropertyType(listing.property_sub_type || listing.property_type)}
+                </Badge>
               </div>
 
               {/* Listed By - Compact */}
