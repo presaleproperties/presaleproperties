@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, MessageSquare, Phone } from "lucide-react";
+import { Calendar, Phone } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -38,9 +38,11 @@ export const ResaleMobileCTABar = ({
         <div className="px-4 py-3 flex items-center gap-3">
           {/* Price display */}
           {formattedPrice && (
-            <div className="flex-shrink-0">
-              <p className="text-3xl leading-none font-bold text-foreground">{formattedPrice}</p>
-              <p className="text-[10px] text-muted-foreground">List Price</p>
+            <div className="flex-shrink-0 min-w-0">
+              <p className="text-3xl sm:text-4xl leading-none font-bold text-foreground tabular-nums tracking-tight">
+                {formattedPrice}
+              </p>
+              <p className="text-[10px] text-muted-foreground">List Price</p>
             </div>
           )}
 
@@ -51,6 +53,7 @@ export const ResaleMobileCTABar = ({
               size="icon"
               onClick={handleCall}
               className="h-12 w-12 min-h-[48px] min-w-[48px] rounded-xl border-border touch-active"
+              aria-label="Call"
             >
               <Phone className="h-5 w-5" />
             </Button>
@@ -65,9 +68,7 @@ export const ResaleMobileCTABar = ({
               </SheetTrigger>
               <SheetContent side="bottom" className="h-auto max-h-[90vh] rounded-t-2xl">
                 <SheetHeader className="pb-2">
-                  <SheetTitle className="text-left">
-                    {listingAddress}
-                  </SheetTitle>
+                  <SheetTitle className="text-left">{listingAddress}</SheetTitle>
                 </SheetHeader>
                 <div className="overflow-y-auto max-h-[calc(90vh-80px)] -mx-6 px-6 pb-safe scroll-smooth-mobile">
                   <ResaleScheduleForm
