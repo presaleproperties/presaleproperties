@@ -677,7 +677,7 @@ export default function MapSearch() {
 
           {/* Desktop List Panel - ~40% width for REW-style layout */}
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
-            showList ? "w-[40%] min-w-[420px] max-w-[560px] opacity-100" : "w-0 opacity-0 overflow-hidden"
+            showList ? "w-[40%] min-w-[420px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
             {/* Top Bar - Search + Filter + Map/List toggle (REW style) */}
             <div className="shrink-0 p-3 border-b border-border bg-background">
