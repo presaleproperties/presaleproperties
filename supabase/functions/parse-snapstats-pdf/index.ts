@@ -14,6 +14,69 @@ const EDITION_CITIES: Record<string, string[]> = {
   'MVR': ['Vancouver', 'Richmond', 'North Vancouver', 'West Vancouver', 'Delta', 'Ladner', 'Tsawwassen'],
 };
 
+// Truncate and extract key sections from document text to stay under token limits
+function extractRelevantSections(text: string, maxChars: number = 300000): string {
+  // If already under limit, return as-is
+  if (text.length <= maxChars) {
+    return text;
+  }
+
+  // Keywords that indicate important data sections
+  const importantPatterns = [
+    /market\s*summary/gi,
+    /benchmark\s*price/gi,
+    /sales?\s*ratio/gi,
+    /condo/gi,
+    /townhome/gi,
+    /townhouse/gi,
+    /inventory/gi,
+    /days\s*on\s*market/gi,
+    /average|avg/gi,
+    /median/gi,
+    /surrey|langley|abbotsford|burnaby|vancouver|richmond|coquitlam|new\s*westminster/gi,
+    /\$[\d,]+/g,
+    /\d+%/g,
+  ];
+
+  // Split into sections/paragraphs
+  const sections = text.split(/\n{2,}|\f/);
+  
+  // Score each section based on keyword matches
+  const scoredSections = sections.map(section => {
+    let score = 0;
+    for (const pattern of importantPatterns) {
+      const matches = section.match(pattern);
+      if (matches) score += matches.length;
+    }
+    // Boost sections with numbers (likely data)
+    const numberMatches = section.match(/\d+/g);
+    if (numberMatches) score += numberMatches.length * 0.5;
+    return { section, score };
+  });
+
+  // Sort by score and take highest scoring sections
+  scoredSections.sort((a, b) => b.score - a.score);
+
+  let result = '';
+  let totalChars = 0;
+  
+  for (const { section, score } of scoredSections) {
+    if (score < 2) continue; // Skip very low-scoring sections
+    if (totalChars + section.length > maxChars) {
+      // Add partial if room
+      const remaining = maxChars - totalChars;
+      if (remaining > 100) {
+        result += section.substring(0, remaining) + '\n\n';
+      }
+      break;
+    }
+    result += section + '\n\n';
+    totalChars += section.length + 2;
+  }
+
+  return result || text.substring(0, maxChars);
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -29,7 +92,11 @@ serve(async (req) => {
       );
     }
 
-    console.log(`Parsing ${edition} Snap Stats for ${reportMonth}/${reportYear}, text length:`, documentText.length);
+    console.log(`Parsing ${edition} Snap Stats for ${reportMonth}/${reportYear}, original text length:`, documentText.length);
+
+    // Truncate text to stay under token limits (~300k chars = ~75k tokens)
+    const processedText = extractRelevantSections(documentText, 300000);
+    console.log(`Processed text length: ${processedText.length} (reduced from ${documentText.length})`);
 
     const apiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!apiKey) {
@@ -75,7 +142,7 @@ IMPORTANT:
 
     const userPrompt = `Extract all condo and townhome market statistics from this ${boardName} Snap Stats report for ${reportMonth}/${reportYear}:
 
-${documentText}`;
+${processedText}`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
