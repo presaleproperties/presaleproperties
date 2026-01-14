@@ -751,7 +751,7 @@ export default function ResaleListingDetail() {
                   <DollarSign className="h-4 w-4 text-primary" />
                   Price Details
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   <div className="flex justify-between items-center py-2 border-b border-border/50">
                     <span className="text-sm text-muted-foreground">List Price</span>
                     <span className="font-semibold text-foreground">{formatPrice(listing.listing_price)}</span>
@@ -791,7 +791,7 @@ export default function ResaleListingDetail() {
                   <Home className="h-4 w-4 text-primary" />
                   Home Facts
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {listing.bedrooms_total !== null && (
                     <div className="flex justify-between items-center py-2 border-b border-border/50">
                       <span className="text-sm text-muted-foreground">Bedrooms</span>
@@ -880,7 +880,7 @@ export default function ResaleListingDetail() {
                     <Flame className="h-4 w-4 text-primary" />
                     Heating & Cooling
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     {listing.heating && listing.heating.length > 0 && (
                       <div className="flex justify-between items-start py-2 border-b border-border/50">
                         <span className="text-sm text-muted-foreground">Heating</span>
@@ -993,7 +993,7 @@ export default function ResaleListingDetail() {
                     <User className="h-4 w-4 text-primary" />
                     Agent Details
                   </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 gap-3">
                     {listing.list_agent_name && (
                       <div className="flex justify-between items-center py-2 border-b border-border/50">
                         <span className="text-sm text-muted-foreground">Listing Agent</span>
@@ -1036,7 +1036,7 @@ export default function ResaleListingDetail() {
                   <FileText className="h-4 w-4 text-primary" />
                   Listing Details
                 </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 gap-3">
                   {daysOnMarket !== null && (
                     <div className="flex justify-between items-center py-2 border-b border-border/50">
                       <span className="text-sm text-muted-foreground">Days on Market</span>

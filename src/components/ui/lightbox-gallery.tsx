@@ -475,7 +475,7 @@ export function GalleryWithLightbox({
     );
   }
 
-  // Use consistent 4:3 aspect ratio across all breakpoints for better photo display
+  // Use 16:10 aspect ratio for better photo display on tablet, 4:3 on desktop
   const mainAspectClass = "aspect-[4/3]";
 
   return (
