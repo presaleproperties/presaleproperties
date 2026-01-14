@@ -72,7 +72,7 @@ export function MobileResalePropertyTypeCarousel({
   const typeFilters = PROPERTY_TYPE_FILTERS[propertyType];
 
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["mobile-resale-property-type-2025", propertyType],
+    queryKey: ["mobile-resale-property-type-2020", propertyType],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
@@ -80,14 +80,14 @@ export function MobileResalePropertyTypeCarousel({
         .eq("mls_status", "Active")
         .in("city", METRO_VANCOUVER_CITIES)
         .in("property_sub_type", typeFilters)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .order("created_at", { ascending: false })
-        .limit(10);
+        .limit(16);
 
       if (error) throw error;
       return data as MLSListing[];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 

@@ -59,21 +59,21 @@ function CityCarousel({ city }: CityCarouselProps) {
   const [canScrollRight, setCanScrollRight] = useState(true);
 
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-city-listings", city],
+    queryKey: ["resale-city-listings-2020", city],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url")
         .eq("mls_status", "Active")
         .ilike("city", `%${city}%`)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .order("listing_price", { ascending: false })
-        .limit(10);
+        .limit(16);
 
       if (error) throw error;
       return data as MLSListing[];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 

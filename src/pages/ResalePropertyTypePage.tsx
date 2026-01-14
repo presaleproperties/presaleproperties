@@ -160,7 +160,7 @@ export default function ResalePropertyTypePage() {
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.dbName)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .or(typeFilters);
 
       if (filters.priceRange !== "any") {
@@ -179,7 +179,7 @@ export default function ResalePropertyTypePage() {
         .select("id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, list_date, year_built, list_office_name")
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.dbName)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .or(typeFilters);
 
       if (filters.priceRange !== "any") {

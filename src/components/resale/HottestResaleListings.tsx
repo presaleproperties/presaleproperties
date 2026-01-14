@@ -44,7 +44,7 @@ const FEATURED_CITIES = [
 
 export function HottestResaleListings() {
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["hottest-resale-listings-2025"],
+    queryKey: ["hottest-resale-listings-2020"],
     queryFn: async () => {
       // Get newest listings with good photos (proxy for "hottest")
       const { data, error } = await supabase
@@ -52,14 +52,14 @@ export function HottestResaleListings() {
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url, created_at")
         .eq("mls_status", "Active")
         .in("city", FEATURED_CITIES)
-        .gte("year_built", 2024)
+        .gte("year_built", 2020)
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(12);
 
       if (error) throw error;
       return data as MLSListing[];
     },
-    staleTime: 5 * 60 * 1000,
+    staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 

@@ -27,7 +27,7 @@ export function CityDiscoverySection() {
   const { data: cityStats, isLoading } = useQuery({
     queryKey: ["new-homes-city-stats"],
     queryFn: async () => {
-      // Get counts and avg prices for each city (2025+ only)
+      // Get counts and avg prices for each city (2020+ new construction)
       const stats: CityStats[] = [];
       
       for (const city of CITIES) {
@@ -36,7 +36,7 @@ export function CityDiscoverySection() {
           .select("listing_price, property_type")
           .eq("mls_status", "Active")
           .ilike("city", `%${city.name}%`)
-          .gte("year_built", 2024);
+          .gte("year_built", 2020);
 
         if (!error && data) {
           const count = data.length;
