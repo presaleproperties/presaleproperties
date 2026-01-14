@@ -134,10 +134,6 @@ export function ConversionHeader({ hideOnMobile = false }: ConversionHeaderProps
           // Scroll-based hide/show for mobile/tablet (slide up when hidden)
           !hideOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
-        style={{
-          // Add safe area padding on mobile for notch/dynamic island
-          paddingTop: 'env(safe-area-inset-top)'
-        }}
       >
         {/* Desktop: standard height with oversized logo */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">

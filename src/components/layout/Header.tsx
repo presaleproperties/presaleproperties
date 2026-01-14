@@ -59,10 +59,6 @@ export function Header() {
         // Scroll-based hide/show for mobile/tablet (slide up when hidden)
         isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
       )}
-      style={{
-        // Add safe area padding on mobile for notch/dynamic island
-        paddingTop: 'env(safe-area-inset-top)'
-      }}
     >
       <div className="flex h-16 items-center justify-between px-4 lg:container lg:px-4">
         <Logo size="xl" />
