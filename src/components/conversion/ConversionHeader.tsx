@@ -296,182 +296,97 @@ export function ConversionHeader() {
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-[300px] p-0 bg-background border-l-0 shadow-2xl"
+                className="w-full max-w-full p-0 bg-background border-l-0 shadow-2xl sm:max-w-sm [&>button]:hidden"
               >
                 <div className="flex flex-col h-full">
-                  <nav className="flex-1 pt-6 overflow-y-auto scroll-smooth-mobile">
-                    <div className="space-y-1 px-4">
-                      {/* Mobile nav items - minimum 48px height for touch */}
+                  {/* Header with Logo and Close Button */}
+                  <div className="flex items-center justify-between px-6 py-5">
+                    <Logo size="xl" onClick={() => setOpen(false)} />
+                    {/* Custom circular close button */}
+                    <button 
+                      onClick={() => setOpen(false)}
+                      className="w-11 h-11 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center hover:border-foreground transition-colors"
+                    >
+                      <X className="h-5 w-5 text-foreground" />
+                    </button>
+                  </div>
+
+                  {/* Contact CTA Row */}
+                  <div className="flex items-center gap-6 px-6 pb-5">
+                    <Link to="/contact" onClick={() => setOpen(false)} className="flex-1">
+                      <Button className="w-full h-12 font-bold tracking-widest text-sm rounded-md bg-foreground text-background hover:bg-foreground/90 uppercase">
+                        Contact Us
+                      </Button>
+                    </Link>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t border-border mx-6" />
+
+                  {/* Large Navigation Links - REW Style */}
+                  <nav aria-label="Mobile navigation" className="flex-1 pt-8 overflow-y-auto">
+                    <div className="space-y-0 px-6">
                       <Link
                         to="/presale-projects"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 group touch-active ${
-                          isActive("/presale-projects") 
-                            ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted active:bg-muted"
-                        }`}
+                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                       >
-                        <div className="flex items-center gap-3">
-                          <Building2 className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Presale</span>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground/50" />
+                        Presales
                       </Link>
-
-                      <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 text-foreground hover:bg-muted active:bg-muted touch-active">
-                          <div className="flex items-center gap-3">
-                            <MapPin className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-base font-medium">Browse by City</span>
-                          </div>
-                          <ChevronDown className={`h-5 w-5 text-muted-foreground/50 transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2">Condos</p>
-                          {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
-                            <Link
-                              key={`condo-${city.slug}`}
-                              to={`/${city.slug}-presale-condos`}
-                              onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
-                            >
-                              <span className="text-base font-medium">{city.name} Condos</span>
-                            </Link>
-                          ))}
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2 pt-3">Townhomes</p>
-                          {TOWNHOME_CITY_LINKS.map((city) => (
-                            <Link
-                              key={`townhome-${city.slug}`}
-                              to={`/${city.slug}-presale-townhomes`}
-                              onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
-                            >
-                              <span className="text-base font-medium">{city.name} Townhomes</span>
-                            </Link>
-                          ))}
-                        </CollapsibleContent>
-                      </Collapsible>
 
                       <Link
                         to="/resale"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 group touch-active ${
-                          isActive("/resale") 
-                            ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted active:bg-muted"
-                        }`}
+                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                       >
-                        <div className="flex items-center gap-3">
-                          <Home className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Move-In Ready</span>
-                        </div>
-                        <ChevronRight className="h-5 w-5 text-muted-foreground/50" />
+                        Move-In Ready
                       </Link>
 
-                      <Collapsible open={resaleCitiesOpen} onOpenChange={setResaleCitiesOpen}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-4 min-h-[56px] rounded-xl transition-all duration-200 text-foreground hover:bg-muted active:bg-muted touch-active">
-                          <div className="flex items-center gap-3">
-                            <Map className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-base font-medium">Browse by City</span>
-                          </div>
-                          <ChevronDown className={`h-5 w-5 text-muted-foreground/50 transition-transform duration-200 ${resaleCitiesOpen ? "rotate-180" : ""}`} />
+                      {/* Collapsible Cities Section */}
+                      <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4">
+                          <span>Cities</span>
+                          <ChevronDown className={`h-7 w-7 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="pl-5 space-y-1 mt-1">
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2">New Condos</p>
-                          {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
+                        <CollapsibleContent className="pl-4 space-y-0 mt-1 mb-2">
+                          {CONDO_CITY_LINKS.map((city) => (
                             <Link
-                              key={`resale-condo-${city.slug}`}
-                              to={`/resale/${city.slug}?type=condo`}
+                              key={city.slug}
+                              to={`/${city.slug}-presale-condos`}
                               onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
+                              className="block text-2xl font-semibold text-muted-foreground hover:text-foreground transition-colors py-3"
                             >
-                              <span className="text-base font-medium">{city.name} Condos</span>
+                              {city.name}
                             </Link>
                           ))}
-                          <p className="text-xs font-semibold text-muted-foreground px-4 py-2 pt-3">New Townhomes</p>
-                          {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
-                            <Link
-                              key={`resale-townhome-${city.slug}`}
-                              to={`/resale/${city.slug}?type=townhouse`}
-                              onClick={() => setOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
-                            >
-                              <span className="text-base font-medium">{city.name} Townhomes</span>
-                            </Link>
-                          ))}
-                          <div className="border-t my-2 mx-4" />
-                          <Link
-                            to="/map-search?mode=resale"
-                            onClick={() => setOpen(false)}
-                            className="flex items-center gap-3 px-4 py-3 min-h-[48px] rounded-lg transition-all duration-200 text-muted-foreground hover:text-foreground hover:bg-muted active:bg-muted touch-active"
-                          >
-                            <Map className="h-4 w-4" />
-                            <span className="text-base font-medium">Map Search</span>
-                          </Link>
                         </CollapsibleContent>
                       </Collapsible>
 
                       <Link
                         to="/blog"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                          isActive("/blog") 
-                            ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted"
-                        }`}
+                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                       >
-                        <div className="flex items-center gap-3">
-                          <BookOpen className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Blog</span>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                        Blog
                       </Link>
 
                       <Link
                         to="/calculator"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                          isActive("/calculator") 
-                            ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted"
-                        }`}
+                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                       >
-                        <div className="flex items-center gap-3">
-                          <Calculator className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Calculator</span>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                        Calculator
                       </Link>
 
                       <Link
                         to="/market-trends"
                         onClick={() => setOpen(false)}
-                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl transition-all duration-200 group ${
-                          isActive("/market-trends") 
-                            ? "bg-primary/10 text-primary" 
-                            : "text-foreground hover:bg-muted"
-                        }`}
+                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
                       >
-                        <div className="flex items-center gap-3">
-                          <TrendingUp className="h-5 w-5 text-muted-foreground group-hover:text-foreground" />
-                          <span className="text-base font-medium">Market Trends</span>
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                        Market Trends
                       </Link>
-
                     </div>
                   </nav>
-
-                  <div className="p-5 space-y-3 border-t">
-                    <Button onClick={openChatNow} className="w-full h-12 font-semibold text-base">
-                      <MessageCircle className="h-5 w-5 mr-2" />
-                      Chat Now
-                    </Button>
-                    <Button variant="outline" onClick={openCallBack} className="w-full h-12 font-semibold text-base">
-                      <Phone className="h-5 w-5 mr-2" />
-                      Request a Call Back
-                    </Button>
-                  </div>
                 </div>
               </SheetContent>
             </Sheet>
