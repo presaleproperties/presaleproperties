@@ -230,8 +230,8 @@ export function REWPhotoGallery({
               loading="eager"
             />
             
-            {/* Photo counter badge - minimalist top right */}
-            <div className="absolute top-2.5 right-2.5 bg-black/50 text-white text-[10px] font-medium px-1.5 py-0.5 rounded-md backdrop-blur-sm">
+            {/* Photo counter badge - top right on mobile, bottom right on tablet/desktop */}
+            <div className="absolute top-2.5 sm:top-auto sm:bottom-3 right-2.5 sm:right-3 bg-black/50 text-white text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-full backdrop-blur-sm">
               {selectedIndex + 1}/{photos.length}
             </div>
           </div>
