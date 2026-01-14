@@ -227,7 +227,7 @@ export function REWPhotoGallery({
           <div
             onClick={() => openGallery(selectedIndex)}
             className={cn(
-              "relative rounded-xl overflow-hidden bg-muted",
+              "relative overflow-hidden bg-muted lg:rounded-xl",
               previewAspectClassName
             )}
           >

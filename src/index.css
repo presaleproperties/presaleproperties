@@ -238,6 +238,50 @@
     text-wrap: balance;
   }
 
+  /* Edge-to-edge scrolling utilities for mobile/tablet only */
+  .edge-to-edge-mobile {
+    @apply px-0;
+  }
+  
+  @screen lg {
+    .edge-to-edge-mobile {
+      @apply container px-4;
+    }
+  }
+
+  /* Container that goes edge-to-edge on mobile, normal container on desktop */
+  .container-edge-mobile {
+    @apply w-full;
+  }
+  
+  @screen lg {
+    .container-edge-mobile {
+      @apply container px-4;
+    }
+  }
+
+  /* Remove container padding on mobile/tablet for full-width layouts */
+  @media (max-width: 1023px) {
+    .mobile-edge-section .container {
+      padding-left: 0;
+      padding-right: 0;
+      max-width: 100%;
+    }
+    
+    /* Cards extend edge-to-edge with internal content padding */
+    .mobile-edge-card {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+    }
+    
+    /* Content within edge cards needs padding */
+    .mobile-edge-content {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+  }
+
   /* Hide scrollbar utility */
   .scrollbar-hide {
     -ms-overflow-style: none;

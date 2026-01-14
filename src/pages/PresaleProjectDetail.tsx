@@ -607,24 +607,24 @@ export default function PresaleProjectDetail() {
             Preview Mode — This project is not published yet
           </div>}
 
-        {/* Breadcrumbs */}
-        <div className="container px-3 md:px-4 pt-3 md:pt-4">
+        {/* Breadcrumbs - edge-to-edge section on mobile */}
+        <div className="px-3 lg:container lg:px-4 pt-3 md:pt-4">
           <Breadcrumbs items={breadcrumbItems} />
         </div>
 
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
-          <div className="container px-3 py-3 md:px-4 md:py-5 lg:py-6">
-            <div className="grid lg:grid-cols-12 gap-3 md:gap-5 lg:gap-6">
-              {/* Gallery - Full width on mobile/tablet, 7 columns on desktop */}
+          <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
+            <div className="grid lg:grid-cols-12 gap-0 lg:gap-6">
+              {/* Gallery - Full width edge-to-edge on mobile/tablet, 7 columns on desktop */}
               <div className="lg:col-span-7">
                 <REWPhotoGallery photos={allImages.map(url => ({
                   url
                 }))} alt={project.name} previewAspectClassName="aspect-[4/3] lg:aspect-[4/3]" />
               </div>
 
-              {/* Project Info - Full width on mobile/tablet, 5 columns on desktop */}
-              <div className="lg:col-span-5 flex flex-col">
+              {/* Project Info - Full width on mobile/tablet with internal padding, 5 columns on desktop */}
+              <div className="lg:col-span-5 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
@@ -719,23 +719,23 @@ export default function PresaleProjectDetail() {
           </div>
         </section>
 
-        {/* Mobile-only Project Highlights Section */}
+        {/* Mobile-only Project Highlights Section - edge-to-edge */}
         <section className="border-t md:hidden">
-          <div className="container px-3 py-4">
+          <div className="px-4 py-4">
             <ProjectHighlights projectType={project.project_type} unitMix={project.unit_mix} completionMonth={project.completion_month} completionYear={project.completion_year} city={project.city} neighborhood={project.neighborhood} depositStructure={project.deposit_structure} incentives={project.incentives} developerId={project.developer_id} developerName={project.developer_name} strataFees={project.strata_fees} assignmentFees={project.assignment_fees} />
           </div>
         </section>
 
-        {/* Details Grid */}
+        {/* Details Grid - Edge-to-edge on mobile/tablet */}
         <section className="py-2 sm:py-3 md:py-5 lg:py-8">
-          <div className="container px-3 md:px-4">
-            <div className="grid lg:grid-cols-3 gap-2.5 sm:gap-3 md:gap-4 lg:gap-6">
+          <div className="px-4 lg:container lg:px-4">
+            <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
               {/* Main Content */}
-              <div className="lg:col-span-2 space-y-3 sm:space-y-4 md:space-y-5 lg:space-y-6">
+              <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6">
                 {/* Deposit, Fees & Developer - Combined section */}
-                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-3 sm:p-4 md:p-5 lg:p-6 border border-border/40">
+                {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6 border border-border/40">
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
                       {project.developer_name && <div className="hidden md:block bg-background/70 rounded-lg sm:rounded-xl p-3 sm:p-4 border border-border/30">
                           <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide mb-0.5 sm:mb-1">Developer</p>
                           <p className="font-semibold text-sm sm:text-base text-foreground">{project.developer_name}</p>
@@ -762,20 +762,20 @@ export default function PresaleProjectDetail() {
                   </div>}
 
                 {/* Amenities */}
-                {project.amenities && project.amenities.length > 0 && <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2.5 sm:mb-3 md:mb-4">Amenities</h2>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 sm:gap-2.5 md:gap-3">
-                      {project.amenities.map((a, i) => <div key={i} className="flex items-center gap-1.5 sm:gap-2">
-                          <CheckCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
-                          <span className="text-xs sm:text-sm md:text-base text-foreground">{a}</span>
+                {project.amenities && project.amenities.length > 0 && <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Amenities</h2>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-3 md:gap-4">
+                      {project.amenities.map((a, i) => <div key={i} className="flex items-center gap-2 sm:gap-2">
+                          <CheckCircle className="h-4 w-4 sm:h-4 sm:w-4 md:h-5 md:w-5 text-green-500 shrink-0" />
+                          <span className="text-sm sm:text-sm md:text-base text-foreground">{a}</span>
                         </div>)}
                     </div>
                   </div>}
 
                 {/* Description */}
-                {project.full_description && <div className="bg-muted/30 rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-5 lg:p-6">
-                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2.5 sm:mb-3 md:mb-4">Development Features</h2>
-                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-2 sm:space-y-3">
+                {project.full_description && <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Development Features</h2>
+                    <div className="prose prose-sm max-w-none text-muted-foreground space-y-3 sm:space-y-3">
                       {project.full_description.split("\n").map((line, i) => {
                       // Handle bullet points
                       const isBullet = line.trim().startsWith("•") || line.trim().startsWith("-");
@@ -784,7 +784,7 @@ export default function PresaleProjectDetail() {
                       if (isBullet) {
                         const bulletContent = line.trim().replace(/^[•\-]\s*/, "");
                         const parsedBullet = bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
-                        return <div key={i} className="flex items-start gap-1.5 sm:gap-2 text-xs sm:text-sm lg:text-base">
+                        return <div key={i} className="flex items-start gap-2 sm:gap-2 text-sm sm:text-sm lg:text-base">
                               <span className="text-primary mt-0.5">•</span>
                               <span dangerouslySetInnerHTML={{
                             __html: parsedBullet
@@ -792,7 +792,7 @@ export default function PresaleProjectDetail() {
                             </div>;
                       }
                       if (!line.trim()) return null;
-                      return <p key={i} className="text-xs sm:text-sm lg:text-base leading-relaxed" dangerouslySetInnerHTML={{
+                      return <p key={i} className="text-sm sm:text-sm lg:text-base leading-relaxed" dangerouslySetInnerHTML={{
                         __html: parsedLine
                       }} />;
                     })}
@@ -800,9 +800,9 @@ export default function PresaleProjectDetail() {
                   </div>}
 
                 {/* Highlights */}
-                {project.highlights && project.highlights.length > 0 && <div className="bg-muted/30 rounded-xl p-4 md:p-5 lg:p-6">
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Key Highlights</h2>
-                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-2.5 md:gap-3">
+                {project.highlights && project.highlights.length > 0 && <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
+                    <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 md:mb-4">Key Highlights</h2>
+                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                       {project.highlights.map((h, i) => <li key={i} className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 md:h-5 md:w-5 text-green-500 shrink-0 mt-0.5" />
                           <span className="text-sm md:text-base text-foreground">{h}</span>
@@ -817,14 +817,14 @@ export default function PresaleProjectDetail() {
                 <LocationDeepDive projectName={project.name} city={project.city} neighborhood={project.neighborhood} address={project.address} mapLat={project.map_lat} mapLng={project.map_lng} />
 
                 {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
-                <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-2xl p-5 md:p-6 lg:p-8 border border-border/30">
+                <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 border border-border/30">
                   <div className="flex items-center gap-2 mb-4 md:mb-6">
                     <div className="h-8 w-1 bg-primary rounded-full" />
-                    <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-foreground">
+                    <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-foreground">
                       Frequently Asked Questions About {project.name}
                     </h2>
                   </div>
-                  <Accordion type="single" collapsible className="w-full space-y-2">
+                  <Accordion type="single" collapsible className="w-full space-y-3">
                     {projectFAQs.map((item, i) => <AccordionItem key={i} value={`faq-${i}`} className="bg-background/60 rounded-xl border border-border/40 px-4 data-[state=open]:bg-background/80 transition-colors">
                         <AccordionTrigger className="text-left text-sm md:text-base py-4 md:py-5 font-semibold text-foreground hover:no-underline gap-3 min-h-[56px]">
                           <span className="pr-2">{item.question}</span>
@@ -889,16 +889,16 @@ export default function PresaleProjectDetail() {
       {/* Contextual Internal Links */}
       <ProjectContextualLinks projectName={project.name} neighborhood={project.neighborhood} city={project.city} projectType={project.project_type} startingPrice={project.starting_price} />
 
-      {/* More Projects in Same Neighborhood */}
-      <section className="bg-muted/30 py-8 md:py-12">
-        <div className="container px-4">
+      {/* More Projects in Same Neighborhood - edge-to-edge on mobile */}
+      <section className="bg-muted/30 py-6 md:py-12">
+        <div className="px-4 lg:container lg:px-4">
           <NeighborhoodProjectsCarousel neighborhood={project.neighborhood} city={project.city} title={`More in ${project.neighborhood}`} subtitle={`Explore presales in ${project.neighborhood}, ${project.city}`} excludeSlug={project.slug} />
         </div>
       </section>
 
-      {/* More Projects in Same City */}
-      <section className="py-8 md:py-12">
-        <div className="container px-4">
+      {/* More Projects in Same City - edge-to-edge on mobile */}
+      <section className="py-6 md:py-12">
+        <div className="px-4 lg:container lg:px-4">
           <CityProjectsCarousel city={project.city} title={`More Projects in ${project.city}`} subtitle="Explore similar presale opportunities nearby" excludeSlug={project.slug} />
         </div>
       </section>
