@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Check, ChevronDown, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,14 +30,19 @@ export function MultiSelectFilter({
   className,
   allLabel = "All",
 }: MultiSelectFilterProps) {
-  // Handle icon - can be a component or a ReactNode
+  // Handle icon - can be a component or a ReactNode (JSX element)
   const renderIcon = () => {
     if (!icon) return null;
+    // Check if it's a React component (function or class)
     if (typeof icon === 'function') {
       const IconComponent = icon as React.ComponentType<{ className?: string }>;
       return <IconComponent className="h-3 w-3 text-muted-foreground shrink-0" />;
     }
-    return icon;
+    // Check if it's a valid React element (JSX)
+    if (React.isValidElement(icon)) {
+      return icon;
+    }
+    return null;
   };
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
