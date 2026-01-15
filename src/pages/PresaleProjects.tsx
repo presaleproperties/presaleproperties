@@ -955,7 +955,7 @@ export default function PresaleProjects() {
               </div>
             </Suspense>
             <div className="text-center mt-4">
-              <Link to="/map-search">
+              <Link to={`/map-search?mode=presale${filters.city !== "any" ? `&city=${filters.city}` : ''}`}>
                 <Button variant="outline" className="gap-2">
                   <Map className="h-4 w-4" />
                   Open Full Map Search

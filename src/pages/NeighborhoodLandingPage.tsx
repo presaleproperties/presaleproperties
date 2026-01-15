@@ -6,7 +6,7 @@ import { Helmet } from "react-helmet-async";
 import { 
   ChevronRight, Home, MapPin, Building2, Shield, TrendingUp, 
   Users, School, ShoppingBag, TreePine, Bus, DollarSign, 
-  PiggyBank, Percent, BarChart3, Clock
+  PiggyBank, Percent, BarChart3, Clock, Map
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -730,15 +730,23 @@ export default function NeighborhoodLandingPage() {
 
           {/* Current Inventory Section */}
           <section id="current-inventory" className="mb-12">
-            <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
               <h2 className="text-xl md:text-2xl font-semibold text-foreground">
                 Current {config.displayName} Presale Projects
               </h2>
-              <Link to={`/${config.citySlug}-presale-condos`}>
-                <Button variant="outline" size="sm">
-                  View All {config.city}
-                </Button>
-              </Link>
+              <div className="flex gap-2">
+                <Link to={`/map-search?mode=presale&city=${config.city}`}>
+                  <Button variant="outline" size="sm">
+                    <Map className="h-4 w-4 mr-1" />
+                    Map
+                  </Button>
+                </Link>
+                <Link to={`/${config.citySlug}-presale-condos`}>
+                  <Button variant="outline" size="sm">
+                    View All {config.city}
+                  </Button>
+                </Link>
+              </div>
             </div>
 
             {isLoading ? (

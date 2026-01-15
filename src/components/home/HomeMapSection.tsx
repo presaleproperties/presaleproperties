@@ -100,7 +100,7 @@ export function HomeMapSection() {
           </div>
           <div className="flex items-center gap-3">
             <ListingModeToggle size="sm" />
-            <Link to="/presale-projects?view=map">
+            <Link to="/map-search?mode=presale">
               <Button variant="outline" className="gap-2">
                 Full Map
                 <ArrowRight className="h-4 w-4" />

@@ -701,7 +701,10 @@ export default function ResaleListings() {
                 variant="outline" 
                 size="sm"
                 className="h-9 px-3"
-                onClick={() => navigate('/map-search?mode=resale')}
+                onClick={() => {
+                  const cityParam = filters.city !== "any" ? `&city=${filters.city}` : '';
+                  navigate(`/map-search?mode=resale${cityParam}`);
+                }}
               >
                 <Map className="h-4 w-4" />
                 <span className="ml-1.5 text-xs sm:text-sm">Map</span>

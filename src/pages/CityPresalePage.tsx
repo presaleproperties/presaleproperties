@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, MapPin, Home, ArrowRight } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, MapPin, Home, ArrowRight, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -773,12 +773,18 @@ export default function CityPresalePage() {
                 ))}
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-4 flex-wrap">
                 <div className="flex items-center gap-2 text-foreground">
                   <Building2 className="h-5 w-5 text-primary" />
                   <span className="font-semibold">{totalCount}</span>
                   <span className="text-muted-foreground">Active Projects</span>
                 </div>
+                <Button variant="outline" asChild>
+                  <Link to={`/map-search?mode=presale&city=${cityName}`}>
+                    <Map className="h-4 w-4 mr-2" />
+                    View Map
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
