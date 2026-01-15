@@ -39,6 +39,15 @@ const CombinedListingsMap = lazy(() =>
   import("@/components/map/CombinedListingsMap").then(m => ({ default: m.CombinedListingsMap }))
 );
 
+// Session storage key for map state persistence
+const MAP_STATE_KEY = "pp_map_state";
+
+interface SavedMapState {
+  center: { lat: number; lng: number };
+  zoom: number;
+  timestamp: number;
+}
+
 const CITIES = [
   "Vancouver", "Burnaby", "Richmond", "Surrey", "Coquitlam", 
   "Port Coquitlam", "Port Moody", "North Vancouver", "West Vancouver",
@@ -142,6 +151,38 @@ export default function MapSearch() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   
+  // Persisted map state - restored from sessionStorage
+  const [savedMapState, setSavedMapState] = useState<SavedMapState | null>(() => {
+    try {
+      const stored = sessionStorage.getItem(MAP_STATE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as SavedMapState;
+        // Only use if less than 30 minutes old
+        if (Date.now() - parsed.timestamp < 30 * 60 * 1000) {
+          console.log("Restoring map state:", parsed);
+          return parsed;
+        }
+      }
+    } catch (e) {
+      console.log("Failed to restore map state:", e);
+    }
+    return null;
+  });
+  
+  // Callback to save map state when it changes
+  const handleMapStateChange = useCallback((center: { lat: number; lng: number }, zoom: number) => {
+    const state: SavedMapState = {
+      center,
+      zoom,
+      timestamp: Date.now()
+    };
+    try {
+      sessionStorage.setItem(MAP_STATE_KEY, JSON.stringify(state));
+    } catch (e) {
+      // Ignore storage errors
+    }
+  }, []);
+  
   // Read mode from URL param, sync state when URL changes
   const urlMode = (searchParams.get("mode") as MapMode) || "all";
   const [mapMode, setMapMode] = useState<MapMode>(urlMode);
@@ -151,9 +192,14 @@ export default function MapSearch() {
     setMapMode(urlMode);
   }, [urlMode]);
   
-  // Request user location on mount for better map experience
+  // Request user location on mount - but only if we don't have saved state
   useEffect(() => {
     if (locationRequested) return;
+    if (savedMapState) {
+      // Skip geolocation if we have saved state - user wants to return where they were
+      setLocationRequested(true);
+      return;
+    }
     setLocationRequested(true);
     
     if (navigator.geolocation) {
@@ -176,7 +222,7 @@ export default function MapSearch() {
         }
       );
     }
-  }, [locationRequested]);
+  }, [locationRequested, savedMapState]);
   
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
@@ -600,9 +646,11 @@ export default function MapSearch() {
                       onListingSelect={handleItemSelect}
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
+                      onMapStateChange={handleMapStateChange}
                       disablePopupsOnMobile={isMobile}
-                      centerOnUserLocation={true}
+                      centerOnUserLocation={!savedMapState}
                       initialUserLocation={userLocation}
+                      savedMapState={savedMapState}
                     />
                   )}
                 </Suspense>

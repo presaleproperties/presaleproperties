@@ -49,6 +49,12 @@ interface PresaleProject {
   map_lng: number | null;
 }
 
+interface SavedMapState {
+  center: { lat: number; lng: number };
+  zoom: number;
+  timestamp: number;
+}
+
 interface CombinedListingsMapProps {
   resaleListings: MLSListing[];
   presaleProjects: PresaleProject[];
@@ -56,12 +62,15 @@ interface CombinedListingsMapProps {
   onListingSelect?: (id: string, type: "resale" | "presale") => void;
   onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[]) => void;
   onMapInteraction?: () => void;
+  onMapStateChange?: (center: { lat: number; lng: number }, zoom: number) => void;
   /** On mobile, skip popups and just use carousel */
   disablePopupsOnMobile?: boolean;
   /** Center map on user's location when it becomes available */
   centerOnUserLocation?: boolean;
   /** User location passed from parent (triggers centering) */
   initialUserLocation?: { lat: number; lng: number } | null;
+  /** Saved map state to restore on mount */
+  savedMapState?: SavedMapState | null;
 }
 
 function formatPrice(price: number): string {
@@ -252,9 +261,11 @@ export function CombinedListingsMap({
   onListingSelect, 
   onVisibleItemsChange,
   onMapInteraction,
+  onMapStateChange,
   disablePopupsOnMobile = false,
   centerOnUserLocation = false,
-  initialUserLocation = null
+  initialUserLocation = null,
+  savedMapState = null
 }: CombinedListingsMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -264,6 +275,7 @@ export function CombinedListingsMap({
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
   const hasCenteredOnUserRef = useRef(false);
+  const hasRestoredSavedStateRef = useRef(false);
 
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
@@ -294,9 +306,15 @@ export function CombinedListingsMap({
   const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
+    // Use saved state if available, otherwise defaults
+    const initialCenter: L.LatLngExpression = savedMapState 
+      ? [savedMapState.center.lat, savedMapState.center.lng]
+      : DEFAULT_CENTER;
+    const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
+
     const map = L.map(mapRef.current, {
-      center: DEFAULT_CENTER,
-      zoom: DEFAULT_ZOOM,
+      center: initialCenter,
+      zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
     });
@@ -332,6 +350,12 @@ export function CombinedListingsMap({
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
 
+    // If we have saved state, mark as initialized to prevent fitBounds overriding
+    if (savedMapState) {
+      hasInitializedViewRef.current = true;
+      hasRestoredSavedStateRef.current = true;
+    }
+
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
     
@@ -339,9 +363,18 @@ export function CombinedListingsMap({
     map.on("movestart", () => {
       if (onMapInteraction) onMapInteraction();
     });
+    
+    // Save map state on every move/zoom for persistence
+    map.on("moveend", () => {
+      if (onMapStateChange && mapInstanceRef.current) {
+        const center = mapInstanceRef.current.getCenter();
+        const zoom = mapInstanceRef.current.getZoom();
+        onMapStateChange({ lat: center.lat, lng: center.lng }, zoom);
+      }
+    });
 
     // Removed auto-geolocation from here - now handled by parent with permission prompt
-  }, [updateVisibleItems]);
+  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange]);
 
   useEffect(() => {
     initializeMap();
