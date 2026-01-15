@@ -4,7 +4,7 @@ import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
-import { Crosshair, Plus, Minus } from "lucide-react";
+import { Navigation2, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 
 // Expose flyTo and highlightItem methods for parent navigation
@@ -728,35 +728,35 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       
       {/* Custom Controls - Right side, positioned with proper spacing on mobile */}
       <div 
-        className="absolute right-3 z-[900] flex flex-col gap-3"
+        className="absolute right-3 z-[900] flex flex-col gap-2"
         style={{ top: 'calc(env(safe-area-inset-top, 0px) + 130px)' }}
       >
-        {/* Zoom Controls - Premium Apple style */}
-        <div className="flex flex-col rounded-2xl overflow-hidden bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10">
+        {/* Zoom Controls - Matching search bar style */}
+        <div className="flex flex-col rounded-[14px] overflow-hidden bg-white/98 dark:bg-background/98 backdrop-blur-2xl shadow-lg shadow-black/8 border border-white/50 dark:border-white/10">
           <button
             onClick={handleZoomIn}
-            className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors active:bg-black/10 dark:active:bg-white/20"
+            className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors active:bg-black/10 dark:active:bg-white/20"
             aria-label="Zoom in"
           >
-            <Plus className="h-5 w-5" />
+            <Plus className="h-4 w-4" />
           </button>
-          <div className="w-full h-px bg-black/10 dark:bg-white/10" />
+          <div className="w-full h-px bg-black/8 dark:bg-white/10" />
           <button
             onClick={handleZoomOut}
-            className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors active:bg-black/10 dark:active:bg-white/20"
+            className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors active:bg-black/10 dark:active:bg-white/20"
             aria-label="Zoom out"
           >
-            <Minus className="h-5 w-5" />
+            <Minus className="h-4 w-4" />
           </button>
         </div>
         
-        {/* Location Button - Below zoom controls */}
+        {/* Location Button - Matching search bar style */}
         <button
           onClick={handleLocateUser}
-          className="w-11 h-11 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center justify-center hover:bg-white dark:hover:bg-background transition-colors active:bg-black/5 dark:active:bg-white/10"
+          className="w-10 h-10 rounded-[14px] bg-white/98 dark:bg-background/98 backdrop-blur-2xl shadow-lg shadow-black/8 border border-white/50 dark:border-white/10 flex items-center justify-center hover:bg-white dark:hover:bg-background transition-colors active:bg-black/5 dark:active:bg-white/10"
           aria-label="Find my location"
         >
-          <Crosshair className="h-5 w-5 text-primary" />
+          <Navigation2 className="h-4 w-4 text-muted-foreground/70" />
         </button>
       </div>
     </div>

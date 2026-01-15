@@ -19,13 +19,13 @@ export function UnifiedMapToggle({
 }: UnifiedMapToggleProps) {
   return (
     <div className={cn(
-      "bg-white/95 dark:bg-background/95 backdrop-blur-xl rounded-xl shadow-xl border border-black/5 dark:border-white/10 p-1 flex items-center gap-0.5",
+      "bg-white/98 dark:bg-background/98 backdrop-blur-2xl rounded-[14px] shadow-lg shadow-black/8 border border-white/50 dark:border-white/10 p-1 flex items-center gap-0.5",
       className
     )}>
       <button
         onClick={() => onModeChange("all")}
         className={cn(
-          "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap",
+          "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap",
           mode === "all"
             ? "bg-primary text-primary-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
@@ -36,7 +36,7 @@ export function UnifiedMapToggle({
       <button
         onClick={() => onModeChange("presale")}
         className={cn(
-          "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap",
+          "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap",
           mode === "presale"
             ? "bg-foreground text-background shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
@@ -47,7 +47,7 @@ export function UnifiedMapToggle({
       <button
         onClick={() => onModeChange("resale")}
         className={cn(
-          "px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 whitespace-nowrap",
+          "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap",
           mode === "resale"
             ? "bg-foreground text-background shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
