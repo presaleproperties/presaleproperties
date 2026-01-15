@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -32,7 +33,13 @@ import {
   MapPin,
   Home,
   DollarSign,
-  Calendar
+  Calendar,
+  Eye,
+  Send,
+  Loader2,
+  Building2,
+  X,
+  Search
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -63,6 +70,20 @@ interface SavedSearch {
   created_at: string;
 }
 
+interface MatchedProperty {
+  id: string;
+  type: "resale" | "presale";
+  name: string;
+  address: string;
+  city: string;
+  price: number;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  image: string | null;
+  url: string;
+}
+
 const CITIES = [
   "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", "Coquitlam",
   "Delta", "Abbotsford", "New Westminster", "Port Coquitlam", "Port Moody",
@@ -91,6 +112,13 @@ export default function AdminClientSearches() {
   const [loading, setLoading] = useState(true);
   const [showNewSearch, setShowNewSearch] = useState(false);
   const [saving, setSaving] = useState(false);
+  
+  // View matches state
+  const [viewingSearch, setViewingSearch] = useState<SavedSearch | null>(null);
+  const [matchedProperties, setMatchedProperties] = useState<MatchedProperty[]>([]);
+  const [matchesLoading, setMatchesLoading] = useState(false);
+  const [selectedMatches, setSelectedMatches] = useState<MatchedProperty[]>([]);
+  const [sending, setSending] = useState(false);
   
   // New search form state
   const [newSearch, setNewSearch] = useState({
@@ -272,6 +300,150 @@ export default function AdminClientSearches() {
     }).format(price);
   };
 
+  // Fetch matching properties for a saved search
+  const fetchMatches = async (search: SavedSearch) => {
+    setViewingSearch(search);
+    setMatchesLoading(true);
+    setMatchedProperties([]);
+    setSelectedMatches([]);
+
+    try {
+      const results: MatchedProperty[] = [];
+
+      // Fetch MLS listings if resale is included
+      if (!search.listing_types || search.listing_types.includes("resale")) {
+        let query = supabase
+          .from("mls_listings")
+          .select("listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, bedrooms_total, bathrooms_total, living_area, photos")
+          .eq("mls_status", "Active")
+          .gte("year_built", 2024);
+
+        if (search.cities?.length) {
+          query = query.in("city", search.cities);
+        }
+        if (search.price_min) {
+          query = query.gte("listing_price", search.price_min);
+        }
+        if (search.price_max) {
+          query = query.lte("listing_price", search.price_max);
+        }
+        if (search.beds_min) {
+          query = query.gte("bedrooms_total", search.beds_min);
+        }
+
+        const { data: mlsListings } = await query.order("created_at", { ascending: false }).limit(20);
+
+        if (mlsListings) {
+          for (const listing of mlsListings) {
+            const photos = listing.photos as any[];
+            results.push({
+              id: listing.listing_key,
+              type: "resale",
+              name: `${listing.street_number || ""} ${listing.street_name || ""} ${listing.street_suffix || ""}`.trim(),
+              address: listing.neighborhood || listing.city,
+              city: listing.city,
+              price: listing.listing_price,
+              beds: listing.bedrooms_total,
+              baths: listing.bathrooms_total,
+              sqft: listing.living_area,
+              image: photos?.[0]?.MediaURL || null,
+              url: `https://presaleproperties.ca/resale/${listing.listing_key}`,
+            });
+          }
+        }
+      }
+
+      // Fetch presale projects if presale is included
+      if (!search.listing_types || search.listing_types.includes("presale")) {
+        let query = supabase
+          .from("presale_projects")
+          .select("id, name, slug, city, neighborhood, starting_price, featured_image")
+          .eq("is_published", true);
+
+        if (search.cities?.length) {
+          query = query.in("city", search.cities);
+        }
+        if (search.price_min) {
+          query = query.gte("starting_price", search.price_min);
+        }
+        if (search.price_max) {
+          query = query.lte("starting_price", search.price_max);
+        }
+
+        const { data: presaleProjects } = await query.order("created_at", { ascending: false }).limit(20);
+
+        if (presaleProjects) {
+          for (const project of presaleProjects) {
+            results.push({
+              id: project.id,
+              type: "presale",
+              name: project.name,
+              address: project.neighborhood,
+              city: project.city,
+              price: project.starting_price || 0,
+              beds: null,
+              baths: null,
+              sqft: null,
+              image: project.featured_image,
+              url: `https://presaleproperties.ca/presale-projects/${project.slug}`,
+            });
+          }
+        }
+      }
+
+      setMatchedProperties(results);
+    } catch (error) {
+      console.error("Error fetching matches:", error);
+      toast.error("Failed to load matching properties");
+    } finally {
+      setMatchesLoading(false);
+    }
+  };
+
+  const toggleMatchSelection = (property: MatchedProperty) => {
+    setSelectedMatches(prev => {
+      const exists = prev.find(p => p.id === property.id && p.type === property.type);
+      if (exists) {
+        return prev.filter(p => !(p.id === property.id && p.type === property.type));
+      }
+      return [...prev, property];
+    });
+  };
+
+  const isMatchSelected = (property: MatchedProperty) => {
+    return selectedMatches.some(p => p.id === property.id && p.type === property.type);
+  };
+
+  const selectAllMatches = () => {
+    setSelectedMatches([...matchedProperties]);
+  };
+
+  const sendSelectedProperties = async () => {
+    if (!client || selectedMatches.length === 0) return;
+
+    setSending(true);
+    try {
+      const { error } = await supabase.functions.invoke("send-property-email", {
+        body: {
+          clientEmail: client.email,
+          clientName: client.first_name || "there",
+          properties: selectedMatches,
+        },
+      });
+
+      if (error) throw error;
+
+      toast.success(`Sent ${selectedMatches.length} properties to ${client.email}`);
+      setViewingSearch(null);
+      setSelectedMatches([]);
+    } catch (error) {
+      console.error("Error sending properties:", error);
+      toast.error("Failed to send properties");
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -382,6 +554,14 @@ export default function AdminClientSearches() {
                     </div>
                     
                     <div className="flex items-center gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => fetchMatches(search)}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View Matches
+                      </Button>
                       <Switch
                         checked={search.is_active}
                         onCheckedChange={(checked) => handleToggleSearch(search.id, checked)}
@@ -540,6 +720,159 @@ export default function AdminClientSearches() {
                 {saving ? "Creating..." : "Create Alert"}
               </Button>
             </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* View Matches Dialog */}
+        <Dialog open={!!viewingSearch} onOpenChange={() => setViewingSearch(null)}>
+          <DialogContent className="max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5" />
+                Matches for "{viewingSearch?.name}"
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+              {/* Search Criteria Summary */}
+              {viewingSearch && (
+                <div className="p-3 bg-muted rounded-lg text-sm">
+                  <div className="flex flex-wrap gap-3">
+                    {viewingSearch.cities?.length && (
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> {viewingSearch.cities.join(", ")}
+                      </span>
+                    )}
+                    {(viewingSearch.price_min || viewingSearch.price_max) && (
+                      <span className="flex items-center gap-1">
+                        <DollarSign className="h-3 w-3" />
+                        {formatPrice(viewingSearch.price_min) || "$0"} - {formatPrice(viewingSearch.price_max) || "No max"}
+                      </span>
+                    )}
+                    {viewingSearch.beds_min && (
+                      <span>{viewingSearch.beds_min}+ beds</span>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Selection Header */}
+              {matchedProperties.length > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    {matchedProperties.length} matching properties
+                  </span>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={selectAllMatches}
+                      disabled={selectedMatches.length === matchedProperties.length}
+                    >
+                      Select All
+                    </Button>
+                    {selectedMatches.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setSelectedMatches([])}
+                      >
+                        Clear ({selectedMatches.length})
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Results */}
+              <ScrollArea className="flex-1 min-h-0">
+                {matchesLoading ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="h-8 w-8 animate-spin" />
+                  </div>
+                ) : matchedProperties.length === 0 ? (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No matching properties found</p>
+                    <p className="text-sm">Try adjusting the search criteria</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 pr-4">
+                    {matchedProperties.map((property) => (
+                      <div
+                        key={`${property.type}-${property.id}`}
+                        className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                          isMatchSelected(property) ? "bg-primary/10 border-primary" : "hover:bg-muted/50"
+                        }`}
+                        onClick={() => toggleMatchSelection(property)}
+                      >
+                        <Checkbox checked={isMatchSelected(property)} />
+                        
+                        {property.image ? (
+                          <img
+                            src={property.image}
+                            alt={property.name}
+                            className="w-20 h-14 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-20 h-14 bg-muted rounded flex items-center justify-center">
+                            {property.type === "presale" ? (
+                              <Building2 className="h-6 w-6 text-muted-foreground" />
+                            ) : (
+                              <Home className="h-6 w-6 text-muted-foreground" />
+                            )}
+                          </div>
+                        )}
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium truncate">{property.name}</p>
+                            <Badge variant="outline" className="shrink-0 text-xs">
+                              {property.type === "presale" ? "Presale" : "Move-In Ready"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {property.address}, {property.city}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground">
+                              {formatPrice(property.price)}
+                            </span>
+                            {property.beds && <span>{property.beds} bed</span>}
+                            {property.baths && <span>{property.baths} bath</span>}
+                            {property.sqft && <span>{property.sqft} sqft</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+
+              {/* Send Button */}
+              <div className="flex gap-2 pt-2 border-t">
+                <Button variant="outline" className="flex-1" onClick={() => setViewingSearch(null)}>
+                  Close
+                </Button>
+                <Button 
+                  className="flex-1" 
+                  onClick={sendSelectedProperties}
+                  disabled={sending || selectedMatches.length === 0}
+                >
+                  {sending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send {selectedMatches.length} {selectedMatches.length === 1 ? "Property" : "Properties"}
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
           </DialogContent>
         </Dialog>
       </div>
