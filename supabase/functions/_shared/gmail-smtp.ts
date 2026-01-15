@@ -65,9 +65,11 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
       from: `${senderName} <${smtpUser}>`,
       to: recipients,
       subject: options.subject,
-      content: options.html,
       html: options.html,
       replyTo: options.replyTo || DEFAULT_REPLY_TO,
+      headers: {
+        "Content-Type": "text/html; charset=UTF-8",
+      },
     });
     
     await client.close();
