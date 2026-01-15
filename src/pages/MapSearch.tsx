@@ -723,32 +723,32 @@ export default function MapSearch() {
           <ConversionHeader alwaysVisible stickyOnMobile />
         </div>
 
-        {/* Mobile/Tablet: Floating Search Bar - Apple Maps inspired */}
+        {/* Mobile/Tablet: Floating Search Bar - Minimal Apple Maps inspired */}
         <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-          <div className="lg:hidden absolute top-0 left-0 right-0 z-[1002] pt-[env(safe-area-inset-top)] px-3 pb-2 pt-3">
-            {/* Glassmorphism Search Bar */}
-            <div className="flex items-center gap-2 bg-background/85 backdrop-blur-xl rounded-2xl shadow-lg border border-border/30 px-3 py-2">
-              <Search className="h-5 w-5 text-muted-foreground shrink-0" />
+          <div className="lg:hidden absolute top-0 left-0 right-0 z-[1002] px-4" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
+            {/* Thin Glassmorphism Search Bar */}
+            <div className="flex items-center gap-2 bg-background/80 backdrop-blur-2xl rounded-full shadow-lg border border-white/20 px-4 py-1.5">
+              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
               <Input
                 type="text"
                 placeholder="City, MLS#, Address..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 h-9 border-0 bg-transparent focus-visible:ring-0 text-base placeholder:text-muted-foreground/70"
+                className="flex-1 h-7 border-0 bg-transparent focus-visible:ring-0 text-sm placeholder:text-muted-foreground/60 px-0"
               />
               {searchQuery ? (
                 <button 
                   onClick={() => setSearchQuery("")}
-                  className="p-1.5 rounded-full hover:bg-muted/50 transition-colors"
+                  className="p-1 rounded-full hover:bg-muted/50 transition-colors"
                 >
-                  <X className="h-4 w-4 text-muted-foreground" />
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
               ) : (
                 <SheetTrigger asChild>
-                  <button className="p-1.5 rounded-full hover:bg-muted/50 transition-colors relative">
-                    <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
+                  <button className="p-1 rounded-full hover:bg-muted/50 transition-colors relative">
+                    <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                     {activeFilterCount > 0 && (
-                      <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-semibold">
+                      <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[9px] rounded-full flex items-center justify-center font-bold">
                         {activeFilterCount}
                       </span>
                     )}
@@ -920,8 +920,8 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
-            {/* Unified Mode Toggle - Floating on map - below search bar on mobile */}
-            <div className="absolute top-16 lg:top-3 left-1/2 -translate-x-1/2 z-[1000]">
+            {/* Unified Mode Toggle - Floating on map - positioned below thin search bar */}
+            <div className="absolute top-14 lg:top-3 left-1/2 -translate-x-1/2 z-[1000]">
               <UnifiedMapToggle
                 mode={mapMode}
                 onModeChange={handleModeChange}
@@ -931,10 +931,10 @@ export default function MapSearch() {
             </div>
 
             {/* List View Button - Mobile/Tablet - top left below search */}
-            <div className="absolute top-16 left-3 z-[1001] lg:hidden">
+            <div className="absolute top-14 left-3 z-[1001] lg:hidden">
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="w-11 h-11 rounded-2xl bg-background/90 backdrop-blur-xl shadow-lg border border-border/30 flex items-center justify-center hover:bg-muted/50 transition-colors">
-                  <LayoutGrid className="h-5 w-5 text-foreground" />
+                <button className="w-10 h-10 rounded-xl bg-background/80 backdrop-blur-2xl shadow-lg border border-white/20 flex items-center justify-center hover:bg-muted/50 transition-colors">
+                  <LayoutGrid className="h-4 w-4 text-foreground" />
                 </button>
               </Link>
             </div>
