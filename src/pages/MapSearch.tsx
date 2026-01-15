@@ -923,42 +923,34 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
-            {/* Unified Mode Toggle - Floating on map - positioned with proper spacing on mobile */}
+            {/* Unified Mode Toggle - Floating on map - centered and spaced from search */}
             <div 
               className="absolute z-[1000] lg:top-3 lg:left-1/2 lg:-translate-x-1/2"
               style={{ 
-                top: 'calc(env(safe-area-inset-top, 0px) + 72px)',
-                left: '56px'
+                top: 'calc(env(safe-area-inset-top, 0px) + 92px)',
+                left: '50%',
+                transform: 'translateX(-50%)'
               }}
             >
-              <div className="lg:hidden">
-                <UnifiedMapToggle
-                  mode={mapMode}
-                  onModeChange={handleModeChange}
-                  presaleCount={filteredPresaleProjects?.length || 0}
-                  resaleCount={filteredResaleListings?.length || 0}
-                />
-              </div>
-              <div className="hidden lg:block">
-                <UnifiedMapToggle
-                  mode={mapMode}
-                  onModeChange={handleModeChange}
-                  presaleCount={filteredPresaleProjects?.length || 0}
-                  resaleCount={filteredResaleListings?.length || 0}
-                />
-              </div>
+              <UnifiedMapToggle
+                mode={mapMode}
+                onModeChange={handleModeChange}
+                presaleCount={filteredPresaleProjects?.length || 0}
+                resaleCount={filteredResaleListings?.length || 0}
+                className="scale-[0.96] origin-top"
+              />
             </div>
 
-            {/* List View Button - Mobile/Tablet - top left below search */}
+            {/* List View Button - Mobile/Tablet - left of toggle row */}
             <div 
               className="absolute z-[1001] lg:hidden"
               style={{ 
-                top: 'calc(env(safe-area-inset-top, 0px) + 72px)',
+                top: 'calc(env(safe-area-inset-top, 0px) + 92px)',
                 left: '12px'
               }}
             >
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="w-10 h-10 rounded-xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center justify-center hover:bg-white dark:hover:bg-background transition-colors active:bg-black/5 dark:active:bg-white/10">
+                <button className="w-11 h-11 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center justify-center hover:bg-white dark:hover:bg-background transition-colors active:bg-black/5 dark:active:bg-white/10">
                   <LayoutGrid className="h-5 w-5 text-foreground" />
                 </button>
               </Link>
