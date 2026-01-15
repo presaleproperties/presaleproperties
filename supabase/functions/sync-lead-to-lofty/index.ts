@@ -368,39 +368,249 @@ function getLeadSourceLabel(source: string | null): string {
 }
 
 function buildNotes(data: LoftySyncRequest["leadData"]): string {
-  const lines: string[] = [];
-  if (data?.notes) lines.push(data.notes);
-  if (data?.projectName) lines.push(`Project Interest: ${data.projectName}`);
-  if (data?.projectCity) lines.push(`City: ${data.projectCity}`);
-  if (data?.intentScore) lines.push(`Intent Score: ${data.intentScore}`);
-  if (data?.utmSource) lines.push(`Source: ${data.utmSource}/${data.utmMedium || ""}`);
-  return lines.join("\n");
+  const sections: string[] = [];
+  
+  // Header
+  sections.push("═══ LEAD FROM PRESALEPROPERTIES.COM ═══");
+  
+  // Project Interest
+  if (data?.projectName || data?.projectCity) {
+    sections.push("");
+    sections.push("📍 PRIMARY INTEREST");
+    if (data?.projectName) sections.push(`   Project: ${data.projectName}`);
+    if (data?.projectCity) sections.push(`   City: ${data.projectCity}`);
+  }
+  
+  // Lead Quality
+  sections.push("");
+  sections.push("📊 LEAD QUALITY");
+  sections.push(`   Intent Score: ${data?.intentScore || 0}/100`);
+  
+  // Message
+  if (data?.notes) {
+    sections.push("");
+    sections.push("💬 MESSAGE");
+    sections.push(`   ${data.notes}`);
+  }
+  
+  // Traffic Source
+  if (data?.utmSource || data?.utmMedium || data?.utmCampaign) {
+    sections.push("");
+    sections.push("🔗 TRAFFIC SOURCE");
+    if (data?.utmSource) sections.push(`   Source: ${data.utmSource}`);
+    if (data?.utmMedium) sections.push(`   Medium: ${data.utmMedium}`);
+    if (data?.utmCampaign) sections.push(`   Campaign: ${data.utmCampaign}`);
+  }
+  
+  return sections.join("\n");
 }
 
 function buildLeadNotes(lead: any, project: any): string {
-  const lines: string[] = [];
-  lines.push(`Lead from PresaleProperties.com`);
-  if (project?.name) lines.push(`Project: ${project.name}`);
-  if (project?.city) lines.push(`City: ${project.city}, ${project.neighborhood || ""}`);
-  if (lead.persona) lines.push(`Buyer Type: ${lead.persona}`);
-  if (lead.home_size) lines.push(`Looking For: ${lead.home_size}`);
-  if (lead.agent_status) lines.push(`Realtor Status: ${lead.agent_status}`);
-  if (lead.intent_score) lines.push(`Intent Score: ${lead.intent_score}`);
-  if (lead.message) lines.push(`Message: ${lead.message}`);
-  if (lead.landing_page) lines.push(`Landing Page: ${lead.landing_page}`);
-  return lines.join("\n");
+  const sections: string[] = [];
+  
+  // Header
+  sections.push("═══ LEAD FROM PRESALEPROPERTIES.COM ═══");
+  
+  // Primary Interest
+  sections.push("");
+  sections.push("📍 PRIMARY INTEREST");
+  if (project?.name) sections.push(`   Project: ${project.name}`);
+  if (project?.city) sections.push(`   Location: ${project.city}${project.neighborhood ? `, ${project.neighborhood}` : ""}`);
+  if (project?.developer_name) sections.push(`   Developer: ${project.developer_name}`);
+  if (project?.status) sections.push(`   Status: ${project.status}`);
+  
+  // Browsing Behavior
+  const projectInterest = Array.isArray(lead.project_interest) ? lead.project_interest : [];
+  const cityInterest = Array.isArray(lead.city_interest) ? lead.city_interest : [];
+  
+  if (projectInterest.length > 0 || cityInterest.length > 0) {
+    sections.push("");
+    sections.push("👁️ BROWSING BEHAVIOR");
+    if (projectInterest.length > 0) {
+      sections.push(`   Projects Viewed: ${projectInterest.join(", ")}`);
+    }
+    if (cityInterest.length > 0) {
+      sections.push(`   Cities Explored: ${cityInterest.join(", ")}`);
+    }
+  }
+  
+  // Buyer Profile
+  sections.push("");
+  sections.push("👤 BUYER PROFILE");
+  if (lead.persona) {
+    const personaLabels: Record<string, string> = {
+      investor: "Investor",
+      first_time_buyer: "First-Time Buyer",
+      family: "Upsizer/Family",
+      downsizer: "Downsizer",
+    };
+    sections.push(`   Buyer Type: ${personaLabels[lead.persona] || lead.persona}`);
+  }
+  if (lead.home_size) {
+    const sizeLabels: Record<string, string> = {
+      studio: "Studio",
+      "1bed": "1 Bedroom",
+      "2bed": "2 Bedroom",
+      "3bed": "3+ Bedroom",
+      townhome: "Townhome",
+    };
+    sections.push(`   Looking For: ${sizeLabels[lead.home_size] || lead.home_size}`);
+  }
+  if (lead.timeline) {
+    const timelineLabels: Record<string, string> = {
+      "0_3_months": "0-3 months (Ready Now)",
+      "3_6_months": "3-6 months",
+      "6_12_months": "6-12 months",
+      "12_plus_months": "12+ months",
+    };
+    sections.push(`   Timeline: ${timelineLabels[lead.timeline] || lead.timeline}`);
+  }
+  if (lead.agent_status) {
+    const agentLabels: Record<string, string> = {
+      i_am_realtor: "Is a Realtor",
+      yes: "Working with Realtor",
+      no: "No Realtor",
+      working_with_realtor: "Working with Realtor",
+    };
+    sections.push(`   Realtor: ${agentLabels[lead.agent_status] || lead.agent_status}`);
+  }
+  
+  // Lead Quality Score
+  sections.push("");
+  sections.push("📊 LEAD QUALITY");
+  sections.push(`   Intent Score: ${lead.intent_score || 0}/100`);
+  if (lead.intent_score >= 70) {
+    sections.push(`   ⭐ HIGH INTENT - Priority Follow-up`);
+  } else if (lead.intent_score >= 40) {
+    sections.push(`   📈 Medium Intent - Nurture Sequence`);
+  }
+  
+  // Message from Lead
+  if (lead.message) {
+    // Extract just the message part, removing the First Name/Last Name prefix if present
+    let cleanMessage = lead.message;
+    const msgMatch = lead.message.match(/\|[^|]*$/);
+    if (msgMatch) {
+      cleanMessage = msgMatch[0].replace(/^\|\s*/, "").trim();
+    } else if (!lead.message.includes("First Name:")) {
+      cleanMessage = lead.message;
+    }
+    if (cleanMessage && cleanMessage.length > 5) {
+      sections.push("");
+      sections.push("💬 MESSAGE");
+      sections.push(`   "${cleanMessage}"`);
+    }
+  }
+  
+  // Traffic Attribution
+  if (lead.utm_source || lead.referrer || lead.landing_page) {
+    sections.push("");
+    sections.push("🔗 TRAFFIC SOURCE");
+    if (lead.utm_source) sections.push(`   Source: ${lead.utm_source}${lead.utm_medium ? ` / ${lead.utm_medium}` : ""}`);
+    if (lead.utm_campaign) sections.push(`   Campaign: ${lead.utm_campaign}`);
+    if (lead.referrer) sections.push(`   Referrer: ${lead.referrer}`);
+    if (lead.landing_page) {
+      // Extract just the path for readability
+      try {
+        const url = new URL(lead.landing_page);
+        sections.push(`   Converted On: ${url.pathname}`);
+      } catch {
+        sections.push(`   Converted On: ${lead.landing_page}`);
+      }
+    }
+  }
+  
+  // Tracking IDs (useful for support/debugging)
+  if (lead.visitor_id || lead.session_id) {
+    sections.push("");
+    sections.push("🔍 TRACKING");
+    if (lead.visitor_id) sections.push(`   Visitor ID: ${lead.visitor_id}`);
+    if (lead.session_id) sections.push(`   Session: ${lead.session_id}`);
+  }
+  
+  return sections.join("\n");
 }
 
 function buildBookingNotes(booking: any, project: any): string {
-  const lines: string[] = [];
-  lines.push(`Tour Booking from PresaleProperties.com`);
-  lines.push(`Project: ${booking.project_name || project?.name || "Unknown"}`);
-  if (booking.appointment_date) lines.push(`Requested Date: ${booking.appointment_date}`);
-  if (booking.appointment_time) lines.push(`Requested Time: ${booking.appointment_time}`);
-  if (booking.appointment_type) lines.push(`Type: ${booking.appointment_type}`);
-  if (booking.buyer_type) lines.push(`Buyer Type: ${booking.buyer_type}`);
-  if (booking.timeline) lines.push(`Timeline: ${booking.timeline}`);
-  if (booking.intent_score) lines.push(`Intent Score: ${booking.intent_score}`);
-  if (booking.notes) lines.push(`Notes: ${booking.notes}`);
-  return lines.join("\n");
+  const sections: string[] = [];
+  
+  // Header
+  sections.push("═══ TOUR BOOKING FROM PRESALEPROPERTIES.COM ═══");
+  
+  // Appointment Details
+  sections.push("");
+  sections.push("📅 APPOINTMENT REQUEST");
+  sections.push(`   Project: ${booking.project_name || project?.name || "Unknown"}`);
+  if (booking.appointment_date) sections.push(`   Date: ${booking.appointment_date}`);
+  if (booking.appointment_time) sections.push(`   Time: ${booking.appointment_time}`);
+  if (booking.appointment_type) {
+    const typeLabel = booking.appointment_type === "preview" ? "Sales Center Preview" : "Private Showing";
+    sections.push(`   Type: ${typeLabel}`);
+  }
+  
+  // Location
+  if (project?.city || booking.project_city) {
+    sections.push("");
+    sections.push("📍 LOCATION");
+    sections.push(`   City: ${project?.city || booking.project_city}`);
+    if (project?.neighborhood || booking.project_neighborhood) {
+      sections.push(`   Area: ${project?.neighborhood || booking.project_neighborhood}`);
+    }
+  }
+  
+  // Buyer Profile
+  sections.push("");
+  sections.push("👤 BUYER PROFILE");
+  if (booking.buyer_type) {
+    const buyerLabels: Record<string, string> = {
+      investor: "Investor",
+      first_time: "First-Time Buyer",
+      first_time_buyer: "First-Time Buyer",
+      upgrader: "Upgrading/Upsizing",
+      other: "Other",
+    };
+    sections.push(`   Type: ${buyerLabels[booking.buyer_type] || booking.buyer_type}`);
+  }
+  if (booking.timeline) {
+    const timelineLabels: Record<string, string> = {
+      "0_3_months": "0-3 months (Ready Now)",
+      "3_6_months": "3-6 months",
+      "6_12_months": "6-12 months",
+      "12_plus_months": "12+ months",
+    };
+    sections.push(`   Timeline: ${timelineLabels[booking.timeline] || booking.timeline}`);
+  }
+  
+  // Lead Quality
+  sections.push("");
+  sections.push("📊 LEAD QUALITY");
+  sections.push(`   Intent Score: ${booking.intent_score || 0}/100`);
+  if (booking.intent_score >= 70) {
+    sections.push(`   ⭐ HIGH INTENT - Priority Follow-up`);
+  }
+  
+  // Notes
+  if (booking.notes) {
+    sections.push("");
+    sections.push("💬 NOTES");
+    sections.push(`   "${booking.notes}"`);
+  }
+  
+  // Traffic Source
+  if (booking.utm_source || booking.referrer) {
+    sections.push("");
+    sections.push("🔗 TRAFFIC SOURCE");
+    if (booking.utm_source) sections.push(`   Source: ${booking.utm_source}${booking.utm_medium ? ` / ${booking.utm_medium}` : ""}`);
+    if (booking.utm_campaign) sections.push(`   Campaign: ${booking.utm_campaign}`);
+  }
+  
+  // Tracking
+  if (booking.visitor_id || booking.session_id) {
+    sections.push("");
+    sections.push("🔍 TRACKING");
+    if (booking.visitor_id) sections.push(`   Visitor ID: ${booking.visitor_id}`);
+    if (booking.session_id) sections.push(`   Session: ${booking.session_id}`);
+  }
+  
+  return sections.join("\n");
 }
