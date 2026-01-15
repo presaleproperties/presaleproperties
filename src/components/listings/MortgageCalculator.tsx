@@ -10,12 +10,23 @@ import {
 
 interface MortgageCalculatorProps {
   price: number;
+  /** Monthly strata/association fee from listing data */
+  associationFee?: number | null;
+  /** Annual property tax from listing data */
+  taxAnnualAmount?: number | null;
+  /** Living area in sqft for strata estimate fallback */
+  livingArea?: number | null;
 }
 
-export function MortgageCalculator({ price }: MortgageCalculatorProps) {
+export function MortgageCalculator({ 
+  price, 
+  associationFee, 
+  taxAnnualAmount, 
+  livingArea 
+}: MortgageCalculatorProps) {
   const [downPaymentPercent, setDownPaymentPercent] = useState(20);
-  const [interestRate, setInterestRate] = useState(5.5);
-  const [amortization, setAmortization] = useState(25);
+  const [interestRate, setInterestRate] = useState(3.8);
+  const [amortization, setAmortization] = useState(30);
 
   const calculations = useMemo(() => {
     const downPayment = (price * downPaymentPercent) / 100;
@@ -43,9 +54,25 @@ export function MortgageCalculator({ price }: MortgageCalculatorProps) {
       (mortgageAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) /
       (Math.pow(1 + monthlyRate, numPayments) - 1);
     
-    // Estimate property tax and strata (typical for Metro Vancouver)
-    const monthlyPropertyTax = (price * 0.003) / 12; // ~0.3% annual property tax
-    const monthlyStrata = 350; // Average strata fee
+    // Property Tax: Use actual data / 12, or fallback to $100/mo if unavailable/invalid
+    let monthlyPropertyTax: number;
+    const isValidTax = taxAnnualAmount && taxAnnualAmount > 1; // Treat $0 or $1 as invalid
+    if (isValidTax) {
+      monthlyPropertyTax = taxAnnualAmount / 12;
+    } else {
+      monthlyPropertyTax = 100; // Fallback: $100/month
+    }
+    
+    // Strata Fee: Use actual data, or estimate at $0.50/sqft, or fallback to $350
+    let monthlyStrata: number;
+    if (associationFee && associationFee > 0) {
+      monthlyStrata = associationFee;
+    } else if (livingArea && livingArea > 0) {
+      // Estimate: $0.50 per sqft
+      monthlyStrata = livingArea * 0.50;
+    } else {
+      monthlyStrata = 350; // Fallback: $350/month average
+    }
     
     const totalMonthly = monthlyPayment + monthlyPropertyTax + monthlyStrata;
     
@@ -57,8 +84,10 @@ export function MortgageCalculator({ price }: MortgageCalculatorProps) {
       monthlyPropertyTax,
       monthlyStrata,
       totalMonthly,
+      isEstimatedTax: !isValidTax,
+      isEstimatedStrata: !associationFee || associationFee <= 0,
     };
-  }, [price, downPaymentPercent, interestRate, amortization]);
+  }, [price, downPaymentPercent, interestRate, amortization, associationFee, taxAnnualAmount, livingArea]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("en-CA", {
@@ -110,7 +139,7 @@ export function MortgageCalculator({ price }: MortgageCalculatorProps) {
             onValueChange={(v) => setInterestRate(v[0])}
             min={3}
             max={8}
-            step={0.25}
+            step={0.1}
             className="w-full"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
@@ -169,12 +198,16 @@ export function MortgageCalculator({ price }: MortgageCalculatorProps) {
           </div>
           
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Est. Property Tax</span>
+            <span className="text-muted-foreground">
+              {calculations.isEstimatedTax ? "Est. " : ""}Property Tax
+            </span>
             <span className="font-medium">{formatCurrency(calculations.monthlyPropertyTax)}/mo</span>
           </div>
           
           <div className="flex justify-between text-sm">
-            <span className="text-muted-foreground">Est. Strata Fee</span>
+            <span className="text-muted-foreground">
+              {calculations.isEstimatedStrata ? "Est. " : ""}Strata Fee
+            </span>
             <span className="font-medium">{formatCurrency(calculations.monthlyStrata)}/mo</span>
           </div>
 
