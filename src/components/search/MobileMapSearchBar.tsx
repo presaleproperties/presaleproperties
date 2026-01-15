@@ -269,16 +269,16 @@ export function MobileMapSearchBar({
         )}
         {/* Divider */}
         <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
-        {/* Home Button */}
-        {homeButton}
-        {/* Divider */}
-        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
         {/* Filter Button */}
         {filterButton}
         {/* Divider */}
         <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
         {/* List View Button */}
         {listButton}
+        {/* Divider */}
+        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
+        {/* Home Button - Far Right */}
+        {homeButton}
       </div>
 
       {/* Suggestions Dropdown */}
