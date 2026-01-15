@@ -8,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
@@ -39,10 +38,15 @@ import {
   Loader2,
   Building2,
   X,
-  Search
+  Search,
+  Clock,
+  Zap,
+  Check,
+  AlertCircle,
+  Mail
 } from "lucide-react";
 import { toast } from "sonner";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { CombinedListingsMap } from "@/components/map/CombinedListingsMap";
 
 interface Client {
@@ -102,7 +106,7 @@ const PROPERTY_TYPES = [
 ];
 
 const LISTING_TYPES = [
-  { value: "resale", label: "Move-In Ready (Resale)" },
+  { value: "resale", label: "Move-In Ready" },
   { value: "presale", label: "Presale" },
   { value: "assignment", label: "Assignment" },
 ];
@@ -401,7 +405,7 @@ export default function AdminClientSearches() {
               baths: listing.bathrooms_total,
               sqft: listing.living_area,
               image: photos?.[0]?.MediaURL || null,
-              url: `https://presaleproperties.ca/resale/${listing.listing_key}`,
+              url: `https://presaleproperties.com/resale/${listing.listing_key}`,
               lat: listing.latitude,
               lng: listing.longitude,
             });
@@ -442,7 +446,7 @@ export default function AdminClientSearches() {
               baths: null,
               sqft: null,
               image: project.featured_image,
-              url: `https://presaleproperties.ca/presale-projects/${project.slug}`,
+              url: `https://presaleproperties.com/presale-projects/${project.slug}`,
               lat: project.map_lat,
               lng: project.map_lng,
             });
@@ -509,184 +513,232 @@ export default function AdminClientSearches() {
       <div className="space-y-6">
         {/* Header */}
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/clients")}>
+          <Button variant="ghost" size="icon" onClick={() => navigate("/admin/clients")} className="shrink-0">
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold">
-              Property Alerts for {client?.first_name} {client?.last_name}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold truncate">
+              {client?.first_name} {client?.last_name}'s Property Alerts
             </h1>
-            <p className="text-muted-foreground">{client?.email}</p>
+            <p className="text-sm text-muted-foreground truncate">{client?.email}</p>
           </div>
+          <Button onClick={() => setShowNewSearch(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Search
+          </Button>
         </div>
 
         {/* Master Alert Toggle */}
-        <Card>
-          <CardHeader>
+        <Card className={`transition-all ${client?.alerts_enabled ? "border-emerald-200 bg-emerald-50/30" : ""}`}>
+          <CardContent className="py-4">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Property Alerts
-                </CardTitle>
-                <CardDescription>
-                  Send email notifications when new properties match saved searches
-                </CardDescription>
+              <div className="flex items-center gap-3">
+                <div className={`p-2 rounded-full ${client?.alerts_enabled ? "bg-emerald-100" : "bg-muted"}`}>
+                  <Bell className={`h-5 w-5 ${client?.alerts_enabled ? "text-emerald-600" : "text-muted-foreground"}`} />
+                </div>
+                <div>
+                  <h3 className="font-medium">Property Alerts</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {client?.alerts_enabled 
+                      ? "Client will receive emails when new properties match their searches" 
+                      : "Enable to send automatic property alerts"}
+                  </p>
+                </div>
               </div>
               <Switch
                 checked={client?.alerts_enabled || false}
                 onCheckedChange={handleToggleAlerts}
               />
             </div>
-          </CardHeader>
+          </CardContent>
         </Card>
 
         {/* Saved Searches */}
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Saved Searches</h2>
-          <Button onClick={() => setShowNewSearch(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Search
-          </Button>
-        </div>
+        <div>
+          <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+            <Search className="h-5 w-5 text-muted-foreground" />
+            Saved Searches
+            {searches.length > 0 && (
+              <Badge variant="secondary">{searches.length}</Badge>
+            )}
+          </h2>
 
-        {loading ? (
-          <p className="text-muted-foreground">Loading...</p>
-        ) : searches.length === 0 ? (
-          <Card>
-            <CardContent className="py-10 text-center">
-              <Bell className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <h3 className="font-medium mb-2">No saved searches yet</h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Create a saved search to send property alerts to this client
-              </p>
-              <Button onClick={() => setShowNewSearch(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                Create First Search
-              </Button>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4">
-            {searches.map((search) => (
-              <Card key={search.id}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-medium">{search.name}</h3>
-                        <Badge variant={search.is_active ? "default" : "secondary"}>
-                          {search.is_active ? "Active" : "Paused"}
-                        </Badge>
-                        <Badge variant="outline">{search.alert_frequency}</Badge>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="h-6 w-6 animate-spin" />
+            </div>
+          ) : searches.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                  <Search className="h-8 w-8 text-muted-foreground" />
+                </div>
+                <h3 className="font-semibold mb-2">No saved searches yet</h3>
+                <p className="text-sm text-muted-foreground mb-6 max-w-sm mx-auto">
+                  Create a saved search to automatically send property alerts to this client when new listings match their criteria.
+                </p>
+                <Button onClick={() => setShowNewSearch(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create First Search
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {searches.map((search) => (
+                <Card 
+                  key={search.id} 
+                  className={`transition-all ${search.is_active ? "border-primary/20" : "opacity-60"}`}
+                >
+                  <CardContent className="py-4">
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                      {/* Search Info */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap mb-2">
+                          <h3 className="font-semibold">{search.name}</h3>
+                          <Badge 
+                            variant={search.is_active ? "default" : "secondary"}
+                            className={search.is_active ? "bg-emerald-500" : ""}
+                          >
+                            {search.is_active ? "Active" : "Paused"}
+                          </Badge>
+                          <Badge variant="outline" className="gap-1">
+                            {search.alert_frequency === "instant" && <Zap className="h-3 w-3" />}
+                            {search.alert_frequency === "daily" && <Clock className="h-3 w-3" />}
+                            {search.alert_frequency === "weekly" && <Calendar className="h-3 w-3" />}
+                            {search.alert_frequency}
+                          </Badge>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                          {search.cities?.length && (
+                            <span className="flex items-center gap-1">
+                              <MapPin className="h-3.5 w-3.5" />
+                              {search.cities.join(", ")}
+                            </span>
+                          )}
+                          {search.property_types?.length && (
+                            <span className="flex items-center gap-1">
+                              <Home className="h-3.5 w-3.5" />
+                              {search.property_types.join(", ")}
+                            </span>
+                          )}
+                          {(search.price_min || search.price_max) && (
+                            <span className="flex items-center gap-1">
+                              <DollarSign className="h-3.5 w-3.5" />
+                              {formatPrice(search.price_min) || "$0"} – {formatPrice(search.price_max) || "No max"}
+                            </span>
+                          )}
+                          {search.beds_min && (
+                            <span>{search.beds_min}+ beds</span>
+                          )}
+                        </div>
+                        
+                        {search.last_alert_at && (
+                          <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            Last alert sent {formatDistanceToNow(new Date(search.last_alert_at), { addSuffix: true })}
+                          </p>
+                        )}
                       </div>
                       
-                      <div className="flex flex-wrap gap-2 text-sm">
-                        {search.cities?.length && (
-                          <div className="flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {search.cities.join(", ")}
-                          </div>
-                        )}
-                        {search.property_types?.length && (
-                          <div className="flex items-center gap-1">
-                            <Home className="h-3 w-3" />
-                            {search.property_types.join(", ")}
-                          </div>
-                        )}
-                        {(search.price_min || search.price_max) && (
-                          <div className="flex items-center gap-1">
-                            <DollarSign className="h-3 w-3" />
-                            {formatPrice(search.price_min) || "$0"} - {formatPrice(search.price_max) || "No max"}
-                          </div>
-                        )}
-                        {search.beds_min && (
-                          <span>{search.beds_min}+ beds</span>
-                        )}
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => fetchMatches(search)}
+                          className="gap-1.5"
+                        >
+                          <Eye className="h-4 w-4" />
+                          View Matches
+                        </Button>
+                        <Switch
+                          checked={search.is_active}
+                          onCheckedChange={(checked) => handleToggleSearch(search.id, checked)}
+                        />
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteSearch(search.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
-                      
-                      {search.last_alert_at && (
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Calendar className="h-3 w-3" />
-                          Last alert: {format(new Date(search.last_alert_at), "MMM d, yyyy")}
-                        </p>
-                      )}
                     </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => fetchMatches(search)}
-                      >
-                        <Eye className="h-4 w-4 mr-1" />
-                        View Matches
-                      </Button>
-                      <Switch
-                        checked={search.is_active}
-                        onCheckedChange={(checked) => handleToggleSearch(search.id, checked)}
-                      />
-                      <Button 
-                        variant="ghost" 
-                        size="icon"
-                        onClick={() => handleDeleteSearch(search.id)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* New Search Dialog */}
         <Dialog open={showNewSearch} onOpenChange={setShowNewSearch}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Create Property Alert</DialogTitle>
+              <DialogTitle className="flex items-center gap-2">
+                <Plus className="h-5 w-5 text-primary" />
+                Create Property Alert
+              </DialogTitle>
             </DialogHeader>
             
-            <div className="space-y-6">
+            <div className="space-y-6 py-4">
               {/* Search Name */}
               <div className="space-y-2">
-                <Label>Search Name</Label>
+                <Label>Search Name *</Label>
                 <Input
-                  placeholder="e.g., Vancouver 2BR Condos"
+                  placeholder="e.g., Vancouver 2BR Condos Under $800K"
                   value={newSearch.name}
                   onChange={(e) => setNewSearch(prev => ({ ...prev, name: e.target.value }))}
                 />
               </div>
 
               {/* Cities */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label>Cities *</Label>
                 <div className="flex flex-wrap gap-2">
                   {CITIES.map((city) => (
                     <Badge
                       key={city}
                       variant={newSearch.cities.includes(city) ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all ${
+                        newSearch.cities.includes(city) 
+                          ? "bg-primary" 
+                          : "hover:bg-muted"
+                      }`}
                       onClick={() => toggleCity(city)}
                     >
+                      {newSearch.cities.includes(city) && <Check className="h-3 w-3 mr-1" />}
                       {city}
                     </Badge>
                   ))}
                 </div>
+                {newSearch.cities.length === 0 && (
+                  <p className="text-xs text-amber-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    Select at least one city
+                  </p>
+                )}
               </div>
 
               {/* Property Types */}
-              <div className="space-y-2">
-                <Label>Property Types (leave empty for all)</Label>
+              <div className="space-y-3">
+                <Label>Property Types <span className="text-muted-foreground font-normal">(optional)</span></Label>
                 <div className="flex flex-wrap gap-2">
                   {PROPERTY_TYPES.map((type) => (
                     <Badge
                       key={type.value}
                       variant={newSearch.property_types.includes(type.value) ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all ${
+                        newSearch.property_types.includes(type.value) 
+                          ? "bg-primary" 
+                          : "hover:bg-muted"
+                      }`}
                       onClick={() => togglePropertyType(type.value)}
                     >
+                      {newSearch.property_types.includes(type.value) && <Check className="h-3 w-3 mr-1" />}
                       {type.label}
                     </Badge>
                   ))}
@@ -694,16 +746,23 @@ export default function AdminClientSearches() {
               </div>
 
               {/* Listing Types */}
-              <div className="space-y-2">
+              <div className="space-y-3">
                 <Label>Listing Types</Label>
                 <div className="flex flex-wrap gap-2">
                   {LISTING_TYPES.map((type) => (
                     <Badge
                       key={type.value}
                       variant={newSearch.listing_types.includes(type.value) ? "default" : "outline"}
-                      className="cursor-pointer"
+                      className={`cursor-pointer transition-all ${
+                        newSearch.listing_types.includes(type.value) 
+                          ? type.value === "presale" ? "bg-primary" : "bg-emerald-500"
+                          : "hover:bg-muted"
+                      }`}
                       onClick={() => toggleListingType(type.value)}
                     >
+                      {newSearch.listing_types.includes(type.value) && <Check className="h-3 w-3 mr-1" />}
+                      {type.value === "presale" && <Building2 className="h-3 w-3 mr-1" />}
+                      {type.value === "resale" && <Home className="h-3 w-3 mr-1" />}
                       {type.label}
                     </Badge>
                   ))}
@@ -732,7 +791,7 @@ export default function AdminClientSearches() {
                 </div>
               </div>
 
-              {/* Bedrooms */}
+              {/* Bedrooms + Frequency */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Min Bedrooms</Label>
@@ -762,22 +821,46 @@ export default function AdminClientSearches() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="instant">Instant</SelectItem>
-                      <SelectItem value="daily">Daily Digest</SelectItem>
-                      <SelectItem value="weekly">Weekly Digest</SelectItem>
+                      <SelectItem value="instant">
+                        <span className="flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          Instant
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="daily">
+                        <span className="flex items-center gap-2">
+                          <Clock className="h-4 w-4" />
+                          Daily Digest
+                        </span>
+                      </SelectItem>
+                      <SelectItem value="weekly">
+                        <span className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Weekly Digest
+                        </span>
+                      </SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
             </div>
 
-            <DialogFooter>
+            <DialogFooter className="gap-2">
               <Button variant="outline" onClick={() => setShowNewSearch(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleCreateSearch} disabled={saving}>
-                <Save className="h-4 w-4 mr-2" />
-                {saving ? "Creating..." : "Create Alert"}
+              <Button onClick={handleCreateSearch} disabled={saving || !newSearch.name || newSearch.cities.length === 0}>
+                {saving ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Save className="h-4 w-4 mr-2" />
+                    Create Alert
+                  </>
+                )}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -786,27 +869,27 @@ export default function AdminClientSearches() {
         {/* View Matches Dialog */}
         <Dialog open={!!viewingSearch} onOpenChange={() => setViewingSearch(null)}>
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-            <DialogHeader className="px-6 pt-6 pb-4 border-b">
+            <DialogHeader className="px-6 pt-6 pb-4 border-b shrink-0">
               <DialogTitle className="flex items-center gap-2">
-                <Search className="h-5 w-5" />
+                <Search className="h-5 w-5 text-primary" />
                 Matches for "{viewingSearch?.name}"
               </DialogTitle>
             </DialogHeader>
             
-            <div className="flex-1 overflow-hidden flex flex-col">
+            <div className="flex-1 overflow-hidden flex flex-col min-h-0">
               {/* Search Criteria Summary */}
               {viewingSearch && (
-                <div className="px-6 py-3 bg-muted/50 border-b text-sm">
-                  <div className="flex flex-wrap gap-3">
+                <div className="px-6 py-3 bg-muted/30 border-b text-sm shrink-0">
+                  <div className="flex flex-wrap gap-3 text-muted-foreground">
                     {viewingSearch.cities?.length && (
                       <span className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" /> {viewingSearch.cities.join(", ")}
+                        <MapPin className="h-3.5 w-3.5" /> {viewingSearch.cities.join(", ")}
                       </span>
                     )}
                     {(viewingSearch.price_min || viewingSearch.price_max) && (
                       <span className="flex items-center gap-1">
-                        <DollarSign className="h-3 w-3" />
-                        {formatPrice(viewingSearch.price_min) || "$0"} - {formatPrice(viewingSearch.price_max) || "No max"}
+                        <DollarSign className="h-3.5 w-3.5" />
+                        {formatPrice(viewingSearch.price_min) || "$0"} – {formatPrice(viewingSearch.price_max) || "No max"}
                       </span>
                     )}
                     {viewingSearch.beds_min && (
@@ -818,9 +901,9 @@ export default function AdminClientSearches() {
 
               {/* Selection Header */}
               {matchedProperties.length > 0 && (
-                <div className="flex items-center justify-between px-6 py-3 border-b">
+                <div className="flex items-center justify-between px-6 py-3 border-b bg-background shrink-0">
                   <span className="text-sm text-muted-foreground">
-                    {matchedProperties.length} matching properties • {selectedMatches.length} selected
+                    <strong>{matchedProperties.length}</strong> matching properties • <strong>{selectedMatches.length}</strong> selected
                   </span>
                   <div className="flex gap-2">
                     <Button
@@ -833,7 +916,7 @@ export default function AdminClientSearches() {
                     </Button>
                     {selectedMatches.length > 0 && (
                       <Button
-                        variant="outline"
+                        variant="ghost"
                         size="sm"
                         onClick={() => setSelectedMatches([])}
                       >
@@ -844,24 +927,24 @@ export default function AdminClientSearches() {
                 </div>
               )}
 
-              {/* Split View: Property Cards + Map showing selected */}
-              <div className="flex-1 overflow-hidden flex">
+              {/* Split View: Property Cards + Map */}
+              <div className="flex-1 overflow-hidden flex min-h-0">
                 {matchesLoading ? (
                   <div className="flex items-center justify-center w-full">
-                    <Loader2 className="h-8 w-8 animate-spin" />
+                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                   </div>
                 ) : matchedProperties.length === 0 ? (
-                  <div className="flex items-center justify-center w-full text-muted-foreground">
-                    <div className="text-center">
-                      <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                      <p>No matching properties found</p>
-                      <p className="text-sm">Try adjusting the search criteria</p>
+                  <div className="flex items-center justify-center w-full">
+                    <div className="text-center px-4">
+                      <Search className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                      <h3 className="font-medium mb-1">No matching properties</h3>
+                      <p className="text-sm text-muted-foreground">Try adjusting the search criteria</p>
                     </div>
                   </div>
                 ) : (
                   <>
-                    {/* Property Cards Panel - Left Side */}
-                    <div className="w-[420px] border-r flex flex-col bg-muted/30">
+                    {/* Property Cards Panel */}
+                    <div className="w-[420px] border-r flex flex-col bg-muted/20 shrink-0">
                       <ScrollArea className="flex-1">
                         <div className="p-4 grid grid-cols-2 gap-3">
                           {matchedProperties.map((property) => {
@@ -872,7 +955,7 @@ export default function AdminClientSearches() {
                                 className={`rounded-xl border-2 cursor-pointer transition-all overflow-hidden ${
                                   isSelected 
                                     ? "border-primary ring-2 ring-primary/20 shadow-lg" 
-                                    : "border-transparent hover:border-muted-foreground/30 hover:shadow-md"
+                                    : "border-transparent bg-card hover:shadow-md"
                                 }`}
                                 onClick={() => toggleMatchSelection(property)}
                               >
@@ -901,9 +984,7 @@ export default function AdminClientSearches() {
                                       : "bg-background/80 border-muted-foreground/50"
                                   }`}>
                                     {isSelected && (
-                                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                                      </svg>
+                                      <Check className="w-4 h-4" />
                                     )}
                                   </div>
                                   
@@ -915,21 +996,21 @@ export default function AdminClientSearches() {
                                         : "bg-emerald-500 text-white"
                                     }`}
                                   >
-                                    {property.type === "presale" ? "PRESALE" : "MOVE-IN READY"}
+                                    {property.type === "presale" ? "PRESALE" : "MOVE-IN"}
                                   </Badge>
                                 </div>
                                 
                                 {/* Property Info */}
-                                <div className="p-3 bg-background">
+                                <div className="p-3">
                                   <p className="font-semibold text-sm truncate">{property.name}</p>
                                   <p className="text-xs text-muted-foreground truncate">
                                     {property.address}, {property.city}
                                   </p>
                                   <div className="flex items-center justify-between mt-2">
-                                    <span className="font-bold text-primary">
+                                    <span className="font-bold text-primary text-sm">
                                       {formatPrice(property.price)}
                                     </span>
-                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                                       {property.beds && <span>{property.beds} bd</span>}
                                       {property.baths && <span>{property.baths} ba</span>}
                                     </div>
@@ -942,21 +1023,21 @@ export default function AdminClientSearches() {
                       </ScrollArea>
                     </div>
                     
-                    {/* Map Panel - Right Side (shows selected properties) */}
-                    <div className="flex-1 relative flex flex-col">
+                    {/* Map Panel */}
+                    <div className="flex-1 relative flex flex-col min-w-0">
                       {selectedMatches.length === 0 ? (
-                        <div className="flex-1 flex items-center justify-center bg-muted/20">
-                          <div className="text-center text-muted-foreground">
+                        <div className="flex-1 flex items-center justify-center bg-muted/10">
+                          <div className="text-center text-muted-foreground px-4">
                             <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
                             <p className="font-medium">Select properties to see on map</p>
-                            <p className="text-sm">Click property cards on the left to select</p>
+                            <p className="text-sm">Click property cards on the left</p>
                           </div>
                         </div>
                       ) : (
                         <>
-                          <div className="px-4 py-2 border-b bg-background flex items-center gap-2">
+                          <div className="px-4 py-2 border-b bg-background flex items-center gap-2 shrink-0">
                             <MapPin className="h-4 w-4 text-primary" />
-                            <span className="text-sm font-medium">{selectedMatches.length} selected properties on map</span>
+                            <span className="text-sm font-medium">{selectedMatches.length} selected properties</span>
                           </div>
                           <div className="flex-1">
                             <CombinedListingsMap
@@ -978,7 +1059,7 @@ export default function AdminClientSearches() {
               </div>
 
               {/* Send Button */}
-              <div className="flex gap-2 p-4 border-t bg-background">
+              <div className="flex gap-3 p-4 border-t bg-background shrink-0">
                 <Button variant="outline" className="flex-1" onClick={() => setViewingSearch(null)}>
                   Close
                 </Button>
