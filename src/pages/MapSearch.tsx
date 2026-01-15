@@ -792,8 +792,45 @@ export default function MapSearch() {
                 </SheetHeader>
                 
                 <div className="flex-1 overflow-y-auto py-4 space-y-5">
-                  {/* Price Range */}
+                  {/* City - Multi-select at top */}
                   <div>
+                    <label className="text-sm font-medium mb-2 block">City</label>
+                    <div className="flex flex-wrap gap-2">
+                      {CITIES.map((city) => {
+                        const isSelected = selectedCities.includes(city);
+                        return (
+                          <button
+                            key={city}
+                            onClick={() => {
+                              if (isSelected) {
+                                updateMultiFilter("cities", selectedCities.filter(c => c !== city));
+                              } else {
+                                updateMultiFilter("cities", [...selectedCities, city]);
+                              }
+                            }}
+                            className={`px-3 py-2 rounded-lg border text-sm transition-all ${
+                              isSelected
+                                ? "bg-primary/10 border-primary text-primary"
+                                : "border-border hover:border-foreground/30"
+                            }`}
+                          >
+                            {city}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {selectedCities.length > 0 && (
+                      <button 
+                        onClick={() => updateMultiFilter("cities", [])}
+                        className="text-xs text-muted-foreground mt-2 hover:text-foreground"
+                      >
+                        Clear cities
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Price Range */}
+                  <div className="border-t pt-4">
                     <label className="text-sm font-medium mb-2 block">Price</label>
                     <div className="flex items-center gap-2">
                       <Input
@@ -884,20 +921,6 @@ export default function MapSearch() {
                         </button>
                       ))}
                     </div>
-                  </div>
-
-                  {/* City */}
-                  <div className="border-t pt-4">
-                    <label className="text-sm font-medium mb-2 block">City</label>
-                    <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                      <SelectTrigger className="h-11 text-base">
-                        <SelectValue placeholder="All Cities" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="any">All Cities</SelectItem>
-                        {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
                   </div>
                 </div>
 
