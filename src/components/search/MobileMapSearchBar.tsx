@@ -42,6 +42,7 @@ interface MobileMapSearchBarProps {
   neighborhoods: { neighborhood: string; city: string }[];
   projects?: PresaleProjectForSearch[];
   listings?: MLSListingForSearch[];
+  homeButton?: React.ReactNode;
   filterButton?: React.ReactNode;
   listButton?: React.ReactNode;
 }
@@ -56,6 +57,7 @@ export function MobileMapSearchBar({
   neighborhoods,
   projects = [],
   listings = [],
+  homeButton,
   filterButton,
   listButton,
 }: MobileMapSearchBarProps) {
@@ -265,6 +267,10 @@ export function MobileMapSearchBar({
             <X className="h-3.5 w-3.5 text-muted-foreground/60" />
           </button>
         )}
+        {/* Divider */}
+        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
+        {/* Home Button */}
+        {homeButton}
         {/* Divider */}
         <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
         {/* Filter Button */}
