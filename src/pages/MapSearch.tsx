@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet-async";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, 
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
-  Building, HomeIcon, Warehouse, DollarSign
+  Building, HomeIcon, Warehouse, DollarSign, Search, Navigation
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -719,88 +719,112 @@ export default function MapSearch() {
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader alwaysVisible stickyOnMobile />
 
-        {/* Mobile/Tablet Search Bar + Filters - Above the map toggle */}
-        <div className="lg:hidden shrink-0 bg-background border-b border-border px-3 py-2 space-y-2">
-          {/* Search Bar Row */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1">
-              <MapSearchBar
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                onSuggestionSelect={handleSearchSuggestionSelect}
-                placeholder="City, MLS#, Address..."
-                cities={CITIES}
-                neighborhoods={neighborhoodsData || []}
-                projects={projectsForSearch}
-                listings={listingsForSearch}
-                className="h-9"
+        {/* Mobile/Tablet Compact Search Bar + Filters */}
+        <div className="lg:hidden shrink-0 bg-background/95 backdrop-blur-sm border-b border-border/50 px-2 py-1.5">
+          {/* Single Row: Search + Location + Filter */}
+          <div className="flex items-center gap-1.5">
+            {/* Compact Search Input */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+              <Input
+                type="text"
+                placeholder="City, MLS#..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-8 pl-8 pr-8 text-sm bg-muted/50 border-0 focus-visible:ring-1"
               />
+              {searchQuery && (
+                <button 
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5"
+                >
+                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                </button>
+              )}
             </div>
+            
+            {/* Location Button */}
+            <button
+              onClick={() => {
+                if (navigator.geolocation) {
+                  navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                      setUserLocation({
+                        lat: pos.coords.latitude,
+                        lng: pos.coords.longitude
+                      });
+                      // Clear saved map state to allow centering on user location
+                      sessionStorage.removeItem(MAP_STATE_KEY);
+                      // Force map to re-center by updating state
+                      window.location.reload();
+                    },
+                    (error) => {
+                      console.log("Location error:", error.message);
+                      alert("Unable to get location. Please enable location services.");
+                    },
+                    { enableHighAccuracy: true, timeout: 10000 }
+                  );
+                } else {
+                  alert("Geolocation not supported");
+                }
+              }}
+              className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
+              aria-label="Use my location"
+            >
+              <Navigation className="h-4 w-4 text-muted-foreground" />
+            </button>
             
             {/* Filter Button */}
             <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
               <SheetTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-1 h-9 px-2.5 shrink-0">
-                  <SlidersHorizontal className="h-4 w-4" />
+                <button className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors shrink-0 relative">
+                  <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
                   {activeFilterCount > 0 && (
-                    <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full">
+                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-medium">
                       {activeFilterCount}
-                    </Badge>
+                    </span>
                   )}
-                </Button>
+                </button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] flex flex-col rounded-t-2xl">
-                <SheetHeader className="pb-4 border-b">
-                  <SheetTitle className="text-lg font-semibold">Filters</SheetTitle>
+              <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl">
+                <SheetHeader className="pb-3 border-b">
+                  <SheetTitle className="text-base font-semibold">Filters</SheetTitle>
                 </SheetHeader>
                 
-                <div className="flex-1 overflow-y-auto py-4 space-y-6">
-                  {/* Price Range Section */}
+                <div className="flex-1 overflow-y-auto py-4 space-y-5">
+                  {/* Price Range */}
                   <div>
-                    <label className="text-sm font-semibold mb-3 block">Price range</label>
-                    <Slider
-                      value={priceRange}
-                      min={MIN_PRICE}
-                      max={MAX_PRICE}
-                      step={PRICE_STEP}
-                      onValueChange={(value) => setPriceRange(value as [number, number])}
-                      onValueCommit={applyPriceFilter}
-                      className="mb-3"
-                    />
+                    <label className="text-sm font-medium mb-2 block">Price</label>
                     <div className="flex items-center gap-2">
-                      <div className="flex-1">
-                        <Input
-                          type="text"
-                          placeholder="No Min"
-                          value={priceRange[0] > MIN_PRICE ? formatPriceLabel(priceRange[0]) : ""}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/[^0-9]/g, "");
-                            if (val) setPriceRange([parseInt(val), priceRange[1]]);
-                          }}
-                          onBlur={applyPriceFilter}
-                          className="h-10 text-base"
-                        />
-                      </div>
+                      <Input
+                        type="text"
+                        placeholder="Min"
+                        value={priceRange[0] > MIN_PRICE ? formatPriceLabel(priceRange[0]) : ""}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, "");
+                          if (val) setPriceRange([parseInt(val), priceRange[1]]);
+                        }}
+                        onBlur={applyPriceFilter}
+                        className="h-10 text-base"
+                      />
                       <span className="text-muted-foreground">-</span>
-                      <div className="flex-1">
-                        <Input
-                          type="text"
-                          placeholder="No Max"
-                          value={priceRange[1] < MAX_PRICE ? formatPriceLabel(priceRange[1]) : ""}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/[^0-9]/g, "");
-                            if (val) setPriceRange([priceRange[0], parseInt(val)]);
-                          }}
-                          onBlur={applyPriceFilter}
-                          className="h-10 text-base"
-                        />
-                      </div>
+                      <Input
+                        type="text"
+                        placeholder="Max"
+                        value={priceRange[1] < MAX_PRICE ? formatPriceLabel(priceRange[1]) : ""}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/[^0-9]/g, "");
+                          if (val) setPriceRange([priceRange[0], parseInt(val)]);
+                        }}
+                        onBlur={applyPriceFilter}
+                        className="h-10 text-base"
+                      />
                     </div>
                   </div>
 
-                  {/* Property Type Section */}
+                  {/* Property Type */}
                   <div className="border-t pt-4">
-                    <label className="text-sm font-semibold mb-3 block">Property Type</label>
+                    <label className="text-sm font-medium mb-2 block">Type</label>
                     <div className="flex flex-wrap gap-2">
                       {PROPERTY_TYPES.map((opt) => {
                         const Icon = opt.icon;
@@ -808,10 +832,10 @@ export default function MapSearch() {
                           <button
                             key={opt.value}
                             onClick={() => updateFilter("type", opt.value)}
-                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-all ${
                               filters.propertyType === opt.value
                                 ? "bg-primary/10 border-primary text-primary"
-                                : "border-border hover:border-foreground/30 text-foreground"
+                                : "border-border hover:border-foreground/30"
                             }`}
                           >
                             {Icon && <Icon className="h-4 w-4" />}
@@ -822,18 +846,18 @@ export default function MapSearch() {
                     </div>
                   </div>
 
-                  {/* Bedrooms Section */}
+                  {/* Bedrooms */}
                   <div className="border-t pt-4">
-                    <label className="text-sm font-semibold mb-3 block">Bedrooms</label>
+                    <label className="text-sm font-medium mb-2 block">Beds</label>
                     <div className="flex flex-wrap gap-2">
                       {BED_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
                           onClick={() => updateFilter("beds", opt.value)}
-                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all min-w-[48px] ${
+                          className={`px-3 py-2 rounded-lg border text-sm min-w-[44px] transition-all ${
                             filters.beds === opt.value
                               ? "bg-primary/10 border-primary text-primary"
-                              : "border-border hover:border-foreground/30 text-foreground"
+                              : "border-border hover:border-foreground/30"
                           }`}
                         >
                           {opt.label}
@@ -842,18 +866,18 @@ export default function MapSearch() {
                     </div>
                   </div>
 
-                  {/* Bathrooms Section */}
+                  {/* Bathrooms */}
                   <div className="border-t pt-4">
-                    <label className="text-sm font-semibold mb-3 block">Bathrooms</label>
+                    <label className="text-sm font-medium mb-2 block">Baths</label>
                     <div className="flex flex-wrap gap-2">
                       {BATH_OPTIONS.map((opt) => (
                         <button
                           key={opt.value}
                           onClick={() => updateFilter("baths", opt.value)}
-                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all min-w-[48px] ${
+                          className={`px-3 py-2 rounded-lg border text-sm min-w-[44px] transition-all ${
                             filters.baths === opt.value
                               ? "bg-primary/10 border-primary text-primary"
-                              : "border-border hover:border-foreground/30 text-foreground"
+                              : "border-border hover:border-foreground/30"
                           }`}
                         >
                           {opt.label}
@@ -862,9 +886,9 @@ export default function MapSearch() {
                     </div>
                   </div>
 
-                  {/* City Section */}
+                  {/* City */}
                   <div className="border-t pt-4">
-                    <label className="text-sm font-semibold mb-3 block">City</label>
+                    <label className="text-sm font-medium mb-2 block">City</label>
                     <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
                       <SelectTrigger className="h-11 text-base">
                         <SelectValue placeholder="All Cities" />
@@ -877,33 +901,26 @@ export default function MapSearch() {
                   </div>
                 </div>
 
-                <SheetFooter className="flex-row gap-3 border-t pt-4 pb-safe">
-                  <Button
-                    variant="outline"
-                    onClick={clearAllFilters}
-                    className="flex-1 h-11"
-                  >
-                    Clear All
+                <SheetFooter className="flex-row gap-3 border-t pt-3 pb-safe">
+                  <Button variant="outline" onClick={clearAllFilters} className="flex-1 h-10">
+                    Clear
                   </Button>
-                  <Button
-                    onClick={() => setMobileFiltersOpen(false)}
-                    className="flex-1 h-11"
-                  >
-                    View Results
+                  <Button onClick={() => setMobileFiltersOpen(false)} className="flex-1 h-10">
+                    Apply
                   </Button>
                 </SheetFooter>
               </SheetContent>
             </Sheet>
           </div>
 
-          {/* Quick Filters Row - Scrollable chips */}
-          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          {/* Quick Filter Chips - Scrollable */}
+          <div className="flex gap-1.5 overflow-x-auto mt-1.5 -mx-2 px-2 pb-0.5" style={{ scrollbarWidth: 'none' }}>
             <MultiSelectFilter
               label="City"
               options={CITIES.map(c => ({ value: c, label: c }))}
               selected={selectedCities}
               onChange={(values) => updateMultiFilter("cities", values)}
-              icon={<MapPin className="h-3.5 w-3.5" />}
+              icon={<MapPin className="h-3 w-3 text-muted-foreground" />}
               className="shrink-0"
             />
             <MultiSelectFilter
@@ -911,7 +928,7 @@ export default function MapSearch() {
               options={PROPERTY_TYPES.filter(t => t.value !== "any").map(t => ({ value: t.value, label: t.label }))}
               selected={selectedPropertyTypes}
               onChange={(values) => updateMultiFilter("types", values)}
-              icon={<Building className="h-3.5 w-3.5" />}
+              icon={<Building className="h-3 w-3 text-muted-foreground" />}
               className="shrink-0"
             />
             <MultiSelectFilter
@@ -919,7 +936,7 @@ export default function MapSearch() {
               options={PRICE_RANGE_OPTIONS}
               selected={selectedPriceRanges}
               onChange={(values) => updateMultiFilter("prices", values)}
-              icon={<DollarSign className="h-3.5 w-3.5" />}
+              icon={<DollarSign className="h-3 w-3 text-muted-foreground" />}
               className="shrink-0"
             />
           </div>
