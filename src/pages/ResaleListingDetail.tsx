@@ -917,14 +917,24 @@ export default function ResaleListingDetail() {
               </div>
 
               {/* Mortgage Calculator */}
-              <MortgageCalculator price={listing.listing_price} />
+              <MortgageCalculator 
+                price={listing.listing_price} 
+                associationFee={listing.association_fee}
+                taxAnnualAmount={listing.tax_annual_amount}
+                livingArea={listing.living_area}
+              />
             </div>
           </div>
         </div>
 
         {/* Tablet: Mortgage Calculator Below Content */}
         <div className="hidden md:block lg:hidden mt-8">
-          <MortgageCalculator price={listing.listing_price} />
+          <MortgageCalculator 
+            price={listing.listing_price} 
+            associationFee={listing.association_fee}
+            taxAnnualAmount={listing.tax_annual_amount}
+            livingArea={listing.living_area}
+          />
         </div>
 
         {/* Similar Listings */}
