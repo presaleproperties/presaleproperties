@@ -434,6 +434,30 @@ export default function MapSearch() {
     }
   }, [focusedCarouselItemId, navigate]);
 
+  // Handle desktop list card click - same pattern: first click focuses & flies to pin, second click navigates
+  const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale", link: string, lat: number | null, lng: number | null) => {
+    if (focusedCarouselItemId === id) {
+      // Already focused - navigate to detail page (let the link work naturally)
+      return;
+    }
+    
+    // First click - prevent navigation, focus and fly to pin
+    e.preventDefault();
+    setFocusedCarouselItemId(id);
+    setFocusedCarouselItemType(type);
+    setSelectedItemId(id);
+    setSelectedItemType(type);
+    
+    if (mapNavigationRef.current) {
+      // Fly to the location first
+      if (lat && lng) {
+        mapNavigationRef.current.flyTo(lat, lng, 16);
+      }
+      // Highlight the pin with animation
+      mapNavigationRef.current.highlightItem(id, type);
+    }
+  }, [focusedCarouselItemId]);
+
   const handleModeChange = useCallback((newMode: MapMode) => {
     setMapMode(newMode);
     const newParams = new URLSearchParams(searchParams);
@@ -1613,17 +1637,23 @@ export default function MapSearch() {
                   const link = isPresale 
                     ? `/presale-projects/${(data as PresaleProject).slug}` 
                     : `/resale/${(data as MLSListing).listing_key}`;
+                  const lat = isPresale ? (data as PresaleProject).map_lat : (data as MLSListing).latitude;
+                  const lng = isPresale ? (data as PresaleProject).map_lng : (data as MLSListing).longitude;
+                  const isFocused = focusedCarouselItemId === id;
                   
                   return (
                     <Link 
                       key={`${item.type}-${id}`}
                       to={link}
                       data-item-id={id}
+                      onClick={(e) => handleDesktopCardClick(e, id, item.type, link, lat, lng)}
                     >
                       <div className={`rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card ${
-                        selectedItemId === id 
-                          ? 'border-primary ring-2 ring-primary/20' 
-                          : 'border-border hover:border-primary/50'
+                        isFocused 
+                          ? 'border-primary ring-2 ring-primary/30 shadow-lg' 
+                          : selectedItemId === id 
+                            ? 'border-primary/50 ring-1 ring-primary/20' 
+                            : 'border-border hover:border-primary/50'
                       }`}>
                         {/* Large Image - 3:2 aspect ratio matching REW */}
                         <div className="relative w-full aspect-[3/2] bg-muted overflow-hidden">
@@ -1652,6 +1682,14 @@ export default function MapSearch() {
                           }`}>
                             {isPresale ? 'PRESALE' : 'MOVE-IN'}
                           </Badge>
+                          {/* Click hint for focused item */}
+                          {isFocused && (
+                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none animate-fade-in">
+                              <span className="text-xs font-semibold text-primary bg-background/90 px-3 py-1.5 rounded-full shadow-md">
+                                Click to view details
+                              </span>
+                            </div>
+                          )}
                         </div>
                         
                         {/* Content - REW-style compact info */}
