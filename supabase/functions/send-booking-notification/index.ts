@@ -203,26 +203,8 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("No Zapier webhook configured (ZAPIER_PROJECT_LEADS_WEBHOOK), skipping CRM sync");
     }
 
-    // Direct Lofty API sync (bypasses Zapier for real-time delivery)
-    if (data.booking_id) {
-      try {
-        console.log("Syncing booking directly to Lofty CRM API");
-        const loftyResponse = await fetch(`${supabaseUrl}/functions/v1/sync-lead-to-lofty`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${supabaseServiceKey}`,
-          },
-          body: JSON.stringify({ bookingId: data.booking_id }),
-        });
-        
-        const loftyResult = await loftyResponse.json();
-        console.log("Lofty sync result:", loftyResult);
-      } catch (loftyError) {
-        console.error("Error syncing to Lofty:", loftyError);
-        // Don't throw - Zapier is the fallback
-      }
-    }
+    // Direct Lofty API sync disabled - all CRM sync handled via Zapier webhook
+    console.log("Lofty sync handled via Zapier webhook mapping");
 
     console.log("Booking processed successfully - synced to Lofty CRM");
 
