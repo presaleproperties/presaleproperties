@@ -52,6 +52,9 @@ import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
 import AdminMarketData from "./pages/admin/AdminMarketData";
 import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
 import NotFound from "./pages/NotFound";
+import AdminClients from "./pages/admin/AdminClients";
+import AdminClientSearches from "./pages/admin/AdminClientSearches";
+import AdminClientForm from "./pages/admin/AdminClientForm";
 import PresaleProjects from "./pages/PresaleProjects";
 import PresaleProjectDetail from "./pages/PresaleProjectDetail";
 import CityPresalePage from "./pages/CityPresalePage";
@@ -228,6 +231,10 @@ const App = () => (
             <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+            <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
+            <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
+            <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
+            <Route path="/admin/clients/:clientId/searches" element={<AdminProtectedRoute><AdminClientSearches /></AdminProtectedRoute>} />
             
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
