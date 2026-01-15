@@ -1,17 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowRight, Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PresaleProjectCard } from "@/components/listings/PresaleProjectCard";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselPrevious,
-  CarouselNext,
-} from "@/components/ui/carousel";
 
 export function FeaturedProjects() {
   const { data: projects, isLoading } = useQuery({
@@ -22,18 +15,12 @@ export function FeaturedProjects() {
         .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, view_count")
         .eq("is_published", true)
         .order("view_count", { ascending: false })
-        .limit(12); // Get more for carousel
+        .limit(6);
 
       if (error) throw error;
       return data;
     },
   });
-
-  // Group projects into pairs for 2-row display
-  const groupedProjects = projects ? 
-    Array.from({ length: Math.ceil(projects.length / 2) }, (_, i) => 
-      projects.slice(i * 2, i * 2 + 2)
-    ) : [];
 
   return (
     <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-muted/20 relative">
@@ -62,8 +49,8 @@ export function FeaturedProjects() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            {[...Array(4)].map((_, i) => (
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            {[...Array(6)].map((_, i) => (
               <div key={i} className="bg-card rounded-xl overflow-hidden border">
                 <Skeleton className="h-40 sm:h-48 w-full" />
                 <div className="p-4 sm:p-5 space-y-3">
@@ -75,49 +62,25 @@ export function FeaturedProjects() {
             ))}
           </div>
         ) : projects && projects.length > 0 ? (
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true,
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-3 sm:-ml-4">
-              {/* Each slide shows 2 columns x 2 rows = 4 projects */}
-              {Array.from({ length: Math.ceil(groupedProjects.length / 2) }, (_, slideIndex) => {
-                const slideProjects = groupedProjects.slice(slideIndex * 2, slideIndex * 2 + 2);
-                return (
-                  <CarouselItem key={slideIndex} className="pl-3 sm:pl-4 basis-full">
-                    <div className="grid grid-cols-2 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-                      {slideProjects.map((row, rowIndex) => (
-                        row.map((project) => (
-                          <PresaleProjectCard
-                            key={project.id}
-                            id={project.id}
-                            slug={project.slug}
-                            name={project.name}
-                            city={project.city}
-                            neighborhood={project.neighborhood}
-                            projectType={project.project_type}
-                            status={project.status}
-                            completionYear={project.completion_year}
-                            startingPrice={project.starting_price}
-                            featuredImage={project.featured_image}
-                            galleryImages={project.gallery_images}
-                            size="featured"
-                          />
-                        ))
-                      ))}
-                    </div>
-                  </CarouselItem>
-                );
-              })}
-            </CarouselContent>
-            <div className="flex items-center justify-center gap-2 mt-6">
-              <CarouselPrevious className="static translate-y-0 h-10 w-10 rounded-full border-2" />
-              <CarouselNext className="static translate-y-0 h-10 w-10 rounded-full border-2" />
-            </div>
-          </Carousel>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+            {projects.map((project) => (
+              <PresaleProjectCard
+                key={project.id}
+                id={project.id}
+                slug={project.slug}
+                name={project.name}
+                city={project.city}
+                neighborhood={project.neighborhood}
+                projectType={project.project_type}
+                status={project.status}
+                completionYear={project.completion_year}
+                startingPrice={project.starting_price}
+                featuredImage={project.featured_image}
+                galleryImages={project.gallery_images}
+                size="featured"
+              />
+            ))}
+          </div>
         ) : (
           <div className="text-center py-10 sm:py-12 bg-card rounded-xl border">
             <Building2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground mb-3 sm:mb-4" />
