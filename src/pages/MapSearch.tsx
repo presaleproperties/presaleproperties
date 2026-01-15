@@ -862,9 +862,10 @@ export default function MapSearch() {
           <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
             showList ? "w-[40%] min-w-[420px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
-            {/* Top Bar - Search + Filter + Map/List toggle (REW style) */}
-            <div className="shrink-0 p-3 border-b border-border bg-background">
-              <div className="flex items-center gap-2">
+            {/* Top Bar - Search + Filter + Quick Filters */}
+            <div className="shrink-0 border-b border-border bg-background">
+              {/* Search Bar Row */}
+              <div className="flex items-center gap-2 p-3 pb-2">
                 {/* Search Bar */}
                 <div className="flex-1">
                   <MapSearchBar
@@ -1064,6 +1065,89 @@ export default function MapSearch() {
                     </SheetFooter>
                   </SheetContent>
                 </Sheet>
+              </div>
+              
+              {/* Quick Filters Row - City, Home Type, Price Range */}
+              <div className="flex items-center gap-2 px-3 pb-3">
+                {/* City Dropdown */}
+                <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+                  <SelectTrigger className="h-8 text-xs bg-background border-border min-w-[100px] max-w-[140px]">
+                    <MapPin className="h-3 w-3 mr-1 text-muted-foreground shrink-0" />
+                    <SelectValue placeholder="City" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-[9999]">
+                    <SelectItem value="any">All Cities</SelectItem>
+                    {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+                
+                {/* Home Type Dropdown */}
+                <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
+                  <SelectTrigger className="h-8 text-xs bg-background border-border min-w-[100px] max-w-[130px]">
+                    <Home className="h-3 w-3 mr-1 text-muted-foreground shrink-0" />
+                    <SelectValue placeholder="Home Type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-[9999]">
+                    {PROPERTY_TYPES.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Price Range Dropdown */}
+                <Select 
+                  value={
+                    filters.priceMin || filters.priceMax 
+                      ? `${filters.priceMin || '0'}-${filters.priceMax || 'max'}` 
+                      : "any"
+                  } 
+                  onValueChange={(v) => {
+                    if (v === "any") {
+                      updateFilter("priceMin", "");
+                      updateFilter("priceMax", "");
+                      setPriceRange([MIN_PRICE, MAX_PRICE]);
+                    } else {
+                      const [min, max] = v.split("-");
+                      updateFilter("priceMin", min === "0" ? "" : min);
+                      updateFilter("priceMax", max === "max" ? "" : max);
+                      setPriceRange([
+                        min === "0" ? MIN_PRICE : parseInt(min),
+                        max === "max" ? MAX_PRICE : parseInt(max)
+                      ]);
+                    }
+                  }}
+                >
+                  <SelectTrigger className="h-8 text-xs bg-background border-border min-w-[110px] max-w-[150px]">
+                    <span className="mr-1 text-muted-foreground shrink-0">$</span>
+                    <SelectValue placeholder="Price Range" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-[9999]">
+                    <SelectItem value="any">Any Price</SelectItem>
+                    <SelectItem value="0-500000">Under $500K</SelectItem>
+                    <SelectItem value="500000-750000">$500K - $750K</SelectItem>
+                    <SelectItem value="750000-1000000">$750K - $1M</SelectItem>
+                    <SelectItem value="1000000-1500000">$1M - $1.5M</SelectItem>
+                    <SelectItem value="1500000-2000000">$1.5M - $2M</SelectItem>
+                    <SelectItem value="2000000-3000000">$2M - $3M</SelectItem>
+                    <SelectItem value="3000000-max">$3M+</SelectItem>
+                  </SelectContent>
+                </Select>
+                
+                {/* Clear Filters - only show if filters active */}
+                {activeFilterCount > 0 && (
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="h-8 text-xs text-muted-foreground hover:text-foreground px-2"
+                    onClick={() => {
+                      clearAllFilters();
+                      setPriceRange([MIN_PRICE, MAX_PRICE]);
+                    }}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Clear
+                  </Button>
+                )}
               </div>
             </div>
 
