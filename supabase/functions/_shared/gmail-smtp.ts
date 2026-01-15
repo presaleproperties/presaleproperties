@@ -14,6 +14,7 @@ interface EmailOptions {
   subject: string;
   html: string;
   replyTo?: string;
+  fromName?: string;
 }
 
 interface EmailResult {
@@ -58,8 +59,10 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     
     console.log(`Sending email to ${recipients.join(", ")} via Gmail SMTP (port 465)`);
     
+    const senderName = options.fromName || DEFAULT_FROM_NAME;
+    
     await client.send({
-      from: `${DEFAULT_FROM_NAME} <${smtpUser}>`,
+      from: `${senderName} <${smtpUser}>`,
       to: recipients,
       subject: options.subject,
       content: options.html,
