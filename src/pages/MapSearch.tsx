@@ -924,9 +924,10 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
-            {/* Unified Mode Toggle - Floating on map - centered and spaced from search */}
+            {/* Unified Mode Toggle - Floating on map */}
+            {/* Mobile/Tablet: Below search bar with proper spacing */}
             <div 
-              className="absolute z-[1000] lg:top-3 lg:left-1/2 lg:-translate-x-1/2"
+              className="absolute z-[1000] lg:hidden"
               style={{ 
                 top: 'calc(env(safe-area-inset-top, 0px) + 92px)',
                 left: '50%',
@@ -938,7 +939,16 @@ export default function MapSearch() {
                 onModeChange={handleModeChange}
                 presaleCount={filteredPresaleProjects?.length || 0}
                 resaleCount={filteredResaleListings?.length || 0}
-                className="scale-[0.96] origin-top"
+              />
+            </div>
+            
+            {/* Desktop: Centered at top of map */}
+            <div className="hidden lg:block absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
+              <UnifiedMapToggle
+                mode={mapMode}
+                onModeChange={handleModeChange}
+                presaleCount={filteredPresaleProjects?.length || 0}
+                resaleCount={filteredResaleListings?.length || 0}
               />
             </div>
 
@@ -1348,7 +1358,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range */}
-              <div className="flex items-center gap-2 px-3 pb-3 flex-wrap">
+              <div className="flex items-center gap-3 px-3 pb-3 flex-wrap">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
