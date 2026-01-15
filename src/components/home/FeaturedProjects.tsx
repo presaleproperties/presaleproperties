@@ -49,7 +49,7 @@ export function FeaturedProjects() {
         </div>
 
         {isLoading ? (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             {[...Array(6)].map((_, i) => (
               <div key={i} className="bg-card rounded-xl overflow-hidden border">
                 <Skeleton className="h-40 sm:h-48 w-full" />
@@ -62,7 +62,7 @@ export function FeaturedProjects() {
             ))}
           </div>
         ) : projects && projects.length > 0 ? (
-          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             {projects.map((project) => (
               <PresaleProjectCard
                 key={project.id}
