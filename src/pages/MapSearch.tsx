@@ -723,32 +723,35 @@ export default function MapSearch() {
           <ConversionHeader alwaysVisible stickyOnMobile />
         </div>
 
-        {/* Mobile/Tablet: Floating Search Bar - Minimal Apple Maps inspired */}
+        {/* Mobile/Tablet: Floating Search Bar - Premium Apple Maps inspired */}
         <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-          <div className="lg:hidden absolute top-0 left-0 right-0 z-[1002] px-4" style={{ paddingTop: 'max(12px, env(safe-area-inset-top))' }}>
-            {/* Thin Glassmorphism Search Bar */}
-            <div className="flex items-center gap-2 bg-background/80 backdrop-blur-2xl rounded-full shadow-lg border border-white/20 px-4 py-1.5">
-              <Search className="h-4 w-4 text-muted-foreground shrink-0" />
+          <div 
+            className="lg:hidden absolute left-3 right-3 z-[1002]" 
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
+          >
+            {/* Premium Glassmorphism Search Bar */}
+            <div className="flex items-center gap-3 bg-white/95 dark:bg-background/95 backdrop-blur-xl rounded-2xl shadow-xl border border-black/5 dark:border-white/10 px-4 py-2.5">
+              <Search className="h-5 w-5 text-muted-foreground/70 shrink-0" />
               <Input
                 type="text"
                 placeholder="City, MLS#, Address..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 h-7 border-0 bg-transparent focus-visible:ring-0 text-sm placeholder:text-muted-foreground/60 px-0"
+                className="flex-1 h-auto border-0 bg-transparent focus-visible:ring-0 text-base placeholder:text-muted-foreground/50 px-0 py-0"
               />
               {searchQuery ? (
                 <button 
                   onClick={() => setSearchQuery("")}
-                  className="p-1 rounded-full hover:bg-muted/50 transition-colors"
+                  className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
                 >
-                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                  <X className="h-4 w-4 text-muted-foreground" />
                 </button>
               ) : (
                 <SheetTrigger asChild>
-                  <button className="p-1 rounded-full hover:bg-muted/50 transition-colors relative">
-                    <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
+                  <button className="p-2 -mr-1 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors relative">
+                    <SlidersHorizontal className="h-5 w-5 text-muted-foreground/70" />
                     {activeFilterCount > 0 && (
-                      <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[9px] rounded-full flex items-center justify-center font-bold">
+                      <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-bold">
                         {activeFilterCount}
                       </span>
                     )}
@@ -920,21 +923,43 @@ export default function MapSearch() {
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
-            {/* Unified Mode Toggle - Floating on map - positioned below thin search bar */}
-            <div className="absolute top-14 lg:top-3 left-1/2 -translate-x-1/2 z-[1000]">
-              <UnifiedMapToggle
-                mode={mapMode}
-                onModeChange={handleModeChange}
-                presaleCount={filteredPresaleProjects?.length || 0}
-                resaleCount={filteredResaleListings?.length || 0}
-              />
+            {/* Unified Mode Toggle - Floating on map - positioned with proper spacing on mobile */}
+            <div 
+              className="absolute z-[1000] lg:top-3 lg:left-1/2 lg:-translate-x-1/2"
+              style={{ 
+                top: 'calc(env(safe-area-inset-top, 0px) + 72px)',
+                left: '56px'
+              }}
+            >
+              <div className="lg:hidden">
+                <UnifiedMapToggle
+                  mode={mapMode}
+                  onModeChange={handleModeChange}
+                  presaleCount={filteredPresaleProjects?.length || 0}
+                  resaleCount={filteredResaleListings?.length || 0}
+                />
+              </div>
+              <div className="hidden lg:block">
+                <UnifiedMapToggle
+                  mode={mapMode}
+                  onModeChange={handleModeChange}
+                  presaleCount={filteredPresaleProjects?.length || 0}
+                  resaleCount={filteredResaleListings?.length || 0}
+                />
+              </div>
             </div>
 
             {/* List View Button - Mobile/Tablet - top left below search */}
-            <div className="absolute top-14 left-3 z-[1001] lg:hidden">
+            <div 
+              className="absolute z-[1001] lg:hidden"
+              style={{ 
+                top: 'calc(env(safe-area-inset-top, 0px) + 72px)',
+                left: '12px'
+              }}
+            >
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="w-10 h-10 rounded-xl bg-background/80 backdrop-blur-2xl shadow-lg border border-white/20 flex items-center justify-center hover:bg-muted/50 transition-colors">
-                  <LayoutGrid className="h-4 w-4 text-foreground" />
+                <button className="w-10 h-10 rounded-xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center justify-center hover:bg-white dark:hover:bg-background transition-colors active:bg-black/5 dark:active:bg-white/10">
+                  <LayoutGrid className="h-5 w-5 text-foreground" />
                 </button>
               </Link>
             </div>
@@ -972,33 +997,33 @@ export default function MapSearch() {
               </SafeMapWrapper>
             </div>
 
-            {/* Show Carousel Button - When hidden - Apple Maps style */}
+            {/* Show Carousel Button - When hidden - Premium Apple Maps style */}
             {!showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1001] lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
-                  className="px-5 py-2.5 rounded-2xl bg-background/90 backdrop-blur-xl shadow-lg border border-border/30 flex items-center gap-2"
+                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform"
                   aria-label="Show properties"
                 >
-                  <span className="text-sm font-medium text-foreground">{propertiesInViewCount} Properties</span>
+                  <span className="text-sm font-semibold text-foreground">{propertiesInViewCount} Properties</span>
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>
             )}
 
-            {/* Bottom Carousel - Mobile/Tablet - Floating above map, Apple Maps style */}
+            {/* Bottom Carousel - Mobile/Tablet - Floating above map, Premium Apple Maps style */}
             {showCarousel && visibleItems.length > 0 && (
               <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pb-[env(safe-area-inset-bottom)]">
                 {/* Carousel Header */}
                 <div className="flex items-center justify-between px-4 pb-2 pt-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground bg-background/90 backdrop-blur-xl px-3 py-1.5 rounded-xl shadow-sm border border-border/30">
+                    <span className="text-sm font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-4 py-2 rounded-xl shadow-xl border border-black/5 dark:border-white/10">
                       {propertiesInViewCount} Properties
                     </span>
                   </div>
                   <button
                     onClick={() => setShowCarousel(false)}
-                    className="w-9 h-9 rounded-xl bg-background/90 backdrop-blur-xl shadow-sm border border-border/30 flex items-center justify-center"
+                    className="w-10 h-10 rounded-xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors"
                     aria-label="Hide properties"
                   >
                     <ChevronDown className="h-5 w-5 text-muted-foreground" />
