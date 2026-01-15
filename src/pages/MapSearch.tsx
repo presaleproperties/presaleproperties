@@ -870,9 +870,9 @@ export default function MapSearch() {
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 
-      {/* Main container - edge-to-edge on mobile/tablet, fills entire viewport including safe areas */}
-      {/* Fixed height with no overflow to prevent scroll on tablet */}
-      <div className="h-[100dvh] flex flex-col overflow-hidden lg:bg-background">
+        {/* Main container - edge-to-edge on mobile/tablet, fills entire viewport including safe areas */}
+        {/* Fixed position on mobile to truly cover entire screen including safe areas */}
+        <div className="fixed inset-0 flex flex-col overflow-hidden lg:relative lg:h-[100dvh] lg:bg-background">
         {/* Desktop only header */}
         <div className="hidden lg:block">
           <ConversionHeader alwaysVisible stickyOnMobile />
