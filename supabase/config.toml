@@ -86,3 +86,9 @@ verify_jwt = false
 
 [functions.calculate-price-sqft]
 verify_jwt = false
+
+[functions.send-property-alerts]
+verify_jwt = false
+
+[functions.track-client-activity]
+verify_jwt = false
