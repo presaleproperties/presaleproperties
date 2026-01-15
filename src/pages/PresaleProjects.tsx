@@ -280,6 +280,53 @@ export default function PresaleProjects() {
     },
   });
 
+  // Separate query for MAP - fetches ALL projects with coordinates (not paginated)
+  const { data: mapProjectsData } = useQuery({
+    queryKey: ["presale-map-projects", filters],
+    queryFn: async () => {
+      let query = supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, status, project_type, starting_price, featured_image, map_lat, map_lng")
+        .eq("is_published", true)
+        .not("status", "eq", "sold_out")
+        .not("map_lat", "is", null)
+        .not("map_lng", "is", null);
+
+      // Apply same filters but NO pagination
+      if (filters.city !== "any") {
+        query = query.eq("city", filters.city);
+      }
+      if (filters.projectType !== "any") {
+        query = query.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        query = query.gte("starting_price", min).lte("starting_price", max);
+      }
+      if (filters.depositPercent !== "any") {
+        const depositVal = parseInt(filters.depositPercent);
+        query = query.lte("deposit_percent", depositVal);
+      }
+      if (filters.completionYear !== "any") {
+        const yearVal = parseInt(filters.completionYear);
+        if (yearVal >= 2028) {
+          query = query.gte("completion_year", 2028);
+        } else {
+          query = query.eq("completion_year", yearVal);
+        }
+      }
+
+      query = query.order("is_featured", { ascending: false }).limit(500);
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const mapProjects = mapProjectsData || [];
+
   const projects = data?.projects || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -939,8 +986,12 @@ export default function PresaleProjects() {
         <section className="py-12 bg-muted/30">
           <div className="container">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-foreground mb-2">Explore on Map</h2>
-              <p className="text-muted-foreground">Find presale projects near you</p>
+              <h2 className="text-2xl font-bold text-foreground mb-2">
+                {filters.city !== "any" ? `${filters.city} Projects on Map` : "Explore on Map"}
+              </h2>
+              <p className="text-muted-foreground">
+                {mapProjects.length > 0 ? `${mapProjects.length} presale projects` : "Find presale projects near you"}
+              </p>
             </div>
             <Suspense fallback={
               <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
@@ -951,7 +1002,7 @@ export default function PresaleProjects() {
               </div>
             }>
               <div className="rounded-xl overflow-hidden border border-border">
-                <ProjectsMap projects={filteredProjects} isLoading={isLoading} />
+                <ProjectsMap projects={mapProjects as any} isLoading={isLoading} />
               </div>
             </Suspense>
             <div className="text-center mt-4">
