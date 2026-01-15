@@ -35,6 +35,7 @@ interface AppSettings {
   meta_pixel_id: string;
   email_sender: string;
   email_domain_verified: boolean;
+  admin_notification_email: string;
 }
 
 const DEFAULT_SENDER = "PresaleProperties <onboarding@resend.dev>";
@@ -55,6 +56,7 @@ export default function AdminSettings() {
     meta_pixel_id: "",
     email_sender: DEFAULT_SENDER,
     email_domain_verified: false,
+    admin_notification_email: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -136,6 +138,7 @@ export default function AdminSettings() {
         if (item.key === "meta_pixel_id") settingsMap.meta_pixel_id = item.value as string;
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
+        if (item.key === "admin_notification_email") settingsMap.admin_notification_email = item.value as string;
       });
 
       setSettings(prev => ({ ...prev, ...settingsMap }));
@@ -164,6 +167,7 @@ export default function AdminSettings() {
         { key: "meta_pixel_id", value: settings.meta_pixel_id },
         { key: "email_sender", value: settings.email_sender },
         { key: "email_domain_verified", value: settings.email_domain_verified },
+        { key: "admin_notification_email", value: settings.admin_notification_email },
       ];
 
       for (const setting of settingsToSave) {
@@ -257,6 +261,27 @@ export default function AdminSettings() {
                         </a>
                       </Button>
                     </div>
+                  </div>
+                </div>
+
+                {/* Admin Notifications */}
+                <div className="space-y-3 pt-4 border-t">
+                  <h4 className="font-medium">Admin Notifications</h4>
+                  <div className="space-y-2">
+                    <Label htmlFor="admin_notification_email">Property Alert Notifications</Label>
+                    <Input
+                      id="admin_notification_email"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={settings.admin_notification_email}
+                      onChange={(e) => setSettings(prev => ({ 
+                        ...prev, 
+                        admin_notification_email: e.target.value 
+                      }))}
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Receive a notification whenever property alerts are sent to clients
+                    </p>
                   </div>
                 </div>
               </CardContent>

@@ -236,23 +236,47 @@ const handler = async (req: Request): Promise<Response> => {
               })
               .eq("id", search.id);
 
-            // Log alerts sent
-            for (const prop of matchedProperties) {
-              await supabase.from("property_alerts").insert({
-                client_id: search.client_id,
-                saved_search_id: search.id,
-                alert_type: "new_listing",
-                listing_key: prop.type === "resale" ? prop.id : null,
-                project_id: prop.type === "presale" ? prop.id : null,
-                property_name: prop.name,
-                property_address: prop.address,
-                price: prop.price,
-                status: "sent",
-                sent_at: new Date().toISOString(),
-              });
-            }
+          // Log alerts sent
+          for (const prop of matchedProperties) {
+            await supabase.from("property_alerts").insert({
+              client_id: search.client_id,
+              saved_search_id: search.id,
+              alert_type: "new_listing",
+              listing_key: prop.type === "resale" ? prop.id : null,
+              project_id: prop.type === "presale" ? prop.id : null,
+              property_name: prop.name,
+              property_address: prop.address,
+              price: prop.price,
+              status: "sent",
+              sent_at: new Date().toISOString(),
+            });
+          }
 
-            console.log(`Sent alert to ${search.client.email} with ${matchedProperties.length} properties`);
+          // Also notify admin about the alert sent
+          const { data: adminEmailSetting } = await supabase
+            .from("app_settings")
+            .select("value")
+            .eq("key", "admin_notification_email")
+            .maybeSingle();
+
+          const adminEmail = typeof adminEmailSetting?.value === "string" ? adminEmailSetting.value : null;
+          
+          if (adminEmail) {
+            await sendEmail({
+              to: adminEmail,
+              subject: `[Alert Sent] ${matchedProperties.length} properties sent to ${search.client.first_name || search.client.email}`,
+              html: `
+                <p>Property alert sent to: <strong>${search.client.email}</strong></p>
+                <p>Search: ${search.name}</p>
+                <p>Properties matched: ${matchedProperties.length}</p>
+                <ul>
+                  ${matchedProperties.map(p => `<li>${p.name} - ${new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(p.price)}</li>`).join("")}
+                </ul>
+              `,
+            });
+          }
+
+          console.log(`Sent alert to ${search.client.email} with ${matchedProperties.length} properties`);
           }
         }
       } catch (err) {

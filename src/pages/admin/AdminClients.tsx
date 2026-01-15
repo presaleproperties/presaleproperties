@@ -40,7 +40,8 @@ import {
   Clock,
   MapPin,
   Home,
-  DollarSign
+  DollarSign,
+  Upload
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
@@ -90,6 +91,46 @@ export default function AdminClients() {
     withAlerts: 0,
     thisMonth: 0
   });
+  const [importing, setImporting] = useState(false);
+
+  const importLeadsAsClients = async () => {
+    if (!confirm("Import all existing leads as clients? This will skip duplicates.")) return;
+    setImporting(true);
+    try {
+      const { data: leads } = await supabase
+        .from("project_leads")
+        .select("name, email, phone, persona, visitor_id, intent_score, city_interest");
+      
+      if (!leads?.length) {
+        toast.info("No leads to import");
+        return;
+      }
+
+      let imported = 0;
+      for (const lead of leads) {
+        const [firstName, ...lastParts] = (lead.name || "").split(" ");
+        const { error } = await supabase.from("clients").upsert({
+          email: lead.email,
+          first_name: firstName || null,
+          last_name: lastParts.join(" ") || null,
+          phone: lead.phone,
+          persona: lead.persona || "buyer",
+          visitor_id: lead.visitor_id,
+          intent_score: lead.intent_score || 0,
+          source: "import",
+        }, { onConflict: "email" });
+        
+        if (!error) imported++;
+      }
+      
+      toast.success(`Imported ${imported} clients`);
+      fetchClients();
+    } catch (error) {
+      toast.error("Import failed");
+    } finally {
+      setImporting(false);
+    }
+  };
 
   useEffect(() => {
     fetchClients();
@@ -194,6 +235,10 @@ export default function AdminClients() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Button variant="outline" onClick={importLeadsAsClients} disabled={importing}>
+              <Upload className="h-4 w-4 mr-2" />
+              {importing ? "Importing..." : "Import Leads"}
+            </Button>
             <Button variant="outline" onClick={fetchClients}>
               <RefreshCw className="h-4 w-4 mr-2" />
               Refresh

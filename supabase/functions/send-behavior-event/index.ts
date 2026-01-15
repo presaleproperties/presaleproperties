@@ -12,6 +12,17 @@ type BehaviorEventPayload = Record<string, unknown> & {
   timestamp?: string;
   visitor_id?: string;
   session_id?: string;
+  page_path?: string;
+  page_title?: string;
+  device_type?: string;
+  event_payload?: {
+    project_id?: string;
+    project_name?: string;
+    city?: string;
+    price_from?: number;
+    listing_key?: string;
+    [key: string]: unknown;
+  };
 };
 
 serve(async (req: Request): Promise<Response> => {
@@ -26,6 +37,64 @@ serve(async (req: Request): Promise<Response> => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Track client activity if we have a visitor_id
+    if (payload.visitor_id && payload.event_name) {
+      // Check if this visitor is a known client
+      const { data: existingClient } = await supabase
+        .from("clients")
+        .select("id, total_property_views, total_site_visits, intent_score")
+        .eq("visitor_id", payload.visitor_id)
+        .single();
+
+      // Build activity record
+      const eventPayload = payload.event_payload || {};
+      const activityData: Record<string, unknown> = {
+        visitor_id: payload.visitor_id,
+        activity_type: payload.event_name,
+        listing_key: eventPayload.listing_key,
+        project_id: eventPayload.project_id,
+        project_name: eventPayload.project_name,
+        city: eventPayload.city,
+        price: eventPayload.price_from,
+        page_url: payload.page_path,
+        page_title: payload.page_title,
+        device_type: payload.device_type,
+      };
+
+      // Link to client if known
+      if (existingClient) {
+        activityData.client_id = existingClient.id;
+
+        // Update client stats
+        const updates: Record<string, unknown> = {
+          last_seen_at: new Date().toISOString(),
+        };
+
+        if (payload.event_name === "property_view") {
+          updates.total_property_views = (existingClient.total_property_views || 0) + 1;
+          updates.intent_score = (existingClient.intent_score || 0) + 1;
+        } else if (payload.event_name === "page_view") {
+          updates.total_site_visits = (existingClient.total_site_visits || 0) + 1;
+        } else if (payload.event_name === "floorplan_view") {
+          updates.intent_score = (existingClient.intent_score || 0) + 3;
+        } else if (payload.event_name === "floorplan_download") {
+          updates.intent_score = (existingClient.intent_score || 0) + 8;
+        } else if (payload.event_name === "favorite_add") {
+          updates.intent_score = (existingClient.intent_score || 0) + 5;
+        }
+
+        await supabase.from("clients").update(updates).eq("id", existingClient.id);
+      }
+
+      // Insert activity (errors are non-blocking)
+      try {
+        await supabase.from("client_activity").insert(activityData);
+      } catch {
+        // Ignore errors
+      }
+    }
+
+    // Forward to Zapier webhook if configured
     const { data: webhookSetting, error: webhookError } = await supabase
       .from("app_settings")
       .select("value")
@@ -64,7 +133,7 @@ serve(async (req: Request): Promise<Response> => {
       status: 200,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error in send-behavior-event:", error);
     return new Response(JSON.stringify({ success: false }), {
       status: 200,
