@@ -195,23 +195,27 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // Call Lofty API to create/update contact
-    // Lofty API endpoint: https://api.lofty.com/v1/leads (corrected from /api/v1)
-    // Always use "token" format for Lofty API keys
-    const authHeader = `token ${loftyApiKey}`;
+    // Lofty uses flat payload structure, not nested under "lead"
+    const loftyPayload = {
+      first_name: contactData.first_name,
+      last_name: contactData.last_name,
+      email: contactData.email,
+      phone: contactData.phone,
+      source: leadSource,
+      inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
+      tags: contactData.tags,
+      notes: contactData.notes,
+    };
     
-    console.log("Calling Lofty API with token auth");
+    console.log("Calling Lofty API:", JSON.stringify(loftyPayload));
     
     const loftyResponse = await fetch("https://api.lofty.com/v1/leads", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": authHeader,
+        "Authorization": `token ${loftyApiKey}`,
       },
-      body: JSON.stringify({
-        lead: contactData,
-        source: leadSource,
-        inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
-      }),
+      body: JSON.stringify(loftyPayload),
     });
 
     const responseText = await loftyResponse.text();
