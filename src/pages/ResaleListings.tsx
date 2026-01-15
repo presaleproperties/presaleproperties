@@ -248,6 +248,50 @@ export default function ResaleListings() {
     gcTime: 5 * 60 * 1000,
   });
 
+  // Separate query for MAP - fetches ALL listings with coordinates (not paginated)
+  const { data: mapListingsData } = useQuery({
+    queryKey: ["resale-map-listings-2024", filters, enabledCities],
+    queryFn: async () => {
+      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
+      
+      let query = supabase
+        .from("mls_listings")
+        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
+        .eq("mls_status", "Active")
+        .gte("year_built", 2024)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
+
+      // Apply same filters but NO pagination
+      if (filters.city === "any") {
+        query = query.in("city", citiesToUse);
+      } else {
+        query = query.eq("city", filters.city);
+      }
+      if (filters.propertyType !== "any") {
+        query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        query = query.gte("listing_price", min).lte("listing_price", max);
+      }
+      if (filters.beds !== "any") {
+        query = query.gte("bedrooms_total", parseInt(filters.beds));
+      }
+
+      // No pagination - get all for map (limit to reasonable amount for performance)
+      query = query.order("list_date", { ascending: false, nullsFirst: false }).limit(5000);
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
+  });
+
+  const mapListings = mapListingsData || [];
+
   const listings = data?.listings || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -832,7 +876,7 @@ export default function ResaleListings() {
               ) : viewMode === "map" ? (
                 <>
                   <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
-                    Showing {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""} on map
+                    Showing {mapListings.length.toLocaleString()} listing{mapListings.length !== 1 ? "s" : ""} on map
                   </p>
                   <Suspense fallback={
                     <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
@@ -844,7 +888,7 @@ export default function ResaleListings() {
                   }>
                     <div className="relative">
                       <div className="h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
-                        <ResaleListingsMap listings={filteredListings} />
+                        <ResaleListingsMap listings={mapListings} />
                       </div>
                     </div>
                   </Suspense>
@@ -891,8 +935,12 @@ export default function ResaleListings() {
           <section className="py-12 bg-muted/30">
             <div className="container px-4">
               <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground mb-2">Explore on Map</h2>
-                <p className="text-muted-foreground">Find homes near you</p>
+                <h2 className="text-2xl font-bold text-foreground mb-2">
+                  {filters.city !== "any" ? `${filters.city} Homes on Map` : "Explore on Map"}
+                </h2>
+                <p className="text-muted-foreground">
+                  {mapListings.length > 0 ? `${mapListings.length.toLocaleString()} listings` : "Find homes near you"}
+                </p>
               </div>
               <Suspense fallback={
                 <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
@@ -904,7 +952,7 @@ export default function ResaleListings() {
               }>
                 <div className="rounded-xl overflow-hidden border border-border">
                   <div className="h-[400px] lg:h-[500px]">
-                    <ResaleListingsMap listings={filteredListings} />
+                    <ResaleListingsMap listings={mapListings} />
                   </div>
                 </div>
               </Suspense>
