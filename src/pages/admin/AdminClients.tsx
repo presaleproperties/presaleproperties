@@ -44,10 +44,17 @@ import {
   Upload,
   Download,
   ExternalLink,
-  Loader2
+  Loader2,
+  Send,
+  Building2,
+  Check,
+  X
 } from "lucide-react";
 import { toast } from "sonner";
 import { format, formatDistanceToNow } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Client {
   id: string;
@@ -80,6 +87,20 @@ interface ClientActivity {
   created_at: string;
 }
 
+interface SearchProperty {
+  id: string;
+  type: "resale" | "presale";
+  name: string;
+  address: string;
+  city: string;
+  price: number;
+  beds: number | null;
+  baths: number | null;
+  sqft: number | null;
+  image: string | null;
+  url: string;
+}
+
 export default function AdminClients() {
   const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([]);
@@ -98,6 +119,15 @@ export default function AdminClients() {
   
   // Lofty info modal state
   const [loftySearchOpen, setLoftySearchOpen] = useState(false);
+  
+  // Property search and send state
+  const [propertySearchOpen, setPropertySearchOpen] = useState(false);
+  const [propertySearchQuery, setPropertySearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchProperty[]>([]);
+  const [selectedProperties, setSelectedProperties] = useState<SearchProperty[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [sendToClient, setSendToClient] = useState<Client | null>(null);
 
   const importLeadsAsClients = async () => {
     if (!confirm("Import all existing leads as clients? This will skip duplicates.")) return;
@@ -197,6 +227,132 @@ export default function AdminClients() {
   const handleViewClient = (client: Client) => {
     setSelectedClient(client);
     fetchClientActivity(client.id);
+  };
+
+  // Search properties (both MLS and presale)
+  const searchProperties = async () => {
+    if (!propertySearchQuery.trim()) return;
+    
+    setSearching(true);
+    setSearchResults([]);
+    
+    try {
+      const query = propertySearchQuery.toLowerCase();
+      const results: SearchProperty[] = [];
+      
+      // Search MLS listings
+      const { data: mlsListings } = await supabase
+        .from("mls_listings")
+        .select("listing_key, listing_price, city, neighborhood, street_number, street_name, street_suffix, property_type, bedrooms_total, bathrooms_total, living_area, photos")
+        .eq("mls_status", "Active")
+        .gte("year_built", 2024)
+        .or(`city.ilike.%${query}%,street_name.ilike.%${query}%,neighborhood.ilike.%${query}%,listing_key.ilike.%${query}%`)
+        .limit(10);
+      
+      if (mlsListings) {
+        for (const listing of mlsListings) {
+          const photos = listing.photos as any[];
+          results.push({
+            id: listing.listing_key,
+            type: "resale",
+            name: `${listing.street_number || ""} ${listing.street_name || ""} ${listing.street_suffix || ""}`.trim(),
+            address: `${listing.neighborhood || listing.city}`,
+            city: listing.city,
+            price: listing.listing_price,
+            beds: listing.bedrooms_total,
+            baths: listing.bathrooms_total,
+            sqft: listing.living_area,
+            image: photos?.[0]?.MediaURL || null,
+            url: `https://presaleproperties.ca/resale/${listing.listing_key}`,
+          });
+        }
+      }
+      
+      // Search presale projects
+      const { data: presaleProjects } = await supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, starting_price, featured_image")
+        .eq("is_published", true)
+        .or(`name.ilike.%${query}%,city.ilike.%${query}%,neighborhood.ilike.%${query}%`)
+        .limit(10);
+      
+      if (presaleProjects) {
+        for (const project of presaleProjects) {
+          results.push({
+            id: project.id,
+            type: "presale",
+            name: project.name,
+            address: project.neighborhood,
+            city: project.city,
+            price: project.starting_price || 0,
+            beds: null,
+            baths: null,
+            sqft: null,
+            image: project.featured_image,
+            url: `https://presaleproperties.ca/presale-projects/${project.slug}`,
+          });
+        }
+      }
+      
+      setSearchResults(results);
+    } catch (error) {
+      console.error("Error searching properties:", error);
+      toast.error("Search failed");
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const togglePropertySelection = (property: SearchProperty) => {
+    setSelectedProperties(prev => {
+      const exists = prev.find(p => p.id === property.id && p.type === property.type);
+      if (exists) {
+        return prev.filter(p => !(p.id === property.id && p.type === property.type));
+      }
+      return [...prev, property];
+    });
+  };
+
+  const isPropertySelected = (property: SearchProperty) => {
+    return selectedProperties.some(p => p.id === property.id && p.type === property.type);
+  };
+
+  const sendPropertiesToClient = async () => {
+    if (!sendToClient || selectedProperties.length === 0) return;
+    
+    setSending(true);
+    try {
+      // Call edge function to send email
+      const { error } = await supabase.functions.invoke("send-property-email", {
+        body: {
+          clientEmail: sendToClient.email,
+          clientName: sendToClient.first_name || "there",
+          properties: selectedProperties,
+        },
+      });
+      
+      if (error) throw error;
+      
+      toast.success(`Sent ${selectedProperties.length} properties to ${sendToClient.email}`);
+      setPropertySearchOpen(false);
+      setSelectedProperties([]);
+      setSearchResults([]);
+      setPropertySearchQuery("");
+      setSendToClient(null);
+    } catch (error) {
+      console.error("Error sending properties:", error);
+      toast.error("Failed to send properties. Check if send-property-email function exists.");
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const openPropertySearch = (client: Client) => {
+    setSendToClient(client);
+    setPropertySearchOpen(true);
+    setSelectedProperties([]);
+    setSearchResults([]);
+    setPropertySearchQuery("");
   };
 
   const filteredClients = clients.filter(client => {
@@ -432,6 +588,10 @@ export default function AdminClients() {
                               <Eye className="h-4 w-4 mr-2" />
                               View Details
                             </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openPropertySearch(client)}>
+                              <Send className="h-4 w-4 mr-2" />
+                              Send Properties
+                            </DropdownMenuItem>
                             <DropdownMenuItem onClick={() => navigate(`/admin/clients/${client.id}/searches`)}>
                               <Bell className="h-4 w-4 mr-2" />
                               Manage Alerts
@@ -483,7 +643,11 @@ export default function AdminClients() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  <Button onClick={() => openPropertySearch(selectedClient)}>
+                    <Send className="h-4 w-4 mr-2" />
+                    Send Properties
+                  </Button>
                   <Button 
                     variant="outline" 
                     onClick={() => navigate(`/admin/clients/${selectedClient.id}/searches`)}
@@ -491,9 +655,12 @@ export default function AdminClients() {
                     <Bell className="h-4 w-4 mr-2" />
                     Set Up Alerts
                   </Button>
-                  <Button variant="outline">
+                  <Button 
+                    variant="outline"
+                    onClick={() => window.location.href = `mailto:${selectedClient.email}`}
+                  >
                     <Mail className="h-4 w-4 mr-2" />
-                    Send Email
+                    Email Client
                   </Button>
                 </div>
 
@@ -583,6 +750,143 @@ export default function AdminClients() {
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add Client
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Property Search & Send Modal */}
+        <Dialog open={propertySearchOpen} onOpenChange={setPropertySearchOpen}>
+          <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Send className="h-5 w-5" />
+                Send Properties to {sendToClient?.first_name || sendToClient?.email}
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+              {/* Search Input */}
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by city, address, MLS#, or project name..."
+                    value={propertySearchQuery}
+                    onChange={(e) => setPropertySearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && searchProperties()}
+                    className="pl-10"
+                  />
+                </div>
+                <Button onClick={searchProperties} disabled={searching || !propertySearchQuery.trim()}>
+                  {searching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                </Button>
+              </div>
+
+              {/* Selected Properties */}
+              {selectedProperties.length > 0 && (
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm font-medium">{selectedProperties.length} selected</span>
+                    <Button variant="ghost" size="sm" onClick={() => setSelectedProperties([])}>
+                      Clear all
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {selectedProperties.map((prop) => (
+                      <Badge key={`${prop.type}-${prop.id}`} variant="secondary" className="gap-1">
+                        {prop.type === "presale" ? <Building2 className="h-3 w-3" /> : <Home className="h-3 w-3" />}
+                        {prop.name}
+                        <button onClick={() => togglePropertySelection(prop)} className="ml-1 hover:text-destructive">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Search Results */}
+              <ScrollArea className="flex-1 min-h-0">
+                {searching ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                ) : searchResults.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    {propertySearchQuery ? "No properties found" : "Search for properties to send"}
+                  </div>
+                ) : (
+                  <div className="space-y-2 pr-4">
+                    {searchResults.map((property) => (
+                      <div
+                        key={`${property.type}-${property.id}`}
+                        className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
+                          isPropertySelected(property) ? "bg-primary/10 border-primary" : "hover:bg-muted/50"
+                        }`}
+                        onClick={() => togglePropertySelection(property)}
+                      >
+                        <Checkbox checked={isPropertySelected(property)} />
+                        
+                        {property.image ? (
+                          <img
+                            src={property.image}
+                            alt={property.name}
+                            className="w-16 h-12 object-cover rounded"
+                          />
+                        ) : (
+                          <div className="w-16 h-12 bg-muted rounded flex items-center justify-center">
+                            {property.type === "presale" ? <Building2 className="h-6 w-6 text-muted-foreground" /> : <Home className="h-6 w-6 text-muted-foreground" />}
+                          </div>
+                        )}
+                        
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium truncate">{property.name}</p>
+                            <Badge variant="outline" className="shrink-0">
+                              {property.type === "presale" ? "Presale" : "Move-In Ready"}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground truncate">
+                            {property.address}, {property.city}
+                          </p>
+                          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                            <span className="font-medium text-foreground">
+                              {formatPrice(property.price)}
+                            </span>
+                            {property.beds && <span>{property.beds} bed</span>}
+                            {property.baths && <span>{property.baths} bath</span>}
+                            {property.sqft && <span>{property.sqft} sqft</span>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </ScrollArea>
+
+              {/* Send Button */}
+              <div className="flex gap-2 pt-2 border-t">
+                <Button variant="outline" className="flex-1" onClick={() => setPropertySearchOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  className="flex-1" 
+                  onClick={sendPropertiesToClient}
+                  disabled={sending || selectedProperties.length === 0}
+                >
+                  {sending ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Sending...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 mr-2" />
+                      Send {selectedProperties.length} {selectedProperties.length === 1 ? "Property" : "Properties"}
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
