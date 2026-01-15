@@ -169,6 +169,8 @@ export default function MapSearch() {
   const [showCarousel, setShowCarousel] = useState(false); // Hidden by default on mobile, shows when property clicked
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
   const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
+  const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null); // For tap-to-focus-to-navigate
+  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -322,6 +324,8 @@ export default function MapSearch() {
   const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
     setSelectedItemId(id);
     setSelectedItemType(type);
+    setFocusedCarouselItemId(id); // Also set as focused when pin is clicked
+    setFocusedCarouselItemType(type);
     setShowCarousel(true);
     
     setTimeout(() => {
@@ -349,8 +353,85 @@ export default function MapSearch() {
   const handleMapInteraction = useCallback(() => {
     if (isMobile) {
       setShowCarousel(false);
+      setFocusedCarouselItemId(null); // Clear focus when map is interacted with
+      setFocusedCarouselItemType(null);
     }
   }, [isMobile]);
+
+  // Handle carousel scroll to detect centered item and fly map to it
+  const handleCarouselScroll = useCallback(() => {
+    if (!carouselRef.current) return;
+    
+    const container = carouselRef.current;
+    const containerRect = container.getBoundingClientRect();
+    const containerCenter = containerRect.left + containerRect.width / 2;
+    
+    // Find the card closest to center
+    const cards = container.querySelectorAll('[data-item-id]');
+    let closestCard: Element | null = null;
+    let closestDistance = Infinity;
+    
+    cards.forEach(card => {
+      const cardRect = card.getBoundingClientRect();
+      const cardCenter = cardRect.left + cardRect.width / 2;
+      const distance = Math.abs(cardCenter - containerCenter);
+      
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestCard = card;
+      }
+    });
+    
+    if (closestCard && closestDistance < 80) { // Within threshold
+      const itemId = closestCard.getAttribute('data-item-id');
+      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale";
+      
+      if (itemId && itemId !== focusedCarouselItemId) {
+        setFocusedCarouselItemId(itemId);
+        setFocusedCarouselItemType(itemType);
+        
+        // Fly map to this item's pin
+        if (mapNavigationRef.current) {
+          mapNavigationRef.current.highlightItem(itemId, itemType);
+        }
+      }
+    }
+  }, [focusedCarouselItemId]);
+
+  // Debounced scroll handler
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const debouncedCarouselScroll = useCallback(() => {
+    if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    scrollTimeoutRef.current = setTimeout(handleCarouselScroll, 100);
+  }, [handleCarouselScroll]);
+
+  // Attach scroll listener to carousel
+  useEffect(() => {
+    const carousel = carouselRef.current;
+    if (!carousel) return;
+    
+    carousel.addEventListener('scroll', debouncedCarouselScroll, { passive: true });
+    return () => {
+      carousel.removeEventListener('scroll', debouncedCarouselScroll);
+      if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
+    };
+  }, [debouncedCarouselScroll, showCarousel]);
+
+  // Handle carousel card tap - first tap focuses, second tap navigates
+  const handleCarouselCardTap = useCallback((id: string, type: "resale" | "presale", link: string) => {
+    if (focusedCarouselItemId === id) {
+      // Already focused - navigate to detail page
+      navigate(link);
+    } else {
+      // First tap - focus and fly to pin
+      setFocusedCarouselItemId(id);
+      setFocusedCarouselItemType(type);
+      
+      if (mapNavigationRef.current) {
+        mapNavigationRef.current.highlightItem(id, type);
+      }
+    }
+  }, [focusedCarouselItemId, navigate]);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
     setMapMode(newMode);
@@ -1111,18 +1192,22 @@ export default function MapSearch() {
                     const link = isPresale 
                       ? `/presale-projects/${(data as PresaleProject).slug}` 
                       : `/resale/${(data as MLSListing).listing_key}`;
+                    const isFocused = focusedCarouselItemId === id;
                     
                     return (
-                      <Link 
+                      <div 
                         key={`${item.type}-${id}`}
-                        to={link}
                         data-item-id={id}
-                        className="snap-start shrink-0 w-[240px] sm:w-[280px]"
+                        data-item-type={item.type}
+                        onClick={() => handleCarouselCardTap(id, item.type, link)}
+                        className="snap-start shrink-0 w-[240px] sm:w-[280px] cursor-pointer"
                       >
-                        <div className={`bg-background/95 backdrop-blur-xl rounded-2xl shadow-lg border overflow-hidden transition-all ${
-                          selectedItemId === id 
-                            ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-border/30 hover:border-primary/50'
+                        <div className={`bg-background/95 backdrop-blur-xl rounded-2xl shadow-lg border overflow-hidden transition-all duration-200 ${
+                          isFocused 
+                            ? 'border-primary ring-2 ring-primary/30 scale-[1.02]' 
+                            : selectedItemId === id 
+                              ? 'border-primary/50 ring-1 ring-primary/20' 
+                              : 'border-border/30 active:border-primary/50'
                         }`}>
                           <div className="relative w-full aspect-[16/10] bg-muted">
                             {isPresale ? (
@@ -1149,6 +1234,12 @@ export default function MapSearch() {
                             }`}>
                               {isPresale ? 'PRESALE' : 'MOVE-IN'}
                             </Badge>
+                            {/* Tap indicator for focused card */}
+                            {isFocused && (
+                              <div className="absolute bottom-2 right-2 bg-foreground/90 text-background text-[9px] font-semibold px-2 py-1 rounded-md">
+                                TAP TO VIEW
+                              </div>
+                            )}
                           </div>
                           <div className="p-3 space-y-1">
                             {/* Price */}
@@ -1202,7 +1293,7 @@ export default function MapSearch() {
                             )}
                           </div>
                         </div>
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>
