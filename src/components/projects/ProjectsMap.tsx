@@ -309,9 +309,19 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
     const map = mapRef.current;
     if (!map || !initialCenter) return;
     
-    // Use setView with no animation to prevent shaking/jitter
-    // The clusters re-rendering during flyTo causes visual shaking
-    map.setView(initialCenter, initialZoom || 16, { animate: false });
+    // Check if map container is still valid before calling setView
+    // This prevents the "_leaflet_pos" error when map is destroyed
+    try {
+      const container = map.getContainer();
+      if (!container || !document.body.contains(container)) return;
+      
+      // Use setView with no animation to prevent shaking/jitter
+      // The clusters re-rendering during flyTo causes visual shaking
+      map.setView(initialCenter, initialZoom || 16, { animate: false });
+    } catch (e) {
+      // Map may have been destroyed, ignore
+      console.warn('Map setView failed:', e);
+    }
   }, [initialCenter, initialZoom]);
 
 
