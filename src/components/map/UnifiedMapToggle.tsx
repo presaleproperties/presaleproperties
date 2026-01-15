@@ -21,16 +21,16 @@ export function UnifiedMapToggle({
   
   return (
     <div className={cn(
-      "bg-background/95 backdrop-blur-md rounded-full shadow-lg border border-border/40 p-1 flex items-center gap-0.5",
+      "bg-background/90 backdrop-blur-xl rounded-2xl shadow-lg border border-border/30 p-1 flex items-center gap-0.5",
       className
     )}>
       <button
         onClick={() => onModeChange("all")}
         className={cn(
-          "px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap",
+          "px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap",
           mode === "all"
             ? "bg-primary text-primary-foreground shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
         )}
       >
         All
@@ -39,10 +39,10 @@ export function UnifiedMapToggle({
       <button
         onClick={() => onModeChange("presale")}
         className={cn(
-          "px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap",
+          "px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap",
           mode === "presale"
             ? "bg-foreground text-background shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
         )}
       >
         Presale
@@ -50,10 +50,10 @@ export function UnifiedMapToggle({
       <button
         onClick={() => onModeChange("resale")}
         className={cn(
-          "px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap",
+          "px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap",
           mode === "resale"
             ? "bg-foreground text-background shadow-sm"
-            : "text-muted-foreground hover:text-foreground"
+            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
         )}
       >
         Move-In

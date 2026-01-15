@@ -718,201 +718,210 @@ export default function MapSearch() {
       </Helmet>
 
       <div className="h-screen bg-background flex flex-col overflow-hidden">
-        <ConversionHeader alwaysVisible stickyOnMobile />
+        {/* Desktop only header */}
+        <div className="hidden lg:block">
+          <ConversionHeader alwaysVisible stickyOnMobile />
+        </div>
 
-        {/* Mobile/Tablet Compact Search Bar + Filters */}
-        <div className="lg:hidden shrink-0 bg-background/95 backdrop-blur-sm border-b border-border/50 px-2 py-1.5">
-          {/* Single Row: Search + Location + Filter */}
-          <div className="flex items-center gap-1.5">
-            {/* Compact Search Input */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+        {/* Mobile/Tablet: Floating Search Bar - Apple Maps inspired */}
+        <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+          <div className="lg:hidden absolute top-0 left-0 right-0 z-[1002] pt-[env(safe-area-inset-top)] px-3 pb-2 pt-3">
+            {/* Glassmorphism Search Bar */}
+            <div className="flex items-center gap-2 bg-background/85 backdrop-blur-xl rounded-2xl shadow-lg border border-border/30 px-3 py-2">
+              <Search className="h-5 w-5 text-muted-foreground shrink-0" />
               <Input
                 type="text"
-                placeholder="City, MLS#..."
+                placeholder="City, MLS#, Address..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-8 pl-8 pr-8 text-sm bg-muted/50 border-0 focus-visible:ring-1"
+                className="flex-1 h-9 border-0 bg-transparent focus-visible:ring-0 text-base placeholder:text-muted-foreground/70"
               />
-              {searchQuery && (
+              {searchQuery ? (
                 <button 
                   onClick={() => setSearchQuery("")}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5"
+                  className="p-1.5 rounded-full hover:bg-muted/50 transition-colors"
                 >
-                  <X className="h-3.5 w-3.5 text-muted-foreground" />
+                  <X className="h-4 w-4 text-muted-foreground" />
                 </button>
+              ) : (
+                <SheetTrigger asChild>
+                  <button className="p-1.5 rounded-full hover:bg-muted/50 transition-colors relative">
+                    <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-semibold">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                </SheetTrigger>
               )}
             </div>
-            
-            {/* Filter Button */}
-            <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-              <SheetTrigger asChild>
-                <button className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors shrink-0 relative">
-                  <SlidersHorizontal className="h-4 w-4 text-muted-foreground" />
-                  {activeFilterCount > 0 && (
-                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-primary text-primary-foreground text-[10px] rounded-full flex items-center justify-center font-medium">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[80vh] flex flex-col rounded-t-2xl">
-                <SheetHeader className="pb-3 border-b">
-                  <SheetTitle className="text-base font-semibold">Filters</SheetTitle>
-                </SheetHeader>
-                
-                <div className="flex-1 overflow-y-auto py-4 space-y-5">
-                  {/* City - Multi-select at top */}
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">City</label>
-                    <div className="flex flex-wrap gap-2">
-                      {CITIES.map((city) => {
-                        const isSelected = selectedCities.includes(city);
-                        return (
-                          <button
-                            key={city}
-                            onClick={() => {
-                              if (isSelected) {
-                                updateMultiFilter("cities", selectedCities.filter(c => c !== city));
-                              } else {
-                                updateMultiFilter("cities", [...selectedCities, city]);
-                              }
-                            }}
-                            className={`px-3 py-2 rounded-lg border text-sm transition-all ${
-                              isSelected
-                                ? "bg-primary/10 border-primary text-primary"
-                                : "border-border hover:border-foreground/30"
-                            }`}
-                          >
-                            {city}
-                          </button>
-                        );
-                      })}
-                    </div>
-                    {selectedCities.length > 0 && (
-                      <button 
-                        onClick={() => updateMultiFilter("cities", [])}
-                        className="text-xs text-muted-foreground mt-2 hover:text-foreground"
-                      >
-                        Clear cities
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Price Range */}
-                  <div className="border-t pt-4">
-                    <label className="text-sm font-medium mb-2 block">Price</label>
-                    <div className="flex items-center gap-2">
-                      <Input
-                        type="text"
-                        placeholder="Min"
-                        value={priceRange[0] > MIN_PRICE ? formatPriceLabel(priceRange[0]) : ""}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9]/g, "");
-                          if (val) setPriceRange([parseInt(val), priceRange[1]]);
-                        }}
-                        onBlur={applyPriceFilter}
-                        className="h-10 text-base"
-                      />
-                      <span className="text-muted-foreground">-</span>
-                      <Input
-                        type="text"
-                        placeholder="Max"
-                        value={priceRange[1] < MAX_PRICE ? formatPriceLabel(priceRange[1]) : ""}
-                        onChange={(e) => {
-                          const val = e.target.value.replace(/[^0-9]/g, "");
-                          if (val) setPriceRange([priceRange[0], parseInt(val)]);
-                        }}
-                        onBlur={applyPriceFilter}
-                        className="h-10 text-base"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Property Type */}
-                  <div className="border-t pt-4">
-                    <label className="text-sm font-medium mb-2 block">Type</label>
-                    <div className="flex flex-wrap gap-2">
-                      {PROPERTY_TYPES.map((opt) => {
-                        const Icon = opt.icon;
-                        return (
-                          <button
-                            key={opt.value}
-                            onClick={() => updateFilter("type", opt.value)}
-                            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm transition-all ${
-                              filters.propertyType === opt.value
-                                ? "bg-primary/10 border-primary text-primary"
-                                : "border-border hover:border-foreground/30"
-                            }`}
-                          >
-                            {Icon && <Icon className="h-4 w-4" />}
-                            {opt.label}
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Bedrooms */}
-                  <div className="border-t pt-4">
-                    <label className="text-sm font-medium mb-2 block">Beds</label>
-                    <div className="flex flex-wrap gap-2">
-                      {BED_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => updateFilter("beds", opt.value)}
-                          className={`px-3 py-2 rounded-lg border text-sm min-w-[44px] transition-all ${
-                            filters.beds === opt.value
-                              ? "bg-primary/10 border-primary text-primary"
-                              : "border-border hover:border-foreground/30"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Bathrooms */}
-                  <div className="border-t pt-4">
-                    <label className="text-sm font-medium mb-2 block">Baths</label>
-                    <div className="flex flex-wrap gap-2">
-                      {BATH_OPTIONS.map((opt) => (
-                        <button
-                          key={opt.value}
-                          onClick={() => updateFilter("baths", opt.value)}
-                          className={`px-3 py-2 rounded-lg border text-sm min-w-[44px] transition-all ${
-                            filters.baths === opt.value
-                              ? "bg-primary/10 border-primary text-primary"
-                              : "border-border hover:border-foreground/30"
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                <SheetFooter className="flex-row gap-3 border-t pt-3 pb-safe">
-                  <Button variant="outline" onClick={clearAllFilters} className="flex-1 h-10">
-                    Clear
-                  </Button>
-                  <Button onClick={() => setMobileFiltersOpen(false)} className="flex-1 h-10">
-                    Apply
-                  </Button>
-                </SheetFooter>
-              </SheetContent>
-            </Sheet>
           </div>
-        </div>
+          
+          {/* Filter Sheet Content */}
+          <SheetContent side="bottom" className="h-[85vh] flex flex-col rounded-t-3xl">
+            <SheetHeader className="pb-4 border-b">
+              <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-3" />
+              <SheetTitle className="text-lg font-semibold">Filters</SheetTitle>
+            </SheetHeader>
+            
+            <div className="flex-1 overflow-y-auto py-5 space-y-6">
+              {/* City - Multi-select at top */}
+              <div>
+                <label className="text-sm font-semibold mb-3 block">City</label>
+                <div className="flex flex-wrap gap-2">
+                  {CITIES.map((city) => {
+                    const isSelected = selectedCities.includes(city);
+                    return (
+                      <button
+                        key={city}
+                        onClick={() => {
+                          if (isSelected) {
+                            updateMultiFilter("cities", selectedCities.filter(c => c !== city));
+                          } else {
+                            updateMultiFilter("cities", [...selectedCities, city]);
+                          }
+                        }}
+                        className={`px-3.5 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                          isSelected
+                            ? "bg-primary/15 border-primary text-primary"
+                            : "border-border hover:border-foreground/30"
+                        }`}
+                      >
+                        {city}
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedCities.length > 0 && (
+                  <button 
+                    onClick={() => updateMultiFilter("cities", [])}
+                    className="text-xs text-muted-foreground mt-3 hover:text-foreground"
+                  >
+                    Clear cities
+                  </button>
+                )}
+              </div>
+
+              {/* Price Range */}
+              <div className="border-t pt-5">
+                <label className="text-sm font-semibold mb-3 block">Price Range</label>
+                <div className="flex items-center gap-3">
+                  <Input
+                    type="text"
+                    placeholder="No Min"
+                    value={priceRange[0] > MIN_PRICE ? formatPriceLabel(priceRange[0]) : ""}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, "");
+                      if (val) setPriceRange([parseInt(val), priceRange[1]]);
+                    }}
+                    onBlur={applyPriceFilter}
+                    className="h-12 text-base rounded-xl"
+                  />
+                  <span className="text-muted-foreground font-medium">—</span>
+                  <Input
+                    type="text"
+                    placeholder="No Max"
+                    value={priceRange[1] < MAX_PRICE ? formatPriceLabel(priceRange[1]) : ""}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/[^0-9]/g, "");
+                      if (val) setPriceRange([priceRange[0], parseInt(val)]);
+                    }}
+                    onBlur={applyPriceFilter}
+                    className="h-12 text-base rounded-xl"
+                  />
+                </div>
+              </div>
+
+              {/* Property Type */}
+              <div className="border-t pt-5">
+                <label className="text-sm font-semibold mb-3 block">Property Type</label>
+                <div className="flex flex-wrap gap-2">
+                  {PROPERTY_TYPES.map((opt) => {
+                    const Icon = opt.icon;
+                    return (
+                      <button
+                        key={opt.value}
+                        onClick={() => updateFilter("type", opt.value)}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all ${
+                          filters.propertyType === opt.value
+                            ? "bg-primary/15 border-primary text-primary"
+                            : "border-border hover:border-foreground/30"
+                        }`}
+                      >
+                        {Icon && <Icon className="h-4 w-4" />}
+                        {opt.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Bedrooms */}
+              <div className="border-t pt-5">
+                <label className="text-sm font-semibold mb-3 block">Bedrooms</label>
+                <div className="flex flex-wrap gap-2">
+                  {BED_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => updateFilter("beds", opt.value)}
+                      className={`px-4 py-2.5 rounded-xl border text-sm font-medium min-w-[52px] transition-all ${
+                        filters.beds === opt.value
+                          ? "bg-primary/15 border-primary text-primary"
+                          : "border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bathrooms */}
+              <div className="border-t pt-5">
+                <label className="text-sm font-semibold mb-3 block">Bathrooms</label>
+                <div className="flex flex-wrap gap-2">
+                  {BATH_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      onClick={() => updateFilter("baths", opt.value)}
+                      className={`px-4 py-2.5 rounded-xl border text-sm font-medium min-w-[52px] transition-all ${
+                        filters.baths === opt.value
+                          ? "bg-primary/15 border-primary text-primary"
+                          : "border-border hover:border-foreground/30"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <SheetFooter className="border-t pt-4 flex-row gap-3 pb-[env(safe-area-inset-bottom)]">
+              <Button 
+                variant="outline" 
+                onClick={() => {
+                  clearAllFilters();
+                  setPriceRange([MIN_PRICE, MAX_PRICE]);
+                }} 
+                className="flex-1 h-12 rounded-xl"
+              >
+                Clear All
+              </Button>
+              <Button onClick={() => setMobileFiltersOpen(false)} className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90">
+                Apply Filters
+              </Button>
+            </SheetFooter>
+          </SheetContent>
+        </Sheet>
 
         {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
-            {/* Unified Mode Toggle - Floating on map */}
-            <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[1000]">
+            {/* Unified Mode Toggle - Floating on map - below search bar on mobile */}
+            <div className="absolute top-16 lg:top-3 left-1/2 -translate-x-1/2 z-[1000]">
               <UnifiedMapToggle
                 mode={mapMode}
                 onModeChange={handleModeChange}
@@ -921,11 +930,11 @@ export default function MapSearch() {
               />
             </div>
 
-            {/* List View Button - Mobile/Tablet - top right */}
-            <div className="absolute top-3 right-3 z-[1001] lg:hidden">
+            {/* List View Button - Mobile/Tablet - top left below search */}
+            <div className="absolute top-16 left-3 z-[1001] lg:hidden">
               <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors">
-                  <LayoutGrid className="h-4 w-4 text-muted-foreground" />
+                <button className="w-11 h-11 rounded-2xl bg-background/90 backdrop-blur-xl shadow-lg border border-border/30 flex items-center justify-center hover:bg-muted/50 transition-colors">
+                  <LayoutGrid className="h-5 w-5 text-foreground" />
                 </button>
               </Link>
             </div>
@@ -963,34 +972,40 @@ export default function MapSearch() {
               </SafeMapWrapper>
             </div>
 
-            {/* Show Carousel Button - When hidden - positioned high to avoid Safari UI */}
+            {/* Show Carousel Button - When hidden - Apple Maps style */}
             {!showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-20 right-4 z-[1001] lg:hidden">
+              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1001] lg:hidden">
                 <button
                   onClick={() => setShowCarousel(true)}
-                  className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm shadow-lg border border-border/40 flex items-center justify-center"
+                  className="px-5 py-2.5 rounded-2xl bg-background/90 backdrop-blur-xl shadow-lg border border-border/30 flex items-center gap-2"
                   aria-label="Show properties"
                 >
-                  <ChevronUp className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">{propertiesInViewCount} Properties</span>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
                 </button>
               </div>
             )}
 
-            {/* Bottom Carousel - Mobile/Tablet - Floating above map */}
+            {/* Bottom Carousel - Mobile/Tablet - Floating above map, Apple Maps style */}
             {showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden safe-bottom">
+              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pb-[env(safe-area-inset-bottom)]">
+                {/* Carousel Header */}
                 <div className="flex items-center justify-between px-4 pb-2 pt-1">
-                  <span className="text-xs font-medium text-muted-foreground bg-background/90 backdrop-blur-sm px-2 py-1 rounded-full">
-                    {propertiesInViewCount} properties in view
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-semibold text-foreground bg-background/90 backdrop-blur-xl px-3 py-1.5 rounded-xl shadow-sm border border-border/30">
+                      {propertiesInViewCount} Properties
+                    </span>
+                  </div>
                   <button
                     onClick={() => setShowCarousel(false)}
-                    className="w-7 h-7 rounded-full bg-background/90 backdrop-blur-sm border border-border/40 flex items-center justify-center"
+                    className="w-9 h-9 rounded-xl bg-background/90 backdrop-blur-xl shadow-sm border border-border/30 flex items-center justify-center"
                     aria-label="Hide properties"
                   >
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
                   </button>
                 </div>
+                
+                {/* Carousel Cards */}
                 <div 
                   ref={carouselRef}
                   className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
@@ -1009,12 +1024,12 @@ export default function MapSearch() {
                         key={`${item.type}-${id}`}
                         to={link}
                         data-item-id={id}
-                        className="snap-start shrink-0 w-[220px] sm:w-[260px]"
+                        className="snap-start shrink-0 w-[240px] sm:w-[280px]"
                       >
-                        <div className={`bg-card rounded-xl shadow-lg border-2 overflow-hidden transition-all ${
+                        <div className={`bg-background/95 backdrop-blur-xl rounded-2xl shadow-lg border overflow-hidden transition-all ${
                           selectedItemId === id 
                             ? 'border-primary ring-2 ring-primary/20' 
-                            : 'border-border/40 hover:border-primary/50'
+                            : 'border-border/30 hover:border-primary/50'
                         }`}>
                           <div className="relative w-full aspect-[16/10] bg-muted">
                             {isPresale ? (
@@ -1034,17 +1049,17 @@ export default function MapSearch() {
                                 </div>
                               )
                             )}
-                            <Badge className={`absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 ${
+                            <Badge className={`absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-lg ${
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
                                 : 'bg-primary/90 text-primary-foreground'
                             }`}>
-                              {isPresale ? 'PRESALE' : 'MOVE-IN READY'}
+                              {isPresale ? 'PRESALE' : 'MOVE-IN'}
                             </Badge>
                           </div>
                           <div className="p-3 space-y-1">
                             {/* Price */}
-                            <div className="font-bold text-foreground text-base">
+                            <div className="font-bold text-foreground text-lg">
                               {isPresale 
                                 ? formatPrice((data as PresaleProject).starting_price)
                                 : formatPrice((data as MLSListing).listing_price)
@@ -1069,15 +1084,15 @@ export default function MapSearch() {
                             
                             {/* Specs for resale */}
                             {!isPresale && (
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-1">
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
                                 {(data as MLSListing).bedrooms_total && (
                                   <span className="flex items-center gap-1">
-                                    <Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total} bed
+                                    <Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}
                                   </span>
                                 )}
                                 {(data as MLSListing).bathrooms_total && (
                                   <span className="flex items-center gap-1">
-                                    <Bath className="h-3 w-3" /> {(data as MLSListing).bathrooms_total} bath
+                                    <Bath className="h-3 w-3" /> {(data as MLSListing).bathrooms_total}
                                   </span>
                                 )}
                                 {(data as MLSListing).living_area && (
@@ -1088,7 +1103,7 @@ export default function MapSearch() {
                             
                             {/* Status for presale */}
                             {isPresale && (
-                              <div className="text-xs text-muted-foreground pt-1 capitalize">
+                              <div className="text-xs text-muted-foreground pt-0.5 capitalize">
                                 {(data as PresaleProject).status?.replace(/_/g, ' ')}
                               </div>
                             )}

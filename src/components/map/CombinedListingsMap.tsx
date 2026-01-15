@@ -614,32 +614,35 @@ export function CombinedListingsMap({
     <div className="relative w-full h-full">
       <div ref={mapRef} className="w-full h-full" />
       
-      {/* Custom Controls - Top right to avoid being covered by carousel */}
-      <div className="absolute top-20 lg:top-4 right-3 z-[900] flex flex-col gap-1.5">
-        <button
-          onClick={handleLocateUser}
-          className="w-10 h-10 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
-          aria-label="Find my location"
-        >
-          <Crosshair className="h-5 w-5 text-primary" />
-        </button>
-        <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
+      {/* Custom Controls - Right side, Apple Maps style */}
+      <div className="absolute top-16 lg:top-4 right-3 z-[900] flex flex-col gap-2">
+        {/* Zoom Controls */}
+        <div className="flex flex-col rounded-2xl overflow-hidden bg-background/90 backdrop-blur-xl shadow-lg border border-border/30">
           <button
             onClick={handleZoomIn}
-            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-muted/50 transition-colors"
             aria-label="Zoom in"
           >
             <Plus className="h-5 w-5" />
           </button>
-          <div className="w-full h-px bg-border/50" />
+          <div className="w-full h-px bg-border/40" />
           <button
             onClick={handleZoomOut}
-            className="w-10 h-10 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-11 h-11 flex items-center justify-center text-foreground hover:bg-muted/50 transition-colors"
             aria-label="Zoom out"
           >
             <Minus className="h-5 w-5" />
           </button>
         </div>
+        
+        {/* Location Button - Below zoom controls */}
+        <button
+          onClick={handleLocateUser}
+          className="w-11 h-11 rounded-2xl bg-background/90 backdrop-blur-xl shadow-lg border border-border/30 flex items-center justify-center hover:bg-muted/50 transition-colors"
+          aria-label="Find my location"
+        >
+          <Crosshair className="h-5 w-5 text-primary" />
+        </button>
       </div>
     </div>
   );
