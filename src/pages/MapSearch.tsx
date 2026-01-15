@@ -999,10 +999,10 @@ export default function MapSearch() {
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
-            {/* Mobile/Tablet: Below search bar with proper spacing - use fixed offset */}
+            {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
             <div 
               className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
-              style={{ top: 'max(60px, calc(env(safe-area-inset-top, 0px) + 52px))' }}
+              style={{ top: 'calc(max(12px, env(safe-area-inset-top, 12px)) + 72px)' }}
             >
               <UnifiedMapToggle
                 mode={mapMode}
