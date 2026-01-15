@@ -744,37 +744,6 @@ export default function MapSearch() {
               )}
             </div>
             
-            {/* Location Button */}
-            <button
-              onClick={() => {
-                if (navigator.geolocation) {
-                  navigator.geolocation.getCurrentPosition(
-                    (pos) => {
-                      setUserLocation({
-                        lat: pos.coords.latitude,
-                        lng: pos.coords.longitude
-                      });
-                      // Clear saved map state to allow centering on user location
-                      sessionStorage.removeItem(MAP_STATE_KEY);
-                      // Force map to re-center by updating state
-                      window.location.reload();
-                    },
-                    (error) => {
-                      console.log("Location error:", error.message);
-                      alert("Unable to get location. Please enable location services.");
-                    },
-                    { enableHighAccuracy: true, timeout: 10000 }
-                  );
-                } else {
-                  alert("Geolocation not supported");
-                }
-              }}
-              className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center hover:bg-muted transition-colors shrink-0"
-              aria-label="Use my location"
-            >
-              <Navigation className="h-4 w-4 text-muted-foreground" />
-            </button>
-            
             {/* Filter Button */}
             <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
               <SheetTrigger asChild>
