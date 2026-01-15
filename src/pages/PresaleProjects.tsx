@@ -898,7 +898,7 @@ export default function PresaleProjects() {
                       </div>
                     </div>
                   }>
-                    <div className="relative">
+                    <div className="relative h-[500px] lg:h-[600px] rounded-xl overflow-hidden">
                       <ProjectsMap projects={filteredProjects} isLoading={isLoading} />
                     </div>
                   </Suspense>
