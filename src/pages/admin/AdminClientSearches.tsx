@@ -486,6 +486,7 @@ export default function AdminClientSearches() {
         body: {
           clientEmail: client.email,
           clientName: client.first_name || "there",
+          clientId: client.id,
           properties: selectedMatches,
         },
       });

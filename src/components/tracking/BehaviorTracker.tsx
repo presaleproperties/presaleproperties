@@ -7,6 +7,7 @@
  * 3. Track page views on route changes
  * 4. Detect and track return visits
  * 5. Update last page viewed
+ * 6. Track email click-throughs via cid parameter
  */
 
 import { useEffect, useRef } from "react";
@@ -21,11 +22,47 @@ import {
   getLastPageViewed,
 } from "@/lib/tracking";
 import { trackReturnVisit } from "@/lib/tracking/events";
+import { supabase } from "@/integrations/supabase/client";
 
 export function BehaviorTracker() {
   const location = useLocation();
   const lastTrackedPath = useRef<string>("");
   const initialized = useRef(false);
+
+  // Track email click-through when cid parameter is present
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const clientId = params.get("cid");
+    const utmSource = params.get("utm_source");
+    const utmMedium = params.get("utm_medium");
+    
+    // If this is an email click-through
+    if (clientId && utmSource === "email") {
+      // Log activity to the database
+      const trackEmailClick = async () => {
+        try {
+          await supabase.from("client_activity").insert({
+            client_id: clientId,
+            activity_type: "email_click",
+            page_url: window.location.pathname,
+            page_title: document.title,
+            utm_source: utmSource,
+            utm_medium: utmMedium,
+            utm_campaign: params.get("utm_campaign"),
+            referrer: "email",
+          });
+          
+          if (import.meta.env.DEV) {
+            console.log("📊 [Tracking] Email click tracked", { clientId, path: location.pathname });
+          }
+        } catch (error) {
+          console.error("Failed to track email click:", error);
+        }
+      };
+      
+      trackEmailClick();
+    }
+  }, [location.pathname, location.search]);
 
   // Initialize tracking on mount
   useEffect(() => {

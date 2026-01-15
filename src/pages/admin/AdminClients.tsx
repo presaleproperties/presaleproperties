@@ -322,11 +322,12 @@ export default function AdminClients() {
     
     setSending(true);
     try {
-      // Call edge function to send email
+      // Call edge function to send email with clientId for tracking
       const { error } = await supabase.functions.invoke("send-property-email", {
         body: {
           clientEmail: sendToClient.email,
           clientName: sendToClient.first_name || "there",
+          clientId: sendToClient.id,
           properties: selectedProperties,
         },
       });

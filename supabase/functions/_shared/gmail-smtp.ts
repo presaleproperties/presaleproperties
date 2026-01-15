@@ -26,6 +26,15 @@ interface EmailResult {
 const DEFAULT_FROM_NAME = "Presale Properties";
 const DEFAULT_REPLY_TO = "info@presaleproperties.com";
 
+// Minify HTML to prevent line-wrapping issues that cause =20 artifacts
+function minifyHtml(html: string): string {
+  return html
+    .replace(/\n\s*/g, '') // Remove newlines and leading whitespace
+    .replace(/>\s+</g, '><') // Remove whitespace between tags
+    .replace(/\s{2,}/g, ' ') // Collapse multiple spaces to single space
+    .trim();
+}
+
 /**
  * Send an email using Gmail SMTP
  */
@@ -41,7 +50,6 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     };
   }
 
-  // Use port 465 with direct TLS (SSL) instead of STARTTLS on 587
   const client = new SMTPClient({
     connection: {
       hostname: "smtp.gmail.com",
@@ -61,15 +69,15 @@ export async function sendEmail(options: EmailOptions): Promise<EmailResult> {
     
     const senderName = options.fromName || DEFAULT_FROM_NAME;
     
+    // Minify HTML to prevent quoted-printable encoding issues
+    const minifiedHtml = minifyHtml(options.html);
+    
     await client.send({
       from: `${senderName} <${smtpUser}>`,
       to: recipients,
       subject: options.subject,
-      html: options.html,
+      html: minifiedHtml,
       replyTo: options.replyTo || DEFAULT_REPLY_TO,
-      headers: {
-        "Content-Type": "text/html; charset=UTF-8",
-      },
     });
     
     await client.close();
