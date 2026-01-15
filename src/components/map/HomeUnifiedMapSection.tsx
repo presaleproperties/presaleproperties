@@ -15,16 +15,65 @@ const CombinedListingsMap = lazy(() =>
 
 type MapMode = "all" | "presale" | "resale";
 
+interface MLSListingForMap {
+  id: string;
+  listing_key: string;
+  listing_price: number;
+  list_date?: string | null;
+  city: string;
+  neighborhood?: string | null;
+  street_number?: string | null;
+  street_name?: string | null;
+  property_type?: string | null;
+  property_sub_type?: string | null;
+  bedrooms_total?: number | null;
+  bathrooms_total?: number | null;
+  living_area?: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  photos?: any | null;
+  mls_status?: string | null;
+  year_built?: number | null;
+  list_agent_name?: string | null;
+  list_office_name?: string | null;
+}
+
+interface PresaleProjectForMap {
+  id: string;
+  name: string;
+  slug: string;
+  city: string;
+  neighborhood?: string | null;
+  status?: string | null;
+  project_type?: string | null;
+  starting_price?: number | null;
+  featured_image?: string | null;
+  map_lat: number | null;
+  map_lng: number | null;
+}
+
 interface HomeUnifiedMapSectionProps {
   /** Initial mode for the map - defaults to "all" */
   initialMode?: MapMode;
   /** Default heading based on context */
   contextType?: "presale" | "resale" | "home";
+  /** Optional: Pass external resale listings to show on map (bypasses internal fetch) */
+  externalResaleListings?: MLSListingForMap[];
+  /** Optional: Pass external presale projects to show on map (bypasses internal fetch) */
+  externalPresaleProjects?: PresaleProjectForMap[];
+  /** City name for map link context */
+  cityContext?: string;
+  /** Custom heading override */
+  customHeading?: string;
 }
 
 export function HomeUnifiedMapSection({ 
   initialMode = "all",
-  contextType = "home"
+  contextType = "home",
+  externalResaleListings,
+  externalPresaleProjects,
+  cityContext,
+  customHeading
 }: HomeUnifiedMapSectionProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
@@ -67,32 +116,43 @@ export function HomeUnifiedMapSection({
     "North Vancouver", "West Vancouver", "Chilliwack", "Mission"
   ];
 
-  // Fetch presale projects
+  // Only fetch if no external data provided
+  const useExternalData = externalResaleListings !== undefined || externalPresaleProjects !== undefined;
+
+  // Fetch presale projects (skip if external data provided)
   const { data: presaleProjects, isLoading: presaleLoading } = useQuery({
-    queryKey: ["unified-map-presale-projects"],
+    queryKey: ["unified-map-presale-projects", cityContext],
     queryFn: async () => {
-      const { data, error } = await supabase
+      let query = supabase
         .from("presale_projects")
         .select("id, name, slug, city, neighborhood, status, project_type, starting_price, featured_image, map_lat, map_lng")
         .eq("is_published", true)
         .not("status", "eq", "sold_out")
         .not("map_lat", "is", null)
-        .not("map_lng", "is", null)
-        .order("is_featured", { ascending: false })
-        .limit(200);
+        .not("map_lng", "is", null);
+      
+      // Filter by city if context provided
+      if (cityContext) {
+        query = query.ilike("city", cityContext);
+      }
+      
+      query = query.order("is_featured", { ascending: false }).limit(200);
 
+      const { data, error } = await query;
       if (error) throw error;
       return data || [];
     },
-    enabled: shouldLoad,
+    enabled: shouldLoad && !externalPresaleProjects,
     staleTime: 5 * 60 * 1000,
   });
 
-  // Fetch resale listings (2024+ builds for move-in ready new construction)
+  // Fetch resale listings (skip if external data provided)
   const { data: resaleListings, isLoading: resaleLoading } = useQuery({
-    queryKey: ["unified-map-resale-listings-2024", enabledCities],
+    queryKey: ["unified-map-resale-listings-2024", enabledCities, cityContext],
     queryFn: async () => {
-      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
+      const citiesToUse = cityContext 
+        ? [cityContext]
+        : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
       
       const { data, error } = await supabase
         .from("mls_listings")
@@ -102,52 +162,59 @@ export function HomeUnifiedMapSection({
         .not("longitude", "is", null)
         .in("city", citiesToUse)
         .gte("year_built", 2024)
-        // Order by recency so lower-priced listings aren't dropped by the marker cap
         .order("list_date", { ascending: false, nullsFirst: false })
         .limit(5000);
 
       if (error) throw error;
       return data || [];
     },
-    enabled: shouldLoad,
+    enabled: shouldLoad && !externalResaleListings,
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
   });
 
-  const isLoading = presaleLoading || resaleLoading;
-  const hasData = (presaleProjects?.length || 0) > 0 || (resaleListings?.length || 0) > 0;
+  // Use external data if provided, otherwise use fetched data
+  const finalResaleListings = externalResaleListings ?? resaleListings ?? [];
+  const finalPresaleProjects = externalPresaleProjects ?? presaleProjects ?? [];
 
-  // Dynamic heading based on mode
+  const isLoading = (!externalResaleListings && resaleLoading) || (!externalPresaleProjects && presaleLoading);
+  const hasData = finalPresaleProjects.length > 0 || finalResaleListings.length > 0;
+
+  // Dynamic heading based on mode (can be overridden by customHeading)
   const getHeading = () => {
+    if (customHeading) return customHeading;
+    const cityPrefix = cityContext ? `${cityContext} ` : "";
     switch (mode) {
       case "presale":
-        return "Explore Presale Projects";
+        return `Explore ${cityPrefix}Presale Projects`;
       case "resale":
-        return "Explore Move-In Ready Homes";
+        return `Explore ${cityPrefix}Move-In Ready Homes`;
       default:
-        return "Explore All Properties";
+        return `Explore ${cityPrefix}Properties`;
     }
   };
 
   const getSubheading = () => {
+    const cityText = cityContext ? `in ${cityContext}` : "near you";
     switch (mode) {
       case "presale":
-        return "Find presale condos and townhomes near you. Click any pin for details.";
+        return `Find presale condos and townhomes ${cityText}. Click any pin for details.`;
       case "resale":
-        return "Find brand new homes ready for move-in. Click any pin for details.";
+        return `Find brand new homes ready for move-in ${cityText}. Click any pin for details.`;
       default:
-        return "Browse presale projects and move-in ready homes. Click any pin for details.";
+        return `Browse presale projects and move-in ready homes ${cityText}. Click any pin for details.`;
     }
   };
 
   const getFullMapLink = () => {
+    const cityParam = cityContext ? `&city=${encodeURIComponent(cityContext)}` : "";
     switch (mode) {
       case "presale":
-        return "/map-search?mode=presale";
+        return `/map-search?mode=presale${cityParam}`;
       case "resale":
-        return "/map-search?mode=resale";
+        return `/map-search?mode=resale${cityParam}`;
       default:
-        return "/map-search";
+        return `/map-search${cityParam ? `?${cityParam.substring(1)}` : ""}`;
     }
   };
 
@@ -256,8 +323,8 @@ export function HomeUnifiedMapSection({
             <Suspense fallback={<LoadingPlaceholder />}>
               <div className="h-[450px] md:h-[550px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
                 <CombinedListingsMap 
-                  resaleListings={resaleListings || []}
-                  presaleProjects={presaleProjects || []}
+                  resaleListings={finalResaleListings as any}
+                  presaleProjects={finalPresaleProjects as any}
                   mode={mode}
                 />
               </div>

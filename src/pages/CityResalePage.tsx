@@ -303,6 +303,43 @@ export default function CityResalePage() {
     enabled: !!cityConfig,
   });
 
+  // Separate query for map listings with coordinates (applies same filters but includes lat/lng)
+  const { data: mapListings } = useQuery({
+    queryKey: ["city-resale-map-listings", citySlug, filters],
+    queryFn: async () => {
+      if (!cityConfig) return [];
+
+      let query = supabase
+        .from("mls_listings")
+        .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
+        .eq("mls_status", "Active")
+        .ilike("city", cityConfig.name)
+        .gte("year_built", 2024)
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
+
+      // Apply same filters as listing query
+      if (filters.propertyType !== "any") {
+        query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        query = query.gte("listing_price", min).lte("listing_price", max);
+      }
+      if (filters.beds !== "any") {
+        query = query.gte("bedrooms_total", parseInt(filters.beds));
+      }
+
+      query = query.order("list_date", { ascending: false, nullsFirst: false }).limit(1000);
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!cityConfig,
+    staleTime: 2 * 60 * 1000,
+  });
+
   const listings = data?.listings || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -662,15 +699,21 @@ export default function CityResalePage() {
             </section>
           )}
 
+          {/* Map Section - Shows filtered listings for this city */}
+          <HomeUnifiedMapSection 
+            initialMode="resale" 
+            contextType="resale" 
+            externalResaleListings={mapListings}
+            cityContext={cityConfig.name}
+            customHeading={`${cityConfig.name} Properties on Map`}
+          />
+
           {/* Related Presale Projects */}
           <RelatedPresaleProjects 
             city={cityConfig.name}
             title={`Presale Projects in ${cityConfig.name}`}
             subtitle="Buy before completion and customize your new home"
           />
-
-          {/* Large Map Section - Page Ending */}
-          <HomeUnifiedMapSection initialMode="resale" contextType="resale" />
         </main>
       </PullToRefresh>
 

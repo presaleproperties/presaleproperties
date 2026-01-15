@@ -425,6 +425,42 @@ export default function CityPresalePage() {
     enabled: !!cityName,
   });
 
+  // Query for map projects with coordinates
+  const { data: mapProjects } = useQuery({
+    queryKey: ["city-presale-map-projects", cityName, filters],
+    queryFn: async () => {
+      if (!cityName) return [];
+
+      let query = supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, status, project_type, starting_price, featured_image, map_lat, map_lng")
+        .eq("is_published", true)
+        .eq("city", cityName)
+        .not("map_lat", "is", null)
+        .not("map_lng", "is", null);
+
+      // Apply filters
+      if (filters.status !== "any") {
+        query = query.eq("status", filters.status as "coming_soon" | "active" | "sold_out");
+      }
+      if (filters.projectType !== "any") {
+        query = query.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
+      }
+      if (filters.priceRange !== "any") {
+        const [min, max] = filters.priceRange.split("-").map(Number);
+        query = query.gte("starting_price", min).lte("starting_price", max);
+      }
+
+      query = query.order("is_featured", { ascending: false }).limit(200);
+
+      const { data, error } = await query;
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!cityName,
+    staleTime: 5 * 60 * 1000,
+  });
+
   const projects = data?.projects || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -1010,8 +1046,14 @@ export default function CityPresalePage() {
 
         <NewConstructionBenefits />
         
-        {/* Large Map Section - Page Ending */}
-        <HomeUnifiedMapSection initialMode="presale" contextType="presale" />
+        {/* Large Map Section - Shows filtered presale projects for this city */}
+        <HomeUnifiedMapSection 
+          initialMode="presale" 
+          contextType="presale"
+          externalPresaleProjects={mapProjects}
+          cityContext={cityName}
+          customHeading={`${cityName} Presale Projects on Map`}
+        />
       </main>
 
       <Footer />
