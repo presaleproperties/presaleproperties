@@ -96,13 +96,8 @@ export default function AdminClients() {
   });
   const [importing, setImporting] = useState(false);
   
-  // Lofty search state
+  // Lofty info modal state
   const [loftySearchOpen, setLoftySearchOpen] = useState(false);
-  const [loftySearchQuery, setLoftySearchQuery] = useState("");
-  const [loftySearching, setLoftySearching] = useState(false);
-  const [loftyContacts, setLoftyContacts] = useState<any[]>([]);
-  const [loftyError, setLoftyError] = useState<string | null>(null);
-  const [importingLoftyId, setImportingLoftyId] = useState<string | null>(null);
 
   const importLeadsAsClients = async () => {
     if (!confirm("Import all existing leads as clients? This will skip duplicates.")) return;
@@ -143,71 +138,8 @@ export default function AdminClients() {
     }
   };
 
-  // Lofty search functions
-  const searchLofty = async () => {
-    if (!loftySearchQuery.trim()) {
-      toast.error("Please enter a name or email to search");
-      return;
-    }
-    
-    setLoftySearching(true);
-    setLoftyError(null);
-    setLoftyContacts([]);
-    
-    try {
-      const response = await supabase.functions.invoke("search-lofty-contacts", {
-        body: { 
-          searchQuery: loftySearchQuery,
-          email: loftySearchQuery.includes("@") ? loftySearchQuery : undefined
-        }
-      });
-      
-      if (response.error) throw response.error;
-      
-      const data = response.data;
-      if (!data.success) {
-        setLoftyError(data.error || "Failed to search Lofty");
-        return;
-      }
-      
-      setLoftyContacts(data.contacts || []);
-      if (data.contacts?.length === 0) {
-        toast.info("No contacts found in Lofty");
-      } else {
-        toast.success(`Found ${data.contacts.length} contact(s) in Lofty`);
-      }
-    } catch (error) {
-      console.error("Lofty search error:", error);
-      setLoftyError("Failed to connect to Lofty API");
-    } finally {
-      setLoftySearching(false);
-    }
-  };
-
-  const importFromLofty = async (contact: any) => {
-    setImportingLoftyId(contact.id);
-    try {
-      const { error } = await supabase.from("clients").upsert({
-        email: contact.email,
-        first_name: contact.first_name || null,
-        last_name: contact.last_name || null,
-        phone: contact.phone || null,
-        source: "lofty",
-        tags: contact.tags || [],
-        notes: contact.notes || null,
-      }, { onConflict: "email" });
-      
-      if (error) throw error;
-      
-      toast.success(`Imported ${contact.first_name} ${contact.last_name} from Lofty`);
-      fetchClients();
-    } catch (error) {
-      console.error("Import error:", error);
-      toast.error("Failed to import contact");
-    } finally {
-      setImportingLoftyId(null);
-    }
-  };
+  // Note: Lofty doesn't have a public REST API for searching contacts
+  // Integration works via Zapier webhooks (leads sync TO Lofty, not FROM)
 
   useEffect(() => {
     fetchClients();
@@ -313,8 +245,8 @@ export default function AdminClients() {
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => setLoftySearchOpen(true)}>
-              <Download className="h-4 w-4 mr-2" />
-              Search Lofty
+              <ExternalLink className="h-4 w-4 mr-2" />
+              Lofty CRM
             </Button>
             <Button variant="outline" onClick={importLeadsAsClients} disabled={importing}>
               <Upload className="h-4 w-4 mr-2" />
@@ -608,103 +540,51 @@ export default function AdminClients() {
           </DialogContent>
         </Dialog>
 
-        {/* Lofty Search Modal */}
+        {/* Lofty Info Modal */}
         <Dialog open={loftySearchOpen} onOpenChange={setLoftySearchOpen}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogContent className="max-w-lg">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2">
-                <Download className="h-5 w-5" />
-                Search & Import from Lofty CRM
+                <ExternalLink className="h-5 w-5" />
+                Lofty CRM Integration
               </DialogTitle>
             </DialogHeader>
             
             <div className="space-y-4">
-              {/* Search Input */}
+              <div className="p-4 bg-muted rounded-lg space-y-3">
+                <p className="text-sm">
+                  <strong>How it works:</strong> Leads from this site automatically sync <strong>TO</strong> Lofty via Zapier webhooks.
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Lofty doesn't provide a public API for searching contacts. To bring contacts into this system:
+                </p>
+                <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside">
+                  <li>Export contacts from Lofty (Contacts → Export CSV)</li>
+                  <li>Use the <strong>Import Leads</strong> button to import existing leads</li>
+                  <li>Or add clients manually with the <strong>Add Client</strong> button</li>
+                </ol>
+              </div>
+              
               <div className="flex gap-2">
-                <Input
-                  placeholder="Search by client name or email..."
-                  value={loftySearchQuery}
-                  onChange={(e) => setLoftySearchQuery(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && searchLofty()}
+                <Button 
+                  variant="outline" 
                   className="flex-1"
-                />
-                <Button onClick={searchLofty} disabled={loftySearching}>
-                  {loftySearching ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Search className="h-4 w-4" />
-                  )}
+                  onClick={() => window.open("https://app.lofty.com", "_blank")}
+                >
+                  <ExternalLink className="h-4 w-4 mr-2" />
+                  Open Lofty
+                </Button>
+                <Button 
+                  className="flex-1"
+                  onClick={() => {
+                    setLoftySearchOpen(false);
+                    navigate("/admin/clients/new");
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Client
                 </Button>
               </div>
-
-              {/* Error Message */}
-              {loftyError && (
-                <div className="p-3 bg-destructive/10 text-destructive rounded-lg text-sm">
-                  {loftyError}
-                </div>
-              )}
-
-              {/* Results */}
-              {loftyContacts.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">
-                    Found {loftyContacts.length} contact(s)
-                  </p>
-                  <div className="space-y-2 max-h-96 overflow-y-auto">
-                    {loftyContacts.map((contact) => (
-                      <div 
-                        key={contact.id}
-                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50"
-                      >
-                        <div>
-                          <p className="font-medium">
-                            {contact.first_name} {contact.last_name}
-                          </p>
-                          <p className="text-sm text-muted-foreground">{contact.email}</p>
-                          {contact.phone && (
-                            <p className="text-xs text-muted-foreground">{contact.phone}</p>
-                          )}
-                          {contact.tags?.length > 0 && (
-                            <div className="flex gap-1 mt-1 flex-wrap">
-                              {contact.tags.slice(0, 3).map((tag: string) => (
-                                <Badge key={tag} variant="outline" className="text-xs">
-                                  {tag}
-                                </Badge>
-                              ))}
-                              {contact.tags.length > 3 && (
-                                <Badge variant="outline" className="text-xs">
-                                  +{contact.tags.length - 3}
-                                </Badge>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <Button
-                          size="sm"
-                          onClick={() => importFromLofty(contact)}
-                          disabled={importingLoftyId === contact.id}
-                        >
-                          {importingLoftyId === contact.id ? (
-                            <Loader2 className="h-4 w-4 animate-spin" />
-                          ) : (
-                            <>
-                              <Download className="h-4 w-4 mr-1" />
-                              Import
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Empty State */}
-              {!loftySearching && loftyContacts.length === 0 && !loftyError && loftySearchQuery && (
-                <p className="text-center text-muted-foreground py-8">
-                  Enter a name or email and click search to find contacts in Lofty
-                </p>
-              )}
             </div>
           </DialogContent>
         </Dialog>
