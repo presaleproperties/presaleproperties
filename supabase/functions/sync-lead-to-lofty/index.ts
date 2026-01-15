@@ -68,13 +68,23 @@ serve(async (req: Request): Promise<Response> => {
 
     // If direct lead data is provided, use it
     if (leadData) {
+      // Build tags from provided data
+      const tags: string[] = [];
+      if (leadData.projectName) tags.push(leadData.projectName);
+      if (leadData.projectCity) tags.push(leadData.projectCity);
+      if (leadData.tags) tags.push(...leadData.tags.filter(t => !tags.includes(t)));
+      if (tags.length === 0) tags.push("Website Lead");
+      tags.push("Presale");
+      
+      console.log("Direct leadData tags:", tags);
+      
       contactData = {
         first_name: leadData.firstName,
         last_name: leadData.lastName,
         email: leadData.email,
         phone: leadData.phone || undefined,
         source: leadData.source || "PresaleProperties.com",
-        tags: leadData.tags || ["Website Lead"],
+        tags,
         notes: buildNotes(leadData),
         custom_fields: {
           visitor_id: leadData.visitorId || "",
@@ -106,16 +116,36 @@ serve(async (req: Request): Promise<Response> => {
       const project = lead.presale_projects as any;
       projectContext = project?.name || "";
 
-      // Build tags based on lead attributes
-      const tags: string[] = ["Website Lead", "Presale Interest"];
+      // Build tags based on lead attributes - these appear in Lofty's Tag field
+      const tags: string[] = [];
+      
+      // Priority tags: Project and City (most important for filtering)
+      if (project?.name) tags.push(project.name);
+      if (project?.city) tags.push(project.city);
+      if (project?.neighborhood) tags.push(project.neighborhood);
+      
+      // Lead source/form type
+      if (lead.lead_source === "scheduler") tags.push("Tour Request");
+      else if (lead.lead_source === "floor_plan_request") tags.push("Floor Plan Request");
+      else if (lead.lead_source === "callback_request") tags.push("Callback Request");
+      else tags.push("Website Lead");
+      
+      // Buyer type
       if (lead.persona === "investor") tags.push("Investor");
       if (lead.persona === "first_time_buyer") tags.push("First Time Buyer");
       if (lead.persona === "family") tags.push("Upsizer");
+      
+      // Agent status
       if (lead.agent_status === "i_am_realtor") tags.push("Realtor");
-      if (lead.lead_source === "scheduler") tags.push("Tour Request");
-      if (lead.lead_source === "floor_plan_request") tags.push("Floor Plan Request");
-      if (lead.intent_score && lead.intent_score >= 50) tags.push("High Intent");
-      if (project?.city) tags.push(project.city);
+      
+      // Intent level
+      if (lead.intent_score && lead.intent_score >= 70) tags.push("High Intent");
+      else if (lead.intent_score && lead.intent_score >= 40) tags.push("Medium Intent");
+      
+      // Always add presale interest
+      tags.push("Presale");
+      
+      console.log("Lead tags to sync:", tags);
 
       contactData = {
         first_name: firstName,
@@ -160,11 +190,19 @@ serve(async (req: Request): Promise<Response> => {
       const project = booking.presale_projects as any;
       projectContext = booking.project_name || project?.name || "";
 
-      const tags: string[] = ["Website Lead", "Tour Request", "Presale Interest"];
+      // Build tags - project and city first for filtering
+      const tags: string[] = [];
+      if (projectContext) tags.push(projectContext);
+      if (booking.project_city) tags.push(booking.project_city);
+      if (booking.project_neighborhood) tags.push(booking.project_neighborhood);
+      tags.push("Tour Request");
       if (booking.buyer_type === "investor") tags.push("Investor");
       if (booking.buyer_type === "first_time_buyer") tags.push("First Time Buyer");
-      if (booking.intent_score && booking.intent_score >= 50) tags.push("High Intent");
-      if (booking.project_city) tags.push(booking.project_city);
+      if (booking.intent_score && booking.intent_score >= 70) tags.push("High Intent");
+      else if (booking.intent_score && booking.intent_score >= 40) tags.push("Medium Intent");
+      tags.push("Presale");
+      
+      console.log("Booking tags to sync:", tags);
 
       contactData = {
         first_name: firstName,
