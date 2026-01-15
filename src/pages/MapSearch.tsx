@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffect } fro
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import { toast } from "sonner";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, 
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
@@ -30,10 +31,12 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
+import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
 import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
+import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
 
 // Lazy load the combined map component
 const CombinedListingsMap = lazy(() => 
@@ -590,7 +593,13 @@ export default function MapSearch() {
 
   const projectsForSearch = useMemo(() => {
     if (!presaleProjects) return [];
-    return presaleProjects.map(p => ({ name: p.name, city: p.city, slug: p.slug }));
+    return presaleProjects.map(p => ({ 
+      name: p.name, 
+      city: p.city, 
+      slug: p.slug,
+      map_lat: p.map_lat,
+      map_lng: p.map_lng,
+    }));
   }, [presaleProjects]);
 
   // Listings for search bar autocomplete (MLS# and address search)
@@ -603,24 +612,87 @@ export default function MapSearch() {
       street_name: l.street_name,
       street_suffix: l.street_suffix,
       listing_price: l.listing_price,
+      latitude: l.latitude,
+      longitude: l.longitude,
     }));
   }, [resaleListings]);
 
-  const handleSearchSuggestionSelect = useCallback((suggestion: { type: string; value: string; city?: string; label: string }) => {
+  // Ref for programmatic map navigation
+  const mapNavigationRef = useRef<CombinedListingsMapRef>(null);
+
+  const handleSearchSuggestionSelect = useCallback((suggestion: { type: string; value: string; city?: string; label: string; lat?: number; lng?: number }) => {
     if (suggestion.type === "city") {
+      // Navigate map to city coordinates
+      const cityCoords = CITY_COORDINATES[suggestion.value];
+      if (cityCoords && mapNavigationRef.current) {
+        mapNavigationRef.current.flyTo(cityCoords.lat, cityCoords.lng, cityCoords.zoom);
+        toast.success(`Viewing ${suggestion.value}`);
+      }
       updateFilter("city", suggestion.value);
       setSearchQuery("");
     } else if (suggestion.type === "neighborhood") {
+      // Navigate to neighborhood (use city coords as fallback)
       if (suggestion.city) {
+        const cityCoords = CITY_COORDINATES[suggestion.city];
+        if (cityCoords && mapNavigationRef.current) {
+          mapNavigationRef.current.flyTo(cityCoords.lat, cityCoords.lng, 13);
+        }
         updateFilter("city", suggestion.city);
       }
       setSearchQuery(suggestion.label);
+      toast.success(`Viewing ${suggestion.label}`);
     } else if (suggestion.type === "project") {
-      navigate(`/presale-projects/${suggestion.value}`);
+      // Navigate to project location on map, or go to detail page
+      if (suggestion.lat && suggestion.lng && mapNavigationRef.current) {
+        mapNavigationRef.current.flyTo(suggestion.lat, suggestion.lng, 16);
+        toast.success(`Viewing ${suggestion.label}`);
+        setSearchQuery("");
+      } else {
+        navigate(`/presale-projects/${suggestion.value}`);
+      }
     } else if (suggestion.type === "listing") {
-      navigate(`/resale/${suggestion.value}`);
+      // Navigate to listing location on map
+      if (suggestion.lat && suggestion.lng && mapNavigationRef.current) {
+        mapNavigationRef.current.flyTo(suggestion.lat, suggestion.lng, 17);
+        toast.success(`Viewing ${suggestion.label}`);
+        setSearchQuery("");
+      } else {
+        navigate(`/resale/${suggestion.value}`);
+      }
     }
   }, [navigate, updateFilter]);
+
+  // Handle location button in search bar
+  const handleLocationRequest = useCallback(() => {
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
+    }
+    
+    toast.loading("Finding your location...", { id: "location" });
+    
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        if (mapNavigationRef.current) {
+          mapNavigationRef.current.flyTo(latitude, longitude, 14);
+        }
+        toast.success("Location found!", { id: "location" });
+      },
+      (error) => {
+        console.log("Geolocation error:", error.message);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Location access denied. Please enable location in your browser settings.", { id: "location" });
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          toast.error("Location unavailable. Please try again.", { id: "location" });
+        } else {
+          toast.error("Could not get your location. Please try again.", { id: "location" });
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    );
+  }, []);
 
   const clearAllFilters = () => {
     const newParams = new URLSearchParams();
@@ -724,52 +796,42 @@ export default function MapSearch() {
           <ConversionHeader alwaysVisible stickyOnMobile />
         </div>
 
-        {/* Mobile/Tablet: Floating Search Bar - Premium compact design */}
+        {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
           <div 
             className="lg:hidden absolute left-3 right-3 z-[1002]" 
             style={{ top: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}
           >
-            {/* Premium Compact Search Bar */}
-            <div className="flex items-center gap-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl rounded-[14px] shadow-lg shadow-black/8 border border-white/50 dark:border-white/10 px-3 py-1.5">
-              <Search className="h-4 w-4 text-muted-foreground/60 shrink-0" />
-              <Input
-                type="text"
-                placeholder="City, MLS#, Address..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 h-8 border-0 bg-transparent focus-visible:ring-0 text-[15px] placeholder:text-muted-foreground/40 px-0 py-0"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => setSearchQuery("")}
-                  className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-                >
-                  <X className="h-3.5 w-3.5 text-muted-foreground/60" />
-                </button>
-              )}
-              {/* Divider */}
-              <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
-              {/* Filter Button */}
-              <SheetTrigger asChild>
-                <button className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors relative">
-                  <SlidersHorizontal className="h-4 w-4 text-muted-foreground/70" />
-                  {activeFilterCount > 0 && (
-                    <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-[9px] rounded-full flex items-center justify-center font-bold">
-                      {activeFilterCount}
-                    </span>
-                  )}
-                </button>
-              </SheetTrigger>
-              {/* Divider */}
-              <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
-              {/* List View Button */}
-              <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                <button className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
-                  <LayoutGrid className="h-4 w-4 text-muted-foreground/70" />
-                </button>
-              </Link>
-            </div>
+            <MobileMapSearchBar
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              onSuggestionSelect={handleSearchSuggestionSelect}
+              onLocationRequest={handleLocationRequest}
+              cities={CITIES}
+              cityCoordinates={CITY_COORDINATES}
+              neighborhoods={neighborhoodsData || []}
+              projects={projectsForSearch}
+              listings={listingsForSearch}
+              filterButton={
+                <SheetTrigger asChild>
+                  <button className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors relative">
+                    <SlidersHorizontal className="h-4 w-4 text-muted-foreground/70" />
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-[9px] rounded-full flex items-center justify-center font-bold">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </button>
+                </SheetTrigger>
+              }
+              listButton={
+                <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
+                  <button className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                    <LayoutGrid className="h-4 w-4 text-muted-foreground/70" />
+                  </button>
+                </Link>
+              }
+            />
           </div>
           
           {/* Filter Sheet Content */}
@@ -979,6 +1041,7 @@ export default function MapSearch() {
                     </div>
                   ) : (
                     <CombinedListingsMap 
+                      ref={mapNavigationRef}
                       resaleListings={filteredResaleListings}
                       presaleProjects={filteredPresaleProjects}
                       mode={mapMode}
