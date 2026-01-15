@@ -7,9 +7,11 @@ import "leaflet.markercluster";
 import { Crosshair, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 
-// Expose flyTo method for parent navigation
+// Expose flyTo and highlightItem methods for parent navigation
 export interface CombinedListingsMapRef {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
+  highlightItem: (id: string, type: "resale" | "presale") => void;
+  clearHighlight: () => void;
 }
 
 const DEFAULT_CENTER: L.LatLngExpression = [49.2827, -123.1207];
@@ -77,6 +79,10 @@ interface CombinedListingsMapProps {
   initialUserLocation?: { lat: number; lng: number } | null;
   /** Saved map state to restore on mount */
   savedMapState?: SavedMapState | null;
+  /** ID of item to highlight with animation */
+  highlightedItemId?: string | null;
+  /** Type of highlighted item */
+  highlightedItemType?: "resale" | "presale" | null;
 }
 
 function formatPrice(price: number): string {
@@ -87,25 +93,27 @@ function formatPrice(price: number): string {
   return `$${Math.round(price / 1000)}K`;
 }
 
-// Gold price pill - brand style, compact
-function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
+// Gold price pill - brand style, compact - with optional highlight
+function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean = false): L.DivIcon {
   const priceText = formatPrice(listing.listing_price);
   
   return L.divIcon({
-    className: "custom-price-marker resale-marker",
+    className: `custom-price-marker resale-marker ${isHighlighted ? 'marker-highlighted' : ''}`,
     html: `
-      <div style="
-        background: hsl(45, 89%, 55%);
-        color: hsl(222, 47%, 11%);
+      <div class="price-pill-inner ${isHighlighted ? 'bouncing' : ''}" style="
+        background: ${isHighlighted ? 'hsl(222, 47%, 20%)' : 'hsl(45, 89%, 55%)'};
+        color: ${isHighlighted ? 'white' : 'hsl(222, 47%, 11%)'};
         padding: 3px 8px;
         border-radius: 12px;
         font-weight: 600;
         font-size: 11px;
         white-space: nowrap;
-        box-shadow: 0 1px 4px rgba(0,0,0,0.2);
-        border: 1.5px solid white;
+        box-shadow: ${isHighlighted ? '0 4px 12px rgba(0,0,0,0.4)' : '0 1px 4px rgba(0,0,0,0.2)'};
+        border: ${isHighlighted ? '2px solid hsl(45, 89%, 55%)' : '1.5px solid white'};
         cursor: pointer;
         line-height: 1.2;
+        transform-origin: center bottom;
+        ${isHighlighted ? 'animation: marker-bounce 0.6s ease-in-out;' : ''}
       ">
         ${priceText}
       </div>
@@ -116,38 +124,41 @@ function createResalePricePillIcon(listing: MLSListing): L.DivIcon {
   });
 }
 
-// Presale marker - dark navy teardrop with gold ring and building icon
-function createPresalePinIcon(project: PresaleProject): L.DivIcon {
+// Presale marker - dark navy teardrop with gold ring and building icon - with optional highlight
+function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = false): L.DivIcon {
   return L.divIcon({
-    className: "custom-presale-pin",
+    className: `custom-presale-pin ${isHighlighted ? 'marker-highlighted' : ''}`,
     html: `
-      <div style="
+      <div class="${isHighlighted ? 'bouncing' : ''}" style="
         position: relative;
         display: flex;
         flex-direction: column;
         align-items: center;
+        transform-origin: center bottom;
+        ${isHighlighted ? 'animation: marker-bounce 0.6s ease-in-out;' : ''}
       ">
         <div style="
-          background: hsl(222, 47%, 20%);
-          width: 28px;
-          height: 28px;
+          background: ${isHighlighted ? 'hsl(45, 89%, 55%)' : 'hsl(222, 47%, 20%)'};
+          width: ${isHighlighted ? '34px' : '28px'};
+          height: ${isHighlighted ? '34px' : '28px'};
           border-radius: 50% 50% 50% 0;
           transform: rotate(-45deg);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-          border: 2px solid hsl(45, 89%, 55%);
+          box-shadow: ${isHighlighted ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 4px rgba(0,0,0,0.3)'};
+          border: ${isHighlighted ? '3px solid hsl(222, 47%, 20%)' : '2px solid hsl(45, 89%, 55%)'};
+          transition: all 0.2s ease;
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(45, 89%, 55%)" stroke="none" style="transform: rotate(45deg);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="${isHighlighted ? '14' : '12'}" height="${isHighlighted ? '14' : '12'}" viewBox="0 0 24 24" fill="${isHighlighted ? 'hsl(222, 47%, 20%)' : 'hsl(45, 89%, 55%)'}" stroke="none" style="transform: rotate(45deg);">
             <path d="M3 21h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V7H3v2zm0-6v2h18V3H3z"/>
           </svg>
         </div>
       </div>
     `,
-    iconSize: [28, 34],
-    iconAnchor: [14, 34],
-    popupAnchor: [0, -34],
+    iconSize: [isHighlighted ? 34 : 28, isHighlighted ? 40 : 34],
+    iconAnchor: [isHighlighted ? 17 : 14, isHighlighted ? 40 : 34],
+    popupAnchor: [0, isHighlighted ? -40 : -34],
   });
 }
 
@@ -271,7 +282,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   disablePopupsOnMobile = false,
   centerOnUserLocation = false,
   initialUserLocation = null,
-  savedMapState = null
+  savedMapState = null,
+  highlightedItemId = null,
+  highlightedItemType = null
 }, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -282,13 +295,31 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const hasInitializedViewRef = useRef(false);
   const hasCenteredOnUserRef = useRef(false);
   const hasRestoredSavedStateRef = useRef(false);
+  
+  // Track markers by ID for highlighting
+  const resaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
+  const presaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
+  const [internalHighlightId, setInternalHighlightId] = useState<string | null>(null);
 
-  // Expose flyTo method to parent via ref
+  // Expose flyTo and highlight methods to parent via ref
   useImperativeHandle(ref, () => ({
     flyTo: (lat: number, lng: number, zoom?: number) => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 1 });
+        mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 0.8 });
       }
+    },
+    highlightItem: (id: string, type: "resale" | "presale") => {
+      setInternalHighlightId(id);
+      // Find the marker and fly to it
+      const markersMap = type === "resale" ? resaleMarkersMapRef.current : presaleMarkersMapRef.current;
+      const marker = markersMap.get(id);
+      if (marker && mapInstanceRef.current) {
+        const latLng = marker.getLatLng();
+        mapInstanceRef.current.flyTo(latLng, Math.max(mapInstanceRef.current.getZoom(), 14), { animate: true, duration: 0.6 });
+      }
+    },
+    clearHighlight: () => {
+      setInternalHighlightId(null);
     }
   }), []);
 
@@ -443,6 +474,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         return [lat + dLat, lng + dLng] as L.LatLngTuple;
       };
 
+      // Clear old marker references
+      resaleMarkersMapRef.current.clear();
+      
       for (const listing of validResaleListings) {
         const baseLat = listing.latitude!;
         const baseLng = listing.longitude!;
@@ -455,8 +489,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         const position: L.LatLngTuple = dupCount > 1 ? jitter(baseLat, baseLng, idx) : [baseLat, baseLng];
 
         const marker = L.marker(position, {
-          icon: createResalePricePillIcon(listing),
+          icon: createResalePricePillIcon(listing, false),
         });
+
+        // Store marker reference for highlighting
+        resaleMarkersMapRef.current.set(listing.id, marker);
 
         // Only bind popup if not disabled (mobile uses carousel instead)
         if (!disablePopupsOnMobile) {
@@ -482,13 +519,19 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       }
     }
 
+    // Clear old presale marker references
+    presaleMarkersMapRef.current.clear();
+
     // Add presale projects as individual pins (not clustered) if mode is "all" or "presale"
     if (mode === "all" || mode === "presale") {
       for (const project of validPresaleProjects) {
         const marker = L.marker([project.map_lat!, project.map_lng!], {
-          icon: createPresalePinIcon(project),
+          icon: createPresalePinIcon(project, false),
           zIndexOffset: 1000, // Keep presale pins above resale clusters
         });
+
+        // Store marker reference for highlighting
+        presaleMarkersMapRef.current.set(project.id, marker);
 
         // Only bind popup if not disabled (mobile uses carousel instead)
         if (!disablePopupsOnMobile) {
@@ -525,7 +568,47 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     requestAnimationFrame(() => {
       setTimeout(updateVisibleItems, 50);
     });
-  }, [validResaleListings, validPresaleProjects, mode, onListingSelect, updateVisibleItems]);
+  }, [validResaleListings, validPresaleProjects, mode, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
+
+  // Effect to handle highlighting of markers
+  useEffect(() => {
+    const highlightId = highlightedItemId || internalHighlightId;
+    const highlightType = highlightedItemType || (internalHighlightId ? 
+      (resaleMarkersMapRef.current.has(internalHighlightId) ? "resale" : "presale") : null);
+    
+    if (!highlightId || !highlightType) return;
+    
+    // Find the listing/project data to recreate the icon
+    if (highlightType === "resale") {
+      const listing = validResaleListings.find(l => l.id === highlightId);
+      const marker = resaleMarkersMapRef.current.get(highlightId);
+      if (listing && marker) {
+        marker.setIcon(createResalePricePillIcon(listing, true));
+        marker.setZIndexOffset(2000); // Bring to front
+        
+        // Reset after animation
+        const timeout = setTimeout(() => {
+          marker.setIcon(createResalePricePillIcon(listing, false));
+          marker.setZIndexOffset(0);
+        }, 2000);
+        return () => clearTimeout(timeout);
+      }
+    } else if (highlightType === "presale") {
+      const project = validPresaleProjects.find(p => p.id === highlightId);
+      const marker = presaleMarkersMapRef.current.get(highlightId);
+      if (project && marker) {
+        marker.setIcon(createPresalePinIcon(project, true));
+        marker.setZIndexOffset(3000); // Bring to front
+        
+        // Reset after animation
+        const timeout = setTimeout(() => {
+          marker.setIcon(createPresalePinIcon(project, false));
+          marker.setZIndexOffset(1000);
+        }, 2000);
+        return () => clearTimeout(timeout);
+      }
+    }
+  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects]);
 
   // Create user location marker icon
   const createUserLocationIcon = useCallback(() => {
