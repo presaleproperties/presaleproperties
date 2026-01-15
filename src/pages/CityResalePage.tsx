@@ -536,7 +536,7 @@ export default function CityResalePage() {
 
                 <div className="flex gap-2">
                   <Button variant="outline" asChild>
-                    <Link to="/map-search?mode=resale">
+                    <Link to={`/map-search?mode=resale&city=${cityConfig?.name || ''}`}>
                       <Map className="h-4 w-4 mr-2" />
                       View Map
                     </Link>

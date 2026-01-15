@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link, useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { ChevronRight, ChevronLeft, Home, Building2, DollarSign, TrendingDown, Crown } from "lucide-react";
+import { ChevronRight, ChevronLeft, Home, Building2, DollarSign, TrendingDown, Crown, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Select,

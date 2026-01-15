@@ -54,6 +54,24 @@ const CITIES = [
   "Langley", "Delta", "Abbotsford", "New Westminster", "White Rock"
 ];
 
+// City coordinates for centering map when navigating from city pages
+const CITY_COORDINATES: Record<string, { lat: number; lng: number; zoom: number }> = {
+  "Vancouver": { lat: 49.2827, lng: -123.1207, zoom: 12 },
+  "Burnaby": { lat: 49.2488, lng: -122.9805, zoom: 12 },
+  "Richmond": { lat: 49.1666, lng: -123.1336, zoom: 12 },
+  "Surrey": { lat: 49.1913, lng: -122.8490, zoom: 11 },
+  "Coquitlam": { lat: 49.2838, lng: -122.7932, zoom: 12 },
+  "Port Coquitlam": { lat: 49.2625, lng: -122.7811, zoom: 13 },
+  "Port Moody": { lat: 49.2849, lng: -122.8316, zoom: 13 },
+  "North Vancouver": { lat: 49.3165, lng: -123.0688, zoom: 12 },
+  "West Vancouver": { lat: 49.3270, lng: -123.1662, zoom: 12 },
+  "Langley": { lat: 49.1044, lng: -122.6600, zoom: 12 },
+  "Delta": { lat: 49.0847, lng: -123.0586, zoom: 12 },
+  "Abbotsford": { lat: 49.0504, lng: -122.3045, zoom: 12 },
+  "New Westminster": { lat: 49.2057, lng: -122.9110, zoom: 13 },
+  "White Rock": { lat: 49.0253, lng: -122.8029, zoom: 13 },
+};
+
 const PROPERTY_TYPES = [
   { value: "any", label: "Any", icon: null },
   { value: "Apartment/Condo", label: "Condo", icon: Building },
@@ -151,8 +169,23 @@ export default function MapSearch() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   
-  // Persisted map state - restored from sessionStorage
+  // Check if URL has explicit location params that should override saved state
+  const urlLat = searchParams.get("lat");
+  const urlLng = searchParams.get("lng");
+  const urlZoom = searchParams.get("zoom");
+  const urlCity = searchParams.get("city");
+  
+  // Determine if we have explicit navigation context from URL
+  const hasUrlLocationContext = !!(urlLat && urlLng) || !!urlCity;
+  
+  // Persisted map state - restored from sessionStorage ONLY if no URL context
   const [savedMapState, setSavedMapState] = useState<SavedMapState | null>(() => {
+    // If URL has explicit location context, don't restore saved state
+    if (hasUrlLocationContext) {
+      console.log("URL has location context, skipping saved state restoration");
+      return null;
+    }
+    
     try {
       const stored = sessionStorage.getItem(MAP_STATE_KEY);
       if (stored) {
@@ -168,6 +201,35 @@ export default function MapSearch() {
     }
     return null;
   });
+  
+  // Compute initial map position from URL params
+  const urlDerivedMapState = useMemo((): SavedMapState | null => {
+    // Priority 1: Explicit lat/lng in URL
+    if (urlLat && urlLng) {
+      return {
+        center: { lat: parseFloat(urlLat), lng: parseFloat(urlLng) },
+        zoom: urlZoom ? parseInt(urlZoom) : 14,
+        timestamp: Date.now()
+      };
+    }
+    
+    // Priority 2: City name in URL - use city coordinates
+    if (urlCity) {
+      const cityCoords = CITY_COORDINATES[urlCity];
+      if (cityCoords) {
+        return {
+          center: { lat: cityCoords.lat, lng: cityCoords.lng },
+          zoom: cityCoords.zoom,
+          timestamp: Date.now()
+        };
+      }
+    }
+    
+    return null;
+  }, [urlLat, urlLng, urlZoom, urlCity]);
+  
+  // Effective map state: URL params take precedence over saved state
+  const effectiveMapState = urlDerivedMapState || savedMapState;
   
   // Callback to save map state when it changes
   const handleMapStateChange = useCallback((center: { lat: number; lng: number }, zoom: number) => {
@@ -192,11 +254,11 @@ export default function MapSearch() {
     setMapMode(urlMode);
   }, [urlMode]);
   
-  // Request user location on mount - but only if we don't have saved state
+  // Request user location on mount - but only if we don't have any map state context
   useEffect(() => {
     if (locationRequested) return;
-    if (savedMapState) {
-      // Skip geolocation if we have saved state - user wants to return where they were
+    if (effectiveMapState) {
+      // Skip geolocation if we have map state (from URL or saved) - user has explicit context
       setLocationRequested(true);
       return;
     }
@@ -648,9 +710,9 @@ export default function MapSearch() {
                       onMapInteraction={handleMapInteraction}
                       onMapStateChange={handleMapStateChange}
                       disablePopupsOnMobile={isMobile}
-                      centerOnUserLocation={!savedMapState}
+                      centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
-                      savedMapState={savedMapState}
+                      savedMapState={effectiveMapState}
                     />
                   )}
                 </Suspense>
