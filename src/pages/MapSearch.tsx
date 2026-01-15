@@ -1380,7 +1380,7 @@ export default function MapSearch() {
             {/* Top Bar - Search + Filter + Quick Filters */}
             <div className="shrink-0 border-b border-border bg-background">
               {/* Search Bar Row */}
-              <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
+              <div className="flex items-center gap-2 px-3 pt-3 pb-3">
                 {/* Search Bar */}
                 <div className="flex-1">
                   <MapSearchBar
