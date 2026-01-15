@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Helmet } from "react-helmet-async";
-import { Header } from "@/components/layout/Header";
+import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Building2, ExternalLink, MapPin } from "lucide-react";
@@ -41,7 +41,7 @@ export default function Developers() {
           content="Explore top residential developers building presale condos and townhomes across British Columbia. Find projects by your favorite developer."
         />
       </Helmet>
-      <Header />
+      <ConversionHeader />
       <main className="min-h-screen bg-background">
         {/* Hero */}
         <section className="bg-gradient-to-br from-foreground via-foreground to-foreground/90 py-12 md:py-16">
