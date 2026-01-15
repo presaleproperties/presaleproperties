@@ -912,34 +912,6 @@ export default function MapSearch() {
               </SheetContent>
             </Sheet>
           </div>
-
-          {/* Quick Filter Chips - Scrollable */}
-          <div className="flex gap-1.5 overflow-x-auto mt-1.5 -mx-2 px-2 pb-0.5" style={{ scrollbarWidth: 'none' }}>
-            <MultiSelectFilter
-              label="City"
-              options={CITIES.map(c => ({ value: c, label: c }))}
-              selected={selectedCities}
-              onChange={(values) => updateMultiFilter("cities", values)}
-              icon={<MapPin className="h-3 w-3 text-muted-foreground" />}
-              className="shrink-0"
-            />
-            <MultiSelectFilter
-              label="Type"
-              options={PROPERTY_TYPES.filter(t => t.value !== "any").map(t => ({ value: t.value, label: t.label }))}
-              selected={selectedPropertyTypes}
-              onChange={(values) => updateMultiFilter("types", values)}
-              icon={<Building className="h-3 w-3 text-muted-foreground" />}
-              className="shrink-0"
-            />
-            <MultiSelectFilter
-              label="Price"
-              options={PRICE_RANGE_OPTIONS}
-              selected={selectedPriceRanges}
-              onChange={(values) => updateMultiFilter("prices", values)}
-              icon={<DollarSign className="h-3 w-3 text-muted-foreground" />}
-              className="shrink-0"
-            />
-          </div>
         </div>
 
         {/* Main Content - Map + Panel Layout */}
