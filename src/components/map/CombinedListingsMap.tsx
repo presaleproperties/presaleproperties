@@ -58,6 +58,10 @@ interface CombinedListingsMapProps {
   onMapInteraction?: () => void;
   /** On mobile, skip popups and just use carousel */
   disablePopupsOnMobile?: boolean;
+  /** Center map on user's location when it becomes available */
+  centerOnUserLocation?: boolean;
+  /** User location passed from parent (triggers centering) */
+  initialUserLocation?: { lat: number; lng: number } | null;
 }
 
 function formatPrice(price: number): string {
@@ -248,7 +252,9 @@ export function CombinedListingsMap({
   onListingSelect, 
   onVisibleItemsChange,
   onMapInteraction,
-  disablePopupsOnMobile = false
+  disablePopupsOnMobile = false,
+  centerOnUserLocation = false,
+  initialUserLocation = null
 }: CombinedListingsMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -257,6 +263,7 @@ export function CombinedListingsMap({
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
+  const hasCenteredOnUserRef = useRef(false);
 
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
@@ -333,15 +340,7 @@ export function CombinedListingsMap({
       if (onMapInteraction) onMapInteraction();
     });
 
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const loc = L.latLng(pos.coords.latitude, pos.coords.longitude);
-          setUserLocation(loc);
-        },
-        () => {}
-      );
-    }
+    // Removed auto-geolocation from here - now handled by parent with permission prompt
   }, [updateVisibleItems]);
 
   useEffect(() => {
@@ -540,6 +539,23 @@ export function CombinedListingsMap({
       userMarkerRef.current = marker;
     }
   }, [createUserLocationIcon]);
+
+  // Center on user location when provided from parent (after permission granted)
+  useEffect(() => {
+    if (!initialUserLocation || !mapInstanceRef.current || hasCenteredOnUserRef.current) return;
+    
+    const loc = L.latLng(initialUserLocation.lat, initialUserLocation.lng);
+    setUserLocation(loc);
+    updateUserLocationMarker(loc);
+    
+    // Center map on user location with a nice zoom level
+    mapInstanceRef.current.setView(loc, 13, { animate: true });
+    hasCenteredOnUserRef.current = true;
+    hasInitializedViewRef.current = true; // Prevent fitBounds from overriding
+    
+    // Update visible items after centering
+    setTimeout(updateVisibleItems, 100);
+  }, [initialUserLocation, updateUserLocationMarker, updateVisibleItems]);
 
   const handleLocateUser = () => {
     if (navigator.geolocation) {

@@ -139,6 +139,8 @@ export default function MapSearch() {
   const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationRequested, setLocationRequested] = useState(false);
   
   // Read mode from URL param, sync state when URL changes
   const urlMode = (searchParams.get("mode") as MapMode) || "all";
@@ -148,6 +150,33 @@ export default function MapSearch() {
   useEffect(() => {
     setMapMode(urlMode);
   }, [urlMode]);
+  
+  // Request user location on mount for better map experience
+  useEffect(() => {
+    if (locationRequested) return;
+    setLocationRequested(true);
+    
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          console.log("User location obtained:", pos.coords.latitude, pos.coords.longitude);
+          setUserLocation({
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          });
+        },
+        (error) => {
+          console.log("Location permission denied or unavailable:", error.message);
+          // User denied permission or location unavailable - map will use default view
+        },
+        { 
+          enableHighAccuracy: true, 
+          timeout: 10000, 
+          maximumAge: 60000 
+        }
+      );
+    }
+  }, [locationRequested]);
   
   const carouselRef = useRef<HTMLDivElement>(null);
   const desktopListRef = useRef<HTMLDivElement>(null);
@@ -572,6 +601,8 @@ export default function MapSearch() {
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
                       disablePopupsOnMobile={isMobile}
+                      centerOnUserLocation={true}
+                      initialUserLocation={userLocation}
                     />
                   )}
                 </Suspense>
