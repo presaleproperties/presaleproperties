@@ -161,6 +161,7 @@ export default function MapSearch() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [desktopFiltersOpen, setDesktopFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
   const [showCarousel, setShowCarousel] = useState(false); // Hidden by default on mobile, shows when property clicked
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -1156,7 +1157,7 @@ export default function MapSearch() {
                 </div>
                 
                 {/* Filter Button */}
-                <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                <Sheet open={desktopFiltersOpen} onOpenChange={setDesktopFiltersOpen}>
                   <SheetTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-2 h-9 px-3 shrink-0">
                       <SlidersHorizontal className="h-4 w-4" />
@@ -1173,9 +1174,46 @@ export default function MapSearch() {
                       <SheetTitle className="text-xl font-semibold">Filters</SheetTitle>
                     </SheetHeader>
                     
-                    <div className="flex-1 overflow-y-auto py-6 space-y-8">
-                      {/* Price Range Section */}
+                    <div className="flex-1 overflow-y-auto py-6 space-y-6">
+                      {/* City Multi-Select at top */}
                       <div>
+                        <label className="text-base font-semibold mb-3 block">City</label>
+                        <div className="flex flex-wrap gap-2">
+                          {CITIES.map((city) => {
+                            const isSelected = selectedCities.includes(city);
+                            return (
+                              <button
+                                key={city}
+                                onClick={() => {
+                                  if (isSelected) {
+                                    updateMultiFilter("cities", selectedCities.filter(c => c !== city));
+                                  } else {
+                                    updateMultiFilter("cities", [...selectedCities, city]);
+                                  }
+                                }}
+                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                                  isSelected
+                                    ? "bg-primary/10 border-primary text-primary"
+                                    : "border-border hover:border-foreground/30 text-foreground"
+                                }`}
+                              >
+                                {city}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {selectedCities.length > 0 && (
+                          <button 
+                            onClick={() => updateMultiFilter("cities", [])}
+                            className="text-xs text-muted-foreground mt-2 hover:text-foreground"
+                          >
+                            Clear cities
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Price Range Section */}
+                      <div className="border-t pt-6">
                         <label className="text-base font-semibold mb-4 block">Price range</label>
                         <Slider
                           value={priceRange}
@@ -1282,40 +1320,6 @@ export default function MapSearch() {
                           ))}
                         </div>
                       </div>
-
-                      {/* Days on Site Section */}
-                      <div className="border-t pt-6">
-                        <label className="text-base font-semibold mb-4 block">Days on site</label>
-                        <div className="flex flex-wrap gap-2">
-                          {DAYS_ON_SITE_OPTIONS.map((opt) => (
-                            <button
-                              key={opt.value}
-                              onClick={() => updateFilter("days", opt.value)}
-                              className={`px-4 py-2.5 rounded-lg border text-sm font-medium transition-all ${
-                                filters.daysOnSite === opt.value
-                                  ? "bg-primary/10 border-primary text-primary"
-                                  : "border-border hover:border-foreground/30 text-foreground"
-                              }`}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* City Section - keep dropdown for convenience */}
-                      <div className="border-t pt-6">
-                        <label className="text-base font-semibold mb-4 block">City</label>
-                        <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                          <SelectTrigger className="h-11">
-                            <SelectValue placeholder="All Cities" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="any">All Cities</SelectItem>
-                            {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                          </SelectContent>
-                        </Select>
-                      </div>
                     </div>
 
                     {/* Footer with Clear/Done buttons */}
@@ -1331,7 +1335,7 @@ export default function MapSearch() {
                         CLEAR FILTERS
                       </Button>
                       <Button 
-                        onClick={() => setMobileFiltersOpen(false)} 
+                        onClick={() => setDesktopFiltersOpen(false)} 
                         className="flex-1 bg-foreground text-background hover:bg-foreground/90"
                       >
                         DONE
