@@ -156,6 +156,11 @@ export default function MortgageCalculatorPage() {
   const [utilities, setUtilities] = useState(150);
   const [homeInsurance, setHomeInsurance] = useState(100);
   
+  // Rent vs Own comparison (for first-time buyers)
+  const [monthlyRent, setMonthlyRent] = useState(2200);
+  const [rentIncreaseRate, setRentIncreaseRate] = useState(3); // Annual rent increase %
+  const [comparisonYears, setComparisonYears] = useState(5);
+  
   // UI state
   const [showClosingDetails, setShowClosingDetails] = useState(false);
   const [showMonthlyDetails, setShowMonthlyDetails] = useState(false);
@@ -462,6 +467,86 @@ export default function MortgageCalculatorPage() {
       };
     });
   }, [mortgageRate, calculations.mortgageAmount, calculations.monthlyPayment, amortization]);
+
+  // Rent vs Own comparison calculation
+  const rentVsOwnComparison = useMemo(() => {
+    const years = comparisonYears;
+    const monthlyOwnershipCost = calculations.totalMonthlyCarrying;
+    const annualAppreciation = 0.04; // 4% annual appreciation assumption for Metro Vancouver
+    const annualRentIncrease = rentIncreaseRate / 100;
+    
+    // Calculate cumulative costs and equity
+    let totalRentPaid = 0;
+    let totalOwnershipCost = 0;
+    let currentRent = monthlyRent;
+    let homeValue = debouncedPrice;
+    let mortgageBalance = calculations.mortgageAmount;
+    const annualRate = mortgageRate / 100;
+    const monthlyRate = annualRate / 12;
+    
+    for (let year = 1; year <= years; year++) {
+      // Rent costs for the year (with annual increases)
+      totalRentPaid += currentRent * 12;
+      currentRent = currentRent * (1 + annualRentIncrease);
+      
+      // Ownership costs for the year
+      totalOwnershipCost += monthlyOwnershipCost * 12;
+      
+      // Home appreciation
+      homeValue = homeValue * (1 + annualAppreciation);
+      
+      // Mortgage paydown (simplified)
+      for (let month = 1; month <= 12; month++) {
+        if (mortgageBalance <= 0) break;
+        const interestPayment = mortgageBalance * monthlyRate;
+        const principalPayment = Math.min(calculations.monthlyPayment - interestPayment, mortgageBalance);
+        mortgageBalance -= principalPayment;
+      }
+    }
+    
+    // Equity built = Home Value - Remaining Mortgage + Down Payment already invested
+    const equityBuilt = homeValue - mortgageBalance;
+    const netWealthOwning = equityBuilt - totalOwnershipCost;
+    const netWealthRenting = -totalRentPaid; // Renting builds no equity
+    
+    // Monthly cost difference
+    const monthlySavingsRenting = monthlyOwnershipCost - monthlyRent;
+    
+    // Opportunity cost if investing savings (for renters)
+    const annualInvestmentReturn = 0.06; // 6% average market return
+    let investedSavings = 0;
+    let monthlyInvestment = calculations.downPayment + calculations.cashToClose;
+    
+    // First, invest the down payment that would have been used
+    for (let year = 1; year <= years; year++) {
+      investedSavings = investedSavings * (1 + annualInvestmentReturn);
+      if (year === 1) {
+        investedSavings += monthlyInvestment; // Initial investment of down payment + closing
+      }
+      // Add monthly savings if renting is cheaper
+      if (monthlySavingsRenting < 0) {
+        investedSavings += Math.abs(monthlySavingsRenting) * 12;
+      }
+    }
+    
+    const renterNetWealth = investedSavings - totalRentPaid;
+    const wealthDifference = netWealthOwning - renterNetWealth;
+    
+    return {
+      years,
+      totalRentPaid,
+      totalOwnershipCost,
+      equityBuilt,
+      homeValueAtEnd: homeValue,
+      mortgageBalanceAtEnd: mortgageBalance,
+      monthlySavingsRenting,
+      investedSavings,
+      netWealthOwning,
+      renterNetWealth,
+      wealthDifference,
+      owningIsBetter: wealthDifference > 0
+    };
+  }, [comparisonYears, calculations.totalMonthlyCarrying, monthlyRent, rentIncreaseRate, debouncedPrice, calculations.mortgageAmount, mortgageRate, calculations.monthlyPayment, calculations.downPayment, calculations.cashToClose]);
 
   // Amortization schedule (first 5 years + summary)
   const amortizationSchedule = useMemo(() => {
@@ -1410,6 +1495,154 @@ export default function MortgageCalculatorPage() {
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Rent vs Own Comparison - First Time Buyers Only */}
+                  {isFirstTimeBuyer && (
+                    <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-background">
+                      <CardHeader className="pb-2 md:pb-3">
+                        <CardTitle className="text-base md:text-lg flex items-center gap-2">
+                          <Home className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                          Rent vs Own Comparison
+                          <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full ml-2">First-Time Buyer</span>
+                        </CardTitle>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Compare the financial impact of renting vs buying over {comparisonYears} years
+                        </p>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {/* Input Controls */}
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div>
+                            <Label className="text-xs mb-1 block">Current Monthly Rent</Label>
+                            <div className="relative">
+                              <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+                              <Input
+                                type="number"
+                                value={monthlyRent}
+                                onChange={(e) => setMonthlyRent(parseFloat(e.target.value) || 0)}
+                                className="h-9 pl-6 text-sm"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-xs mb-1 block">Annual Rent Increase</Label>
+                            <Select value={rentIncreaseRate.toString()} onValueChange={(v) => setRentIncreaseRate(parseFloat(v))}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="2">2% / year</SelectItem>
+                                <SelectItem value="3">3% / year</SelectItem>
+                                <SelectItem value="4">4% / year</SelectItem>
+                                <SelectItem value="5">5% / year</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <Label className="text-xs mb-1 block">Comparison Period</Label>
+                            <Select value={comparisonYears.toString()} onValueChange={(v) => setComparisonYears(parseInt(v))}>
+                              <SelectTrigger className="h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="3">3 years</SelectItem>
+                                <SelectItem value="5">5 years</SelectItem>
+                                <SelectItem value="7">7 years</SelectItem>
+                                <SelectItem value="10">10 years</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
+                        {/* Comparison Results */}
+                        <div className="grid grid-cols-2 gap-3">
+                          {/* Renting Column */}
+                          <div className="p-3 rounded-lg border bg-muted/30">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Building2 className="h-4 w-4 text-muted-foreground" />
+                              <span className="font-medium text-sm">Renting</span>
+                            </div>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Monthly Cost</span>
+                                <span className="font-medium">{formatCurrency(monthlyRent)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Total Rent ({comparisonYears}yr)</span>
+                                <span className="font-medium text-red-500">-{formatCurrency(rentVsOwnComparison.totalRentPaid)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Invested Savings*</span>
+                                <span className="font-medium text-green-600">+{formatCurrency(rentVsOwnComparison.investedSavings)}</span>
+                              </div>
+                              <div className="flex justify-between pt-2 border-t">
+                                <span className="font-medium">Net Position</span>
+                                <span className={`font-bold ${rentVsOwnComparison.renterNetWealth >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                  {rentVsOwnComparison.renterNetWealth >= 0 ? '+' : ''}{formatCurrency(rentVsOwnComparison.renterNetWealth)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Owning Column */}
+                          <div className="p-3 rounded-lg border border-primary/30 bg-primary/5">
+                            <div className="flex items-center gap-2 mb-3">
+                              <Home className="h-4 w-4 text-primary" />
+                              <span className="font-medium text-sm">Owning</span>
+                            </div>
+                            <div className="space-y-2 text-xs">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Monthly Cost</span>
+                                <span className="font-medium">{formatCurrency(calculations.totalMonthlyCarrying)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Total Paid ({comparisonYears}yr)</span>
+                                <span className="font-medium text-red-500">-{formatCurrency(rentVsOwnComparison.totalOwnershipCost)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Home Equity Built</span>
+                                <span className="font-medium text-green-600">+{formatCurrency(rentVsOwnComparison.equityBuilt)}</span>
+                              </div>
+                              <div className="flex justify-between pt-2 border-t">
+                                <span className="font-medium">Net Position</span>
+                                <span className={`font-bold ${rentVsOwnComparison.netWealthOwning >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                                  {rentVsOwnComparison.netWealthOwning >= 0 ? '+' : ''}{formatCurrency(rentVsOwnComparison.netWealthOwning)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Bottom Line Result */}
+                        <div className={`p-3 rounded-lg border-2 ${rentVsOwnComparison.owningIsBetter ? 'border-green-500/50 bg-green-50 dark:bg-green-950/30' : 'border-amber-500/50 bg-amber-50 dark:bg-amber-950/30'}`}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              {rentVsOwnComparison.owningIsBetter ? (
+                                <TrendingUp className="h-5 w-5 text-green-600" />
+                              ) : (
+                                <TrendingDown className="h-5 w-5 text-amber-600" />
+                              )}
+                              <span className="font-medium text-sm">
+                                {rentVsOwnComparison.owningIsBetter 
+                                  ? `Buying puts you ahead by ${formatCurrency(Math.abs(rentVsOwnComparison.wealthDifference))}` 
+                                  : `Renting may be better by ${formatCurrency(Math.abs(rentVsOwnComparison.wealthDifference))}`}
+                              </span>
+                            </div>
+                            <span className="text-xs text-muted-foreground">after {comparisonYears} years</span>
+                          </div>
+                        </div>
+
+                        {/* Assumptions Note */}
+                        <div className="flex items-start gap-2 text-[10px] text-muted-foreground">
+                          <Info className="h-3 w-3 shrink-0 mt-0.5" />
+                          <p>
+                            *Assumes 4% annual home appreciation, 6% investment returns on savings, and {rentIncreaseRate}% annual rent increases. 
+                            This is a simplified comparison—actual results depend on market conditions, maintenance costs, and tax implications.
+                          </p>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
 
                   {/* Amortization Schedule */}
                   <Card>
