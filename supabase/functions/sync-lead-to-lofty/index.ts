@@ -195,15 +195,13 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // Call Lofty API to create/update contact
-    // Lofty API endpoint: https://api.lofty.com/api/v1/leads
-    // Try Bearer format first (for JWT tokens), fallback info logged
-    const authHeader = loftyApiKey.startsWith("eyJ") 
-      ? `Bearer ${loftyApiKey}` 
-      : `token ${loftyApiKey}`;
+    // Lofty API endpoint: https://api.lofty.com/v1/leads (corrected from /api/v1)
+    // Always use "token" format for Lofty API keys
+    const authHeader = `token ${loftyApiKey}`;
     
-    console.log("Using auth format:", authHeader.startsWith("Bearer") ? "Bearer (JWT)" : "token (API Key)");
+    console.log("Calling Lofty API with token auth");
     
-    const loftyResponse = await fetch("https://api.lofty.com/api/v1/leads", {
+    const loftyResponse = await fetch("https://api.lofty.com/v1/leads", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
