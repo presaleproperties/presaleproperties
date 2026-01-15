@@ -176,6 +176,17 @@ export default function MapSearch() {
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
+
+  // MOBILE ONLY: prevent iOS/Android overscroll from revealing body background (white bands)
+  useEffect(() => {
+    if (!isMobile) return;
+    document.documentElement.classList.add("map-overscroll-lock");
+    document.body.classList.add("map-overscroll-lock");
+    return () => {
+      document.documentElement.classList.remove("map-overscroll-lock");
+      document.body.classList.remove("map-overscroll-lock");
+    };
+  }, [isMobile]);
   
   // Check if URL has explicit location params that should override saved state
   const urlLat = searchParams.get("lat");
