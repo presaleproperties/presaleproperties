@@ -92,3 +92,6 @@ verify_jwt = false
 
 [functions.track-client-activity]
 verify_jwt = false
+
+[functions.search-lofty-contacts]
+verify_jwt = false
