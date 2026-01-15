@@ -1160,11 +1160,10 @@ export default function MapSearch() {
             {/* Use safe bottom inset with minimum padding to prevent cutoff on tablets */}
             {showCarousel && visibleItems.length > 0 && (
               <div 
-                className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden"
-                style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
+                className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pointer-events-none"
               >
                 {/* Carousel Header */}
-                <div className="flex items-center justify-between px-4 pb-2 pt-1">
+                <div className="flex items-center justify-between px-4 pb-2 pt-1 pointer-events-auto">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-4 py-2 rounded-xl shadow-xl border border-black/5 dark:border-white/10">
                       {propertiesInViewCount} Properties
@@ -1182,8 +1181,8 @@ export default function MapSearch() {
                 {/* Carousel Cards */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-3 overflow-x-auto px-4 pb-4 snap-x snap-mandatory"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory pointer-events-auto"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
                 >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
