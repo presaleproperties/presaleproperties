@@ -141,7 +141,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
         )}
       >
         {/* Desktop: standard height with oversized logo */}
-        <div className="flex h-14 md:h-16 items-center justify-between px-4 md:container">
+        <div className="flex h-14 md:h-16 items-center justify-between px-4 lg:container">
           <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
 
           {/* Desktop Navigation */}
