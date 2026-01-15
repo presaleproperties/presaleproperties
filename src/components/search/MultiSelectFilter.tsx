@@ -13,8 +13,9 @@ interface MultiSelectFilterProps {
   options: Option[];
   selected: string[];
   onChange: (selected: string[]) => void;
-  placeholder: string;
-  icon?: React.ComponentType<{ className?: string }>;
+  placeholder?: string;
+  label?: string;
+  icon?: React.ComponentType<{ className?: string }> | React.ReactNode;
   className?: string;
   allLabel?: string;
 }
@@ -24,10 +25,20 @@ export function MultiSelectFilter({
   selected,
   onChange,
   placeholder,
-  icon: Icon,
+  label,
+  icon,
   className,
   allLabel = "All",
 }: MultiSelectFilterProps) {
+  // Handle icon - can be a component or a ReactNode
+  const renderIcon = () => {
+    if (!icon) return null;
+    if (typeof icon === 'function') {
+      const IconComponent = icon as React.ComponentType<{ className?: string }>;
+      return <IconComponent className="h-3 w-3 text-muted-foreground shrink-0" />;
+    }
+    return icon;
+  };
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -74,8 +85,8 @@ export function MultiSelectFilter({
         onClick={() => setOpen(!open)}
       >
         <span className="flex items-center gap-1.5 truncate">
-          {Icon && <Icon className="h-3 w-3 text-muted-foreground shrink-0" />}
-          <span className="truncate">{displayText}</span>
+          {renderIcon()}
+          <span className="truncate">{label || displayText}</span>
         </span>
         <span className="flex items-center gap-0.5 shrink-0">
           {selected.length > 0 && (

@@ -719,6 +719,212 @@ export default function MapSearch() {
       <div className="h-screen bg-background flex flex-col overflow-hidden">
         <ConversionHeader alwaysVisible stickyOnMobile />
 
+        {/* Mobile/Tablet Search Bar + Filters - Above the map toggle */}
+        <div className="lg:hidden shrink-0 bg-background border-b border-border px-3 py-2 space-y-2">
+          {/* Search Bar Row */}
+          <div className="flex items-center gap-2">
+            <div className="flex-1">
+              <MapSearchBar
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+                onSuggestionSelect={handleSearchSuggestionSelect}
+                placeholder="City, MLS#, Address..."
+                cities={CITIES}
+                neighborhoods={neighborhoodsData || []}
+                projects={projectsForSearch}
+                listings={listingsForSearch}
+                className="h-9"
+              />
+            </div>
+            
+            {/* Filter Button */}
+            <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-1 h-9 px-2.5 shrink-0">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  {activeFilterCount > 0 && (
+                    <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[85vh] flex flex-col rounded-t-2xl">
+                <SheetHeader className="pb-4 border-b">
+                  <SheetTitle className="text-lg font-semibold">Filters</SheetTitle>
+                </SheetHeader>
+                
+                <div className="flex-1 overflow-y-auto py-4 space-y-6">
+                  {/* Price Range Section */}
+                  <div>
+                    <label className="text-sm font-semibold mb-3 block">Price range</label>
+                    <Slider
+                      value={priceRange}
+                      min={MIN_PRICE}
+                      max={MAX_PRICE}
+                      step={PRICE_STEP}
+                      onValueChange={(value) => setPriceRange(value as [number, number])}
+                      onValueCommit={applyPriceFilter}
+                      className="mb-3"
+                    />
+                    <div className="flex items-center gap-2">
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          placeholder="No Min"
+                          value={priceRange[0] > MIN_PRICE ? formatPriceLabel(priceRange[0]) : ""}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/[^0-9]/g, "");
+                            if (val) setPriceRange([parseInt(val), priceRange[1]]);
+                          }}
+                          onBlur={applyPriceFilter}
+                          className="h-10 text-base"
+                        />
+                      </div>
+                      <span className="text-muted-foreground">-</span>
+                      <div className="flex-1">
+                        <Input
+                          type="text"
+                          placeholder="No Max"
+                          value={priceRange[1] < MAX_PRICE ? formatPriceLabel(priceRange[1]) : ""}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/[^0-9]/g, "");
+                            if (val) setPriceRange([priceRange[0], parseInt(val)]);
+                          }}
+                          onBlur={applyPriceFilter}
+                          className="h-10 text-base"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Property Type Section */}
+                  <div className="border-t pt-4">
+                    <label className="text-sm font-semibold mb-3 block">Property Type</label>
+                    <div className="flex flex-wrap gap-2">
+                      {PROPERTY_TYPES.map((opt) => {
+                        const Icon = opt.icon;
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => updateFilter("type", opt.value)}
+                            className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
+                              filters.propertyType === opt.value
+                                ? "bg-primary/10 border-primary text-primary"
+                                : "border-border hover:border-foreground/30 text-foreground"
+                            }`}
+                          >
+                            {Icon && <Icon className="h-4 w-4" />}
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Bedrooms Section */}
+                  <div className="border-t pt-4">
+                    <label className="text-sm font-semibold mb-3 block">Bedrooms</label>
+                    <div className="flex flex-wrap gap-2">
+                      {BED_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => updateFilter("beds", opt.value)}
+                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all min-w-[48px] ${
+                            filters.beds === opt.value
+                              ? "bg-primary/10 border-primary text-primary"
+                              : "border-border hover:border-foreground/30 text-foreground"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Bathrooms Section */}
+                  <div className="border-t pt-4">
+                    <label className="text-sm font-semibold mb-3 block">Bathrooms</label>
+                    <div className="flex flex-wrap gap-2">
+                      {BATH_OPTIONS.map((opt) => (
+                        <button
+                          key={opt.value}
+                          onClick={() => updateFilter("baths", opt.value)}
+                          className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all min-w-[48px] ${
+                            filters.baths === opt.value
+                              ? "bg-primary/10 border-primary text-primary"
+                              : "border-border hover:border-foreground/30 text-foreground"
+                          }`}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* City Section */}
+                  <div className="border-t pt-4">
+                    <label className="text-sm font-semibold mb-3 block">City</label>
+                    <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+                      <SelectTrigger className="h-11 text-base">
+                        <SelectValue placeholder="All Cities" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any">All Cities</SelectItem>
+                        {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <SheetFooter className="flex-row gap-3 border-t pt-4 pb-safe">
+                  <Button
+                    variant="outline"
+                    onClick={clearAllFilters}
+                    className="flex-1 h-11"
+                  >
+                    Clear All
+                  </Button>
+                  <Button
+                    onClick={() => setMobileFiltersOpen(false)}
+                    className="flex-1 h-11"
+                  >
+                    View Results
+                  </Button>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
+          </div>
+
+          {/* Quick Filters Row - Scrollable chips */}
+          <div className="flex gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <MultiSelectFilter
+              label="City"
+              options={CITIES.map(c => ({ value: c, label: c }))}
+              selected={selectedCities}
+              onChange={(values) => updateMultiFilter("cities", values)}
+              icon={<MapPin className="h-3.5 w-3.5" />}
+              className="shrink-0"
+            />
+            <MultiSelectFilter
+              label="Type"
+              options={PROPERTY_TYPES.filter(t => t.value !== "any").map(t => ({ value: t.value, label: t.label }))}
+              selected={selectedPropertyTypes}
+              onChange={(values) => updateMultiFilter("types", values)}
+              icon={<Building className="h-3.5 w-3.5" />}
+              className="shrink-0"
+            />
+            <MultiSelectFilter
+              label="Price"
+              options={PRICE_RANGE_OPTIONS}
+              selected={selectedPriceRanges}
+              onChange={(values) => updateMultiFilter("prices", values)}
+              icon={<DollarSign className="h-3.5 w-3.5" />}
+              className="shrink-0"
+            />
+          </div>
+        </div>
+
         {/* Main Content - Map + Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
