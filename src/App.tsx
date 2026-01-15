@@ -111,7 +111,7 @@ const App = () => (
             <BehaviorTracker />
             <MetaPixel />
             <FloatingMapButton />
-            <ExitIntentPopup />
+            {/* <ExitIntentPopup /> - Temporarily hidden */}
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
