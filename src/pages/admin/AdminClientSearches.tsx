@@ -39,9 +39,7 @@ import {
   Loader2,
   Building2,
   X,
-  Search,
-  Map,
-  List
+  Search
 } from "lucide-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
@@ -125,7 +123,6 @@ export default function AdminClientSearches() {
   const [matchesLoading, setMatchesLoading] = useState(false);
   const [selectedMatches, setSelectedMatches] = useState<MatchedProperty[]>([]);
   const [sending, setSending] = useState(false);
-  const [showMapView, setShowMapView] = useState(true);
 
   // Transform matched properties for map display
   const mapResaleListings = useMemo(() => {
@@ -789,30 +786,10 @@ export default function AdminClientSearches() {
         <Dialog open={!!viewingSearch} onOpenChange={() => setViewingSearch(null)}>
           <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden flex flex-col p-0">
             <DialogHeader className="px-6 pt-6 pb-4 border-b">
-              <div className="flex items-center justify-between">
-                <DialogTitle className="flex items-center gap-2">
-                  <Search className="h-5 w-5" />
-                  Matches for "{viewingSearch?.name}"
-                </DialogTitle>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant={showMapView ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setShowMapView(true)}
-                  >
-                    <Map className="h-4 w-4 mr-1" />
-                    Map
-                  </Button>
-                  <Button
-                    variant={!showMapView ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setShowMapView(false)}
-                  >
-                    <List className="h-4 w-4 mr-1" />
-                    List
-                  </Button>
-                </div>
-              </div>
+              <DialogTitle className="flex items-center gap-2">
+                <Search className="h-5 w-5" />
+                Matches for "{viewingSearch?.name}"
+              </DialogTitle>
             </DialogHeader>
             
             <div className="flex-1 overflow-hidden flex flex-col">
@@ -866,133 +843,136 @@ export default function AdminClientSearches() {
                 </div>
               )}
 
-              {/* Split View: Map + List */}
-              <div className="flex-1 overflow-hidden">
+              {/* Split View: Property Cards + Map showing selected */}
+              <div className="flex-1 overflow-hidden flex">
                 {matchesLoading ? (
-                  <div className="flex items-center justify-center h-full">
+                  <div className="flex items-center justify-center w-full">
                     <Loader2 className="h-8 w-8 animate-spin" />
                   </div>
                 ) : matchedProperties.length === 0 ? (
-                  <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <div className="flex items-center justify-center w-full text-muted-foreground">
                     <div className="text-center">
                       <Search className="h-12 w-12 mx-auto mb-4 opacity-50" />
                       <p>No matching properties found</p>
                       <p className="text-sm">Try adjusting the search criteria</p>
                     </div>
                   </div>
-                ) : showMapView ? (
-                  <div className="flex h-full">
-                    {/* Map Panel */}
-                    <div className="flex-1 relative">
-                      {(mapResaleListings.length > 0 || mapPresaleProjects.length > 0) ? (
-                        <CombinedListingsMap
-                          resaleListings={mapResaleListings}
-                          presaleProjects={mapPresaleProjects}
-                          mode="all"
-                          onListingSelect={handleMapListingSelect}
-                        />
-                      ) : (
-                        <div className="flex items-center justify-center h-full bg-muted/30">
-                          <p className="text-muted-foreground text-sm">No properties with map coordinates</p>
-                        </div>
-                      )}
-                    </div>
-                    
-                    {/* Property List Panel */}
-                    <div className="w-80 border-l flex flex-col">
+                ) : (
+                  <>
+                    {/* Property Cards Panel - Left Side */}
+                    <div className="w-[420px] border-r flex flex-col bg-muted/30">
                       <ScrollArea className="flex-1">
-                        <div className="p-3 space-y-2">
-                          {matchedProperties.map((property) => (
-                            <div
-                              key={`${property.type}-${property.id}`}
-                              className={`flex items-start gap-2 p-2 rounded-lg border cursor-pointer transition-colors ${
-                                isMatchSelected(property) ? "bg-primary/10 border-primary" : "hover:bg-muted/50"
-                              }`}
-                              onClick={() => toggleMatchSelection(property)}
-                            >
-                              <Checkbox checked={isMatchSelected(property)} className="mt-1" />
-                              
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1 mb-1">
-                                  <Badge variant="outline" className="text-[10px] px-1 py-0">
-                                    {property.type === "presale" ? "PRE" : "MIR"}
+                        <div className="p-4 grid grid-cols-2 gap-3">
+                          {matchedProperties.map((property) => {
+                            const isSelected = isMatchSelected(property);
+                            return (
+                              <div
+                                key={`${property.type}-${property.id}`}
+                                className={`rounded-xl border-2 cursor-pointer transition-all overflow-hidden ${
+                                  isSelected 
+                                    ? "border-primary ring-2 ring-primary/20 shadow-lg" 
+                                    : "border-transparent hover:border-muted-foreground/30 hover:shadow-md"
+                                }`}
+                                onClick={() => toggleMatchSelection(property)}
+                              >
+                                {/* Hero Image */}
+                                <div className="relative aspect-[4/3]">
+                                  {property.image ? (
+                                    <img
+                                      src={property.image}
+                                      alt={property.name}
+                                      className="w-full h-full object-cover"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-muted flex items-center justify-center">
+                                      {property.type === "presale" ? (
+                                        <Building2 className="h-10 w-10 text-muted-foreground" />
+                                      ) : (
+                                        <Home className="h-10 w-10 text-muted-foreground" />
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {/* Selection indicator */}
+                                  <div className={`absolute top-2 left-2 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${
+                                    isSelected 
+                                      ? "bg-primary border-primary text-primary-foreground" 
+                                      : "bg-background/80 border-muted-foreground/50"
+                                  }`}>
+                                    {isSelected && (
+                                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                      </svg>
+                                    )}
+                                  </div>
+                                  
+                                  {/* Type badge */}
+                                  <Badge 
+                                    className={`absolute top-2 right-2 text-[10px] ${
+                                      property.type === "presale" 
+                                        ? "bg-primary text-primary-foreground" 
+                                        : "bg-emerald-500 text-white"
+                                    }`}
+                                  >
+                                    {property.type === "presale" ? "PRESALE" : "MOVE-IN READY"}
                                   </Badge>
-                                  <span className="font-medium text-xs truncate">{property.name}</span>
                                 </div>
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {property.city}
-                                </p>
-                                <p className="text-xs font-semibold text-primary">
-                                  {formatPrice(property.price)}
-                                </p>
+                                
+                                {/* Property Info */}
+                                <div className="p-3 bg-background">
+                                  <p className="font-semibold text-sm truncate">{property.name}</p>
+                                  <p className="text-xs text-muted-foreground truncate">
+                                    {property.address}, {property.city}
+                                  </p>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className="font-bold text-primary">
+                                      {formatPrice(property.price)}
+                                    </span>
+                                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                      {property.beds && <span>{property.beds} bd</span>}
+                                      {property.baths && <span>{property.baths} ba</span>}
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                              
-                              {property.image && (
-                                <img
-                                  src={property.image}
-                                  alt={property.name}
-                                  className="w-14 h-10 object-cover rounded shrink-0"
-                                />
-                              )}
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </ScrollArea>
                     </div>
-                  </div>
-                ) : (
-                  /* List Only View */
-                  <ScrollArea className="h-full">
-                    <div className="p-4 space-y-2">
-                      {matchedProperties.map((property) => (
-                        <div
-                          key={`${property.type}-${property.id}`}
-                          className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
-                            isMatchSelected(property) ? "bg-primary/10 border-primary" : "hover:bg-muted/50"
-                          }`}
-                          onClick={() => toggleMatchSelection(property)}
-                        >
-                          <Checkbox checked={isMatchSelected(property)} />
-                          
-                          {property.image ? (
-                            <img
-                              src={property.image}
-                              alt={property.name}
-                              className="w-20 h-14 object-cover rounded"
-                            />
-                          ) : (
-                            <div className="w-20 h-14 bg-muted rounded flex items-center justify-center">
-                              {property.type === "presale" ? (
-                                <Building2 className="h-6 w-6 text-muted-foreground" />
-                              ) : (
-                                <Home className="h-6 w-6 text-muted-foreground" />
-                              )}
-                            </div>
-                          )}
-                          
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium truncate">{property.name}</p>
-                              <Badge variant="outline" className="shrink-0 text-xs">
-                                {property.type === "presale" ? "Presale" : "Move-In Ready"}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground truncate">
-                              {property.address}, {property.city}
-                            </p>
-                            <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                              <span className="font-medium text-foreground">
-                                {formatPrice(property.price)}
-                              </span>
-                              {property.beds && <span>{property.beds} bed</span>}
-                              {property.baths && <span>{property.baths} bath</span>}
-                              {property.sqft && <span>{property.sqft} sqft</span>}
-                            </div>
+                    
+                    {/* Map Panel - Right Side (shows selected properties) */}
+                    <div className="flex-1 relative flex flex-col">
+                      {selectedMatches.length === 0 ? (
+                        <div className="flex-1 flex items-center justify-center bg-muted/20">
+                          <div className="text-center text-muted-foreground">
+                            <MapPin className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                            <p className="font-medium">Select properties to see on map</p>
+                            <p className="text-sm">Click property cards on the left to select</p>
                           </div>
                         </div>
-                      ))}
+                      ) : (
+                        <>
+                          <div className="px-4 py-2 border-b bg-background flex items-center gap-2">
+                            <MapPin className="h-4 w-4 text-primary" />
+                            <span className="text-sm font-medium">{selectedMatches.length} selected properties on map</span>
+                          </div>
+                          <div className="flex-1">
+                            <CombinedListingsMap
+                              resaleListings={mapResaleListings.filter(l => 
+                                selectedMatches.some(s => s.id === l.listing_key && s.type === "resale")
+                              )}
+                              presaleProjects={mapPresaleProjects.filter(p => 
+                                selectedMatches.some(s => s.id === p.id && s.type === "presale")
+                              )}
+                              mode="all"
+                              onListingSelect={handleMapListingSelect}
+                            />
+                          </div>
+                        </>
+                      )}
                     </div>
-                  </ScrollArea>
+                  </>
                 )}
               </div>
 
