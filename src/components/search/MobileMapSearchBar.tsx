@@ -265,18 +265,6 @@ export function MobileMapSearchBar({
             <X className="h-3.5 w-3.5 text-muted-foreground/60" />
           </button>
         )}
-        {/* Location Button */}
-        {onLocationRequest && !searchQuery && (
-          <>
-            <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
-            <button 
-              onClick={onLocationRequest}
-              className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
-            >
-              <Navigation className="h-4 w-4 text-muted-foreground/70" />
-            </button>
-          </>
-        )}
         {/* Divider */}
         <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
         {/* Filter Button */}
