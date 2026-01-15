@@ -170,8 +170,13 @@
     min-height: 100dvh;
   }
 
-  /* Map page edge-to-edge on mobile/tablet ONLY */
-  @media (max-width: 1024px) {
+  /* Map page edge-to-edge on MOBILE ONLY */
+  @media (max-width: 768px) {
+    /* Applied dynamically on /map-search to prevent iOS bounce revealing background */
+    .map-overscroll-lock {
+      overscroll-behavior: none;
+    }
+
     .map-page-root {
       position: fixed;
       top: 0;
@@ -179,27 +184,32 @@
       right: 0;
       bottom: 0;
       width: 100vw;
+      /* Robust iOS viewport filling (prevents bottom white band with dynamic toolbars) */
+      height: 100vh;
       height: 100dvh;
+      min-height: -webkit-fill-available;
       overflow: hidden;
+      overscroll-behavior: none;
+      background: hsl(var(--background));
     }
-    
+
     /* Safe area aware overlays */
     .map-safe-top {
       padding-top: env(safe-area-inset-top, 0px);
     }
-    
+
     .map-safe-bottom {
       padding-bottom: env(safe-area-inset-bottom, 0px);
     }
-    
+
     .map-safe-left {
       padding-left: env(safe-area-inset-left, 0px);
     }
-    
+
     .map-safe-right {
       padding-right: env(safe-area-inset-right, 0px);
     }
-    
+
     .map-safe-all {
       padding-top: env(safe-area-inset-top, 0px);
       padding-bottom: env(safe-area-inset-bottom, 0px);
