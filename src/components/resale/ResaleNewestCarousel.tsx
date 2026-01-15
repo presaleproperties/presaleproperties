@@ -52,19 +52,36 @@ export function ResaleNewestCarousel() {
   ];
 
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-newest-carousel-2024"],
+    queryKey: ["resale-newest-carousel-2024-v2"],
     queryFn: async () => {
+      // Fetch more listings to have enough after filtering
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url, created_at")
+        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url, created_at, list_date")
         .eq("mls_status", "Active")
         .in("city", metroVancouverCities)
         .gte("year_built", 2024)
+        .order("list_date", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
-        .limit(16);
+        .limit(50);
 
       if (error) throw error;
-      return data as MLSListing[];
+      
+      // Sort: listings with photos first (by list_date/created_at), then no-photo listings at the end
+      const withPhotos: MLSListing[] = [];
+      const withoutPhotos: MLSListing[] = [];
+      
+      (data as MLSListing[]).forEach(listing => {
+        const hasValidPhotos = Array.isArray(listing.photos) && listing.photos.length > 0;
+        if (hasValidPhotos) {
+          withPhotos.push(listing);
+        } else {
+          withoutPhotos.push(listing);
+        }
+      });
+      
+      // Return sorted list: photos first, then no photos, limited to 16
+      return [...withPhotos, ...withoutPhotos].slice(0, 16);
     },
     staleTime: 2 * 60 * 1000,
     gcTime: 10 * 60 * 1000,
