@@ -968,6 +968,13 @@ export default function MapSearch() {
               neighborhoods={neighborhoodsData || []}
               projects={projectsForSearch}
               listings={listingsForSearch}
+              homeButton={
+                <Link to="/">
+                  <button className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+                    <Home className="h-4 w-4 text-muted-foreground/70" />
+                  </button>
+                </Link>
+              }
               filterButton={
                 <SheetTrigger asChild>
                   <button className="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors relative">
