@@ -232,10 +232,144 @@ serve(async (req: Request): Promise<Response> => {
       throw new Error("Either leadId, bookingId, or leadData is required");
     }
 
-    // Call Lofty API to create/update contact
-    // Lofty Open API uses versioned base paths (v1.0). Some accounts may still accept v1.
+    // Determine working auth header first
+    const authHeadersToTry = [
+      `token ${loftyApiKey}`,
+      `Bearer ${loftyApiKey}`,
+    ];
+    
+    let workingAuth = "";
+    let baseUrl = "";
+    
+    // Find working auth by testing with a search request
+    const searchUrls = [
+      "https://api.lofty.com/v1.0/leads",
+      "https://api.lofty.com/v1/leads",
+    ];
+    
+    for (const url of searchUrls) {
+      for (const auth of authHeadersToTry) {
+        try {
+          // Search for existing contact by email
+          const searchUrl = `${url}?email=${encodeURIComponent(contactData.email || "")}`;
+          console.log(`Searching for existing contact: ${searchUrl}`);
+          
+          const searchRes = await fetch(searchUrl, {
+            method: "GET",
+            headers: {
+              "Accept": "application/json",
+              "Authorization": auth,
+            },
+          });
+          
+          if (searchRes.ok) {
+            workingAuth = auth;
+            baseUrl = url;
+            
+            const searchBody = await searchRes.text();
+            let existingContacts: any[] = [];
+            
+            try {
+              const parsed = JSON.parse(searchBody);
+              existingContacts = Array.isArray(parsed) ? parsed : (parsed.data || parsed.leads || []);
+            } catch {
+              existingContacts = [];
+            }
+            
+            console.log(`Found ${existingContacts.length} existing contacts for email: ${contactData.email}`);
+            
+            // If contact exists, update it instead of creating new
+            if (existingContacts.length > 0) {
+              const existingId = existingContacts[0].id || existingContacts[0].lead_id;
+              
+              // Merge tags - add new tags without removing existing ones
+              const existingTags = existingContacts[0].tags || [];
+              const newTags = contactData.tags || [];
+              const mergedTags = [...new Set([...existingTags, ...newTags])];
+              
+              // Append to notes instead of replacing
+              const existingNotes = existingContacts[0].notes || "";
+              const timestamp = new Date().toISOString().split("T")[0];
+              const newNotes = `\n\n═══ NEW ACTIVITY (${timestamp}) ═══\n${contactData.notes}`;
+              const mergedNotes = existingNotes + newNotes;
+              
+              const updatePayload = {
+                firstName: contactData.first_name,
+                lastName: contactData.last_name,
+                email: contactData.email,
+                phone: contactData.phone || existingContacts[0].phone,
+                tags: mergedTags,
+                notes: mergedNotes,
+                // Update source to reflect latest interaction
+                source: existingContacts[0].source || "PresaleProperties.com",
+              };
+              
+              console.log(`Updating existing contact ${existingId} with merged tags:`, mergedTags);
+              
+              const updateRes = await fetch(`${baseUrl}/${existingId}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+                  "Authorization": workingAuth,
+                },
+                body: JSON.stringify(updatePayload),
+              });
+              
+              const updateBody = await updateRes.text();
+              console.log("Lofty UPDATE response:", updateRes.status, updateBody);
+              
+              if (updateRes.ok) {
+                return new Response(
+                  JSON.stringify({
+                    success: true,
+                    loftyId: existingId,
+                    message: "Existing contact updated in Lofty CRM",
+                    action: "updated",
+                  }),
+                  { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                );
+              }
+              
+              // If PUT fails, try PATCH
+              const patchRes = await fetch(`${baseUrl}/${existingId}`, {
+                method: "PATCH",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Accept": "application/json",
+                  "Authorization": workingAuth,
+                },
+                body: JSON.stringify(updatePayload),
+              });
+              
+              const patchBody = await patchRes.text();
+              console.log("Lofty PATCH response:", patchRes.status, patchBody);
+              
+              if (patchRes.ok) {
+                return new Response(
+                  JSON.stringify({
+                    success: true,
+                    loftyId: existingId,
+                    message: "Existing contact patched in Lofty CRM",
+                    action: "patched",
+                  }),
+                  { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                );
+              }
+            }
+            
+            break; // Found working auth, proceed to create new contact
+          }
+        } catch (err) {
+          console.log(`Search attempt failed: ${err}`);
+          continue;
+        }
+      }
+      if (workingAuth) break;
+    }
+    
+    // Create new contact if no existing one found
     const loftyPayload = {
-      // Lofty expects camelCase fields
       firstName: contactData.first_name,
       lastName: contactData.last_name,
       email: contactData.email,
@@ -243,27 +377,23 @@ serve(async (req: Request): Promise<Response> => {
       source: leadSource,
       notes: contactData.notes,
       tags: contactData.tags,
-      // Helpful extra context (safe to ignore if Lofty doesn't recognize it)
       inquirySource: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
     };
 
-    const loftyUrls = [
+    const loftyUrls = baseUrl ? [baseUrl] : [
       "https://api.lofty.com/v1.0/leads",
       "https://api.lofty.com/v1/leads",
     ];
-
-    const authHeadersToTry = [
-      `token ${loftyApiKey}`,
-      `Bearer ${loftyApiKey}`,
-    ];
+    
+    const authsToUse = workingAuth ? [workingAuth] : authHeadersToTry;
 
     let lastStatus: number | null = null;
     let lastBody = "";
 
     for (const url of loftyUrls) {
-      for (const auth of authHeadersToTry) {
+      for (const auth of authsToUse) {
         const authMode = auth.startsWith("token ") ? "token" : "bearer";
-        console.log(`Calling Lofty API (${authMode}) -> ${url}`);
+        console.log(`Creating new lead via Lofty API (${authMode}) -> ${url}`);
 
         const res = await fetch(url, {
           method: "POST",
@@ -279,7 +409,7 @@ serve(async (req: Request): Promise<Response> => {
         lastStatus = res.status;
         lastBody = bodyText;
 
-        console.log("Lofty API response:", res.status);
+        console.log("Lofty POST response:", res.status);
 
         if (res.ok) {
           let loftyData: any;
@@ -289,23 +419,22 @@ serve(async (req: Request): Promise<Response> => {
             loftyData = { raw: bodyText };
           }
 
-          console.log("Lead synced to Lofty successfully");
+          console.log("New lead created in Lofty successfully");
           return new Response(
             JSON.stringify({
               success: true,
               loftyId: loftyData?.id || loftyData?.lead_id,
-              message: "Lead synced to Lofty CRM",
+              message: "New lead created in Lofty CRM",
+              action: "created",
             }),
             { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
           );
         }
 
-        // If auth failed, try next auth/header combo.
         if (res.status === 401 || res.status === 403) {
           continue;
         }
 
-        // For non-auth errors (400/422/500), don't spam retries.
         return new Response(
           JSON.stringify({
             success: false,
@@ -318,7 +447,7 @@ serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    // All attempts failed (likely auth)
+    // All attempts failed
     return new Response(
       JSON.stringify({
         success: false,
