@@ -347,10 +347,13 @@ export default function AdminClientForm() {
               </div>
               <div className="space-y-2">
                 <Label>Min Beds</Label>
-                <Select value={client.beds_min} onValueChange={(v) => setClient(prev => ({ ...prev, beds_min: v }))}>
+                <Select 
+                  value={client.beds_min || "any"} 
+                  onValueChange={(v) => setClient(prev => ({ ...prev, beds_min: v === "any" ? "" : v }))}
+                >
                   <SelectTrigger><SelectValue placeholder="Any" /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">Any</SelectItem>
+                    <SelectItem value="any">Any</SelectItem>
                     <SelectItem value="1">1+</SelectItem>
                     <SelectItem value="2">2+</SelectItem>
                     <SelectItem value="3">3+</SelectItem>
