@@ -15,7 +15,7 @@ export function FeaturedProjects() {
         .select("id, name, slug, city, neighborhood, status, project_type, completion_year, starting_price, featured_image, gallery_images, view_count")
         .eq("is_published", true)
         .order("view_count", { ascending: false })
-        .limit(6);
+        .limit(8);
 
       if (error) throw error;
       return data;
