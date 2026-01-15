@@ -27,7 +27,8 @@ interface SendPropertyEmailRequest {
   properties: Property[];
 }
 
-const WEBSITE_BASE_URL = "https://presaleproperties.ca";
+// Use the production domain
+const WEBSITE_BASE_URL = "https://presaleproperties.com";
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -54,79 +55,87 @@ serve(async (req) => {
     // Build correct property URL based on type
     const getPropertyUrl = (prop: Property): string => {
       if (prop.type === "presale") {
-        // For presale, use the slug-based URL
         return `${WEBSITE_BASE_URL}/presale-projects/${prop.id}`;
       } else {
-        // For resale/move-in ready, use listing key
         return `${WEBSITE_BASE_URL}/resale/${prop.id}`;
       }
     };
 
-    // Generate property cards HTML with proper styling
-    const propertyCardsHtml = properties.map((prop) => {
+    // Generate property cards HTML
+    const propertyCardsHtml = properties.map((prop, index) => {
       const propertyUrl = getPropertyUrl(prop);
       const specs: string[] = [];
       if (prop.beds) specs.push(`${prop.beds} Bed`);
       if (prop.baths) specs.push(`${prop.baths} Bath`);
       if (prop.sqft) specs.push(`${prop.sqft.toLocaleString()} sqft`);
+      const specsText = specs.join(" &bull; ");
+      const typeLabel = prop.type === "presale" ? "PRESALE" : "MOVE-IN READY";
+      const typeBgColor = prop.type === "presale" ? "#C9A227" : "#059669";
       
       return `
-      <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="margin-bottom: 24px;">
         <tr>
-          <td style="background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.08);">
-            <!-- Property Image -->
-            ${prop.image ? `
-            <a href="${propertyUrl}" style="text-decoration: none;">
-              <img src="${prop.image}" alt="${prop.name}" width="100%" height="200" style="display: block; width: 100%; height: 200px; object-fit: cover; border-radius: 16px 16px 0 0;" />
-            </a>
-            ` : `
-            <div style="width: 100%; height: 200px; background: linear-gradient(135deg, #1a2234 0%, #2d3a4f 100%); border-radius: 16px 16px 0 0; display: flex; align-items: center; justify-content: center;">
-              <span style="color: #c9a227; font-size: 16px; font-weight: 600;">${prop.type === "presale" ? "Presale Project" : "Move-In Ready Home"}</span>
-            </div>
-            `}
-            
-            <!-- Property Details -->
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+          <td style="padding: 0 0 24px 0;">
+            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);">
               <tr>
-                <td style="padding: 20px;">
-                  <!-- Type Badge -->
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
+                <td>
+                  ${prop.image ? `
+                  <a href="${propertyUrl}" style="display: block; text-decoration: none;">
+                    <img src="${prop.image}" alt="${prop.name}" width="600" style="display: block; width: 100%; height: 280px; object-fit: cover;" />
+                  </a>
+                  ` : `
+                  <div style="width: 100%; height: 280px; background: linear-gradient(135deg, #1E293B 0%, #334155 100%); display: table;">
+                    <div style="display: table-cell; vertical-align: middle; text-align: center;">
+                      <span style="color: #C9A227; font-size: 18px; font-weight: 600;">${typeLabel}</span>
+                    </div>
+                  </div>
+                  `}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 24px 28px 28px 28px;">
+                  <table width="100%" cellpadding="0" cellspacing="0" border="0">
                     <tr>
-                      <td style="background: ${prop.type === "presale" ? "#c9a227" : "#10b981"}; color: #ffffff; padding: 6px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
-                        ${prop.type === "presale" ? "Presale" : "Move-In Ready"}
+                      <td>
+                        <span style="display: inline-block; background: ${typeBgColor}; color: #ffffff; font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 6px 14px; border-radius: 50px; text-transform: uppercase;">
+                          ${typeLabel}
+                        </span>
                       </td>
                     </tr>
-                  </table>
-                  
-                  <!-- Property Name -->
-                  <h3 style="margin: 12px 0 6px 0; font-size: 20px; font-weight: 700; color: #1a2234; line-height: 1.3;">
-                    <a href="${propertyUrl}" style="color: #1a2234; text-decoration: none;">${prop.name}</a>
-                  </h3>
-                  
-                  <!-- Location -->
-                  <p style="margin: 0 0 12px 0; color: #6b7280; font-size: 14px;">
-                    📍 ${prop.address}${prop.address && prop.city ? ', ' : ''}${prop.city}
-                  </p>
-                  
-                  <!-- Price -->
-                  <p style="margin: 0 0 8px 0; font-size: 24px; font-weight: 800; color: #c9a227;">
-                    ${formatPrice(prop.price)}
-                  </p>
-                  
-                  <!-- Specs -->
-                  ${specs.length > 0 ? `
-                  <p style="margin: 0 0 20px 0; color: #6b7280; font-size: 14px;">
-                    ${specs.join(' • ')}
-                  </p>
-                  ` : '<div style="margin-bottom: 20px;"></div>'}
-                  
-                  <!-- CTA Button -->
-                  <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                     <tr>
-                      <td style="background: linear-gradient(135deg, #c9a227 0%, #b8912a 100%); border-radius: 8px;">
-                        <a href="${propertyUrl}" style="display: inline-block; padding: 14px 28px; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;">
-                          View Property Details →
+                      <td style="padding-top: 16px;">
+                        <a href="${propertyUrl}" style="text-decoration: none;">
+                          <span style="font-size: 22px; font-weight: 700; color: #1E293B; line-height: 1.3;">${prop.name}</span>
                         </a>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top: 8px;">
+                        <span style="font-size: 14px; color: #64748B;">${prop.address}${prop.address && prop.city ? ", " : ""}${prop.city}</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td style="padding-top: 16px;">
+                        <span style="font-size: 28px; font-weight: 800; color: #C9A227;">${formatPrice(prop.price)}</span>
+                      </td>
+                    </tr>
+                    ${specsText ? `
+                    <tr>
+                      <td style="padding-top: 8px;">
+                        <span style="font-size: 14px; color: #64748B;">${specsText}</span>
+                      </td>
+                    </tr>
+                    ` : ""}
+                    <tr>
+                      <td style="padding-top: 24px;">
+                        <table cellpadding="0" cellspacing="0" border="0">
+                          <tr>
+                            <td style="background: linear-gradient(135deg, #C9A227 0%, #A78B1F 100%); border-radius: 8px;">
+                              <a href="${propertyUrl}" style="display: inline-block; padding: 14px 32px; font-size: 14px; font-weight: 600; color: #ffffff; text-decoration: none; letter-spacing: 0.3px;">
+                                View Details
+                              </a>
+                            </td>
+                          </tr>
+                        </table>
                       </td>
                     </tr>
                   </table>
@@ -135,94 +144,104 @@ serve(async (req) => {
             </table>
           </td>
         </tr>
-      </table>
-    `;
+      `;
     }).join("");
 
-    const emailHtml = `
-<!DOCTYPE html>
+    const firstName = clientName.split(" ")[0];
+
+    const emailHtml = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Properties Selected For You</title>
-  <!--[if mso]>
-  <noscript>
-    <xml>
-      <o:OfficeDocumentSettings>
-        <o:PixelsPerInch>96</o:PixelsPerInch>
-      </o:OfficeDocumentSettings>
-    </xml>
-  </noscript>
-  <![endif]-->
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f8f9fa; -webkit-font-smoothing: antialiased;">
-  
-  <!-- Wrapper -->
-  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8f9fa;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F1F5F9; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F1F5F9;">
     <tr>
-      <td align="center" style="padding: 40px 20px;">
-        
-        <!-- Container -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%;">
+      <td align="center" style="padding: 48px 24px;">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%;">
           
-          <!-- Header with Gold Accent -->
+          <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1a2234 0%, #2d3a4f 100%); padding: 40px 32px; border-radius: 20px 20px 0 0; text-align: center;">
-              <!-- Logo Text -->
-              <h1 style="margin: 0 0 8px 0; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">
-                PRESALE<span style="color: #c9a227;">PROPERTIES</span>
-              </h1>
-              <p style="margin: 0; font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">
-                New Construction Specialists
-              </p>
-            </td>
-          </tr>
-          
-          <!-- Main Content -->
-          <tr>
-            <td style="background: #ffffff; padding: 40px 32px;">
-              
-              <!-- Greeting -->
-              <h2 style="margin: 0 0 8px 0; font-size: 28px; font-weight: 700; color: #1a2234; text-align: center;">
-                Properties Selected For You
-              </h2>
-              <p style="margin: 0 0 32px 0; font-size: 16px; color: #6b7280; text-align: center; line-height: 1.6;">
-                Hi ${clientName}, I've handpicked ${properties.length} ${properties.length === 1 ? "property" : "properties"} that match what you're looking for.
-              </p>
-              
-              <!-- Divider -->
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
+            <td style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 48px 40px; border-radius: 20px 20px 0 0; text-align: center;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="padding: 0 0 32px 0;">
-                    <div style="height: 2px; background: linear-gradient(90deg, transparent, #c9a227, transparent);"></div>
+                  <td align="center">
+                    <span style="font-size: 28px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">PRESALE</span><span style="font-size: 28px; font-weight: 800; color: #C9A227; letter-spacing: -0.5px;">PROPERTIES</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 8px;">
+                    <span style="font-size: 12px; color: #94A3B8; text-transform: uppercase; letter-spacing: 2px;">New Construction Specialists</span>
                   </td>
                 </tr>
               </table>
-              
-              <!-- Property Cards -->
-              ${propertyCardsHtml}
-              
+            </td>
+          </tr>
+          
+          <!-- Greeting Section -->
+          <tr>
+            <td style="background: #ffffff; padding: 48px 40px 40px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center">
+                    <span style="font-size: 32px; font-weight: 700; color: #0F172A; line-height: 1.2;">Properties Selected Just For You</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 16px;">
+                    <span style="font-size: 16px; color: #64748B; line-height: 1.6;">Hi ${firstName}, I've handpicked ${properties.length} ${properties.length === 1 ? "property" : "properties"} that match what you're looking for.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 24px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="width: 80px; height: 3px; background: linear-gradient(90deg, transparent, #C9A227, transparent);"></td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Property Cards -->
+          <tr>
+            <td style="background: #ffffff; padding: 0 40px 40px 40px;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                ${propertyCardsHtml}
+              </table>
             </td>
           </tr>
           
           <!-- CTA Section -->
           <tr>
-            <td style="background: linear-gradient(135deg, #1a2234 0%, #2d3a4f 100%); padding: 40px 32px; text-align: center;">
-              <h3 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 700; color: #ffffff;">
-                Have Questions About These Properties?
-              </h3>
-              <p style="margin: 0 0 24px 0; font-size: 14px; color: #9ca3af; line-height: 1.6;">
-                I'm here to help you find your perfect home. Let's connect!
-              </p>
-              
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+            <td style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 48px 40px; text-align: center;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
                 <tr>
-                  <td style="background: #c9a227; border-radius: 8px; margin-right: 12px;">
-                    <a href="${WEBSITE_BASE_URL}/contact" style="display: inline-block; padding: 14px 28px; color: #ffffff; font-size: 14px; font-weight: 600; text-decoration: none;">
-                      📞 Schedule a Call
-                    </a>
+                  <td align="center">
+                    <span style="font-size: 22px; font-weight: 700; color: #ffffff;">Interested in any of these?</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 12px;">
+                    <span style="font-size: 15px; color: #94A3B8; line-height: 1.6;">Let's schedule a viewing or discuss your options.</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 28px;">
+                    <table cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="background: #C9A227; border-radius: 8px;">
+                          <a href="${WEBSITE_BASE_URL}/contact" style="display: inline-block; padding: 16px 36px; font-size: 15px; font-weight: 600; color: #ffffff; text-decoration: none;">
+                            Schedule a Call
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
                   </td>
                 </tr>
               </table>
@@ -231,53 +250,50 @@ serve(async (req) => {
           
           <!-- Footer -->
           <tr>
-            <td style="background: #ffffff; padding: 32px; border-radius: 0 0 20px 20px; text-align: center; border-top: 1px solid #e5e7eb;">
-              
-              <!-- Agent Info -->
-              <p style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #1a2234;">
-                Uzair Muhammad
-              </p>
-              <p style="margin: 0 0 16px 0; font-size: 14px; color: #6b7280;">
-                New Construction Specialist
-              </p>
-              
-              <!-- Brokerage -->
-              <p style="margin: 0 0 4px 0; font-size: 13px; color: #9ca3af;">
-                Real Broker
-              </p>
-              <p style="margin: 0 0 16px 0; font-size: 12px; color: #9ca3af;">
-                666 Burrard St, Suite 500, Vancouver, BC V6C 3P6
-              </p>
-              
-              <!-- Website Link -->
-              <p style="margin: 0;">
-                <a href="${WEBSITE_BASE_URL}" style="color: #c9a227; font-size: 13px; text-decoration: none; font-weight: 600;">
-                  presaleproperties.ca
-                </a>
-              </p>
+            <td style="background: #ffffff; padding: 40px; border-radius: 0 0 20px 20px; text-align: center;">
+              <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                <tr>
+                  <td align="center">
+                    <span style="font-size: 18px; font-weight: 700; color: #0F172A;">Uzair Muhammad</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 4px;">
+                    <span style="font-size: 14px; color: #64748B;">New Construction Specialist</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 20px;">
+                    <span style="font-size: 13px; color: #94A3B8;">Real Broker</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 4px;">
+                    <span style="font-size: 12px; color: #94A3B8;">666 Burrard St, Suite 500, Vancouver, BC V6C 3P6</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="center" style="padding-top: 20px;">
+                    <a href="${WEBSITE_BASE_URL}" style="font-size: 14px; color: #C9A227; text-decoration: none; font-weight: 600;">presaleproperties.com</a>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Disclaimer -->
+          <tr>
+            <td style="padding: 24px 20px; text-align: center;">
+              <span style="font-size: 11px; color: #94A3B8; line-height: 1.5;">You received this email because you're a valued client. We specialize exclusively in new construction: presale projects and move-in ready homes.</span>
             </td>
           </tr>
           
         </table>
-        
-        <!-- Unsubscribe -->
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="600" style="max-width: 600px; width: 100%;">
-          <tr>
-            <td style="padding: 24px 20px; text-align: center;">
-              <p style="margin: 0; font-size: 11px; color: #9ca3af;">
-                You received this email because you're a valued client of Presale Properties.
-              </p>
-            </td>
-          </tr>
-        </table>
-        
       </td>
     </tr>
   </table>
-  
 </body>
-</html>
-    `;
+</html>`;
 
     const subject = `${properties.length} ${properties.length === 1 ? "Property" : "Properties"} Selected For You - Uzair Muhammad`;
     
