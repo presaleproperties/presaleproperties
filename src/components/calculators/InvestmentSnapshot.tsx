@@ -1,4 +1,4 @@
-// Investment Snapshot - 2-Page Wizard with Equity Analysis
+// Investment Snapshot - Streamlined Calculator with Better Flow
 import { useState, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
@@ -6,11 +6,10 @@ import { Slider } from '@/components/ui/slider';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { 
-  TrendingUp, TrendingDown, RotateCcw, Share2, Download, DollarSign, 
-  Percent, Home, Calendar, Save, BarChart3, ChevronRight, ChevronLeft,
-  PiggyBank, ArrowUpRight, Users, Building
+  TrendingUp, RotateCcw, Share2, Download, DollarSign, 
+  Percent, Home, Calendar, Save, BarChart3, 
+  PiggyBank, ArrowUpRight, Users, Building, ChevronDown, ChevronUp
 } from 'lucide-react';
 import { calculatePTT, calculateGST } from '@/hooks/useROICalculator';
 import { useSavedSnapshots } from '@/hooks/useSavedSnapshots';
@@ -38,7 +37,6 @@ interface SnapshotInputs {
   appreciationRate: number;
   creditPercent: number;
   creditAmount: number;
-  // Rent vs Own (First Time Buyers)
   currentRent: number;
   rentIncreaseRate: number;
 }
@@ -53,33 +51,28 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   interestRate: 3.79,
   amortizationYears: 30,
   closingCosts: 2000,
-  monthlyRent: 2150, // Updated to 2025 CMHC Metro Vancouver average
-  strataFees: 300,   // Updated to 2025 typical strata
-  propertyTax: 130,  // Updated
+  monthlyRent: 2150,
+  strataFees: 300,
+  propertyTax: 130,
   includeGST: true,
   holdingPeriodYears: 5,
   appreciationRate: 3,
   creditPercent: 0,
   creditAmount: 0,
-  // Rent vs Own defaults
   currentRent: 2200,
   rentIncreaseRate: 3,
 };
 
 function calculateCMHCPremium(mortgageAmount: number, downPaymentPercent: number): number {
-  // CMHC insurance is required for down payments less than 20%
   if (downPaymentPercent >= 20) return 0;
-  
-  // CMHC premium rates based on down payment percentage
   let premiumRate: number;
   if (downPaymentPercent >= 15) {
-    premiumRate = 0.028; // 2.80%
+    premiumRate = 0.028;
   } else if (downPaymentPercent >= 10) {
-    premiumRate = 0.031; // 3.10%
+    premiumRate = 0.031;
   } else {
-    premiumRate = 0.04; // 4.00%
+    premiumRate = 0.04;
   }
-  
   return mortgageAmount * premiumRate;
 }
 
@@ -93,23 +86,19 @@ function calculateMonthlyMortgage(principal: number, annualRate: number, years: 
 
 function calculateMortgagePaydown(principal: number, annualRate: number, years: number, holdingYears: number) {
   if (principal <= 0 || annualRate <= 0) return { principalPaid: 0, remainingBalance: principal };
-  
   const monthlyRate = annualRate / 100 / 12;
   const numPayments = years * 12;
   const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
                         (Math.pow(1 + monthlyRate, numPayments) - 1);
-  
   let balance = principal;
   let totalPrincipalPaid = 0;
   const holdingMonths = holdingYears * 12;
-  
   for (let i = 0; i < holdingMonths && balance > 0; i++) {
     const interestPayment = balance * monthlyRate;
     const principalPayment = monthlyPayment - interestPayment;
     totalPrincipalPaid += principalPayment;
     balance -= principalPayment;
   }
-  
   return { principalPaid: totalPrincipalPaid, remainingBalance: Math.max(0, balance) };
 }
 
@@ -154,7 +143,8 @@ export function InvestmentSnapshot() {
     const urlParams = parseUrlParams(searchParams);
     return { ...DEFAULT_INPUTS, ...urlParams };
   });
-  const [currentPage, setCurrentPage] = useState<'cashflow' | 'equity'>('cashflow');
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showEquity, setShowEquity] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [scenarioName, setScenarioName] = useState('');
@@ -183,31 +173,17 @@ export function InvestmentSnapshot() {
     const secondDeposit = inputs.purchasePrice * (inputs.secondDepositPercent / 100);
     const totalDeposits = firstDeposit + secondDeposit;
     const downPayment = priceWithGST * (inputs.downPaymentPercent / 100);
-    
-    // Calculate base mortgage (before CMHC) - includes GST
     const baseMortgageAmount = priceWithGST - downPayment;
-    
-    // CMHC insurance is calculated on the purchase price WITHOUT GST
-    // Down payment for CMHC purposes is based on purchase price only
     const downPaymentOnPurchasePrice = inputs.purchasePrice * (inputs.downPaymentPercent / 100);
     const mortgageForCMHC = inputs.purchasePrice - downPaymentOnPurchasePrice;
     const cmhcPremium = calculateCMHCPremium(mortgageForCMHC, inputs.downPaymentPercent);
-    
-    // Total mortgage includes base amount + CMHC premium
     const mortgageAmount = baseMortgageAmount + cmhcPremium;
-    
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
-    // First time buyers on new construction get full PTT exemption (primary residence + new build)
-    // For new construction as primary residence, PTT is exempt regardless of price
     const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
     const closingCosts = inputs.closingCosts;
-    
-    // Calculate credit (from % or $ amount - use whichever is greater if both set)
     const creditFromPercent = inputs.purchasePrice * (inputs.creditPercent / 100);
     const creditTotal = Math.max(creditFromPercent, inputs.creditAmount);
-    
-    // Cash at completion = remaining down + PTT + closing costs - credit
     const cashAtCompletionBeforeCredit = remainingDownPayment + ptt + closingCosts;
     const cashAtCompletion = Math.max(0, cashAtCompletionBeforeCredit - creditTotal);
     const totalCashRequired = totalDeposits + cashAtCompletion;
@@ -215,22 +191,15 @@ export function InvestmentSnapshot() {
     const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
     const annualCashFlow = monthlyCashFlow * 12;
 
-    // Equity calculations
     const { principalPaid, remainingBalance } = calculateMortgagePaydown(
       mortgageAmount, 
       inputs.interestRate, 
       inputs.amortizationYears, 
       inputs.holdingPeriodYears
     );
-    
-    // Future value is based on purchase price (market value), not including GST
-    // GST is a one-time tax paid at purchase, doesn't appreciate with property
     const futureValue = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, inputs.holdingPeriodYears);
     const appreciation = futureValue - inputs.purchasePrice;
-    
-    // Equity includes down payment on full price (with GST), principal paid, and appreciation
     const totalEquityBuilt = downPayment + principalPaid + appreciation;
-    const equityFromPaydown = principalPaid;
     const totalCashFlowOverPeriod = annualCashFlow * inputs.holdingPeriodYears;
     const totalReturn = appreciation + principalPaid + totalCashFlowOverPeriod;
     const roiPercent = totalCashRequired > 0 ? (totalReturn / totalCashRequired) * 100 : 0;
@@ -238,9 +207,10 @@ export function InvestmentSnapshot() {
     return {
       firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment,
       baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, 
-      closingCosts, creditTotal, cashAtCompletionBeforeCredit, cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
+      closingCosts, creditTotal, cashAtCompletionBeforeCredit, cashAtCompletion, totalCashRequired, 
+      totalMonthlyExpenses, monthlyCashFlow, annualCashFlow,
       principalPaid, remainingBalance, futureValue, appreciation, totalEquityBuilt,
-      equityFromPaydown, totalCashFlowOverPeriod, totalReturn, roiPercent,
+      totalCashFlowOverPeriod, totalReturn, roiPercent,
     };
   }, [inputs]);
 
@@ -275,8 +245,6 @@ export function InvestmentSnapshot() {
     
     const equityBuilt = homeValue - mortgageBalance;
     const monthlySavingsRenting = monthlyOwnershipCost - inputs.currentRent;
-    
-    // Opportunity cost calculation
     const annualInvestmentReturn = 0.06;
     let investedSavings = 0;
     const initialInvestment = results.totalCashRequired;
@@ -375,7 +343,6 @@ export function InvestmentSnapshot() {
       toast.error('Please enter a name');
       return;
     }
-    
     const success = saveSnapshot(scenarioName.trim(), inputs, {
       totalCashRequired: results.totalCashRequired,
       monthlyCashFlow: results.monthlyCashFlow,
@@ -386,7 +353,6 @@ export function InvestmentSnapshot() {
       totalMonthlyExpenses: results.totalMonthlyExpenses,
       creditTotal: results.creditTotal,
     });
-    
     if (success) {
       toast.success('Scenario saved!');
       setShowSaveDialog(false);
@@ -408,22 +374,20 @@ export function InvestmentSnapshot() {
   };
 
   const isPositive = results.monthlyCashFlow >= 0;
+  const isFirstTimeBuyer = inputs.buyerType === 'firstTimeBuyer';
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-8 space-y-4">
+    <div className="w-full max-w-2xl mx-auto px-4 sm:px-6 pb-8 space-y-4">
       {/* Main Calculator Card */}
       <div ref={snapshotRef} className="bg-white rounded-2xl shadow-xl overflow-hidden">
-        {/* Header */}
-        <div className="bg-foreground text-background px-4 py-3 sm:py-4">
+        {/* Compact Header */}
+        <div className="bg-foreground text-background px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                <Home className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <Home className="w-4 h-4 text-primary" />
               </div>
-              <div>
-                <h1 className="text-base sm:text-lg font-bold">Investment Snapshot</h1>
-                <p className="text-[10px] sm:text-xs opacity-70 hidden sm:block">Metro Vancouver Presale Calculator</p>
-              </div>
+              <h1 className="text-base font-bold">Investment Snapshot</h1>
             </div>
             <div className="flex gap-1">
               <Button variant="ghost" size="icon" onClick={resetToDefaults} className="text-background/70 hover:text-background hover:bg-white/10 h-8 w-8">
@@ -456,727 +420,560 @@ export function InvestmentSnapshot() {
         </div>
 
         {/* Buyer Type Toggle */}
-        <div className="px-3 sm:px-4 py-3 bg-secondary/10 border-b border-border/30">
+        <div className="px-4 py-3 bg-secondary/10 border-b border-border/30">
           <div className="flex items-center justify-center gap-2">
             <button
               onClick={() => updateInput('buyerType', 'firstTimeBuyer')}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all min-h-[44px] ${
-                inputs.buyerType === 'firstTimeBuyer'
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-all min-h-[44px] ${
+                isFirstTimeBuyer
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-white text-muted-foreground hover:bg-secondary/50 border border-border/50'
               }`}
             >
-              <Users className="w-4 h-4 flex-shrink-0" />
-              <span className="whitespace-nowrap">First Time Buyer</span>
+              <Users className="w-4 h-4" />
+              First Time Buyer
             </button>
             <button
               onClick={() => updateInput('buyerType', 'investor')}
-              className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all min-h-[44px] ${
-                inputs.buyerType === 'investor'
+              className={`flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-medium transition-all min-h-[44px] ${
+                !isFirstTimeBuyer
                   ? 'bg-primary text-primary-foreground shadow-md'
                   : 'bg-white text-muted-foreground hover:bg-secondary/50 border border-border/50'
               }`}
             >
-              <Building className="w-4 h-4 flex-shrink-0" />
-              <span>Investor</span>
+              <Building className="w-4 h-4" />
+              Investor
             </button>
           </div>
         </div>
 
-        {/* Page Tabs */}
-        <Tabs value={currentPage} onValueChange={(v) => setCurrentPage(v as 'cashflow' | 'equity')} className="w-full">
-          <div className="border-b border-border/50 bg-secondary/20">
-            <TabsList className="w-full h-auto p-0 bg-transparent rounded-none">
-              <TabsTrigger 
-                value="cashflow" 
-                className="flex-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-white data-[state=active]:shadow-none"
-              >
-                <DollarSign className="w-4 h-4 mr-1.5" />
-                <span className="text-sm font-medium">{inputs.buyerType === 'firstTimeBuyer' ? 'Monthly Payment' : 'Cash Flow'}</span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="equity" 
-                className="flex-1 py-3 rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-white data-[state=active]:shadow-none"
-              >
-                <PiggyBank className="w-4 h-4 mr-1.5" />
-                <span className="text-sm font-medium">Equity & Growth</span>
-              </TabsTrigger>
-            </TabsList>
+        <div className="p-4 space-y-4">
+          {/* SECTION 1: Price & Key Result (Always visible) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Purchase Price Input */}
+            <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
+                <DollarSign className="w-3.5 h-3.5" />
+                Purchase Price
+              </label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={`$${inputs.purchasePrice.toLocaleString()}`}
+                onChange={handlePriceChange}
+                className="text-xl font-bold text-center h-12 border-2 border-primary/20 bg-white focus:border-primary"
+              />
+              <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
+                <span>+ GST:</span>
+                <span className="font-semibold">{fmt(results.priceWithGST)}</span>
+              </div>
+            </div>
+
+            {/* Key Result Card */}
+            <div className={`rounded-xl p-4 text-center border-2 ${
+              isFirstTimeBuyer 
+                ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30'
+                : isPositive 
+                  ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-300' 
+                  : 'bg-gradient-to-br from-amber-50 to-amber-100/50 border-amber-300'
+            }`}>
+              <div className="flex items-center justify-center gap-2 mb-1">
+                {isFirstTimeBuyer ? (
+                  <Home className="w-4 h-4 text-primary" />
+                ) : isPositive ? (
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                ) : (
+                  <PiggyBank className="w-4 h-4 text-amber-600" />
+                )}
+                <span className={`text-xs font-bold uppercase ${
+                  isFirstTimeBuyer ? 'text-primary' : isPositive ? 'text-green-700' : 'text-amber-700'
+                }`}>
+                  {isFirstTimeBuyer ? 'Monthly Payment' : 'Monthly Cash Flow'}
+                </span>
+              </div>
+              <div className={`text-3xl font-bold ${
+                isFirstTimeBuyer ? 'text-foreground' : isPositive ? 'text-green-600' : 'text-amber-600'
+              }`}>
+                {isFirstTimeBuyer ? fmt(results.totalMonthlyExpenses) : (isPositive ? '+' : '') + fmt(results.monthlyCashFlow)}
+                <span className="text-sm font-normal text-muted-foreground">/mo</span>
+              </div>
+            </div>
           </div>
 
-          {/* Page 1: Cash Flow */}
-          <TabsContent value="cashflow" className="p-4 sm:p-6 mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Left Column: Inputs */}
-              <div className="space-y-4">
-                {/* Purchase Price */}
-                <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1.5 mb-2">
-                    <DollarSign className="w-3.5 h-3.5" />
-                    Purchase Price
-                  </label>
-                  <Input
-                    type="text"
-                    inputMode="numeric"
-                    value={`$${inputs.purchasePrice.toLocaleString()}`}
-                    onChange={handlePriceChange}
-                    className="text-xl sm:text-2xl font-bold text-center h-12 border-2 border-primary/20 bg-white focus:border-primary"
-                  />
-                  <div className="flex items-center justify-between mt-2 text-xs text-muted-foreground">
-                    <span>Price + GST:</span>
-                    <span className="font-semibold">{fmt(results.priceWithGST)}</span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2 pt-2 border-t border-border/30">
-                    <div className="flex items-center gap-1.5 flex-1">
-                      <Input
-                        type="number"
-                        value={inputs.sqft}
-                        onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
-                        className="h-7 w-16 text-center text-xs font-medium px-1"
-                        placeholder="sqft"
-                      />
-                      <span className="text-[10px] text-muted-foreground">sqft</span>
-                    </div>
-                    <div className="text-xs text-right">
-                      <span className="text-muted-foreground">= </span>
-                      <span className="font-semibold text-primary">
-                        ${inputs.sqft > 0 ? Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString() : '—'}
-                      </span>
-                      <span className="text-muted-foreground">/sqft</span>
-                    </div>
-                  </div>
-                </div>
+          {/* SECTION 2: Down Payment & Deposits */}
+          <div className="bg-secondary/20 rounded-xl p-4 space-y-4">
+            {/* Down Payment Slider */}
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-xs font-semibold text-muted-foreground uppercase">Down Payment</span>
+                <span className="text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
+              </div>
+              <Slider
+                value={[inputs.downPaymentPercent]}
+                onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
+                min={5} max={60} step={5}
+                className="my-2"
+              />
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">Required</span>
+                <span className="font-bold">{fmt(results.downPayment)}</span>
+              </div>
+            </div>
 
-                {/* Deposits Row */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
-                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
-                      <span className="text-[10px] sm:text-xs text-muted-foreground">Deposit 1</span>
-                      <span className="text-xs sm:text-sm font-bold text-primary">{inputs.firstDepositPercent}%</span>
-                    </div>
-                    <Slider
-                      value={[inputs.firstDepositPercent]}
-                      onValueChange={(v) => updateInput('firstDepositPercent', v[0])}
-                      min={1} max={15} step={1}
-                      className="my-1.5 sm:my-2"
-                    />
-                    <div className="text-center text-xs sm:text-sm font-semibold truncate">{fmt(results.firstDeposit)}</div>
-                  </div>
-                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
-                    <div className="flex justify-between items-center mb-1.5 sm:mb-2">
-                      <span className="text-[10px] sm:text-xs text-muted-foreground">Deposit 2</span>
-                      <span className="text-xs sm:text-sm font-bold text-primary">{inputs.secondDepositPercent}%</span>
-                    </div>
-                    <Slider
-                      value={[inputs.secondDepositPercent]}
-                      onValueChange={(v) => updateInput('secondDepositPercent', v[0])}
-                      min={0} max={15} step={1}
-                      className="my-1.5 sm:my-2"
-                    />
-                    <div className="text-center text-xs sm:text-sm font-semibold truncate">{fmt(results.secondDeposit)}</div>
-                  </div>
+            {/* Deposit Split */}
+            <div className="grid grid-cols-2 gap-3 pt-3 border-t border-border/30">
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-muted-foreground">Deposit 1</span>
+                  <span className="text-sm font-bold text-primary">{inputs.firstDepositPercent}%</span>
                 </div>
-
-                {/* Down Payment & Toggles */}
-                <div className="bg-secondary/20 rounded-xl p-3 sm:p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <h3 className="text-[10px] sm:text-xs font-semibold text-muted-foreground uppercase">Down Payment</h3>
-                    <span className="text-base sm:text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
-                  </div>
-                  <Slider
-                    value={[inputs.downPaymentPercent]}
-                    onValueChange={(v) => updateInput('downPaymentPercent', v[0])}
-                    min={5} max={60} step={5}
-                    className="my-2"
-                  />
-                  <div className="flex justify-between text-xs sm:text-sm mt-2">
-                    <span className="text-muted-foreground">Required</span>
-                    <span className="font-bold truncate ml-2">{fmt(results.downPayment)}</span>
-                  </div>
-                  <div className="flex items-center justify-between mt-2 sm:mt-3 pt-2 sm:pt-3 border-t border-border/50 gap-2">
-                    <label className="flex items-center gap-1 sm:gap-2 cursor-pointer min-w-0">
-                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-[0.65] sm:scale-75 flex-shrink-0" />
-                      <span className="text-[10px] sm:text-xs truncate">GST {fmt(results.gst)}</span>
-                    </label>
-                    {inputs.buyerType === 'investor' && results.ptt > 0 && (
-                      <span className="text-[10px] sm:text-xs text-muted-foreground whitespace-nowrap">PTT: {fmt(results.ptt)}</span>
-                    )}
-                    {inputs.buyerType === 'firstTimeBuyer' && (
-                      <span className="text-[10px] sm:text-xs text-green-600 font-medium whitespace-nowrap">PTT Exempt ✓</span>
-                    )}
-                  </div>
+                <Slider
+                  value={[inputs.firstDepositPercent]}
+                  onValueChange={(v) => updateInput('firstDepositPercent', v[0])}
+                  min={1} max={15} step={1}
+                />
+                <div className="text-center text-xs font-semibold mt-1">{fmt(results.firstDeposit)}</div>
+              </div>
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-xs text-muted-foreground">Deposit 2</span>
+                  <span className="text-sm font-bold text-primary">{inputs.secondDepositPercent}%</span>
                 </div>
+                <Slider
+                  value={[inputs.secondDepositPercent]}
+                  onValueChange={(v) => updateInput('secondDepositPercent', v[0])}
+                  min={0} max={15} step={1}
+                />
+                <div className="text-center text-xs font-semibold mt-1">{fmt(results.secondDeposit)}</div>
+              </div>
+            </div>
+          </div>
 
-                {/* Mortgage & Expenses */}
-                <div className="grid grid-cols-2 gap-2 sm:gap-3">
-                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
-                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Rate %</label>
+          {/* SECTION 3: Monthly Costs Grid */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="bg-secondary/20 rounded-lg p-2.5">
+              <label className="text-[10px] text-muted-foreground block mb-1">Rate %</label>
+              <Input
+                type="number"
+                step="0.01"
+                value={inputs.interestRate}
+                onChange={(e) => updateInput('interestRate', parseFloat(e.target.value) || 0)}
+                className="h-9 text-center font-semibold text-sm"
+              />
+            </div>
+            <div className="bg-secondary/20 rounded-lg p-2.5">
+              <label className="text-[10px] text-muted-foreground block mb-1">Strata</label>
+              <Input
+                type="number"
+                value={inputs.strataFees}
+                onChange={(e) => updateInput('strataFees', parseInt(e.target.value) || 0)}
+                className="h-9 text-center font-semibold text-sm"
+              />
+            </div>
+            <div className="bg-secondary/20 rounded-lg p-2.5">
+              <label className="text-[10px] text-muted-foreground block mb-1">Tax/mo</label>
+              <Input
+                type="number"
+                value={inputs.propertyTax}
+                onChange={(e) => updateInput('propertyTax', parseInt(e.target.value) || 0)}
+                className="h-9 text-center font-semibold text-sm"
+              />
+            </div>
+            {!isFirstTimeBuyer && (
+              <div className="bg-green-50 rounded-lg p-2.5 border border-green-200">
+                <label className="text-[10px] text-green-700 block mb-1">Rent</label>
+                <Input
+                  type="number"
+                  value={inputs.monthlyRent}
+                  onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
+                  className="h-9 text-center font-semibold text-sm text-green-700 border-green-300"
+                />
+              </div>
+            )}
+            {isFirstTimeBuyer && (
+              <div className="bg-secondary/20 rounded-lg p-2.5">
+                <label className="text-[10px] text-muted-foreground block mb-1">Years</label>
+                <Input
+                  type="number"
+                  value={inputs.amortizationYears}
+                  onChange={(e) => updateInput('amortizationYears', parseInt(e.target.value) || 0)}
+                  className="h-9 text-center font-semibold text-sm"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* SECTION 4: Cash Required Summary */}
+          <div className="bg-gradient-to-r from-foreground to-foreground/90 text-background rounded-xl p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-bold uppercase opacity-80">Total Cash Required</span>
+              <span className="text-2xl font-bold">{fmt(results.totalCashRequired)}</span>
+            </div>
+            <div className="grid grid-cols-3 gap-2 text-center text-xs">
+              <div className="bg-white/10 rounded-lg p-2">
+                <div className="opacity-70">Deposits</div>
+                <div className="font-bold">{fmt(results.totalDeposits)}</div>
+              </div>
+              <div className="bg-white/10 rounded-lg p-2">
+                <div className="opacity-70">At Closing</div>
+                <div className="font-bold">{fmt(results.cashAtCompletion)}</div>
+              </div>
+              <div className="bg-white/10 rounded-lg p-2">
+                <div className="opacity-70">Mortgage</div>
+                <div className="font-bold">{fmt(results.mortgageAmount)}</div>
+              </div>
+            </div>
+            {results.cmhcPremium > 0 && (
+              <div className="mt-2 pt-2 border-t border-white/20 text-xs flex justify-between">
+                <span className="opacity-70">Includes CMHC Insurance</span>
+                <span className="font-medium">{fmt(results.cmhcPremium)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* First Time Buyer: PTT Savings */}
+          {isFirstTimeBuyer && (
+            <div className="bg-green-50 rounded-xl p-4 border border-green-200">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs font-bold uppercase text-green-700">PTT Exemption Savings</div>
+                  <p className="text-xs text-green-600 mt-0.5">First-time buyer benefit on new construction</p>
+                </div>
+                <div className="text-xl font-bold text-green-600">
+                  {fmt(calculatePTT(inputs.purchasePrice, false))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* SECTION 5: Monthly Breakdown */}
+          <div className="bg-secondary/10 rounded-xl p-4 border border-border/30">
+            <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Mortgage Payment</span>
+                <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Strata Fees</span>
+                <span className="font-medium">{fmt(inputs.strataFees)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Property Tax</span>
+                <span className="font-medium">{fmt(inputs.propertyTax)}</span>
+              </div>
+              <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
+                <span>Total Expenses</span>
+                <span>{fmt(results.totalMonthlyExpenses)}</span>
+              </div>
+              {!isFirstTimeBuyer && (
+                <>
+                  <div className="flex justify-between text-green-600">
+                    <span>Rental Income</span>
+                    <span className="font-medium">+{fmt(inputs.monthlyRent)}</span>
+                  </div>
+                  <div className={`flex justify-between pt-2 border-t border-border/50 font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    <span>Net Cash Flow</span>
+                    <span>{isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Advanced Settings Toggle */}
+          <button
+            onClick={() => setShowAdvanced(!showAdvanced)}
+            className="w-full flex items-center justify-center gap-2 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            {showAdvanced ? 'Hide' : 'Show'} Advanced Options
+          </button>
+
+          {/* Advanced Options */}
+          {showAdvanced && (
+            <div className="space-y-4 pt-2 border-t border-border/30">
+              {/* GST & Sqft */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-secondary/20 rounded-xl p-3">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs text-muted-foreground">Include GST</label>
+                    <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} />
+                  </div>
+                  {inputs.includeGST && (
+                    <div className="text-xs text-muted-foreground mt-1">GST: {fmt(results.gst)}</div>
+                  )}
+                </div>
+                <div className="bg-secondary/20 rounded-xl p-3">
+                  <label className="text-xs text-muted-foreground block mb-1">Size (sqft)</label>
+                  <div className="flex items-center gap-2">
                     <Input
                       type="number"
-                      step="0.01"
-                      value={inputs.interestRate}
-                      onChange={(e) => updateInput('interestRate', parseFloat(e.target.value) || 0)}
-                      className="h-9 sm:h-10 text-center font-semibold text-sm"
+                      value={inputs.sqft}
+                      onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
+                      className="h-8 text-center text-sm"
                     />
+                    <span className="text-xs text-primary font-medium whitespace-nowrap">
+                      ${inputs.sqft > 0 ? Math.round(inputs.purchasePrice / inputs.sqft) : 0}/sf
+                    </span>
                   </div>
-                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
-                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Amortization</label>
+                </div>
+              </div>
+
+              {/* Closing Costs & Amortization */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
+                  <label className="text-xs text-amber-700 block mb-1">Closing Costs</label>
+                  <Input
+                    type="number"
+                    value={inputs.closingCosts}
+                    onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
+                    className="h-8 text-center font-semibold text-sm text-amber-700 border-amber-300"
+                  />
+                </div>
+                {!isFirstTimeBuyer && (
+                  <div className="bg-secondary/20 rounded-xl p-3">
+                    <label className="text-xs text-muted-foreground block mb-1">Amortization</label>
                     <Input
                       type="number"
                       value={inputs.amortizationYears}
                       onChange={(e) => updateInput('amortizationYears', parseInt(e.target.value) || 0)}
-                      className="h-9 sm:h-10 text-center font-semibold text-sm"
+                      className="h-8 text-center font-semibold text-sm"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-3 gap-2 sm:gap-3">
-                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
-                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Strata</label>
+                )}
+                {isFirstTimeBuyer && (
+                  <div className="bg-secondary/20 rounded-xl p-3">
+                    <label className="text-xs text-muted-foreground block mb-1">Current Rent</label>
                     <Input
                       type="number"
-                      value={inputs.strataFees}
-                      onChange={(e) => updateInput('strataFees', parseInt(e.target.value) || 0)}
-                      className="h-8 sm:h-9 text-center font-semibold text-sm px-1"
+                      value={inputs.currentRent}
+                      onChange={(e) => updateInput('currentRent', parseInt(e.target.value) || 0)}
+                      className="h-8 text-center font-semibold text-sm"
                     />
-                  </div>
-                  <div className="bg-secondary/20 rounded-xl p-2 sm:p-3">
-                    <label className="text-[10px] sm:text-xs text-muted-foreground block mb-1">Tax/mo</label>
-                    <Input
-                      type="number"
-                      value={inputs.propertyTax}
-                      onChange={(e) => updateInput('propertyTax', parseInt(e.target.value) || 0)}
-                      className="h-8 sm:h-9 text-center font-semibold text-sm px-1"
-                    />
-                  </div>
-                  {inputs.buyerType === 'investor' ? (
-                    <div className="bg-green-50 rounded-xl p-2 sm:p-3 border border-green-200">
-                      <label className="text-[10px] sm:text-xs text-green-700 block mb-1">Rent</label>
-                      <Input
-                        type="number"
-                        value={inputs.monthlyRent}
-                        onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                        className="h-8 sm:h-9 text-center font-semibold text-sm text-green-700 border-green-300 px-1"
-                      />
-                    </div>
-                  ) : (
-                    <div className="bg-amber-50 rounded-xl p-2 sm:p-3 border border-amber-200">
-                      <label className="text-[10px] sm:text-xs text-amber-700 block mb-1 truncate">Closing</label>
-                      <Input
-                        type="number"
-                        value={inputs.closingCosts}
-                        onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
-                        className="h-8 sm:h-9 text-center font-semibold text-sm text-amber-700 border-amber-300 px-1"
-                      />
-                    </div>
-                  )}
-                </div>
-
-                {/* Closing Costs for Investors */}
-                {inputs.buyerType === 'investor' && (
-                  <div className="bg-amber-50 rounded-xl p-3 border border-amber-200">
-                    <div className="flex items-center justify-between">
-                      <label className="text-xs text-amber-700">Closing Costs</label>
-                      <Input
-                        type="number"
-                        value={inputs.closingCosts}
-                        onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
-                        className="h-8 w-24 text-center font-semibold text-sm text-amber-700 border-amber-300"
-                      />
-                    </div>
-                    <p className="text-[10px] text-amber-600 mt-1">Lawyer fees, inspection, etc.</p>
                   </div>
                 )}
               </div>
 
-              {/* Right Column: Results */}
-              <div className="space-y-4">
-                {inputs.buyerType === 'firstTimeBuyer' ? (
-                  <>
-                    {/* First Time Buyer - Monthly Payment Focus */}
-                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 text-center border-2 border-primary/30">
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        <Home className="w-5 h-5 text-primary" />
-                        <span className="text-xs font-bold uppercase text-primary">Your Monthly Payment</span>
-                      </div>
-                      <div className="text-3xl sm:text-4xl font-bold text-foreground">
-                        {fmt(results.totalMonthlyExpenses)}
-                        <span className="text-sm font-normal text-muted-foreground">/mo</span>
-                      </div>
-                      <div className="text-xs mt-1 text-muted-foreground">
-                        Mortgage + Strata + Tax
-                      </div>
+              {/* Developer Credit */}
+              <div className="bg-green-50 rounded-xl p-3 border border-green-200">
+                <label className="text-xs text-green-700 block mb-2">Developer Credit / Incentive</label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-[10px] text-green-600 block mb-1">% of Price</label>
+                    <div className="relative">
+                      <Input
+                        type="number"
+                        step="0.5"
+                        value={inputs.creditPercent || ''}
+                        onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                        placeholder="0"
+                        className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pr-6"
+                      />
+                      <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
                     </div>
-
-                    {/* Monthly Breakdown - First Time Buyer */}
-                    <div className="bg-secondary/20 rounded-xl p-4">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Mortgage</span>
-                          <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Strata</span>
-                          <span className="font-medium">{fmt(inputs.strataFees)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Property Tax</span>
-                          <span className="font-medium">{fmt(inputs.propertyTax)}</span>
-                        </div>
-                        <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
-                          <span>Total Monthly</span>
-                          <span>{fmt(results.totalMonthlyExpenses)}</span>
-                        </div>
-                      </div>
+                  </div>
+                  <div>
+                    <label className="text-[10px] text-green-600 block mb-1">$ Amount</label>
+                    <div className="relative">
+                      <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
+                      <Input
+                        type="number"
+                        value={inputs.creditAmount || ''}
+                        onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                        placeholder="0"
+                        className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pl-6"
+                      />
                     </div>
-
-                    {/* Cash to Close - First Time Buyer */}
-                    <div className="bg-green-50 rounded-xl p-4 border border-green-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-bold uppercase text-green-700">PTT Exemption Savings</span>
-                      </div>
-                      <div className="text-lg font-bold text-green-600">
-                        You save {fmt(calculatePTT(inputs.purchasePrice, false))} on PTT
-                      </div>
-                      <p className="text-xs text-green-600 mt-1">First-time buyer benefit</p>
-                    </div>
-
-                    {/* Rent vs Own Comparison - First Time Buyer Only */}
-                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30">
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          <Home className="w-4 h-4 text-primary" />
-                          <span className="text-xs font-bold uppercase text-primary">Rent vs Own</span>
-                        </div>
-                        <span className="text-[10px] text-muted-foreground">{inputs.holdingPeriodYears}yr comparison</span>
-                      </div>
-                      
-                      {/* Current Rent Input */}
-                      <div className="mb-3">
-                        <label className="text-[10px] text-muted-foreground block mb-1">Your Current Rent</label>
-                        <div className="relative">
-                          <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
-                          <Input
-                            type="number"
-                            value={inputs.currentRent}
-                            onChange={(e) => updateInput('currentRent', parseInt(e.target.value) || 0)}
-                            className="h-9 pl-6 text-sm font-medium"
-                          />
-                        </div>
-                      </div>
-
-                      {/* Side by Side Comparison */}
-                      <div className="grid grid-cols-2 gap-2 mb-3">
-                        <div className="bg-white/80 rounded-lg p-2 text-center">
-                          <div className="text-[10px] text-muted-foreground mb-0.5">Renting</div>
-                          <div className="text-sm font-bold">{fmt(inputs.currentRent)}/mo</div>
-                          <div className="text-[10px] text-red-500 mt-1">-{fmt(rentVsOwn.totalRentPaid)}</div>
-                          <div className="text-[9px] text-muted-foreground">paid over {inputs.holdingPeriodYears}yr</div>
-                        </div>
-                        <div className="bg-primary/10 rounded-lg p-2 text-center border border-primary/20">
-                          <div className="text-[10px] text-primary mb-0.5">Owning</div>
-                          <div className="text-sm font-bold">{fmt(results.totalMonthlyExpenses)}/mo</div>
-                          <div className="text-[10px] text-green-600 mt-1">+{fmt(rentVsOwn.equityBuilt)}</div>
-                          <div className="text-[9px] text-muted-foreground">equity built</div>
-                        </div>
-                      </div>
-
-                      {/* Verdict */}
-                      <div className={`p-2 rounded-lg text-center ${rentVsOwn.owningIsBetter ? 'bg-green-100 border border-green-300' : 'bg-amber-100 border border-amber-300'}`}>
-                        <div className="flex items-center justify-center gap-1.5">
-                          {rentVsOwn.owningIsBetter ? (
-                            <TrendingUp className="w-4 h-4 text-green-600" />
-                          ) : (
-                            <TrendingDown className="w-4 h-4 text-amber-600" />
-                          )}
-                          <span className={`text-xs font-bold ${rentVsOwn.owningIsBetter ? 'text-green-700' : 'text-amber-700'}`}>
-                            {rentVsOwn.owningIsBetter 
-                              ? `Buying ahead by ${fmt(Math.abs(rentVsOwn.wealthDifference))}` 
-                              : `Renting ahead by ${fmt(Math.abs(rentVsOwn.wealthDifference))}`}
-                          </span>
-                        </div>
-                        <p className="text-[9px] text-muted-foreground mt-0.5">
-                          After {inputs.holdingPeriodYears} years • {inputs.appreciationRate}% appreciation
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Cash Required Summary */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-foreground text-background rounded-xl p-3">
-                        <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
-                        <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                        {results.creditTotal > 0 ? (
-                          <p className="text-[10px] opacity-60">After -{fmt(results.creditTotal)} credit</p>
-                        ) : (
-                          <p className="text-[10px] opacity-60">Balance + Closing</p>
-                        )}
-                      </div>
-                      <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
-                        <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Cash Needed</div>
-                        <div className="text-lg font-bold">{fmt(results.totalCashRequired)}</div>
-                        <p className="text-[10px] text-muted-foreground">Deposits + Cash</p>
-                      </div>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    {/* Investor - Cash Flow Focus */}
-                    <div className={`rounded-xl p-4 text-center border-2 ${isPositive ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        {isPositive ? <TrendingUp className="w-5 h-5 text-green-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
-                        <span className={`text-xs font-bold uppercase ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                          {isPositive ? 'Cash Flow Positive' : 'Cash Burn'}
-                        </span>
-                      </div>
-                      <div className={`text-3xl sm:text-4xl font-bold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                        {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
-                        <span className="text-sm font-normal">/mo</span>
-                      </div>
-                      <div className={`text-xs mt-1 ${isPositive ? 'text-green-700' : 'text-red-700'}`}>
-                        {isPositive ? '+' : ''}{fmt(results.annualCashFlow)} per year
-                      </div>
-                    </div>
-
-                    {/* Monthly Breakdown - Investor */}
-                    <div className="bg-secondary/20 rounded-xl p-4">
-                      <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-green-600">+ Rent Income</span>
-                          <span className="font-medium text-green-600">{fmt(inputs.monthlyRent)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">- Mortgage</span>
-                          <span className="font-medium">{fmt(results.monthlyMortgage)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">- Strata + Tax</span>
-                          <span className="font-medium">{fmt(inputs.strataFees + inputs.propertyTax)}</span>
-                        </div>
-                        <div className="flex justify-between pt-2 border-t border-border/50 font-bold">
-                          <span>Net Cash Flow</span>
-                          <span className={isPositive ? 'text-green-600' : 'text-red-600'}>
-                            {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Investment Summary - Investor */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="bg-foreground text-background rounded-xl p-3">
-                        <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Cash at Completion</div>
-                        <div className="text-lg font-bold">{fmt(results.cashAtCompletion)}</div>
-                        {results.creditTotal > 0 ? (
-                          <p className="text-[10px] opacity-60">After -{fmt(results.creditTotal)} credit</p>
-                        ) : (
-                          <p className="text-[10px] opacity-60">Balance + PTT + Closing</p>
-                        )}
-                      </div>
-                      <div className="bg-primary/10 rounded-xl p-3 border border-primary/20">
-                        <div className="text-[10px] text-primary uppercase tracking-wider font-semibold mb-1">Total Investment</div>
-                        <div className="text-lg font-bold">{fmt(results.totalCashRequired)}</div>
-                        <p className="text-[10px] text-muted-foreground">Deposits + Cash</p>
-                      </div>
-                    </div>
-                  </>
+                  </div>
+                </div>
+                {results.creditTotal > 0 && (
+                  <div className="mt-2 pt-2 border-t border-green-200 flex justify-between text-sm">
+                    <span className="text-green-600">Applied Credit:</span>
+                    <span className="font-bold text-green-700">-{fmt(results.creditTotal)}</span>
+                  </div>
                 )}
-
-                {/* Credit Section */}
-                <div className="bg-green-50/70 rounded-xl p-3 border border-green-300">
-                  <div className="flex items-center gap-2 mb-2">
-                    <TrendingDown className="w-4 h-4 text-green-600" />
-                    <span className="text-xs font-semibold text-green-700 uppercase">Credit (Reduces Cash at Close)</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-green-600 block mb-1">% of Price</label>
-                      <div className="relative">
-                        <Input
-                          type="number"
-                          step="0.5"
-                          value={inputs.creditPercent || ''}
-                          onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
-                          onBlur={(e) => { if (e.target.value === '') updateInput('creditPercent', 0); }}
-                          placeholder="0"
-                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pr-6"
-                        />
-                        <Percent className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
-                      </div>
-                      {inputs.creditPercent > 0 && (
-                        <p className="text-[10px] text-green-600 mt-0.5 text-center">
-                          = {fmt(inputs.purchasePrice * (inputs.creditPercent / 100))}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-green-600 block mb-1">$ Amount</label>
-                      <div className="relative">
-                        <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-green-500" />
-                        <Input
-                          type="number"
-                          value={inputs.creditAmount || ''}
-                          onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
-                          onBlur={(e) => { if (e.target.value === '') updateInput('creditAmount', 0); }}
-                          placeholder="0"
-                          className="h-8 text-center font-semibold text-sm text-green-700 border-green-300 pl-6"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                  {results.creditTotal > 0 && (
-                    <div className="mt-2 pt-2 border-t border-green-200 flex items-center justify-between">
-                      <span className="text-xs text-green-600">Applied Credit:</span>
-                      <span className="text-sm font-bold text-green-700">-{fmt(results.creditTotal)}</span>
-                    </div>
-                  )}
-                  <p className="text-[10px] text-green-600 mt-1">Developer incentive, assignment credit, etc.</p>
-                </div>
-
-                {/* Mortgage Info - Both */}
-                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30 space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mortgage Principal</span>
-                    <span className="font-bold">{fmt(results.mortgageAmount)}</span>
-                  </div>
-                  {results.cmhcPremium > 0 && (
-                    <>
-                      <div className="flex justify-between text-xs text-muted-foreground">
-                        <span>Base Mortgage</span>
-                        <span>{fmt(results.baseMortgageAmount)}</span>
-                      </div>
-                      <div className="flex justify-between text-xs">
-                        <span className="text-amber-600">+ CMHC Insurance</span>
-                        <span className="text-amber-600 font-medium">{fmt(results.cmhcPremium)}</span>
-                      </div>
-                      <p className="text-[10px] text-amber-600 pt-1 border-t border-border/30">
-                        Required for down payments under 20%
-                      </p>
-                    </>
-                  )}
-                </div>
-
-                {/* Next Page Button */}
-                <Button 
-                  onClick={() => setCurrentPage('equity')}
-                  className="w-full h-11"
-                  variant="outline"
-                >
-                  View Equity & Growth
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
               </div>
             </div>
-          </TabsContent>
+          )}
 
-          {/* Page 2: Equity & Growth */}
-          <TabsContent value="equity" className="p-4 sm:p-6 mt-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-              {/* Left Column: Inputs */}
-              <div className="space-y-4">
-                {/* Holding Period */}
+          {/* Equity & Growth Section Toggle */}
+          <button
+            onClick={() => setShowEquity(!showEquity)}
+            className="w-full flex items-center justify-center gap-2 py-3 bg-primary/10 rounded-xl text-sm font-medium text-primary hover:bg-primary/20 transition-colors"
+          >
+            <PiggyBank className="w-4 h-4" />
+            {showEquity ? 'Hide' : 'View'} Equity & Growth Analysis
+            {showEquity ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+
+          {/* Equity & Growth Section */}
+          {showEquity && (
+            <div className="space-y-4 pt-2">
+              {/* Holding Period & Appreciation */}
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20">
-                  <label className="text-xs font-medium text-primary uppercase tracking-wider flex items-center gap-1.5 mb-3">
+                  <label className="text-xs font-medium text-primary uppercase mb-2 flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5" />
-                    Holding Period
+                    Hold Period
                   </label>
-                  <div className="flex items-center justify-center gap-4">
+                  <div className="flex items-center justify-center gap-3">
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={() => updateInput('holdingPeriodYears', Math.max(1, inputs.holdingPeriodYears - 1))}
-                      className="h-10 w-10"
+                      className="h-8 w-8"
                     >
                       -
                     </Button>
                     <div className="text-center">
-                      <div className="text-4xl font-bold text-primary">{inputs.holdingPeriodYears}</div>
-                      <div className="text-xs text-muted-foreground">years</div>
+                      <div className="text-3xl font-bold text-primary">{inputs.holdingPeriodYears}</div>
+                      <div className="text-[10px] text-muted-foreground">years</div>
                     </div>
                     <Button
                       variant="outline"
                       size="icon"
                       onClick={() => updateInput('holdingPeriodYears', Math.min(30, inputs.holdingPeriodYears + 1))}
-                      className="h-10 w-10"
+                      className="h-8 w-8"
                     >
                       +
                     </Button>
                   </div>
                 </div>
-
-                {/* Appreciation Rate */}
                 <div className="bg-secondary/20 rounded-xl p-4">
                   <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">
-                      Annual Appreciation
-                    </label>
+                    <label className="text-xs font-semibold text-muted-foreground uppercase">Appreciation</label>
                     <span className="text-lg font-bold text-primary">{inputs.appreciationRate}%</span>
                   </div>
                   <Slider
                     value={[inputs.appreciationRate]}
                     onValueChange={(v) => updateInput('appreciationRate', v[0])}
                     min={0} max={10} step={0.5}
-                    className="my-3"
+                    className="my-2"
                   />
-                  <div className="grid grid-cols-3 text-center text-xs text-muted-foreground pt-2">
-                    <span>0%</span>
-                    <span>5%</span>
-                    <span>10%</span>
-                  </div>
                 </div>
-
-                {/* Property Summary */}
-                <div className="bg-secondary/10 rounded-xl p-4 border border-border/30 space-y-2">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Property Summary</h3>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Purchase Price</span>
-                    <span className="font-medium">{fmt(inputs.purchasePrice)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Price + GST</span>
-                    <span className="font-medium">{fmt(results.priceWithGST)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Mortgage Amount</span>
-                    <span className="font-medium">{fmt(results.mortgageAmount)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Down Payment</span>
-                    <span className="font-medium">{fmt(results.downPayment)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm pt-2 border-t border-border/50">
-                    <span className="text-muted-foreground">Total Cash Invested</span>
-                    <span className="font-bold">{fmt(results.totalCashRequired)}</span>
-                  </div>
-                </div>
-
-                {/* Back Button */}
-                <Button 
-                  onClick={() => setCurrentPage('cashflow')}
-                  className="w-full h-11 md:hidden"
-                  variant="outline"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Back to Cash Flow
-                </Button>
               </div>
 
-              {/* Right Column: Results */}
-              <div className="space-y-4">
-                {/* Future Value */}
-                <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl p-4 border border-green-200">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-semibold text-green-700 uppercase">
-                      Future Property Value
-                    </span>
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
-                      {inputs.holdingPeriodYears} years
-                    </span>
+              {/* Future Value */}
+              <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl p-4 border border-green-200">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-semibold text-green-700 uppercase">Future Property Value</span>
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">
+                    {inputs.holdingPeriodYears} years
+                  </span>
+                </div>
+                <div className="text-3xl font-bold text-green-700">{fmt(results.futureValue)}</div>
+                <div className="flex items-center gap-1 mt-1 text-sm text-green-600">
+                  <ArrowUpRight className="w-4 h-4" />
+                  <span>+{fmt(results.appreciation)} appreciation</span>
+                </div>
+              </div>
+
+              {/* Equity Breakdown */}
+              <div className="bg-white rounded-xl p-4 border border-border shadow-sm">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-1.5">
+                  <PiggyBank className="w-3.5 h-3.5" />
+                  Total Equity Built
+                </h3>
+                <div className="text-3xl font-bold text-foreground mb-4">{fmt(results.totalEquityBuilt)}</div>
+                
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Down Payment</span>
+                      <span className="font-medium">{fmt(results.downPayment)}</span>
+                    </div>
+                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-primary/70 rounded-full"
+                        style={{ width: `${(results.downPayment / results.totalEquityBuilt) * 100}%` }}
+                      />
+                    </div>
                   </div>
-                  <div className="text-3xl font-bold text-green-700">{fmt(results.futureValue)}</div>
-                  <div className="flex items-center gap-1 mt-1 text-sm text-green-600">
-                    <ArrowUpRight className="w-4 h-4" />
-                    <span>+{fmt(results.appreciation)} appreciation</span>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Mortgage Paydown</span>
+                      <span className="font-medium">{fmt(results.principalPaid)}</span>
+                    </div>
+                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-blue-500 rounded-full"
+                        style={{ width: `${(results.principalPaid / results.totalEquityBuilt) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Appreciation</span>
+                      <span className="font-medium text-green-600">+{fmt(results.appreciation)}</span>
+                    </div>
+                    <div className="h-2 bg-secondary rounded-full overflow-hidden">
+                      <div 
+                        className="h-full bg-green-500 rounded-full"
+                        style={{ width: `${(results.appreciation / results.totalEquityBuilt) * 100}%` }}
+                      />
+                    </div>
                   </div>
                 </div>
+              </div>
 
-                {/* Equity Breakdown */}
-                <div className="bg-white rounded-xl p-4 border border-border shadow-sm">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-1.5">
-                    <PiggyBank className="w-3.5 h-3.5" />
-                    Total Equity Built
-                  </h3>
-                  <div className="text-3xl font-bold text-foreground mb-4">{fmt(results.totalEquityBuilt)}</div>
+              {/* ROI Summary */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-foreground text-background rounded-xl p-3">
+                  <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Total Return</div>
+                  <div className="text-lg font-bold">{fmt(results.totalReturn)}</div>
+                  <p className="text-[10px] opacity-60">{inputs.holdingPeriodYears}yr period</p>
+                </div>
+                <div className={`rounded-xl p-3 border-2 ${results.roiPercent > 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
+                  <div className={`text-[10px] uppercase tracking-wider font-semibold mb-1 ${results.roiPercent > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                    ROI
+                  </div>
+                  <div className={`text-lg font-bold ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    {results.roiPercent.toFixed(1)}%
+                  </div>
+                  <p className={`text-[10px] ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    on {fmt(results.totalCashRequired)}
+                  </p>
+                </div>
+              </div>
+
+              {/* First Time Buyer: Rent vs Own */}
+              {isFirstTimeBuyer && (
+                <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30">
+                  <div className="flex items-center gap-2 mb-4">
+                    <Home className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-bold text-primary">Rent vs Own Comparison</span>
+                    <span className="text-xs text-muted-foreground">({inputs.holdingPeriodYears} years)</span>
+                  </div>
                   
-                  <div className="space-y-3">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">Down Payment</span>
-                        <span className="font-medium">{fmt(results.downPayment)}</span>
-                      </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-primary/70 rounded-full"
-                          style={{ width: `${(results.downPayment / results.totalEquityBuilt) * 100}%` }}
-                        />
-                      </div>
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="bg-white rounded-lg p-3 border border-border/50">
+                      <div className="text-xs text-muted-foreground mb-1">If You Keep Renting</div>
+                      <div className="text-lg font-bold text-red-600">-{fmt(rentVsOwn.totalRentPaid)}</div>
+                      <div className="text-[10px] text-muted-foreground">Total rent paid</div>
                     </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">Mortgage Paydown</span>
-                        <span className="font-medium">{fmt(results.principalPaid)}</span>
-                      </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-blue-500 rounded-full"
-                          style={{ width: `${(results.principalPaid / results.totalEquityBuilt) * 100}%` }}
-                        />
-                      </div>
+                    <div className="bg-white rounded-lg p-3 border border-border/50">
+                      <div className="text-xs text-muted-foreground mb-1">If You Buy</div>
+                      <div className="text-lg font-bold text-green-600">{fmt(rentVsOwn.equityBuilt)}</div>
+                      <div className="text-[10px] text-muted-foreground">Equity built</div>
                     </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">Appreciation</span>
-                        <span className="font-medium text-green-600">+{fmt(results.appreciation)}</span>
-                      </div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                        <div 
-                          className="h-full bg-green-500 rounded-full"
-                          style={{ width: `${(results.appreciation / results.totalEquityBuilt) * 100}%` }}
-                        />
-                      </div>
+                  </div>
+                  
+                  <div className={`rounded-lg p-3 text-center ${rentVsOwn.owningIsBetter ? 'bg-green-100 border border-green-300' : 'bg-amber-100 border border-amber-300'}`}>
+                    <div className={`text-sm font-bold ${rentVsOwn.owningIsBetter ? 'text-green-700' : 'text-amber-700'}`}>
+                      {rentVsOwn.owningIsBetter 
+                        ? `Buying builds ${fmt(rentVsOwn.wealthDifference)} more wealth` 
+                        : `Renting saves ${fmt(Math.abs(rentVsOwn.wealthDifference))}`}
+                    </div>
+                    <div className={`text-xs mt-1 ${rentVsOwn.owningIsBetter ? 'text-green-600' : 'text-amber-600'}`}>
+                      Over {inputs.holdingPeriodYears} years at {inputs.appreciationRate}% appreciation
                     </div>
                   </div>
                 </div>
-
-                {/* ROI Summary */}
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-foreground text-background rounded-xl p-3">
-                    <div className="text-[10px] opacity-70 uppercase tracking-wider mb-1">Total Return</div>
-                    <div className="text-lg font-bold">{fmt(results.totalReturn)}</div>
-                    <p className="text-[10px] opacity-60">{inputs.holdingPeriodYears}yr period</p>
-                  </div>
-                  <div className={`rounded-xl p-3 border-2 ${results.roiPercent > 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
-                    <div className={`text-[10px] uppercase tracking-wider font-semibold mb-1 ${results.roiPercent > 0 ? 'text-green-700' : 'text-red-700'}`}>
-                      ROI
-                    </div>
-                    <div className={`text-lg font-bold ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {results.roiPercent.toFixed(1)}%
-                    </div>
-                    <p className={`text-[10px] ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      on {fmt(results.totalCashRequired)}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Remaining Balance */}
-                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">Remaining Mortgage</span>
-                    <span className="font-bold">{fmt(results.remainingBalance)}</span>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">
-                    After {inputs.holdingPeriodYears} years of payments
-                  </div>
-                </div>
-
-                {/* Cash Flow Impact */}
-                <div className="bg-secondary/10 rounded-xl p-3 border border-border/30">
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">Cumulative Cash Flow</span>
-                    <span className={`font-bold ${results.totalCashFlowOverPeriod >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {results.totalCashFlowOverPeriod >= 0 ? '+' : ''}{fmt(results.totalCashFlowOverPeriod)}
-                    </span>
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {fmt(results.annualCashFlow)}/yr × {inputs.holdingPeriodYears} years
-                  </div>
-                </div>
-              </div>
+              )}
             </div>
-          </TabsContent>
-        </Tabs>
+          )}
+        </div>
       </div>
 
       {/* Comparison Section */}
@@ -1246,24 +1043,19 @@ export function InvestmentSnapshot() {
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Monthly Cash Flow</span>
-                <span className={`font-medium ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                  {isPositive ? '+' : ''}{fmt(results.monthlyCashFlow)}
+                <span className={`font-medium ${results.monthlyCashFlow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {results.monthlyCashFlow >= 0 ? '+' : ''}{fmt(results.monthlyCashFlow)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Total Investment</span>
+                <span className="text-muted-foreground">Cash Required</span>
                 <span className="font-medium">{fmt(results.totalCashRequired)}</span>
               </div>
             </div>
           </div>
-          <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSaveScenario}>
-              <Save className="w-4 h-4 mr-2" />
-              Save
-            </Button>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveScenario}>Save Scenario</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
