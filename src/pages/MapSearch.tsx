@@ -789,8 +789,9 @@ export default function MapSearch() {
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 
-      {/* Main container - edge-to-edge on mobile, fills entire viewport including safe areas */}
-      <div className="h-screen flex flex-col overflow-hidden lg:bg-background">
+      {/* Main container - edge-to-edge on mobile/tablet, fills entire viewport including safe areas */}
+      {/* Fixed height with no overflow to prevent scroll on tablet */}
+      <div className="h-[100dvh] flex flex-col overflow-hidden lg:bg-background">
         {/* Desktop only header */}
         <div className="hidden lg:block">
           <ConversionHeader alwaysVisible stickyOnMobile />
@@ -798,9 +799,10 @@ export default function MapSearch() {
 
         {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+          {/* Mobile/Tablet: Search bar with safe area awareness */}
           <div 
             className="lg:hidden absolute left-3 right-3 z-[1002]" 
-            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 8px)' }}
+            style={{ top: 'max(12px, env(safe-area-inset-top, 12px))' }}
           >
             <MobileMapSearchBar
               searchQuery={searchQuery}
@@ -997,14 +999,10 @@ export default function MapSearch() {
           {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
           <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
             {/* Unified Mode Toggle - Floating on map */}
-            {/* Mobile/Tablet: Below search bar with proper spacing */}
+            {/* Mobile/Tablet: Below search bar with proper spacing - use fixed offset */}
             <div 
-              className="absolute z-[1000] lg:hidden"
-              style={{ 
-                top: 'calc(env(safe-area-inset-top, 0px) + 92px)',
-                left: '50%',
-                transform: 'translateX(-50%)'
-              }}
+              className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
+              style={{ top: 'max(60px, calc(env(safe-area-inset-top, 0px) + 52px))' }}
             >
               <UnifiedMapToggle
                 mode={mapMode}
@@ -1060,8 +1058,12 @@ export default function MapSearch() {
             </div>
 
             {/* Show Carousel Button - When hidden - Premium Apple Maps style */}
+            {/* Positioned above safe area with enough clearance for tablets */}
             {!showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[1001] lg:hidden">
+              <div 
+                className="absolute left-1/2 -translate-x-1/2 z-[1001] lg:hidden"
+                style={{ bottom: 'max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px))' }}
+              >
                 <button
                   onClick={() => setShowCarousel(true)}
                   className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform"
@@ -1074,8 +1076,12 @@ export default function MapSearch() {
             )}
 
             {/* Bottom Carousel - Mobile/Tablet - Floating above map, Premium Apple Maps style */}
+            {/* Use safe bottom inset with minimum padding to prevent cutoff on tablets */}
             {showCarousel && visibleItems.length > 0 && (
-              <div className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pb-[env(safe-area-inset-bottom)]">
+              <div 
+                className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden"
+                style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
+              >
                 {/* Carousel Header */}
                 <div className="flex items-center justify-between px-4 pb-2 pt-1">
                   <div className="flex items-center gap-2">
