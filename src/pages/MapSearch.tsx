@@ -497,6 +497,54 @@ export default function MapSearch() {
     return [];
   }, [filters.cities, filters.city]);
 
+  // Track previous cities to detect user-initiated filter changes
+  const prevSelectedCitiesRef = useRef<string[]>([]);
+  
+  // Fly map to selected cities when city filter changes
+  useEffect(() => {
+    // Skip if no cities selected or if this is the initial render
+    if (selectedCities.length === 0) {
+      prevSelectedCitiesRef.current = [];
+      return;
+    }
+    
+    // Check if cities actually changed (not just initial mount)
+    const citiesChanged = 
+      prevSelectedCitiesRef.current.length !== selectedCities.length ||
+      !selectedCities.every(c => prevSelectedCitiesRef.current.includes(c));
+    
+    if (!citiesChanged) return;
+    
+    prevSelectedCitiesRef.current = selectedCities;
+    
+    // Wait for map to be ready
+    if (!mapNavigationRef.current) return;
+    
+    if (selectedCities.length === 1) {
+      // Single city - fly directly to it
+      const cityCoords = CITY_COORDINATES[selectedCities[0]];
+      if (cityCoords) {
+        mapNavigationRef.current.flyTo(cityCoords.lat, cityCoords.lng, cityCoords.zoom);
+      }
+    } else {
+      // Multiple cities - calculate bounds and fit map to show all
+      const validCoords = selectedCities
+        .map(city => CITY_COORDINATES[city])
+        .filter(Boolean);
+      
+      if (validCoords.length > 0) {
+        // Calculate center of all selected cities
+        const avgLat = validCoords.reduce((sum, c) => sum + c.lat, 0) / validCoords.length;
+        const avgLng = validCoords.reduce((sum, c) => sum + c.lng, 0) / validCoords.length;
+        
+        // Use a wider zoom for multiple cities
+        const zoom = validCoords.length <= 2 ? 11 : validCoords.length <= 4 ? 10 : 9;
+        
+        mapNavigationRef.current.flyTo(avgLat, avgLng, zoom);
+      }
+    }
+  }, [selectedCities]);
+
   // Merged property types
   const selectedPropertyTypes = useMemo(() => {
     if (filters.propertyTypes.length > 0) return filters.propertyTypes;
