@@ -34,7 +34,7 @@ import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
 import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
 
@@ -160,6 +160,7 @@ type PresaleProject = {
 
 export default function MapSearch() {
   const isMobile = useIsMobile();
+  const isMobileOrTablet = useIsMobileOrTablet();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -1128,7 +1129,7 @@ export default function MapSearch() {
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
                       onMapStateChange={handleMapStateChange}
-                      disablePopupsOnMobile={isMobile}
+                      disablePopupsOnMobile={isMobileOrTablet}
                       centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
