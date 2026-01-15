@@ -195,61 +195,98 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // Call Lofty API to create/update contact
-    // Lofty uses flat payload structure, not nested under "lead"
+    // Lofty Open API uses versioned base paths (v1.0). Some accounts may still accept v1.
     const loftyPayload = {
-      first_name: contactData.first_name,
-      last_name: contactData.last_name,
+      // Lofty expects camelCase fields
+      firstName: contactData.first_name,
+      lastName: contactData.last_name,
       email: contactData.email,
       phone: contactData.phone,
       source: leadSource,
-      inquiry_source: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
-      tags: contactData.tags,
       notes: contactData.notes,
+      tags: contactData.tags,
+      // Helpful extra context (safe to ignore if Lofty doesn't recognize it)
+      inquirySource: projectContext ? `${projectContext} - PresaleProperties.com` : "PresaleProperties.com",
     };
-    
-    console.log("Calling Lofty API:", JSON.stringify(loftyPayload));
-    
-    const loftyResponse = await fetch("https://api.lofty.com/v1/leads", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `token ${loftyApiKey}`,
-      },
-      body: JSON.stringify(loftyPayload),
-    });
 
-    const responseText = await loftyResponse.text();
-    console.log("Lofty API response:", loftyResponse.status, responseText);
+    const loftyUrls = [
+      "https://api.lofty.com/v1.0/leads",
+      "https://api.lofty.com/v1/leads",
+    ];
 
-    if (!loftyResponse.ok) {
-      console.error("Lofty API error:", responseText);
-      
-      // Still return success but log the error - don't block the lead flow
-      return new Response(
-        JSON.stringify({ 
-          success: false, 
-          error: "Lofty API error", 
-          status: loftyResponse.status,
-          details: responseText 
-        }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const authHeadersToTry = [
+      `token ${loftyApiKey}`,
+      `Bearer ${loftyApiKey}`,
+    ];
+
+    let lastStatus: number | null = null;
+    let lastBody = "";
+
+    for (const url of loftyUrls) {
+      for (const auth of authHeadersToTry) {
+        const authMode = auth.startsWith("token ") ? "token" : "bearer";
+        console.log(`Calling Lofty API (${authMode}) -> ${url}`);
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+            "Authorization": auth,
+          },
+          body: JSON.stringify(loftyPayload),
+        });
+
+        const bodyText = await res.text();
+        lastStatus = res.status;
+        lastBody = bodyText;
+
+        console.log("Lofty API response:", res.status);
+
+        if (res.ok) {
+          let loftyData: any;
+          try {
+            loftyData = JSON.parse(bodyText);
+          } catch {
+            loftyData = { raw: bodyText };
+          }
+
+          console.log("Lead synced to Lofty successfully");
+          return new Response(
+            JSON.stringify({
+              success: true,
+              loftyId: loftyData?.id || loftyData?.lead_id,
+              message: "Lead synced to Lofty CRM",
+            }),
+            { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+
+        // If auth failed, try next auth/header combo.
+        if (res.status === 401 || res.status === 403) {
+          continue;
+        }
+
+        // For non-auth errors (400/422/500), don't spam retries.
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: "Lofty API error",
+            status: res.status,
+            details: bodyText,
+          }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
-    let loftyData;
-    try {
-      loftyData = JSON.parse(responseText);
-    } catch {
-      loftyData = { raw: responseText };
-    }
-
-    console.log("Lead synced to Lofty successfully");
-
+    // All attempts failed (likely auth)
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        loftyId: loftyData?.id || loftyData?.lead_id,
-        message: "Lead synced to Lofty CRM" 
+      JSON.stringify({
+        success: false,
+        error: "Lofty API error",
+        status: lastStatus,
+        details: lastBody,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
