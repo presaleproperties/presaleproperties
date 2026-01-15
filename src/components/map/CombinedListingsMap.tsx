@@ -5,6 +5,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { Crosshair, Plus, Minus } from "lucide-react";
+import { toast } from "sonner";
 
 const DEFAULT_CENTER: L.LatLngExpression = [49.2827, -123.1207];
 const DEFAULT_ZOOM = 11;
@@ -591,20 +592,33 @@ export function CombinedListingsMap({
   }, [initialUserLocation, updateUserLocationMarker, updateVisibleItems]);
 
   const handleLocateUser = () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const loc = L.latLng(pos.coords.latitude, pos.coords.longitude);
-          setUserLocation(loc);
-          updateUserLocationMarker(loc);
-          mapInstanceRef.current?.setView(loc, 14);
-        },
-        (error) => {
-          console.log("Geolocation error:", error.message);
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-      );
+    if (!navigator.geolocation) {
+      toast.error("Geolocation is not supported by your browser");
+      return;
     }
+    
+    toast.loading("Finding your location...", { id: "location" });
+    
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = L.latLng(pos.coords.latitude, pos.coords.longitude);
+        setUserLocation(loc);
+        updateUserLocationMarker(loc);
+        mapInstanceRef.current?.setView(loc, 14, { animate: true });
+        toast.success("Location found!", { id: "location" });
+      },
+      (error) => {
+        console.log("Geolocation error:", error.message);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error("Location access denied. Please enable location in your browser settings.", { id: "location" });
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          toast.error("Location unavailable. Please try again.", { id: "location" });
+        } else {
+          toast.error("Could not get your location. Please try again.", { id: "location" });
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
+    );
   };
 
   const handleZoomIn = () => mapInstanceRef.current?.zoomIn();
