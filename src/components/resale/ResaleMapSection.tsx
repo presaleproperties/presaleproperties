@@ -13,7 +13,12 @@ const ResaleListingsMap = lazy(() =>
   import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap }))
 );
 
-export function ResaleMapSection() {
+interface ResaleMapSectionProps {
+  /** Optional city to filter listings */
+  cityContext?: string;
+}
+
+export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
   const [isVisible, setIsVisible] = useState(false);
   const [shouldLoad, setShouldLoad] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -58,9 +63,11 @@ export function ResaleMapSection() {
   // Optimized query - fetch more listings for better map coverage
   // 2024+ builds only (move-in ready new construction)
   const { data: listings, isLoading } = useQuery({
-    queryKey: ["resale-map-section-listings-2024", enabledCities],
+    queryKey: ["resale-map-section-listings-2024", enabledCities, cityContext],
     queryFn: async () => {
-      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
+      const citiesToUse = cityContext 
+        ? [cityContext]
+        : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
       
       const { data, error } = await supabase
         .from("mls_listings")
@@ -110,15 +117,15 @@ export function ResaleMapSection() {
               </span>
             </div>
             <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-              Explore Move-In Ready Homes
+              {cityContext ? `${cityContext} Move-In Ready Homes` : "Explore Move-In Ready Homes"}
             </h2>
             <p className="text-muted-foreground mt-2 text-sm md:text-base max-w-xl">
-              Find new built condos, townhomes & houses. Click any pin for details.
+              Find new built condos, townhomes & houses{cityContext ? ` in ${cityContext}` : ""}. Click any pin for details.
             </p>
           </div>
           <div className="flex items-center gap-3">
             <ListingModeToggle size="sm" />
-            <Link to="/map-search?mode=resale">
+            <Link to={`/map-search?mode=resale${cityContext ? `&city=${encodeURIComponent(cityContext)}` : ""}`}>
               <Button variant="outline" className="gap-2">
                 <Map className="h-4 w-4" />
                 Full Map
