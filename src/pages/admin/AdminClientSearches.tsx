@@ -497,14 +497,14 @@ export default function AdminClientSearches() {
                 <div className="space-y-2">
                   <Label>Min Bedrooms</Label>
                   <Select
-                    value={newSearch.beds_min}
-                    onValueChange={(value) => setNewSearch(prev => ({ ...prev, beds_min: value }))}
+                    value={newSearch.beds_min || "any"}
+                    onValueChange={(value) => setNewSearch(prev => ({ ...prev, beds_min: value === "any" ? "" : value }))}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Any" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any</SelectItem>
+                      <SelectItem value="any">Any</SelectItem>
                       <SelectItem value="1">1+</SelectItem>
                       <SelectItem value="2">2+</SelectItem>
                       <SelectItem value="3">3+</SelectItem>
