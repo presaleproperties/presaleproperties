@@ -38,6 +38,9 @@ interface SnapshotInputs {
   appreciationRate: number;
   creditPercent: number;
   creditAmount: number;
+  // Rent vs Own (First Time Buyers)
+  currentRent: number;
+  rentIncreaseRate: number;
 }
 
 const DEFAULT_INPUTS: SnapshotInputs = {
@@ -58,6 +61,9 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   appreciationRate: 3,
   creditPercent: 0,
   creditAmount: 0,
+  // Rent vs Own defaults
+  currentRent: 2200,
+  rentIncreaseRate: 3,
 };
 
 function calculateCMHCPremium(mortgageAmount: number, downPaymentPercent: number): number {
@@ -237,6 +243,69 @@ export function InvestmentSnapshot() {
       equityFromPaydown, totalCashFlowOverPeriod, totalReturn, roiPercent,
     };
   }, [inputs]);
+
+  // Rent vs Own comparison for first-time buyers
+  const rentVsOwn = useMemo(() => {
+    const years = inputs.holdingPeriodYears;
+    const monthlyOwnershipCost = results.totalMonthlyExpenses;
+    const annualAppreciation = inputs.appreciationRate / 100;
+    const annualRentIncrease = inputs.rentIncreaseRate / 100;
+    
+    let totalRentPaid = 0;
+    let totalOwnershipCost = 0;
+    let currentRent = inputs.currentRent;
+    let homeValue = inputs.purchasePrice;
+    let mortgageBalance = results.mortgageAmount;
+    const annualRate = inputs.interestRate / 100;
+    const monthlyRate = annualRate / 12;
+    
+    for (let year = 1; year <= years; year++) {
+      totalRentPaid += currentRent * 12;
+      currentRent = currentRent * (1 + annualRentIncrease);
+      totalOwnershipCost += monthlyOwnershipCost * 12;
+      homeValue = homeValue * (1 + annualAppreciation);
+      
+      for (let month = 1; month <= 12; month++) {
+        if (mortgageBalance <= 0) break;
+        const interestPayment = mortgageBalance * monthlyRate;
+        const principalPayment = Math.min(results.monthlyMortgage - interestPayment, mortgageBalance);
+        mortgageBalance -= principalPayment;
+      }
+    }
+    
+    const equityBuilt = homeValue - mortgageBalance;
+    const monthlySavingsRenting = monthlyOwnershipCost - inputs.currentRent;
+    
+    // Opportunity cost calculation
+    const annualInvestmentReturn = 0.06;
+    let investedSavings = 0;
+    const initialInvestment = results.totalCashRequired;
+    
+    for (let year = 1; year <= years; year++) {
+      investedSavings = investedSavings * (1 + annualInvestmentReturn);
+      if (year === 1) investedSavings += initialInvestment;
+      if (monthlySavingsRenting < 0) {
+        investedSavings += Math.abs(monthlySavingsRenting) * 12;
+      }
+    }
+    
+    const renterNetWealth = investedSavings - totalRentPaid;
+    const ownerNetWealth = equityBuilt - totalOwnershipCost;
+    const wealthDifference = ownerNetWealth - renterNetWealth;
+    
+    return {
+      totalRentPaid,
+      totalOwnershipCost,
+      equityBuilt,
+      homeValueAtEnd: homeValue,
+      investedSavings,
+      renterNetWealth,
+      ownerNetWealth,
+      wealthDifference,
+      owningIsBetter: wealthDifference > 0,
+      monthlyCostDiff: inputs.currentRent - monthlyOwnershipCost,
+    };
+  }, [inputs.holdingPeriodYears, inputs.appreciationRate, inputs.rentIncreaseRate, inputs.currentRent, inputs.purchasePrice, inputs.interestRate, results.totalMonthlyExpenses, results.mortgageAmount, results.monthlyMortgage, results.totalCashRequired]);
 
   const updateInput = (field: keyof SnapshotInputs, value: number | boolean | BuyerType) => {
     setInputs(prev => ({ ...prev, [field]: value }));
@@ -671,6 +740,66 @@ export function InvestmentSnapshot() {
                         You save {fmt(calculatePTT(inputs.purchasePrice, false))} on PTT
                       </div>
                       <p className="text-xs text-green-600 mt-1">First-time buyer benefit</p>
+                    </div>
+
+                    {/* Rent vs Own Comparison - First Time Buyer Only */}
+                    <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Home className="w-4 h-4 text-primary" />
+                          <span className="text-xs font-bold uppercase text-primary">Rent vs Own</span>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">{inputs.holdingPeriodYears}yr comparison</span>
+                      </div>
+                      
+                      {/* Current Rent Input */}
+                      <div className="mb-3">
+                        <label className="text-[10px] text-muted-foreground block mb-1">Your Current Rent</label>
+                        <div className="relative">
+                          <DollarSign className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-muted-foreground" />
+                          <Input
+                            type="number"
+                            value={inputs.currentRent}
+                            onChange={(e) => updateInput('currentRent', parseInt(e.target.value) || 0)}
+                            className="h-9 pl-6 text-sm font-medium"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Side by Side Comparison */}
+                      <div className="grid grid-cols-2 gap-2 mb-3">
+                        <div className="bg-white/80 rounded-lg p-2 text-center">
+                          <div className="text-[10px] text-muted-foreground mb-0.5">Renting</div>
+                          <div className="text-sm font-bold">{fmt(inputs.currentRent)}/mo</div>
+                          <div className="text-[10px] text-red-500 mt-1">-{fmt(rentVsOwn.totalRentPaid)}</div>
+                          <div className="text-[9px] text-muted-foreground">paid over {inputs.holdingPeriodYears}yr</div>
+                        </div>
+                        <div className="bg-primary/10 rounded-lg p-2 text-center border border-primary/20">
+                          <div className="text-[10px] text-primary mb-0.5">Owning</div>
+                          <div className="text-sm font-bold">{fmt(results.totalMonthlyExpenses)}/mo</div>
+                          <div className="text-[10px] text-green-600 mt-1">+{fmt(rentVsOwn.equityBuilt)}</div>
+                          <div className="text-[9px] text-muted-foreground">equity built</div>
+                        </div>
+                      </div>
+
+                      {/* Verdict */}
+                      <div className={`p-2 rounded-lg text-center ${rentVsOwn.owningIsBetter ? 'bg-green-100 border border-green-300' : 'bg-amber-100 border border-amber-300'}`}>
+                        <div className="flex items-center justify-center gap-1.5">
+                          {rentVsOwn.owningIsBetter ? (
+                            <TrendingUp className="w-4 h-4 text-green-600" />
+                          ) : (
+                            <TrendingDown className="w-4 h-4 text-amber-600" />
+                          )}
+                          <span className={`text-xs font-bold ${rentVsOwn.owningIsBetter ? 'text-green-700' : 'text-amber-700'}`}>
+                            {rentVsOwn.owningIsBetter 
+                              ? `Buying ahead by ${fmt(Math.abs(rentVsOwn.wealthDifference))}` 
+                              : `Renting ahead by ${fmt(Math.abs(rentVsOwn.wealthDifference))}`}
+                          </span>
+                        </div>
+                        <p className="text-[9px] text-muted-foreground mt-0.5">
+                          After {inputs.holdingPeriodYears} years • {inputs.appreciationRate}% appreciation
+                        </p>
+                      </div>
                     </div>
 
                     {/* Cash Required Summary */}
