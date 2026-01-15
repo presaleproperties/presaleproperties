@@ -16,7 +16,8 @@ import {
   Mail,
   CheckCircle2,
   AlertCircle,
-  ExternalLink
+  ExternalLink,
+  Zap
 } from "lucide-react";
 
 interface AppSettings {
@@ -57,7 +58,55 @@ export default function AdminSettings() {
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [testingWebhook, setTestingWebhook] = useState(false);
   const { toast } = useToast();
+
+  const testBehaviorWebhook = async () => {
+    if (!settings.zapier_behavior_webhook) {
+      toast({
+        title: "No Webhook Configured",
+        description: "Please enter and save your Behavior Events Webhook URL first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTestingWebhook(true);
+    try {
+      const testPayload = {
+        event_type: "test_connection",
+        event_name: "webhook_test",
+        timestamp: new Date().toISOString(),
+        page_url: window.location.href,
+        page_title: "Admin Settings - Test Connection",
+        visitor_id: "test_" + Date.now(),
+        session_id: "test_session_" + Date.now(),
+        test: true,
+        message: "This is a test event from PresaleProperties Admin Settings",
+      };
+
+      // Send via edge function to bypass CORS
+      const { error } = await supabase.functions.invoke("send-behavior-event", {
+        body: testPayload,
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Test Event Sent! ✓",
+        description: "Check your Zapier Zap History to confirm receipt",
+      });
+    } catch (error) {
+      console.error("Error testing webhook:", error);
+      toast({
+        title: "Test Failed",
+        description: "Could not send test event. Check console for details.",
+        variant: "destructive",
+      });
+    } finally {
+      setTestingWebhook(false);
+    }
+  };
 
   useEffect(() => {
     fetchSettings();
@@ -384,14 +433,29 @@ export default function AdminSettings() {
                   </div>
                 </div>
 
-                <Button onClick={saveSettings} disabled={saving}>
-                  {saving ? (
-                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Save className="h-4 w-4 mr-2" />
-                  )}
-                  Save Webhook Settings
-                </Button>
+                <div className="flex gap-3">
+                  <Button onClick={saveSettings} disabled={saving}>
+                    {saving ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Save className="h-4 w-4 mr-2" />
+                    )}
+                    Save Webhook Settings
+                  </Button>
+                  
+                  <Button 
+                    variant="outline" 
+                    onClick={testBehaviorWebhook} 
+                    disabled={testingWebhook || !settings.zapier_behavior_webhook}
+                  >
+                    {testingWebhook ? (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    ) : (
+                      <Zap className="h-4 w-4 mr-2" />
+                    )}
+                    Test Connection
+                  </Button>
+                </div>
               </CardContent>
             </Card>
 
