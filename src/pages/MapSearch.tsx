@@ -1307,7 +1307,7 @@ export default function MapSearch() {
             {/* Top Bar - Search + Filter + Quick Filters */}
             <div className="shrink-0 border-b border-border bg-background">
               {/* Search Bar Row */}
-              <div className="flex items-center gap-2 p-3 pb-2">
+              <div className="flex items-center gap-2 px-3 pt-3 pb-1.5">
                 {/* Search Bar */}
                 <div className="flex-1">
                   <MapSearchBar
@@ -1513,7 +1513,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range */}
-              <div className="flex items-center gap-3 px-3 pb-3 flex-wrap">
+              <div className="flex items-center gap-3 px-3 pb-2.5 flex-wrap">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
