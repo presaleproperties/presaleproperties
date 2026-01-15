@@ -322,6 +322,185 @@ export type Database = {
         }
         Relationships: []
       }
+      client_activity: {
+        Row: {
+          activity_type: string
+          city: string | null
+          client_id: string | null
+          created_at: string
+          device_type: string | null
+          duration_seconds: number | null
+          id: string
+          listing_key: string | null
+          page_title: string | null
+          page_url: string | null
+          price: number | null
+          project_id: string | null
+          project_name: string | null
+          property_type: string | null
+          referrer: string | null
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          activity_type: string
+          city?: string | null
+          client_id?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_seconds?: number | null
+          id?: string
+          listing_key?: string | null
+          page_title?: string | null
+          page_url?: string | null
+          price?: number | null
+          project_id?: string | null
+          project_name?: string | null
+          property_type?: string | null
+          referrer?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          activity_type?: string
+          city?: string | null
+          client_id?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_seconds?: number | null
+          id?: string
+          listing_key?: string | null
+          page_title?: string | null
+          page_url?: string | null
+          price?: number | null
+          project_id?: string | null
+          project_name?: string | null
+          property_type?: string | null
+          referrer?: string | null
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_activity_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clients: {
+        Row: {
+          alert_frequency: string | null
+          alerts_enabled: boolean | null
+          beds_max: number | null
+          beds_min: number | null
+          created_at: string
+          drip_enabled: boolean | null
+          drip_sequence: string | null
+          email: string
+          first_name: string | null
+          id: string
+          intent_score: number | null
+          last_alert_sent_at: string | null
+          last_drip_sent: number | null
+          last_email_opened_at: string | null
+          last_name: string | null
+          last_seen_at: string | null
+          next_drip_at: string | null
+          notes: string | null
+          persona: string | null
+          phone: string | null
+          preferred_cities: string[] | null
+          preferred_property_types: string[] | null
+          price_max: number | null
+          price_min: number | null
+          source: string | null
+          status: string | null
+          tags: string[] | null
+          total_property_views: number | null
+          total_site_visits: number | null
+          updated_at: string
+          user_id: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          alert_frequency?: string | null
+          alerts_enabled?: boolean | null
+          beds_max?: number | null
+          beds_min?: number | null
+          created_at?: string
+          drip_enabled?: boolean | null
+          drip_sequence?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          intent_score?: number | null
+          last_alert_sent_at?: string | null
+          last_drip_sent?: number | null
+          last_email_opened_at?: string | null
+          last_name?: string | null
+          last_seen_at?: string | null
+          next_drip_at?: string | null
+          notes?: string | null
+          persona?: string | null
+          phone?: string | null
+          preferred_cities?: string[] | null
+          preferred_property_types?: string[] | null
+          price_max?: number | null
+          price_min?: number | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          total_property_views?: number | null
+          total_site_visits?: number | null
+          updated_at?: string
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          alert_frequency?: string | null
+          alerts_enabled?: boolean | null
+          beds_max?: number | null
+          beds_min?: number | null
+          created_at?: string
+          drip_enabled?: boolean | null
+          drip_sequence?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          intent_score?: number | null
+          last_alert_sent_at?: string | null
+          last_drip_sent?: number | null
+          last_email_opened_at?: string | null
+          last_name?: string | null
+          last_seen_at?: string | null
+          next_drip_at?: string | null
+          notes?: string | null
+          persona?: string | null
+          phone?: string | null
+          preferred_cities?: string[] | null
+          preferred_property_types?: string[] | null
+          price_max?: number | null
+          price_min?: number | null
+          source?: string | null
+          status?: string | null
+          tags?: string[] | null
+          total_property_views?: number | null
+          total_site_visits?: number | null
+          updated_at?: string
+          user_id?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       cmhc_rental_data: {
         Row: {
           avg_rent_1br: number | null
@@ -1904,6 +2083,75 @@ export type Database = {
           },
         ]
       }
+      property_alerts: {
+        Row: {
+          alert_type: string
+          clicked_at: string | null
+          client_id: string
+          created_at: string
+          id: string
+          listing_key: string | null
+          opened_at: string | null
+          previous_price: number | null
+          price: number | null
+          project_id: string | null
+          property_address: string | null
+          property_name: string | null
+          saved_search_id: string | null
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          alert_type: string
+          clicked_at?: string | null
+          client_id: string
+          created_at?: string
+          id?: string
+          listing_key?: string | null
+          opened_at?: string | null
+          previous_price?: number | null
+          price?: number | null
+          project_id?: string | null
+          property_address?: string | null
+          property_name?: string | null
+          saved_search_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          alert_type?: string
+          clicked_at?: string | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          listing_key?: string | null
+          opened_at?: string | null
+          previous_price?: number | null
+          price?: number | null
+          project_id?: string | null
+          property_address?: string | null
+          property_name?: string | null
+          saved_search_id?: string | null
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_alerts_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_alerts_saved_search_id_fkey"
+            columns: ["saved_search_id"]
+            isOneToOne: false
+            referencedRelation: "saved_searches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_listings: {
         Row: {
           created_at: string
@@ -1929,6 +2177,86 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_searches: {
+        Row: {
+          alert_frequency: string | null
+          baths_min: number | null
+          beds_max: number | null
+          beds_min: number | null
+          cities: string[] | null
+          client_id: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_alert_at: string | null
+          last_matched_listings: string[] | null
+          listing_types: string[] | null
+          name: string
+          neighborhoods: string[] | null
+          price_max: number | null
+          price_min: number | null
+          property_types: string[] | null
+          sqft_max: number | null
+          sqft_min: number | null
+          updated_at: string
+          year_built_min: number | null
+        }
+        Insert: {
+          alert_frequency?: string | null
+          baths_min?: number | null
+          beds_max?: number | null
+          beds_min?: number | null
+          cities?: string[] | null
+          client_id: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_alert_at?: string | null
+          last_matched_listings?: string[] | null
+          listing_types?: string[] | null
+          name?: string
+          neighborhoods?: string[] | null
+          price_max?: number | null
+          price_min?: number | null
+          property_types?: string[] | null
+          sqft_max?: number | null
+          sqft_min?: number | null
+          updated_at?: string
+          year_built_min?: number | null
+        }
+        Update: {
+          alert_frequency?: string | null
+          baths_min?: number | null
+          beds_max?: number | null
+          beds_min?: number | null
+          cities?: string[] | null
+          client_id?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_alert_at?: string | null
+          last_matched_listings?: string[] | null
+          listing_types?: string[] | null
+          name?: string
+          neighborhoods?: string[] | null
+          price_max?: number | null
+          price_min?: number | null
+          property_types?: string[] | null
+          sqft_max?: number | null
+          sqft_min?: number | null
+          updated_at?: string
+          year_built_min?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_searches_client_id_fkey"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "clients"
             referencedColumns: ["id"]
           },
         ]
