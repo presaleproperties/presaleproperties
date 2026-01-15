@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo, useState } from "react";
+import { useEffect, useRef, useCallback, useMemo, useState, forwardRef, useImperativeHandle } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -6,6 +6,11 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { Crosshair, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
+
+// Expose flyTo method for parent navigation
+export interface CombinedListingsMapRef {
+  flyTo: (lat: number, lng: number, zoom?: number) => void;
+}
 
 const DEFAULT_CENTER: L.LatLngExpression = [49.2827, -123.1207];
 const DEFAULT_ZOOM = 11;
@@ -255,7 +260,7 @@ function presalePopupHtml(project: PresaleProject): string {
   `;
 }
 
-export function CombinedListingsMap({ 
+export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedListingsMapProps>(({ 
   resaleListings,
   presaleProjects,
   mode,
@@ -267,7 +272,7 @@ export function CombinedListingsMap({
   centerOnUserLocation = false,
   initialUserLocation = null,
   savedMapState = null
-}: CombinedListingsMapProps) {
+}, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
@@ -278,6 +283,15 @@ export function CombinedListingsMap({
   const hasCenteredOnUserRef = useRef(false);
   const hasRestoredSavedStateRef = useRef(false);
 
+  // Expose flyTo method to parent via ref
+  useImperativeHandle(ref, () => ({
+    flyTo: (lat: number, lng: number, zoom?: number) => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 1 });
+      }
+    }
+  }), []);
+
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
     [resaleListings]
@@ -287,6 +301,7 @@ export function CombinedListingsMap({
     presaleProjects.filter(p => p.map_lat && p.map_lng),
     [presaleProjects]
   );
+
 
   const updateVisibleItems = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleItemsChange) return;
@@ -663,4 +678,6 @@ export function CombinedListingsMap({
       </div>
     </div>
   );
-}
+});
+
+CombinedListingsMap.displayName = 'CombinedListingsMap';
