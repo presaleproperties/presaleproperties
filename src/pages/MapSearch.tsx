@@ -717,7 +717,8 @@ export default function MapSearch() {
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 
-      <div className="h-screen bg-background flex flex-col overflow-hidden">
+      {/* Main container - edge-to-edge on mobile, fills entire viewport including safe areas */}
+      <div className="h-screen flex flex-col overflow-hidden lg:bg-background">
         {/* Desktop only header */}
         <div className="hidden lg:block">
           <ConversionHeader alwaysVisible stickyOnMobile />
