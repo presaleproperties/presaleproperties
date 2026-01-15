@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet-async";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, 
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
-  Building, HomeIcon, Warehouse
+  Building, HomeIcon, Warehouse, DollarSign
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,6 +30,7 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
+import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
@@ -358,9 +359,19 @@ export default function MapSearch() {
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // Parse multi-select filters from URL (comma-separated)
+  const parseMultiParam = (param: string | null): string[] => {
+    if (!param || param === "any") return [];
+    return param.split(",").filter(Boolean);
+  };
+
   const filters = {
-    city: searchParams.get("city") || "any",
-    propertyType: searchParams.get("type") || "any",
+    cities: parseMultiParam(searchParams.get("cities")),
+    propertyTypes: parseMultiParam(searchParams.get("types")),
+    priceRanges: parseMultiParam(searchParams.get("prices")),
+    // Legacy single-value support for backwards compat
+    city: searchParams.get("city") || "",
+    propertyType: searchParams.get("type") || "",
     priceMin: searchParams.get("priceMin") || "",
     priceMax: searchParams.get("priceMax") || "",
     beds: searchParams.get("beds") || "any",
@@ -368,6 +379,23 @@ export default function MapSearch() {
     daysOnSite: searchParams.get("days") || "any",
     sort: searchParams.get("sort") || "newest",
   };
+
+  // Merged cities (combine legacy single city with multi-select)
+  const selectedCities = useMemo(() => {
+    if (filters.cities.length > 0) return filters.cities;
+    if (filters.city && filters.city !== "any") return [filters.city];
+    return [];
+  }, [filters.cities, filters.city]);
+
+  // Merged property types
+  const selectedPropertyTypes = useMemo(() => {
+    if (filters.propertyTypes.length > 0) return filters.propertyTypes;
+    if (filters.propertyType && filters.propertyType !== "any") return [filters.propertyType];
+    return [];
+  }, [filters.propertyTypes, filters.propertyType]);
+
+  // Selected price ranges
+  const selectedPriceRanges = filters.priceRanges;
 
   // Price slider state
   const [priceRange, setPriceRange] = useState<[number, number]>([
@@ -379,7 +407,7 @@ export default function MapSearch() {
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
   // We intentionally keep this query “hot” so the count and markers update immediately.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-2024", filters, enabledCities],
+    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.beds, filters.baths, filters.daysOnSite, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -391,25 +419,15 @@ export default function MapSearch() {
         .not("longitude", "is", null)
         .gte("year_built", 2024);
 
-      // Filter by enabled cities from admin portal when no specific city selected
-      if (enabledCities && enabledCities.length > 0 && filters.city === "any") {
+      // Filter by selected cities (multi-select)
+      if (selectedCities.length > 0) {
+        query = query.in("city", selectedCities);
+      } else if (enabledCities && enabledCities.length > 0) {
+        // Default to enabled cities from admin portal
         query = query.in("city", enabledCities);
       }
 
-      if (filters.city !== "any") {
-        query = query.eq("city", filters.city);
-      }
-      if (filters.propertyType !== "any") {
-        query = query.or(
-          `property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`
-        );
-      }
-      if (filters.priceMin) {
-        query = query.gte("listing_price", parseInt(filters.priceMin));
-      }
-      if (filters.priceMax) {
-        query = query.lte("listing_price", parseInt(filters.priceMax));
-      }
+      // Property types and price ranges are filtered client-side for multi-select OR logic
       if (filters.baths !== "any") {
         query = query.gte("bathrooms_total", parseInt(filters.baths));
       }
@@ -441,10 +459,27 @@ export default function MapSearch() {
         if (chunk.length < pageSize) break;
       }
 
-      // De-dupe defensively (shouldn't happen, but cheap).
+      // De-dupe defensively
       const byId = new globalThis.Map<string, MLSListing>();
       for (const l of all) byId.set(l.id, l);
-      return Array.from(byId.values());
+      let results = Array.from(byId.values());
+      
+      // Client-side filtering for multi-select property types
+      if (selectedPropertyTypes.length > 0) {
+        results = results.filter(l => {
+          return selectedPropertyTypes.some(type => 
+            l.property_type?.toLowerCase().includes(type.toLowerCase()) ||
+            l.property_sub_type?.toLowerCase().includes(type.toLowerCase())
+          );
+        });
+      }
+      
+      // Client-side filtering for multi-select price ranges
+      if (selectedPriceRanges.length > 0) {
+        results = results.filter(l => priceMatchesRanges(l.listing_price, selectedPriceRanges));
+      }
+      
+      return results;
     },
     staleTime: 0,
     refetchOnMount: "always",
@@ -454,7 +489,7 @@ export default function MapSearch() {
 
   // Fetch presale projects
   const { data: presaleProjects, isLoading: presaleLoading } = useQuery<PresaleProject[]>({
-    queryKey: ["unified-map-presale", filters],
+    queryKey: ["unified-map-presale-multi", selectedCities, selectedPriceRanges],
     queryFn: async () => {
       let query = supabase
         .from("presale_projects")
@@ -464,21 +499,24 @@ export default function MapSearch() {
         .not("map_lat", "is", null)
         .not("map_lng", "is", null);
 
-      if (filters.city !== "any") {
-        query = query.eq("city", filters.city);
-      }
-      if (filters.priceMin) {
-        query = query.gte("starting_price", parseInt(filters.priceMin));
-      }
-      if (filters.priceMax) {
-        query = query.lte("starting_price", parseInt(filters.priceMax));
+      // Filter by selected cities
+      if (selectedCities.length > 0) {
+        query = query.in("city", selectedCities);
       }
 
       query = query.order("is_featured", { ascending: false }).order("created_at", { ascending: false });
 
       const { data, error } = await query;
       if (error) throw error;
-      return data as PresaleProject[];
+      
+      let results = data as PresaleProject[];
+      
+      // Client-side filtering for multi-select price ranges
+      if (selectedPriceRanges.length > 0) {
+        results = results.filter(p => p.starting_price && priceMatchesRanges(p.starting_price, selectedPriceRanges));
+      }
+      
+      return results;
     },
     staleTime: 2 * 60 * 1000,
   });
@@ -593,14 +631,32 @@ export default function MapSearch() {
   };
 
   const activeFilterCount = [
-    filters.city !== "any",
-    filters.propertyType !== "any",
-    filters.priceMin !== "",
-    filters.priceMax !== "",
+    selectedCities.length > 0,
+    selectedPropertyTypes.length > 0,
+    selectedPriceRanges.length > 0,
     filters.beds !== "any",
     filters.baths !== "any",
     filters.daysOnSite !== "any",
   ].filter(Boolean).length;
+
+  // Multi-select filter update handlers
+  const updateMultiFilter = useCallback((key: string, values: string[]) => {
+    const newParams = new URLSearchParams(searchParams);
+    // Clear legacy single-value params when using multi-select
+    if (key === "cities") newParams.delete("city");
+    if (key === "types") newParams.delete("type");
+    if (key === "prices") {
+      newParams.delete("priceMin");
+      newParams.delete("priceMax");
+    }
+    
+    if (values.length === 0) {
+      newParams.delete(key);
+    } else {
+      newParams.set(key, values.join(","));
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   // Helper to format price display
   const formatPriceLabel = (value: number) => {
@@ -1067,71 +1123,41 @@ export default function MapSearch() {
                 </Sheet>
               </div>
               
-              {/* Quick Filters Row - City, Home Type, Price Range */}
-              <div className="flex items-center gap-2 px-3 pb-3">
-                {/* City Dropdown */}
-                <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-                  <SelectTrigger className="h-8 text-xs bg-background border-border min-w-[100px] max-w-[140px]">
-                    <MapPin className="h-3 w-3 mr-1 text-muted-foreground shrink-0" />
-                    <SelectValue placeholder="City" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-[9999]">
-                    <SelectItem value="any">All Cities</SelectItem>
-                    {CITIES.map((city) => <SelectItem key={city} value={city}>{city}</SelectItem>)}
-                  </SelectContent>
-                </Select>
+              {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range */}
+              <div className="flex items-center gap-2 px-3 pb-3 flex-wrap">
+                {/* City Multi-Select */}
+                <MultiSelectFilter
+                  options={CITIES.map(city => ({ value: city, label: city }))}
+                  selected={selectedCities}
+                  onChange={(values) => updateMultiFilter("cities", values)}
+                  placeholder="Cities"
+                  icon={MapPin}
+                  allLabel="All Cities"
+                />
                 
-                {/* Home Type Dropdown */}
-                <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
-                  <SelectTrigger className="h-8 text-xs bg-background border-border min-w-[100px] max-w-[130px]">
-                    <Home className="h-3 w-3 mr-1 text-muted-foreground shrink-0" />
-                    <SelectValue placeholder="Home Type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-[9999]">
-                    {PROPERTY_TYPES.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                {/* Home Type Multi-Select */}
+                <MultiSelectFilter
+                  options={PROPERTY_TYPES.filter(t => t.value !== "any").map(opt => ({ 
+                    value: opt.value, 
+                    label: opt.label,
+                    icon: opt.icon || undefined
+                  }))}
+                  selected={selectedPropertyTypes}
+                  onChange={(values) => updateMultiFilter("types", values)}
+                  placeholder="Home Type"
+                  icon={Home}
+                  allLabel="Any Type"
+                />
                 
-                {/* Price Range Dropdown */}
-                <Select 
-                  value={
-                    filters.priceMin || filters.priceMax 
-                      ? `${filters.priceMin || '0'}-${filters.priceMax || 'max'}` 
-                      : "any"
-                  } 
-                  onValueChange={(v) => {
-                    if (v === "any") {
-                      updateFilter("priceMin", "");
-                      updateFilter("priceMax", "");
-                      setPriceRange([MIN_PRICE, MAX_PRICE]);
-                    } else {
-                      const [min, max] = v.split("-");
-                      updateFilter("priceMin", min === "0" ? "" : min);
-                      updateFilter("priceMax", max === "max" ? "" : max);
-                      setPriceRange([
-                        min === "0" ? MIN_PRICE : parseInt(min),
-                        max === "max" ? MAX_PRICE : parseInt(max)
-                      ]);
-                    }
-                  }}
-                >
-                  <SelectTrigger className="h-8 text-xs bg-background border-border min-w-[110px] max-w-[150px]">
-                    <span className="mr-1 text-muted-foreground shrink-0">$</span>
-                    <SelectValue placeholder="Price Range" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-[9999]">
-                    <SelectItem value="any">Any Price</SelectItem>
-                    <SelectItem value="0-500000">Under $500K</SelectItem>
-                    <SelectItem value="500000-750000">$500K - $750K</SelectItem>
-                    <SelectItem value="750000-1000000">$750K - $1M</SelectItem>
-                    <SelectItem value="1000000-1500000">$1M - $1.5M</SelectItem>
-                    <SelectItem value="1500000-2000000">$1.5M - $2M</SelectItem>
-                    <SelectItem value="2000000-3000000">$2M - $3M</SelectItem>
-                    <SelectItem value="3000000-max">$3M+</SelectItem>
-                  </SelectContent>
-                </Select>
+                {/* Price Range Multi-Select */}
+                <MultiSelectFilter
+                  options={PRICE_RANGE_OPTIONS}
+                  selected={selectedPriceRanges}
+                  onChange={(values) => updateMultiFilter("prices", values)}
+                  placeholder="Price"
+                  icon={DollarSign}
+                  allLabel="Any Price"
+                />
                 
                 {/* Clear Filters - only show if filters active */}
                 {activeFilterCount > 0 && (
