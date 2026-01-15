@@ -943,9 +943,9 @@ export default function MapSearch() {
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 
-        {/* Main container - edge-to-edge on mobile/tablet, fills entire viewport including safe areas */}
-        {/* Fixed position on mobile to truly cover entire screen including safe areas */}
-        <div className="fixed inset-0 flex flex-col overflow-hidden lg:relative lg:h-[100dvh] lg:bg-background">
+        {/* Main container - edge-to-edge on mobile/tablet with safe area support */}
+        {/* Uses map-page-root class for mobile/tablet full-bleed, lg:relative for desktop standard layout */}
+        <div className="map-page-root lg:relative lg:h-[100dvh] lg:bg-background flex flex-col overflow-hidden">
         {/* Desktop only header */}
         <div className="hidden lg:block">
           <ConversionHeader alwaysVisible stickyOnMobile />
@@ -953,10 +953,10 @@ export default function MapSearch() {
 
         {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-          {/* Mobile/Tablet: Search bar with safe area awareness */}
+          {/* Mobile/Tablet: Search bar with safe area awareness - positioned below notch/status bar */}
           <div 
-            className="lg:hidden absolute left-3 right-3 z-[1002]" 
-            style={{ top: 'max(12px, env(safe-area-inset-top, 12px))' }}
+            className="lg:hidden absolute left-0 right-0 z-[1002] px-3 map-safe-left map-safe-right" 
+            style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px)' }}
           >
             <MobileMapSearchBar
               searchQuery={searchQuery}
@@ -1163,7 +1163,7 @@ export default function MapSearch() {
             {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
             <div 
               className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
-              style={{ top: 'calc(max(12px, env(safe-area-inset-top, 12px)) + 72px)' }}
+              style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
             >
               <UnifiedMapToggle
                 mode={mapMode}
@@ -1223,7 +1223,7 @@ export default function MapSearch() {
             {!showCarousel && visibleItems.length > 0 && (
               <div 
                 className="absolute left-1/2 -translate-x-1/2 z-[1001] lg:hidden"
-                style={{ bottom: 'max(24px, calc(env(safe-area-inset-bottom, 0px) + 16px))' }}
+                style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
               >
                 <button
                   onClick={() => setShowCarousel(true)}
@@ -1243,7 +1243,7 @@ export default function MapSearch() {
                 className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pointer-events-none"
               >
                 {/* Carousel Header */}
-                <div className="flex items-center justify-between px-4 pb-2 pt-1 pointer-events-auto">
+                <div className="flex items-center justify-between pb-2 pt-1 pointer-events-auto" style={{ paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)' }}>
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-4 py-2 rounded-xl shadow-xl border border-black/5 dark:border-white/10">
                       {propertiesInViewCount} Properties
@@ -1261,8 +1261,8 @@ export default function MapSearch() {
                 {/* Carousel Cards */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-3 overflow-x-auto px-4 snap-x snap-mandatory pointer-events-auto"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'max(16px, env(safe-area-inset-bottom, 0px))' }}
+                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pointer-events-auto"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)' }}
                 >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
