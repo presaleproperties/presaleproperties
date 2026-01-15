@@ -96,36 +96,39 @@ function formatPrice(price: number): string {
 // Gold price pill - brand style, compact - with optional highlight
 function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean = false): L.DivIcon {
   const priceText = formatPrice(listing.listing_price);
+  const size = isHighlighted ? [80, 32] : [60, 22];
   
   return L.divIcon({
     className: `custom-price-marker resale-marker ${isHighlighted ? 'marker-highlighted' : ''}`,
     html: `
       <div class="price-pill-inner ${isHighlighted ? 'bouncing' : ''}" style="
-        background: ${isHighlighted ? 'hsl(222, 47%, 20%)' : 'hsl(45, 89%, 55%)'};
-        color: ${isHighlighted ? 'white' : 'hsl(222, 47%, 11%)'};
-        padding: 3px 8px;
-        border-radius: 12px;
-        font-weight: 600;
-        font-size: 11px;
+        background: ${isHighlighted ? 'hsl(45, 89%, 55%)' : 'hsl(45, 89%, 55%)'};
+        color: ${isHighlighted ? 'hsl(222, 47%, 11%)' : 'hsl(222, 47%, 11%)'};
+        padding: ${isHighlighted ? '6px 14px' : '3px 8px'};
+        border-radius: ${isHighlighted ? '16px' : '12px'};
+        font-weight: ${isHighlighted ? '700' : '600'};
+        font-size: ${isHighlighted ? '14px' : '11px'};
         white-space: nowrap;
-        box-shadow: ${isHighlighted ? '0 4px 12px rgba(0,0,0,0.4)' : '0 1px 4px rgba(0,0,0,0.2)'};
-        border: ${isHighlighted ? '2px solid hsl(45, 89%, 55%)' : '1.5px solid white'};
+        box-shadow: ${isHighlighted ? '0 0 0 4px hsla(45, 89%, 55%, 0.4), 0 6px 20px rgba(0,0,0,0.5)' : '0 1px 4px rgba(0,0,0,0.2)'};
+        border: ${isHighlighted ? '3px solid hsl(222, 47%, 20%)' : '1.5px solid white'};
         cursor: pointer;
         line-height: 1.2;
         transform-origin: center bottom;
-        ${isHighlighted ? 'animation: marker-bounce 0.6s ease-in-out;' : ''}
       ">
         ${priceText}
       </div>
     `,
-    iconSize: [60, 22],
-    iconAnchor: [30, 22],
-    popupAnchor: [0, -24],
+    iconSize: [size[0], size[1]],
+    iconAnchor: [size[0] / 2, size[1]],
+    popupAnchor: [0, -size[1] - 2],
   });
 }
 
 // Presale marker - dark navy teardrop with gold ring and building icon - with optional highlight
 function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = false): L.DivIcon {
+  const size = isHighlighted ? 44 : 28;
+  const iconSize = isHighlighted ? 18 : 12;
+  
   return L.divIcon({
     className: `custom-presale-pin ${isHighlighted ? 'marker-highlighted' : ''}`,
     html: `
@@ -135,30 +138,29 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
         flex-direction: column;
         align-items: center;
         transform-origin: center bottom;
-        ${isHighlighted ? 'animation: marker-bounce 0.6s ease-in-out;' : ''}
       ">
         <div style="
           background: ${isHighlighted ? 'hsl(45, 89%, 55%)' : 'hsl(222, 47%, 20%)'};
-          width: ${isHighlighted ? '34px' : '28px'};
-          height: ${isHighlighted ? '34px' : '28px'};
+          width: ${size}px;
+          height: ${size}px;
           border-radius: 50% 50% 50% 0;
           transform: rotate(-45deg);
           display: flex;
           align-items: center;
           justify-content: center;
-          box-shadow: ${isHighlighted ? '0 4px 12px rgba(0,0,0,0.4)' : '0 2px 4px rgba(0,0,0,0.3)'};
-          border: ${isHighlighted ? '3px solid hsl(222, 47%, 20%)' : '2px solid hsl(45, 89%, 55%)'};
+          box-shadow: ${isHighlighted ? '0 0 0 6px hsla(45, 89%, 55%, 0.4), 0 8px 24px rgba(0,0,0,0.5)' : '0 2px 4px rgba(0,0,0,0.3)'};
+          border: ${isHighlighted ? '4px solid hsl(222, 47%, 20%)' : '2px solid hsl(45, 89%, 55%)'};
           transition: all 0.2s ease;
         ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="${isHighlighted ? '14' : '12'}" height="${isHighlighted ? '14' : '12'}" viewBox="0 0 24 24" fill="${isHighlighted ? 'hsl(222, 47%, 20%)' : 'hsl(45, 89%, 55%)'}" stroke="none" style="transform: rotate(45deg);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${isHighlighted ? 'hsl(222, 47%, 20%)' : 'hsl(45, 89%, 55%)'}" stroke="none" style="transform: rotate(45deg);">
             <path d="M3 21h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V7H3v2zm0-6v2h18V3H3z"/>
           </svg>
         </div>
       </div>
     `,
-    iconSize: [isHighlighted ? 34 : 28, isHighlighted ? 40 : 34],
-    iconAnchor: [isHighlighted ? 17 : 14, isHighlighted ? 40 : 34],
-    popupAnchor: [0, isHighlighted ? -40 : -34],
+    iconSize: [size, size + 6],
+    iconAnchor: [size / 2, size + 6],
+    popupAnchor: [0, -(size + 6)],
   });
 }
 
