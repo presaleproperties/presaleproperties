@@ -18,7 +18,7 @@ import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
 import { NeighborhoodProjectsCarousel } from "@/components/home/NeighborhoodProjectsCarousel";
 import { BookingModal } from "@/components/booking/BookingModal";
 import { InlineScheduler } from "@/components/booking/InlineScheduler";
-import { FloorPlanModal } from "@/components/projects/FloorPlanModal";
+
 import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
 import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
 import { ProjectLeadMagnetsBar, SaveProjectButton, PriceAlertButton } from "@/components/conversion/LeadMagnets";
@@ -82,6 +82,7 @@ export default function PresaleProjectDetail() {
     toast
   } = useToast();
   const formRef = useRef<HTMLDivElement>(null);
+  const mobileFormRef = useRef<HTMLDivElement>(null);
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
@@ -89,7 +90,7 @@ export default function PresaleProjectDetail() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingDate, setBookingDate] = useState<Date | undefined>();
   const [bookingTimePeriod, setBookingTimePeriod] = useState<string | undefined>();
-  const [floorPlanModalOpen, setFloorPlanModalOpen] = useState(false);
+  
 
   // Track project view to Lofty CRM (legacy)
   useLoftyProjectTracking(project);
@@ -150,12 +151,8 @@ export default function PresaleProjectDetail() {
       });
     }
 
-    // On mobile, open modal instead of scrolling
-    if (window.innerWidth < 1024) {
-      setFloorPlanModalOpen(true);
-    } else {
-      handleAskQuestion();
-    }
+    // Scroll to the lead form instead of opening modal
+    scrollToForm();
   };
   const handleScheduleTourClick = (date: Date, timePeriod: string) => {
     trackEvent("click_schedule_tour", {
@@ -273,7 +270,10 @@ export default function PresaleProjectDetail() {
     }
   };
   const scrollToForm = () => {
-    formRef.current?.scrollIntoView({
+    // Scroll to mobile form on small screens, desktop form on large screens
+    const isMobile = window.innerWidth < 768;
+    const targetRef = isMobile ? mobileFormRef : formRef;
+    targetRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
@@ -881,7 +881,7 @@ export default function PresaleProjectDetail() {
               
               {/* Mobile-only Lead Form and Scheduler - positioned after FAQ */}
               <div className="md:hidden space-y-4">
-                <div ref={formRef} id="contact-form-mobile" className="w-full">
+                <div ref={mobileFormRef} id="contact-form-mobile" className="w-full">
                   <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                 </div>
                 <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
@@ -898,8 +898,6 @@ export default function PresaleProjectDetail() {
       {/* Booking Modal */}
       <BookingModal open={bookingOpen} onOpenChange={setBookingOpen} projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} projectUrl={canonicalUrl} initialDate={bookingDate} initialTimePeriod={bookingTimePeriod} />
 
-      {/* Floor Plan Modal - Mobile only */}
-      <FloorPlanModal open={floorPlanModalOpen} onOpenChange={setFloorPlanModalOpen} projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
 
       {/* Contextual Internal Links */}
       <ProjectContextualLinks projectName={project.name} neighborhood={project.neighborhood} city={project.city} projectType={project.project_type} startingPrice={project.starting_price} />
