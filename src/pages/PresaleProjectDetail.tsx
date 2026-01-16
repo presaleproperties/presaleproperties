@@ -716,7 +716,7 @@ export default function PresaleProjectDetail() {
                 </div>
 
                 {/* Short description - visible on all screen sizes */}
-                {project.short_description && <p className="text-sm text-muted-foreground mt-2 leading-relaxed lg:line-clamp-4">
+                {project.short_description && <p className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed lg:line-clamp-4">
                     {project.short_description}
                   </p>}
 
