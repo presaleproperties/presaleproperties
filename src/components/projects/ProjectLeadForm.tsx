@@ -353,7 +353,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const content = getFormContent();
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:overscroll-contain">
+    <div className="bg-card border border-border rounded-2xl lg:rounded-xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:overscroll-contain">
       {/* Close button */}
       {onClose && (
         <button
@@ -366,34 +366,34 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       )}
       
       {/* Header - Premium gradient with animated shine */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-5 pr-12 relative overflow-hidden">
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-5 lg:px-4 lg:py-3 pr-12 lg:pr-10 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
         
         {/* Brochure Ready indicator */}
         {brochureUrl && (
-          <div className="flex items-center gap-2 flex-wrap mb-2 relative">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-sm">
-              <Download className="h-3 w-3" />
+          <div className="flex items-center gap-2 flex-wrap mb-2 lg:mb-1.5 relative">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-green-500/90 px-2.5 py-1 lg:px-2 lg:py-0.5 rounded-full shadow-sm">
+              <Download className="h-3 w-3 lg:h-2.5 lg:w-2.5" />
               Brochure Ready
             </span>
           </div>
         )}
         
-        <h3 className="text-lg lg:text-xl font-bold text-background leading-snug relative">
+        <h3 className="text-lg lg:text-base font-bold text-background leading-snug relative">
           {content.title}
         </h3>
-        <p className="text-xs text-background/70 mt-1 relative">
+        <p className="text-xs lg:text-[11px] text-background/70 mt-1 lg:mt-0.5 relative">
           Get instant access — no obligation
         </p>
       </div>
 
       {/* Form - optimized for conversion & autofill */}
-      <div className="p-4 lg:p-5 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4">
+      <div className="p-4 lg:p-3 bg-card">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4 lg:space-y-2.5">
           {/* First Name & Last Name - side by side with proper autofill */}
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 lg:gap-2">
             <div>
-              <Label htmlFor="lead-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="lead-firstName" className="text-sm lg:text-xs font-medium text-muted-foreground mb-1.5 lg:mb-1 block">
                 First Name
               </Label>
               <Input
@@ -404,11 +404,11 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
                 autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("firstName")}
-                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-12 min-h-[48px] lg:h-9 lg:min-h-[36px] text-[16px] lg:text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div>
-              <Label htmlFor="lead-lastName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="lead-lastName" className="text-sm lg:text-xs font-medium text-muted-foreground mb-1.5 lg:mb-1 block">
                 Last Name
               </Label>
               <Input
@@ -419,14 +419,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
                 autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("lastName")}
-                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-12 min-h-[48px] lg:h-9 lg:min-h-[36px] text-[16px] lg:text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </div>
 
           {/* Email */}
           <div>
-            <Label htmlFor="lead-email" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+            <Label htmlFor="lead-email" className="text-sm lg:text-xs font-medium text-muted-foreground mb-1.5 lg:mb-1 block">
               Email
             </Label>
             <Input
@@ -439,13 +439,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               autoCapitalize="none"
               enterKeyHint="next"
               {...form.register("email")}
-              className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+              className="h-12 min-h-[48px] lg:h-9 lg:min-h-[36px] text-[16px] lg:text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
           {/* Phone */}
           <div>
-            <Label htmlFor="lead-phone" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+            <Label htmlFor="lead-phone" className="text-sm lg:text-xs font-medium text-muted-foreground mb-1.5 lg:mb-1 block">
               Phone
             </Label>
             <Input
@@ -457,24 +457,24 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               autoComplete="tel"
               enterKeyHint="done"
               {...form.register("phone")}
-              className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+              className="h-12 min-h-[48px] lg:h-9 lg:min-h-[36px] text-[16px] lg:text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
             />
           </div>
 
           {/* I am a... - Large touch targets */}
           <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+            <Label className="text-sm lg:text-xs font-medium text-muted-foreground mb-2 lg:mb-1.5 block">
               I am a...
             </Label>
             <RadioGroup
               value={form.watch("persona")}
               onValueChange={(v) => form.setValue("persona", v as any)}
-              className="grid grid-cols-2 gap-3"
+              className="grid grid-cols-2 gap-3 lg:gap-2"
             >
               {PERSONAS.map((p) => (
                 <Label
                   key={p.value}
-                  className={`flex items-center justify-center h-12 min-h-[48px] rounded-xl border-2 cursor-pointer text-base font-medium transition-all touch-active ${
+                  className={`flex items-center justify-center h-12 min-h-[48px] lg:h-9 lg:min-h-[36px] rounded-xl lg:rounded-lg border-2 cursor-pointer text-base lg:text-sm font-medium transition-all touch-active ${
                     form.watch("persona") === p.value
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50 active:bg-muted"
@@ -489,18 +489,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Working with agent - Touch-friendly */}
           <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+            <Label className="text-sm lg:text-xs font-medium text-muted-foreground mb-2 lg:mb-1.5 block">
               Working with a Realtor?
             </Label>
             <RadioGroup
               value={form.watch("workingWithAgent")}
               onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-              className="grid grid-cols-3 gap-2"
+              className="grid grid-cols-3 gap-2 lg:gap-1.5"
             >
               {AGENT_OPTIONS.map((a) => (
                 <Label
                   key={a.value}
-                  className={`flex items-center justify-center h-11 min-h-[44px] rounded-xl border-2 cursor-pointer text-sm font-medium transition-all text-center px-2 touch-active ${
+                  className={`flex items-center justify-center h-11 min-h-[44px] lg:h-8 lg:min-h-[32px] rounded-xl lg:rounded-lg border-2 cursor-pointer text-sm lg:text-xs font-medium transition-all text-center px-2 lg:px-1 touch-active ${
                     form.watch("workingWithAgent") === a.value
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50 active:bg-muted"
@@ -515,18 +515,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Interested in Home Size - Touch-friendly */}
           <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+            <Label className="text-sm lg:text-xs font-medium text-muted-foreground mb-2 lg:mb-1.5 block">
               Home Size
             </Label>
             <RadioGroup
               value={form.watch("homeSize")}
               onValueChange={(v) => form.setValue("homeSize", v as any)}
-              className="grid grid-cols-3 gap-2"
+              className="grid grid-cols-3 gap-2 lg:gap-1.5"
             >
               {HOME_SIZES.map((size) => (
                 <Label
                   key={size.value}
-                  className={`flex items-center justify-center h-11 min-h-[44px] rounded-xl border-2 cursor-pointer text-sm font-medium transition-all touch-active ${
+                  className={`flex items-center justify-center h-11 min-h-[44px] lg:h-8 lg:min-h-[32px] rounded-xl lg:rounded-lg border-2 cursor-pointer text-sm lg:text-xs font-medium transition-all touch-active ${
                     form.watch("homeSize") === size.value
                       ? "border-foreground bg-foreground text-background"
                       : "border-border hover:border-muted-foreground/50 active:bg-muted"
@@ -542,25 +542,25 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           {/* Submit Button - High contrast, prominent */}
           <Button
             type="submit"
-            className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
+            className="w-full h-14 min-h-[56px] lg:h-10 lg:min-h-[40px] text-base lg:text-sm font-bold rounded-xl lg:rounded-lg gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
             size="lg"
             disabled={isSubmitting}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
-                <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                <span className="h-5 w-5 lg:h-4 lg:w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                 Submitting...
               </span>
             ) : (
               <>
-                <Send className="h-4 w-4" />
+                <Send className="h-4 w-4 lg:h-3.5 lg:w-3.5" />
                 {content.buttonText}
               </>
             )}
           </Button>
 
           {/* Trust indicators */}
-          <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
+          <div className="flex items-center justify-center gap-4 text-[10px] lg:text-[9px] text-muted-foreground pt-1 lg:pt-0.5">
             <span className="flex items-center gap-1">
               <span className="text-green-500">✓</span> No spam
             </span>
@@ -570,7 +570,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           </div>
 
           {/* Disclaimer */}
-          <p className="text-[10px] leading-relaxed text-muted-foreground text-center">
+          <p className="text-[10px] lg:text-[9px] leading-relaxed text-muted-foreground text-center">
             By submitting, you agree to receive communications from PresaleProperties. 
             View our{" "}
             <a href="/privacy" className="underline hover:text-foreground">
