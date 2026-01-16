@@ -630,7 +630,7 @@ export default function PresaleProjectDetail() {
               <div className="lg:col-span-3 -mx-0 lg:mx-0">
                 <REWPhotoGallery photos={allImages.map(url => ({
                   url
-                }))} alt={project.name} previewAspectClassName="aspect-[16/10] md:aspect-[4/3] lg:aspect-[3/2]" />
+                }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" />
               </div>
 
               {/* Project Info - Full width on mobile/tablet with internal padding, 2 columns on desktop */}
