@@ -364,7 +364,8 @@ export function checkReturnVisit(): boolean {
     const sessionId = sessionStorage.getItem("pp_sid");
     const isNewSession = !sessionId;
     
-    if (isNewSession && hoursSinceLastSeen >= 24) {
+    // Lowered threshold from 24h to 1h for faster return visit detection
+    if (isNewSession && hoursSinceLastSeen >= 1) {
       incrementVisitCount();
       incrementIntentScore("return_visit");
       return true;
