@@ -624,18 +624,17 @@ export default function PresaleProjectDetail() {
 
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
-          <div className="lg:container px-0 md:px-4 lg:px-4 py-0 md:py-4 lg:py-6">
-            {/* Tablet: 2-column grid for better use of space, Desktop: 5-column */}
-            <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-0 md:gap-6 lg:gap-8 lg:items-start">
-              {/* Gallery - Full width edge-to-edge on mobile, contained on tablet, 3 columns on desktop */}
-              <div className="md:col-span-1 lg:col-span-3">
+          <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
+            <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
+              {/* Gallery - Full width edge-to-edge on mobile/tablet, 3 columns on desktop */}
+              <div className="lg:col-span-3 -mx-0 lg:mx-0">
                 <REWPhotoGallery photos={allImages.map(url => ({
                   url
-                }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[3/2] lg:aspect-[3/2]" />
+                }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" />
               </div>
 
-              {/* Project Info - Full width on mobile with internal padding, contained on tablet/desktop */}
-              <div className="md:col-span-1 lg:col-span-2 flex flex-col px-4 md:px-0 lg:px-0 pt-4 md:pt-0 lg:pt-0">
+              {/* Project Info - Full width on mobile/tablet with internal padding, 2 columns on desktop */}
+              <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
@@ -721,8 +720,9 @@ export default function PresaleProjectDetail() {
                     {project.short_description}
                   </p>}
 
-                {/* Tablet-only Scheduler - lead form moved to popup triggered by sticky CTA */}
-                <div className="hidden md:block lg:hidden mt-4">
+                {/* Tablet-only Lead Form and Scheduler - positioned under project info */}
+                <div className="hidden md:block lg:hidden mt-3 space-y-4">
+                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                   <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
                 </div>
               </div>
@@ -892,13 +892,13 @@ export default function PresaleProjectDetail() {
         </article>
       </main>
 
-      {/* Mobile/Tablet Sticky CTA */}
-      <ProjectMobileCTA projectName={project.name} status={project.status} startingPrice={project.starting_price} onRegisterClick={() => setFloorPlanModalOpen(true)} />
+      {/* Mobile Sticky CTA */}
+      <ProjectMobileCTA projectName={project.name} status={project.status} startingPrice={project.starting_price} onRegisterClick={handleGetPlansClick} />
 
       {/* Booking Modal */}
       <BookingModal open={bookingOpen} onOpenChange={setBookingOpen} projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} projectUrl={canonicalUrl} initialDate={bookingDate} initialTimePeriod={bookingTimePeriod} />
 
-      {/* Floor Plan Modal - Mobile/Tablet */}
+      {/* Floor Plan Modal - Mobile only */}
       <FloorPlanModal open={floorPlanModalOpen} onOpenChange={setFloorPlanModalOpen} projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
 
       {/* Contextual Internal Links */}
