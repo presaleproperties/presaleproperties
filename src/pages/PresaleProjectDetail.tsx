@@ -21,6 +21,7 @@ import { InlineScheduler } from "@/components/booking/InlineScheduler";
 
 import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
 import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
+import { ProjectLocationMiniMap } from "@/components/projects/ProjectLocationMiniMap";
 import { ProjectLeadMagnetsBar, SaveProjectButton, PriceAlertButton } from "@/components/conversion/LeadMagnets";
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
@@ -826,6 +827,16 @@ export default function PresaleProjectDetail() {
 
                 {/* Location Deep Dive */}
                 <LocationDeepDive projectName={project.name} city={project.city} neighborhood={project.neighborhood} address={project.address} mapLat={project.map_lat} mapLng={project.map_lng} />
+
+                {/* Project Location Map - Mobile/Tablet only */}
+                {project.map_lat && project.map_lng && (
+                  <ProjectLocationMiniMap 
+                    latitude={project.map_lat} 
+                    longitude={project.map_lng} 
+                    projectName={project.name}
+                    address={project.address}
+                  />
+                )}
 
                 {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
                 <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 border border-border/30">
