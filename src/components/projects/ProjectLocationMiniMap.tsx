@@ -240,7 +240,7 @@ export function ProjectLocationMiniMap({
   };
 
   return (
-    <div className="lg:hidden bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 overflow-hidden">
+    <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 overflow-hidden">
       <div className="flex items-center justify-between gap-2 mb-3">
         <h2 className="text-base sm:text-lg font-bold text-foreground">Project Location</h2>
         <Button
@@ -355,7 +355,7 @@ export function ProjectLocationMiniMap({
           }
         `}</style>
 
-        <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[320px]" />
+        <div ref={mapContainerRef} className="w-full h-[280px] sm:h-[320px] md:h-[380px]" />
         
         {/* Amenity filter pills */}
         <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
