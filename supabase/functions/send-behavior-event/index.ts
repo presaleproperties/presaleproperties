@@ -160,9 +160,17 @@ serve(async (req: Request): Promise<Response> => {
     }
 
     // Enrich payload with lead details if this is a known lead
+    // Top-level fields for easy Zapier mapping
     const enrichedPayload = {
       ...payload,
       is_known_lead: isKnownLead,
+      leadId: leadDetails?.source === "client" 
+        ? (payload.visitor_id || null)
+        : (leadDetails?.email || null),
+      firstName: leadDetails?.first_name || (leadDetails?.full_name?.toString().split(" ")[0]) || null,
+      lastName: leadDetails?.last_name || (leadDetails?.full_name?.toString().split(" ").slice(1).join(" ")) || null,
+      email: leadDetails?.email || null,
+      phone: leadDetails?.phone || null,
       lead_details: leadDetails,
     };
 
