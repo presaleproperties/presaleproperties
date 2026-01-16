@@ -41,7 +41,7 @@ export function ArticleSchema({
       "url": "https://presaleproperties.com",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://presaleproperties.com/logo.png"
+        "url": "https://presaleproperties.com/logo.svg"
       }
     },
     "mainEntityOfPage": {

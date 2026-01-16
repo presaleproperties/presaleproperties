@@ -63,7 +63,7 @@ const Index = () => {
     "@id": "https://presaleproperties.com/#organization",
     "name": "PresaleProperties.com",
     "url": "https://presaleproperties.com",
-    "logo": "https://presaleproperties.com/logo.png",
+    "logo": "https://presaleproperties.com/logo.svg",
     "description": "Metro Vancouver's leading platform for presale condos, townhomes, and new construction homes. Browse VIP pricing, floor plans & incentives for projects in Vancouver, Surrey, Langley, Coquitlam, Burnaby, Delta, and Abbotsford.",
     "telephone": "+1-672-258-1100",
     "email": "info@presaleproperties.com",
