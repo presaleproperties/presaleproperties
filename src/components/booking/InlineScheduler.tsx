@@ -127,44 +127,44 @@ export function InlineScheduler({
 
   if (loading) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-5 shadow-xl overflow-hidden">
-        <div className="flex items-center justify-center py-6 lg:py-8">
-          <Loader2 className="h-5 w-5 lg:h-6 lg:w-6 animate-spin text-muted-foreground" />
+      <div className="bg-card border border-border rounded-xl p-4 shadow-xl overflow-hidden">
+        <div className="flex items-center justify-center py-4">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl lg:rounded-xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300">
+    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300">
       {/* Header - Premium gradient with shine effect */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-4 md:px-5 md:py-5 lg:px-4 lg:py-3 text-center relative overflow-hidden">
+      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 text-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
-        <div className="absolute top-2 right-2 lg:top-1.5 lg:right-1.5 flex items-center gap-1 bg-green-500/90 text-white text-[10px] lg:text-[9px] font-semibold px-2 py-0.5 lg:px-1.5 rounded-full">
+        <div className="absolute top-1.5 right-1.5 flex items-center gap-1 bg-green-500/90 text-white text-[9px] font-semibold px-1.5 py-0.5 rounded-full">
           <span className="h-1.5 w-1.5 bg-white rounded-full animate-pulse"></span>
           Available
         </div>
-        <h3 className="text-lg md:text-xl lg:text-base font-bold text-background relative">Schedule a Tour</h3>
-        <p className="text-xs md:text-sm lg:text-[11px] text-background/70 mt-0.5 relative">Tour with a buyer's agent — no cost to you</p>
+        <h3 className="text-base font-bold text-background relative">Schedule a Tour</h3>
+        <p className="text-[11px] text-background/70 mt-0.5 relative">Tour with a buyer's agent — no cost to you</p>
       </div>
 
-      {/* Content - Better spacing */}
-      <div className="p-4 md:p-5 lg:p-3">
+      {/* Content - Compact spacing */}
+      <div className="p-3">
         {/* Date Selection */}
-        <div className="flex items-center justify-center gap-1.5 md:gap-2 lg:gap-1 mb-4 lg:mb-3">
+        <div className="flex items-center justify-center gap-1 mb-3">
           <button
             onClick={handlePrev}
             disabled={!canGoBack}
             className={cn(
-              "p-2 lg:p-1.5 rounded-full transition-colors",
+              "p-1.5 rounded-full transition-colors",
               canGoBack ? "hover:bg-muted text-foreground active:bg-muted/80" : "text-muted-foreground/30 cursor-not-allowed"
             )}
             aria-label="Previous dates"
           >
-            <ChevronLeft className="h-5 w-5 lg:h-4 lg:w-4" />
+            <ChevronLeft className="h-4 w-4" />
           </button>
 
-          <div className="flex gap-2 md:gap-2.5 lg:gap-1.5">
+          <div className="flex gap-1.5">
             {visibleDates.map((date) => {
               const isSelected = selectedDate && isSameDay(date, selectedDate);
               return (
@@ -172,19 +172,19 @@ export function InlineScheduler({
                   key={date.toISOString()}
                   onClick={() => setSelectedDate(date)}
                   className={cn(
-                    "flex flex-col items-center justify-center w-[72px] h-[76px] md:w-20 md:h-[84px] lg:w-[60px] lg:h-[64px] rounded-xl lg:rounded-lg border-2 transition-all active:scale-95",
+                    "flex flex-col items-center justify-center w-[58px] h-[62px] rounded-lg border-2 transition-all active:scale-95",
                     isSelected
                       ? "border-foreground bg-foreground/5 shadow-md"
                       : "border-border hover:border-muted-foreground/50 hover:bg-muted/30"
                   )}
                 >
-                  <span className="text-[10px] lg:text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
+                  <span className="text-[9px] font-semibold text-muted-foreground uppercase tracking-wide">
                     {format(date, "EEE")}
                   </span>
-                  <span className="text-2xl md:text-3xl lg:text-xl font-bold text-foreground">
+                  <span className="text-xl font-bold text-foreground">
                     {format(date, "d")}
                   </span>
-                  <span className="text-[10px] lg:text-[9px] font-medium text-muted-foreground uppercase">
+                  <span className="text-[9px] font-medium text-muted-foreground uppercase">
                     {format(date, "MMM")}
                   </span>
                 </button>
@@ -196,17 +196,17 @@ export function InlineScheduler({
             onClick={handleNext}
             disabled={!canGoForward}
             className={cn(
-              "p-2 lg:p-1.5 rounded-full transition-colors",
+              "p-1.5 rounded-full transition-colors",
               canGoForward ? "hover:bg-muted text-foreground active:bg-muted/80" : "text-muted-foreground/30 cursor-not-allowed"
             )}
             aria-label="Next dates"
           >
-            <ChevronRight className="h-5 w-5 lg:h-4 lg:w-4" />
+            <ChevronRight className="h-4 w-4" />
           </button>
         </div>
 
-        {/* Time Period Selection - Larger on desktop */}
-        <div className="grid grid-cols-3 gap-2 md:gap-2.5 lg:gap-1.5 mb-4 md:mb-5 lg:mb-3">
+        {/* Time Period Selection - Compact */}
+        <div className="grid grid-cols-3 gap-1.5 mb-3">
           {TIME_PERIODS.map((period) => {
             const isSelected = selectedPeriod === period.value;
             return (
@@ -214,16 +214,16 @@ export function InlineScheduler({
                 key={period.value}
                 onClick={() => setSelectedPeriod(period.value)}
                 className={cn(
-                  "flex flex-col items-center justify-center py-2.5 md:py-3 lg:py-2 px-2 lg:px-1 rounded-xl lg:rounded-lg border-2 transition-all active:scale-95",
+                  "flex flex-col items-center justify-center py-2 px-1 rounded-lg border-2 transition-all active:scale-95",
                   isSelected
                     ? "border-foreground bg-foreground/5 shadow-sm"
                     : "border-border hover:border-muted-foreground/50 hover:bg-muted/30"
                 )}
               >
-                <span className="text-sm md:text-base lg:text-xs font-semibold text-foreground">
+                <span className="text-xs font-semibold text-foreground">
                   {period.label}
                 </span>
-                <span className="text-[9px] md:text-[10px] lg:text-[8px] text-muted-foreground mt-0.5">
+                <span className="text-[8px] text-muted-foreground mt-0.5">
                   {period.subLabel}
                 </span>
               </button>
@@ -231,17 +231,17 @@ export function InlineScheduler({
           })}
         </div>
 
-        {/* CTA Button - More prominent */}
+        {/* CTA Button - Compact */}
         <Button
           onClick={handleRequestTour}
           disabled={!selectedDate}
-          className="w-full h-12 md:h-14 lg:h-10 text-sm md:text-base lg:text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background shadow-lg hover:shadow-xl transition-all duration-200"
+          className="w-full h-10 text-sm font-bold uppercase tracking-wide bg-foreground hover:bg-foreground/90 text-background shadow-lg hover:shadow-xl transition-all duration-200"
         >
           Request a Tour
         </Button>
         
         {/* Trust indicator */}
-        <p className="text-[10px] md:text-xs lg:text-[9px] text-center text-muted-foreground mt-3 lg:mt-2">
+        <p className="text-[9px] text-center text-muted-foreground mt-2">
           ✓ No obligation · ✓ Responds same day
         </p>
       </div>
