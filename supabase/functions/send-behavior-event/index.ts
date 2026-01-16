@@ -161,14 +161,19 @@ serve(async (req: Request): Promise<Response> => {
 
     // Enrich payload with lead details if this is a known lead
     // Top-level fields for easy Zapier mapping
+    // Parse name properly for both clients and project_leads
+    const fullName = leadDetails?.full_name?.toString() || "";
+    const nameParts = fullName.trim().split(/\s+/);
+    const parsedFirstName = leadDetails?.first_name?.toString() || nameParts[0] || null;
+    const parsedLastName = leadDetails?.last_name?.toString() || nameParts.slice(1).join(" ") || null;
+    
     const enrichedPayload = {
       ...payload,
       is_known_lead: isKnownLead,
-      leadId: leadDetails?.source === "client" 
-        ? (payload.visitor_id || null)
-        : (leadDetails?.email || null),
-      firstName: leadDetails?.first_name || (leadDetails?.full_name?.toString().split(" ")[0]) || null,
-      lastName: leadDetails?.last_name || (leadDetails?.full_name?.toString().split(" ").slice(1).join(" ")) || null,
+      leadId: leadDetails?.email || payload.visitor_id || null,
+      leadName: fullName || null,
+      firstName: parsedFirstName,
+      lastName: parsedLastName,
       email: leadDetails?.email || null,
       phone: leadDetails?.phone || null,
       lead_details: leadDetails,
