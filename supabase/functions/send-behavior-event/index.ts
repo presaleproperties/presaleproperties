@@ -38,13 +38,25 @@ serve(async (req: Request): Promise<Response> => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     // Track client activity if we have a visitor_id
+    let leadDetails: Record<string, unknown> | null = null;
+    let isKnownLead = false;
+
     if (payload.visitor_id && payload.event_name) {
       // Check if this visitor is a known client
       const { data: existingClient } = await supabase
         .from("clients")
-        .select("id, total_property_views, total_site_visits, intent_score")
+        .select("id, email, first_name, last_name, phone, preferred_cities, total_property_views, total_site_visits, intent_score")
         .eq("visitor_id", payload.visitor_id)
         .single();
+
+      // Also check project_leads for this visitor
+      const { data: existingLead } = await supabase
+        .from("project_leads")
+        .select("id, name, email, phone, project_name, city, persona, home_size, is_realtor, created_at")
+        .eq("visitor_id", payload.visitor_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       // Build activity record
       const eventPayload = payload.event_payload || {};
@@ -63,7 +75,20 @@ serve(async (req: Request): Promise<Response> => {
 
       // Link to client if known
       if (existingClient) {
+        isKnownLead = true;
         activityData.client_id = existingClient.id;
+        leadDetails = {
+          source: "client",
+          email: existingClient.email,
+          first_name: existingClient.first_name,
+          last_name: existingClient.last_name,
+          full_name: [existingClient.first_name, existingClient.last_name].filter(Boolean).join(" "),
+          phone: existingClient.phone,
+          preferred_cities: existingClient.preferred_cities,
+          intent_score: existingClient.intent_score,
+          total_property_views: existingClient.total_property_views,
+          total_site_visits: existingClient.total_site_visits,
+        };
 
         // Update client stats
         const updates: Record<string, unknown> = {
@@ -84,6 +109,21 @@ serve(async (req: Request): Promise<Response> => {
         }
 
         await supabase.from("clients").update(updates).eq("id", existingClient.id);
+      } else if (existingLead) {
+        // Lead exists in project_leads but not in clients
+        isKnownLead = true;
+        leadDetails = {
+          source: "project_lead",
+          email: existingLead.email,
+          full_name: existingLead.name,
+          phone: existingLead.phone,
+          original_project: existingLead.project_name,
+          original_city: existingLead.city,
+          persona: existingLead.persona,
+          home_size: existingLead.home_size,
+          is_realtor: existingLead.is_realtor,
+          lead_created_at: existingLead.created_at,
+        };
       }
 
       // Insert activity (errors are non-blocking)
@@ -119,10 +159,17 @@ serve(async (req: Request): Promise<Response> => {
       });
     }
 
+    // Enrich payload with lead details if this is a known lead
+    const enrichedPayload = {
+      ...payload,
+      is_known_lead: isKnownLead,
+      lead_details: leadDetails,
+    };
+
     const res = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(enrichedPayload),
     });
 
     if (!res.ok) {
