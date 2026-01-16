@@ -353,7 +353,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const content = getFormContent();
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative">
+    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative lg:max-h-[calc(100vh-120px)] lg:overflow-y-auto lg:overscroll-contain">
       {/* Close button */}
       {onClose && (
         <button
