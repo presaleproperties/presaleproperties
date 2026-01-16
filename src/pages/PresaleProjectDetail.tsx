@@ -624,17 +624,144 @@ export default function PresaleProjectDetail() {
 
         {/* Hero - Side-by-side layout on tablet and desktop */}
         <section className="bg-gradient-to-b from-muted/30 to-background">
-          <div className="lg:container px-0 lg:px-4 py-0 lg:py-6">
-            <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
-              {/* Gallery - Full width edge-to-edge on mobile/tablet, 3 columns on desktop */}
-              <div className="lg:col-span-3 -mx-0 lg:mx-0">
+          <div className="lg:container px-0 lg:px-4 py-0 lg:py-4">
+            {/* Desktop: 3-column grid matching resale page */}
+            <div className="hidden lg:grid lg:grid-cols-3 lg:gap-6">
+              {/* Left Column - Gallery & Details (2 columns) */}
+              <div className="lg:col-span-2 space-y-4">
+                {/* Gallery */}
                 <REWPhotoGallery photos={allImages.map(url => ({
                   url
-                }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" />
+                }))} alt={project.name} previewAspectClassName="aspect-[3/2]" />
+
+                {/* Desktop Quick Actions */}
+                <div className="flex flex-wrap items-center gap-2">
+                  {project.map_lat && project.map_lng && <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16&project=${project.slug}`}>
+                      <Button variant="outline" size="sm" className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted">
+                        <MapPin className="h-3.5 w-3.5" />
+                        Map
+                      </Button>
+                    </Link>}
+                  {project.map_lat && project.map_lng && <Button variant="outline" size="sm" className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted" onClick={() => {
+                      window.open(`https://www.google.com/maps/@?api=1&map_action=pano&viewpoint=${project.map_lat},${project.map_lng}`, "_blank");
+                    }}>
+                      <Eye className="h-3.5 w-3.5" />
+                      Street View
+                    </Button>}
+                  {project.map_lat && project.map_lng && <Button variant="outline" size="sm" className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted" onClick={() => {
+                      window.open(`https://www.google.com/maps/dir/?api=1&destination=${project.map_lat},${project.map_lng}`, "_blank");
+                    }}>
+                      <MapPin className="h-3.5 w-3.5" />
+                      Directions
+                    </Button>}
+                  <div className="ml-auto">
+                    <Button variant="outline" size="sm" className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted" onClick={handleShare}>
+                      <Share2 className="h-3.5 w-3.5" />
+                      Share
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Desktop Price Section - Matching resale layout */}
+                <div className="space-y-1.5">
+                  {/* Badges Row */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {getStatusBadge(project.status)}
+                    {project.is_featured && <Badge className="bg-yellow-500/90 hover:bg-yellow-500 text-white gap-1">
+                        <Star className="h-3 w-3 fill-current" />
+                        Featured
+                      </Badge>}
+                    <Badge variant="secondary" className="text-xs">
+                      {project.project_type === "condo" ? "Condos" : project.project_type === "townhome" ? "Townhomes" : project.project_type === "mixed" ? "Mixed-Use" : project.project_type === "duplex" ? "Duplexes" : "Homes"}
+                    </Badge>
+                    {project.completion_year && <Badge variant="outline" className="text-xs gap-1">
+                        <Calendar className="h-3 w-3" />
+                        {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
+                      </Badge>}
+                  </div>
+                  
+                  {/* Price with From prefix */}
+                  <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                    {project.starting_price ? <>
+                        <span className="text-muted-foreground text-base font-medium">From</span>
+                        <span className="text-3xl md:text-4xl font-bold text-foreground">
+                          {formatPrice(project.starting_price)}
+                        </span>
+                      </> : <span className="text-2xl text-muted-foreground font-semibold">Contact for pricing</span>}
+                  </div>
+
+                  {/* Project Name as Title */}
+                  <h1 className="text-xl md:text-2xl font-semibold text-foreground">
+                    {project.name}
+                  </h1>
+                  
+                  {/* Location */}
+                  <div className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+                    <Link to={`/${slugify(project.city)}-presale-condos`} className="text-primary hover:underline font-medium">
+                      {project.city}
+                    </Link>
+                    <span className="mx-1">•</span>
+                    <span className="font-medium">{project.neighborhood}</span>
+                    {project.address && project.address !== `${project.neighborhood}, ${project.city}` && <>
+                        <span className="mx-1">•</span>
+                        <span>{project.address}</span>
+                      </>}
+                  </div>
+
+                  {/* Quick Facts - Inline with icons */}
+                  <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-base text-foreground">
+                    {project.developer_name && <span className="flex items-center gap-1.5">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{project.developer_name}</span>
+                      </span>}
+                    {project.unit_mix && <span className="flex items-center gap-1.5">
+                        <Home className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{project.unit_mix}</span>
+                      </span>}
+                    {project.deposit_structure && <span className="flex items-center gap-1.5">
+                        <DollarSign className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{project.deposit_structure}</span>
+                      </span>}
+                  </div>
+                </div>
+
+                {/* Description */}
+                {project.short_description && <div>
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-3">About this project</h2>
+                    <p className="text-sm md:text-base text-muted-foreground leading-relaxed">
+                      {project.short_description}
+                    </p>
+                  </div>}
               </div>
 
-              {/* Project Info - Full width on mobile/tablet with internal padding, 2 columns on desktop */}
-              <div className="lg:col-span-2 flex flex-col px-4 lg:px-0 pt-4 lg:pt-0">
+              {/* Right Column - Form & Scheduler (Desktop Sidebar) */}
+              <div className="lg:col-span-1">
+                <div ref={formRef} id="contact-form-desktop" className="sticky top-24 space-y-4">
+                  {/* Lead Form */}
+                  <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm">
+                    <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
+                  </div>
+                  
+                  {/* Inline Scheduler */}
+                  <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm">
+                    <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
+                  </div>
+
+                  {/* Lead Magnets Bar */}
+                  <ProjectLeadMagnetsBar projectId={project.id} projectName={project.name} city={project.city} />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile & Tablet Layout - Unchanged */}
+            <div className="lg:hidden">
+              {/* Gallery - Full width edge-to-edge */}
+              <REWPhotoGallery photos={allImages.map(url => ({
+                url
+              }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[4/3]" />
+
+              {/* Project Info */}
+              <div className="flex flex-col px-4 pt-4">
                 {/* Status Badge Row */}
                 <div className="flex flex-wrap items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
                   {getStatusBadge(project.status)}
@@ -646,7 +773,7 @@ export default function PresaleProjectDetail() {
 
                 {/* Title and City Badge */}
                 <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
-                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{project.name}</h1>
+                  <h1 className="text-xl md:text-2xl font-bold text-foreground leading-tight">{project.name}</h1>
                   <Badge variant="secondary" className="md:hidden text-[10px] px-1.5 py-0.5 font-medium">
                     {project.city}
                   </Badge>
@@ -654,23 +781,23 @@ export default function PresaleProjectDetail() {
                 
                 {project.starting_price ? <div className="mb-2 md:mb-3">
                     <span className="text-muted-foreground text-sm md:text-base font-medium mr-1">From</span>
-                    <span className="font-bold text-primary !text-[28px] sm:!text-[32px] md:!text-[36px] lg:!text-[40px] leading-tight">
+                    <span className="font-bold text-primary !text-[28px] sm:!text-[32px] md:!text-[36px] leading-tight">
                       {formatPrice(project.starting_price)}
                     </span>
                   </div> : <div className="!text-xl md:!text-2xl text-muted-foreground mb-2 md:mb-3 font-semibold">Contact for pricing</div>}
 
-                {/* City/Neighborhood - shown prominently on mobile */}
+                {/* City/Neighborhood */}
                 <div className="flex items-center gap-2 text-muted-foreground text-sm mb-1 md:mb-2">
                   <MapPin className="h-3.5 w-3.5 shrink-0" />
                   <span className="font-medium text-foreground">{project.neighborhood}, {project.city}</span>
                 </div>
                 
-                {/* Full Address - shown below on mobile, hidden if same as neighborhood */}
+                {/* Full Address */}
                 {project.address && project.address !== `${project.neighborhood}, ${project.city}` && <div className="flex items-center gap-2 text-muted-foreground text-xs mb-2 md:hidden">
                     <span className="ml-5 truncate">{project.address}</span>
                   </div>}
 
-                {/* Quick Action Buttons - Map, Street View, Share */}
+                {/* Quick Action Buttons */}
                 <div className="flex flex-wrap items-center gap-2 mb-3 md:mb-3">
                   {project.map_lat && project.map_lng && <Link to={`/map-search?lat=${project.map_lat}&lng=${project.map_lng}&zoom=16&project=${project.slug}`} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted text-xs font-medium text-foreground transition-colors">
                       <MapPin className="h-3.5 w-3.5 text-primary" />
@@ -686,10 +813,10 @@ export default function PresaleProjectDetail() {
                   </button>
                 </div>
 
-                {/* Lead Magnets Bar - Save, Price Alert, ROI Analysis */}
+                {/* Lead Magnets Bar */}
                 <ProjectLeadMagnetsBar projectId={project.id} projectName={project.name} city={project.city} />
 
-                {/* Quick Facts - visible on tablet and desktop, more compact */}
+                {/* Quick Facts - visible on tablet */}
                 <div className="hidden md:block space-y-1.5 mb-2">
                   {project.developer_name && <div className="flex items-center gap-2 text-xs">
                       <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
@@ -715,12 +842,12 @@ export default function PresaleProjectDetail() {
                     </div>}
                 </div>
 
-                {/* Short description - visible on all screen sizes */}
-                {project.short_description && <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-3 lg:line-clamp-4">
+                {/* Short description */}
+                {project.short_description && <p className="text-sm text-muted-foreground mt-2 leading-relaxed line-clamp-3">
                     {project.short_description}
                   </p>}
 
-                {/* Tablet-only Lead Form and Scheduler - positioned under project info */}
+                {/* Tablet-only Lead Form and Scheduler */}
                 <div className="hidden md:block lg:hidden mt-3 space-y-4">
                   <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
                   <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
@@ -740,9 +867,8 @@ export default function PresaleProjectDetail() {
         {/* Details Grid - Edge-to-edge on mobile/tablet */}
         <section className="py-2 sm:py-3 md:py-5 lg:py-8">
           <div className="px-4 lg:container lg:px-4">
-            <div className="grid lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
-              {/* Main Content */}
-              <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6">
+            {/* Desktop: Full-width content since sidebar is in hero */}
+            <div className="space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-6 lg:max-w-4xl">
                 {/* Deposit, Fees & Developer - Combined section */}
                 {(project.deposit_structure || project.strata_fees || project.assignment_fees || project.incentives || project.developer_name) && <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6 border border-border/40">
                     
@@ -788,9 +914,7 @@ export default function PresaleProjectDetail() {
                     <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-3 sm:mb-4 md:mb-4">Development Features</h2>
                     <div className="prose prose-sm max-w-none text-muted-foreground space-y-3 sm:space-y-3">
                       {project.full_description.split("\n").map((line, i) => {
-                      // Handle bullet points
                       const isBullet = line.trim().startsWith("•") || line.trim().startsWith("-");
-                      // Parse bold markdown **text**
                       const parsedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
                       if (isBullet) {
                         const bulletContent = line.trim().replace(/^[•\-]\s*/, "");
@@ -827,7 +951,7 @@ export default function PresaleProjectDetail() {
                 {/* Location Deep Dive */}
                 <LocationDeepDive projectName={project.name} city={project.city} neighborhood={project.neighborhood} address={project.address} mapLat={project.map_lat} mapLng={project.map_lng} />
 
-                {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
+                {/* FAQ Section */}
                 <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 border border-border/30">
                   <div className="flex items-center gap-2 mb-4 md:mb-6">
                     <div className="h-8 w-1 bg-primary rounded-full" />
@@ -846,38 +970,6 @@ export default function PresaleProjectDetail() {
                       </AccordionItem>)}
                   </Accordion>
                 </section>
-              </div>
-
-              {/* Sidebar - Desktop only - More prominent positioning */}
-              <aside className="hidden lg:block lg:col-span-1" aria-label="Contact form and actions">
-                <div ref={formRef} id="contact-form" className="w-full lg:sticky lg:top-20 space-y-4">
-                  {/* Section Header for visibility */}
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="h-6 w-1 bg-primary rounded-full" />
-                    <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Get Started</h3>
-                  </div>
-                  
-                  {/* Lead Form - Primary conversion point */}
-                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
-                  
-                  {/* Inline Scheduler - Below lead form on desktop */}
-                  <InlineScheduler projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} onRequestTour={handleScheduleTourClick} />
-                  
-                  {/* Quick Actions Below Scheduler */}
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" asChild>
-                      <a href="tel:+16722581100">
-                        <Phone className="h-4 w-4 mr-1.5" />
-                        Call
-                      </a>
-                    </Button>
-                    <Button variant="outline" size="default" className="flex-1 justify-center h-11 text-sm" onClick={handleShare}>
-                      <Share2 className="h-4 w-4 mr-1.5" />
-                      Share
-                    </Button>
-                  </div>
-                </div>
-              </aside>
               
               {/* Mobile-only Lead Form and Scheduler - positioned after FAQ */}
               <div className="md:hidden space-y-4">
