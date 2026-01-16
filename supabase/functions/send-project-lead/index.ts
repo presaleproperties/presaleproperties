@@ -244,20 +244,7 @@ serve(async (req: Request): Promise<Response> => {
       console.log("No Zapier webhook configured (ZAPIER_PROJECT_LEADS_WEBHOOK), skipping CRM sync");
     }
 
-    // Also call sync-lead-to-lofty directly to update existing contacts
-    // This ensures existing leads get updated with new details (name, phone, etc.)
-    console.log("Calling sync-lead-to-lofty to update existing Lofty contact if exists");
-    try {
-      const syncResponse = await supabase.functions.invoke("sync-lead-to-lofty", {
-        body: { leadId },
-      });
-      console.log("sync-lead-to-lofty response:", syncResponse.data);
-    } catch (syncError) {
-      console.error("Error calling sync-lead-to-lofty:", syncError);
-      // Don't throw - Zapier webhook already ran
-    }
-
-    console.log("Lead processed successfully - both Zapier webhook and direct Lofty sync attempted");
+    console.log("Lead processed successfully via Zapier webhook");
 
     return new Response(
       JSON.stringify({ success: true, leadId: lead.id }),
