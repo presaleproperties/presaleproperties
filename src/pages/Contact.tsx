@@ -107,8 +107,8 @@ export default function Contact() {
     return (
       <>
         <Helmet>
-          <title>Contact Us | Presale Properties Vancouver BC</title>
-          <meta name="description" content="Contact PresaleProperties.com for presale condos, new construction homes & townhomes in Vancouver, Surrey, Langley & Metro Vancouver. Call 672-258-1100." />
+          <title>Contact Us | Presale Properties Vancouver | Expert Guidance</title>
+          <meta name="description" content="Contact Vancouver's new construction specialists. Expert guidance on presale & move-in ready properties in Surrey, Langley, Coquitlam. Call or email today." />
         </Helmet>
         <div className="min-h-screen flex flex-col bg-background">
           <ConversionHeader />
@@ -133,14 +133,14 @@ export default function Contact() {
   return (
     <>
       <Helmet>
-        <title>Contact Us | Presale Properties Vancouver BC</title>
-        <meta name="description" content="Contact PresaleProperties.com for presale condos, new construction homes & townhomes in Vancouver, Surrey, Langley & Metro Vancouver. Call 672-258-1100." />
+        <title>Contact Us | Presale Properties Vancouver | Expert Guidance</title>
+        <meta name="description" content="Contact Vancouver's new construction specialists. Expert guidance on presale & move-in ready properties in Surrey, Langley, Coquitlam. Call or email today." />
         <meta name="keywords" content="contact presale properties, Vancouver real estate, presale condos Vancouver, new construction BC" />
         <link rel="canonical" href="https://presaleproperties.com/contact" />
         
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="Contact Us | Presale Properties Vancouver BC" />
-        <meta property="og:description" content="Get in touch with PresaleProperties.com for presale condos and new construction homes in Metro Vancouver." />
+        <meta property="og:title" content="Contact Us | Presale Properties Vancouver" />
+        <meta property="og:description" content="Get in touch with Vancouver's new construction specialists for presale condos and move-in ready homes." />
         <meta property="og:url" content="https://presaleproperties.com/contact" />
         
         <script type="application/ld+json">
