@@ -68,10 +68,10 @@ const trustFeatures = [
 
 export default function About() {
   useEffect(() => {
-    document.title = "About Us | AssignmentHub Vancouver - Trusted Assignment Marketplace";
+    document.title = "About Presale Properties | Vancouver New Construction Experts";
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
-      metaDescription.setAttribute("content", "Learn about AssignmentHub Vancouver, the trusted marketplace for pre-construction condo assignments. Verified agents, admin-reviewed listings, and complete transparency.");
+      metaDescription.setAttribute("content", "Meet Vancouver's new construction specialists. 300+ families helped. Expert guidance on presale & move-in ready properties. VIP developer access since 2015.");
     }
   }, []);
 

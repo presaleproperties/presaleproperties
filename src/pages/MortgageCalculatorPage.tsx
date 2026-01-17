@@ -724,9 +724,9 @@ export default function MortgageCalculatorPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Mortgage Calculator for Presale Condos & Townhomes | PresaleProperties.com</title>
-        <meta name="description" content="Estimate your monthly mortgage payments for presale condos & townhomes in Surrey, Langley, Coquitlam, Burnaby, Abbotsford & Vancouver. Includes land transfer tax, closing costs, and amortization schedule." />
-        <meta name="keywords" content="presale mortgage calculator, mortgage payment calculator BC, mortgage payments presale condos, presale condo affordability, mortgage estimate Vancouver, land transfer tax BC, closing costs calculator" />
+        <title>Presale Affordability Calculator | How Much Can I Afford? 2026</title>
+        <meta name="description" content="Calculate how much presale property you can afford in Vancouver. Free calculator includes down payment, deposits, closing costs. Get your budget instantly." />
+        <meta name="keywords" content="presale mortgage calculator, mortgage payment calculator BC, presale condo affordability, mortgage estimate Vancouver, land transfer tax BC, closing costs calculator" />
         <link rel="canonical" href="https://presaleproperties.com/mortgage-calculator" />
       </Helmet>
       

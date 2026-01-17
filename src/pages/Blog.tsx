@@ -87,8 +87,8 @@ export default function Blog() {
   return (
     <>
       <Helmet>
-        <title>Blog | Real Estate Insights & Market Updates | PresaleProperties.com</title>
-        <meta name="description" content="Stay updated with the latest real estate news, market insights, and tips for buying presale properties in Greater Vancouver." />
+        <title>Presale & New Construction Blog | Vancouver Real Estate 2026</title>
+        <meta name="description" content="Expert guides on buying presale & new construction in Vancouver. First-time buyer tips, market updates, investment strategies. Free resources & advice." />
         <link rel="canonical" href="https://presaleproperties.com/blog" />
       </Helmet>
 

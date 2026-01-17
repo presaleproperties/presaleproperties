@@ -256,8 +256,8 @@ export default function PresaleGuide() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Complete Guide to Buying a Presale Condo in BC | Step-by-Step Process</title>
-        <meta name="description" content="Learn how to buy a presale condo in Metro Vancouver. Step-by-step guide covering deposits, disclosure statements, financing, BC regulations, and expert tips for first-time buyers." />
+        <title>Complete Guide to Buying New Construction Vancouver 2026</title>
+        <meta name="description" content="Everything you need to know about buying presale & new construction in Vancouver. Deposits, warranties, rebates, process, investment tips. Free guide." />
         <meta name="keywords" content="how to buy presale condo, presale condo guide Vancouver, BC presale process, presale deposit, disclosure statement, first-time buyer presale, Vancouver new condo" />
         <link rel="canonical" href="https://presaleproperties.com/presale-guide" />
       </Helmet>
