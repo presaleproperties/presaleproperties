@@ -624,3 +624,43 @@
     display: none !important;
   }
 }
+
+/* GPU-accelerated image rendering for smooth scrolling */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+/* Optimized image transitions - shorter duration, GPU-accelerated */
+.img-optimized {
+  transform: translateZ(0);
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Content visibility optimization for off-screen images */
+.lazy-render {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 300px;
+}
+
+/* Smooth carousel transitions */
+.carousel-optimized {
+  transform: translateZ(0);
+  will-change: transform;
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .img-optimized,
+  .gpu-accelerated {
+    transition: none !important;
+    animation: none !important;
+  }
+}

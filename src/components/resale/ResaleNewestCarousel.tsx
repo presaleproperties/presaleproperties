@@ -183,10 +183,14 @@ export function ResaleNewestCarousel() {
         </div>
       </div>
 
-      {/* Scrollable cards */}
+      {/* Scrollable cards - GPU accelerated */}
       <div
         ref={scrollContainerRef}
-        className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 scroll-snap-x scroll-snap-mandatory"
+        className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 scroll-snap-x scroll-snap-mandatory carousel-optimized"
+        style={{ 
+          WebkitOverflowScrolling: 'touch',
+          scrollBehavior: 'smooth',
+        }}
       >
         {listings.map((listing) => (
           <div
