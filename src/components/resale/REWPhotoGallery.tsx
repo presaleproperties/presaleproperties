@@ -234,9 +234,12 @@ export function REWPhotoGallery({
             <img
               src={photos[selectedIndex]?.url}
               alt={photos[selectedIndex]?.alt || alt}
-              className="w-full h-full object-cover transition-transform duration-300"
-              style={{ transform: `translateX(${swipeOffset}px)` }}
+              className="w-full h-full object-cover transition-transform duration-200 will-change-transform backface-visibility-hidden"
+              style={{ 
+                transform: `translateX(${swipeOffset}px) translateZ(0)`,
+              }}
               loading="eager"
+              decoding="sync"
               fetchPriority="high"
             />
             
@@ -379,9 +382,14 @@ export function REWPhotoGallery({
                           <img
                             src={photo.url}
                             alt={photo.alt || `${alt} - Photo ${i + 1}`}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-                            loading={i < 4 ? "eager" : "lazy"}
+                            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-[1.01] will-change-transform backface-visibility-hidden"
+                            loading={i < 6 ? "eager" : "lazy"}
+                            decoding={i < 6 ? "sync" : "async"}
                             fetchPriority={i < 4 ? "high" : "auto"}
+                            style={{ 
+                              transform: 'translateZ(0)',
+                              contentVisibility: i >= 6 ? 'auto' : 'visible',
+                            }}
                           />
                         </div>
                       ))}

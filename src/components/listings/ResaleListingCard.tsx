@@ -173,10 +173,14 @@ export function ResaleListingCard({
               <img
                 src={photoUrls[currentImageIndex]}
                 alt={address}
-                className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-110"
+                className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform backface-visibility-hidden"
                 loading="lazy"
                 decoding="async"
                 fetchPriority="auto"
+                style={{ 
+                  transform: 'translateZ(0)',
+                  contentVisibility: 'auto',
+                }}
               />
               
               {/* Type + Status Badges - Top Left */}
