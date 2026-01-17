@@ -318,6 +318,57 @@ export function InvestmentSnapshot() {
                   ))}
                 </div>
 
+                {/* GST, PTT & Developer Credit Section */}
+                <div className="bg-secondary/20 rounded-xl p-4 space-y-3">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase">Closing Adjustments</h3>
+                  
+                  {/* GST Toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-medium">Include GST (5%)</span>
+                      <p className="text-[10px] text-muted-foreground">New construction tax</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold">{fmt(results.gst)}</span>
+                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} />
+                    </div>
+                  </div>
+                  
+                  {/* PTT Display */}
+                  <div className="flex items-center justify-between py-2 border-t border-border/30">
+                    <div>
+                      <span className="text-sm font-medium">PTT (Property Transfer Tax)</span>
+                      {isFirstTimeBuyer && <p className="text-[10px] text-green-600">✓ First-time buyer exempt</p>}
+                    </div>
+                    <span className={`text-sm font-semibold ${isFirstTimeBuyer ? 'text-green-600 line-through' : ''}`}>
+                      {fmt(isFirstTimeBuyer ? calculatePTT(inputs.purchasePrice, false) : results.ptt)}
+                    </span>
+                  </div>
+                  
+                  {/* Developer Credit */}
+                  <div className="pt-2 border-t border-border/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Developer Credit</span>
+                      <span className="text-sm font-semibold text-green-600">-{fmt(results.creditTotal)}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground block mb-1">% of Price</label>
+                        <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
+                          onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                          className="h-8 text-center text-sm" placeholder="0%" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground block mb-1">Or Fixed $</label>
+                        <Input type="number" step="1000" min="0" value={inputs.creditAmount}
+                          onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                          className="h-8 text-center text-sm" placeholder="$0" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">Applied towards closing costs</p>
+                  </div>
+                </div>
+
                 {!isFirstTimeBuyer && (
                   <div className="bg-green-50 rounded-xl p-3 border border-green-200">
                     <label className="text-xs text-green-700 block mb-1">Monthly Rent</label>
