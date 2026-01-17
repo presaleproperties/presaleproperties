@@ -64,11 +64,19 @@ const DEFAULT_INPUTS: SnapshotInputs = {
   rentIncreaseRate: 3,
 };
 
-function calculateCMHCPremium(mortgageAmount: number, downPaymentPercent: number): number {
+// CMHC Premium rates (applied to insured mortgage amount)
+function calculateCMHCPremium(purchasePrice: number, downPaymentPercent: number): number {
   if (downPaymentPercent >= 20) return 0;
+  // CMHC only applies to homes under $1M
+  if (purchasePrice > 1000000) return 0;
+  
+  const downPayment = purchasePrice * (downPaymentPercent / 100);
+  const mortgageAmount = purchasePrice - downPayment;
+  
+  // CMHC premium rates based on loan-to-value
   if (downPaymentPercent >= 15) return mortgageAmount * 0.028;
   if (downPaymentPercent >= 10) return mortgageAmount * 0.031;
-  return mortgageAmount * 0.04;
+  return mortgageAmount * 0.04; // 5-9.99% down
 }
 
 function calculateMonthlyMortgage(principal: number, annualRate: number, years: number): number {
@@ -131,33 +139,82 @@ export function InvestmentSnapshot() {
 
   const results = useMemo(() => {
     const isFirstTimeBuyer = inputs.buyerType === 'firstTimeBuyer';
+    
+    // GST (5% on new construction)
     const gst = inputs.includeGST ? calculateGST(inputs.purchasePrice) : 0;
+    
+    // Total purchase price including GST
     const priceWithGST = inputs.purchasePrice + gst;
+    
+    // Deposits (based on base price, not GST-inclusive)
     const firstDeposit = inputs.purchasePrice * (inputs.firstDepositPercent / 100);
     const secondDeposit = inputs.purchasePrice * (inputs.secondDepositPercent / 100);
     const totalDeposits = firstDeposit + secondDeposit;
+    
+    // Down payment is calculated on price + GST (total amount being financed)
     const downPayment = priceWithGST * (inputs.downPaymentPercent / 100);
+    
+    // Mortgage amount (what you're borrowing)
     const baseMortgageAmount = priceWithGST - downPayment;
-    const cmhcPremium = calculateCMHCPremium(inputs.purchasePrice - inputs.purchasePrice * (inputs.downPaymentPercent / 100), inputs.downPaymentPercent);
+    
+    // CMHC Premium (only on purchases under $1M, added to mortgage)
+    const cmhcPremium = calculateCMHCPremium(priceWithGST, inputs.downPaymentPercent);
     const mortgageAmount = baseMortgageAmount + cmhcPremium;
+    
+    // Monthly mortgage payment
     const monthlyMortgage = calculateMonthlyMortgage(mortgageAmount, inputs.interestRate, inputs.amortizationYears);
+    
+    // PTT (Property Transfer Tax) - exempt for first-time buyers under $500k, partial up to $525k
     const ptt = isFirstTimeBuyer ? 0 : calculatePTT(inputs.purchasePrice, false);
-    const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
+    
+    // Developer Credit (higher of percentage or fixed amount)
     const creditTotal = Math.max(inputs.purchasePrice * (inputs.creditPercent / 100), inputs.creditAmount);
-    const cashAtCompletion = Math.max(0, remainingDownPayment + ptt + inputs.closingCosts - creditTotal);
+    
+    // Cash required at completion:
+    // = (Down payment - Deposits already paid) + PTT + Closing costs - Developer credits
+    const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
+    const cashAtCompletion = Math.max(0, remainingDownPayment + gst + ptt + inputs.closingCosts - creditTotal);
+    
+    // Total cash out of pocket
     const totalCashRequired = totalDeposits + cashAtCompletion;
+    
+    // Monthly expenses
     const totalMonthlyExpenses = monthlyMortgage + inputs.strataFees + inputs.propertyTax;
+    
+    // Monthly cash flow (for investors)
     const monthlyCashFlow = inputs.monthlyRent - totalMonthlyExpenses;
     const annualCashFlow = monthlyCashFlow * 12;
-    const { principalPaid, remainingBalance } = calculateMortgagePaydown(mortgageAmount, inputs.interestRate, inputs.amortizationYears, inputs.holdingPeriodYears);
+    
+    // Mortgage paydown over holding period
+    const { principalPaid, remainingBalance } = calculateMortgagePaydown(
+      mortgageAmount, 
+      inputs.interestRate, 
+      inputs.amortizationYears, 
+      inputs.holdingPeriodYears
+    );
+    
+    // Future value with appreciation (on base price, not GST)
     const futureValue = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, inputs.holdingPeriodYears);
     const appreciation = futureValue - inputs.purchasePrice;
+    
+    // Total equity built = Down payment + Principal paid + Appreciation
     const totalEquityBuilt = downPayment + principalPaid + appreciation;
+    
+    // Total return calculation
     const totalCashFlowOverPeriod = annualCashFlow * inputs.holdingPeriodYears;
     const totalReturn = appreciation + principalPaid + totalCashFlowOverPeriod;
+    
+    // ROI percentage (total return / cash invested)
     const roiPercent = totalCashRequired > 0 ? (totalReturn / totalCashRequired) * 100 : 0;
 
-    return { firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment, baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage, ptt, gst, priceWithGST, creditTotal, cashAtCompletion, totalCashRequired, totalMonthlyExpenses, monthlyCashFlow, annualCashFlow, principalPaid, remainingBalance, futureValue, appreciation, totalEquityBuilt, totalCashFlowOverPeriod, totalReturn, roiPercent };
+    return { 
+      firstDeposit, secondDeposit, totalDeposits, downPayment, remainingDownPayment, 
+      baseMortgageAmount, cmhcPremium, mortgageAmount, monthlyMortgage, 
+      ptt, gst, priceWithGST, creditTotal, cashAtCompletion, totalCashRequired, 
+      totalMonthlyExpenses, monthlyCashFlow, annualCashFlow, 
+      principalPaid, remainingBalance, futureValue, appreciation, 
+      totalEquityBuilt, totalCashFlowOverPeriod, totalReturn, roiPercent 
+    };
   }, [inputs]);
 
   const rentVsOwn = useMemo(() => {
