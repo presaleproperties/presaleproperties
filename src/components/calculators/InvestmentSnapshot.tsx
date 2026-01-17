@@ -270,7 +270,7 @@ export function InvestmentSnapshot() {
             <div className="grid md:grid-cols-2 gap-6">
               {/* Inputs */}
               <div className="space-y-4">
-                {/* Price */}
+                {/* Price & Size */}
                 <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
                   <label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-2">
                     <DollarSign className="w-3.5 h-3.5" /> Purchase Price
@@ -278,6 +278,21 @@ export function InvestmentSnapshot() {
                   <Input type="text" inputMode="numeric" value={`$${inputs.purchasePrice.toLocaleString()}`}
                     onChange={(e) => updateInput('purchasePrice', Number(e.target.value.replace(/\D/g, '')) || 0)}
                     className="text-xl font-bold text-center h-12 border-2 border-primary/20 bg-white" />
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border/30">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground block mb-1">Unit Size (sqft)</label>
+                      <Input type="number" value={inputs.sqft} onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
+                        className="h-9 text-center font-semibold text-sm" placeholder="550" />
+                    </div>
+                    <div className="flex flex-col justify-end">
+                      <div className="text-[10px] text-muted-foreground mb-1">Price per sqft</div>
+                      <div className="h-9 flex items-center justify-center bg-primary/10 rounded-md text-sm font-bold text-primary">
+                        {inputs.sqft > 0 ? `$${Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString()}` : '—'}
+                      </div>
+                    </div>
+                  </div>
+                  
                   <div className="flex justify-between mt-2 text-xs text-muted-foreground">
                     <span>+ GST:</span><span className="font-semibold">{fmt(results.priceWithGST)}</span>
                   </div>
