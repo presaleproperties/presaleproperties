@@ -17,8 +17,11 @@ import {
   CheckCircle2,
   AlertCircle,
   ExternalLink,
-  Zap
+  Zap,
+  Palette,
+  Download
 } from "lucide-react";
+import { generateBrandKitPdf } from "@/lib/generateBrandKitPdf";
 
 interface AppSettings {
   listing_price: number;
@@ -598,6 +601,45 @@ export default function AdminSettings() {
                   )}
                   Save Settings
                 </Button>
+              </CardContent>
+            </Card>
+
+            {/* Brand Kit */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="h-5 w-5" />
+                  Brand Kit
+                </CardTitle>
+                <CardDescription>
+                  Download brand assets and guidelines
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="p-4 border rounded-lg bg-gradient-to-r from-primary/10 to-transparent">
+                  <h4 className="font-medium mb-2">Brand Identity Package</h4>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Complete brand guidelines including colors, typography, logo usage, and UI specifications.
+                  </p>
+                  <Button 
+                    onClick={() => generateBrandKitPdf()}
+                    className="w-full"
+                  >
+                    <Download className="h-4 w-4 mr-2" />
+                    Download Brand Kit PDF
+                  </Button>
+                </div>
+                
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground mb-1">Includes:</p>
+                  <ul className="space-y-1">
+                    <li>• Color palette with hex & HSL values</li>
+                    <li>• Typography system</li>
+                    <li>• Logo usage guidelines</li>
+                    <li>• UI component specifications</li>
+                    <li>• Brand voice & tone</li>
+                  </ul>
+                </div>
               </CardContent>
             </Card>
 
