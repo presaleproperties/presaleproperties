@@ -100,18 +100,18 @@ const AdLandingPage = () => {
     const points: string[] = [];
     if (project?.starting_price) {
       const priceK = Math.floor(project.starting_price / 1000);
-      points.push(`Starting from the low $${priceK}s`);
+      points.push(`From $${priceK}s`);
     }
     if (project?.completion_year) {
-      points.push(`Move-in ready by ${project.completion_year}`);
+      points.push(`Move-in ${project.completion_year}`);
     }
     if (project?.deposit_percent) {
-      points.push(`Only ${project.deposit_percent}% deposit required`);
+      points.push(`${project.deposit_percent}% Deposit`);
     }
 
     // Add generic points if we don't have enough
     if (points.length < 4) {
-      points.push("Developer incentives available");
+      points.push("Incentives Available");
     }
     if (points.length < 4) {
       points.push("Steps from transit & amenities");
