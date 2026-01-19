@@ -508,20 +508,53 @@ const AdLandingPage = () => {
           />
         </section>
 
-        {/* Trust Footer */}
-        <footer className="px-5 py-6 bg-foreground text-background">
-          <div className="text-center space-y-3">
-            <img 
-              src="/logo.svg" 
-              alt="Presale Properties" 
-              className="h-6 w-auto mx-auto invert"
-            />
-            <p className="text-xs text-background/60">
+        {/* Premium Trust Footer - No external links */}
+        <footer className="px-5 py-8 bg-gradient-to-b from-foreground to-foreground/95 text-background">
+          <div className="text-center space-y-5">
+            {/* Logo */}
+            <div className="flex justify-center">
+              <img 
+                src="/logo.svg" 
+                alt="Presale Properties" 
+                className="h-8 w-auto invert opacity-90"
+              />
+            </div>
+            
+            {/* Tagline */}
+            <p className="text-sm font-medium text-background/80">
               Vancouver's New Construction Specialists
             </p>
-            <p className="text-xs text-background/40">
-              © {new Date().getFullYear()} Presale Properties. All rights reserved.
-            </p>
+            
+            {/* Trust Badges */}
+            <div className="flex justify-center gap-6 py-2">
+              <div className="text-center">
+                <p className="text-lg font-bold text-primary">100+</p>
+                <p className="text-xs text-background/50">Projects</p>
+              </div>
+              <div className="w-px bg-background/20" />
+              <div className="text-center">
+                <p className="text-lg font-bold text-primary">500+</p>
+                <p className="text-xs text-background/50">Happy Buyers</p>
+              </div>
+              <div className="w-px bg-background/20" />
+              <div className="text-center">
+                <p className="text-lg font-bold text-primary">5★</p>
+                <p className="text-xs text-background/50">Rated</p>
+              </div>
+            </div>
+            
+            {/* Divider */}
+            <div className="w-16 h-px bg-primary/40 mx-auto" />
+            
+            {/* Legal */}
+            <div className="space-y-1">
+              <p className="text-xs text-background/40">
+                © {new Date().getFullYear()} Presale Properties. All rights reserved.
+              </p>
+              <p className="text-xs text-background/30">
+                Licensed Real Estate Professionals | REAL Broker
+              </p>
+            </div>
           </div>
         </footer>
 
