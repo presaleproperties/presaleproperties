@@ -134,59 +134,57 @@ serve(async (req: Request): Promise<Response> => {
       }
     }
 
-    // Forward to Zapier webhook if configured
-    const { data: webhookSetting, error: webhookError } = await supabase
-      .from("app_settings")
-      .select("value")
-      .eq("key", "zapier_behavior_webhook")
-      .maybeSingle();
-
-    if (webhookError) {
-      console.error("Failed to fetch zapier_behavior_webhook:", webhookError);
-      return new Response(JSON.stringify({ success: false }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const webhookUrl = typeof webhookSetting?.value === "string" ? webhookSetting.value : null;
-
-    if (!webhookUrl || !webhookUrl.trim()) {
-      console.log("No zapier_behavior_webhook configured; skipping.");
-      return new Response(JSON.stringify({ success: true, skipped: true }), {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    // Enrich payload with lead details if this is a known lead
-    // Top-level fields for easy Zapier mapping
-    // Parse name properly for both clients and project_leads
-    const fullName = leadDetails?.full_name?.toString() || "";
-    const nameParts = fullName.trim().split(/\s+/);
-    const parsedFirstName = leadDetails?.first_name?.toString() || nameParts[0] || null;
-    const parsedLastName = leadDetails?.last_name?.toString() || nameParts.slice(1).join(" ") || null;
+    // Only forward high-value events to Zapier in real-time
+    // Other events are stored in client_activity and sent via daily digest
+    const isHighValueEvent = payload.event_name === "form_submit";
     
-    const enrichedPayload = {
-      ...payload,
-      is_known_lead: isKnownLead,
-      leadId: leadDetails?.email || payload.visitor_id || null,
-      leadName: fullName || null,
-      firstName: parsedFirstName,
-      lastName: parsedLastName,
-      email: leadDetails?.email || null,
-      phone: leadDetails?.phone || null,
-      lead_details: leadDetails,
-    };
+    if (isHighValueEvent) {
+      // Forward to Zapier webhook if configured
+      const { data: webhookSetting, error: webhookError } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "zapier_behavior_webhook")
+        .maybeSingle();
 
-    const res = await fetch(webhookUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(enrichedPayload),
-    });
+      if (webhookError) {
+        console.error("Failed to fetch zapier_behavior_webhook:", webhookError);
+        return new Response(JSON.stringify({ success: false }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
 
-    if (!res.ok) {
-      console.error("Zapier behavior webhook failed:", res.status, await res.text());
+      const webhookUrl = typeof webhookSetting?.value === "string" ? webhookSetting.value : null;
+
+      if (webhookUrl && webhookUrl.trim()) {
+        // Enrich payload with lead details if this is a known lead
+        const fullName = leadDetails?.full_name?.toString() || "";
+        const nameParts = fullName.trim().split(/\s+/);
+        const parsedFirstName = leadDetails?.first_name?.toString() || nameParts[0] || null;
+        const parsedLastName = leadDetails?.last_name?.toString() || nameParts.slice(1).join(" ") || null;
+        
+        const enrichedPayload = {
+          ...payload,
+          is_known_lead: isKnownLead,
+          leadId: leadDetails?.email || payload.visitor_id || null,
+          leadName: fullName || null,
+          firstName: parsedFirstName,
+          lastName: parsedLastName,
+          email: leadDetails?.email || null,
+          phone: leadDetails?.phone || null,
+          lead_details: leadDetails,
+        };
+
+        const res = await fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(enrichedPayload),
+        });
+
+        if (!res.ok) {
+          console.error("Zapier behavior webhook failed:", res.status, await res.text());
+        }
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), {

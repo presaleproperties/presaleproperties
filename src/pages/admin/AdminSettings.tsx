@@ -35,6 +35,7 @@ interface AppSettings {
   zapier_research_webhook: string;
   lofty_tracking_webhook: string;
   zapier_behavior_webhook: string;
+  zapier_daily_digest_webhook: string;
   meta_pixel_id: string;
   email_sender: string;
   email_domain_verified: boolean;
@@ -56,6 +57,7 @@ export default function AdminSettings() {
     zapier_research_webhook: "",
     lofty_tracking_webhook: "",
     zapier_behavior_webhook: "",
+    zapier_daily_digest_webhook: "",
     meta_pixel_id: "",
     email_sender: DEFAULT_SENDER,
     email_domain_verified: false,
@@ -138,6 +140,7 @@ export default function AdminSettings() {
         if (item.key === "zapier_research_webhook") settingsMap.zapier_research_webhook = item.value as string;
         if (item.key === "lofty_tracking_webhook") settingsMap.lofty_tracking_webhook = item.value as string;
         if (item.key === "zapier_behavior_webhook") settingsMap.zapier_behavior_webhook = item.value as string;
+        if (item.key === "zapier_daily_digest_webhook") settingsMap.zapier_daily_digest_webhook = item.value as string;
         if (item.key === "meta_pixel_id") settingsMap.meta_pixel_id = item.value as string;
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
@@ -167,6 +170,7 @@ export default function AdminSettings() {
         { key: "zapier_research_webhook", value: settings.zapier_research_webhook },
         { key: "lofty_tracking_webhook", value: settings.lofty_tracking_webhook },
         { key: "zapier_behavior_webhook", value: settings.zapier_behavior_webhook },
+        { key: "zapier_daily_digest_webhook", value: settings.zapier_daily_digest_webhook },
         { key: "meta_pixel_id", value: settings.meta_pixel_id },
         { key: "email_sender", value: settings.email_sender },
         { key: "email_domain_verified", value: settings.email_domain_verified },
@@ -302,12 +306,17 @@ export default function AdminSettings() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* Behavioral Tracking */}
+              {/* Behavioral Tracking */}
                 <div className="space-y-3">
-                  <h4 className="font-medium text-sm">Full-Funnel Behavioral Tracking</h4>
+                  <h4 className="font-medium text-sm">Behavioral Tracking (Optimized)</h4>
+                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg mb-3">
+                    <p className="text-xs text-green-800">
+                      <strong>✓ Optimized for Zapier credits:</strong> Only form submissions trigger real-time webhooks. All other events are stored locally and sent as a daily digest report (1 Zap per visitor per day instead of dozens).
+                    </p>
+                  </div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div className="space-y-2">
-                      <Label htmlFor="zapier_behavior_webhook">Behavior Events Webhook (NEW)</Label>
+                      <Label htmlFor="zapier_behavior_webhook">Real-Time Form Submissions</Label>
                       <Input
                         id="zapier_behavior_webhook"
                         type="url"
@@ -319,12 +328,35 @@ export default function AdminSettings() {
                         }))}
                       />
                       <p className="text-xs text-muted-foreground">
-                        <strong>Full-funnel tracking:</strong> page_view, property_view, search, floorplan_view, floorplan_download, favorite_add/remove, cta_click, form_start, form_submit. Includes visitor_id, session_id, first/last UTM, device info.
+                        <strong>Only form_submit events</strong> trigger this webhook immediately. Includes full contact info, intent score, and behavior summary.
                       </p>
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="lofty_tracking_webhook">Page View Tracking (Legacy)</Label>
+                      <Label htmlFor="zapier_daily_digest_webhook">Daily Visitor Digest (Recommended)</Label>
+                      <Input
+                        id="zapier_daily_digest_webhook"
+                        type="url"
+                        placeholder="https://hooks.zapier.com/..."
+                        value={settings.zapier_daily_digest_webhook}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          zapier_daily_digest_webhook: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        <strong>Daily report at 7 AM PST</strong> with all visitors, properties viewed, intent scores, and engagement metrics. One Zap per day.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Legacy Tracking */}
+                <div className="space-y-3">
+                  <h4 className="font-medium text-sm text-muted-foreground">Legacy Tracking</h4>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="lofty_tracking_webhook" className="text-muted-foreground">Page View Tracking (Deprecated)</Label>
                       <Input
                         id="lofty_tracking_webhook"
                         type="url"
@@ -334,9 +366,10 @@ export default function AdminSettings() {
                           ...prev, 
                           lofty_tracking_webhook: e.target.value 
                         }))}
+                        className="opacity-60"
                       />
                       <p className="text-xs text-muted-foreground">
-                        Legacy page view tracking. Use the new Behavior Events webhook for full tracking.
+                        Legacy page view tracking. Consider removing to save credits.
                       </p>
                     </div>
                   </div>

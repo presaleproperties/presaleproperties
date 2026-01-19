@@ -95,3 +95,6 @@ verify_jwt = false
 
 [functions.search-lofty-contacts]
 verify_jwt = false
+
+[functions.send-daily-visitor-digest]
+verify_jwt = false
