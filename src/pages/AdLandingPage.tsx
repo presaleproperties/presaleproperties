@@ -303,17 +303,7 @@ const AdLandingPage = () => {
           </div>
         </section>
 
-        {/* Selling Points */}
-        <section className="px-5 py-6 bg-muted/30">
-          <div className="space-y-3">
-            {getSellingPoints().map((point, index) => <div key={index} className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-foreground font-medium">{point}</span>
-              </div>)}
-          </div>
-        </section>
-
-        {/* 🔥 INCENTIVES SECTION - High Impact Promo */}
+        {/* 🔥 INCENTIVES SECTION - High Impact Promo (Right after hero) */}
         <section className="px-5 py-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5">
           <div className="text-center mb-4">
             <Badge className="bg-destructive text-destructive-foreground font-bold px-4 py-1.5 text-sm mb-3 animate-pulse">
@@ -361,6 +351,16 @@ const AdLandingPage = () => {
           <p className="text-center text-xs text-muted-foreground mt-4">
             *Incentives subject to availability. Contact for full details.
           </p>
+        </section>
+
+        {/* Selling Points */}
+        <section className="px-5 py-6 bg-muted/30">
+          <div className="space-y-3">
+            {getSellingPoints().map((point, index) => <div key={index} className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-foreground font-medium">{point}</span>
+              </div>)}
+          </div>
         </section>
 
         <section className="px-5 py-4 bg-primary/10 border-y border-primary/20">
