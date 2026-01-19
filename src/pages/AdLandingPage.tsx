@@ -223,9 +223,9 @@ const AdLandingPage = () => {
       <div className="min-h-screen bg-background">
         {/* NO HEADER - Clean edge-to-edge mobile experience */}
 
-        {/* Hero Gallery with Swipe - Tall hero for impact */}
-        <section className="relative">
-          <div className="relative h-[65vh] min-h-[400px] max-h-[600px] bg-muted overflow-hidden" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+        {/* Hero Gallery with Swipe - Edge-to-edge, tall hero for impact */}
+        <section className="relative -mx-0">
+          <div className="relative h-[65vh] min-h-[400px] max-h-[600px] bg-muted overflow-hidden w-screen max-w-none" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             {/* Video Player */}
             {showVideo && CAMPAIGN_OVERRIDES.videoUrl ? <div className="absolute inset-0 bg-black">
                 <video src={CAMPAIGN_OVERRIDES.videoUrl} className="w-full h-full object-contain" autoPlay controls playsInline onPlay={() => setIsVideoPlaying(true)} onPause={() => setIsVideoPlaying(false)} onEnded={() => setShowVideo(false)} />
