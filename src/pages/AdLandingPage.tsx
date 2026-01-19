@@ -346,12 +346,6 @@ const AdLandingPage = () => {
               </div>
             )}
             
-            {/* Urgency Badge - Top left */}
-            <div className="absolute top-4 left-4 safe-area-top">
-              <Badge className="bg-primary text-primary-foreground font-semibold px-3 py-1.5 text-sm shadow-lg">
-                {CAMPAIGN_OVERRIDES.urgencyBadge}
-              </Badge>
-            </div>
 
             {/* Photo Count Badge - Flat design */}
             {images.length > 1 && (
@@ -372,6 +366,13 @@ const AdLandingPage = () => {
                 <span className="text-sm font-medium">{getLocationTeaser()}</span>
               </div>
             </div>
+          </div>
+
+          {/* Limited Time Offer Badge - Below hero */}
+          <div className="px-5 pt-4 pb-2 flex justify-center">
+            <Badge className="bg-primary text-primary-foreground font-semibold px-4 py-2 text-sm shadow-lg">
+              {CAMPAIGN_OVERRIDES.urgencyBadge}
+            </Badge>
           </div>
 
           {/* Compact info + scroll hint */}
