@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
@@ -192,6 +192,20 @@ const AdLandingPage = () => {
     if (isRightSwipe) prevImage();
   };
 
+  // Auto-scroll hint on first impression
+  const hasAutoScrolled = useRef(false);
+  
+  useEffect(() => {
+    if (images.length > 1 && !hasAutoScrolled.current) {
+      const timer = setTimeout(() => {
+        hasAutoScrolled.current = true;
+        // Scroll to next image to hint at scrollability
+        setCurrentImageIndex(1);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [images.length]);
+
   const scrollToForm = () => {
     document.getElementById("lead-form-section")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -264,29 +278,29 @@ const AdLandingPage = () => {
               </div>
             ) : images.length > 0 ? (
               <>
-                {/* Current Image - Optimized loading */}
+                {/* Current Image - Clean edge-to-edge, no shadows */}
                 <img
                   src={images[currentImageIndex]}
                   alt="Property preview"
-                  className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                  className="absolute inset-0 w-full h-full object-cover will-change-transform transition-opacity duration-500"
                   loading="eager"
                   fetchPriority="high"
                   decoding="async"
                 />
                 
-                {/* Image Navigation Arrows */}
+                {/* Image Navigation Arrows - Flat design, no shadows */}
                 {images.length > 1 && (
                   <>
                     <button
                       onClick={prevImage}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/50 text-white backdrop-blur-sm active:scale-95 transition-transform"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/40 text-white active:scale-95 transition-transform"
                       aria-label="Previous image"
                     >
                       <ChevronLeft className="h-6 w-6" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/50 text-white backdrop-blur-sm active:scale-95 transition-transform"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/40 text-white active:scale-95 transition-transform"
                       aria-label="Next image"
                     >
                       <ChevronRight className="h-6 w-6" />
@@ -294,14 +308,14 @@ const AdLandingPage = () => {
                   </>
                 )}
 
-                {/* Image Dots Indicator */}
+                {/* Image Dots Indicator - Flat design */}
                 {images.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                     {images.slice(0, 6).map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setCurrentImageIndex(idx)}
-                        className={`w-2.5 h-2.5 rounded-full transition-all ${
+                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                           idx === currentImageIndex 
                             ? "bg-white scale-110" 
                             : "bg-white/50"
@@ -342,10 +356,10 @@ const AdLandingPage = () => {
               </Badge>
             </div>
 
-            {/* Photo Count Badge */}
+            {/* Photo Count Badge - Flat design */}
             {images.length > 1 && (
               <div className="absolute top-4 right-4 safe-area-top">
-                <Badge variant="secondary" className="bg-black/60 text-white border-0 font-medium">
+                <Badge variant="secondary" className="bg-black/50 text-white border-0 font-medium">
                   {currentImageIndex + 1} / {images.length}
                 </Badge>
               </div>
