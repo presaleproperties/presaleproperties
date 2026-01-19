@@ -281,287 +281,171 @@ const AdLandingPage = () => {
               </div>}
 
             {/* Overlaid headline for above-the-fold impact */}
-            <div className="absolute inset-x-0 bottom-0 p-5 pb-6 text-white">
-              <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">
+            <div className="absolute inset-x-0 bottom-0 p-6 pb-8 text-white">
+              <h1 className="text-3xl font-bold leading-tight drop-shadow-lg tracking-tight">
                 {getHeadline()}
               </h1>
-              <div className="flex items-center gap-2 mt-2 text-white/90">
+              <div className="flex items-center gap-2 mt-3 text-white/90">
                 <MapPin className="h-4 w-4 flex-shrink-0" />
-                <span className="text-sm font-medium">{getLocationTeaser()}</span>
+                <span className="text-sm font-medium tracking-wide">{getLocationTeaser()}</span>
               </div>
             </div>
           </div>
 
-          {/* Compact info + scroll hint */}
-          <div className="px-5 py-4">
-            <p className="text-muted-foreground text-sm leading-relaxed text-center">
-              {getSubheadline()}
-            </p>
-
-            {/* Scroll down arrow hint */}
-            <button onClick={scrollToForm} className="w-full flex flex-col items-center gap-1 mt-3 py-2 text-primary" aria-label="Scroll to get pricing">
-              <span className="text-sm font-medium">View Pricing</span>
-              <ChevronDown className="h-6 w-6 animate-bounce" />
-            </button>
-          </div>
-        </section>
-
-        {/* Selling Points - Grid for easy scanning */}
-        <section className="px-5 py-6 bg-background">
-          <div className="grid grid-cols-2 gap-3">
+          {/* Selling Points - Inline pills for quick scanning */}
+          <div className="px-4 py-5 flex flex-wrap justify-center gap-2">
             {getSellingPoints().map((point, index) => (
               <div 
                 key={index} 
-                className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-3 border border-border/50"
+                className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 border border-primary/20"
               >
-                <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-                  <CheckCircle className="h-4 w-4 text-primary" />
-                </div>
-                <span className="text-foreground text-sm font-medium leading-tight">{point}</span>
+                <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                <span className="text-foreground text-sm font-semibold">{point}</span>
               </div>
             ))}
           </div>
+
+          {/* CTA Arrow */}
+          <button onClick={scrollToForm} className="w-full flex flex-col items-center gap-0.5 pb-4 text-primary" aria-label="Scroll to get pricing">
+            <span className="text-sm font-semibold tracking-wide">View Pricing</span>
+            <ChevronDown className="h-5 w-5 animate-bounce" />
+          </button>
         </section>
 
-        {/* 🔥 INCENTIVES SECTION - High Impact Promo */}
-        <section className="px-5 py-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5">
-          <div className="text-center mb-4">
-            <Badge className="bg-destructive text-destructive-foreground font-bold px-4 py-1.5 text-sm mb-3 animate-pulse">
-              🔥 LIMITED TIME
-            </Badge>
-            <h2 className="text-xl font-bold text-foreground">
-              Incentives Available Now
-            </h2>
+        {/* 🔥 INCENTIVES - Compact & Punchy */}
+        <section className="px-5 py-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <span className="text-xl">🔥</span>
+            <h2 className="text-lg font-bold text-foreground">Limited Incentives</h2>
           </div>
           
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
-              <span className="text-2xl">💰</span>
-              <div>
-                <p className="font-semibold text-foreground">Up to $50,000 in Savings</p>
-                <p className="text-xs text-muted-foreground">Developer credits*</p>
-              </div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
+              <p className="text-2xl font-bold text-primary">$50K</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Savings*</p>
             </div>
-            
-            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
-              <span className="text-2xl">📉</span>
-              <div>
-                <p className="font-semibold text-foreground">Reduced Deposit Structure</p>
-                <p className="text-xs text-muted-foreground">Only 5% down until completion*</p>
-              </div>
+            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
+              <p className="text-2xl font-bold text-primary">5%</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Deposit*</p>
             </div>
-            
-            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
-              <span className="text-2xl">🎁</span>
-              <div>
-                <p className="font-semibold text-foreground">Free AC Package</p>
-                <p className="text-xs text-muted-foreground">Included in purchase price*</p>
-              </div>
-            </div>
-          </div>
-          
-          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
-            *Incentives subject to change and availability. Contact for current offers and full terms.
-          </p>
-        </section>
-
-        {/* 💰 MONTHLY COST VISUAL - Easy to skim */}
-        <section className="px-5 py-6 bg-background">
-          <h2 className="text-lg font-bold text-foreground text-center mb-1">
-            Own For Just
-          </h2>
-          <p className="text-center text-xs text-muted-foreground mb-4">
-            Estimated monthly payments
-          </p>
-          
-          <div className="space-y-3">
-            {/* 1 Bed + Den */}
-            <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-5 border border-primary/20 overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
-                POPULAR
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-foreground">1 Bed + Den</div>
-                  <div className="text-xs text-muted-foreground">~570 sqft</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-foreground">~$1,950</div>
-                  <div className="text-xs text-muted-foreground">/month*</div>
-                </div>
-              </div>
-            </div>
-            
-            {/* 2 Bed 2 Bath */}
-            <div className="relative bg-gradient-to-br from-foreground to-foreground/90 rounded-2xl p-5 border border-foreground overflow-hidden">
-              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
-                BEST VALUE
-              </div>
-              <div className="flex items-center justify-between">
-                <div>
-                  <div className="text-sm font-semibold text-background">2 Bed 2 Bath</div>
-                  <div className="text-xs text-background/70">~774 sqft</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-background">~$2,600</div>
-                  <div className="text-xs text-background/70">/month*</div>
-                </div>
-              </div>
+            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
+              <p className="text-2xl font-bold text-primary">Free</p>
+              <p className="text-[11px] text-muted-foreground mt-1">A/C*</p>
             </div>
           </div>
           
           <p className="text-center text-[10px] text-muted-foreground mt-3 italic">
-            *Estimated payments based on 10% down, 3.89% interest rate, and 30-year amortization. Does not include property tax, strata fees, or CMHC insurance. Actual payments will vary. Contact for personalized quote.
+            *Subject to availability. Contact for details.
           </p>
         </section>
 
-        {/* Urgency Banner */}
-        <section className="px-5 py-4 bg-primary/10 border-y border-primary/20">
-          <div className="flex items-center gap-3">
-            <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
-            <p className="text-sm font-medium text-foreground">
-              {CAMPAIGN_OVERRIDES.urgencyText}
-            </p>
-          </div>
-        </section>
-        {/* 🏠 FIRST-TIME BUYER BENEFITS */}
-        <section className="px-5 py-6 bg-muted/30">
-          <h2 className="text-lg font-bold text-foreground text-center mb-1">
-            First-Time Buyer? Save Even More
+        {/* 💰 MONTHLY COST - Visual Cards */}
+        <section className="px-5 py-6 bg-background">
+          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+            Own For Just
           </h2>
-          <p className="text-center text-xs text-muted-foreground mb-4">
-            Government programs for eligible buyers
-          </p>
           
-          <div className="space-y-3">
-            {/* GST Rebate */}
-            <div className="bg-background rounded-2xl p-4 border border-border shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="bg-green-100 text-green-700 rounded-full p-2.5 flex-shrink-0">
-                  <span className="text-lg">💵</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">GST New Housing Rebate</h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Eligible first-time buyers can receive up to <span className="font-bold text-foreground">$50,000 back</span> (100% of GST) on new homes up to $1M
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    <Badge variant="outline" className="text-[10px] bg-green-50 border-green-200 text-green-700">
-                      Up to $50K rebate
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px]">
-                      New homes under $1M
-                    </Badge>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-2 italic">
-                    Source: Canada.ca – GST/HST New Housing Rebate (RC4028). Eligibility criteria apply.
-                  </p>
-                </div>
-              </div>
+          <div className="grid grid-cols-2 gap-3">
+            {/* 1 Bed + Den */}
+            <div className="relative bg-muted/50 rounded-2xl p-4 border border-border overflow-hidden">
+              <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
+                POPULAR
+              </Badge>
+              <p className="text-xs text-muted-foreground">1 Bed + Den</p>
+              <p className="text-2xl font-bold text-foreground mt-1">~$1,950</p>
+              <p className="text-[10px] text-muted-foreground">/mo*</p>
             </div>
             
-            {/* BC PTT Exemption */}
-            <div className="bg-background rounded-2xl p-4 border border-border shadow-sm">
-              <div className="flex items-start gap-3">
-                <div className="bg-blue-100 text-blue-700 rounded-full p-2.5 flex-shrink-0">
-                  <span className="text-lg">🏠</span>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-foreground">BC Property Transfer Tax Exemption</h3>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Eligible first-time buyers save up to <span className="font-bold text-foreground">$8,000</span> on homes up to $835K. New builds exempt up to $1.1M!
-                  </p>
-                  <div className="mt-2 flex flex-wrap gap-1.5">
-                    <Badge variant="outline" className="text-[10px] bg-blue-50 border-blue-200 text-blue-700">
-                      Save up to $8K
-                    </Badge>
-                    <Badge variant="outline" className="text-[10px]">
-                      New builds to $1.1M
-                    </Badge>
-                  </div>
-                  <p className="text-[10px] text-muted-foreground mt-2 italic">
-                    Source: Gov.bc.ca – First Time Home Buyers' Program. Eligibility criteria apply.
-                  </p>
-                </div>
-              </div>
+            {/* 2 Bed 2 Bath */}
+            <div className="relative bg-foreground rounded-2xl p-4 overflow-hidden">
+              <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
+                BEST VALUE
+              </Badge>
+              <p className="text-xs text-background/70">2 Bed 2 Bath</p>
+              <p className="text-2xl font-bold text-background mt-1">~$2,600</p>
+              <p className="text-[10px] text-background/60">/mo*</p>
             </div>
           </div>
           
-          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
-            Eligibility requirements apply. Information subject to change. Consult with a professional to verify your eligibility.
+          <p className="text-center text-[9px] text-muted-foreground mt-3 italic">
+            *10% down, 3.89% rate, 30yr. Excl. tax/strata/CMHC.
+          </p>
+        </section>
+
+        {/* 🏠 FIRST-TIME BUYER - Simplified */}
+        <section className="px-5 py-6 bg-muted/30">
+          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+            First-Time Buyer Benefits
+          </h2>
+          
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-background rounded-2xl p-4 border border-border text-center">
+              <div className="text-2xl mb-2">💵</div>
+              <p className="text-xl font-bold text-foreground">$50K</p>
+              <p className="text-[11px] text-muted-foreground mt-1">GST Rebate*</p>
+            </div>
+            <div className="bg-background rounded-2xl p-4 border border-border text-center">
+              <div className="text-2xl mb-2">🏠</div>
+              <p className="text-xl font-bold text-foreground">$8K</p>
+              <p className="text-[11px] text-muted-foreground mt-1">PTT Savings*</p>
+            </div>
+          </div>
+          
+          <p className="text-center text-[9px] text-muted-foreground mt-3 italic">
+            *Eligibility required. Consult a professional.
           </p>
         </section>
 
         {/* Lead Form Section */}
-        <section id="lead-form-section" className="px-5 py-8 bg-muted/50">
-          <div className="mb-6 text-center">
-            <h2 className="text-xl font-bold text-foreground mb-2">
+        <section id="lead-form-section" className="px-5 py-8 bg-gradient-to-b from-background to-muted/30">
+          <div className="mb-5 text-center">
+            <h2 className="text-xl font-bold text-foreground">
               Get Exclusive Access
             </h2>
-            <p className="text-muted-foreground text-sm">
-              Be the first to receive floor plans, pricing, and VIP incentives
+            <p className="text-muted-foreground text-sm mt-1">
+              Floor plans, pricing & VIP incentives
             </p>
           </div>
           
           <ProjectLeadForm projectId={project.id} projectName="Exclusive Pre-Construction Opportunity" status={project.status === "active" ? "active" : "registering"} brochureUrl={getBrochureUrl()} />
         </section>
 
-        {/* Premium Trust Footer - No external links */}
-        <footer className="px-5 py-8 bg-gradient-to-b from-foreground to-foreground/95 text-background">
-          <div className="text-center space-y-5">
-            {/* Logo */}
-            
-            
-            {/* Tagline */}
+        {/* Minimal Footer */}
+        <footer className="px-5 py-6 bg-foreground text-background">
+          <div className="text-center space-y-4">
             <p className="text-sm font-medium text-background/80">
               Vancouver's New Construction Specialists
             </p>
             
-            {/* Trust Badges */}
-            <div className="flex justify-center gap-6 py-2">
-              <div className="text-center">
-                <p className="text-lg font-bold text-primary">150+</p>
-                <p className="text-xs text-background/50">Projects</p>
-              </div>
-              <div className="w-px bg-background/20" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-primary">400+</p>
-                <p className="text-xs text-background/50">Happy Buyers</p>
-              </div>
-              <div className="w-px bg-background/20" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-primary">5★</p>
-                <p className="text-xs text-background/50">Rated</p>
-              </div>
+            {/* Compact Trust */}
+            <div className="flex justify-center gap-4 text-xs">
+              <span className="text-primary font-bold">150+ Projects</span>
+              <span className="text-background/30">•</span>
+              <span className="text-primary font-bold">400+ Buyers</span>
+              <span className="text-background/30">•</span>
+              <span className="text-primary font-bold">5★</span>
             </div>
             
-            {/* Divider */}
-            <div className="w-16 h-px bg-primary/40 mx-auto" />
-            
-            {/* Legal */}
-            <div className="space-y-2">
-              <p className="text-xs text-background/40">
-                © {new Date().getFullYear()} Presale Properties. All rights reserved.
+            <div className="pt-2 border-t border-background/10">
+              <p className="text-[10px] text-background/40">
+                © {new Date().getFullYear()} Presale Properties | Licensed REALTORS® | REAL Broker
               </p>
-              <p className="text-xs text-background/30">
-                Licensed Real Estate Professionals | REAL Broker
-              </p>
-              <p className="text-[9px] text-background/25 max-w-xs mx-auto leading-relaxed mt-3">
-                All pricing, monthly payments, square footages, incentives, and rebates shown are estimates only and subject to change without notice. Actual costs may vary based on individual circumstances, lender requirements, and market conditions. This is not an offer to sell. Please consult with a licensed professional for personalized advice.
+              <p className="text-[8px] text-background/25 max-w-xs mx-auto mt-2 leading-relaxed">
+                All figures are estimates subject to change. Not an offer to sell.
               </p>
             </div>
           </div>
         </footer>
 
         {/* Sticky Bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur-md border-t border-border/50 safe-area-bottom z-40">
-          <Button onClick={scrollToForm} size="lg" className="w-full h-12 text-base font-semibold rounded-xl shadow-gold">
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border/50 safe-area-bottom z-40">
+          <Button onClick={scrollToForm} size="lg" className="w-full h-12 text-base font-bold rounded-xl shadow-gold">
             {CAMPAIGN_OVERRIDES.ctaText}
           </Button>
         </div>
 
         {/* Bottom padding for sticky CTA */}
-        <div className="h-24" />
+        <div className="h-20" />
       </div>
     </>;
 };
