@@ -332,7 +332,7 @@ const AdLandingPage = () => {
               <span className="text-2xl">💰</span>
               <div>
                 <p className="font-semibold text-foreground">Up to $50,000 in Savings</p>
-                <p className="text-xs text-muted-foreground">Developer credits</p>
+                <p className="text-xs text-muted-foreground">Developer credits*</p>
               </div>
             </div>
             
@@ -340,7 +340,7 @@ const AdLandingPage = () => {
               <span className="text-2xl">📉</span>
               <div>
                 <p className="font-semibold text-foreground">Reduced Deposit Structure</p>
-                <p className="text-xs text-muted-foreground">Only 5% down until completion</p>
+                <p className="text-xs text-muted-foreground">Only 5% down until completion*</p>
               </div>
             </div>
             
@@ -348,23 +348,24 @@ const AdLandingPage = () => {
               <span className="text-2xl">🎁</span>
               <div>
                 <p className="font-semibold text-foreground">Free AC Package</p>
-                <p className="text-xs text-muted-foreground">AC included in the purchase price for all home</p>
+                <p className="text-xs text-muted-foreground">Included in purchase price*</p>
               </div>
             </div>
-            
-            
           </div>
           
-          <p className="text-center text-xs text-muted-foreground mt-4">
-            *Incentives subject to availability. Contact for full details.
+          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
+            *Incentives subject to change and availability. Contact for current offers and full terms.
           </p>
         </section>
 
         {/* 💰 MONTHLY COST VISUAL - Easy to skim */}
         <section className="px-5 py-6 bg-background">
-          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+          <h2 className="text-lg font-bold text-foreground text-center mb-1">
             Own For Just
           </h2>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Estimated monthly payments
+          </p>
           
           <div className="space-y-3">
             {/* 1 Bed + Den */}
@@ -375,11 +376,11 @@ const AdLandingPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-semibold text-foreground">1 Bed + Den</div>
-                  <div className="text-xs text-muted-foreground">570 sqft</div>
+                  <div className="text-xs text-muted-foreground">~570 sqft</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-foreground">$1,950</div>
-                  <div className="text-xs text-muted-foreground">/month • 10% down</div>
+                  <div className="text-2xl font-bold text-foreground">~$1,950</div>
+                  <div className="text-xs text-muted-foreground">/month*</div>
                 </div>
               </div>
             </div>
@@ -392,21 +393,22 @@ const AdLandingPage = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <div className="text-sm font-semibold text-background">2 Bed 2 Bath</div>
-                  <div className="text-xs text-background/70">774 sqft</div>
+                  <div className="text-xs text-background/70">~774 sqft</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-background">$2,600</div>
-                  <div className="text-xs text-background/70">/month • 10% down</div>
+                  <div className="text-2xl font-bold text-background">~$2,600</div>
+                  <div className="text-xs text-background/70">/month*</div>
                 </div>
               </div>
             </div>
           </div>
           
-          <p className="text-center text-[10px] text-muted-foreground mt-3">
-            *Based on current rates. Contact for personalized estimate.
+          <p className="text-center text-[10px] text-muted-foreground mt-3 italic">
+            *Estimated payments based on 10% down, current interest rates (~4.5%), and 25-year amortization. Actual payments may vary. Does not include property tax or strata fees. Contact for personalized quote.
           </p>
         </section>
 
+        {/* Urgency Banner */}
         <section className="px-5 py-4 bg-primary/10 border-y border-primary/20">
           <div className="flex items-center gap-3">
             <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
@@ -417,49 +419,52 @@ const AdLandingPage = () => {
         </section>
         {/* 🏠 FIRST-TIME BUYER BENEFITS */}
         <section className="px-5 py-6 bg-muted/30">
-          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+          <h2 className="text-lg font-bold text-foreground text-center mb-1">
             First-Time Buyer? Save Even More
           </h2>
+          <p className="text-center text-xs text-muted-foreground mb-4">
+            Government programs for eligible buyers
+          </p>
           
           <div className="space-y-3">
             {/* GST Rebate */}
-            <div className="bg-background rounded-2xl p-4 border border-border">
+            <div className="bg-background rounded-2xl p-4 border border-border shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="bg-green-100 text-green-700 rounded-full p-2 flex-shrink-0">
+                <div className="bg-green-100 text-green-700 rounded-full p-2.5 flex-shrink-0">
                   <span className="text-lg">💵</span>
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">GST New Housing Rebate</h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    First-time buyers can receive up to <span className="font-bold text-foreground">$50,000 back</span> (100% of GST) on new homes up to $1M
+                    Eligible first-time buyers can receive up to <span className="font-bold text-foreground">$50,000 back</span> (100% of GST) on new homes up to $1M
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     <Badge variant="outline" className="text-[10px] bg-green-50 border-green-200 text-green-700">
                       Up to $50K rebate
                     </Badge>
                     <Badge variant="outline" className="text-[10px]">
-                      Homes under $1M
+                      New homes under $1M
                     </Badge>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-2">
-                    Source: Canada.ca - GST/HST New Housing Rebate (RC4028)
+                  <p className="text-[10px] text-muted-foreground mt-2 italic">
+                    Source: Canada.ca – GST/HST New Housing Rebate (RC4028). Eligibility criteria apply.
                   </p>
                 </div>
               </div>
             </div>
             
             {/* BC PTT Exemption */}
-            <div className="bg-background rounded-2xl p-4 border border-border">
+            <div className="bg-background rounded-2xl p-4 border border-border shadow-sm">
               <div className="flex items-start gap-3">
-                <div className="bg-blue-100 text-blue-700 rounded-full p-2 flex-shrink-0">
+                <div className="bg-blue-100 text-blue-700 rounded-full p-2.5 flex-shrink-0">
                   <span className="text-lg">🏠</span>
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-foreground">BC Property Transfer Tax Exemption</h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    First-time buyers save up to <span className="font-bold text-foreground">$8,000</span> on homes up to $835K. New builds exempt up to $1.1M!
+                    Eligible first-time buyers save up to <span className="font-bold text-foreground">$8,000</span> on homes up to $835K. New builds exempt up to $1.1M!
                   </p>
-                  <div className="mt-2 flex flex-wrap gap-2">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     <Badge variant="outline" className="text-[10px] bg-blue-50 border-blue-200 text-blue-700">
                       Save up to $8K
                     </Badge>
@@ -467,16 +472,16 @@ const AdLandingPage = () => {
                       New builds to $1.1M
                     </Badge>
                   </div>
-                  <p className="text-[10px] text-muted-foreground mt-2">
-                    Source: Gov.bc.ca - First Time Home Buyers' Program (Apr 2024)
+                  <p className="text-[10px] text-muted-foreground mt-2 italic">
+                    Source: Gov.bc.ca – First Time Home Buyers' Program. Eligibility criteria apply.
                   </p>
                 </div>
               </div>
             </div>
           </div>
           
-          <p className="text-center text-[10px] text-muted-foreground mt-4">
-            Eligibility requirements apply. Contact us to see if you qualify.
+          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
+            Eligibility requirements apply. Information subject to change. Consult with a professional to verify your eligibility.
           </p>
         </section>
 
@@ -527,12 +532,15 @@ const AdLandingPage = () => {
             <div className="w-16 h-px bg-primary/40 mx-auto" />
             
             {/* Legal */}
-            <div className="space-y-1">
+            <div className="space-y-2">
               <p className="text-xs text-background/40">
                 © {new Date().getFullYear()} Presale Properties. All rights reserved.
               </p>
               <p className="text-xs text-background/30">
                 Licensed Real Estate Professionals | REAL Broker
+              </p>
+              <p className="text-[9px] text-background/25 max-w-xs mx-auto leading-relaxed mt-3">
+                All pricing, monthly payments, square footages, incentives, and rebates shown are estimates only and subject to change without notice. Actual costs may vary based on individual circumstances, lender requirements, and market conditions. This is not an offer to sell. Please consult with a licensed professional for personalized advice.
               </p>
             </div>
           </div>
