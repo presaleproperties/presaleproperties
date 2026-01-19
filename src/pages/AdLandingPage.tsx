@@ -306,13 +306,20 @@ const AdLandingPage = () => {
           </div>
         </section>
 
-        {/* Selling Points */}
-        <section className="px-5 py-6 bg-muted/30">
-          <div className="space-y-3">
-            {getSellingPoints().map((point, index) => <div key={index} className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-foreground font-medium">{point}</span>
-              </div>)}
+        {/* Selling Points - Grid for easy scanning */}
+        <section className="px-5 py-6 bg-background">
+          <div className="grid grid-cols-2 gap-3">
+            {getSellingPoints().map((point, index) => (
+              <div 
+                key={index} 
+                className="flex items-center gap-2.5 bg-muted/40 rounded-xl px-3 py-3 border border-border/50"
+              >
+                <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                  <CheckCircle className="h-4 w-4 text-primary" />
+                </div>
+                <span className="text-foreground text-sm font-medium leading-tight">{point}</span>
+              </div>
+            ))}
           </div>
         </section>
 
