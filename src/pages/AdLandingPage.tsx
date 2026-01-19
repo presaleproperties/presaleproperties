@@ -308,26 +308,6 @@ const AdLandingPage = () => {
                   </>
                 )}
 
-                {/* Image Dots Indicator - Flat design */}
-                {images.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                    {images.slice(0, 6).map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentImageIndex(idx)}
-                        className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
-                          idx === currentImageIndex 
-                            ? "bg-white scale-110" 
-                            : "bg-white/50"
-                        }`}
-                        aria-label={`Go to image ${idx + 1}`}
-                      />
-                    ))}
-                    {images.length > 6 && (
-                      <span className="text-white/80 text-xs ml-1 self-center">+{images.length - 6}</span>
-                    )}
-                  </div>
-                )}
 
                 {/* Video Play Button (if video available) */}
                 {CAMPAIGN_OVERRIDES.videoUrl && (
