@@ -374,20 +374,21 @@ const AdLandingPage = () => {
             </div>
           </div>
 
-          {/* Compact CTA section - immediately visible */}
-          <div className="px-5 py-4 space-y-3">
-            <p className="text-muted-foreground text-sm leading-relaxed">
+          {/* Compact info + scroll hint */}
+          <div className="px-5 py-4">
+            <p className="text-muted-foreground text-sm leading-relaxed text-center">
               {getSubheadline()}
             </p>
 
-            {/* Primary CTA */}
-            <Button 
+            {/* Scroll down arrow hint */}
+            <button 
               onClick={scrollToForm}
-              size="lg"
-              className="w-full h-14 text-base font-semibold rounded-xl shadow-gold hover:shadow-gold-glow"
+              className="w-full flex flex-col items-center gap-1 mt-3 py-2 text-primary"
+              aria-label="Scroll to get pricing"
             >
-              {CAMPAIGN_OVERRIDES.ctaText}
-            </Button>
+              <span className="text-sm font-medium">See Details</span>
+              <ChevronDown className="h-6 w-6 animate-bounce" />
+            </button>
           </div>
         </section>
 
@@ -438,16 +439,6 @@ const AdLandingPage = () => {
           </Card>
         </section>
 
-        {/* Scroll indicator */}
-        <div className="px-5 py-4 text-center">
-          <button 
-            onClick={scrollToForm}
-            className="inline-flex flex-col items-center gap-1 text-muted-foreground"
-          >
-            <span className="text-sm">Get exclusive access</span>
-            <ChevronDown className="h-5 w-5 animate-bounce" />
-          </button>
-        </div>
 
         {/* Lead Form Section */}
         <section id="lead-form-section" className="px-5 py-8 bg-muted/50">
