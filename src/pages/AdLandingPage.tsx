@@ -313,6 +313,49 @@ const AdLandingPage = () => {
           </div>
         </section>
 
+        {/* 💰 MONTHLY COST VISUAL - Easy to skim */}
+        <section className="px-5 py-6 bg-background">
+          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+            Your Monthly Investment
+          </h2>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {/* 1 Bed + Den */}
+            <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4 border border-primary/20 text-center overflow-hidden">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                POPULAR
+              </div>
+              <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">1 Bed + Den</div>
+              <div className="text-2xl font-bold text-foreground">$1,950</div>
+              <div className="text-xs text-muted-foreground">/month</div>
+              <div className="mt-3 pt-3 border-t border-primary/20">
+                <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
+                  <span className="bg-primary/20 px-1.5 py-0.5 rounded">10% down</span>
+                </span>
+              </div>
+            </div>
+            
+            {/* 2 Bed 2 Bath */}
+            <div className="relative bg-gradient-to-br from-foreground to-foreground/90 rounded-2xl p-4 border border-foreground text-center overflow-hidden">
+              <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
+                BEST VALUE
+              </div>
+              <div className="text-xs text-background/70 uppercase tracking-wide mb-1">2 Bed 2 Bath</div>
+              <div className="text-2xl font-bold text-background">$2,500</div>
+              <div className="text-xs text-background/70">/month</div>
+              <div className="mt-3 pt-3 border-t border-background/20">
+                <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
+                  <span className="bg-primary/20 px-1.5 py-0.5 rounded">10% down</span>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-center text-[10px] text-muted-foreground mt-3">
+            *Based on current rates. Contact for personalized estimate.
+          </p>
+        </section>
+
         {/* 🔥 INCENTIVES SECTION - High Impact Promo */}
         <section className="px-5 py-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5">
           <div className="text-center mb-4">
