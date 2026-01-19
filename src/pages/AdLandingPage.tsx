@@ -9,38 +9,69 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CheckCircle, MapPin, Calendar, Building2, Play, Pause, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
-
-// ============================================
-// CAMPAIGN OVERRIDE CONFIG
-// Use these to customize messaging without changing database
-// Set to null to use database values
-// ============================================
-const CAMPAIGN_OVERRIDES = {
-  // Override headline (null = use generic teaser headline)
-  headline: null as string | null,
-  // Override subheadline
-  subheadline: null as string | null,
-  // Custom selling points (null = use auto-generated from project data)
-  sellingPoints: null as string[] | null,
-  // Video URL (MP4 or YouTube embed)
-  videoUrl: null as string | null,
-  // Urgency messaging
-  urgencyBadge: "Limited Time Offer",
-  urgencyText: "Pre-construction pricing available for a limited time",
-  // CTA text
-  ctaText: "Get Floor Plans & Pricing",
-  // Location teaser (vague to maintain mystery)
-  locationTeaser: null as string | null // null = use "Prime {city} Location"
-};
+import { trackPageView } from "@/lib/tracking";
+import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 // Default project slug for the campaign
 const DEFAULT_PROJECT_SLUG = "jericho-park";
+
+interface Campaign {
+  id: string;
+  name: string;
+  slug: string;
+  project_id: string | null;
+  headline: string | null;
+  subheadline: string | null;
+  selling_points: string[] | null;
+  urgency_badge: string | null;
+  urgency_text: string | null;
+  cta_text: string | null;
+  location_teaser: string | null;
+  video_url: string | null;
+  incentive_savings: string | null;
+  incentive_deposit: string | null;
+  incentive_bonus: string | null;
+  monthly_1br: string | null;
+  monthly_2br: string | null;
+  is_active: boolean;
+}
+
+// Fallback config when no campaign is found
+const DEFAULT_CONFIG = {
+  urgencyBadge: "Limited Time Offer",
+  urgencyText: "Pre-construction pricing available for a limited time",
+  ctaText: "Get Floor Plans & Pricing",
+  incentiveSavings: "$50K",
+  incentiveDeposit: "5%",
+  incentiveBonus: "Free A/C",
+  monthly1br: "~$1,950",
+  monthly2br: "~$2,600",
+};
+
 const AdLandingPage = () => {
   const [searchParams] = useSearchParams();
   const projectSlug = searchParams.get("p") || DEFAULT_PROJECT_SLUG;
+  const campaignSlug = searchParams.get("c");
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+
+  // Fetch campaign data if campaign slug is provided
+  const { data: campaign } = useQuery({
+    queryKey: ["landing-campaign", campaignSlug],
+    queryFn: async () => {
+      if (!campaignSlug) return null;
+      const { data, error } = await supabase
+        .from("landing_page_campaigns")
+        .select("*")
+        .eq("slug", campaignSlug)
+        .eq("is_active", true)
+        .maybeSingle();
+      if (error) throw error;
+      return data as Campaign | null;
+    },
+    enabled: !!campaignSlug,
+  });
 
   // Fetch project data from database
   const {
@@ -76,27 +107,51 @@ const AdLandingPage = () => {
     }
   });
 
-  // Generate dynamic content based on project data
+  // Track page view on mount
+  useEffect(() => {
+    trackPageView();
+    // Track ad landing page view in Meta
+    MetaEvents.viewContent({
+      content_name: `Ad Landing: ${projectSlug}`,
+      content_category: "Ad Landing Page",
+      content_type: "landing_page",
+    });
+  }, [projectSlug]);
+
+  // Helper to get campaign value or default
+  const getCampaignValue = <K extends keyof Campaign>(
+    key: K,
+    fallback: string
+  ): string => {
+    if (campaign && campaign[key]) return campaign[key] as string;
+    return fallback;
+  };
+
+  // Generate dynamic content based on project data and campaign overrides
   const getHeadline = () => {
-    if (CAMPAIGN_OVERRIDES.headline) return CAMPAIGN_OVERRIDES.headline;
+    if (campaign?.headline) return campaign.headline;
     return "Exclusive Pre-Construction Opportunity";
   };
+  
   const getSubheadline = () => {
-    if (CAMPAIGN_OVERRIDES.subheadline) return CAMPAIGN_OVERRIDES.subheadline;
+    if (campaign?.subheadline) return campaign.subheadline;
     if (project?.short_description) {
-      // Truncate to first sentence for mystery
       const firstSentence = project.short_description.split('.')[0];
       return firstSentence.length > 100 ? firstSentence.substring(0, 100) + "..." : firstSentence + ".";
     }
     return "Limited units available in Metro Vancouver's most anticipated development";
   };
+  
   const getLocationTeaser = () => {
-    if (CAMPAIGN_OVERRIDES.locationTeaser) return CAMPAIGN_OVERRIDES.locationTeaser;
+    if (campaign?.location_teaser) return campaign.location_teaser;
     if (project?.city) return `Prime ${project.city} Location`;
     return "Prime Metro Vancouver Location";
   };
+  
   const getSellingPoints = () => {
-    if (CAMPAIGN_OVERRIDES.sellingPoints) return CAMPAIGN_OVERRIDES.sellingPoints;
+    if (campaign?.selling_points && campaign.selling_points.length > 0) {
+      return campaign.selling_points;
+    }
     const points: string[] = [];
     if (project?.starting_price) {
       const priceK = Math.floor(project.starting_price / 1000);
@@ -108,19 +163,19 @@ const AdLandingPage = () => {
     if (project?.deposit_percent) {
       points.push(`${project.deposit_percent}% Deposit`);
     }
-
-    // Add generic points if we don't have enough
-    if (points.length < 4) {
-      points.push("Incentives Available");
-    }
-    if (points.length < 4) {
-      points.push("Steps from transit & amenities");
-    }
-    if (points.length < 4) {
-      points.push("First access to best floor plans");
-    }
+    if (points.length < 4) points.push("Incentives Available");
+    if (points.length < 4) points.push("Steps from transit");
     return points.slice(0, 4);
   };
+
+  const getVideoUrl = () => campaign?.video_url || null;
+  const getUrgencyBadge = () => campaign?.urgency_badge || DEFAULT_CONFIG.urgencyBadge;
+  const getCtaText = () => campaign?.cta_text || DEFAULT_CONFIG.ctaText;
+  const getIncentiveSavings = () => campaign?.incentive_savings || DEFAULT_CONFIG.incentiveSavings;
+  const getIncentiveDeposit = () => campaign?.incentive_deposit || DEFAULT_CONFIG.incentiveDeposit;
+  const getIncentiveBonus = () => campaign?.incentive_bonus || DEFAULT_CONFIG.incentiveBonus;
+  const getMonthly1br = () => campaign?.monthly_1br || DEFAULT_CONFIG.monthly1br;
+  const getMonthly2br = () => campaign?.monthly_2br || DEFAULT_CONFIG.monthly2br;
   const getAllImages = () => {
     const images: string[] = [];
     if (project?.featured_image) images.push(project.featured_image);
@@ -230,8 +285,8 @@ const AdLandingPage = () => {
           marginRight: 'calc(-50vw + 50%)'
         }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             {/* Video Player */}
-            {showVideo && CAMPAIGN_OVERRIDES.videoUrl ? <div className="absolute inset-0 bg-black">
-                <video src={CAMPAIGN_OVERRIDES.videoUrl} className="w-full h-full object-contain" autoPlay controls playsInline onPlay={() => setIsVideoPlaying(true)} onPause={() => setIsVideoPlaying(false)} onEnded={() => setShowVideo(false)} />
+            {showVideo && getVideoUrl() ? <div className="absolute inset-0 bg-black">
+                <video src={getVideoUrl()!} className="w-full h-full object-contain" autoPlay controls playsInline onPlay={() => setIsVideoPlaying(true)} onPause={() => setIsVideoPlaying(false)} onEnded={() => setShowVideo(false)} />
                 <button onClick={() => setShowVideo(false)} className="absolute top-4 right-4 p-2 rounded-full bg-black/60 text-white">
                   ✕
                 </button>
@@ -256,7 +311,7 @@ const AdLandingPage = () => {
 
 
                 {/* Video Play Button (if video available) */}
-                {CAMPAIGN_OVERRIDES.videoUrl && <button onClick={() => setShowVideo(true)} className="absolute bottom-4 right-4 p-3 rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform" aria-label="Play video">
+                {getVideoUrl() && <button onClick={() => setShowVideo(true)} className="absolute bottom-4 right-4 p-3 rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform" aria-label="Play video">
                     <Play className="h-5 w-5" />
                   </button>}
 
@@ -269,7 +324,7 @@ const AdLandingPage = () => {
             {/* Urgency Badge - Top left */}
             <div className="absolute top-4 left-4 safe-area-top">
               <Badge className="bg-primary text-primary-foreground font-semibold px-3 py-1.5 text-sm shadow-lg">
-                {CAMPAIGN_OVERRIDES.urgencyBadge}
+                {getUrgencyBadge()}
               </Badge>
             </div>
 
@@ -440,7 +495,7 @@ const AdLandingPage = () => {
         {/* Sticky Bottom CTA */}
         <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border/50 safe-area-bottom z-40">
           <Button onClick={scrollToForm} size="lg" className="w-full h-12 text-base font-bold rounded-xl shadow-gold">
-            {CAMPAIGN_OVERRIDES.ctaText}
+            {getCtaText()}
           </Button>
         </div>
 
