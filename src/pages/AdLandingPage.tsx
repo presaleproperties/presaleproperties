@@ -55,6 +55,8 @@ const AdLandingPage = () => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const interactionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch campaign data if campaign slug is provided
   const { data: campaign } = useQuery({
@@ -205,6 +207,11 @@ const AdLandingPage = () => {
   const onTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
+    setIsInteracting(true);
+    // Clear any existing timeout
+    if (interactionTimeoutRef.current) {
+      clearTimeout(interactionTimeoutRef.current);
+    }
   };
   const onTouchMove = (e: React.TouchEvent) => {
     setTouchEnd(e.targetTouches[0].clientX);
@@ -216,6 +223,10 @@ const AdLandingPage = () => {
     const isRightSwipe = distance < -minSwipeDistance;
     if (isLeftSwipe) nextImage();
     if (isRightSwipe) prevImage();
+    // Fade text back in after a short delay
+    interactionTimeoutRef.current = setTimeout(() => {
+      setIsInteracting(false);
+    }, 2000);
   };
 
   // Auto-scroll hint on first impression
@@ -315,28 +326,32 @@ const AdLandingPage = () => {
                     <Play className="h-5 w-5" />
                   </button>}
 
-                {/* Gradient overlay for text readability */}
-                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
+                {/* Gradient overlay for text readability - fades with text */}
+                <div className={`absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none transition-opacity duration-300 ${isInteracting ? 'opacity-0' : 'opacity-100'}`} />
               </> : <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center">
                 <Building2 className="h-24 w-24 text-primary/30" />
               </div>}
             
-            {/* Urgency Badge - Top left */}
-            <div className="absolute top-4 left-4 safe-area-top">
+            {/* Urgency Badge - Top left - fades on interaction */}
+            <div 
+              className={`absolute top-4 left-4 safe-area-top transition-opacity duration-300 ${isInteracting ? 'opacity-0' : 'opacity-100'}`}
+            >
               <Badge className="bg-primary text-primary-foreground font-semibold px-3 py-1.5 text-sm shadow-lg">
                 {getUrgencyBadge()}
               </Badge>
             </div>
 
-            {/* Photo Count Badge - Flat design */}
+            {/* Photo Count Badge - Always visible */}
             {images.length > 1 && <div className="absolute top-4 right-4 safe-area-top">
                 <Badge variant="secondary" className="bg-black/50 text-white border-0 font-medium">
                   {currentImageIndex + 1} / {images.length}
                 </Badge>
               </div>}
 
-            {/* Overlaid headline for above-the-fold impact */}
-            <div className="absolute inset-x-0 bottom-0 p-6 pb-8 text-white">
+            {/* Overlaid headline - fades on interaction for clean photo viewing */}
+            <div 
+              className={`absolute inset-x-0 bottom-0 p-6 pb-8 text-white transition-opacity duration-300 ${isInteracting ? 'opacity-0' : 'opacity-100'}`}
+            >
               <h1 className="text-3xl font-bold leading-tight drop-shadow-lg tracking-tight">
                 {getHeadline()}
               </h1>
