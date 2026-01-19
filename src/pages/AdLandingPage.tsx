@@ -225,7 +225,10 @@ const AdLandingPage = () => {
 
         {/* Hero Gallery with Swipe - Edge-to-edge, tall hero for impact */}
         <section className="relative -mx-0">
-          <div className="relative h-[65vh] min-h-[400px] max-h-[600px] bg-muted overflow-hidden w-screen max-w-none" style={{ marginLeft: 'calc(-50vw + 50%)', marginRight: 'calc(-50vw + 50%)' }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
+          <div className="relative h-[65vh] min-h-[400px] max-h-[600px] bg-muted overflow-hidden w-screen max-w-none" style={{
+          marginLeft: 'calc(-50vw + 50%)',
+          marginRight: 'calc(-50vw + 50%)'
+        }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
             {/* Video Player */}
             {showVideo && CAMPAIGN_OVERRIDES.videoUrl ? <div className="absolute inset-0 bg-black">
                 <video src={CAMPAIGN_OVERRIDES.videoUrl} className="w-full h-full object-contain" autoPlay controls playsInline onPlay={() => setIsVideoPlaying(true)} onPause={() => setIsVideoPlaying(false)} onEnded={() => setShowVideo(false)} />
@@ -329,7 +332,7 @@ const AdLandingPage = () => {
               <span className="text-2xl">💰</span>
               <div>
                 <p className="font-semibold text-foreground">Up to $50,000 in Savings</p>
-                <p className="text-xs text-muted-foreground">Developer credits & closing cost assistance</p>
+                <p className="text-xs text-muted-foreground">Developer credits</p>
               </div>
             </div>
             
@@ -337,25 +340,19 @@ const AdLandingPage = () => {
               <span className="text-2xl">📉</span>
               <div>
                 <p className="font-semibold text-foreground">Reduced Deposit Structure</p>
-                <p className="text-xs text-muted-foreground">Only 10% down until completion</p>
+                <p className="text-xs text-muted-foreground">Only 5% down until completion</p>
               </div>
             </div>
             
             <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
               <span className="text-2xl">🎁</span>
               <div>
-                <p className="font-semibold text-foreground">Free Upgrade Package</p>
-                <p className="text-xs text-muted-foreground">Premium finishes included at no extra cost</p>
+                <p className="font-semibold text-foreground">Free AC Package</p>
+                <p className="text-xs text-muted-foreground">AC included in the purchase price for all home</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
-              <span className="text-2xl">⏰</span>
-              <div>
-                <p className="font-semibold text-foreground">Extended Rate Hold</p>
-                <p className="text-xs text-muted-foreground">Lock in your rate for up to 24 months</p>
-              </div>
-            </div>
+            
           </div>
           
           <p className="text-center text-xs text-muted-foreground mt-4">
