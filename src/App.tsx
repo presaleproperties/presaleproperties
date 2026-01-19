@@ -81,6 +81,7 @@ import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
 import ResalePriceRangePage from "./pages/ResalePriceRangePage";
 import ContentHub from "./pages/ContentHub";
 import BlogCategoryPage from "./pages/BlogCategoryPage";
+import AdLandingPage from "./pages/AdLandingPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -169,6 +170,9 @@ const App = () => (
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
+            
+            {/* Ad Landing Page - noindex for paid campaigns */}
+            <Route path="/exclusive-offer" element={<AdLandingPage />} />
             
             {/* SEO Neighborhood Landing Pages */}
             <Route path="/south-surrey-presale" element={<NeighborhoodLandingPage />} />
