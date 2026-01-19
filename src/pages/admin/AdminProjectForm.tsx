@@ -148,6 +148,7 @@ export default function AdminProjectForm() {
   const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
+  const [isFormattingShortDescription, setIsFormattingShortDescription] = useState(false);
   const [isExtractingFromPdf, setIsExtractingFromPdf] = useState(false);
   const [extractedPreviewImages, setExtractedPreviewImages] = useState<{
     url: string;
@@ -1340,6 +1341,51 @@ export default function AdminProjectForm() {
     }
   };
 
+  const formatShortDescriptionWithAI = async () => {
+    if (!formData.short_description || formData.short_description.trim().length < 10) {
+      toast({
+        title: "Not enough content",
+        description: "Add more short description text before formatting",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsFormattingShortDescription(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("format-description", {
+        body: {
+          description: formData.short_description,
+          isShortDescription: true,
+          projectContext: {
+            name: formData.name,
+            city: formData.city,
+            neighborhood: formData.neighborhood,
+          },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data?.formatted) {
+        setFormData(prev => ({ ...prev, short_description: data.formatted }));
+        toast({
+          title: "Short Description Formatted",
+          description: "Content optimized for card display",
+        });
+      }
+    } catch (error: any) {
+      console.error("Format error:", error);
+      toast({
+        title: "Formatting Failed",
+        description: error.message || "Could not format short description",
+        variant: "destructive",
+      });
+    } finally {
+      setIsFormattingShortDescription(false);
+    }
+  };
+
   const removeGalleryImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
@@ -2129,7 +2175,24 @@ export default function AdminProjectForm() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="short_description">Short Description (for cards)</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="short_description">Short Description (for cards)</Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={formatShortDescriptionWithAI}
+                      disabled={isFormattingShortDescription || !formData.short_description}
+                      className="gap-2"
+                    >
+                      {isFormattingShortDescription ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Sparkles className="h-3 w-3" />
+                      )}
+                      {isFormattingShortDescription ? "Formatting..." : "AI Format"}
+                    </Button>
+                  </div>
                   <Textarea
                     id="short_description"
                     value={formData.short_description}

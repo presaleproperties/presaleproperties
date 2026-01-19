@@ -11,9 +11,10 @@ serve(async (req) => {
   }
 
   try {
-    const { description, projectContext } = await req.json();
+    const { description, projectContext, isShortDescription } = await req.json();
 
-    if (!description || description.trim().length < 20) {
+    const minLength = isShortDescription ? 10 : 20;
+    if (!description || description.trim().length < minLength) {
       return new Response(
         JSON.stringify({ error: "Description too short to format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -25,7 +26,24 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    const systemPrompt = `You are a real estate copywriter who formats property descriptions for easy reading.
+    // Different prompts for short vs full descriptions
+    const systemPrompt = isShortDescription 
+      ? `You are a real estate copywriter who creates compelling short descriptions for property cards.
+
+CRITICAL RULES:
+1. DO NOT invent, add, or fabricate ANY information not present in the original text
+2. Keep it to 1-2 sentences maximum (under 200 characters ideal)
+3. Focus on the most compelling selling points
+4. Make it punchy and action-oriented
+5. Include location highlights if mentioned
+6. No bullet points or markdown - plain text only
+7. If there are numbers, prices, or dates - keep them EXACTLY as provided
+
+OUTPUT FORMAT:
+- Plain text, 1-2 sentences
+- Engaging and benefit-focused
+- Perfect for listing cards`
+      : `You are a real estate copywriter who formats property descriptions for easy reading.
 
 CRITICAL RULES:
 1. DO NOT invent, add, or fabricate ANY information not present in the original text
@@ -43,7 +61,12 @@ OUTPUT FORMAT:
 - Keep it concise and professional
 - No headers or titles - just formatted body text`;
 
-    const userPrompt = `Format this property description for easy reading. DO NOT add any new information - only restructure what's there:
+    const userPrompt = isShortDescription
+      ? `Rewrite this as a short, compelling 1-2 sentence description for a property card. Keep all facts but make it punchy:
+
+${projectContext ? `Project: ${projectContext.name} in ${projectContext.neighborhood}, ${projectContext.city}\n\n` : ''}Original text:
+${description}`
+      : `Format this property description for easy reading. DO NOT add any new information - only restructure what's there:
 
 ${projectContext ? `Project: ${projectContext.name}\nLocation: ${projectContext.neighborhood}, ${projectContext.city}\n\n` : ''}Description to format:
 ${description}`;
