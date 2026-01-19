@@ -398,7 +398,7 @@ const AdLandingPage = () => {
                   <div className="text-xs text-background/70">774 sqft</div>
                 </div>
                 <div className="text-right">
-                  <div className="text-2xl font-bold text-background">$2,500</div>
+                  <div className="text-2xl font-bold text-background">$2,600</div>
                   <div className="text-xs text-background/70">/month • 10% down</div>
                 </div>
               </div>
@@ -444,6 +444,70 @@ const AdLandingPage = () => {
           </Card>
         </section>
 
+        {/* 🏠 FIRST-TIME BUYER BENEFITS */}
+        <section className="px-5 py-6 bg-muted/30">
+          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+            First-Time Buyer? Save Even More
+          </h2>
+          
+          <div className="space-y-3">
+            {/* GST Rebate */}
+            <div className="bg-background rounded-2xl p-4 border border-border">
+              <div className="flex items-start gap-3">
+                <div className="bg-green-100 text-green-700 rounded-full p-2 flex-shrink-0">
+                  <span className="text-lg">💵</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">GST New Housing Rebate</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    First-time buyers can receive up to <span className="font-bold text-foreground">$50,000 back</span> (100% of GST) on new homes up to $1M
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="outline" className="text-[10px] bg-green-50 border-green-200 text-green-700">
+                      Up to $50K rebate
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      Homes under $1M
+                    </Badge>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-2">
+                    Source: Canada.ca - GST/HST New Housing Rebate (RC4028)
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* BC PTT Exemption */}
+            <div className="bg-background rounded-2xl p-4 border border-border">
+              <div className="flex items-start gap-3">
+                <div className="bg-blue-100 text-blue-700 rounded-full p-2 flex-shrink-0">
+                  <span className="text-lg">🏠</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-foreground">BC Property Transfer Tax Exemption</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    First-time buyers save up to <span className="font-bold text-foreground">$8,000</span> on homes up to $835K. New builds exempt up to $1.1M!
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="outline" className="text-[10px] bg-blue-50 border-blue-200 text-blue-700">
+                      Save up to $8K
+                    </Badge>
+                    <Badge variant="outline" className="text-[10px]">
+                      New builds to $1.1M
+                    </Badge>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground mt-2">
+                    Source: Gov.bc.ca - First Time Home Buyers' Program (Apr 2024)
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-center text-[10px] text-muted-foreground mt-4">
+            Eligibility requirements apply. Contact us to see if you qualify.
+          </p>
+        </section>
 
         {/* Lead Form Section */}
         <section id="lead-form-section" className="px-5 py-8 bg-muted/50">
