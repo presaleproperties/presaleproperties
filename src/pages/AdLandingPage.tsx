@@ -418,32 +418,6 @@ const AdLandingPage = () => {
             </p>
           </div>
         </section>
-
-        {/* Why Act Now Section */}
-        <section className="px-5 py-6">
-          <Card className="p-5 bg-gradient-to-br from-primary/5 to-transparent border-primary/20">
-            <h3 className="text-lg font-semibold text-foreground mb-3">Why Get In Now?</h3>
-            <ul className="space-y-2.5 text-sm text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">•</span>
-                <span>Lock in today's pricing before public launch</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">•</span>
-                <span>First access to the best floor plans and views</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">•</span>
-                <span>Exclusive incentives for early registrants</span>
-              </li>
-              <li className="flex items-start gap-2">
-                <span className="text-primary font-bold">•</span>
-                <span>Expert guidance from Vancouver's presale specialists</span>
-              </li>
-            </ul>
-          </Card>
-        </section>
-
         {/* 🏠 FIRST-TIME BUYER BENEFITS */}
         <section className="px-5 py-6 bg-muted/30">
           <h2 className="text-lg font-bold text-foreground text-center mb-4">
