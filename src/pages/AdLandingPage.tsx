@@ -280,7 +280,7 @@ const AdLandingPage = () => {
 
         {/* Hero Gallery with Swipe - Edge-to-edge, tall hero for impact */}
         <section className="relative -mx-0">
-          <div className="relative h-[65vh] min-h-[400px] max-h-[600px] bg-muted overflow-hidden w-screen max-w-none" style={{
+            <div className="relative h-[50vh] min-h-[320px] max-h-[450px] bg-muted overflow-hidden w-screen max-w-none" style={{
           marginLeft: 'calc(-50vw + 50%)',
           marginRight: 'calc(-50vw + 50%)'
         }} onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
