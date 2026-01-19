@@ -52,7 +52,7 @@ serve(async (req: Request): Promise<Response> => {
       // Also check project_leads for this visitor
       const { data: existingLead } = await supabase
         .from("project_leads")
-        .select("id, name, email, phone, project_name, city, persona, home_size, is_realtor, created_at")
+        .select("id, name, email, phone, persona, home_size, agent_status, created_at, project_id, presale_projects(name, city)")
         .eq("visitor_id", payload.visitor_id)
         .order("created_at", { ascending: false })
         .limit(1)
@@ -112,16 +112,17 @@ serve(async (req: Request): Promise<Response> => {
       } else if (existingLead) {
         // Lead exists in project_leads but not in clients
         isKnownLead = true;
+        const projectData = existingLead.presale_projects as unknown as { name: string; city: string } | null;
         leadDetails = {
           source: "project_lead",
           email: existingLead.email,
           full_name: existingLead.name,
           phone: existingLead.phone,
-          original_project: existingLead.project_name,
-          original_city: existingLead.city,
+          original_project: projectData?.name || null,
+          original_city: projectData?.city || null,
           persona: existingLead.persona,
           home_size: existingLead.home_size,
-          is_realtor: existingLead.is_realtor,
+          agent_status: existingLead.agent_status,
           lead_created_at: existingLead.created_at,
         };
       }
