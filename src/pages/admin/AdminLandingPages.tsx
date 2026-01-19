@@ -296,12 +296,13 @@ export default function AdminLandingPages() {
                       
                       <div className="flex items-center gap-1">
                         <Button
-                          variant="ghost"
-                          size="icon"
+                          variant="default"
+                          size="sm"
                           onClick={() => window.open(getPreviewUrl(campaign), "_blank")}
-                          title="Preview"
+                          className="gap-1.5"
                         >
                           <Eye className="h-4 w-4" />
+                          Preview
                         </Button>
                         <Button
                           variant="ghost"

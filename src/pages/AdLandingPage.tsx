@@ -376,15 +376,15 @@ const AdLandingPage = () => {
           
           <div className="grid grid-cols-3 gap-2 text-center">
             <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
-              <p className="text-2xl font-bold text-primary">$50K</p>
+              <p className="text-2xl font-bold text-primary">{getIncentiveSavings()}</p>
               <p className="text-[11px] text-muted-foreground mt-1">Savings*</p>
             </div>
             <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
-              <p className="text-2xl font-bold text-primary">5%</p>
+              <p className="text-2xl font-bold text-primary">{getIncentiveDeposit()}</p>
               <p className="text-[11px] text-muted-foreground mt-1">Deposit*</p>
             </div>
             <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
-              <p className="text-2xl font-bold text-primary">Free</p>
+              <p className="text-2xl font-bold text-primary">{getIncentiveBonus()}</p>
               <p className="text-[11px] text-muted-foreground mt-1">A/C*</p>
             </div>
           </div>
@@ -407,7 +407,7 @@ const AdLandingPage = () => {
                 POPULAR
               </Badge>
               <p className="text-xs text-muted-foreground">1 Bed + Den</p>
-              <p className="text-2xl font-bold text-foreground mt-1">~$1,950</p>
+              <p className="text-2xl font-bold text-foreground mt-1">{getMonthly1br()}</p>
               <p className="text-[10px] text-muted-foreground">/mo*</p>
             </div>
             
@@ -417,7 +417,7 @@ const AdLandingPage = () => {
                 BEST VALUE
               </Badge>
               <p className="text-xs text-background/70">2 Bed 2 Bath</p>
-              <p className="text-2xl font-bold text-background mt-1">~$2,600</p>
+              <p className="text-2xl font-bold text-background mt-1">{getMonthly2br()}</p>
               <p className="text-[10px] text-background/60">/mo*</p>
             </div>
           </div>
