@@ -386,7 +386,7 @@ const AdLandingPage = () => {
               className="w-full flex flex-col items-center gap-1 mt-3 py-2 text-primary"
               aria-label="Scroll to get pricing"
             >
-              <span className="text-sm font-medium">See Details</span>
+              <span className="text-sm font-medium">View Pricing</span>
               <ChevronDown className="h-6 w-6 animate-bounce" />
             </button>
           </div>
