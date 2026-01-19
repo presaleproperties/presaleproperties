@@ -403,18 +403,18 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
       {/* Form - optimized for conversion & autofill */}
       <div className="p-4 lg:p-5 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4" autoComplete="off">
           {/* First Name & Last Name - side by side with proper autofill */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="lead-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="lead-firstName" className="text-base font-medium text-foreground mb-1.5 block">
                 First Name
               </Label>
               <Input
                 id="lead-firstName"
-                name="fname"
+                name="lead_fname"
                 placeholder="John"
-                autoComplete="given-name"
+                autoComplete="off"
                 autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("firstName")}
@@ -422,14 +422,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               />
             </div>
             <div>
-              <Label htmlFor="lead-lastName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="lead-lastName" className="text-base font-medium text-foreground mb-1.5 block">
                 Last Name
               </Label>
               <Input
                 id="lead-lastName"
-                name="lname"
+                name="lead_lname"
                 placeholder="Smith"
-                autoComplete="family-name"
+                autoComplete="off"
                 autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("lastName")}
@@ -440,16 +440,16 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Email */}
           <div>
-            <Label htmlFor="lead-email" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+            <Label htmlFor="lead-email" className="text-base font-medium text-foreground mb-1.5 block">
               Email
             </Label>
             <Input
               id="lead-email"
-              name="email"
+              name="lead_email"
               type="email"
               inputMode="email"
               placeholder="john@email.com"
-              autoComplete="email"
+              autoComplete="off"
               autoCapitalize="none"
               enterKeyHint="next"
               {...form.register("email")}
@@ -459,16 +459,16 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Phone */}
           <div>
-            <Label htmlFor="lead-phone" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+            <Label htmlFor="lead-phone" className="text-base font-medium text-foreground mb-1.5 block">
               Phone
             </Label>
             <Input
               id="lead-phone"
-              name="phone"
+              name="lead_phone"
               type="tel"
               inputMode="tel"
               placeholder="604-555-0123"
-              autoComplete="tel"
+              autoComplete="off"
               enterKeyHint="done"
               {...form.register("phone")}
               className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
@@ -477,7 +477,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* I am a... - Large touch targets */}
           <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+            <Label className="text-base font-medium text-foreground mb-2 block">
               I am a...
             </Label>
             <RadioGroup
@@ -503,7 +503,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Working with agent - Touch-friendly */}
           <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+            <Label className="text-base font-medium text-foreground mb-2 block">
               Working with a Realtor?
             </Label>
             <RadioGroup
@@ -529,7 +529,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
           {/* Interested in Home Size - Touch-friendly */}
           <div>
-            <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+            <Label className="text-base font-medium text-foreground mb-2 block">
               Home Size
             </Label>
             <RadioGroup
