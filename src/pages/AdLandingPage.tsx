@@ -206,6 +206,16 @@ const AdLandingPage = () => {
     }
   }, [images.length]);
 
+  // Preload all images for lag-free transitions
+  useEffect(() => {
+    if (images.length > 0) {
+      images.forEach((src) => {
+        const img = new Image();
+        img.src = src;
+      });
+    }
+  }, [images]);
+
   const scrollToForm = () => {
     document.getElementById("lead-form-section")?.scrollIntoView({ behavior: "smooth" });
   };
@@ -278,14 +288,21 @@ const AdLandingPage = () => {
               </div>
             ) : images.length > 0 ? (
               <>
-                {/* Current Image - Clean edge-to-edge, no shadows */}
+                {/* Current Image - HQ, GPU-accelerated, no lag */}
                 <img
+                  key={currentImageIndex}
                   src={images[currentImageIndex]}
                   alt="Property preview"
-                  className="absolute inset-0 w-full h-full object-cover will-change-transform transition-opacity duration-500"
+                  className="absolute inset-0 w-full h-full object-cover"
+                  style={{ 
+                    willChange: 'transform, opacity',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden',
+                    imageRendering: 'auto'
+                  }}
                   loading="eager"
                   fetchPriority="high"
-                  decoding="async"
+                  decoding="sync"
                 />
                 
                 {/* Image Navigation Arrows - Flat design, no shadows */}
