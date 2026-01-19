@@ -234,10 +234,10 @@ const AdLandingPage = () => {
       <div className="min-h-screen bg-background">
         {/* NO HEADER - Clean edge-to-edge mobile experience */}
 
-        {/* Hero Gallery with Swipe */}
+        {/* Hero Gallery with Swipe - Tall hero for impact */}
         <section className="relative">
           <div 
-            className="relative aspect-[4/3] bg-muted overflow-hidden"
+            className="relative h-[65vh] min-h-[400px] max-h-[600px] bg-muted overflow-hidden"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -264,11 +264,14 @@ const AdLandingPage = () => {
               </div>
             ) : images.length > 0 ? (
               <>
-                {/* Current Image */}
+                {/* Current Image - Optimized loading */}
                 <img
                   src={images[currentImageIndex]}
                   alt="Property preview"
-                  className="absolute inset-0 w-full h-full object-cover"
+                  className="absolute inset-0 w-full h-full object-cover will-change-transform"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
                 
                 {/* Image Navigation Arrows */}
@@ -276,38 +279,38 @@ const AdLandingPage = () => {
                   <>
                     <button
                       onClick={prevImage}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/50 text-white backdrop-blur-sm active:scale-95 transition-transform"
                       aria-label="Previous image"
                     >
-                      <ChevronLeft className="h-5 w-5" />
+                      <ChevronLeft className="h-6 w-6" />
                     </button>
                     <button
                       onClick={nextImage}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/40 text-white backdrop-blur-sm hover:bg-black/60 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/50 text-white backdrop-blur-sm active:scale-95 transition-transform"
                       aria-label="Next image"
                     >
-                      <ChevronRight className="h-5 w-5" />
+                      <ChevronRight className="h-6 w-6" />
                     </button>
                   </>
                 )}
 
                 {/* Image Dots Indicator */}
                 {images.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5">
-                    {images.slice(0, 8).map((_, idx) => (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {images.slice(0, 6).map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setCurrentImageIndex(idx)}
-                        className={`w-2 h-2 rounded-full transition-colors ${
+                        className={`w-2.5 h-2.5 rounded-full transition-all ${
                           idx === currentImageIndex 
-                            ? "bg-white" 
+                            ? "bg-white scale-110" 
                             : "bg-white/50"
                         }`}
                         aria-label={`Go to image ${idx + 1}`}
                       />
                     ))}
-                    {images.length > 8 && (
-                      <span className="text-white/80 text-xs ml-1">+{images.length - 8}</span>
+                    {images.length > 6 && (
+                      <span className="text-white/80 text-xs ml-1 self-center">+{images.length - 6}</span>
                     )}
                   </div>
                 )}
@@ -316,22 +319,24 @@ const AdLandingPage = () => {
                 {CAMPAIGN_OVERRIDES.videoUrl && (
                   <button
                     onClick={() => setShowVideo(true)}
-                    className="absolute bottom-4 right-4 p-3 rounded-full bg-primary text-primary-foreground shadow-lg"
+                    className="absolute bottom-4 right-4 p-3 rounded-full bg-primary text-primary-foreground shadow-lg active:scale-95 transition-transform"
                     aria-label="Play video"
                   >
                     <Play className="h-5 w-5" />
                   </button>
                 )}
+
+                {/* Gradient overlay for text readability */}
+                <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/60 via-black/20 to-transparent pointer-events-none" />
               </>
             ) : (
-              // Placeholder when no images
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-primary/10 to-background flex items-center justify-center">
                 <Building2 className="h-24 w-24 text-primary/30" />
               </div>
             )}
             
-            {/* Urgency Badge */}
-            <div className="absolute top-4 left-4">
+            {/* Urgency Badge - Top left */}
+            <div className="absolute top-4 left-4 safe-area-top">
               <Badge className="bg-primary text-primary-foreground font-semibold px-3 py-1.5 text-sm shadow-lg">
                 {CAMPAIGN_OVERRIDES.urgencyBadge}
               </Badge>
@@ -339,28 +344,30 @@ const AdLandingPage = () => {
 
             {/* Photo Count Badge */}
             {images.length > 1 && (
-              <div className="absolute top-4 right-4">
+              <div className="absolute top-4 right-4 safe-area-top">
                 <Badge variant="secondary" className="bg-black/60 text-white border-0 font-medium">
                   {currentImageIndex + 1} / {images.length}
                 </Badge>
               </div>
             )}
+
+            {/* Overlaid headline for above-the-fold impact */}
+            <div className="absolute inset-x-0 bottom-0 p-5 pb-6 text-white">
+              <h1 className="text-2xl font-bold leading-tight drop-shadow-lg">
+                {getHeadline()}
+              </h1>
+              <div className="flex items-center gap-2 mt-2 text-white/90">
+                <MapPin className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm font-medium">{getLocationTeaser()}</span>
+              </div>
+            </div>
           </div>
 
-          {/* Hero Content */}
-          <div className="px-5 py-6 space-y-4">
-            <h1 className="text-2xl font-bold text-foreground leading-tight">
-              {getHeadline()}
-            </h1>
-            <p className="text-muted-foreground text-base leading-relaxed">
+          {/* Compact CTA section - immediately visible */}
+          <div className="px-5 py-4 space-y-3">
+            <p className="text-muted-foreground text-sm leading-relaxed">
               {getSubheadline()}
             </p>
-            
-            {/* Location Teaser */}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-4 w-4 text-primary flex-shrink-0" />
-              <span className="text-sm font-medium">{getLocationTeaser()}</span>
-            </div>
 
             {/* Primary CTA */}
             <Button 
