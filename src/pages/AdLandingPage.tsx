@@ -369,34 +369,38 @@ const AdLandingPage = () => {
             Own For Just
           </h2>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-3">
             {/* 1 Bed + Den */}
-            <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-4 border border-primary/20 text-center overflow-hidden">
+            <div className="relative bg-gradient-to-br from-primary/10 to-primary/5 rounded-2xl p-5 border border-primary/20 overflow-hidden">
               <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
                 POPULAR
               </div>
-              <div className="text-xs text-muted-foreground uppercase tracking-wide mb-1">1 Bed + Den</div>
-              <div className="text-2xl font-bold text-foreground">$1,950</div>
-              <div className="text-xs text-muted-foreground">/month</div>
-              <div className="mt-3 pt-3 border-t border-primary/20">
-                <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
-                  <span className="bg-primary/20 px-1.5 py-0.5 rounded">10% down</span>
-                </span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-foreground">1 Bed + Den</div>
+                  <div className="text-xs text-muted-foreground">570 sqft</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-foreground">$1,950</div>
+                  <div className="text-xs text-muted-foreground">/month • 10% down</div>
+                </div>
               </div>
             </div>
             
             {/* 2 Bed 2 Bath */}
-            <div className="relative bg-gradient-to-br from-foreground to-foreground/90 rounded-2xl p-4 border border-foreground text-center overflow-hidden">
+            <div className="relative bg-gradient-to-br from-foreground to-foreground/90 rounded-2xl p-5 border border-foreground overflow-hidden">
               <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-bl-lg">
                 BEST VALUE
               </div>
-              <div className="text-xs text-background/70 uppercase tracking-wide mb-1">2 Bed 2 Bath</div>
-              <div className="text-2xl font-bold text-background">$2,500</div>
-              <div className="text-xs text-background/70">/month</div>
-              <div className="mt-3 pt-3 border-t border-background/20">
-                <span className="inline-flex items-center gap-1 text-xs text-primary font-medium">
-                  <span className="bg-primary/20 px-1.5 py-0.5 rounded">10% down</span>
-                </span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-background">2 Bed 2 Bath</div>
+                  <div className="text-xs text-background/70">774 sqft</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-background">$2,500</div>
+                  <div className="text-xs text-background/70">/month • 10% down</div>
+                </div>
               </div>
             </div>
           </div>
