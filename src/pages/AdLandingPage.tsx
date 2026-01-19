@@ -367,29 +367,29 @@ const AdLandingPage = () => {
           </button>
         </section>
 
-        {/* 🔥 INCENTIVES - Compact & Punchy - Dark theme for contrast */}
-        <section className="px-5 py-6 bg-foreground">
+        {/* 🔥 INCENTIVES - Compact & Punchy */}
+        <section className="px-5 py-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="text-xl">🔥</span>
-            <h2 className="text-lg font-bold text-background">Limited Incentives</h2>
+            <h2 className="text-lg font-bold text-foreground">Limited Incentives</h2>
           </div>
           
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-4 border border-primary/40">
+            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
               <p className="text-2xl font-bold text-primary">{getIncentiveSavings()}</p>
-              <p className="text-[11px] text-background/70 mt-1">Savings*</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Savings*</p>
             </div>
-            <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-4 border border-primary/40">
+            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
               <p className="text-2xl font-bold text-primary">{getIncentiveDeposit()}</p>
-              <p className="text-[11px] text-background/70 mt-1">Deposit*</p>
+              <p className="text-[11px] text-muted-foreground mt-1">Deposit*</p>
             </div>
-            <div className="bg-background/10 backdrop-blur-sm rounded-2xl p-4 border border-primary/40">
+            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
               <p className="text-2xl font-bold text-primary">{getIncentiveBonus()}</p>
-              <p className="text-[11px] text-background/70 mt-1">A/C*</p>
+              <p className="text-[11px] text-muted-foreground mt-1">A/C*</p>
             </div>
           </div>
           
-          <p className="text-center text-[10px] text-background/60 mt-3 italic">
+          <p className="text-center text-[10px] text-muted-foreground mt-3 italic">
             *Subject to availability. Contact for details.
           </p>
         </section>
