@@ -717,9 +717,16 @@ export default function PresaleProjectDetail() {
                 </div>
 
                 {/* Short description - visible on all screen sizes */}
-                {project.short_description && <p className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed lg:line-clamp-4">
-                    {project.short_description}
-                  </p>}
+                {project.short_description && (
+                  <p 
+                    className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed lg:line-clamp-4"
+                    dangerouslySetInnerHTML={{
+                      __html: project.short_description
+                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+                        .replace(/•\s*/g, '<span class="text-primary">•</span> ')
+                    }}
+                  />
+                )}
 
                 {/* Tablet-only Lead Form and Scheduler - positioned under project info */}
                 <div className="hidden md:block lg:hidden mt-3 space-y-4">
