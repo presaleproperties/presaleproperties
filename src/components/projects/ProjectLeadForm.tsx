@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Download, MessageCircle, X } from "lucide-react";
+import { Send, CheckCircle, Download, MessageCircle, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -302,9 +302,23 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               size="lg"
               className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
             >
-              <a href={brochureUrl} target="_blank" rel="noopener noreferrer" download>
-                <Download className="h-5 w-5 mr-2" />
-                Download Brochure
+              <a 
+                href={brochureUrl} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                {...(!brochureUrl.includes('drive.google.com') && !brochureUrl.includes('docs.google.com') ? { download: true } : {})}
+              >
+                {brochureUrl.includes('drive.google.com') || brochureUrl.includes('docs.google.com') ? (
+                  <>
+                    <ExternalLink className="h-5 w-5 mr-2" />
+                    View Brochure
+                  </>
+                ) : (
+                  <>
+                    <Download className="h-5 w-5 mr-2" />
+                    Download Brochure
+                  </>
+                )}
               </a>
             </Button>
           )}
