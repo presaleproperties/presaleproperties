@@ -289,15 +289,31 @@ const AdLandingPage = () => {
             </div>
           </div>
 
-          {/* Compact info */}
+          {/* Compact info + scroll hint */}
           <div className="px-5 py-4">
             <p className="text-muted-foreground text-sm leading-relaxed text-center">
               {getSubheadline()}
             </p>
+
+            {/* Scroll down arrow hint */}
+            <button onClick={scrollToForm} className="w-full flex flex-col items-center gap-1 mt-3 py-2 text-primary" aria-label="Scroll to get pricing">
+              <span className="text-sm font-medium">View Pricing</span>
+              <ChevronDown className="h-6 w-6 animate-bounce" />
+            </button>
           </div>
         </section>
 
-        {/* 🔥 INCENTIVES SECTION - High Impact Promo (Right after hero) */}
+        {/* Selling Points */}
+        <section className="px-5 py-6 bg-muted/30">
+          <div className="space-y-3">
+            {getSellingPoints().map((point, index) => <div key={index} className="flex items-start gap-3">
+                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
+                <span className="text-foreground font-medium">{point}</span>
+              </div>)}
+          </div>
+        </section>
+
+        {/* 🔥 INCENTIVES SECTION - High Impact Promo */}
         <section className="px-5 py-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5">
           <div className="text-center mb-4">
             <Badge className="bg-destructive text-destructive-foreground font-bold px-4 py-1.5 text-sm mb-3 animate-pulse">
@@ -345,16 +361,6 @@ const AdLandingPage = () => {
           <p className="text-center text-xs text-muted-foreground mt-4">
             *Incentives subject to availability. Contact for full details.
           </p>
-        </section>
-
-        {/* Selling Points */}
-        <section className="px-5 py-6 bg-muted/30">
-          <div className="space-y-3">
-            {getSellingPoints().map((point, index) => <div key={index} className="flex items-start gap-3">
-                <CheckCircle className="h-5 w-5 text-primary flex-shrink-0 mt-0.5" />
-                <span className="text-foreground font-medium">{point}</span>
-              </div>)}
-          </div>
         </section>
 
         <section className="px-5 py-4 bg-primary/10 border-y border-primary/20">
