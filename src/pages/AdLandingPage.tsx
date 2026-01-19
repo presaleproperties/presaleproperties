@@ -404,7 +404,7 @@ const AdLandingPage = () => {
           </div>
           
           <p className="text-center text-[10px] text-muted-foreground mt-3 italic">
-            *Estimated payments based on 10% down, current interest rates (~4.5%), and 25-year amortization. Actual payments may vary. Does not include property tax or strata fees. Contact for personalized quote.
+            *Estimated payments based on 10% down, 3.89% interest rate, and 30-year amortization. Does not include property tax, strata fees, or CMHC insurance. Actual payments will vary. Contact for personalized quote.
           </p>
         </section>
 
