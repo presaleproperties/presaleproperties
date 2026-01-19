@@ -404,7 +404,56 @@ const AdLandingPage = () => {
           </div>
         </section>
 
-        {/* Urgency Banner */}
+        {/* 🔥 INCENTIVES SECTION - High Impact Promo */}
+        <section className="px-5 py-6 bg-gradient-to-br from-primary/15 via-primary/10 to-primary/5">
+          <div className="text-center mb-4">
+            <Badge className="bg-destructive text-destructive-foreground font-bold px-4 py-1.5 text-sm mb-3 animate-pulse">
+              🔥 LIMITED TIME
+            </Badge>
+            <h2 className="text-xl font-bold text-foreground">
+              Incentives Available Now
+            </h2>
+          </div>
+          
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
+              <span className="text-2xl">💰</span>
+              <div>
+                <p className="font-semibold text-foreground">Up to $50,000 in Savings</p>
+                <p className="text-xs text-muted-foreground">Developer credits & closing cost assistance</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
+              <span className="text-2xl">📉</span>
+              <div>
+                <p className="font-semibold text-foreground">Reduced Deposit Structure</p>
+                <p className="text-xs text-muted-foreground">Only 10% down until completion</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
+              <span className="text-2xl">🎁</span>
+              <div>
+                <p className="font-semibold text-foreground">Free Upgrade Package</p>
+                <p className="text-xs text-muted-foreground">Premium finishes included at no extra cost</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3 bg-background/80 backdrop-blur-sm rounded-xl p-4 border border-primary/30">
+              <span className="text-2xl">⏰</span>
+              <div>
+                <p className="font-semibold text-foreground">Extended Rate Hold</p>
+                <p className="text-xs text-muted-foreground">Lock in your rate for up to 24 months</p>
+              </div>
+            </div>
+          </div>
+          
+          <p className="text-center text-xs text-muted-foreground mt-4">
+            *Incentives subject to availability. Contact for full details.
+          </p>
+        </section>
+
         <section className="px-5 py-4 bg-primary/10 border-y border-primary/20">
           <div className="flex items-center gap-3">
             <Calendar className="h-5 w-5 text-primary flex-shrink-0" />
