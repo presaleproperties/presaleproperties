@@ -2555,7 +2555,7 @@ export default function AdminProjectForm() {
                   Brochure PDF
                 </CardTitle>
                 <CardDescription>
-                  Upload a PDF brochure that leads can download after submitting the form
+                  Upload a PDF brochure or paste a Google Drive link that leads can access after submitting the form
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -2564,14 +2564,16 @@ export default function AdminProjectForm() {
                     <div className="flex items-center gap-3">
                       <FileText className="h-8 w-8 text-primary" />
                       <div>
-                        <p className="font-medium text-sm">Brochure uploaded</p>
+                        <p className="font-medium text-sm">
+                          {formData.brochure_files[0].includes('drive.google.com') ? 'Google Drive link added' : 'Brochure uploaded'}
+                        </p>
                         <a 
                           href={formData.brochure_files[0]} 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="text-xs text-primary hover:underline"
                         >
-                          View PDF
+                          {formData.brochure_files[0].includes('drive.google.com') ? 'Open in Google Drive' : 'View PDF'}
                         </a>
                       </div>
                     </div>
@@ -2585,17 +2587,74 @@ export default function AdminProjectForm() {
                     </Button>
                   </div>
                 ) : (
-                  <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
-                    <FileText className="h-8 w-8 text-muted-foreground mb-2" />
-                    <span className="text-sm text-muted-foreground">Click to upload PDF brochure</span>
-                    <input
-                      type="file"
-                      accept=".pdf"
-                      className="hidden"
-                      onChange={handleBrochureUpload}
-                      disabled={uploading}
-                    />
-                  </label>
+                  <div className="space-y-4">
+                    {/* PDF Upload Option */}
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                      <span className="text-sm text-muted-foreground">Click to upload PDF brochure</span>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={handleBrochureUpload}
+                        disabled={uploading}
+                      />
+                    </label>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">Or</span>
+                      </div>
+                    </div>
+
+                    {/* Google Drive Link Option */}
+                    <div className="space-y-2">
+                      <Label className="text-sm flex items-center gap-2">
+                        <FolderOpen className="h-4 w-4" />
+                        Google Drive Link
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="url"
+                          placeholder="Paste public Google Drive link..."
+                          id="brochure-drive-link"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const input = document.getElementById('brochure-drive-link') as HTMLInputElement;
+                            const url = input?.value?.trim();
+                            if (url && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
+                              setFormData(prev => ({
+                                ...prev,
+                                brochure_files: [url],
+                              }));
+                              toast({
+                                title: "Link Added",
+                                description: "Google Drive link saved successfully",
+                              });
+                            } else {
+                              toast({
+                                title: "Invalid Link",
+                                description: "Please enter a valid Google Drive link",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Add Link
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Make sure the link is set to "Anyone with the link can view"
+                      </p>
+                    </div>
+                  </div>
                 )}
               </CardContent>
             </Card>
