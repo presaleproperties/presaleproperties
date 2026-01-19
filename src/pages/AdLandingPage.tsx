@@ -289,17 +289,11 @@ const AdLandingPage = () => {
             </div>
           </div>
 
-          {/* Compact info + scroll hint */}
+          {/* Compact info */}
           <div className="px-5 py-4">
             <p className="text-muted-foreground text-sm leading-relaxed text-center">
               {getSubheadline()}
             </p>
-
-            {/* Scroll down arrow hint */}
-            <button onClick={scrollToForm} className="w-full flex flex-col items-center gap-1 mt-3 py-2 text-primary" aria-label="Scroll to get pricing">
-              <span className="text-sm font-medium">View Pricing</span>
-              <ChevronDown className="h-6 w-6 animate-bounce" />
-            </button>
           </div>
         </section>
 
