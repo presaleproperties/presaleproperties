@@ -1030,6 +1030,83 @@ export type Database = {
         }
         Relationships: []
       }
+      landing_page_campaigns: {
+        Row: {
+          created_at: string
+          cta_text: string | null
+          headline: string | null
+          id: string
+          incentive_bonus: string | null
+          incentive_deposit: string | null
+          incentive_savings: string | null
+          is_active: boolean | null
+          location_teaser: string | null
+          monthly_1br: string | null
+          monthly_2br: string | null
+          name: string
+          project_id: string | null
+          selling_points: string[] | null
+          slug: string
+          subheadline: string | null
+          updated_at: string
+          urgency_badge: string | null
+          urgency_text: string | null
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          cta_text?: string | null
+          headline?: string | null
+          id?: string
+          incentive_bonus?: string | null
+          incentive_deposit?: string | null
+          incentive_savings?: string | null
+          is_active?: boolean | null
+          location_teaser?: string | null
+          monthly_1br?: string | null
+          monthly_2br?: string | null
+          name: string
+          project_id?: string | null
+          selling_points?: string[] | null
+          slug: string
+          subheadline?: string | null
+          updated_at?: string
+          urgency_badge?: string | null
+          urgency_text?: string | null
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          cta_text?: string | null
+          headline?: string | null
+          id?: string
+          incentive_bonus?: string | null
+          incentive_deposit?: string | null
+          incentive_savings?: string | null
+          is_active?: boolean | null
+          location_teaser?: string | null
+          monthly_1br?: string | null
+          monthly_2br?: string | null
+          name?: string
+          project_id?: string | null
+          selling_points?: string[] | null
+          slug?: string
+          subheadline?: string | null
+          updated_at?: string
+          urgency_badge?: string | null
+          urgency_text?: string | null
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "landing_page_campaigns_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           agent_id: string

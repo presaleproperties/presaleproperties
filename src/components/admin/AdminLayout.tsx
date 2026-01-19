@@ -22,7 +22,8 @@ import {
   RefreshCw,
   Mail,
   Workflow,
-  TrendingUp
+  TrendingUp,
+  Megaphone
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -50,6 +51,7 @@ const navGroups = [
       { href: "/admin/developers", label: "Developers", icon: Landmark },
       { href: "/admin/listings", label: "Assignments", icon: FileStack },
       { href: "/admin/blogs", label: "Blog Posts", icon: BookOpen },
+      { href: "/admin/landing-pages", label: "Landing Pages", icon: Megaphone },
     ]
   },
   {
