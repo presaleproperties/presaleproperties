@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
+import DOMPurify from "dompurify";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -136,16 +137,21 @@ export default function BlogPost() {
     });
   };
 
-  // Parse content - supports both HTML and Markdown
+  // Parse content - supports both HTML and Markdown with XSS protection
   const parsedContent = useMemo(() => {
     if (!post?.content) return null;
     
     // Check if content is already HTML
     const isHtml = /<[a-z][\s\S]*>/i.test(post.content);
-    if (isHtml) return post.content;
+    const rawHtml = isHtml ? post.content : parseMarkdown(post.content);
     
-    // Parse as markdown using our simple parser
-    return parseMarkdown(post.content);
+    // Sanitize HTML to prevent XSS attacks
+    return DOMPurify.sanitize(rawHtml, {
+      ALLOWED_TAGS: ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'strong', 'em', 'ul', 'ol', 'li', 'a', 'br', 'div', 'span', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'img', 'blockquote', 'code', 'pre'],
+      ALLOWED_ATTR: ['href', 'class', 'target', 'rel', 'src', 'alt', 'title', 'width', 'height', 'id'],
+      ADD_ATTR: ['target'],
+      FORCE_BODY: true
+    });
   }, [post?.content]);
 
   if (loading) {
