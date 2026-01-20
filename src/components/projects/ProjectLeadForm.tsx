@@ -354,35 +354,68 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     }
   };
 
-  // Mobile Step 1: Submit email only
+  // Mobile Step 1: Capture email and proceed to step 2 (no submission yet)
   const onEmailSubmit = async (data: EmailOnlyData) => {
-    setIsSubmitting(true);
     handleFormInteraction();
 
     trackCTAClick({
-      cta_type: "lead_form_submit",
-      cta_label: "Get Instant Access - Step 1",
+      cta_type: "lead_form_step1",
+      cta_label: "Continue - Step 1",
       cta_location: "project_lead_form_mobile",
       project_id: projectId,
       project_name: projectName,
     });
 
+    // Just save email and move to step 2 - no backend submission yet
+    setSubmittedEmail(data.email);
+    setMobileStep(2);
+  };
+
+  // Mobile Step 2: Submit full profile (required to get floor plans)
+  const onProfileSubmit = async (data: ProfileData) => {
+    setIsSubmitting(true);
+
+    trackCTAClick({
+      cta_type: "lead_form_submit",
+      cta_label: "Get Floor Plans - Step 2",
+      cta_location: "project_lead_form_mobile",
+      project_id: projectId,
+      project_name: projectName,
+    });
+
+    // Track form submission with new behavioral tracking
+    trackFormSubmit({
+      form_name: leadSource === "floor_plan_request" ? "floor_plan_request" : "project_inquiry",
+      form_location: "project_lead_form_mobile",
+      first_name: data.firstName || "",
+      last_name: data.lastName || "",
+      email: submittedEmail,
+      phone: data.phone || "",
+      user_type: data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona === "investor" ? "investor" : "buyer",
+      project_id: projectId,
+      project_name: projectName,
+    });
+
     try {
-      const newLeadId = await submitLeadToBackend({
-        email: data.email,
-        source: `${leadSource}_step1`,
+      // Submit the full lead with email from step 1 + profile from step 2
+      await submitLeadToBackend({
+        email: submittedEmail,
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        phone: data.phone || "",
+        persona: data.persona || "first_time",
+        workingWithAgent: data.workingWithAgent || "no",
+        homeSize: data.homeSize || "2_bed",
+        source: leadSource,
       });
 
-      setSubmittedEmail(data.email);
-      setLeadId(newLeadId);
-      setMobileStep(2);
-      
+      setMobileStep("complete");
       toast({
-        title: "Check your email!",
-        description: "Floor plans & pricing are on their way.",
+        title: status === "coming_soon" ? "You're on the list!" : "Request submitted!",
+        description: "Check your email for floor plans & pricing.",
       });
     } catch (error: any) {
-      console.error("Error submitting email:", error);
+      console.error("Error submitting lead:", error);
       toast({
         title: "Submission failed",
         description: error?.message || "Please try again later.",
@@ -391,91 +424,6 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     } finally {
       setIsSubmitting(false);
     }
-  };
-
-  // Mobile Step 2: Submit profile (optional)
-  const onProfileSubmit = async (data: ProfileData) => {
-    setIsSubmitting(true);
-
-    trackCTAClick({
-      cta_type: "lead_form_submit",
-      cta_label: "Complete Profile - Step 2",
-      cta_location: "project_lead_form_mobile",
-      project_id: projectId,
-      project_name: projectName,
-    });
-
-    try {
-      // Update the existing lead with additional profile data
-      const fullName = data.firstName && data.lastName 
-        ? `${data.firstName} ${data.lastName}`.trim() 
-        : data.firstName || "";
-
-      const messageData = [
-        data.firstName ? `First Name: ${data.firstName}` : "",
-        data.lastName ? `Last Name: ${data.lastName}` : "",
-        data.persona ? `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}` : "",
-        data.workingWithAgent ? `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}` : "",
-        data.homeSize ? `Home Size: ${HOME_SIZES.find(h => h.value === data.homeSize)?.label}` : "",
-      ].filter(Boolean).join(" | ");
-
-      const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : (data.persona || "first_time");
-      const dripSequence = data.persona === "investor" ? "investor" : "buyer";
-
-      // Update the lead record with profile data
-      await supabase
-        .from("project_leads")
-        .update({
-          name: fullName || undefined,
-          phone: data.phone || undefined,
-          message: messageData || undefined,
-          persona: actualPersona,
-          home_size: data.homeSize || "2_bed",
-          agent_status: data.workingWithAgent || "no",
-          drip_sequence: dripSequence,
-          lead_source: `${leadSource}_step2_completed`,
-        })
-        .eq("id", leadId);
-
-      // Trigger updated workflow
-      supabase.functions
-        .invoke("trigger-workflow", {
-          body: {
-            event: "project_inquiry",
-            data: {
-              email: submittedEmail,
-              first_name: data.firstName || "",
-              last_name: data.lastName || "",
-              project_name: projectName,
-              project_id: projectId,
-            },
-            meta: { lead_id: leadId, source: `${leadSource}_step2_completed` },
-          },
-        })
-        .catch(console.error);
-
-      localStorage.setItem("presale_persona", actualPersona);
-
-      setMobileStep("complete");
-      toast({
-        title: "Profile complete!",
-        description: "We'll personalize your experience based on your preferences.",
-      });
-    } catch (error: any) {
-      console.error("Error updating profile:", error);
-      toast({
-        title: "Update failed",
-        description: error?.message || "Please try again later.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Skip profile and show completion
-  const handleSkipProfile = () => {
-    setMobileStep("complete");
   };
 
   const whatsappMessage = encodeURIComponent(`Hi! I just submitted my info for ${projectName} and would love to learn more.`);
@@ -569,11 +517,11 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
   const content = getFormContent();
 
   // ========================================
-  // MOBILE STEP 2: Optional Profiling Form
+  // MOBILE STEP 2: Required Profiling Form
   // ========================================
   if (isMobile && mobileStep === 2) {
     return (
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl relative">
         {/* Close button */}
         {onClose && (
           <button
@@ -585,25 +533,25 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           </button>
         )}
 
-        {/* Success Banner */}
-        <div className="bg-green-50 dark:bg-green-950/30 border-b border-green-200 dark:border-green-800 px-5 py-4">
-          <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-10 h-10 bg-green-500/20 rounded-full flex-shrink-0">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-            </div>
-            <div>
-              <h3 className="text-base font-bold text-green-800 dark:text-green-200">Check Your Email!</h3>
-              <p className="text-sm text-green-700 dark:text-green-300">
-                Floor plans & pricing sent to: <span className="font-medium">{submittedEmail}</span>
-              </p>
-            </div>
+        {/* Progress Banner */}
+        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 pr-12">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-background bg-primary/90 px-2.5 py-1 rounded-full">
+              Step 2 of 2
+            </span>
           </div>
+          <h3 className="text-lg font-bold text-background leading-snug">
+            Almost there!
+          </h3>
+          <p className="text-xs text-background/70 mt-1">
+            Complete your profile to receive floor plans at <span className="font-medium">{submittedEmail}</span>
+          </p>
         </div>
 
-        {/* Optional Profiling Form */}
+        {/* Required Profiling Form */}
         <div className="p-5 bg-card">
           <p className="text-sm text-muted-foreground mb-4">
-            Help us personalize your experience <span className="text-xs">(optional)</span>
+            Tell us a bit about yourself so we can personalize your floor plans package.
           </p>
 
           <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
@@ -731,37 +679,35 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               </RadioGroup>
             </div>
 
-            {/* Buttons */}
-            <div className="space-y-3 pt-2">
-              <Button
-                type="submit"
-                className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
-                size="lg"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? (
-                  <span className="flex items-center gap-2">
-                    <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                    Saving...
-                  </span>
-                ) : (
-                  "Complete Profile"
-                )}
-              </Button>
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
+              size="lg"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                  Sending...
+                </span>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Get Floor Plans & Pricing
+                </>
+              )}
+            </Button>
 
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleSkipProfile}
-                className="w-full h-12 text-base font-medium rounded-xl border-border text-muted-foreground"
-              >
-                Skip
-              </Button>
+            {/* Trust indicators */}
+            <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
+              <span className="flex items-center gap-1">
+                <span className="text-green-500">✓</span> No spam
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="text-green-500">✓</span> Same-day response
+              </span>
             </div>
-
-            <p className="text-xs text-center text-muted-foreground">
-              (We'll still send floor plans even if you skip this)
-            </p>
           </form>
         </div>
       </div>
@@ -833,19 +779,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               type="submit"
               className="w-full h-14 min-h-[56px] text-lg font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
               size="lg"
-              disabled={isSubmitting}
             >
-              {isSubmitting ? (
-                <span className="flex items-center gap-2">
-                  <span className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                  Sending...
-                </span>
-              ) : (
-                <>
-                  <Mail className="h-5 w-5" />
-                  Get Instant Access
-                </>
-              )}
+              <Mail className="h-5 w-5" />
+              Continue
             </Button>
 
             {/* Trust indicators */}
