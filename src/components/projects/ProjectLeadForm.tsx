@@ -33,10 +33,9 @@ const emailOnlySchema = z.object({
   email: z.string().trim().email("Please enter a valid email").max(255),
 });
 
-// Profile schema for mobile step 2 (all optional except we validate what's filled)
+// Profile schema for mobile step 2 (first name only, no last name)
 const profileSchema = z.object({
   firstName: z.string().trim().max(50).optional(),
-  lastName: z.string().trim().max(50).optional(),
   phone: z.string().trim().optional().refine(val => !val || phoneRegex.test(val), "Enter a valid phone number"),
   persona: z.enum(["first_time", "investor"]).optional(),
   workingWithAgent: z.enum(["no", "yes", "i_am_realtor"]).optional(),
@@ -135,12 +134,11 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     },
   });
 
-  // Mobile Step 2 form (optional profiling)
+  // Mobile Step 2 form (first name only, no last name)
   const profileForm = useForm<ProfileData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       firstName: "",
-      lastName: "",
       phone: "",
       persona: "first_time",
       workingWithAgent: "no",
@@ -388,7 +386,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       form_name: leadSource === "floor_plan_request" ? "floor_plan_request" : "project_inquiry",
       form_location: "project_lead_form_mobile",
       first_name: data.firstName || "",
-      last_name: data.lastName || "",
+      last_name: "", // No last name in mobile flow
       email: submittedEmail,
       phone: data.phone || "",
       user_type: data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona === "investor" ? "investor" : "buyer",
@@ -401,7 +399,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       await submitLeadToBackend({
         email: submittedEmail,
         firstName: data.firstName || "",
-        lastName: data.lastName || "",
+        lastName: "", // No last name in mobile flow
         phone: data.phone || "",
         persona: data.persona || "first_time",
         workingWithAgent: data.workingWithAgent || "no",
@@ -555,34 +553,19 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
           </p>
 
           <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
-            {/* First Name & Last Name */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label htmlFor="profile-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  First Name
-                </Label>
-                <Input
-                  id="profile-firstName"
-                  placeholder="John"
-                  autoComplete="given-name"
-                  autoCapitalize="words"
-                  {...profileForm.register("firstName")}
-                  className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
-              <div>
-                <Label htmlFor="profile-lastName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
-                  Last Name
-                </Label>
-                <Input
-                  id="profile-lastName"
-                  placeholder="Smith"
-                  autoComplete="family-name"
-                  autoCapitalize="words"
-                  {...profileForm.register("lastName")}
-                  className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
-                />
-              </div>
+            {/* First Name Only */}
+            <div>
+              <Label htmlFor="profile-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+                First Name
+              </Label>
+              <Input
+                id="profile-firstName"
+                placeholder="John"
+                autoComplete="given-name"
+                autoCapitalize="words"
+                {...profileForm.register("firstName")}
+                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+              />
             </div>
 
             {/* Phone */}
