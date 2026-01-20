@@ -352,8 +352,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     }
   };
 
-  // Mobile Step 1: Capture email and proceed to step 2 (no submission yet)
+  // Mobile Step 1: Capture email immediately and proceed to step 2
   const onEmailSubmit = async (data: EmailOnlyData) => {
+    setIsSubmitting(true);
     handleFormInteraction();
 
     trackCTAClick({
@@ -364,12 +365,35 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
       project_name: projectName,
     });
 
-    // Just save email and move to step 2 - no backend submission yet
-    setSubmittedEmail(data.email);
-    setMobileStep(2);
+    try {
+      // Submit email immediately to capture the lead
+      const newLeadId = await submitLeadToBackend({
+        email: data.email,
+        firstName: "",
+        lastName: "",
+        phone: "",
+        persona: "first_time",
+        workingWithAgent: "no",
+        homeSize: "2_bed",
+        source: `${leadSource}_step1`, // Mark as step 1 only
+      });
+
+      setSubmittedEmail(data.email);
+      setLeadId(newLeadId);
+      setMobileStep(2);
+    } catch (error: any) {
+      console.error("Error capturing email:", error);
+      toast({
+        title: "Something went wrong",
+        description: error?.message || "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Mobile Step 2: Submit full profile (required to get floor plans)
+  // Mobile Step 2: Update lead with full profile (triggers floor plan email)
   const onProfileSubmit = async (data: ProfileData) => {
     setIsSubmitting(true);
 
@@ -395,17 +419,73 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
     });
 
     try {
-      // Submit the full lead with email from step 1 + profile from step 2
-      await submitLeadToBackend({
-        email: submittedEmail,
-        firstName: data.firstName || "",
-        lastName: "", // No last name in mobile flow
-        phone: data.phone || "",
-        persona: data.persona || "first_time",
-        workingWithAgent: data.workingWithAgent || "no",
-        homeSize: data.homeSize || "2_bed",
-        source: leadSource,
-      });
+      const fullName = data.firstName?.trim() || "";
+      const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : (data.persona || "first_time");
+      const dripSequence = data.persona === "investor" ? "investor" : "buyer";
+
+      const messageData = [
+        data.firstName ? `First Name: ${data.firstName}` : "",
+        data.persona ? `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}` : "",
+        data.workingWithAgent ? `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}` : "",
+        data.homeSize ? `Home Size: ${HOME_SIZES.find(h => h.value === data.homeSize)?.label}` : "",
+      ].filter(Boolean).join(" | ");
+
+      // Update existing lead record with profile info
+      const { error } = await supabase
+        .from("project_leads")
+        .update({
+          name: fullName,
+          phone: data.phone || null,
+          message: messageData || null,
+          persona: actualPersona,
+          home_size: data.homeSize || "2_bed",
+          agent_status: data.workingWithAgent || "no",
+          drip_sequence: dripSequence,
+          lead_source: leadSource, // Update to full source (remove _step1 suffix)
+        })
+        .eq("id", leadId);
+
+      if (error) throw error;
+
+      // Now trigger the floor plan email workflow (only after profile completed)
+      supabase.functions
+        .invoke("trigger-workflow", {
+          body: {
+            event: "project_inquiry",
+            data: {
+              email: submittedEmail,
+              first_name: data.firstName || "",
+              last_name: "",
+              project_name: projectName,
+              project_id: projectId,
+            },
+            meta: { lead_id: leadId, source: leadSource },
+          },
+        })
+        .catch(console.error);
+
+      // Send server-side Lead event to Meta Conversions API
+      supabase.functions
+        .invoke("meta-conversions-api", {
+          body: {
+            event_name: "Lead",
+            email: submittedEmail,
+            phone: data.phone,
+            first_name: data.firstName,
+            last_name: "",
+            event_source_url: window.location.href,
+            content_name: projectName,
+            content_category: actualPersona,
+            client_user_agent: navigator.userAgent,
+            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+          },
+        })
+        .catch((err) => console.error("Meta CAPI error:", err));
+
+      localStorage.setItem("presale_persona", actualPersona);
+      localStorage.setItem("pp_form_submitted", "true");
+      localStorage.setItem("presale_lead_converted", "true");
 
       setMobileStep("complete");
       toast({
@@ -413,7 +493,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         description: "Check your email for floor plans & pricing.",
       });
     } catch (error: any) {
-      console.error("Error submitting lead:", error);
+      console.error("Error updating lead:", error);
       toast({
         title: "Submission failed",
         description: error?.message || "Please try again later.",
