@@ -77,6 +77,24 @@ const getDelayMinutes = (value: number, unit: DelayUnit): number => {
   return value * (unitConfig?.minutes || 1);
 };
 
+// Format cumulative time for timeline display
+const formatCumulativeTime = (totalMinutes: number): string => {
+  if (totalMinutes === 0) return "Immediately";
+  
+  const weeks = Math.floor(totalMinutes / 10080);
+  const days = Math.floor((totalMinutes % 10080) / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const minutes = totalMinutes % 60;
+  
+  const parts: string[] = [];
+  if (weeks > 0) parts.push(`${weeks}w`);
+  if (days > 0) parts.push(`${days}d`);
+  if (hours > 0) parts.push(`${hours}h`);
+  if (minutes > 0) parts.push(`${minutes}m`);
+  
+  return parts.join(" ") || "Immediately";
+};
+
 interface EmailJob {
   id: string;
   to_email: string;
@@ -599,58 +617,116 @@ export default function AdminEmailWorkflows() {
                       No steps configured. Add a step to send emails.
                     </p>
                   ) : (
-                    <div className="space-y-2">
-                      {workflowSteps.map((step, idx) => (
-                        <div key={step.id} className="flex items-center gap-2 p-3 border rounded-lg">
-                          <span className="text-sm font-medium w-8">{idx + 1}.</span>
-                          <Select
-                            value={step.template_id}
-                            onValueChange={(v) => handleUpdateStep(step.id, { template_id: v })}
-                          >
-                            <SelectTrigger className="flex-1">
-                              <SelectValue placeholder="Select template" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {templates.map(t => (
-                                <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <div className="flex items-center gap-1">
-                            <Input
-                              type="number"
-                              min="0"
-                              value={getDelayDisplay(step.delay_minutes).value}
-                              onChange={(e) => {
-                                const newValue = parseInt(e.target.value) || 0;
-                                const currentUnit = getDelayDisplay(step.delay_minutes).unit;
-                                handleUpdateStep(step.id, { delay_minutes: getDelayMinutes(newValue, currentUnit) });
-                              }}
-                              className="w-16"
-                            />
+                    <>
+                      {/* Visual Timeline Preview */}
+                      <div className="bg-muted/50 rounded-lg p-4 mb-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <Clock className="h-4 w-4 text-muted-foreground" />
+                          <span className="text-sm font-medium">Timeline Preview</span>
+                        </div>
+                        <div className="relative">
+                          {/* Timeline line */}
+                          <div className="absolute left-3 top-0 bottom-0 w-0.5 bg-border" />
+                          
+                          {/* Trigger event */}
+                          <div className="relative flex items-start gap-3 pb-4">
+                            <div className="relative z-10 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                              <Play className="h-3 w-3 text-primary-foreground" />
+                            </div>
+                            <div className="flex-1 pt-0.5">
+                              <p className="text-sm font-medium">Trigger: {TRIGGER_EVENTS.find(t => t.value === formData.trigger_event)?.label || formData.trigger_event}</p>
+                              <p className="text-xs text-muted-foreground">User action initiates workflow</p>
+                            </div>
+                          </div>
+                          
+                          {/* Email steps */}
+                          {workflowSteps.map((step, idx) => {
+                            const cumulativeMinutes = workflowSteps
+                              .slice(0, idx + 1)
+                              .reduce((sum, s) => sum + s.delay_minutes, 0);
+                            const templateName = templates.find(t => t.id === step.template_id)?.name || "No template";
+                            
+                            return (
+                              <div key={step.id} className="relative flex items-start gap-3 pb-4 last:pb-0">
+                                <div className="relative z-10 w-6 h-6 rounded-full bg-accent flex items-center justify-center border-2 border-primary">
+                                  <Mail className="h-3 w-3 text-primary" />
+                                </div>
+                                <div className="flex-1 pt-0.5">
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-sm font-medium">Email {idx + 1}: {templateName}</p>
+                                    {!step.is_active && (
+                                      <Badge variant="secondary" className="text-xs">Inactive</Badge>
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground">
+                                    Sent {formatCumulativeTime(cumulativeMinutes)} after trigger
+                                    {step.delay_minutes > 0 && idx > 0 && (
+                                      <span className="text-muted-foreground/70">
+                                        {" "}(+{formatCumulativeTime(step.delay_minutes)} from previous)
+                                      </span>
+                                    )}
+                                  </p>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Step editors */}
+                      <div className="space-y-2">
+                        {workflowSteps.map((step, idx) => (
+                          <div key={step.id} className="flex items-center gap-2 p-3 border rounded-lg">
+                            <span className="text-sm font-medium w-8">{idx + 1}.</span>
                             <Select
-                              value={getDelayDisplay(step.delay_minutes).unit}
-                              onValueChange={(unit: DelayUnit) => {
-                                const currentValue = getDelayDisplay(step.delay_minutes).value;
-                                handleUpdateStep(step.id, { delay_minutes: getDelayMinutes(currentValue, unit) });
-                              }}
+                              value={step.template_id}
+                              onValueChange={(v) => handleUpdateStep(step.id, { template_id: v })}
                             >
-                              <SelectTrigger className="w-24">
-                                <SelectValue />
+                              <SelectTrigger className="flex-1">
+                                <SelectValue placeholder="Select template" />
                               </SelectTrigger>
                               <SelectContent>
-                                {DELAY_UNITS.map(u => (
-                                  <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
+                                {templates.map(t => (
+                                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
+                            <div className="flex items-center gap-1">
+                              <Input
+                                type="number"
+                                min="0"
+                                value={getDelayDisplay(step.delay_minutes).value}
+                                onChange={(e) => {
+                                  const newValue = parseInt(e.target.value) || 0;
+                                  const currentUnit = getDelayDisplay(step.delay_minutes).unit;
+                                  handleUpdateStep(step.id, { delay_minutes: getDelayMinutes(newValue, currentUnit) });
+                                }}
+                                className="w-16"
+                              />
+                              <Select
+                                value={getDelayDisplay(step.delay_minutes).unit}
+                                onValueChange={(unit: DelayUnit) => {
+                                  const currentValue = getDelayDisplay(step.delay_minutes).value;
+                                  handleUpdateStep(step.id, { delay_minutes: getDelayMinutes(currentValue, unit) });
+                                }}
+                              >
+                                <SelectTrigger className="w-24">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {DELAY_UNITS.map(u => (
+                                    <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteStep(step.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
                           </div>
-                          <Button variant="ghost" size="icon" onClick={() => handleDeleteStep(step.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    </>
                   )}
                 </div>
               )}
