@@ -23,7 +23,9 @@ import {
   Mail,
   Workflow,
   TrendingUp,
-  Megaphone
+  Megaphone,
+  Sparkles,
+  BarChart3
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -72,6 +74,8 @@ const navGroups = [
   {
     label: "Analytics",
     items: [
+      { href: "/admin/ai-analytics", label: "AI Recommendations", icon: Sparkles },
+      { href: "/admin/leads/analytics", label: "Lead Analytics", icon: BarChart3 },
       { href: "/admin/market-dashboard", label: "Market Dashboard", icon: TrendingUp },
       { href: "/admin/market-data", label: "Upload Data", icon: TrendingUp },
     ]
