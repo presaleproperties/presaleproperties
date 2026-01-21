@@ -8,7 +8,7 @@ import {
 const faqs = [
   {
     question: "What's the difference between VIP Access and VIP Elite?",
-    answer: "VIP Access (free) gives you early visibility into new projects and market intelligence. VIP Elite (when you buy with us) gives you exclusive inventory allocation, white-glove service from contract to completion, and your choice of $1,500 in closing benefits.",
+    answer: "VIP Access (complimentary) gives you early visibility into new projects and market intelligence. VIP Elite (when you buy with us) gives you exclusive inventory allocation, white-glove service from contract to completion, and your choice of $1,500 in closing benefits.",
   },
   {
     question: "Is there a cost to join VIP Elite?",
@@ -28,7 +28,7 @@ const faqs = [
   },
   {
     question: "When exactly do I receive my $1,500 credit?",
-    answer: "Your $1,500 credit is applied at closing when you take possession of your unit. You choose whether you want it as free legal fees, free tenant placement, or cash rebate.",
+    answer: "Your $1,500 credit is applied at closing when you take possession of your unit. You choose whether you want it as complimentary legal fees, complimentary tenant placement, or cash rebate.",
   },
 ];
 

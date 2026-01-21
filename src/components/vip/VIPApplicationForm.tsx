@@ -294,7 +294,7 @@ export const VIPApplicationForm = () => {
           </div>
         ) : (
           <div className="bg-card rounded-2xl p-6 md:p-10 border shadow-card max-w-[600px] mx-auto">
-            <h3 className="text-2xl font-bold text-foreground mb-2">Join VIP Access (Free)</h3>
+            <h3 className="text-2xl font-bold text-foreground mb-2">Join VIP Access (Complimentary)</h3>
             <p className="text-muted-foreground mb-6">
               Get early access and market intelligence while you plan:
             </p>
@@ -312,7 +312,7 @@ export const VIPApplicationForm = () => {
               ))}
             </ul>
             <p className="text-sm text-muted-foreground mb-6">
-              No purchase required. No commitment. Free.<br />
+              No purchase required. No commitment. Complimentary.<br />
               When you're ready to buy, upgrade to VIP Elite and claim your $1,500 credit.
             </p>
 
@@ -338,7 +338,7 @@ export const VIPApplicationForm = () => {
                 className="w-full font-semibold"
                 disabled={isSubmitting}
               >
-                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Join Free VIP Access →"}
+                {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : "Join Complimentary VIP Access →"}
               </Button>
             </form>
           </div>

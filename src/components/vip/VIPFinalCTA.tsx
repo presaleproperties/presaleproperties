@@ -31,7 +31,7 @@ export const VIPFinalCTA = () => {
             variant="outline"
             className="border-white text-white hover:bg-white/10"
           >
-            Join Free VIP Access →
+            Join Complimentary VIP Access →
           </Button>
         </div>
 
