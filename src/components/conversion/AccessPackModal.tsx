@@ -197,9 +197,10 @@ export function AccessPackModal({
         .invoke("send-project-lead", { body: { leadId } })
         .catch(console.error);
 
-      supabase.functions
-        .invoke("send-drip-email", {})
-        .catch(console.error);
+      // Drip emails disabled - CRM handles all email sequences
+      // supabase.functions
+      //   .invoke("send-drip-email", {})
+      //   .catch(console.error);
 
       // Track behavioral form submission
       trackFormSubmit({
