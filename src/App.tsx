@@ -41,6 +41,7 @@ import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminLeadAnalytics from "./pages/admin/AdminLeadAnalytics";
+import AdminAIAnalytics from "./pages/admin/AdminAIAnalytics";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
 import AdminLogin from "./pages/admin/AdminLogin";
@@ -230,6 +231,7 @@ const App = () => (
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
+            <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
