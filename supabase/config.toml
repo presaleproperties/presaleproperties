@@ -98,3 +98,6 @@ verify_jwt = false
 
 [functions.send-daily-visitor-digest]
 verify_jwt = false
+
+[functions.ai-recommendations]
+verify_jwt = false
