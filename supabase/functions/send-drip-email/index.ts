@@ -213,131 +213,18 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
-    console.log("Starting drip email campaign check...");
-
-    // Find leads who need their next drip email
-    const now = new Date().toISOString();
-    const { data: leads, error: leadsError } = await supabase
-      .from("project_leads")
-      .select("id, name, email, persona, drip_sequence, last_drip_sent, project_id, presale_projects(name)")
-      .lte("next_drip_at", now)
-      .lt("last_drip_sent", 5)
-      .limit(50);
-
-    if (leadsError) {
-      console.error("Error fetching leads:", leadsError);
-      throw leadsError;
-    }
-
-    if (!leads || leads.length === 0) {
-      console.log("No leads need drip emails right now");
-      return new Response(JSON.stringify({ sent: 0 }), {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      });
-    }
-
-    console.log(`Found ${leads.length} leads needing drip emails`);
-
-    let sentCount = 0;
-    let errorCount = 0;
-
-    for (const lead of leads) {
-      try {
-        const emailIndex = lead.last_drip_sent; // 0-4
-        const isInvestor = lead.persona === "investor" || lead.drip_sequence === "investor";
-        const sequence = isInvestor ? INVESTOR_SEQUENCE : BUYER_SEQUENCE;
-        const emailTemplate = sequence[emailIndex];
-
-        if (!emailTemplate) {
-          console.log(`No more emails for lead ${lead.id}, marking complete`);
-          await supabase
-            .from("project_leads")
-            .update({ next_drip_at: null })
-            .eq("id", lead.id);
-          continue;
-        }
-
-        const projectName = ((lead as any).presale_projects?.name as string) || "";
-        const subject = emailTemplate.subject;
-        const htmlContent = emailTemplate.body(lead.name, projectName);
-
-        console.log(`Sending drip email ${emailIndex + 1} to ${lead.email}`);
-
-        // Send the email via Gmail SMTP
-        const emailResult = await sendEmail({
-          to: lead.email,
-          subject,
-          html: htmlContent,
-        });
-
-        if (!emailResult.success) {
-          throw new Error(emailResult.error || "Failed to send email");
-        }
-
-        console.log(`Email sent to ${lead.email}:`, emailResult);
-
-        // Log the email
-        await supabase.from("email_logs").insert({
-          lead_id: lead.id,
-          email_to: lead.email,
-          subject,
-          template_type: `drip_${isInvestor ? "investor" : "buyer"}_${emailIndex + 1}`,
-          status: "sent",
-        });
-
-        // Calculate next drip time
-        const nextDripIndex = emailIndex + 1;
-        let nextDripAt = null;
-
-        if (nextDripIndex < 5) {
-          const daysUntilNext = DRIP_SCHEDULE[nextDripIndex] - DRIP_SCHEDULE[emailIndex];
-          const nextDate = new Date();
-          nextDate.setDate(nextDate.getDate() + daysUntilNext);
-          nextDate.setHours(10, 0, 0, 0); // Send at 10 AM
-          nextDripAt = nextDate.toISOString();
-        }
-
-        // Update lead
-        await supabase
-          .from("project_leads")
-          .update({
-            last_drip_sent: nextDripIndex,
-            next_drip_at: nextDripAt,
-          })
-          .eq("id", lead.id);
-
-        sentCount++;
-      } catch (emailError: unknown) {
-        const errorMessage = emailError instanceof Error ? emailError.message : "Unknown error";
-        console.error(`Error sending to ${lead.email}:`, emailError);
-        
-        // Log the failure
-        await supabase.from("email_logs").insert({
-          lead_id: lead.id,
-          email_to: lead.email,
-          subject: "Drip email",
-          template_type: "drip_error",
-          status: "failed",
-          error_message: errorMessage,
-        });
-
-        errorCount++;
-      }
-    }
-
-    console.log(`Drip campaign complete: ${sentCount} sent, ${errorCount} errors`);
-
+    // GLOBAL KILL SWITCH: Drip email campaigns are disabled
+    // All lead data flows to Zapier/CRM which handles all email sequences
+    // To re-enable drip emails from the website, remove this early return
+    console.log("[DISABLED] Drip email campaigns are turned off - CRM handles all email sequences");
+    
     return new Response(
-      JSON.stringify({ sent: sentCount, errors: errorCount }),
-      {
-        status: 200,
-        headers: { "Content-Type": "application/json", ...corsHeaders },
-      }
+      JSON.stringify({ 
+        success: true, 
+        message: "Drip email campaigns are disabled - CRM handles all sequences",
+        sent: 0 
+      }),
+      { status: 200, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
