@@ -22,7 +22,8 @@ import {
   Eye,
   Code,
   Users,
-  Briefcase
+  Briefcase,
+  Send
 } from "lucide-react";
 
 interface EmailTemplate {
@@ -51,6 +52,10 @@ export default function AdminEmailTemplates() {
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [previewHtml, setPreviewHtml] = useState("");
+  const [sendingTestId, setSendingTestId] = useState<string | null>(null);
+  const [testEmailDialogOpen, setTestEmailDialogOpen] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState("");
+  const [templateToTest, setTemplateToTest] = useState<EmailTemplate | null>(null);
   const { toast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -209,6 +214,43 @@ export default function AdminEmailTemplates() {
     }
   };
 
+  const openTestEmailDialog = (template: EmailTemplate) => {
+    setTemplateToTest(template);
+    setTestEmailAddress("");
+    setTestEmailDialogOpen(true);
+  };
+
+  const sendTestEmail = async () => {
+    if (!templateToTest || !testEmailAddress) return;
+
+    setSendingTestId(templateToTest.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("send-test-email", {
+        body: {
+          template_id: templateToTest.id,
+          to_email: testEmailAddress,
+        },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Test Email Sent",
+        description: `Sent to ${testEmailAddress}`,
+      });
+      setTestEmailDialogOpen(false);
+    } catch (error) {
+      console.error("Error sending test email:", error);
+      toast({
+        title: "Failed to Send",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingTestId(null);
+    }
+  };
+
   const getDefaultTemplate = () => `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
   <div style="background: #1a1a2e; padding: 30px; text-align: center;">
     <h1 style="color: #f5c542; margin: 0;">Email Title</h1>
@@ -285,6 +327,19 @@ export default function AdminEmailTemplates() {
                             </code>
                           </div>
                           <div className="flex items-center gap-2 ml-4">
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              onClick={() => openTestEmailDialog(template)}
+                              disabled={sendingTestId === template.id}
+                            >
+                              {sendingTestId === template.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Send className="h-4 w-4 mr-1" />
+                              )}
+                              Test
+                            </Button>
                             <Switch
                               checked={template.is_active}
                               onCheckedChange={() => toggleActive(template.id, template.is_active)}
@@ -412,6 +467,53 @@ export default function AdminEmailTemplates() {
                 <Button onClick={handleSave} disabled={saving}>
                   {saving ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
                   Save Template
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Test Email Dialog */}
+        <Dialog open={testEmailDialogOpen} onOpenChange={setTestEmailDialogOpen}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2">
+                <Send className="h-5 w-5" />
+                Send Test Email
+              </DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Template: <span className="font-medium text-foreground">{templateToTest?.name}</span>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Variables will be replaced with sample data (e.g., John Smith, The Mason, etc.)
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label>Send to Email *</Label>
+                <Input
+                  type="email"
+                  value={testEmailAddress}
+                  onChange={(e) => setTestEmailAddress(e.target.value)}
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button variant="outline" onClick={() => setTestEmailDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button 
+                  onClick={sendTestEmail} 
+                  disabled={!testEmailAddress || sendingTestId !== null}
+                >
+                  {sendingTestId ? (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4 mr-2" />
+                  )}
+                  Send Test
                 </Button>
               </div>
             </div>
