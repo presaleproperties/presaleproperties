@@ -216,7 +216,8 @@ const handler = async (req: Request): Promise<Response> => {
           const emailHtml = generateAlertEmail(
             search.client.first_name || "there",
             search.name,
-            matchedProperties
+            matchedProperties,
+            search.client_id
           );
 
           const result = await sendEmail({
@@ -372,7 +373,8 @@ async function sendAIRecommendations(supabase: any, frequency: string): Promise<
       // Generate and send email
       const emailHtml = generateAIRecommendationEmail(
         client.first_name || "there",
-        properties
+        properties,
+        client.id
       );
 
       const result = await sendEmail({
@@ -513,9 +515,11 @@ async function getAIRecommendationsForClient(supabase: any, clientId: string, ap
   return candidates.slice(0, 6);
 }
 
-function generateAIRecommendationEmail(name: string, properties: MatchedProperty[]): string {
+function generateAIRecommendationEmail(name: string, properties: MatchedProperty[], clientId: string): string {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
+
+  const trackingPixelUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/track-email-open?cid=${clientId}&t=open`;
 
   const propertyCards = properties.map((prop) => `
     <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; margin-bottom: 16px;">
@@ -541,7 +545,7 @@ function generateAIRecommendationEmail(name: string, properties: MatchedProperty
             ${prop.sqft ? `• ${prop.sqft} sqft` : ""}
           </p>
         ` : ""}
-        <a href="${prop.url}?utm_source=email&utm_medium=ai_recs&utm_campaign=property_alert" style="display: inline-block; background-color: #d4af37; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+        <a href="${prop.url}?utm_source=email&utm_medium=ai_recs&utm_campaign=property_alert&cid=${clientId}" style="display: inline-block; background-color: #d4af37; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
           View Details →
         </a>
       </div>
@@ -581,7 +585,7 @@ function generateAIRecommendationEmail(name: string, properties: MatchedProperty
             ${propertyCards}
             
             <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-              <a href="https://presaleproperties.ca/map-search?utm_source=email&utm_medium=ai_recs" style="color: #d4af37; text-decoration: none; font-weight: 600;">
+              <a href="https://presaleproperties.ca/map-search?utm_source=email&utm_medium=ai_recs&cid=${clientId}" style="color: #d4af37; text-decoration: none; font-weight: 600;">
                 Explore All Properties →
               </a>
             </div>
@@ -597,14 +601,18 @@ function generateAIRecommendationEmail(name: string, properties: MatchedProperty
           </td>
         </tr>
       </table>
+      <!-- Email Open Tracking Pixel -->
+      <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" />
     </body>
     </html>
   `;
 }
 
-function generateAlertEmail(name: string, searchName: string, properties: MatchedProperty[]): string {
+function generateAlertEmail(name: string, searchName: string, properties: MatchedProperty[], clientId: string): string {
   const formatPrice = (price: number) => 
     new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(price);
+
+  const trackingPixelUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/track-email-open?cid=${clientId}&t=open`;
 
   const propertyCards = properties.map(prop => `
     <div style="border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; margin-bottom: 16px;">
@@ -625,7 +633,7 @@ function generateAlertEmail(name: string, searchName: string, properties: Matche
             ${prop.sqft ? `• ${prop.sqft} sqft` : ""}
           </p>
         ` : ""}
-        <a href="${prop.url}" style="display: inline-block; background-color: #d4af37; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+        <a href="${prop.url}?utm_source=email&utm_medium=alert&cid=${clientId}" style="display: inline-block; background-color: #d4af37; color: #fff; padding: 10px 20px; text-decoration: none; border-radius: 6px; font-weight: 600;">
           View Details →
         </a>
       </div>
@@ -638,31 +646,54 @@ function generateAlertEmail(name: string, searchName: string, properties: Matche
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        @media only screen and (max-width: 620px) {
+          .main-table { width: 100% !important; }
+        }
+      </style>
     </head>
     <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f5f5f5;">
-      <div style="background-color: #ffffff; border-radius: 12px; padding: 24px; margin-bottom: 20px;">
-        <h1 style="color: #1a1a1a; font-size: 24px; margin: 0 0 8px 0;">
-          New Properties Match "${searchName}"
-        </h1>
-        <p style="color: #666; font-size: 16px; margin: 0 0 24px 0;">
-          Hi ${name}, we found ${properties.length} new ${properties.length === 1 ? "property" : "properties"} matching your search criteria.
-        </p>
-        
-        ${propertyCards}
-        
-        <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
-          <a href="https://presaleproperties.ca/map-search" style="color: #d4af37; text-decoration: none; font-weight: 600;">
-            Browse All Properties →
-          </a>
-        </div>
-      </div>
-      
-      <div style="text-align: center; font-size: 12px; color: #999;">
-        <p style="margin: 0 0 8px 0;">PresaleProperties.ca | Vancouver New Construction Specialists</p>
-        <p style="margin: 0;">
-          <a href="https://presaleproperties.ca/unsubscribe" style="color: #999;">Manage Preferences</a>
-        </p>
-      </div>
+      <table class="main-table" width="600" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+        <tr>
+          <td style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 12px 12px 0 0; padding: 24px; text-align: center;">
+            <h1 style="color: #fff; font-size: 24px; margin: 0 0 8px 0;">
+              🏠 New Properties Match "${searchName}"
+            </h1>
+            <p style="color: #d4af37; font-size: 14px; margin: 0;">
+              ${properties.length} new ${properties.length === 1 ? "listing" : "listings"} found
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #ffffff; padding: 24px;">
+            <p style="color: #666; font-size: 16px; margin: 0 0 24px 0;">
+              Hi ${name}, we found ${properties.length} new ${properties.length === 1 ? "property" : "properties"} matching your search criteria.
+            </p>
+            
+            ${propertyCards}
+            
+            <div style="text-align: center; margin-top: 24px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
+              <a href="https://presaleproperties.ca/map-search?utm_source=email&utm_medium=alert&cid=${clientId}" style="color: #d4af37; text-decoration: none; font-weight: 600;">
+                Browse All Properties →
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td style="background-color: #1a1a2e; border-radius: 0 0 12px 12px; padding: 20px; text-align: center;">
+            <p style="margin: 0 0 8px 0; color: #fff; font-size: 14px;">PresaleProperties.com</p>
+            <p style="margin: 0; color: #888; font-size: 12px;">
+              <a href="tel:+16722581100" style="color: #d4af37;">672-258-1100</a> | 
+              <a href="mailto:info@presaleproperties.com" style="color: #d4af37;">info@presaleproperties.com</a>
+            </p>
+            <p style="margin: 8px 0 0 0; color: #666; font-size: 11px;">
+              <a href="https://presaleproperties.ca/unsubscribe?cid=${clientId}" style="color: #666;">Manage Preferences</a>
+            </p>
+          </td>
+        </tr>
+      </table>
+      <!-- Email Open Tracking Pixel -->
+      <img src="${trackingPixelUrl}" width="1" height="1" alt="" style="display:none;width:1px;height:1px;border:0;" />
     </body>
     </html>
   `;
