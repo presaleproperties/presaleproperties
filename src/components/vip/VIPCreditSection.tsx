@@ -5,7 +5,7 @@ import { FileText, Home, Banknote, Check, Star } from "lucide-react";
 const creditOptions = [
   {
     icon: FileText,
-    title: "Option 1: Free Legal Fees",
+    title: "Option 1: Complimentary Legal Fees",
     badge: "Most Popular for First-Time Buyers",
     items: [
       "Contract review",
@@ -17,7 +17,7 @@ const creditOptions = [
   },
   {
     icon: Home,
-    title: "Option 2: Free Tenant Placement",
+    title: "Option 2: Complimentary Tenant Placement",
     badge: "Most Popular for Investors",
     items: [
       "Tenant screening & credit check",

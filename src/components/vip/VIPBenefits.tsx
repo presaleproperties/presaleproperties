@@ -28,8 +28,8 @@ const benefits = [
     title: "YOUR $1,500 CLOSING CREDIT",
     subtitle: "Choose ONE:",
     items: [
-      { title: "Free Legal Fees (up to $1,500)", desc: "" },
-      { title: "Free Tenant Placement (for investors)", desc: "" },
+      { title: "Complimentary Legal Fees (up to $1,500)", desc: "" },
+      { title: "Complimentary Tenant Placement (for investors)", desc: "" },
       { title: "$1,500 Cash Rebate", desc: "" },
     ],
     callout: "Applied at closing. No strings attached.",
