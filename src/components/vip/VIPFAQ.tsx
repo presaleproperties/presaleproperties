@@ -7,50 +7,50 @@ import {
 
 const faqs = [
   {
-    question: "What's the difference between VIP Access and VIP Elite?",
-    answer: "VIP Access (complimentary) gives you early visibility into new projects and market intelligence. VIP Elite (when you buy with us) gives you exclusive inventory allocation, white-glove service from contract to completion, and your choice of $1,500 in closing benefits.",
+    question: "Is there a cost to join VIP membership?",
+    answer: "No. VIP membership is complimentary. We earn commission from developers when you purchase—you pay nothing extra for our services or the membership benefits.",
   },
   {
-    question: "Is there a cost to join VIP Elite?",
-    answer: "No. We earn commission from the developer when you purchase (same as any realtor). The difference is the level of service, access, and expertise you receive.",
+    question: "Do I have to purchase right away?",
+    answer: "Not at all. Many VIP members take 6-12 months to find the right project. We'll show you what's available, provide our analysis, and you decide when the timing is right for you.",
   },
   {
-    question: "I already have a realtor. Can I still access exclusive inventory?",
-    answer: "Unfortunately, exclusive inventory is reserved for our VIP Elite clients. These units are allocated to us based on our long-term relationships with developers—relationships built through years of volume and delivering qualified buyers. If you're serious about accessing the best units, we'd be happy to discuss working together.",
+    question: "How do I receive the $1,500 closing credit?",
+    answer: "When you purchase a presale through us, the $1,500 credit is applied at closing when you take possession. You choose whether to use it for legal fees, tenant placement, or as a cash rebate.",
   },
   {
-    question: "Do I have to buy immediately after joining?",
-    answer: "No. Many VIP Elite clients take 6-12 months to find the right project. We'll show you what's available, provide our analysis, and you decide when to move forward. No pressure.",
+    question: "What makes your inventory 'exclusive'?",
+    answer: "Top developers reserve 40-60% of units for trusted partners before public launch. Through our long-term relationships, VIP members get access to these allocations—units that never appear on public listings.",
   },
   {
-    question: "How many VIP Elite clients do you work with at once?",
-    answer: "We limit our active roster to 50 clients at a time. This ensures every client gets personalized attention, timely responses, and priority access to exclusive inventory. If we're at capacity, you'll be added to our waitlist.",
+    question: "I'm an investor. Is this relevant for me?",
+    answer: "Absolutely. Many of our VIP members are investors building portfolios. We provide ROI analysis, rental yield projections, multi-unit negotiation, and ongoing portfolio strategy support.",
   },
   {
-    question: "When exactly do I receive my $1,500 credit?",
-    answer: "Your $1,500 credit is applied at closing when you take possession of your unit. You choose whether you want it as complimentary legal fees, complimentary tenant placement, or cash rebate.",
+    question: "How often will you contact me?",
+    answer: "We respect your inbox. You'll receive relevant project alerts based on your criteria and monthly market intelligence. You can adjust preferences or unsubscribe anytime.",
   },
 ];
 
 export const VIPFAQ = () => {
   return (
-    <section className="py-20 md:py-28 px-4 bg-background">
-      <div className="max-w-[800px] mx-auto">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground text-center mb-12">
+    <section className="py-16 md:py-24 px-4 bg-background">
+      <div className="max-w-[700px] mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-10">
           Frequently Asked Questions
         </h2>
 
-        <Accordion type="single" collapsible className="space-y-4">
+        <Accordion type="single" collapsible className="space-y-3">
           {faqs.map((faq, index) => (
             <AccordionItem
               key={index}
               value={`faq-${index}`}
-              className="border rounded-xl px-6 bg-card"
+              className="border rounded-xl px-5 bg-card"
             >
-              <AccordionTrigger className="text-left font-semibold py-5 hover:no-underline">
+              <AccordionTrigger className="text-left font-medium py-4 hover:no-underline text-sm">
                 {faq.question}
               </AccordionTrigger>
-              <AccordionContent className="text-muted-foreground pb-5">
+              <AccordionContent className="text-muted-foreground text-sm pb-4">
                 {faq.answer}
               </AccordionContent>
             </AccordionItem>
