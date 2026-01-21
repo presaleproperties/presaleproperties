@@ -53,6 +53,30 @@ interface WorkflowStep {
   };
 }
 
+type DelayUnit = "minutes" | "hours" | "days" | "weeks";
+
+const DELAY_UNITS: { value: DelayUnit; label: string; minutes: number }[] = [
+  { value: "minutes", label: "min", minutes: 1 },
+  { value: "hours", label: "hrs", minutes: 60 },
+  { value: "days", label: "days", minutes: 1440 },
+  { value: "weeks", label: "weeks", minutes: 10080 },
+];
+
+// Convert delay_minutes to a value and unit for display
+const getDelayDisplay = (totalMinutes: number): { value: number; unit: DelayUnit } => {
+  if (totalMinutes === 0) return { value: 0, unit: "minutes" };
+  if (totalMinutes % 10080 === 0) return { value: totalMinutes / 10080, unit: "weeks" };
+  if (totalMinutes % 1440 === 0) return { value: totalMinutes / 1440, unit: "days" };
+  if (totalMinutes % 60 === 0) return { value: totalMinutes / 60, unit: "hours" };
+  return { value: totalMinutes, unit: "minutes" };
+};
+
+// Convert value and unit back to total minutes
+const getDelayMinutes = (value: number, unit: DelayUnit): number => {
+  const unitConfig = DELAY_UNITS.find(u => u.value === unit);
+  return value * (unitConfig?.minutes || 1);
+};
+
 interface EmailJob {
   id: string;
   to_email: string;
@@ -596,11 +620,30 @@ export default function AdminEmailWorkflows() {
                             <Input
                               type="number"
                               min="0"
-                              value={step.delay_minutes}
-                              onChange={(e) => handleUpdateStep(step.id, { delay_minutes: parseInt(e.target.value) || 0 })}
-                              className="w-20"
+                              value={getDelayDisplay(step.delay_minutes).value}
+                              onChange={(e) => {
+                                const newValue = parseInt(e.target.value) || 0;
+                                const currentUnit = getDelayDisplay(step.delay_minutes).unit;
+                                handleUpdateStep(step.id, { delay_minutes: getDelayMinutes(newValue, currentUnit) });
+                              }}
+                              className="w-16"
                             />
-                            <span className="text-sm text-muted-foreground">min delay</span>
+                            <Select
+                              value={getDelayDisplay(step.delay_minutes).unit}
+                              onValueChange={(unit: DelayUnit) => {
+                                const currentValue = getDelayDisplay(step.delay_minutes).value;
+                                handleUpdateStep(step.id, { delay_minutes: getDelayMinutes(currentValue, unit) });
+                              }}
+                            >
+                              <SelectTrigger className="w-24">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {DELAY_UNITS.map(u => (
+                                  <SelectItem key={u.value} value={u.value}>{u.label}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           </div>
                           <Button variant="ghost" size="icon" onClick={() => handleDeleteStep(step.id)}>
                             <Trash2 className="h-4 w-4" />
