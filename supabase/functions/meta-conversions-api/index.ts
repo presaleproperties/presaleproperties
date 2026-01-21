@@ -70,7 +70,9 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("key", "meta_pixel_id")
       .maybeSingle();
 
-    const pixelId = typeof settingData?.value === "string" ? settingData.value : null;
+    // Handle both string and numeric pixel IDs (JSON can store numbers)
+    const rawValue = settingData?.value;
+    const pixelId = rawValue ? String(rawValue) : null;
     
     if (!pixelId) {
       console.error("Meta Pixel ID not configured in app_settings");
