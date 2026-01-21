@@ -464,6 +464,11 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
         })
         .catch(console.error);
 
+      // Send updated lead to Zapier with full profile data
+      supabase.functions
+        .invoke("send-project-lead", { body: { leadId } })
+        .catch(console.error);
+
       // Send server-side Lead event to Meta Conversions API
       supabase.functions
         .invoke("meta-conversions-api", {

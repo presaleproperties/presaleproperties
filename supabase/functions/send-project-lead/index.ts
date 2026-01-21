@@ -124,16 +124,31 @@ serve(async (req: Request): Promise<Response> => {
         if (!landingPage) return "Unknown";
         try {
           const url = new URL(landingPage);
-          if (url.pathname.includes("/presale-projects/")) {
+          const path = url.pathname.toLowerCase();
+          
+          if (path.includes("/presale-projects/")) {
             return "Project Detail Page";
-          } else if (url.pathname === "/" || url.pathname === "") {
+          } else if (path === "/" || path === "") {
             return "Homepage";
-          } else if (url.pathname.includes("/presale-projects")) {
+          } else if (path.includes("/presale-projects")) {
             return "Projects Listing Page";
-          } else if (url.pathname.includes("/blog")) {
+          } else if (path.includes("/blog")) {
             return "Blog";
+          } else if (path.includes("-presale-") || path.includes("presale-")) {
+            // Landing pages like /langley-presale-townhomes, /surrey-presale-condos
+            const cityMatch = path.match(/\/([a-z-]+)-presale/);
+            const city = cityMatch ? cityMatch[1].replace(/-/g, ' ') : '';
+            return city ? `${city.charAt(0).toUpperCase() + city.slice(1)} Landing Page` : "City Landing Page";
+          } else if (path.includes("/ad/")) {
+            return "Ad Landing Page";
+          } else if (path.includes("/calculator") || path.includes("/roi")) {
+            return "Calculator Page";
+          } else if (path.includes("/guide") || path.includes("/buyers-guide")) {
+            return "Guide Page";
           } else {
-            return "Other Page";
+            // Return the path cleaned up for context
+            const cleanPath = path.replace(/^\//, '').replace(/-/g, ' ');
+            return cleanPath ? `${cleanPath.charAt(0).toUpperCase() + cleanPath.slice(1)} Page` : "Other Page";
           }
         } catch {
           return "Unknown";
