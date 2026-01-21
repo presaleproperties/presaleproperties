@@ -84,6 +84,7 @@ import ContentHub from "./pages/ContentHub";
 import BlogCategoryPage from "./pages/BlogCategoryPage";
 import AdLandingPage from "./pages/AdLandingPage";
 import AdminLandingPages from "./pages/admin/AdminLandingPages";
+import VIPMembership from "./pages/VIPMembership";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -175,6 +176,7 @@ const App = () => (
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
+            <Route path="/vip" element={<VIPMembership />} />
             
             {/* SEO Neighborhood Landing Pages */}
             <Route path="/south-surrey-presale" element={<NeighborhoodLandingPage />} />
