@@ -2184,10 +2184,10 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                         }));
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="occupancy_season">
                         <SelectValue placeholder="Select season" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={4}>
                         <SelectItem value="Spring">Spring</SelectItem>
                         <SelectItem value="Summer">Summer</SelectItem>
                         <SelectItem value="Fall">Fall</SelectItem>
@@ -2206,10 +2206,10 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                         }));
                       }}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger id="occupancy_year">
                         <SelectValue placeholder="Select year" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent position="popper" sideOffset={4}>
                         {Array.from({ length: 10 }, (_, i) => {
                           const year = new Date().getFullYear() + i;
                           return (
