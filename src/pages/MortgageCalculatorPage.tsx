@@ -647,17 +647,32 @@ export default function MortgageCalculatorPage() {
         utm_medium: urlParams.get('utm_medium'),
         utm_campaign: urlParams.get('utm_campaign'),
       };
+      const visitorId = localStorage.getItem("pp_vid") || undefined;
+      const sessionId = sessionStorage.getItem("pp_sid") || undefined;
 
+      const leadId = crypto.randomUUID();
       const { error } = await supabase.from("project_leads").insert({
+        id: leadId,
         name: leadForm.name,
         email: leadForm.email,
         phone: leadForm.phone || null,
         message: `Mortgage Calculator Lead - Price: ${formatCurrency(propertyPrice)}, Down: ${downPaymentPercent}%, Rate: ${mortgageRate}%, Amort: ${amortization}yr, Payment: ${formatCurrency(calculations.monthlyPayment)}`,
-        persona: "Buyer",
-        timeline: "0-3 months"
+        lead_source: "mortgage_calculator",
+        persona: "buyer",
+        timeline: "0-3 months",
+        landing_page: window.location.pathname,
+        referrer: document.referrer || null,
+        visitor_id: visitorId,
+        session_id: sessionId,
+        utm_source: utmData.utm_source,
+        utm_medium: utmData.utm_medium,
+        utm_campaign: utmData.utm_campaign,
       });
 
       if (error) throw error;
+
+      // Sync to Zapier/Lofty
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       trackEvent("soft_lead_submit", {
         ...getEventContext(),

@@ -34,20 +34,27 @@ export const VIPMembershipForm = () => {
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     try {
+      const leadId = crypto.randomUUID();
       const { error } = await supabase.from("project_leads").insert({
+        id: leadId,
         name: data.name,
         email: data.email,
         phone: data.phone,
-        lead_source: "VIP Membership",
+        lead_source: "vip_membership",
         budget: data.budget,
         persona: data.buyerType,
         timeline: data.timeline,
         visitor_id: getVisitorId(),
         session_id: getSessionId(),
+        landing_page: window.location.pathname,
+        referrer: document.referrer || null,
         message: `VIP Membership Application | Type: ${data.buyerType} | Timeline: ${data.timeline}`,
       });
 
       if (error) throw error;
+
+      // Sync to Zapier/Lofty
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       setIsSubmitted(true);
       toast.success("Welcome to VIP! We'll be in touch within 24 hours.");
