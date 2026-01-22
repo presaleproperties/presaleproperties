@@ -179,6 +179,70 @@ const AdLandingPage = () => {
   const getIncentiveBonus = () => campaign?.incentive_bonus || DEFAULT_CONFIG.incentiveBonus;
   const getMonthly1br = () => campaign?.monthly_1br || DEFAULT_CONFIG.monthly1br;
   const getMonthly2br = () => campaign?.monthly_2br || DEFAULT_CONFIG.monthly2br;
+
+  // Calculate GST Rebate based on starting price (BC rules)
+  // GST is 5%, rebate is 36% of GST for homes under $350K, phased out to $450K
+  const calculateGstRebate = (): string => {
+    const price = project?.starting_price;
+    if (!price) return "$24K"; // Default fallback
+    
+    const gstAmount = price * 0.05; // 5% GST
+    let rebateRate = 0;
+    
+    if (price <= 350000) {
+      rebateRate = 0.36; // Full 36% rebate
+    } else if (price < 450000) {
+      // Phase out: linear reduction from 36% to 0% between $350K and $450K
+      rebateRate = 0.36 * (450000 - price) / 100000;
+    } else {
+      rebateRate = 0; // No rebate above $450K
+    }
+    
+    const rebate = Math.round(gstAmount * rebateRate);
+    if (rebate >= 1000) {
+      return `$${Math.round(rebate / 1000)}K`;
+    }
+    return `$${rebate.toLocaleString()}`;
+  };
+
+  // Calculate PTT Savings for first-time buyers (BC rules)
+  // Full exemption up to $500K, phased out between $500K-$525K for newly built homes
+  // Regular PTT: 1% on first $200K, 2% on $200K-$2M, 3% above $2M
+  const calculatePttSavings = (): string => {
+    const price = project?.starting_price;
+    if (!price) return "$8K"; // Default fallback
+    
+    // Calculate what PTT would normally be
+    let normalPtt = 0;
+    if (price <= 200000) {
+      normalPtt = price * 0.01;
+    } else if (price <= 2000000) {
+      normalPtt = 200000 * 0.01 + (price - 200000) * 0.02;
+    } else {
+      normalPtt = 200000 * 0.01 + 1800000 * 0.02 + (price - 2000000) * 0.03;
+    }
+    
+    // First-time buyer exemption for newly built homes
+    let exemptionRate = 0;
+    if (price <= 500000) {
+      exemptionRate = 1; // Full exemption
+    } else if (price < 525000) {
+      // Phase out between $500K and $525K
+      exemptionRate = (525000 - price) / 25000;
+    } else if (price <= 750000) {
+      // Partial exemption on first $500K for homes $500K-$750K
+      const pttOnFirst500K = 200000 * 0.01 + 300000 * 0.02; // $8,000
+      exemptionRate = pttOnFirst500K / normalPtt;
+    } else {
+      exemptionRate = 0;
+    }
+    
+    const savings = Math.round(normalPtt * exemptionRate);
+    if (savings >= 1000) {
+      return `$${Math.round(savings / 1000)}K`;
+    }
+    return `$${savings.toLocaleString()}`;
+  };
   const getAllImages = () => {
     const images: string[] = [];
     if (project?.featured_image) images.push(project.featured_image);
@@ -472,7 +536,7 @@ const AdLandingPage = () => {
                 <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl">💵</span>
                 </div>
-                <p className="text-2xl font-black text-white tracking-tight">$50K</p>
+                <p className="text-2xl font-black text-white tracking-tight">{calculateGstRebate()}</p>
                 <p className="text-[11px] text-white/80 mt-1.5 font-semibold uppercase tracking-wide">GST Rebate*</p>
               </div>
             </div>
@@ -485,14 +549,14 @@ const AdLandingPage = () => {
                 <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
                   <span className="text-xl">🏡</span>
                 </div>
-                <p className="text-2xl font-black text-white tracking-tight">$8K</p>
+                <p className="text-2xl font-black text-white tracking-tight">{calculatePttSavings()}</p>
                 <p className="text-[11px] text-white/80 mt-1.5 font-semibold uppercase tracking-wide">PTT Savings*</p>
               </div>
             </div>
           </div>
           
           <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
-            *Eligibility required. Consult a professional.
+            *First-time buyer eligibility required. Based on starting price of ${project?.starting_price ? `$${(project.starting_price / 1000).toFixed(0)}K` : 'TBD'}.
           </p>
         </section>
 
