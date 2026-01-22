@@ -1629,7 +1629,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
   // For editing existing projects, show the full form
   return (
     <AdminLayout>
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form noValidate onSubmit={handleSubmit} className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button
