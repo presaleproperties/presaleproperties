@@ -53,27 +53,31 @@ serve(async (req) => {
 
     console.log(`Generating market report for ${city}, ${monthName} ${year}`);
 
-    const systemPrompt = `You are an expert real estate market analyst and content writer for a BC presale homes website. Write engaging, data-driven blog posts about the real estate market.
+    const systemPrompt = `You are an expert real estate market analyst writing for a BC presale homes website. Write professional, data-driven content in STYLED HTML format.
 
 WRITING STYLE:
-- Professional but accessible tone
+- Professional, authoritative tone (like a market analyst, not AI)
 - Use specific numbers and data points
-- Include actionable insights for buyers and investors
-- Structure with clear H2 and H3 headers
-- Use bullet points for key takeaways
+- Actionable insights for buyers and investors
 - 800-1200 words total
-- Include relevant BC-specific context (SkyTrain, neighborhoods, etc.)
+- BC-specific context (SkyTrain, neighborhoods, etc.)
 
-FORMAT REQUIREMENTS:
-- Start with a compelling hook paragraph
-- Include sections: Market Overview, Key Statistics, What This Means for Buyers, Investment Outlook, Conclusion
-- Use markdown formatting (## for H2, ### for H3, **bold**, - bullets)
-- End with a call-to-action mentioning presale opportunities
+HTML FORMAT REQUIREMENTS (use these exact patterns):
+- Opening: <p class="text-xl font-medium text-primary mb-6">Hook paragraph</p>
+- Headers: <h2 id="section-id">Section Title</h2>
+- Styled tables: <table class="w-full border-collapse my-8"><thead><tr class="bg-primary/10">...
+- Callout boxes: <div class="bg-primary/5 border-l-4 border-primary p-4 my-6 rounded-r-lg">
+- Tip boxes: <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-5 my-6">
+- Success boxes: <div class="bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 rounded-lg p-5 my-6">
+- Tier cards: <div class="border rounded-xl p-5 bg-primary/5">
+- Grid layouts: <div class="grid md:grid-cols-2 gap-6 my-6">
+- Bottom line: <div class="bg-primary/10 rounded-xl p-6 my-8"><p class="text-lg font-semibold mb-3">The Bottom Line</p>
 
 DO NOT:
-- Make up specific project names
-- Include false or unverifiable claims
-- Use overly promotional language`;
+- Use markdown (no ## or **)
+- Make up project names
+- Sound like AI-generated content
+- Use generic filler phrases`;
 
     const userPrompt = `Write a monthly market update blog post for ${city}, BC for ${monthName} ${year}.
 
