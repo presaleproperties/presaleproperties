@@ -13,15 +13,18 @@ const SelectValue = SelectPrimitive.Value;
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
   React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
->(({ className, children, ...props }, ref) => (
+>(({ className, children, onClick, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
-    // Prevent accidental form submission when Select is used inside a <form>
-    type={(props as any).type ?? "button"}
     className={cn(
       "flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
       className,
     )}
+    onClick={(e) => {
+      // Prevent scroll-to-top behavior inside forms
+      e.preventDefault();
+      onClick?.(e);
+    }}
     {...props}
   >
     {children}
