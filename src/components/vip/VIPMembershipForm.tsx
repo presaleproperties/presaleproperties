@@ -6,18 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Check, ArrowRight, Loader2, Phone, Shield } from "lucide-react";
+import { Check, ArrowRight, Loader2, Mail, Shield } from "lucide-react";
 import { getVisitorId, getSessionId } from "@/lib/tracking/identifiers";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const schema = z.object({
   buyerType: z.string().min(1, "Please select your situation"),
   timeline: z.string().min(1, "Please select your timeline"),
-  name: z.string().min(2, "Name is required"),
-  email: z.string().email("Please enter a valid email"),
+  name: z.string().min(2, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
   phone: z.string().min(10, "Phone number is required"),
   budget: z.string().min(1, "Please select a budget range"),
 });
@@ -33,33 +32,20 @@ export const VIPMembershipForm = () => {
   const [otpCode, setOtpCode] = useState("");
   const [formData, setFormData] = useState<FormData | null>(null);
 
-  const { register, handleSubmit, setValue, watch, formState: { errors }, getValues } = useForm<FormData>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
   });
 
   const budgetValue = watch("budget");
 
-  const formatPhoneForAuth = (phone: string): string => {
-    // Remove all non-digits
-    const digits = phone.replace(/\D/g, "");
-    // If starts with 1, assume it's already formatted
-    if (digits.startsWith("1") && digits.length === 11) {
-      return `+${digits}`;
-    }
-    // Otherwise assume it's a 10-digit North American number
-    if (digits.length === 10) {
-      return `+1${digits}`;
-    }
-    return `+${digits}`;
-  };
-
   const sendOTP = async (data: FormData) => {
     setIsSendingOTP(true);
     try {
-      const formattedPhone = formatPhoneForAuth(data.phone);
-      
       const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
+        email: data.email,
+        options: {
+          shouldCreateUser: true,
+        },
       });
 
       if (error) {
@@ -73,7 +59,7 @@ export const VIPMembershipForm = () => {
 
       setFormData(data);
       setStep("verify");
-      toast.success("Verification code sent to your phone!");
+      toast.success("Verification code sent to your email!");
     } catch (error: any) {
       console.error("OTP send error:", error);
       toast.error(error.message || "Failed to send verification code. Please try again.");
@@ -87,12 +73,10 @@ export const VIPMembershipForm = () => {
     
     setIsSubmitting(true);
     try {
-      const formattedPhone = formatPhoneForAuth(formData.phone);
-      
       const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
-        phone: formattedPhone,
+        email: formData.email,
         token: otpCode,
-        type: "sms",
+        type: "email",
       });
 
       if (verifyError) {
@@ -140,7 +124,7 @@ export const VIPMembershipForm = () => {
             email: formData.email,
             full_name: formData.name,
             phone: formData.phone,
-            phone_verified: true,
+            phone_verified: false,
             buyer_type: formData.buyerType,
             is_vip: true,
             vip_joined_at: new Date().toISOString(),
@@ -164,7 +148,7 @@ export const VIPMembershipForm = () => {
       await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       setStep("success");
-      toast.success("Welcome to VIP! Your phone has been verified.");
+      toast.success("Welcome to VIP! Your email has been verified.");
     } catch (error: any) {
       console.error("Verification error:", error);
       toast.error(error.message || "Verification failed. Please try again.");
@@ -188,12 +172,14 @@ export const VIPMembershipForm = () => {
     if (!formData) return;
     setIsSendingOTP(true);
     try {
-      const formattedPhone = formatPhoneForAuth(formData.phone);
       const { error } = await supabase.auth.signInWithOtp({
-        phone: formattedPhone,
+        email: formData.email,
+        options: {
+          shouldCreateUser: true,
+        },
       });
       if (error) throw error;
-      toast.success("New code sent!");
+      toast.success("New code sent to your email!");
       setOtpCode("");
     } catch (error: any) {
       toast.error("Failed to resend code. Please wait and try again.");
@@ -211,7 +197,7 @@ export const VIPMembershipForm = () => {
           </div>
           <h2 className="text-2xl font-bold text-foreground mb-4">Welcome to VIP</h2>
           <p className="text-muted-foreground mb-6">
-            Your phone has been verified. We'll review your profile and reach out within 24 hours 
+            Your email has been verified. We'll review your profile and reach out within 24 hours 
             to discuss your goals and show you relevant opportunities.
           </p>
           <Button asChild variant="default">
@@ -279,7 +265,7 @@ export const VIPMembershipForm = () => {
                   onClick={() => setStep("details")}
                   className="text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  ← Change number
+                  ← Change email
                 </button>
                 <button
                   type="button"
@@ -372,10 +358,7 @@ export const VIPMembershipForm = () => {
                 )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="flex items-center gap-1.5">
-                  <Phone className="w-3.5 h-3.5" />
-                  Phone (for verification)
-                </Label>
+                <Label htmlFor="phone">Phone (optional)</Label>
                 <Input id="phone" type="tel" {...register("phone")} placeholder="(604) 555-1234" />
                 {errors.phone && (
                   <p className="text-sm text-destructive">{errors.phone.message}</p>
@@ -385,7 +368,10 @@ export const VIPMembershipForm = () => {
 
             <div className="grid sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="flex items-center gap-1.5">
+                  <Mail className="w-3.5 h-3.5" />
+                  Email (for verification)
+                </Label>
                 <Input id="email" type="email" {...register("email")} placeholder="you@example.com" />
                 {errors.email && (
                   <p className="text-sm text-destructive">{errors.email.message}</p>
@@ -417,21 +403,21 @@ export const VIPMembershipForm = () => {
             <Button
               type="submit"
               size="lg"
-              className="w-full bg-primary text-primary-foreground font-semibold"
+              className="w-full"
               disabled={isSendingOTP}
             >
               {isSendingOTP ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
               ) : (
                 <>
-                  Continue & Verify Phone
+                  Continue & Verify Email
                   <ArrowRight className="w-5 h-5 ml-2" />
                 </>
               )}
             </Button>
 
             <p className="text-xs text-center text-muted-foreground">
-              We'll send a verification code to your phone. 
+              We'll send a verification code to your email. 
               By joining, you agree to receive exclusive updates.
             </p>
           </form>
