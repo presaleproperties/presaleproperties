@@ -32,7 +32,7 @@ serve(async (req) => {
 
     if (action === "autocomplete") {
       // Google Places API (New) - Autocomplete
-      // Include addresses AND establishments/places for business name search
+      // Max 5 types allowed - use geocode for addresses + establishment for businesses
       const response = await fetch(
         "https://places.googleapis.com/v1/places:autocomplete",
         {
@@ -43,19 +43,13 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             input: address,
-            // Allow addresses, establishments, and points of interest
+            // Limited to 5 types max - these cover addresses and business names
             includedPrimaryTypes: [
               "street_address",
               "premise",
-              "subpremise",
               "establishment",
               "point_of_interest",
-              "real_estate_agency",
-              "shopping_mall",
-              "restaurant",
-              "store",
-              "lodging",
-              "local_business",
+              "geocode",
             ],
             includedRegionCodes: ["ca"],
             locationBias: {
