@@ -311,23 +311,21 @@ export const VIPMembershipForm = () => {
           <form onSubmit={handleSubmit(sendOTP)} className="space-y-6">
             {/* Buyer Type */}
             <div className="space-y-3">
-              <Label className="text-sm font-medium">I'm looking to...</Label>
+              <Label className="text-sm font-medium">I'm a...</Label>
               <RadioGroup
                 onValueChange={(value) => setValue("buyerType", value)}
-                className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+                className="grid grid-cols-2 gap-3"
               >
                 {[
-                  { value: "first-home", label: "Buy my first home" },
-                  { value: "upgrade", label: "Upgrade my home" },
-                  { value: "invest", label: "Invest in real estate" },
-                  { value: "portfolio", label: "Build a portfolio" },
+                  { value: "buyer", label: "First Time Buyer" },
+                  { value: "investor", label: "Investor" },
                 ].map((option) => (
                   <label
                     key={option.value}
-                    className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:border-primary/50 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                    className="flex items-center justify-center gap-3 p-4 border rounded-lg cursor-pointer hover:border-primary/50 transition-colors has-[:checked]:border-primary has-[:checked]:bg-primary/5"
                   >
-                    <RadioGroupItem value={option.value} />
-                    <span className="text-sm">{option.label}</span>
+                    <RadioGroupItem value={option.value} className="sr-only" />
+                    <span className="text-sm font-medium">{option.label}</span>
                   </label>
                 ))}
               </RadioGroup>
