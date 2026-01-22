@@ -182,10 +182,10 @@ export const VIPMembershipForm = () => {
               <div className="space-y-2">
                 <Label htmlFor="budget">Budget Range</Label>
                 <Select onValueChange={(value) => setValue("budget", value)}>
-                  <SelectTrigger>
+                  <SelectTrigger type="button">
                     <SelectValue placeholder="Select range" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" sideOffset={4}>
                     <SelectItem value="under-500k">Under $500K</SelectItem>
                     <SelectItem value="500k-750k">$500K - $750K</SelectItem>
                     <SelectItem value="750k-1m">$750K - $1M</SelectItem>
