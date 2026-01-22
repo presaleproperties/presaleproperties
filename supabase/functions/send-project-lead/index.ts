@@ -97,21 +97,87 @@ serve(async (req: Request): Promise<Response> => {
       const project = lead.presale_projects as any;
       
       // Map lead_source to human-readable descriptions for Lofty
-      const getFormType = (leadSource: string | null) => {
-        switch (leadSource) {
-          case "scheduler":
-            return "Schedule a Preview";
-          case "floor_plan_request":
-            return "Floor Plan Request";
-          case "callback_request":
-            return "Request a Callback";
-          case "general_inquiry":
-            return "General Inquiry";
-          case "newsletter":
-            return "Newsletter Signup";
-          default:
-            return "Floor Plan Request";
+      const getFormType = (leadSource: string | null): string => {
+        const sourceMap: Record<string, string> = {
+          "scheduler": "Schedule a Preview",
+          "floor_plan_request": "Floor Plan Request",
+          "floor_plan_request_step1": "Floor Plan Request (Partial)",
+          "callback_request": "Request a Callback",
+          "general_inquiry": "General Inquiry",
+          "newsletter": "Newsletter Signup",
+          "vip_membership": "VIP Membership Application",
+          "new_homes_page": "New Homes Interest",
+          "mortgage_calculator": "Mortgage Calculator",
+          "roi_calculator": "ROI Calculator",
+          "roi_analysis": "ROI Analysis Request",
+          "consultation": "Consultation Request",
+          "exit_intent_guide": "Guide Download",
+          "resale_inquiry": "Resale Property Inquiry",
+        };
+        return sourceMap[leadSource || ""] || leadSource?.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) || "Website Inquiry";
+      };
+
+      // Generate tags for Lofty CRM based on lead data
+      const generateTags = (): string[] => {
+        const tags: string[] = [];
+        
+        // Source tag
+        tags.push("PresaleProperties.com");
+        
+        // Form type tag
+        const formType = getFormType(lead.lead_source);
+        if (formType) tags.push(formType);
+        
+        // Project tag
+        if (project?.name) tags.push(project.name);
+        
+        // City tag
+        if (project?.city) tags.push(project.city);
+        
+        // Neighborhood tag
+        if (project?.neighborhood) tags.push(project.neighborhood);
+        
+        // Persona tag
+        if (lead.persona) {
+          const personaMap: Record<string, string> = {
+            "first_time": "First-Time Buyer",
+            "first-time": "First-Time Buyer",
+            "first-home": "First-Time Buyer",
+            "investor": "Investor",
+            "invest": "Investor",
+            "portfolio": "Portfolio Builder",
+            "upgrade": "Upgrading Home",
+            "buyer": "Buyer",
+          };
+          tags.push(personaMap[lead.persona] || lead.persona);
         }
+        
+        // Agent status tag
+        if (lead.agent_status === "i_am_realtor") {
+          tags.push("Is Realtor");
+        } else if (lead.agent_status === "yes") {
+          tags.push("Has Realtor");
+        } else if (lead.agent_status === "no") {
+          tags.push("No Realtor");
+        }
+        
+        // Home size tag
+        if (lead.home_size) {
+          const sizeMap: Record<string, string> = {
+            "studio": "Studio",
+            "1_bed": "1 Bedroom",
+            "2_bed": "2 Bedroom", 
+            "3_bed": "3+ Bedroom",
+          };
+          tags.push(sizeMap[lead.home_size] || lead.home_size);
+        }
+        
+        // UTM source tag
+        if (lead.utm_source) {
+          tags.push(`UTM: ${lead.utm_source}`);
+        }
+        
+        return tags;
       };
 
       // Determine if this is a tour/preview request
@@ -120,38 +186,52 @@ serve(async (req: Request): Promise<Response> => {
       const isCallbackRequest = lead.lead_source === "callback_request";
 
       // Extract page location from landing_page URL
-      const getFormLocation = (landingPage: string | null) => {
-        if (!landingPage) return "Unknown";
+      const getFormLocation = (landingPage: string | null): string => {
+        if (!landingPage) return "Direct/Unknown";
         try {
-          const url = new URL(landingPage);
-          const path = url.pathname.toLowerCase();
+          // Handle both full URLs and paths
+          let path = landingPage.toLowerCase();
+          if (path.startsWith("http")) {
+            const url = new URL(landingPage);
+            path = url.pathname.toLowerCase();
+          }
           
-          if (path.includes("/presale-projects/")) {
+          if (path.includes("/presale-projects/") && path.split("/").length > 2) {
             return "Project Detail Page";
           } else if (path === "/" || path === "") {
             return "Homepage";
-          } else if (path.includes("/presale-projects")) {
+          } else if (path === "/presale-projects" || path === "/presale-projects/") {
             return "Projects Listing Page";
           } else if (path.includes("/blog")) {
             return "Blog";
+          } else if (path.includes("/vip")) {
+            return "VIP Membership Page";
+          } else if (path.includes("/mortgage-calculator")) {
+            return "Mortgage Calculator Page";
+          } else if (path.includes("/roi-calculator") || path.includes("/roi")) {
+            return "ROI Calculator Page";
+          } else if (path.includes("/resale")) {
+            return "New Homes Page";
           } else if (path.includes("-presale-") || path.includes("presale-")) {
             // Landing pages like /langley-presale-townhomes, /surrey-presale-condos
             const cityMatch = path.match(/\/([a-z-]+)-presale/);
             const city = cityMatch ? cityMatch[1].replace(/-/g, ' ') : '';
             return city ? `${city.charAt(0).toUpperCase() + city.slice(1)} Landing Page` : "City Landing Page";
-          } else if (path.includes("/ad/")) {
+          } else if (path.includes("/ad/") || path.includes("/exclusive-offer")) {
             return "Ad Landing Page";
-          } else if (path.includes("/calculator") || path.includes("/roi")) {
-            return "Calculator Page";
           } else if (path.includes("/guide") || path.includes("/buyers-guide")) {
             return "Guide Page";
+          } else if (path.includes("/contact")) {
+            return "Contact Page";
+          } else if (path.includes("/about")) {
+            return "About Page";
           } else {
             // Return the path cleaned up for context
-            const cleanPath = path.replace(/^\//, '').replace(/-/g, ' ');
+            const cleanPath = path.replace(/^\//, '').replace(/-/g, ' ').replace(/\//g, ' ');
             return cleanPath ? `${cleanPath.charAt(0).toUpperCase() + cleanPath.slice(1)} Page` : "Other Page";
           }
         } catch {
-          return "Unknown";
+          return "Direct/Unknown";
         }
       };
 
@@ -181,6 +261,23 @@ serve(async (req: Request): Promise<Response> => {
 
       const { firstName, lastName } = parseNames(lead.name, lead.message);
 
+      const tags = generateTags();
+      const formType = getFormType(lead.lead_source);
+      const formLocation = getFormLocation(lead.landing_page);
+      
+      // Build full page URL
+      const getFullPageUrl = (): string => {
+        if (lead.landing_page) {
+          // If it's already a full URL, return it
+          if (lead.landing_page.startsWith("http")) {
+            return lead.landing_page;
+          }
+          // Otherwise, prepend the domain
+          return `https://presaleproperties.com${lead.landing_page.startsWith("/") ? "" : "/"}${lead.landing_page}`;
+        }
+        return "";
+      };
+
       const webhookPayload = {
         // Lead info - separate first and last name
         lead_id: lead.id,
@@ -196,6 +293,10 @@ serve(async (req: Request): Promise<Response> => {
         is_realtor: lead.agent_status === "i_am_realtor" ? "Yes" : "No",
         has_realtor: lead.agent_status === "yes" ? "Yes" : "No",
         submitted_at: lead.created_at,
+        
+        // TAGS for Lofty CRM - comma-separated string AND array
+        tags: tags.join(", "),
+        tags_array: tags,
         
         // Visitor tracking for behavior enrichment
         visitor_id: lead.visitor_id || "",
@@ -220,12 +321,17 @@ serve(async (req: Request): Promise<Response> => {
         is_tour_request: isTourRequest ? "Yes" : "No",
         is_callback_request: isCallbackRequest ? "Yes" : "No",
         
-        // Source tracking
+        // Source tracking - CLEAR form identification
         source: "PresaleProperties.com",
-        lead_source: lead.lead_source || "floor_plan_request",
-        form_type: getFormType(lead.lead_source),
-        form_location: getFormLocation(lead.landing_page),
+        lead_source: lead.lead_source || "website_inquiry",
+        form_type: formType,
+        form_location: formLocation,
         lead_type: "project",
+        
+        // Full URLs for Lofty
+        page_url: getFullPageUrl(),
+        landing_page: lead.landing_page || "",
+        landing_page_full: getFullPageUrl(),
         
         // UTM & Attribution tracking
         utm_source: lead.utm_source || "",
@@ -234,7 +340,6 @@ serve(async (req: Request): Promise<Response> => {
         utm_content: lead.utm_content || "",
         utm_term: lead.utm_term || "",
         referrer: lead.referrer || "",
-        landing_page: lead.landing_page || "",
       };
 
       console.log("Webhook payload:", JSON.stringify(webhookPayload));
