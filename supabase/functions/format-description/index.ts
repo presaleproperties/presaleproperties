@@ -11,7 +11,73 @@ serve(async (req) => {
   }
 
   try {
-    const { description, projectContext, isShortDescription } = await req.json();
+    const { description, projectContext, isShortDescription, type, projectName, city, neighborhood } = await req.json();
+
+    // Handle SEO generation
+    if (type === 'seo') {
+      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+      if (!LOVABLE_API_KEY) {
+        throw new Error("LOVABLE_API_KEY is not configured");
+      }
+
+      const seoPrompt = `You are an SEO expert for real estate presale listings. Generate optimized SEO title and meta description.
+
+PROJECT DETAILS:
+${description}
+
+RULES:
+1. SEO Title: Max 60 characters. Include project name, property type, and location. Format: "{Project Name} | {Type} in {Neighborhood}, {City}"
+2. Meta Description: Max 155 characters. Include key selling points, location, and a call-to-action. Be compelling.
+3. Include year 2026 if completion date is mentioned
+4. Use high-intent keywords: "presale", "new construction", city name
+5. Make it click-worthy but accurate
+
+Respond in this exact JSON format:
+{"seoTitle": "...", "seoDescription": "..."}`;
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "user", content: seoPrompt },
+          ],
+          max_tokens: 500,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("AI gateway error:", response.status, errorText);
+        throw new Error("AI SEO generation failed");
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content;
+      
+      try {
+        // Extract JSON from response (may be wrapped in markdown)
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          const parsed = JSON.parse(jsonMatch[0]);
+          return new Response(
+            JSON.stringify(parsed),
+            { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+      } catch (parseError) {
+        console.error("Failed to parse SEO response:", content);
+      }
+      
+      return new Response(
+        JSON.stringify({ error: "Failed to parse SEO content" }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     const minLength = isShortDescription ? 10 : 20;
     if (!description || description.trim().length < minLength) {

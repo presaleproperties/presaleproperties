@@ -149,6 +149,7 @@ export default function AdminProjectForm() {
   const [adjacentProjects, setAdjacentProjects] = useState<{ prev: string | null; next: string | null }>({ prev: null, next: null });
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
   const [isFormattingShortDescription, setIsFormattingShortDescription] = useState(false);
+  const [isGeneratingSeo, setIsGeneratingSeo] = useState(false);
   const [isExtractingFromPdf, setIsExtractingFromPdf] = useState(false);
   const [extractedPreviewImages, setExtractedPreviewImages] = useState<{
     url: string;
@@ -531,6 +532,62 @@ export default function AdminProjectForm() {
       seo_title: generateSeoTitle(mergedData),
       seo_description: generateSeoDescription(mergedData),
     };
+  };
+
+  const generateSeoWithAI = async () => {
+    if (!formData.name) {
+      toast({ title: "Project name required", description: "Add a project name first to generate SEO content", variant: "destructive" });
+      return;
+    }
+    
+    setIsGeneratingSeo(true);
+    try {
+      const projectContext = `
+Project Name: ${formData.name}
+Type: ${formData.project_type || 'condo'}
+City: ${formData.city || 'Vancouver'}
+Neighborhood: ${formData.neighborhood || ''}
+Starting Price: ${formData.starting_price ? `$${parseInt(formData.starting_price).toLocaleString()}` : 'TBD'}
+Unit Mix: ${formData.unit_mix || ''}
+Developer: ${formData.developer_name || ''}
+Completion: ${formData.completion_year ? `${formData.completion_month ? new Date(2000, Number(formData.completion_month) - 1).toLocaleString('default', { month: 'short' }) + ' ' : ''}${formData.completion_year}` : 'TBD'}
+Highlights: ${formData.highlights.join(', ') || 'N/A'}
+      `.trim();
+      
+      const { data, error } = await supabase.functions.invoke('format-description', {
+        body: {
+          description: projectContext,
+          type: 'seo',
+          projectName: formData.name,
+          city: formData.city,
+          neighborhood: formData.neighborhood,
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.seoTitle && data?.seoDescription) {
+        setFormData(prev => ({
+          ...prev,
+          seo_title: data.seoTitle,
+          seo_description: data.seoDescription,
+        }));
+        toast({ title: "SEO content generated", description: "Title and description have been updated" });
+      } else {
+        // Fallback to template-based generation
+        const seoFields = updateSeoFields({});
+        setFormData(prev => ({ ...prev, ...seoFields }));
+        toast({ title: "SEO content generated", description: "Using template-based generation" });
+      }
+    } catch (error) {
+      console.error('AI SEO generation error:', error);
+      // Fallback to template-based generation
+      const seoFields = updateSeoFields({});
+      setFormData(prev => ({ ...prev, ...seoFields }));
+      toast({ title: "SEO content generated", description: "Using template-based generation" });
+    } finally {
+      setIsGeneratingSeo(false);
+    }
   };
 
   const getSeasonFromMonth = (month: number) => {
@@ -2350,13 +2407,16 @@ export default function AdminProjectForm() {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => {
-                    const seoFields = updateSeoFields({});
-                    setFormData(prev => ({ ...prev, ...seoFields }));
-                  }}
+                  onClick={generateSeoWithAI}
+                  disabled={isGeneratingSeo || !formData.name}
+                  className="gap-2"
                 >
-                  <Sparkles className="h-4 w-4 mr-2" />
-                  Regenerate
+                  {isGeneratingSeo ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Sparkles className="h-4 w-4" />
+                  )}
+                  {isGeneratingSeo ? "Generating..." : "AI Generate"}
                 </Button>
               </CardHeader>
               <CardContent className="space-y-4">
