@@ -37,6 +37,8 @@ export const VIPMembershipForm = () => {
     resolver: zodResolver(schema),
   });
 
+  const budgetValue = watch("budget");
+
   const formatPhoneForAuth = (phone: string): string => {
     // Remove all non-digits
     const digits = phone.replace(/\D/g, "");
@@ -391,12 +393,13 @@ export const VIPMembershipForm = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="budget">Budget Range</Label>
-                <Select onValueChange={(value) => setValue("budget", value)}>
-                  <SelectTrigger 
-                    type="button"
-                    onClick={(e) => e.preventDefault()}
-                    onPointerDown={(e) => e.preventDefault()}
-                  >
+                <Select
+                  value={budgetValue}
+                  onValueChange={(value) =>
+                    setValue("budget", value, { shouldValidate: true, shouldDirty: true })
+                  }
+                >
+                  <SelectTrigger type="button">
                     <SelectValue placeholder="Select range" />
                   </SelectTrigger>
                   <SelectContent position="popper" sideOffset={4}>
