@@ -76,18 +76,15 @@ const AdLandingPage = () => {
     enabled: !!campaignSlug,
   });
 
-  // Fetch project data from database
+  // Fetch project data from database - use campaign's project_id if available, else slug from URL
   const {
     data: project,
     isLoading,
     error
   } = useQuery({
-    queryKey: ["ad-landing-project", projectSlug],
+    queryKey: ["ad-landing-project", campaign?.project_id, projectSlug],
     queryFn: async () => {
-      const {
-        data,
-        error
-      } = await supabase.from("presale_projects").select(`
+      let query = supabase.from("presale_projects").select(`
           id,
           name,
           slug,
@@ -104,10 +101,21 @@ const AdLandingPage = () => {
           amenities,
           completion_year,
           deposit_percent
-        `).eq("slug", projectSlug).single();
+        `);
+      
+      // If campaign is loaded and has project_id, use that
+      if (campaign?.project_id) {
+        query = query.eq("id", campaign.project_id);
+      } else {
+        query = query.eq("slug", projectSlug);
+      }
+      
+      const { data, error } = await query.single();
       if (error) throw error;
       return data;
-    }
+    },
+    // Wait for campaign to load if we have a campaign slug
+    enabled: !campaignSlug || (!!campaignSlug && campaign !== undefined),
   });
 
   // Track page view on mount
@@ -180,37 +188,42 @@ const AdLandingPage = () => {
   const getMonthly1br = () => campaign?.monthly_1br || DEFAULT_CONFIG.monthly1br;
   const getMonthly2br = () => campaign?.monthly_2br || DEFAULT_CONFIG.monthly2br;
 
-  // Calculate GST Rebate based on starting price (BC rules)
-  // GST is 5%, rebate is 36% of GST for homes under $350K, phased out to $450K
-  const calculateGstRebate = (): string => {
+  // Calculate GST Savings for new construction (BC rules)
+  // New construction GST: 5% with potential rebate (36% for homes under $350K, phased out to $450K)
+  // Show the GST rebate amount - for primary residence buyers
+  const calculateGstSavings = (): { amount: string; label: string; description: string } => {
     const price = project?.starting_price;
-    if (!price) return "$24K"; // Default fallback
+    if (!price) return { amount: "$24K", label: "GST Rebate", description: "On new home purchase" };
     
     const gstAmount = price * 0.05; // 5% GST
-    let rebateRate = 0;
     
+    // GST New Housing Rebate calculation
+    let rebateRate = 0;
     if (price <= 350000) {
       rebateRate = 0.36; // Full 36% rebate
     } else if (price < 450000) {
-      // Phase out: linear reduction from 36% to 0% between $350K and $450K
       rebateRate = 0.36 * (450000 - price) / 100000;
-    } else {
-      rebateRate = 0; // No rebate above $450K
     }
     
     const rebate = Math.round(gstAmount * rebateRate);
-    if (rebate >= 1000) {
-      return `$${Math.round(rebate / 1000)}K`;
+    
+    // If rebate is available, show that
+    if (rebate > 0) {
+      const formatted = rebate >= 1000 ? `$${(rebate / 1000).toFixed(0)}K` : `$${rebate.toLocaleString()}`;
+      return { amount: formatted, label: "GST Rebate", description: "New Housing Rebate" };
     }
-    return `$${rebate.toLocaleString()}`;
+    
+    // For higher priced homes, show the GST amount as what they're paying on new construction
+    // This is still a "savings" compared to buying a more expensive resale
+    const gstFormatted = gstAmount >= 1000 ? `$${(gstAmount / 1000).toFixed(0)}K` : `$${gstAmount.toLocaleString()}`;
+    return { amount: gstFormatted, label: "GST Included", description: "Already in price" };
   };
 
   // Calculate PTT Savings for first-time buyers (BC rules)
   // Full exemption up to $500K, phased out between $500K-$525K for newly built homes
-  // Regular PTT: 1% on first $200K, 2% on $200K-$2M, 3% above $2M
-  const calculatePttSavings = (): string => {
+  const calculatePttSavings = (): { amount: string; label: string; description: string } => {
     const price = project?.starting_price;
-    if (!price) return "$8K"; // Default fallback
+    if (!price) return { amount: "$8K", label: "PTT Savings", description: "First-time buyer" };
     
     // Calculate what PTT would normally be
     let normalPtt = 0;
@@ -223,26 +236,31 @@ const AdLandingPage = () => {
     }
     
     // First-time buyer exemption for newly built homes
-    let exemptionRate = 0;
+    let savings = 0;
     if (price <= 500000) {
-      exemptionRate = 1; // Full exemption
+      savings = normalPtt; // Full exemption
     } else if (price < 525000) {
-      // Phase out between $500K and $525K
-      exemptionRate = (525000 - price) / 25000;
-    } else if (price <= 750000) {
-      // Partial exemption on first $500K for homes $500K-$750K
+      savings = normalPtt * (525000 - price) / 25000;
+    } else if (price <= 835000) {
+      // Partial exemption: exempt on first $500K portion only for new builds up to $835K
       const pttOnFirst500K = 200000 * 0.01 + 300000 * 0.02; // $8,000
-      exemptionRate = pttOnFirst500K / normalPtt;
-    } else {
-      exemptionRate = 0;
+      savings = pttOnFirst500K;
     }
     
-    const savings = Math.round(normalPtt * exemptionRate);
-    if (savings >= 1000) {
-      return `$${Math.round(savings / 1000)}K`;
+    savings = Math.round(savings);
+    
+    if (savings > 0) {
+      const formatted = savings >= 1000 ? `$${(savings / 1000).toFixed(0)}K` : `$${savings.toLocaleString()}`;
+      return { amount: formatted, label: "PTT Exempt", description: "First-time buyer" };
     }
-    return `$${savings.toLocaleString()}`;
+    
+    // Show what PTT would be (for awareness)
+    const pttFormatted = normalPtt >= 1000 ? `$${(normalPtt / 1000).toFixed(0)}K` : `$${normalPtt.toLocaleString()}`;
+    return { amount: pttFormatted, label: "PTT Amount", description: "Transfer tax" };
   };
+  
+  const gstInfo = calculateGstSavings();
+  const pttInfo = calculatePttSavings();
   const getAllImages = () => {
     const images: string[] = [];
     if (project?.featured_image) images.push(project.featured_image);
@@ -518,46 +536,63 @@ const AdLandingPage = () => {
           </p>
         </section>
 
-        {/* 🏠 FIRST-TIME BUYER - Premium Green Cards */}
-        <section className="px-5 py-8 bg-gradient-to-br from-emerald-50/80 via-muted/30 to-background dark:from-emerald-950/20 dark:via-muted/20 dark:to-background">
-          <div className="flex items-center justify-center gap-2.5 mb-5">
-            <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
-              <span className="text-lg">🏠</span>
+        {/* 🏠 TAX INCENTIVES - Premium Green Section */}
+        <section className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-gradient-to-br from-emerald-50/90 via-background to-emerald-50/50 dark:from-emerald-950/30 dark:via-background dark:to-emerald-950/20">
+          <div className="max-w-2xl mx-auto">
+            {/* Section Header */}
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <span className="text-lg sm:text-xl">💰</span>
+              </div>
+              <h2 className="text-lg sm:text-xl font-bold text-foreground tracking-tight">Tax Incentives</h2>
             </div>
-            <h2 className="text-xl font-bold text-foreground tracking-tight">First-Time Buyer Benefits</h2>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            {/* GST Rebate - Green card */}
-            <div className="relative bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-5 text-center shadow-lg overflow-hidden">
-              {/* Subtle shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
-              <div className="relative">
-                <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
-                  <span className="text-xl">💵</span>
+            
+            {/* Incentive Cards Grid */}
+            <div className="grid grid-cols-2 gap-3 sm:gap-4">
+              {/* GST Card */}
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-emerald-400 to-emerald-600 rounded-2xl blur opacity-30 group-hover:opacity-40 transition-opacity" />
+                <div className="relative bg-gradient-to-br from-emerald-500 via-emerald-550 to-emerald-600 rounded-2xl p-4 sm:p-5 text-center shadow-xl overflow-hidden">
+                  {/* Shine overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-white/5 to-transparent pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10" />
+                  
+                  <div className="relative">
+                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-inner">
+                      <span className="text-xl sm:text-2xl">💵</span>
+                    </div>
+                    <p className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">{gstInfo.amount}</p>
+                    <p className="text-[10px] sm:text-[11px] text-white/90 mt-1 font-bold uppercase tracking-wider">{gstInfo.label}</p>
+                    <p className="text-[9px] sm:text-[10px] text-white/70 mt-0.5 font-medium">{gstInfo.description}</p>
+                  </div>
                 </div>
-                <p className="text-2xl font-black text-white tracking-tight">{calculateGstRebate()}</p>
-                <p className="text-[11px] text-white/80 mt-1.5 font-semibold uppercase tracking-wide">GST Rebate*</p>
+              </div>
+              
+              {/* PTT Card */}
+              <div className="relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-br from-emerald-500 to-emerald-700 rounded-2xl blur opacity-30 group-hover:opacity-40 transition-opacity" />
+                <div className="relative bg-gradient-to-br from-emerald-600 via-emerald-650 to-emerald-700 rounded-2xl p-4 sm:p-5 text-center shadow-xl overflow-hidden">
+                  {/* Shine overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/25 via-white/5 to-transparent pointer-events-none" />
+                  <div className="absolute top-0 right-0 w-20 h-20 bg-white/10 rounded-full -translate-y-10 translate-x-10" />
+                  
+                  <div className="relative">
+                    <div className="h-11 w-11 sm:h-12 sm:w-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3 shadow-inner">
+                      <span className="text-xl sm:text-2xl">🏡</span>
+                    </div>
+                    <p className="text-2xl sm:text-3xl font-black text-white tracking-tight drop-shadow-sm">{pttInfo.amount}</p>
+                    <p className="text-[10px] sm:text-[11px] text-white/90 mt-1 font-bold uppercase tracking-wider">{pttInfo.label}</p>
+                    <p className="text-[9px] sm:text-[10px] text-white/70 mt-0.5 font-medium">{pttInfo.description}</p>
+                  </div>
+                </div>
               </div>
             </div>
             
-            {/* PTT Savings - Green card */}
-            <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-5 text-center shadow-lg overflow-hidden">
-              {/* Subtle shine effect */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
-              <div className="relative">
-                <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
-                  <span className="text-xl">🏡</span>
-                </div>
-                <p className="text-2xl font-black text-white tracking-tight">{calculatePttSavings()}</p>
-                <p className="text-[11px] text-white/80 mt-1.5 font-semibold uppercase tracking-wide">PTT Savings*</p>
-              </div>
-            </div>
+            {/* Disclaimer */}
+            <p className="text-center text-[10px] sm:text-[11px] text-muted-foreground mt-5 px-4">
+              *First-time buyer eligibility required. Based on starting price of {project?.starting_price ? `$${(project.starting_price / 1000).toFixed(0)}K` : 'TBD'}.
+            </p>
           </div>
-          
-          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
-            *First-time buyer eligibility required. Based on starting price of ${project?.starting_price ? `$${(project.starting_price / 1000).toFixed(0)}K` : 'TBD'}.
-          </p>
         </section>
 
         {/* Lead Form Section - Premium styling */}
