@@ -12,19 +12,19 @@ export const VIPHero = () => {
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-8">
           <Crown className="w-4 h-4" />
-          VIP Membership
+          Limited Time Offer
         </div>
 
         {/* Headline */}
         <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6 tracking-tight">
-          Get First Access to
-          <span className="text-primary block mt-2">Vancouver's Best Presales</span>
+          Claim Your
+          <span className="text-primary block mt-2">$1,500 Closing Credit</span>
         </h1>
 
         {/* Subheadline */}
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-          Join our network of serious buyers and investors. Receive exclusive inventory access, 
-          VIP pricing, and expert guidance—plus a $1,500 closing credit when you're ready to purchase.
+          Join our VIP membership and receive exclusive early access to Vancouver's best presales, 
+          VIP pricing, and expert guidance—plus a $1,500 credit toward your closing costs.
         </p>
 
         {/* CTA */}
