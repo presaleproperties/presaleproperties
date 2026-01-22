@@ -235,6 +235,128 @@ export type Database = {
           },
         ]
       }
+      buyer_drip_emails: {
+        Row: {
+          buyer_id: string
+          clicked_at: string | null
+          email_type: string
+          id: string
+          opened_at: string | null
+          sent_at: string | null
+        }
+        Insert: {
+          buyer_id: string
+          clicked_at?: string | null
+          email_type: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          clicked_at?: string | null
+          email_type?: string
+          id?: string
+          opened_at?: string | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "buyer_drip_emails_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      buyer_profiles: {
+        Row: {
+          alert_frequency: string | null
+          alerts_enabled: boolean | null
+          budget_max: number | null
+          budget_min: number | null
+          buyer_type: string | null
+          created_at: string | null
+          drip_sequence_step: number | null
+          email: string
+          full_name: string | null
+          id: string
+          is_vip: boolean | null
+          last_alert_sent_at: string | null
+          next_drip_at: string | null
+          phone: string | null
+          phone_verified: boolean | null
+          preferred_bedrooms: number[] | null
+          preferred_cities: string[] | null
+          referrer: string | null
+          timeline: string | null
+          updated_at: string | null
+          user_id: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          vip_joined_at: string | null
+          visitor_id: string | null
+        }
+        Insert: {
+          alert_frequency?: string | null
+          alerts_enabled?: boolean | null
+          budget_max?: number | null
+          budget_min?: number | null
+          buyer_type?: string | null
+          created_at?: string | null
+          drip_sequence_step?: number | null
+          email: string
+          full_name?: string | null
+          id?: string
+          is_vip?: boolean | null
+          last_alert_sent_at?: string | null
+          next_drip_at?: string | null
+          phone?: string | null
+          phone_verified?: boolean | null
+          preferred_bedrooms?: number[] | null
+          preferred_cities?: string[] | null
+          referrer?: string | null
+          timeline?: string | null
+          updated_at?: string | null
+          user_id: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          vip_joined_at?: string | null
+          visitor_id?: string | null
+        }
+        Update: {
+          alert_frequency?: string | null
+          alerts_enabled?: boolean | null
+          budget_max?: number | null
+          budget_min?: number | null
+          buyer_type?: string | null
+          created_at?: string | null
+          drip_sequence_step?: number | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_vip?: boolean | null
+          last_alert_sent_at?: string | null
+          next_drip_at?: string | null
+          phone?: string | null
+          phone_verified?: boolean | null
+          preferred_bedrooms?: number[] | null
+          preferred_cities?: string[] | null
+          referrer?: string | null
+          timeline?: string | null
+          updated_at?: string | null
+          user_id?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          vip_joined_at?: string | null
+          visitor_id?: string | null
+        }
+        Relationships: []
+      }
       city_market_stats: {
         Row: {
           avg_price_sqft: number | null
@@ -2059,6 +2181,51 @@ export type Database = {
         }
         Relationships: []
       }
+      project_alerts: {
+        Row: {
+          alert_type: string
+          buyer_id: string
+          clicked_at: string | null
+          id: string
+          opened_at: string | null
+          project_id: string
+          sent_at: string | null
+        }
+        Insert: {
+          alert_type: string
+          buyer_id: string
+          clicked_at?: string | null
+          id?: string
+          opened_at?: string | null
+          project_id: string
+          sent_at?: string | null
+        }
+        Update: {
+          alert_type?: string
+          buyer_id?: string
+          clicked_at?: string | null
+          id?: string
+          opened_at?: string | null
+          project_id?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_alerts_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_alerts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_leads: {
         Row: {
           agent_status: string | null
@@ -2254,6 +2421,45 @@ export type Database = {
             columns: ["listing_id"]
             isOneToOne: false
             referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      saved_projects: {
+        Row: {
+          buyer_id: string
+          created_at: string | null
+          id: string
+          notes: string | null
+          project_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          project_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string | null
+          id?: string
+          notes?: string | null
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_projects_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "buyer_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "saved_projects_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "presale_projects"
             referencedColumns: ["id"]
           },
         ]

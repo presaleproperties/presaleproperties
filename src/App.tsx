@@ -85,6 +85,11 @@ import BlogCategoryPage from "./pages/BlogCategoryPage";
 import AdLandingPage from "./pages/AdLandingPage";
 import AdminLandingPages from "./pages/admin/AdminLandingPages";
 import VIPMembership from "./pages/VIPMembership";
+import BuyerAuth from "./pages/BuyerAuth";
+import BuyerLogin from "./pages/BuyerLogin";
+import BuyerDashboard from "./pages/buyer/BuyerDashboard";
+import AdminBuyers from "./pages/admin/AdminBuyers";
+import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -104,6 +109,7 @@ function PresaleRedirect() {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
+      <BuyerAuthProvider>
       <TooltipProvider>
         <Toaster />
         <Sonner />
@@ -178,6 +184,11 @@ const App = () => (
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
             <Route path="/vip" element={<VIPMembership />} />
             
+            {/* Buyer Portal Routes */}
+            <Route path="/buyer/signup" element={<BuyerAuth />} />
+            <Route path="/buyer/login" element={<BuyerLogin />} />
+            <Route path="/buyer" element={<BuyerDashboard />} />
+            
             {/* SEO Neighborhood Landing Pages */}
             <Route path="/south-surrey-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/langley-willoughby-presale" element={<NeighborhoodLandingPage />} />
@@ -235,6 +246,7 @@ const App = () => (
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
+            <Route path="/admin/buyers" element={<AdminProtectedRoute><AdminBuyers /></AdminProtectedRoute>} />
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
@@ -249,6 +261,7 @@ const App = () => (
           </SwipeNavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
+      </BuyerAuthProvider>
     </AuthProvider>
   </QueryClientProvider>
 );
