@@ -2174,52 +2174,55 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="occupancy_season">Season</Label>
-                    <Select
+                    <select
+                      id="occupancy_season"
                       value={formData.occupancy_estimate.split(" ")[0] || ""}
-                      onValueChange={(season) => {
+                      onChange={(e) => {
+                        const season = e.target.value;
                         const year = formData.occupancy_estimate.split(" ")[1] || "";
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          occupancy_estimate: year ? `${season} ${year}` : season 
+                        setFormData((prev) => ({
+                          ...prev,
+                          occupancy_estimate: season && year ? `${season} ${year}` : season || year,
                         }));
                       }}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
-                      <SelectTrigger id="occupancy_season">
-                        <SelectValue placeholder="Select season" />
-                      </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4}>
-                        <SelectItem value="Spring">Spring</SelectItem>
-                        <SelectItem value="Summer">Summer</SelectItem>
-                        <SelectItem value="Fall">Fall</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="" disabled>
+                        Select season
+                      </option>
+                      <option value="Spring">Spring</option>
+                      <option value="Summer">Summer</option>
+                      <option value="Fall">Fall</option>
+                      <option value="Winter">Winter</option>
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="occupancy_year">Year</Label>
-                    <Select
+                    <select
+                      id="occupancy_year"
                       value={formData.occupancy_estimate.split(" ")[1] || ""}
-                      onValueChange={(year) => {
+                      onChange={(e) => {
+                        const year = e.target.value;
                         const season = formData.occupancy_estimate.split(" ")[0] || "";
-                        setFormData(prev => ({ 
-                          ...prev, 
-                          occupancy_estimate: season ? `${season} ${year}` : year 
+                        setFormData((prev) => ({
+                          ...prev,
+                          occupancy_estimate: season && year ? `${season} ${year}` : season || year,
                         }));
                       }}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
-                      <SelectTrigger id="occupancy_year">
-                        <SelectValue placeholder="Select year" />
-                      </SelectTrigger>
-                      <SelectContent position="popper" sideOffset={4}>
-                        {Array.from({ length: 10 }, (_, i) => {
-                          const year = new Date().getFullYear() + i;
-                          return (
-                            <SelectItem key={year} value={year.toString()}>
-                              {year}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
+                      <option value="" disabled>
+                        Select year
+                      </option>
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const year = new Date().getFullYear() + i;
+                        return (
+                          <option key={year} value={year.toString()}>
+                            {year}
+                          </option>
+                        );
+                      })}
+                    </select>
                   </div>
                 </div>
               </CardContent>
