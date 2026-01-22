@@ -288,11 +288,12 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
           {/* Desktop CTA */}
           <div className="hidden lg:flex items-center gap-3">
-            <Button size="sm" variant="outline" asChild>
+            {/* VIP button hidden for launch - uncomment when ready */}
+            {/* <Button size="sm" variant="outline" asChild>
               <Link to="/vip">
                 Join VIP
               </Link>
-            </Button>
+            </Button> */}
             <Button size="sm" onClick={openCallBack} className="shadow-sm">
               <Phone className="h-4 w-4 mr-2" />
               Request a Call Back
@@ -340,11 +341,12 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                   {/* Contact CTA Row */}
                   <div className="flex items-center gap-3 px-6 pb-5">
-                    <Link to="/vip" onClick={() => setOpen(false)} className="flex-1">
+                    {/* VIP button hidden for launch - uncomment when ready */}
+                    {/* <Link to="/vip" onClick={() => setOpen(false)} className="flex-1">
                       <Button variant="outline" className="w-full h-12 font-bold tracking-widest text-sm rounded-md uppercase">
                         Join VIP
                       </Button>
-                    </Link>
+                    </Link> */}
                     <Link to="/contact" onClick={() => setOpen(false)} className="flex-1">
                       <Button className="w-full h-12 font-bold tracking-widest text-sm rounded-md bg-foreground text-background hover:bg-foreground/90 uppercase">
                         Contact Us
