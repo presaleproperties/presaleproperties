@@ -73,13 +73,16 @@ export function NewHomesLeadCapture({ isOpen }: NewHomesLeadCaptureProps) {
       const visitorId = localStorage.getItem("pp_vid") || undefined;
       const sessionId = sessionStorage.getItem("pp_sid") || undefined;
 
-      // Insert lead
+      // Insert lead with UUID for Zapier sync
+      const leadId = crypto.randomUUID();
       const { error } = await supabase.from("project_leads").insert({
+        id: leadId,
         name: `${data.firstName} ${data.lastName}`,
         email: data.email,
         phone: data.phone,
         lead_source: "new_homes_page",
         landing_page: "/resale",
+        referrer: document.referrer || null,
         message: `Preferred City: ${data.preferredCity || 'Any'}, Budget: ${data.budgetRange || 'Not specified'}`,
         visitor_id: visitorId,
         session_id: sessionId,
@@ -87,6 +90,9 @@ export function NewHomesLeadCapture({ isOpen }: NewHomesLeadCaptureProps) {
       });
 
       if (error) throw error;
+
+      // Sync to Zapier/Lofty
+      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
 
       setIsSubmitted(true);
       toast.success("You're on the list! We'll be in touch soon.");
