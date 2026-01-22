@@ -1194,6 +1194,7 @@ export type Database = {
           monthly_2br: string | null
           name: string
           project_id: string | null
+          property_type: string | null
           selling_points: string[] | null
           slug: string
           subheadline: string | null
@@ -1216,6 +1217,7 @@ export type Database = {
           monthly_2br?: string | null
           name: string
           project_id?: string | null
+          property_type?: string | null
           selling_points?: string[] | null
           slug: string
           subheadline?: string | null
@@ -1238,6 +1240,7 @@ export type Database = {
           monthly_2br?: string | null
           name?: string
           project_id?: string | null
+          property_type?: string | null
           selling_points?: string[] | null
           slug?: string
           subheadline?: string | null

@@ -33,6 +33,7 @@ interface Campaign {
   incentive_bonus: string | null;
   monthly_1br: string | null;
   monthly_2br: string | null;
+  property_type: 'condo' | 'townhome' | null;
   is_active: boolean;
 }
 
@@ -416,22 +417,26 @@ const AdLandingPage = () => {
           </h2>
           
           <div className="grid grid-cols-2 gap-3">
-            {/* 1 Bed + Den */}
+            {/* Smaller unit */}
             <div className="relative bg-muted/50 rounded-2xl p-4 border border-border overflow-hidden">
               <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
                 POPULAR
               </Badge>
-              <p className="text-xs text-muted-foreground">1 Bed + Den</p>
+              <p className="text-xs text-muted-foreground">
+                {campaign?.property_type === 'townhome' ? '2 Bed + Den' : '1 Bed + Den'}
+              </p>
               <p className="text-2xl font-bold text-foreground mt-1">{getMonthly1br()}</p>
               <p className="text-[10px] text-muted-foreground">/mo*</p>
             </div>
             
-            {/* 2 Bed 2 Bath */}
+            {/* Larger unit */}
             <div className="relative bg-foreground rounded-2xl p-4 overflow-hidden">
               <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
                 BEST VALUE
               </Badge>
-              <p className="text-xs text-background/70">2 Bed 2 Bath</p>
+              <p className="text-xs text-background/70">
+                {campaign?.property_type === 'townhome' ? '3 Bed 3 Bath' : '2 Bed 2 Bath'}
+              </p>
               <p className="text-2xl font-bold text-background mt-1">{getMonthly2br()}</p>
               <p className="text-[10px] text-background/60">/mo*</p>
             </div>

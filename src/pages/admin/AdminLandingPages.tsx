@@ -42,6 +42,7 @@ interface Campaign {
   incentive_bonus: string | null;
   monthly_1br: string | null;
   monthly_2br: string | null;
+  property_type: 'condo' | 'townhome' | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;
@@ -63,6 +64,7 @@ const defaultCampaign: Partial<Campaign> = {
   incentive_bonus: "Free A/C",
   monthly_1br: "~$1,950",
   monthly_2br: "~$2,600",
+  property_type: 'condo',
   is_active: true,
 };
 
@@ -476,19 +478,49 @@ export default function AdminLandingPages() {
               <div className="space-y-4">
                 <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">Monthly Cost Display</h4>
                 
+                {/* Property Type Toggle */}
+                <div className="space-y-2">
+                  <Label>Property Type</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={formData.property_type === 'condo' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFormData({ ...formData, property_type: 'condo' })}
+                      className="flex-1"
+                    >
+                      Condos
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.property_type === 'townhome' ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setFormData({ ...formData, property_type: 'townhome' })}
+                      className="flex-1"
+                    >
+                      Townhomes
+                    </Button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {formData.property_type === 'townhome' 
+                      ? 'Townhome labels: 2 Bed + Den & 3 Bed 3 Bath' 
+                      : 'Condo labels: 1 Bed + Den & 2 Bed 2 Bath'}
+                  </p>
+                </div>
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <div className="space-y-2">
-                    <Label>1 Bed + Den Monthly</Label>
+                    <Label>{formData.property_type === 'townhome' ? '2 Bed + Den Monthly' : '1 Bed + Den Monthly'}</Label>
                     <Input
-                      placeholder="~$1,950"
+                      placeholder={formData.property_type === 'townhome' ? "~$2,400" : "~$1,950"}
                       value={formData.monthly_1br || ""}
                       onChange={(e) => setFormData({ ...formData, monthly_1br: e.target.value })}
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>2 Bed 2 Bath Monthly</Label>
+                    <Label>{formData.property_type === 'townhome' ? '3 Bed 3 Bath Monthly' : '2 Bed 2 Bath Monthly'}</Label>
                     <Input
-                      placeholder="~$2,600"
+                      placeholder={formData.property_type === 'townhome' ? "~$3,200" : "~$2,600"}
                       value={formData.monthly_2br || ""}
                       onChange={(e) => setFormData({ ...formData, monthly_2br: e.target.value })}
                     />
