@@ -9,7 +9,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Check, ArrowRight, Loader2, Mail, Shield } from "lucide-react";
-import { getVisitorId, getSessionId } from "@/lib/tracking/identifiers";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const schema = z.object({
@@ -38,114 +37,69 @@ export const VIPMembershipForm = () => {
 
   const budgetValue = watch("budget");
 
-  const sendOTP = async (data: FormData) => {
+  const sendVerificationCode = async (data: FormData) => {
     setIsSendingOTP(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: data.email,
-        options: {
-          shouldCreateUser: true,
+      const { data: response, error } = await supabase.functions.invoke("send-verification-code", {
+        body: {
+          email: data.email,
+          name: data.name,
         },
       });
 
       if (error) {
-        if (error.message.includes("rate limit")) {
-          toast.error("Too many attempts. Please wait a minute and try again.");
-        } else {
-          throw error;
-        }
-        return;
+        throw error;
+      }
+
+      if (response?.error) {
+        throw new Error(response.error);
       }
 
       setFormData(data);
       setStep("verify");
       toast.success("Verification code sent to your email!");
     } catch (error: any) {
-      console.error("OTP send error:", error);
-      toast.error(error.message || "Failed to send verification code. Please try again.");
+      console.error("Send code error:", error);
+      if (error.message?.includes("rate limit")) {
+        toast.error("Too many attempts. Please wait a minute and try again.");
+      } else {
+        toast.error(error.message || "Failed to send verification code. Please try again.");
+      }
     } finally {
       setIsSendingOTP(false);
     }
   };
 
-  const verifyOTP = async () => {
+  const verifyCode = async () => {
     if (otpCode.length !== 6 || !formData) return;
     
     setIsSubmitting(true);
     try {
-      const { data: authData, error: verifyError } = await supabase.auth.verifyOtp({
-        email: formData.email,
-        token: otpCode,
-        type: "email",
-      });
-
-      if (verifyError) {
-        if (verifyError.message.includes("expired")) {
-          toast.error("Code expired. Please request a new one.");
-        } else if (verifyError.message.includes("invalid")) {
-          toast.error("Invalid code. Please check and try again.");
-        } else {
-          throw verifyError;
-        }
-        return;
-      }
-
-      // Phone verified - now submit the lead
-      const leadId = crypto.randomUUID();
-      const { error: leadError } = await supabase.from("project_leads").insert({
-        id: leadId,
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-        lead_source: "vip_membership",
-        budget: formData.budget,
-        persona: formData.buyerType,
-        timeline: formData.timeline,
-        visitor_id: getVisitorId(),
-        session_id: getSessionId(),
-        landing_page: window.location.pathname,
-        referrer: document.referrer || null,
-        message: `VIP Membership (Phone Verified) | Type: ${formData.buyerType} | Timeline: ${formData.timeline}`,
-      });
-
-      if (leadError) throw leadError;
-
-      // Check if buyer profile exists, if not create one
-      if (authData.user) {
-        const { data: existingProfile } = await supabase
-          .from("buyer_profiles")
-          .select("id")
-          .eq("user_id", authData.user.id)
-          .single();
-
-        if (!existingProfile) {
-          await supabase.from("buyer_profiles").insert({
-            user_id: authData.user.id,
-            email: formData.email,
-            full_name: formData.name,
+      const { data: response, error } = await supabase.functions.invoke("verify-email-code", {
+        body: {
+          email: formData.email,
+          code: otpCode,
+          userData: {
+            name: formData.name,
             phone: formData.phone,
-            phone_verified: false,
-            buyer_type: formData.buyerType,
-            is_vip: true,
-            vip_joined_at: new Date().toISOString(),
-            budget_max: parseBudgetMax(formData.budget),
+            buyerType: formData.buyerType,
             timeline: formData.timeline,
-          });
+            budget: formData.budget,
+          },
+        },
+      });
 
-          // Send welcome email
-          await supabase.functions.invoke("send-buyer-welcome", {
-            body: {
-              userId: authData.user.id,
-              email: formData.email,
-              fullName: formData.name,
-              buyerType: formData.buyerType,
-            },
-          });
-        }
+      if (error) {
+        throw error;
       }
 
-      // Sync to Zapier/Lofty
-      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
+      if (response?.error) {
+        if (response.error.includes("expired") || response.error.includes("Invalid")) {
+          toast.error(response.error);
+          return;
+        }
+        throw new Error(response.error);
+      }
 
       setStep("success");
       toast.success("Welcome to VIP! Your email has been verified.");
@@ -157,28 +111,21 @@ export const VIPMembershipForm = () => {
     }
   };
 
-  const parseBudgetMax = (budget: string): number | null => {
-    const budgetMap: Record<string, number> = {
-      "under-500k": 500000,
-      "500k-750k": 750000,
-      "750k-1m": 1000000,
-      "1m-1.5m": 1500000,
-      "1.5m+": 2000000,
-    };
-    return budgetMap[budget] || null;
-  };
-
-  const resendOTP = async () => {
+  const resendCode = async () => {
     if (!formData) return;
     setIsSendingOTP(true);
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: formData.email,
-        options: {
-          shouldCreateUser: true,
+      const { data: response, error } = await supabase.functions.invoke("send-verification-code", {
+        body: {
+          email: formData.email,
+          name: formData.name,
         },
       });
-      if (error) throw error;
+
+      if (error || response?.error) {
+        throw new Error(response?.error || error?.message);
+      }
+
       toast.success("New code sent to your email!");
       setOtpCode("");
     } catch (error: any) {
@@ -214,13 +161,13 @@ export const VIPMembershipForm = () => {
         <div className="max-w-[440px] mx-auto">
           <div className="text-center mb-8">
             <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Shield className="w-7 h-7 text-primary" />
+              <Mail className="w-7 h-7 text-primary" />
             </div>
             <h2 className="text-2xl font-bold text-foreground mb-2">
-              Verify Your Phone
+              Verify Your Email
             </h2>
             <p className="text-muted-foreground">
-              We sent a 6-digit code to <span className="font-medium text-foreground">{formData?.phone}</span>
+              We sent a 6-digit code to <span className="font-medium text-foreground">{formData?.email}</span>
             </p>
           </div>
 
@@ -244,7 +191,7 @@ export const VIPMembershipForm = () => {
               </div>
 
               <Button
-                onClick={verifyOTP}
+                onClick={verifyCode}
                 size="lg"
                 className="w-full"
                 disabled={otpCode.length !== 6 || isSubmitting}
@@ -269,7 +216,7 @@ export const VIPMembershipForm = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={resendOTP}
+                  onClick={resendCode}
                   disabled={isSendingOTP}
                   className="text-primary hover:text-primary/80 transition-colors disabled:opacity-50"
                 >
@@ -296,7 +243,7 @@ export const VIPMembershipForm = () => {
         </div>
 
         <div className="bg-card border rounded-2xl p-6 md:p-8 shadow-card">
-          <form onSubmit={handleSubmit(sendOTP)} className="space-y-6">
+          <form onSubmit={handleSubmit(sendVerificationCode)} className="space-y-6">
             {/* Buyer Type */}
             <div className="space-y-3">
               <Label className="text-sm font-medium">I'm a...</Label>
