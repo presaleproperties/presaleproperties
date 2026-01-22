@@ -1996,38 +1996,32 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="assignment_allowed">Assignment Allowed</Label>
-                    <Select
+                    <select
+                      id="assignment_allowed"
                       value={formData.assignment_allowed}
-                      onValueChange={(v) => setFormData(prev => ({ ...prev, assignment_allowed: v }))}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, assignment_allowed: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Yes">Yes</SelectItem>
-                        <SelectItem value="No">No</SelectItem>
-                        <SelectItem value="Limited">Limited</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="Yes">Yes</option>
+                      <option value="No">No</option>
+                      <option value="Limited">Limited</option>
+                      <option value="Unknown">Unknown</option>
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="rental_restrictions">Rental Restrictions</Label>
-                    <Select
+                    <select
+                      id="rental_restrictions"
                       value={formData.rental_restrictions}
-                      onValueChange={(v) => setFormData(prev => ({ ...prev, rental_restrictions: v }))}
+                      onChange={(e) => setFormData((prev) => ({ ...prev, rental_restrictions: e.target.value }))}
+                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="None">None (No Restrictions)</SelectItem>
-                        <SelectItem value="Short-term only">Short-term Only</SelectItem>
-                        <SelectItem value="Minimum rental period">Minimum Rental Period</SelectItem>
-                        <SelectItem value="Owner occupancy required">Owner Occupancy Required</SelectItem>
-                        <SelectItem value="Unknown">Unknown</SelectItem>
-                      </SelectContent>
-                    </Select>
+                      <option value="None">None (No Restrictions)</option>
+                      <option value="Short-term only">Short-term Only</option>
+                      <option value="Minimum rental period">Minimum Rental Period</option>
+                      <option value="Owner occupancy required">Owner Occupancy Required</option>
+                      <option value="Unknown">Unknown</option>
+                    </select>
                   </div>
                 </div>
                 <div className="grid sm:grid-cols-3 gap-4">
