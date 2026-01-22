@@ -32,6 +32,7 @@ serve(async (req) => {
 
     if (action === "autocomplete") {
       // Google Places API (New) - Autocomplete
+      // Include addresses AND establishments/places for business name search
       const response = await fetch(
         "https://places.googleapis.com/v1/places:autocomplete",
         {
@@ -42,7 +43,20 @@ serve(async (req) => {
           },
           body: JSON.stringify({
             input: address,
-            includedPrimaryTypes: ["street_address", "premise", "subpremise"],
+            // Allow addresses, establishments, and points of interest
+            includedPrimaryTypes: [
+              "street_address",
+              "premise",
+              "subpremise",
+              "establishment",
+              "point_of_interest",
+              "real_estate_agency",
+              "shopping_mall",
+              "restaurant",
+              "store",
+              "lodging",
+              "local_business",
+            ],
             includedRegionCodes: ["ca"],
             locationBias: {
               rectangle: {
