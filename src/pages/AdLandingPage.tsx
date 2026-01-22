@@ -287,7 +287,7 @@ const AdLandingPage = () => {
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-b from-background via-background to-muted/20">
         {/* NO HEADER - Clean edge-to-edge mobile experience */}
 
         {/* Hero Gallery with Swipe - Edge-to-edge, tall hero for impact */}
@@ -363,121 +363,149 @@ const AdLandingPage = () => {
             </div>
           </div>
 
-          {/* Selling Points - Inline pills for quick scanning */}
-          <div className="px-4 py-5 flex flex-wrap justify-center gap-2">
+          {/* Selling Points - Premium glass pills */}
+          <div className="px-4 py-6 flex flex-wrap justify-center gap-2.5">
             {getSellingPoints().map((point, index) => (
               <div 
                 key={index} 
-                className="inline-flex items-center gap-2 bg-primary/10 rounded-full px-4 py-2 border border-primary/20"
+                className="inline-flex items-center gap-2.5 bg-gradient-to-r from-primary/15 to-primary/5 backdrop-blur-sm rounded-full px-5 py-2.5 border border-primary/30 shadow-sm"
               >
                 <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                <span className="text-foreground text-sm font-semibold">{point}</span>
+                <span className="text-foreground text-sm font-semibold tracking-tight">{point}</span>
               </div>
             ))}
           </div>
 
-          {/* CTA Arrow */}
-          <button onClick={scrollToForm} className="w-full flex flex-col items-center gap-0.5 pb-4 text-primary" aria-label="Scroll to get pricing">
-            <span className="text-sm font-semibold tracking-wide">View Pricing</span>
+          {/* CTA Arrow - Enhanced */}
+          <button onClick={scrollToForm} className="w-full flex flex-col items-center gap-1 pb-5 text-primary group" aria-label="Scroll to get pricing">
+            <span className="text-sm font-bold tracking-wide group-hover:text-primary/80 transition-colors">View Pricing</span>
             <ChevronDown className="h-5 w-5 animate-bounce" />
           </button>
         </section>
 
-        {/* 🔥 INCENTIVES - Compact & Punchy */}
-        <section className="px-5 py-6 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent">
-          <div className="flex items-center justify-center gap-2 mb-4">
-            <span className="text-xl">🔥</span>
-            <h2 className="text-lg font-bold text-foreground">Limited Incentives</h2>
-          </div>
+        {/* 🔥 INCENTIVES - Premium Gold Cards */}
+        <section className="px-5 py-8 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent relative overflow-hidden">
+          {/* Subtle background pattern */}
+          <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)', backgroundSize: '24px 24px' }} />
           
-          <div className="grid grid-cols-3 gap-2 text-center">
-            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
-              <p className="text-2xl font-bold text-primary">{getIncentiveSavings()}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">Savings*</p>
+          <div className="relative">
+            <div className="flex items-center justify-center gap-2.5 mb-5">
+              <div className="h-8 w-8 rounded-full bg-primary/20 flex items-center justify-center">
+                <span className="text-lg">🔥</span>
+              </div>
+              <h2 className="text-xl font-bold text-foreground tracking-tight">Limited Incentives</h2>
             </div>
-            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
-              <p className="text-2xl font-bold text-primary">{getIncentiveDeposit()}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">Deposit*</p>
+            
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="bg-background rounded-2xl p-4 border border-primary/30 shadow-md hover:shadow-lg transition-shadow">
+                <p className="text-2xl font-black text-primary tracking-tight">{getIncentiveSavings()}</p>
+                <p className="text-[11px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wide">Savings*</p>
+              </div>
+              <div className="bg-background rounded-2xl p-4 border border-primary/30 shadow-md hover:shadow-lg transition-shadow">
+                <p className="text-2xl font-black text-primary tracking-tight">{getIncentiveDeposit()}</p>
+                <p className="text-[11px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wide">Deposit*</p>
+              </div>
+              <div className="bg-background rounded-2xl p-4 border border-primary/30 shadow-md hover:shadow-lg transition-shadow">
+                <p className="text-2xl font-black text-primary tracking-tight">{getIncentiveBonus()}</p>
+                <p className="text-[11px] text-muted-foreground mt-1.5 font-medium uppercase tracking-wide">A/C*</p>
+              </div>
             </div>
-            <div className="bg-background/90 backdrop-blur-sm rounded-2xl p-4 border border-primary/20 shadow-sm">
-              <p className="text-2xl font-bold text-primary">{getIncentiveBonus()}</p>
-              <p className="text-[11px] text-muted-foreground mt-1">A/C*</p>
-            </div>
+            
+            <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
+              *Subject to availability. Contact for details.
+            </p>
           </div>
-          
-          <p className="text-center text-[10px] text-muted-foreground mt-3 italic">
-            *Subject to availability. Contact for details.
-          </p>
         </section>
 
-        {/* 💰 MONTHLY COST - Visual Cards */}
-        <section className="px-5 py-6 bg-background">
-          <h2 className="text-lg font-bold text-foreground text-center mb-4">
+        {/* 💰 MONTHLY COST - Premium Cards */}
+        <section className="px-5 py-8 bg-background">
+          <h2 className="text-xl font-bold text-foreground text-center mb-5 tracking-tight">
             Own For Just
           </h2>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-4">
             {/* Smaller unit */}
-            <div className="relative bg-muted/50 rounded-2xl p-4 border border-border overflow-hidden">
-              <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
+            <div className="relative bg-gradient-to-br from-muted/80 to-muted/40 rounded-2xl p-5 border border-border overflow-hidden shadow-sm">
+              <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl shadow-sm">
                 POPULAR
               </Badge>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wide">
                 {campaign?.property_type === 'townhome' ? '2 Bed + Den' : '1 Bed + Den'}
               </p>
-              <p className="text-2xl font-bold text-foreground mt-1">{getMonthly1br()}</p>
-              <p className="text-[10px] text-muted-foreground">/mo*</p>
+              <p className="text-3xl font-black text-foreground mt-2 tracking-tight">{getMonthly1br()}</p>
+              <p className="text-[10px] text-muted-foreground font-medium">/mo*</p>
             </div>
             
-            {/* Larger unit */}
-            <div className="relative bg-foreground rounded-2xl p-4 overflow-hidden">
-              <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] px-2 py-0.5 rounded-bl-lg rounded-tr-xl">
+            {/* Larger unit - Premium dark card */}
+            <div className="relative bg-gradient-to-br from-foreground to-foreground/90 rounded-2xl p-5 overflow-hidden shadow-lg">
+              <Badge className="absolute -top-0.5 -right-0.5 bg-primary text-primary-foreground text-[9px] font-bold px-2.5 py-1 rounded-bl-xl rounded-tr-2xl shadow-sm">
                 BEST VALUE
               </Badge>
-              <p className="text-xs text-background/70">
+              <p className="text-xs text-background/60 font-medium uppercase tracking-wide">
                 {campaign?.property_type === 'townhome' ? '3 Bed 3 Bath' : '2 Bed 2 Bath'}
               </p>
-              <p className="text-2xl font-bold text-background mt-1">{getMonthly2br()}</p>
-              <p className="text-[10px] text-background/60">/mo*</p>
+              <p className="text-3xl font-black text-background mt-2 tracking-tight">{getMonthly2br()}</p>
+              <p className="text-[10px] text-background/50 font-medium">/mo*</p>
             </div>
           </div>
           
-          <p className="text-center text-[9px] text-muted-foreground mt-3 italic">
+          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
             *10% down, 3.89% rate, 30yr. Excl. tax/strata/CMHC.
           </p>
         </section>
 
-        {/* 🏠 FIRST-TIME BUYER - Simplified */}
-        <section className="px-5 py-6 bg-muted/30">
-          <h2 className="text-lg font-bold text-foreground text-center mb-4">
-            First-Time Buyer Benefits
-          </h2>
-          
-          <div className="grid grid-cols-2 gap-3">
-            <div className="bg-background rounded-2xl p-4 border border-border text-center">
-              <div className="text-2xl mb-2">💵</div>
-              <p className="text-xl font-bold text-foreground">$50K</p>
-              <p className="text-[11px] text-muted-foreground mt-1">GST Rebate*</p>
+        {/* 🏠 FIRST-TIME BUYER - Premium Green Cards */}
+        <section className="px-5 py-8 bg-gradient-to-br from-emerald-50/80 via-muted/30 to-background dark:from-emerald-950/20 dark:via-muted/20 dark:to-background">
+          <div className="flex items-center justify-center gap-2.5 mb-5">
+            <div className="h-8 w-8 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center">
+              <span className="text-lg">🏠</span>
             </div>
-            <div className="bg-background rounded-2xl p-4 border border-border text-center">
-              <div className="text-2xl mb-2">🏠</div>
-              <p className="text-xl font-bold text-foreground">$8K</p>
-              <p className="text-[11px] text-muted-foreground mt-1">PTT Savings*</p>
+            <h2 className="text-xl font-bold text-foreground tracking-tight">First-Time Buyer Benefits</h2>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            {/* GST Rebate - Green card */}
+            <div className="relative bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-5 text-center shadow-lg overflow-hidden">
+              {/* Subtle shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
+              <div className="relative">
+                <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">💵</span>
+                </div>
+                <p className="text-2xl font-black text-white tracking-tight">$50K</p>
+                <p className="text-[11px] text-white/80 mt-1.5 font-semibold uppercase tracking-wide">GST Rebate*</p>
+              </div>
+            </div>
+            
+            {/* PTT Savings - Green card */}
+            <div className="relative bg-gradient-to-br from-emerald-600 to-emerald-700 rounded-2xl p-5 text-center shadow-lg overflow-hidden">
+              {/* Subtle shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
+              <div className="relative">
+                <div className="h-10 w-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-3">
+                  <span className="text-xl">🏡</span>
+                </div>
+                <p className="text-2xl font-black text-white tracking-tight">$8K</p>
+                <p className="text-[11px] text-white/80 mt-1.5 font-semibold uppercase tracking-wide">PTT Savings*</p>
+              </div>
             </div>
           </div>
           
-          <p className="text-center text-[9px] text-muted-foreground mt-3 italic">
+          <p className="text-center text-[10px] text-muted-foreground mt-4 italic">
             *Eligibility required. Consult a professional.
           </p>
         </section>
 
-        {/* Lead Form Section */}
-        <section id="lead-form-section" className="px-5 py-8 bg-gradient-to-b from-background to-muted/30">
-          <div className="mb-5 text-center">
-            <h2 className="text-xl font-bold text-foreground">
+        {/* Lead Form Section - Premium styling */}
+        <section id="lead-form-section" className="px-5 py-10 bg-gradient-to-b from-background via-background to-muted/40 relative">
+          {/* Decorative top accent */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-gradient-to-r from-transparent via-primary/40 to-transparent rounded-full" />
+          
+          <div className="mb-6 text-center">
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">
               Get Exclusive Access
             </h2>
-            <p className="text-muted-foreground text-sm mt-1">
+            <p className="text-muted-foreground text-sm mt-2">
               Floor plans, pricing & VIP incentives
             </p>
           </div>
@@ -485,36 +513,43 @@ const AdLandingPage = () => {
           <ProjectLeadForm projectId={project.id} projectName="Exclusive Pre-Construction Opportunity" status={project.status === "active" ? "active" : "registering"} brochureUrl={getBrochureUrl()} />
         </section>
 
-        {/* Minimal Footer */}
-        <footer className="px-5 py-6 bg-foreground text-background">
-          <div className="text-center space-y-4">
-            <p className="text-sm font-medium text-background/80">
+        {/* Premium Footer */}
+        <footer className="px-5 py-8 bg-gradient-to-b from-foreground to-foreground/95 text-background">
+          <div className="text-center space-y-5">
+            <p className="text-sm font-semibold text-background/90 tracking-wide">
               Vancouver's New Construction Specialists
             </p>
             
-            {/* Compact Trust */}
-            <div className="flex justify-center gap-4 text-xs">
-              <span className="text-primary font-bold">150+ Projects</span>
-              <span className="text-background/30">•</span>
-              <span className="text-primary font-bold">400+ Buyers</span>
-              <span className="text-background/30">•</span>
-              <span className="text-primary font-bold">5★</span>
+            {/* Trust Badges - Premium styling */}
+            <div className="flex justify-center items-center gap-3 text-xs">
+              <div className="flex items-center gap-1.5 bg-background/10 rounded-full px-3 py-1.5">
+                <span className="text-primary font-bold">150+</span>
+                <span className="text-background/70">Projects</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-background/10 rounded-full px-3 py-1.5">
+                <span className="text-primary font-bold">400+</span>
+                <span className="text-background/70">Buyers</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-background/10 rounded-full px-3 py-1.5">
+                <span className="text-primary font-bold">5★</span>
+                <span className="text-background/70">Rating</span>
+              </div>
             </div>
             
-            <div className="pt-2 border-t border-background/10">
-              <p className="text-[10px] text-background/40">
+            <div className="pt-4 border-t border-background/10">
+              <p className="text-[10px] text-background/50 font-medium">
                 © {new Date().getFullYear()} Presale Properties | Licensed REALTORS® | REAL Broker
               </p>
-              <p className="text-[8px] text-background/25 max-w-xs mx-auto mt-2 leading-relaxed">
+              <p className="text-[9px] text-background/30 max-w-xs mx-auto mt-2 leading-relaxed">
                 All figures are estimates subject to change. Not an offer to sell.
               </p>
             </div>
           </div>
         </footer>
 
-        {/* Sticky Bottom CTA */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/95 backdrop-blur-md border-t border-border/50 safe-area-bottom z-40">
-          <Button onClick={scrollToForm} size="lg" className="w-full h-12 text-base font-bold rounded-xl shadow-gold">
+        {/* Sticky Bottom CTA - Premium glass effect */}
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/98 backdrop-blur-xl border-t border-primary/10 safe-area-bottom z-40 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
+          <Button onClick={scrollToForm} size="lg" className="w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85 shadow-lg shadow-primary/25 transition-all duration-200">
             {getCtaText()}
           </Button>
         </div>
