@@ -393,23 +393,21 @@ export const VIPMembershipForm = () => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="budget">Budget Range</Label>
-                <Select
-                  value={budgetValue}
-                  onValueChange={(value) =>
-                    setValue("budget", value, { shouldValidate: true, shouldDirty: true })
+                <select
+                  id="budget"
+                  value={budgetValue || ""}
+                  onChange={(e) =>
+                    setValue("budget", e.target.value, { shouldValidate: true, shouldDirty: true })
                   }
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 >
-                  <SelectTrigger type="button">
-                    <SelectValue placeholder="Select range" />
-                  </SelectTrigger>
-                  <SelectContent position="popper" sideOffset={4}>
-                    <SelectItem value="under-500k">Under $500K</SelectItem>
-                    <SelectItem value="500k-750k">$500K - $750K</SelectItem>
-                    <SelectItem value="750k-1m">$750K - $1M</SelectItem>
-                    <SelectItem value="1m-1.5m">$1M - $1.5M</SelectItem>
-                    <SelectItem value="1.5m+">$1.5M+</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <option value="" disabled>Select range</option>
+                  <option value="under-500k">Under $500K</option>
+                  <option value="500k-750k">$500K - $750K</option>
+                  <option value="750k-1m">$750K - $1M</option>
+                  <option value="1m-1.5m">$1M - $1.5M</option>
+                  <option value="1.5m+">$1.5M+</option>
+                </select>
                 {errors.budget && (
                   <p className="text-sm text-destructive">{errors.budget.message}</p>
                 )}
