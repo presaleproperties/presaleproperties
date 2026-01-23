@@ -53,6 +53,45 @@ export type Database = {
         }
         Relationships: []
       }
+      agent_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          tier: Database["public"]["Enums"]["agent_subscription_tier"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: Database["public"]["Enums"]["agent_subscription_tier"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          tier?: Database["public"]["Enums"]["agent_subscription_tier"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       app_settings: {
         Row: {
           id: string
@@ -73,6 +112,47 @@ export type Database = {
           value?: Json
         }
         Relationships: []
+      }
+      assignment_inquiries: {
+        Row: {
+          created_at: string
+          from_agent_id: string
+          id: string
+          listing_id: string
+          message: string
+          status: string
+          to_agent_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          from_agent_id: string
+          id?: string
+          listing_id: string
+          message: string
+          status?: string
+          to_agent_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          from_agent_id?: string
+          id?: string
+          listing_id?: string
+          message?: string
+          status?: string
+          to_agent_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assignment_inquiries_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       blog_posts: {
         Row: {
@@ -2426,6 +2506,35 @@ export type Database = {
           },
         ]
       }
+      saved_assignments: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_assignments_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_listings: {
         Row: {
           created_at: string
@@ -2707,6 +2816,7 @@ export type Database = {
       update_listing_agent_names: { Args: never; Returns: undefined }
     }
     Enums: {
+      agent_subscription_tier: "none" | "core" | "pro" | "elite"
       agent_verification_status: "unverified" | "verified" | "rejected"
       app_role: "admin" | "moderator" | "user" | "developer"
       appointment_type: "preview" | "showing"
@@ -2868,6 +2978,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      agent_subscription_tier: ["none", "core", "pro", "elite"],
       agent_verification_status: ["unverified", "verified", "rejected"],
       app_role: ["admin", "moderator", "user", "developer"],
       appointment_type: ["preview", "showing"],
