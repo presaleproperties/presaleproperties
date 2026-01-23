@@ -42,6 +42,7 @@ export default function DashboardOverview() {
     recentLeads: 0,
   });
   const [verificationStatus, setVerificationStatus] = useState<string>("unverified");
+  const [agentName, setAgentName] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,6 +55,19 @@ export default function DashboardOverview() {
     if (!user) return;
 
     try {
+      // Fetch agent profile with name
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("user_id", user.id)
+        .single();
+
+      if (profile?.full_name) {
+        // Extract first name
+        const firstName = profile.full_name.split(" ")[0];
+        setAgentName(firstName);
+      }
+
       const { data: listings } = await supabase
         .from("listings")
         .select("status")
@@ -121,7 +135,7 @@ export default function DashboardOverview() {
                   <span className="text-sm font-medium text-primary">Agent Dashboard</span>
                 </div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
-                  Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}!
+                  Welcome back{agentName ? `, ${agentName}` : ""}!
                 </h1>
                 <p className="text-muted-foreground">
                   Manage your assignment listings and grow your business.
