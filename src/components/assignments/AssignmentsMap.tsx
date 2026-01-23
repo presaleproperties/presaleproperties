@@ -1,15 +1,17 @@
-import { useRef, useEffect, useCallback, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
-import { ZoomIn, ZoomOut, Locate } from "lucide-react";
+import { Building2, Loader2, MapPin, Navigation } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
-const DEFAULT_CENTER: [number, number] = [49.2827, -123.1207];
-const DEFAULT_ZOOM = 11;
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
-const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
+const DEFAULT_CENTER: [number, number] = [49.25, -122.9];
+const DEFAULT_ZOOM = 10;
+
+const TILE_URL = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png';
+const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
 interface Assignment {
   id: string;
@@ -22,339 +24,350 @@ interface Assignment {
   beds: number;
   baths: number;
   interior_sqft: number | null;
-  completion_month: number | null;
-  completion_year: number | null;
   map_lat: number | null;
   map_lng: number | null;
-  agent_id: string;
-  listing_photos?: { url: string; sort_order: number }[];
+  status?: string;
+  agent_id?: string;
+  listing_photos?: { url: string; sort_order: number | null }[];
 }
 
 interface AssignmentsMapProps {
   assignments: Assignment[];
-  savedIds: Set<string>;
-  onToggleSave: (id: string) => void;
+  isLoading?: boolean;
+  savedIds?: Set<string>;
+  onToggleSave?: (id: string) => void;
+  onAssignmentSelect?: (assignmentId: string) => void;
   currentUserId?: string;
 }
 
-function formatPrice(price: number): string {
-  if (price >= 1000000) {
-    return `$${(price / 1000000).toFixed(2)}M`;
-  }
+const formatPrice = (price: number) => {
+  if (price >= 1000000) return `$${(price / 1000000).toFixed(1)}M`;
   return `$${(price / 1000).toFixed(0)}K`;
-}
+};
 
-function createPricePillIcon(assignment: Assignment, isSaved: boolean): L.DivIcon {
-  const hasSavings = assignment.original_price && assignment.original_price > assignment.assignment_price;
-  
-  const bgColor = hasSavings ? '#16a34a' : '#ffffff';
-  const textColor = hasSavings ? '#ffffff' : '#1f2937';
-  const borderStyle = hasSavings ? 'none' : '1px solid #e5e7eb';
-  
+// Assignment marker - pin with building icon (matches presale style exactly)
+const createPricePillIcon = () => {
+  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
+
   return L.divIcon({
-    className: "custom-price-pill",
+    className: "assignment-pin-marker",
     html: `
       <div style="
         position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        width: 24px;
+        height: 30px;
       ">
+        <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 0C5.373 0 0 5.373 0 12c0 7.5 12 18 12 18s12-10.5 12-18c0-6.627-5.373-12-12-12z" fill="hsl(222, 47%, 25%)"/>
+          <circle cx="12" cy="11" r="7" fill="hsl(45, 89%, 55%)"/>
+        </svg>
         <div style="
-          padding: 6px 10px;
-          border-radius: 9999px;
-          font-size: 12px;
-          font-weight: 700;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-          background-color: ${bgColor};
-          color: ${textColor};
-          border: ${borderStyle};
-          white-space: nowrap;
+          position: absolute;
+          top: 5px;
+          left: 50%;
+          transform: translateX(-50%);
           display: flex;
           align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          transition: transform 0.15s ease;
+          justify-content: center;
+          width: 14px;
+          height: 14px;
         ">
-          ${formatPrice(assignment.assignment_price)}
-          ${isSaved ? '<span style="color: #ef4444;">♥</span>' : ''}
+          ${buildingIcon}
         </div>
-        <div style="
-          width: 0;
-          height: 0;
-          border-left: 6px solid transparent;
-          border-right: 6px solid transparent;
-          border-top: 6px solid ${bgColor};
-        "></div>
       </div>
     `,
-    iconSize: [80, 42],
-    iconAnchor: [40, 42],
+    iconSize: [24, 30],
+    iconAnchor: [12, 30],
+    popupAnchor: [0, -30],
   });
-}
+};
 
-function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
+// Custom cluster icon (matches presale style exactly)
+const createClusterIcon = (cluster: L.MarkerCluster) => {
   const count = cluster.getChildCount();
   return L.divIcon({
-    className: "custom-cluster",
+    className: "custom-cluster-icon",
     html: `
       <div style="
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: hsl(var(--primary));
-        color: hsl(var(--primary-foreground));
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 14px;
+        background: #F5C243;
+        color: #1a1a1a;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        font-size: 12px;
         font-weight: 700;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
         border: 2px solid white;
-      ">
-        ${count}
-      </div>
+        font-family: system-ui, -apple-system, sans-serif;
+      ">${count}</div>
     `,
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
   });
-}
+};
 
-function getPopupHtml(assignment: Assignment, isOwn: boolean): string {
+function popupHtml(assignment: Assignment) {
   const savings = assignment.original_price 
     ? assignment.original_price - assignment.assignment_price 
-    : null;
-    
-  const formattedPrice = new Intl.NumberFormat("en-CA", {
-    style: "currency",
-    currency: "CAD",
-    maximumFractionDigits: 0,
-  }).format(assignment.assignment_price);
-
-  const mainPhoto = assignment.listing_photos?.sort((a, b) => a.sort_order - b.sort_order)?.[0]?.url;
+    : 0;
+  const hasSavings = savings > 0;
+  
+  const photo = assignment.listing_photos?.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))?.[0]?.url;
+  
+  const img = photo
+    ? `<div style="position:relative;margin:-12px -12px 0 -12px;">
+        <img src="${photo}" alt="${assignment.title}" style="width:100%;height:130px;object-fit:cover;border-radius:8px 8px 0 0;" />
+        ${hasSavings ? `<div style="position:absolute;top:8px;left:8px;background:#22c55e;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Save ${formatPrice(savings)}</div>` : ''}
+      </div>`
+    : '';
 
   return `
-    <div style="width: 256px; padding: 0; font-family: system-ui, -apple-system, sans-serif;">
-      <div style="position: relative; height: 128px; background: #f3f4f6; border-radius: 8px 8px 0 0; overflow: hidden;">
-        ${mainPhoto 
-          ? `<img src="${mainPhoto}" alt="${assignment.title}" style="width: 100%; height: 100%; object-fit: cover;" />`
-          : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;">No Image</div>`
-        }
-        ${isOwn ? `<span style="position: absolute; top: 8px; left: 8px; background: hsl(var(--primary)); color: white; font-size: 11px; padding: 2px 8px; border-radius: 4px;">Your Listing</span>` : ''}
-        ${savings && savings > 0 ? `<span style="position: absolute; bottom: 8px; left: 8px; background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 4px;">Save $${(savings/1000).toFixed(0)}K</span>` : ''}
-      </div>
-      <div style="padding: 12px;">
-        <h3 style="font-weight: 600; font-size: 14px; margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${assignment.title || assignment.project_name}</h3>
-        <p style="font-size: 12px; color: #6b7280; margin: 0 0 8px 0;">${assignment.neighborhood ? `${assignment.neighborhood}, ` : ''}${assignment.city}</p>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="font-weight: 700; color: hsl(var(--primary));">${formattedPrice}</span>
-          <span style="font-size: 12px; color: #6b7280;">${assignment.beds} bed · ${assignment.baths} bath</span>
+    <a href="/dashboard/assignments/${assignment.id}" style="display:block;text-decoration:none;color:inherit;padding:12px;max-width:220px;font-family:system-ui,-apple-system,sans-serif;position:relative;">
+      ${img}
+      <div style="padding-top:${photo ? '10px' : '0'};">
+        <div style="font-weight:600;font-size:14px;line-height:1.3;color:#1a1a1a;margin-bottom:4px;">${assignment.project_name}</div>
+        <div style="font-size:12px;color:#666;display:flex;align-items:center;gap:4px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${assignment.neighborhood || assignment.city}
         </div>
-        <a 
-          href="/assignments/${assignment.id}" 
-          style="display: block; margin-top: 8px; text-align: center; background: hsl(var(--primary)); color: white; font-size: 12px; padding: 6px 12px; border-radius: 6px; text-decoration: none; transition: opacity 0.15s;"
-          onmouseover="this.style.opacity='0.9'"
-          onmouseout="this.style.opacity='1'"
-        >
-          View Details
-        </a>
+        <div style="font-weight:700;font-size:15px;color:#1e3a5f;margin-top:4px;">${formatPrice(assignment.assignment_price)}</div>
+        <div style="font-size:11px;color:#888;margin-top:2px;">${assignment.beds} bed • ${assignment.baths} bath${assignment.interior_sqft ? ` • ${assignment.interior_sqft} sqft` : ''}</div>
       </div>
-    </div>
+    </a>
   `;
 }
 
-export default function AssignmentsMap({ 
+export function AssignmentsMap({ 
   assignments, 
+  isLoading, 
   savedIds, 
   onToggleSave,
-  currentUserId 
+  onAssignmentSelect,
+  currentUserId
 }: AssignmentsMapProps) {
-  const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<L.Map | null>(null);
+  const { toast } = useToast();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<L.Map | null>(null);
   const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
-  const [isMapReady, setIsMapReady] = useState(false);
+  const userCircleRef = useRef<L.Circle | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
 
-  const validAssignments = useMemo(() => {
-    return assignments.filter(a => a.map_lat && a.map_lng);
-  }, [assignments]);
+  const validAssignments = useMemo(() => 
+    assignments.filter(a => a.map_lat && a.map_lng),
+    [assignments]
+  );
 
   // Initialize map
-  const initializeMap = useCallback(() => {
-    if (!mapContainerRef.current || mapInstanceRef.current) return;
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
 
-    try {
-      const map = L.map(mapContainerRef.current, {
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
-        zoomControl: false,
-        attributionControl: true,
-      });
+    const map = L.map(containerRef.current, {
+      center: DEFAULT_CENTER,
+      zoom: DEFAULT_ZOOM,
+      zoomControl: false,
+    });
 
-      L.tileLayer(TILE_URL, {
-        attribution: TILE_ATTRIBUTION,
-        maxZoom: 19,
-      }).addTo(map);
+    L.tileLayer(TILE_URL, {
+      attribution: TILE_ATTRIBUTION,
+      maxZoom: 19,
+    }).addTo(map);
 
-      const clusterGroup = L.markerClusterGroup({
-        chunkedLoading: true,
-        maxClusterRadius: 50,
-        iconCreateFunction: createClusterIcon,
-        spiderfyOnMaxZoom: true,
-        showCoverageOnHover: false,
-        zoomToBoundsOnClick: true,
-        animate: true,
-      });
+    // Create marker cluster group - matches presale settings
+    clusterGroupRef.current = L.markerClusterGroup({
+      iconCreateFunction: createClusterIcon,
+      maxClusterRadius: 80,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      disableClusteringAtZoom: 16,
+      spiderfyDistanceMultiplier: 1.5,
+    });
+    map.addLayer(clusterGroupRef.current);
 
-      map.addLayer(clusterGroup);
+    mapRef.current = map;
+    setTimeout(() => map.invalidateSize(), 0);
 
-      mapInstanceRef.current = map;
-      clusterGroupRef.current = clusterGroup;
-      setIsMapReady(true);
-    } catch (error) {
-      console.error("[AssignmentsMap] Error initializing map:", error);
+    // Auto-locate user
+    if (navigator.geolocation) {
+      setIsLocating(true);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          
+          if (latitude > 48 && latitude < 51 && longitude > -125 && longitude < -120) {
+            map.setView([latitude, longitude], 12, { animate: true });
+            
+            if (userCircleRef.current) userCircleRef.current.remove();
+            userCircleRef.current = L.circle([latitude, longitude], {
+              radius: 500,
+              color: "hsl(43 96% 56%)",
+              fillColor: "hsl(43 96% 56%)",
+              fillOpacity: 0.15,
+              weight: 2,
+            }).addTo(map);
+          }
+          setIsLocating(false);
+        },
+        () => setIsLocating(false),
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 60000 }
+      );
     }
   }, []);
-
-  // Initialize on mount
-  useEffect(() => {
-    // Small delay to ensure container is ready
-    const timer = setTimeout(() => {
-      initializeMap();
-    }, 100);
-
-    return () => {
-      clearTimeout(timer);
-      if (mapInstanceRef.current) {
-        mapInstanceRef.current.remove();
-        mapInstanceRef.current = null;
-        clusterGroupRef.current = null;
-        setIsMapReady(false);
-      }
-    };
-  }, [initializeMap]);
 
   // Update markers when assignments change
   useEffect(() => {
-    if (!isMapReady || !clusterGroupRef.current || !mapInstanceRef.current) return;
+    const map = mapRef.current;
+    const clusterGroup = clusterGroupRef.current;
+    if (!map || !clusterGroup) return;
 
-    clusterGroupRef.current.clearLayers();
-
-    if (validAssignments.length === 0) return;
-
-    const markers: L.Marker[] = [];
+    clusterGroup.clearLayers();
 
     validAssignments.forEach((assignment) => {
-      const isSaved = savedIds.has(assignment.id);
-      const isOwn = assignment.agent_id === currentUserId;
-
-      const marker = L.marker([assignment.map_lat!, assignment.map_lng!], {
-        icon: createPricePillIcon(assignment, isSaved),
+      const marker = L.marker([assignment.map_lat!, assignment.map_lng!], { 
+        icon: createPricePillIcon() 
       });
-
-      marker.bindPopup(getPopupHtml(assignment, isOwn), {
-        maxWidth: 280,
-        className: "custom-popup",
-        closeButton: true,
+      
+      marker.bindPopup(popupHtml(assignment), {
+        maxWidth: 260,
+        className: 'assignment-popup'
       });
-
-      markers.push(marker);
+      
+      marker.on('click', () => {
+        onAssignmentSelect?.(assignment.id);
+      });
+      
+      clusterGroup.addLayer(marker);
     });
 
-    clusterGroupRef.current.addLayers(markers);
-
-    // Fit bounds to show all markers
-    if (markers.length > 0) {
-      const group = L.featureGroup(markers);
-      const bounds = group.getBounds();
-      if (bounds.isValid()) {
-        mapInstanceRef.current.fitBounds(bounds.pad(0.1), {
-          maxZoom: 14,
-          animate: true,
-        });
-      }
+    // Fit bounds if we have assignments and no user location
+    if (validAssignments.length > 0 && !userCircleRef.current) {
+      const bounds = L.latLngBounds(
+        validAssignments.map(a => [a.map_lat!, a.map_lng!] as [number, number])
+      );
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
     }
-  }, [validAssignments, savedIds, currentUserId, isMapReady]);
+  }, [validAssignments, onAssignmentSelect]);
 
-  const handleLocateUser = useCallback(() => {
-    if (!mapInstanceRef.current) return;
+  // Cleanup
+  useEffect(() => {
+    return () => {
+      mapRef.current?.remove();
+      mapRef.current = null;
+      clusterGroupRef.current = null;
+      userCircleRef.current = null;
+    };
+  }, []);
+
+  const handleLocate = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (!navigator.geolocation) {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLocating(true);
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        mapInstanceRef.current?.flyTo(
-          [position.coords.latitude, position.coords.longitude],
-          14,
-          { animate: true, duration: 0.8 }
-        );
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        map.setView([latitude, longitude], 13, { animate: true });
+
+        if (userCircleRef.current) userCircleRef.current.remove();
+
+        userCircleRef.current = L.circle([latitude, longitude], {
+          radius: 500,
+          color: "hsl(43 96% 56%)",
+          fillColor: "hsl(43 96% 56%)",
+          fillOpacity: 0.15,
+          weight: 2,
+        }).addTo(map);
+
+        setIsLocating(false);
+        toast({ title: "Location found", description: "Map centered on your location" });
       },
-      (error) => {
-        console.error("Geolocation error:", error);
-      }
+      (err) => {
+        setIsLocating(false);
+        let msg = "Unable to get your location.";
+        if (err.code === err.PERMISSION_DENIED) msg = "Location permission denied.";
+        if (err.code === err.POSITION_UNAVAILABLE) msg = "Location information unavailable.";
+        if (err.code === err.TIMEOUT) msg = "Location request timed out.";
+        toast({ title: "Location error", description: msg, variant: "destructive" });
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
-  }, []);
+  }, [toast]);
 
-  const handleZoomIn = useCallback(() => {
-    mapInstanceRef.current?.zoomIn();
-  }, []);
+  if (isLoading) {
+    return (
+      <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <MapPin className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+          <p>Loading map...</p>
+        </div>
+      </div>
+    );
+  }
 
-  const handleZoomOut = useCallback(() => {
-    mapInstanceRef.current?.zoomOut();
-  }, []);
+  if (assignments.length === 0) {
+    return (
+      <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted flex items-center justify-center">
+        <div className="text-center text-muted-foreground">
+          <Building2 className="h-12 w-12 mx-auto mb-2" />
+          <p>No assignments to display on map</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="relative w-full h-full rounded-xl overflow-hidden">
-      <div ref={mapContainerRef} className="absolute inset-0 z-0" />
+    <div className="relative h-full w-full">
+      <div ref={containerRef} className="h-full w-full rounded-xl overflow-hidden" />
 
-      {/* Custom Controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-[1000]">
+      {/* Custom controls - matches presale map style exactly */}
+      <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
+        {/* Locate button */}
         <button
-          onClick={handleLocateUser}
-          className="p-2.5 bg-background rounded-lg shadow-lg hover:bg-muted transition-colors border border-border"
-          title="Find my location"
+          onClick={handleLocate}
+          disabled={isLocating}
+          title="Zoom to my location"
+          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors disabled:opacity-50"
         >
-          <Locate className="h-5 w-5 text-foreground" />
+          {isLocating ? (
+            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+          ) : (
+            <Navigation className="h-4 w-4 text-muted-foreground" />
+          )}
         </button>
-        <button
-          onClick={handleZoomIn}
-          className="p-2.5 bg-background rounded-lg shadow-lg hover:bg-muted transition-colors border border-border"
-        >
-          <ZoomIn className="h-5 w-5 text-foreground" />
-        </button>
-        <button
-          onClick={handleZoomOut}
-          className="p-2.5 bg-background rounded-lg shadow-lg hover:bg-muted transition-colors border border-border"
-        >
-          <ZoomOut className="h-5 w-5 text-foreground" />
-        </button>
-      </div>
-
-      {/* Legend */}
-      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-3 z-[1000] border border-border">
-        <p className="text-xs font-medium mb-2 text-foreground">Legend</p>
-        <div className="flex flex-col gap-1.5 text-xs text-muted-foreground">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-green-600"></div>
-            <span>Below original price</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-background border border-border"></div>
-            <span>At or above original</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-destructive">♥</span>
-            <span>Saved</span>
-          </div>
+        
+        {/* Zoom controls */}
+        <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
+          <button
+            onClick={() => mapRef.current?.zoomIn()}
+            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            title="Zoom in"
+          >
+            <span className="text-base font-medium">+</span>
+          </button>
+          <div className="w-full h-px bg-border/50" />
+          <button
+            onClick={() => mapRef.current?.zoomOut()}
+            className="w-8 h-8 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            title="Zoom out"
+          >
+            <span className="text-base font-medium">−</span>
+          </button>
         </div>
       </div>
-
-      {/* Loading state */}
-      {!isMapReady && (
-        <div className="absolute inset-0 flex items-center justify-center bg-muted">
-          <div className="text-center text-muted-foreground">
-            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <p className="text-sm">Loading map...</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
+
+export default AssignmentsMap;
