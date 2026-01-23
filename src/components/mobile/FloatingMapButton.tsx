@@ -157,29 +157,38 @@ export function FloatingMapButton() {
       className={cn(
         "fixed bottom-6 right-4 z-50",
         "flex items-center justify-center",
-        "w-12 h-12 rounded-full",
-        "bg-foreground text-background",
-        "ring-2 ring-offset-2 ring-offset-transparent",
-        "shadow-[0_4px_24px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)]",
-        "hover:shadow-[0_6px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.15)]",
-        "active:scale-95",
-        "transition-all duration-300",
+        "w-14 h-14 rounded-2xl",
+        "bg-primary text-primary-foreground",
+        "shadow-[0_8px_32px_rgba(0,0,0,0.25),0_0_0_1px_rgba(255,255,255,0.1)]",
+        "hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)]",
+        "hover:scale-105 active:scale-95",
+        "transition-all duration-300 ease-out",
         "lg:right-6",
-        // Subtle glow effect on first impression
-        isPulsing 
-          ? "ring-blue-400/50 shadow-[0_0_12px_3px_rgba(59,130,246,0.35),0_4px_24px_rgba(0,0,0,0.3)]"
-          : "ring-background/20 hover:ring-background/30",
+        // Premium glow on first impression
+        isPulsing && "animate-[map-glow_2s_ease-in-out_infinite]",
         isVisible 
           ? "translate-y-0 opacity-100" 
-          : "translate-y-20 opacity-0 pointer-events-none"
+          : "translate-y-24 opacity-0 pointer-events-none"
       )}
       aria-label={`View ${mapContext.city || "all"} projects on map`}
+      style={{
+        // Custom animation for smooth glow pulse
+        ...(isPulsing && {
+          boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 0 20px hsl(var(--primary) / 0.4)',
+        })
+      }}
     >
-      {/* Subtle pulse ring animation on first impression */}
+      {/* Ambient glow ring */}
       {isPulsing && (
-        <span className="absolute -inset-1 rounded-full bg-blue-400/15 animate-pulse" />
+        <span 
+          className="absolute -inset-1.5 rounded-2xl opacity-60"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--primary) / 0.1))',
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }}
+        />
       )}
-      <Map className="h-5 w-5 relative z-10" />
+      <Map className="h-6 w-6 relative z-10" />
     </Link>
   );
 }
