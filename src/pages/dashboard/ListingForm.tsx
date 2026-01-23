@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { 
   Loader2, 
   Upload, 
@@ -1090,7 +1091,11 @@ export default function ListingForm() {
                       <FormItem>
                         <FormLabel>Assignment Price (CAD) *</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="e.g. 650000" {...field} />
+                          <CurrencyInput 
+                            value={field.value} 
+                            onChange={field.onChange}
+                            placeholder="$0"
+                          />
                         </FormControl>
                         <FormDescription>Total price the buyer will pay</FormDescription>
                         <FormMessage />
@@ -1105,7 +1110,11 @@ export default function ListingForm() {
                       <FormItem>
                         <FormLabel>Original Purchase Price</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="e.g. 600000" {...field} />
+                          <CurrencyInput 
+                            value={field.value} 
+                            onChange={field.onChange}
+                            placeholder="$0"
+                          />
                         </FormControl>
                         <FormDescription>What you paid the developer</FormDescription>
                         <FormMessage />
@@ -1122,7 +1131,11 @@ export default function ListingForm() {
                       <FormItem>
                         <FormLabel>Deposit Paid</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="e.g. 120000" {...field} />
+                          <CurrencyInput 
+                            value={field.value} 
+                            onChange={field.onChange}
+                            placeholder="$0"
+                          />
                         </FormControl>
                         <FormDescription>Amount paid to developer so far</FormDescription>
                         <FormMessage />
@@ -1137,7 +1150,11 @@ export default function ListingForm() {
                       <FormItem>
                         <FormLabel>Assignment Fee</FormLabel>
                         <FormControl>
-                          <Input type="number" placeholder="e.g. 50000" {...field} />
+                          <CurrencyInput 
+                            value={field.value} 
+                            onChange={field.onChange}
+                            placeholder="$0"
+                          />
                         </FormControl>
                         <FormDescription>Premium over original price</FormDescription>
                         <FormMessage />
@@ -1161,18 +1178,17 @@ export default function ListingForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Construction Status *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
+                      <FormControl>
+                        <select
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
                           {CONSTRUCTION_STATUS.map(status => (
-                            <SelectItem key={status.value} value={status.value}>{status.label}</SelectItem>
+                            <option key={status.value} value={status.value}>{status.label}</option>
                           ))}
-                        </SelectContent>
-                      </Select>
+                        </select>
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -1185,18 +1201,18 @@ export default function ListingForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Completion Month</FormLabel>
-                        <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select month" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <select
+                            value={field.value?.toString() || ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select month</option>
                             {MONTHS.map(month => (
-                              <SelectItem key={month.value} value={month.value.toString()}>{month.label}</SelectItem>
+                              <option key={month.value} value={month.value.toString()}>{month.label}</option>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -1208,18 +1224,18 @@ export default function ListingForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Completion Year</FormLabel>
-                        <Select onValueChange={(v) => field.onChange(parseInt(v))} value={field.value?.toString()}>
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select year" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
+                        <FormControl>
+                          <select
+                            value={field.value?.toString() || ""}
+                            onChange={(e) => field.onChange(e.target.value ? parseInt(e.target.value) : undefined)}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select year</option>
                             {Array.from({ length: 12 }, (_, i) => 2024 + i).map(year => (
-                              <SelectItem key={year} value={year.toString()}>{year}</SelectItem>
+                              <option key={year} value={year.toString()}>{year}</option>
                             ))}
-                          </SelectContent>
-                        </Select>
+                          </select>
+                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
