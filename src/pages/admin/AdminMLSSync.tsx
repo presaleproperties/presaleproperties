@@ -281,9 +281,16 @@ export default function AdminMLSSync() {
       return data;
     },
     onSuccess: (data) => {
+      const agentInfo = data.agents ? 
+        `${data.agents.fetched} agents (${data.agents.remaining} remaining)` : 
+        `${data.agentsSynced || 0} agents`;
+      const officeInfo = data.offices ? 
+        `${data.offices.fetched} offices (${data.offices.remaining} remaining)` : 
+        `${data.officesSynced || 0} offices`;
+      
       toast({
-        title: "Agent sync completed",
-        description: `Synced ${data.agentsSynced || 0} agents and ${data.officesSynced || 0} offices. Updated ${data.listingsUpdated || 0} listings.`,
+        title: "Agent & office sync completed",
+        description: `Synced ${agentInfo}, ${officeInfo}. Updated ${data.listingsUpdated || 0} listings.`,
       });
       queryClient.invalidateQueries({ queryKey: ["mls-agent-stats"] });
     },
@@ -373,7 +380,7 @@ export default function AdminMLSSync() {
     lastRunStatus: geocodingLogs[0]?.status,
   } : null;
 
-  // Fetch agent/office stats
+  // Fetch agent/office stats with coverage percentages
   const { data: agentStats } = useQuery({
     queryKey: ["mls-agent-stats"],
     queryFn: async () => {
@@ -388,18 +395,38 @@ export default function AdminMLSSync() {
       const { count: listingsWithAgent } = await supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
+        .eq("mls_status", "Active")
         .not("list_agent_name", "is", null);
 
       const { count: listingsWithOffice } = await supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
+        .eq("mls_status", "Active")
         .not("list_office_name", "is", null);
+
+      // Get unique agent/office keys in listings vs cached
+      const { data: uniqueAgentKeys } = await supabase
+        .from("mls_listings")
+        .select("list_agent_key")
+        .eq("mls_status", "Active")
+        .not("list_agent_key", "is", null);
+      
+      const { data: uniqueOfficeKeys } = await supabase
+        .from("mls_listings")
+        .select("list_office_key")
+        .eq("mls_status", "Active")
+        .not("list_office_key", "is", null);
+
+      const uniqueAgents = new Set((uniqueAgentKeys || []).map(l => l.list_agent_key)).size;
+      const uniqueOffices = new Set((uniqueOfficeKeys || []).map(l => l.list_office_key)).size;
 
       return {
         agents: agents || 0,
         offices: offices || 0,
         listingsWithAgent: listingsWithAgent || 0,
         listingsWithOffice: listingsWithOffice || 0,
+        uniqueAgentsNeeded: uniqueAgents,
+        uniqueOfficesNeeded: uniqueOffices,
       };
     },
   });
@@ -869,30 +896,73 @@ export default function AdminMLSSync() {
               Agent & Brokerage Sync
             </CardTitle>
             <CardDescription>
-              Fetch agent and office names from the DDF API to display on listing cards. This syncs missing agent/office data in batches.
+              Fetch agent and office details from the DDF API. Syncs 50 agents + 50 offices per run.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Stats Grid */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 rounded-lg bg-muted/50 text-center">
-                <p className="text-2xl font-bold">{agentStats?.agents || 0}</p>
+              <div className="p-3 rounded-lg bg-blue-50 border border-blue-200 text-center">
+                <p className="text-2xl font-bold text-blue-600">
+                  {agentStats?.agents || 0} / {agentStats?.uniqueAgentsNeeded || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Agents Cached</p>
               </div>
-              <div className="p-3 rounded-lg bg-muted/50 text-center">
-                <p className="text-2xl font-bold">{agentStats?.offices || 0}</p>
+              <div className="p-3 rounded-lg bg-purple-50 border border-purple-200 text-center">
+                <p className="text-2xl font-bold text-purple-600">
+                  {agentStats?.offices || 0} / {agentStats?.uniqueOfficesNeeded || 0}
+                </p>
                 <p className="text-xs text-muted-foreground">Offices Cached</p>
               </div>
-              <div className="p-3 rounded-lg bg-muted/50 text-center">
-                <p className="text-2xl font-bold">{agentStats?.listingsWithAgent || 0}</p>
+              <div className="p-3 rounded-lg bg-green-50 border border-green-200 text-center">
+                <p className="text-2xl font-bold text-green-600">{agentStats?.listingsWithAgent || 0}</p>
                 <p className="text-xs text-muted-foreground">With Agent Name</p>
               </div>
-              <div className="p-3 rounded-lg bg-muted/50 text-center">
-                <p className="text-2xl font-bold">{agentStats?.listingsWithOffice || 0}</p>
+              <div className="p-3 rounded-lg bg-orange-50 border border-orange-200 text-center">
+                <p className="text-2xl font-bold text-orange-600">{agentStats?.listingsWithOffice || 0}</p>
                 <p className="text-xs text-muted-foreground">With Office Name</p>
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            {/* Progress Bars */}
+            {agentStats && agentStats.uniqueAgentsNeeded > 0 && (
+              <div className="space-y-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Agent Cache Progress</span>
+                    <span className="text-muted-foreground">
+                      {Math.round((agentStats.agents / agentStats.uniqueAgentsNeeded) * 100)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-blue-500 h-2 rounded-full transition-all" 
+                      style={{ 
+                        width: `${Math.min(100, (agentStats.agents / agentStats.uniqueAgentsNeeded) * 100)}%` 
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-sm">
+                    <span>Office Cache Progress</span>
+                    <span className="text-muted-foreground">
+                      {Math.round((agentStats.offices / agentStats.uniqueOfficesNeeded) * 100)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-muted rounded-full h-2">
+                    <div 
+                      className="bg-purple-500 h-2 rounded-full transition-all" 
+                      style={{ 
+                        width: `${Math.min(100, (agentStats.offices / agentStats.uniqueOfficesNeeded) * 100)}%` 
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <div className="flex items-center gap-4 pt-2 border-t">
               <Button
                 onClick={() => agentSyncMutation.mutate()}
                 disabled={agentSyncMutation.isPending}
@@ -904,9 +974,13 @@ export default function AdminMLSSync() {
                 )}
                 Sync Agents & Offices
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Fetches up to 50 agents and 50 offices per run. Run multiple times to sync all data.
-              </p>
+              <div className="text-xs text-muted-foreground">
+                <p>Fetches up to 50 agents + 50 offices per run from DDF API.</p>
+                <p className="text-muted-foreground/70">
+                  Remaining: ~{Math.max(0, (agentStats?.uniqueAgentsNeeded || 0) - (agentStats?.agents || 0))} agents, 
+                  ~{Math.max(0, (agentStats?.uniqueOfficesNeeded || 0) - (agentStats?.offices || 0))} offices
+                </p>
+              </div>
             </div>
           </CardContent>
         </Card>
