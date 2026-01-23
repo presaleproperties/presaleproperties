@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar, Phone } from "lucide-react";
+import { Calendar, Phone, MessageCircle } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -9,6 +9,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { ResaleScheduleForm } from "./ResaleScheduleForm";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ResaleMobileCTABarProps {
   listingId: string;
@@ -26,10 +27,31 @@ export const ResaleMobileCTABar = ({
   formattedPrice,
 }: ResaleMobileCTABarProps) => {
   const [showScheduler, setShowScheduler] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchWhatsappNumber = async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "whatsapp_number")
+        .maybeSingle();
+      
+      if (data?.value) {
+        setWhatsappNumber(String(data.value).replace(/"/g, ""));
+      }
+    };
+    fetchWhatsappNumber();
+  }, []);
 
   const handleCall = () => {
     window.location.href = "tel:+16722581100";
   };
+
+  const whatsappMessage = encodeURIComponent(
+    `Hi! I'm interested in the property at ${listingAddress}${formattedPrice ? ` listed at ${formattedPrice}` : ''}. Is it still available?`
+  );
+  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
 
   return (
     <>
@@ -46,7 +68,7 @@ export const ResaleMobileCTABar = ({
             </div>
           )}
 
-          <div className="flex-1 flex gap-3 justify-end">
+          <div className="flex-1 flex gap-2 sm:gap-3 justify-end">
             {/* Call button - 48x48 minimum touch target */}
             <Button
               variant="outline"
@@ -57,6 +79,20 @@ export const ResaleMobileCTABar = ({
             >
               <Phone className="h-5 w-5" />
             </Button>
+
+            {/* WhatsApp button */}
+            {whatsappLink && (
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-12 w-12 min-h-[48px] min-w-[48px] rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 touch-active"
+                asChild
+              >
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+                  <MessageCircle className="h-5 w-5" />
+                </a>
+              </Button>
+            )}
 
             {/* Schedule showing button - Large touch target with premium styling */}
             <Sheet open={showScheduler} onOpenChange={setShowScheduler}>
