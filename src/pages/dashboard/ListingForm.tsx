@@ -22,9 +22,11 @@ import {
   Image as ImageIcon,
   FileText,
   Save,
-  ArrowLeft
+  ArrowLeft,
+  Wand2
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { AssignmentBrochureUploader, ExtractedAssignmentData } from "@/components/listings/AssignmentBrochureUploader";
 
 const CITIES = [
   "Vancouver",
@@ -135,6 +137,7 @@ export default function ListingForm() {
   const [floorplans, setFloorplans] = useState<UploadedFile[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingFloorplans, setUploadingFloorplans] = useState(false);
+  const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
 
   const form = useForm<ListingFormData>({
     resolver: zodResolver(listingSchema),
@@ -327,6 +330,88 @@ export default function ListingForm() {
     setFloorplans(prev => prev.filter((_, i) => i !== index));
   };
 
+  // Handle data extracted from brochure AI
+  const handleBrochureDataExtracted = (data: ExtractedAssignmentData) => {
+    const currentValues = form.getValues();
+    
+    // Only update fields that are empty or have default values
+    if (data.project_name && !currentValues.project_name) {
+      form.setValue("project_name", data.project_name);
+    }
+    if (data.developer_name && !currentValues.developer_name) {
+      form.setValue("developer_name", data.developer_name);
+    }
+    if (data.city && !currentValues.city) {
+      form.setValue("city", data.city);
+    }
+    if (data.neighborhood && !currentValues.neighborhood) {
+      form.setValue("neighborhood", data.neighborhood);
+    }
+    if (data.address && !currentValues.address) {
+      form.setValue("address", data.address);
+    }
+    if (data.property_type) {
+      form.setValue("property_type", data.property_type);
+    }
+    if (data.unit_type) {
+      form.setValue("unit_type", data.unit_type);
+    }
+    if (data.beds !== undefined) {
+      form.setValue("beds", data.beds);
+    }
+    if (data.baths !== undefined) {
+      form.setValue("baths", data.baths);
+    }
+    if (data.interior_sqft) {
+      form.setValue("interior_sqft", data.interior_sqft);
+    }
+    if (data.exterior_sqft) {
+      form.setValue("exterior_sqft", data.exterior_sqft);
+    }
+    if (data.floor_level) {
+      form.setValue("floor_level", data.floor_level);
+    }
+    if (data.exposure && !currentValues.exposure) {
+      form.setValue("exposure", data.exposure);
+    }
+    if (data.original_price) {
+      form.setValue("original_price", data.original_price);
+    }
+    if (data.completion_month) {
+      form.setValue("completion_month", data.completion_month);
+    }
+    if (data.completion_year) {
+      form.setValue("completion_year", data.completion_year);
+    }
+    if (data.construction_status) {
+      form.setValue("construction_status", data.construction_status);
+    }
+    if (data.has_parking !== undefined) {
+      form.setValue("has_parking", data.has_parking);
+      if (data.parking_count) {
+        form.setValue("parking_count", data.parking_count);
+      }
+    }
+    if (data.has_storage !== undefined) {
+      form.setValue("has_storage", data.has_storage);
+    }
+    if (data.description && !currentValues.description) {
+      form.setValue("description", data.description);
+    }
+    
+    // Auto-generate title if empty
+    if (!currentValues.title && data.project_name && data.unit_type) {
+      const unitLabel = data.unit_type === "studio" ? "Studio" : 
+                       data.unit_type === "1bed" ? "1BR" :
+                       data.unit_type === "1bed_den" ? "1BR+Den" :
+                       data.unit_type === "2bed" ? "2BR" :
+                       data.unit_type === "2bed_den" ? "2BR+Den" :
+                       data.unit_type === "3bed" ? "3BR" : "Penthouse";
+      const floorText = data.floor_level ? ` Floor ${data.floor_level}` : "";
+      form.setValue("title", `${unitLabel}${floorText} at ${data.project_name}`);
+    }
+  };
+
   const handleSubmit = async (data: ListingFormData) => {
     if (!user) return;
     setSaving(true);
@@ -441,21 +526,43 @@ export default function ListingForm() {
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link to="/dashboard/listings">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">
-              {isEditing ? "Edit Assignment" : "Create New Assignment"}
-            </h1>
-            <p className="text-muted-foreground">
-              {isEditing ? "Update your assignment" : "Add a new assignment to the marketplace"}
-            </p>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/listings">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold">
+                {isEditing ? "Edit Assignment" : "Create New Assignment"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isEditing ? "Update your assignment" : "Add a new assignment to the marketplace"}
+              </p>
+            </div>
           </div>
+          
+          {!isEditing && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setBrochureUploaderOpen(true)}
+              className="gap-2"
+            >
+              <Wand2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Auto-Fill from Brochure</span>
+              <span className="sm:hidden">Auto-Fill</span>
+            </Button>
+          )}
         </div>
+
+        {/* AI Brochure Uploader Modal */}
+        <AssignmentBrochureUploader
+          isOpen={brochureUploaderOpen}
+          onClose={() => setBrochureUploaderOpen(false)}
+          onDataExtracted={handleBrochureDataExtracted}
+        />
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
