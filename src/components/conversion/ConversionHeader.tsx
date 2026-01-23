@@ -378,8 +378,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                       {/* Collapsible Cities Section */}
                       <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
-                        <CollapsibleTrigger className="flex items-center justify-between w-full text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4">
-                          <span>Cities</span>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full py-4 group">
+                          <span className="text-[32px] font-extrabold text-foreground group-hover:text-primary transition-colors">Cities</span>
                           <ChevronDown className={`h-7 w-7 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pl-4 space-y-0 mt-1 mb-2">
