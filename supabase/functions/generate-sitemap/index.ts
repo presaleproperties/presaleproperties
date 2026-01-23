@@ -84,11 +84,14 @@ Deno.serve(async (req) => {
     // Resale / Move-In Ready city pages with property types, price ranges, and bedrooms
     const resaleCityPages = allCities.flatMap(city => [
       { url: `/resale/${city}`, priority: "0.85", changefreq: "daily", lastmod: now },
-      // Property types
+      // Property types (new naming: condos, townhomes, homes)
       { url: `/resale/${city}/condos`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/townhouses`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/duplexes`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/townhomes`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/homes`, priority: "0.8", changefreq: "daily", lastmod: now },
+      // Legacy property type routes
+      { url: `/resale/${city}/townhouses`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/houses`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/duplexes`, priority: "0.7", changefreq: "daily", lastmod: now },
       // Price ranges
       { url: `/resale/${city}/under-500k`, priority: "0.8", changefreq: "daily", lastmod: now },
       { url: `/resale/${city}/under-750k`, priority: "0.8", changefreq: "daily", lastmod: now },
@@ -102,6 +105,31 @@ Deno.serve(async (req) => {
       { url: `/resale/${city}/3-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
       { url: `/resale/${city}/4-bedroom`, priority: "0.75", changefreq: "daily", lastmod: now },
     ]);
+
+    // Popular Searches SEO hub page
+    const seoHubPages = [
+      { url: "/resale/popular-searches", priority: "0.85", changefreq: "weekly", lastmod: now },
+    ];
+
+    // Top neighborhoods for SEO - neighborhood + property type pages
+    const topNeighborhoods: Record<string, string[]> = {
+      vancouver: ["downtown", "yaletown", "kitsilano", "mount-pleasant", "fairview"],
+      surrey: ["city-centre", "fleetwood", "guildford", "south-surrey", "clayton"],
+      burnaby: ["metrotown", "brentwood", "highgate", "edmonds"],
+      richmond: ["city-centre", "steveston", "brighouse", "west-cambie"],
+      langley: ["willoughby", "walnut-grove", "murrayville", "yorkson"],
+      coquitlam: ["burke-mountain", "burquitlam", "westwood-plateau"],
+      "new-westminster": ["downtown", "sapperton", "queensborough"],
+      "port-moody": ["suter-brook", "heritage-woods", "moody-centre"],
+    };
+
+    const neighborhoodPropertyPages = Object.entries(topNeighborhoods).flatMap(([city, neighborhoods]) =>
+      neighborhoods.flatMap(neighborhood => [
+        { url: `/resale/${city}/${neighborhood}/condos`, priority: "0.75", changefreq: "daily", lastmod: now },
+        { url: `/resale/${city}/${neighborhood}/townhomes`, priority: "0.75", changefreq: "daily", lastmod: now },
+        { url: `/resale/${city}/${neighborhood}/homes`, priority: "0.7", changefreq: "daily", lastmod: now },
+      ])
+    );
 
     // City Market Report pages
     const marketReportPages = allCities.map(city => ({
@@ -201,10 +229,12 @@ Deno.serve(async (req) => {
     const allPages = [
       ...staticPages,
       ...cityProductPages,
+      ...seoHubPages,
       ...marketReportPages,
       ...projectPages, // Projects now have SEO-friendly URLs and high priority
       ...neighborhoodPages,
       ...resaleCityPages,
+      ...neighborhoodPropertyPages,
       ...pricePages,
       ...filterPages,
       ...blogPages,

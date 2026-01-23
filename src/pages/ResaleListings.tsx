@@ -30,6 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
+import { PopularSearchesGrid } from "@/components/seo/PopularSearchesGrid";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
@@ -967,6 +968,11 @@ export default function ResaleListings() {
             </div>
           </section>
         )}
+
+        {/* Popular Searches Grid */}
+        <PopularSearchesGrid 
+          defaultCity={filters.city !== "any" ? filters.city : "Vancouver"} 
+        />
 
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
