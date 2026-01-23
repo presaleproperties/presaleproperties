@@ -152,44 +152,34 @@ export function FloatingMapButton() {
   };
 
   return (
-    <>
-      {/* CSS for floating animation */}
-      <style>{`
-        @keyframes float-subtle {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
-        }
-        .map-btn-float {
-          animation: float-subtle 3s ease-in-out infinite;
-        }
-        .map-btn-float:hover {
-          animation: none;
-        }
-      `}</style>
-      
-      <Link
-        to={buildMapUrl()}
-        className={cn(
-          "fixed bottom-6 right-4 z-50",
-          "flex items-center gap-2",
-          "px-4 h-12 rounded-full",
-          "bg-foreground text-background",
-          "font-medium text-sm",
-          "shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
-          "hover:shadow-[0_12px_32px_rgba(0,0,0,0.45)]",
-          "hover:scale-105 active:scale-95",
-          "transition-all duration-300 ease-out",
-          "lg:right-6",
-          isPulsing && "map-btn-float",
-          isVisible 
-            ? "translate-y-0 opacity-100" 
-            : "translate-y-24 opacity-0 pointer-events-none"
-        )}
-        aria-label={`View ${mapContext.city || "all"} projects on map`}
-      >
-        <Map className="h-5 w-5" />
-        <span>Map</span>
-      </Link>
-    </>
+    <Link
+      to={buildMapUrl()}
+      className={cn(
+        "fixed bottom-6 right-4 z-50",
+        "flex items-center justify-center",
+        "w-12 h-12 rounded-full",
+        "bg-foreground text-background",
+        "ring-2 ring-offset-2 ring-offset-transparent",
+        "shadow-[0_4px_24px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)]",
+        "hover:shadow-[0_6px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.15)]",
+        "active:scale-95",
+        "transition-all duration-300",
+        "lg:right-6",
+        // Subtle glow effect on first impression
+        isPulsing 
+          ? "ring-blue-400/50 shadow-[0_0_12px_3px_rgba(59,130,246,0.35),0_4px_24px_rgba(0,0,0,0.3)]"
+          : "ring-background/20 hover:ring-background/30",
+        isVisible 
+          ? "translate-y-0 opacity-100" 
+          : "translate-y-20 opacity-0 pointer-events-none"
+      )}
+      aria-label={`View ${mapContext.city || "all"} projects on map`}
+    >
+      {/* Subtle pulse ring animation on first impression */}
+      {isPulsing && (
+        <span className="absolute -inset-1 rounded-full bg-blue-400/15 animate-pulse" />
+      )}
+      <Map className="h-5 w-5 relative z-10" />
+    </Link>
   );
 }
