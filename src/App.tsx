@@ -80,6 +80,7 @@ import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
 import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
 import ResalePriceRangePage from "./pages/ResalePriceRangePage";
+import ResaleBedroomPage from "./pages/ResaleBedroomPage";
 import ContentHub from "./pages/ContentHub";
 import BlogCategoryPage from "./pages/BlogCategoryPage";
 import AdLandingPage from "./pages/AdLandingPage";
@@ -156,7 +157,12 @@ const App = () => (
             <Route path="/resale/:citySlug/under-1.5m" element={<ResalePriceRangePage />} />
             <Route path="/resale/:citySlug/under-2m" element={<ResalePriceRangePage />} />
             <Route path="/resale/:citySlug/luxury" element={<ResalePriceRangePage />} />
-            {/* Dynamic listing key route - MUST be after city/type/price routes */}
+            {/* Bedroom count routes */}
+            <Route path="/resale/:citySlug/1-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/resale/:citySlug/2-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/resale/:citySlug/3-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/resale/:citySlug/4-bedroom" element={<ResaleBedroomPage />} />
+            {/* Dynamic listing key route - MUST be after city/type/price/bedroom routes */}
             <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             

@@ -81,12 +81,26 @@ Deno.serve(async (req) => {
       ])
     ];
 
-    // Resale / Move-In Ready city pages
+    // Resale / Move-In Ready city pages with property types, price ranges, and bedrooms
     const resaleCityPages = allCities.flatMap(city => [
       { url: `/resale/${city}`, priority: "0.85", changefreq: "daily", lastmod: now },
+      // Property types
       { url: `/resale/${city}/condos`, priority: "0.8", changefreq: "daily", lastmod: now },
       { url: `/resale/${city}/townhouses`, priority: "0.8", changefreq: "daily", lastmod: now },
       { url: `/resale/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/duplexes`, priority: "0.75", changefreq: "daily", lastmod: now },
+      // Price ranges
+      { url: `/resale/${city}/under-500k`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/under-750k`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/under-1m`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/under-1.5m`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/under-2m`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/luxury`, priority: "0.75", changefreq: "daily", lastmod: now },
+      // Bedroom counts
+      { url: `/resale/${city}/1-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/2-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/3-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/4-bedroom`, priority: "0.75", changefreq: "daily", lastmod: now },
     ]);
 
     // City Market Report pages
