@@ -152,43 +152,44 @@ export function FloatingMapButton() {
   };
 
   return (
-    <Link
-      to={buildMapUrl()}
-      className={cn(
-        "fixed bottom-6 right-4 z-50",
-        "flex items-center justify-center",
-        "w-14 h-14 rounded-2xl",
-        "bg-primary text-primary-foreground",
-        "shadow-[0_8px_32px_rgba(0,0,0,0.25),0_0_0_1px_rgba(255,255,255,0.1)]",
-        "hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)]",
-        "hover:scale-105 active:scale-95",
-        "transition-all duration-300 ease-out",
-        "lg:right-6",
-        // Premium glow on first impression
-        isPulsing && "animate-[map-glow_2s_ease-in-out_infinite]",
-        isVisible 
-          ? "translate-y-0 opacity-100" 
-          : "translate-y-24 opacity-0 pointer-events-none"
-      )}
-      aria-label={`View ${mapContext.city || "all"} projects on map`}
-      style={{
-        // Custom animation for smooth glow pulse
-        ...(isPulsing && {
-          boxShadow: '0 8px 32px rgba(0,0,0,0.25), 0 0 20px hsl(var(--primary) / 0.4)',
-        })
-      }}
-    >
-      {/* Ambient glow ring */}
-      {isPulsing && (
-        <span 
-          className="absolute -inset-1.5 rounded-2xl opacity-60"
-          style={{
-            background: 'linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--primary) / 0.1))',
-            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-          }}
-        />
-      )}
-      <Map className="h-6 w-6 relative z-10" />
-    </Link>
+    <>
+      {/* CSS for floating animation */}
+      <style>{`
+        @keyframes float-subtle {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-4px); }
+        }
+        .map-btn-float {
+          animation: float-subtle 3s ease-in-out infinite;
+        }
+        .map-btn-float:hover {
+          animation: none;
+        }
+      `}</style>
+      
+      <Link
+        to={buildMapUrl()}
+        className={cn(
+          "fixed bottom-6 right-4 z-50",
+          "flex items-center gap-2",
+          "px-4 h-12 rounded-full",
+          "bg-foreground text-background",
+          "font-medium text-sm",
+          "shadow-[0_8px_24px_rgba(0,0,0,0.35)]",
+          "hover:shadow-[0_12px_32px_rgba(0,0,0,0.45)]",
+          "hover:scale-105 active:scale-95",
+          "transition-all duration-300 ease-out",
+          "lg:right-6",
+          isPulsing && "map-btn-float",
+          isVisible 
+            ? "translate-y-0 opacity-100" 
+            : "translate-y-24 opacity-0 pointer-events-none"
+        )}
+        aria-label={`View ${mapContext.city || "all"} projects on map`}
+      >
+        <Map className="h-5 w-5" />
+        <span>Map</span>
+      </Link>
+    </>
   );
 }
