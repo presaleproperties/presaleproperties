@@ -30,9 +30,9 @@ export const ResaleMobileCTABar = ({
   const phoneNumber = "+16722581100";
   const whatsAppNumber = "16722581100";
 
-  const handleWhatsAppCall = () => {
-    // WhatsApp voice call link
-    window.open(`https://wa.me/${whatsAppNumber}?text=Hi, I'd like to schedule a call about ${listingAddress}`, "_blank");
+  const handlePhoneCall = () => {
+    // Regular phone call
+    window.location.href = `tel:${phoneNumber}`;
   };
 
   const handleWhatsAppMessage = () => {
@@ -59,15 +59,15 @@ export const ResaleMobileCTABar = ({
           )}
 
           <div className="flex-1 flex gap-2 sm:gap-3 justify-end items-center">
-            {/* WhatsApp Call button */}
+            {/* Phone Call button */}
             <Button
               variant="outline"
               size="icon"
-              onClick={handleWhatsAppCall}
-              className="h-12 w-12 sm:h-14 sm:w-14 min-h-[48px] min-w-[48px] rounded-xl border-green-200 touch-active bg-green-50 hover:bg-green-100 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800"
-              aria-label="WhatsApp Call"
+              onClick={handlePhoneCall}
+              className="h-12 w-12 sm:h-14 sm:w-14 min-h-[48px] min-w-[48px] rounded-xl border-border touch-active"
+              aria-label="Call"
             >
-              <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
+              <Phone className="h-5 w-5 sm:h-6 sm:w-6" />
             </Button>
 
             {/* WhatsApp Message button */}
