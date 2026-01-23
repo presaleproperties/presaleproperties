@@ -118,25 +118,27 @@ function popupHtml(assignment: Assignment) {
   const photo = assignment.listing_photos?.sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))?.[0]?.url;
   
   const img = photo
-    ? `<div style="position:relative;margin:-12px -12px 0 -12px;">
-        <img src="${photo}" alt="${assignment.title}" style="width:100%;height:130px;object-fit:cover;border-radius:8px 8px 0 0;" />
-        ${hasSavings ? `<div style="position:absolute;top:8px;left:8px;background:#22c55e;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Save ${formatPrice(savings)}</div>` : ''}
+    ? `<div style="position:relative;margin:-12px -12px 0 -12px;width:calc(100% + 24px);">
+        <img src="${photo}" alt="${assignment.title}" style="width:100%;height:130px;object-fit:cover;border-radius:8px 8px 0 0;display:block;" />
+        ${hasSavings ? `<div style="position:absolute;top:8px;left:8px;background:#22c55e;color:#fff;padding:3px 8px;border-radius:4px;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;">Save ${formatPrice(savings)}</div>` : ''}
       </div>`
     : '';
 
   return `
-    <a href="/dashboard/assignments/${assignment.id}" style="display:block;text-decoration:none;color:inherit;padding:12px;max-width:220px;font-family:system-ui,-apple-system,sans-serif;position:relative;">
-      ${img}
-      <div style="padding-top:${photo ? '10px' : '0'};">
-        <div style="font-weight:600;font-size:14px;line-height:1.3;color:#1a1a1a;margin-bottom:4px;">${assignment.project_name}</div>
-        <div style="font-size:12px;color:#666;display:flex;align-items:center;gap:4px;">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          ${assignment.neighborhood || assignment.city}
+    <div style="width:220px;font-family:system-ui,-apple-system,sans-serif;">
+      <a href="/dashboard/assignments/${assignment.id}" style="display:block;text-decoration:none;color:inherit;padding:12px;">
+        ${img}
+        <div style="padding-top:${photo ? '10px' : '0'};">
+          <div style="font-weight:600;font-size:14px;line-height:1.3;color:#1a1a1a;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${assignment.project_name}</div>
+          <div style="font-size:12px;color:#666;display:flex;align-items:center;gap:4px;white-space:nowrap;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            ${assignment.neighborhood || assignment.city}
+          </div>
+          <div style="font-weight:700;font-size:15px;color:#1e3a5f;margin-top:4px;">${formatPrice(assignment.assignment_price)}</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;white-space:nowrap;">${assignment.beds} bed • ${assignment.baths} bath${assignment.interior_sqft ? ` • ${assignment.interior_sqft} sqft` : ''}</div>
         </div>
-        <div style="font-weight:700;font-size:15px;color:#1e3a5f;margin-top:4px;">${formatPrice(assignment.assignment_price)}</div>
-        <div style="font-size:11px;color:#888;margin-top:2px;">${assignment.beds} bed • ${assignment.baths} bath${assignment.interior_sqft ? ` • ${assignment.interior_sqft} sqft` : ''}</div>
-      </div>
-    </a>
+      </a>
+    </div>
   `;
 }
 
@@ -329,6 +331,20 @@ export function AssignmentsMap({
 
   return (
     <div className="relative h-full w-full">
+      <style>{`
+        .assignment-popup .leaflet-popup-content-wrapper {
+          padding: 0;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        .assignment-popup .leaflet-popup-content {
+          margin: 0;
+          width: 220px !important;
+        }
+        .assignment-popup .leaflet-popup-tip {
+          background: white;
+        }
+      `}</style>
       <div ref={containerRef} className="h-full w-full rounded-xl overflow-hidden" />
 
       {/* Custom controls - matches presale map style exactly */}
