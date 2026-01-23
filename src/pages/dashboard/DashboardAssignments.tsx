@@ -1,24 +1,31 @@
-import { useState, useEffect, useMemo, lazy, Suspense, useRef } from "react";
+import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useAgentSubscription } from "@/hooks/useAgentSubscription";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { 
   Map, 
-  List, 
+  LayoutGrid,
   Search, 
   Heart, 
   Lock, 
   Crown, 
   Building2,
-  Filter,
   SlidersHorizontal,
   MessageSquare,
   Loader2,
@@ -26,7 +33,8 @@ import {
   Bed,
   Bath,
   Calendar,
-  ChevronRight
+  ChevronRight,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,72 +62,40 @@ interface Assignment {
   listing_photos?: { url: string; sort_order: number }[];
 }
 
-interface SavedAssignment {
-  listing_id: string;
-}
-
-const CITIES = ["All Cities", "Vancouver", "Burnaby", "Richmond", "Surrey", "Coquitlam", "Langley", "New Westminster", "Delta", "Abbotsford"];
-const BEDS_OPTIONS = ["Any Beds", "1+", "2+", "3+"];
+const CITIES = ["Vancouver", "Burnaby", "Richmond", "Surrey", "Coquitlam", "Langley", "New Westminster", "Delta", "Abbotsford"];
+const BEDS_OPTIONS = [
+  { value: "any", label: "Any Beds" },
+  { value: "1", label: "1+ Bed" },
+  { value: "2", label: "2+ Beds" },
+  { value: "3", label: "3+ Beds" },
+];
 const PRICE_RANGES = [
-  { label: "Any Price", min: 0, max: Infinity },
-  { label: "Under $500K", min: 0, max: 500000 },
-  { label: "$500K - $750K", min: 500000, max: 750000 },
-  { label: "$750K - $1M", min: 750000, max: 1000000 },
-  { label: "$1M - $1.5M", min: 1000000, max: 1500000 },
-  { label: "$1.5M+", min: 1500000, max: Infinity },
+  { value: "any", label: "Any Price", min: 0, max: Infinity },
+  { value: "0-500000", label: "Under $500K", min: 0, max: 500000 },
+  { value: "500000-750000", label: "$500K - $750K", min: 500000, max: 750000 },
+  { value: "750000-1000000", label: "$750K - $1M", min: 750000, max: 1000000 },
+  { value: "1000000-1500000", label: "$1M - $1.5M", min: 1000000, max: 1500000 },
+  { value: "1500000-999999999", label: "$1.5M+", min: 1500000, max: Infinity },
 ];
 
 export default function DashboardAssignments() {
   const { user } = useAuth();
-  const { canAccessAssignments, loading: subLoading, tierLabel, hasActiveSubscription } = useAgentSubscription();
+  const queryClient = useQueryClient();
+  const { canAccessAssignments, loading: subLoading, tierLabel } = useAgentSubscription();
   
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<"map" | "list">("map");
-  const [showSavedOnly, setShowSavedOnly] = useState(false);
-  
-  // Filters
+  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCity, setSelectedCity] = useState("All Cities");
-  const [selectedBeds, setSelectedBeds] = useState("Any Beds");
-  const [selectedPriceRange, setSelectedPriceRange] = useState(PRICE_RANGES[0]);
+  const [selectedCity, setSelectedCity] = useState("any");
+  const [selectedBeds, setSelectedBeds] = useState("any");
+  const [selectedPrice, setSelectedPrice] = useState("any");
+  const [showSavedOnly, setShowSavedOnly] = useState(false);
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  // Map visibility
-  const [isMapVisible, setIsMapVisible] = useState(false);
-  const mapRef = useRef<HTMLDivElement>(null);
-
-  // Intersection observer for lazy loading map
-  useEffect(() => {
-    if (!canAccessAssignments) return;
-    
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsMapVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    
-    if (mapRef.current) {
-      observer.observe(mapRef.current);
-    }
-    
-    return () => observer.disconnect();
-  }, [canAccessAssignments]);
-
-  useEffect(() => {
-    if (user && canAccessAssignments) {
-      fetchAssignments();
-      fetchSavedAssignments();
-    }
-  }, [user, canAccessAssignments]);
-
-  const fetchAssignments = async () => {
-    try {
-      const { data, error } = await supabase
+  // Fetch assignments
+  const { data: assignmentsData, isLoading } = useQuery({
+    queryKey: ["agent-assignments", selectedCity, selectedBeds, selectedPrice],
+    queryFn: async () => {
+      let query = supabase
         .from("listings")
         .select(`
           id, title, project_name, city, neighborhood,
@@ -131,34 +107,69 @@ export default function DashboardAssignments() {
         .eq("status", "published")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setAssignments((data as Assignment[]) || []);
-    } catch (error) {
-      console.error("Error fetching assignments:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Apply filters
+      if (selectedCity !== "any") {
+        query = query.eq("city", selectedCity);
+      }
+      if (selectedBeds !== "any") {
+        query = query.gte("beds", parseInt(selectedBeds));
+      }
+      if (selectedPrice !== "any") {
+        const range = PRICE_RANGES.find(r => r.value === selectedPrice);
+        if (range) {
+          query = query.gte("assignment_price", range.min);
+          if (range.max !== Infinity) {
+            query = query.lte("assignment_price", range.max);
+          }
+        }
+      }
 
-  const fetchSavedAssignments = async () => {
-    if (!user) return;
-    
-    try {
+      const { data, error } = await query;
+      if (error) throw error;
+      return data as Assignment[];
+    },
+    enabled: canAccessAssignments,
+  });
+
+  // Fetch saved assignments
+  const { data: savedData } = useQuery({
+    queryKey: ["saved-assignments", user?.id],
+    queryFn: async () => {
+      if (!user) return [];
       const { data, error } = await supabase
         .from("saved_assignments")
         .select("listing_id")
         .eq("user_id", user.id);
-
       if (error) throw error;
-      setSavedIds(new Set(data?.map(s => s.listing_id) || []));
-    } catch (error) {
-      console.error("Error fetching saved assignments:", error);
-    }
-  };
+      return data.map(s => s.listing_id);
+    },
+    enabled: !!user && canAccessAssignments,
+  });
+
+  const savedIds = useMemo(() => new Set(savedData || []), [savedData]);
+  const assignments = assignmentsData || [];
+
+  // Filter by search and saved
+  const filteredAssignments = useMemo(() => {
+    return assignments.filter(a => {
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const matches = 
+          a.title?.toLowerCase().includes(q) ||
+          a.project_name?.toLowerCase().includes(q) ||
+          a.city?.toLowerCase().includes(q) ||
+          a.neighborhood?.toLowerCase().includes(q);
+        if (!matches) return false;
+      }
+      if (showSavedOnly && !savedIds.has(a.id)) {
+        return false;
+      }
+      return true;
+    });
+  }, [assignments, searchQuery, showSavedOnly, savedIds]);
 
   const toggleSave = async (listingId: string) => {
     if (!user) return;
-
     const isSaved = savedIds.has(listingId);
 
     try {
@@ -168,67 +179,82 @@ export default function DashboardAssignments() {
           .delete()
           .eq("user_id", user.id)
           .eq("listing_id", listingId);
-        setSavedIds(prev => {
-          const next = new Set(prev);
-          next.delete(listingId);
-          return next;
-        });
       } else {
         await supabase
           .from("saved_assignments")
           .insert({ user_id: user.id, listing_id: listingId });
-        setSavedIds(prev => new Set([...prev, listingId]));
       }
+      queryClient.invalidateQueries({ queryKey: ["saved-assignments"] });
     } catch (error) {
       console.error("Error toggling save:", error);
     }
   };
 
-  // Filter assignments
-  const filteredAssignments = useMemo(() => {
-    return assignments.filter(a => {
-      // Search filter
-      if (searchQuery) {
-        const query = searchQuery.toLowerCase();
-        const matches = 
-          a.title?.toLowerCase().includes(query) ||
-          a.project_name?.toLowerCase().includes(query) ||
-          a.city?.toLowerCase().includes(query) ||
-          a.neighborhood?.toLowerCase().includes(query);
-        if (!matches) return false;
-      }
+  const activeFilterCount = [
+    selectedCity !== "any",
+    selectedBeds !== "any",
+    selectedPrice !== "any",
+  ].filter(Boolean).length;
 
-      // City filter
-      if (selectedCity !== "All Cities" && a.city !== selectedCity) {
-        return false;
-      }
-
-      // Beds filter
-      if (selectedBeds !== "Any Beds") {
-        const minBeds = parseInt(selectedBeds.replace("+", ""));
-        if (a.beds < minBeds) return false;
-      }
-
-      // Price filter
-      if (a.assignment_price < selectedPriceRange.min || a.assignment_price > selectedPriceRange.max) {
-        return false;
-      }
-
-      // Saved filter
-      if (showSavedOnly && !savedIds.has(a.id)) {
-        return false;
-      }
-
-      return true;
-    });
-  }, [assignments, searchQuery, selectedCity, selectedBeds, selectedPriceRange, showSavedOnly, savedIds]);
-
-  const formatPrice = (price: number) => {
-    if (price >= 1000000) {
-      return `$${(price / 1000000).toFixed(2)}M`;
-    }
-    return `$${(price / 1000).toFixed(0)}K`;
+  const clearAllFilters = () => {
+    setSelectedCity("any");
+    setSelectedBeds("any");
+    setSelectedPrice("any");
+    setSearchQuery("");
+    setShowSavedOnly(false);
   };
+
+  const handleRefresh = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ["agent-assignments"] });
+  }, [queryClient]);
+
+  // Filter Controls Component
+  const FilterControls = () => (
+    <div className="space-y-4">
+      <div>
+        <label className="text-sm font-medium mb-2 block">City</label>
+        <select
+          value={selectedCity}
+          onChange={(e) => setSelectedCity(e.target.value)}
+          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+        >
+          <option value="any">All Cities</option>
+          {CITIES.map(city => (
+            <option key={city} value={city}>{city}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-2 block">Bedrooms</label>
+        <select
+          value={selectedBeds}
+          onChange={(e) => setSelectedBeds(e.target.value)}
+          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+        >
+          {BEDS_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className="text-sm font-medium mb-2 block">Price Range</label>
+        <select
+          value={selectedPrice}
+          onChange={(e) => setSelectedPrice(e.target.value)}
+          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
+        >
+          {PRICE_RANGES.map(range => (
+            <option key={range.value} value={range.value}>{range.label}</option>
+          ))}
+        </select>
+      </div>
+      {activeFilterCount > 0 && (
+        <Button variant="ghost" onClick={clearAllFilters} className="w-full">
+          Clear All Filters
+        </Button>
+      )}
+    </div>
+  );
 
   // Show paywall if no subscription
   if (!subLoading && !canAccessAssignments) {
@@ -240,23 +266,16 @@ export default function DashboardAssignments() {
           </div>
           <h1 className="text-2xl font-bold mb-3">Assignment Portal</h1>
           <p className="text-muted-foreground mb-8">
-            Unlock access to all assignment listings with an active subscription. 
-            Browse the map, save favorites, and connect directly with listing agents.
+            Unlock access to all assignment listings with an active subscription.
           </p>
-
           <div className="grid gap-4 sm:grid-cols-3 mb-8">
             {[
               { tier: "Core", price: "$99/mo", features: ["Full assignment access", "Map & list view", "Save favorites"] },
               { tier: "Pro", price: "$199/mo", features: ["Everything in Core", "Direct agent contact", "Priority alerts"], popular: true },
               { tier: "Elite", price: "$399/mo", features: ["Everything in Pro", "Off-market access", "Dedicated support"] },
             ].map((plan) => (
-              <Card key={plan.tier} className={cn(
-                "relative",
-                plan.popular && "border-primary shadow-lg"
-              )}>
-                {plan.popular && (
-                  <Badge className="absolute -top-2 right-4 bg-primary">Most Popular</Badge>
-                )}
+              <Card key={plan.tier} className={cn("relative", plan.popular && "border-primary shadow-lg")}>
+                {plan.popular && <Badge className="absolute -top-2 right-4 bg-primary">Most Popular</Badge>}
                 <CardHeader className="pb-2">
                   <CardTitle className="text-lg">{plan.tier}</CardTitle>
                   <p className="text-2xl font-bold">{plan.price}</p>
@@ -277,10 +296,6 @@ export default function DashboardAssignments() {
               </Card>
             ))}
           </div>
-
-          <p className="text-sm text-muted-foreground">
-            Questions? <Link to="/contact" className="text-primary hover:underline">Contact us</Link>
-          </p>
         </div>
       </DashboardLayout>
     );
@@ -290,152 +305,195 @@ export default function DashboardAssignments() {
     <DashboardLayout>
       <div className="space-y-4">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold">Assignment Portal</h1>
-            <div className="flex items-center gap-2 mt-1">
-              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-                <Crown className="h-3 w-3 mr-1" />
-                {tierLabel} Member
-              </Badge>
-              <span className="text-sm text-muted-foreground">
-                {filteredAssignments.length} assignments available
-              </span>
-            </div>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">
+              Assignment Portal
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{filteredAssignments.length}</span> assignments available
+              {activeFilterCount > 0 && (
+                <button onClick={clearAllFilters} className="ml-2 text-primary hover:underline">
+                  Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
+                </button>
+              )}
+            </p>
           </div>
-          
           <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+              <Crown className="h-3 w-3 mr-1" />
+              {tierLabel} Member
+            </Badge>
+          </div>
+        </div>
+
+        {/* City Filter Chips */}
+        <div className="-mx-4 px-4 md:mx-0 md:px-0 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-2 pb-1">
+            <button
+              onClick={() => setSelectedCity("any")}
+              className={cn(
+                "flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                selectedCity === "any"
+                  ? "bg-foreground text-background"
+                  : "bg-muted hover:bg-muted/80 text-foreground"
+              )}
+            >
+              All Cities
+            </button>
+            {CITIES.map((city) => (
+              <button
+                key={city}
+                onClick={() => setSelectedCity(city)}
+                className={cn(
+                  "flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
+                  selectedCity === city
+                    ? "bg-foreground text-background"
+                    : "bg-muted hover:bg-muted/80 text-foreground"
+                )}
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Search & Controls Bar */}
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by project, neighborhood..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10"
+            />
+          </div>
+          <div className="flex gap-2">
+            {/* Saved Toggle */}
             <Button
               variant={showSavedOnly ? "default" : "outline"}
               size="sm"
+              className="h-10"
               onClick={() => setShowSavedOnly(!showSavedOnly)}
             >
               <Heart className={cn("h-4 w-4 mr-2", showSavedOnly && "fill-current")} />
               Saved ({savedIds.size})
             </Button>
-          </div>
-        </div>
 
-        {/* Filters */}
-        <Card className="p-4">
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by project, city, or neighborhood..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-            
-            <div className="flex flex-wrap gap-2">
-              <select
-                value={selectedCity}
-                onChange={(e) => setSelectedCity(e.target.value)}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {CITIES.map(city => (
-                  <option key={city} value={city}>{city}</option>
-                ))}
-              </select>
-
-              <select
-                value={selectedBeds}
-                onChange={(e) => setSelectedBeds(e.target.value)}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {BEDS_OPTIONS.map(opt => (
-                  <option key={opt} value={opt}>{opt}</option>
-                ))}
-              </select>
-
-              <select
-                value={selectedPriceRange.label}
-                onChange={(e) => {
-                  const range = PRICE_RANGES.find(r => r.label === e.target.value);
-                  if (range) setSelectedPriceRange(range);
-                }}
-                className="h-10 rounded-md border border-input bg-background px-3 text-sm"
-              >
-                {PRICE_RANGES.map(range => (
-                  <option key={range.label} value={range.label}>{range.label}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex border rounded-lg overflow-hidden">
+            {/* View Mode Toggle */}
+            <div className="flex border border-input rounded-lg overflow-hidden">
               <button
-                onClick={() => setView("map")}
+                onClick={() => setViewMode("grid")}
                 className={cn(
-                  "px-4 py-2 flex items-center gap-2 text-sm font-medium transition-colors",
-                  view === "map" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                  "px-3 py-2 flex items-center gap-1.5 text-sm font-medium transition-colors",
+                  viewMode === "grid" ? "bg-foreground text-background" : "hover:bg-muted"
+                )}
+              >
+                <LayoutGrid className="h-4 w-4" />
+                Grid
+              </button>
+              <button
+                onClick={() => setViewMode("map")}
+                className={cn(
+                  "px-3 py-2 flex items-center gap-1.5 text-sm font-medium transition-colors",
+                  viewMode === "map" ? "bg-foreground text-background" : "hover:bg-muted"
                 )}
               >
                 <Map className="h-4 w-4" />
                 Map
               </button>
-              <button
-                onClick={() => setView("list")}
-                className={cn(
-                  "px-4 py-2 flex items-center gap-2 text-sm font-medium transition-colors",
-                  view === "list" ? "bg-primary text-primary-foreground" : "hover:bg-muted"
-                )}
-              >
-                <List className="h-4 w-4" />
-                List
-              </button>
             </div>
+
+            {/* Mobile Filters */}
+            <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+              <SheetTrigger asChild>
+                <Button variant="outline" className="lg:hidden relative h-10 px-3">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  {activeFilterCount > 0 && (
+                    <Badge className="absolute -top-2 -right-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                      {activeFilterCount}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px]">
+                <SheetHeader>
+                  <SheetTitle>Filters</SheetTitle>
+                </SheetHeader>
+                <div className="mt-6">
+                  <FilterControls />
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
-        </Card>
+        </div>
 
         {/* Content */}
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : view === "map" ? (
-          <div ref={mapRef}>
-            <SafeMapWrapper height="h-[600px]">
-              {isMapVisible && (
+        <div className="flex gap-6">
+          {/* Desktop Sidebar Filters */}
+          <aside className="hidden lg:block w-64 flex-shrink-0">
+            <Card className="sticky top-20">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-base">Filters</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FilterControls />
+              </CardContent>
+            </Card>
+          </aside>
+
+          {/* Main Content */}
+          <div className="flex-1 min-w-0">
+            {isLoading ? (
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <Skeleton key={i} className="h-80 rounded-xl" />
+                ))}
+              </div>
+            ) : viewMode === "map" ? (
+              <SafeMapWrapper height="h-[600px]">
                 <Suspense fallback={
                   <div className="h-[600px] bg-muted animate-pulse rounded-xl flex items-center justify-center">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   </div>
                 }>
-                  <AssignmentsMap 
-                    assignments={filteredAssignments}
-                    savedIds={savedIds}
-                    onToggleSave={toggleSave}
-                    currentUserId={user?.id}
-                  />
+                  <div className="h-[600px] rounded-xl overflow-hidden border border-border">
+                    <AssignmentsMap 
+                      assignments={filteredAssignments}
+                      savedIds={savedIds}
+                      onToggleSave={toggleSave}
+                      currentUserId={user?.id}
+                    />
+                  </div>
                 </Suspense>
-              )}
-            </SafeMapWrapper>
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {filteredAssignments.length === 0 ? (
-              <div className="col-span-full text-center py-12">
+              </SafeMapWrapper>
+            ) : filteredAssignments.length === 0 ? (
+              <div className="text-center py-12">
                 <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="text-lg font-medium mb-2">No assignments found</h3>
-                <p className="text-muted-foreground">
+                <p className="text-muted-foreground mb-4">
                   Try adjusting your filters or search query
                 </p>
+                <Button variant="outline" onClick={clearAllFilters}>
+                  Clear All Filters
+                </Button>
               </div>
             ) : (
-              filteredAssignments.map((assignment) => (
-                <AssignmentCard
-                  key={assignment.id}
-                  assignment={assignment}
-                  isSaved={savedIds.has(assignment.id)}
-                  onToggleSave={() => toggleSave(assignment.id)}
-                  isOwn={assignment.agent_id === user?.id}
-                />
-              ))
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {filteredAssignments.map((assignment) => (
+                  <AssignmentCard
+                    key={assignment.id}
+                    assignment={assignment}
+                    isSaved={savedIds.has(assignment.id)}
+                    onToggleSave={() => toggleSave(assignment.id)}
+                    isOwn={assignment.agent_id === user?.id}
+                  />
+                ))}
+              </div>
             )}
           </div>
-        )}
+        </div>
       </div>
     </DashboardLayout>
   );
@@ -464,7 +522,7 @@ function AssignmentCard({ assignment, isSaved, onToggleSave, isOwn }: Assignment
   const mainPhoto = assignment.listing_photos?.sort((a, b) => a.sort_order - b.sort_order)?.[0]?.url;
 
   const completionText = assignment.completion_month && assignment.completion_year
-    ? `${assignment.completion_month} ${assignment.completion_year}`
+    ? `${assignment.completion_month}/${assignment.completion_year}`
     : assignment.completion_year
     ? `${assignment.completion_year}`
     : null;
