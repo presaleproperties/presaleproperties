@@ -2,11 +2,18 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Sheet,
   SheetContent,
@@ -33,8 +40,7 @@ import {
   Bed,
   Bath,
   Calendar,
-  ChevronRight,
-  X
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -204,49 +210,48 @@ export default function DashboardAssignments() {
     setShowSavedOnly(false);
   };
 
-  const handleRefresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ["agent-assignments"] });
-  }, [queryClient]);
-
-  // Filter Controls Component
-  const FilterControls = () => (
+  // Mobile Filter Controls
+  const MobileFilterControls = () => (
     <div className="space-y-4">
       <div>
         <label className="text-sm font-medium mb-2 block">City</label>
-        <select
-          value={selectedCity}
-          onChange={(e) => setSelectedCity(e.target.value)}
-          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-        >
-          <option value="any">All Cities</option>
-          {CITIES.map(city => (
-            <option key={city} value={city}>{city}</option>
-          ))}
-        </select>
+        <Select value={selectedCity} onValueChange={setSelectedCity}>
+          <SelectTrigger>
+            <SelectValue placeholder="All Cities" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="any">All Cities</SelectItem>
+            {CITIES.map(city => (
+              <SelectItem key={city} value={city}>{city}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <label className="text-sm font-medium mb-2 block">Bedrooms</label>
-        <select
-          value={selectedBeds}
-          onChange={(e) => setSelectedBeds(e.target.value)}
-          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-        >
-          {BEDS_OPTIONS.map(opt => (
-            <option key={opt.value} value={opt.value}>{opt.label}</option>
-          ))}
-        </select>
+        <Select value={selectedBeds} onValueChange={setSelectedBeds}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any Beds" />
+          </SelectTrigger>
+          <SelectContent>
+            {BEDS_OPTIONS.map(opt => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <label className="text-sm font-medium mb-2 block">Price Range</label>
-        <select
-          value={selectedPrice}
-          onChange={(e) => setSelectedPrice(e.target.value)}
-          className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm"
-        >
-          {PRICE_RANGES.map(range => (
-            <option key={range.value} value={range.value}>{range.label}</option>
-          ))}
-        </select>
+        <Select value={selectedPrice} onValueChange={setSelectedPrice}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any Price" />
+          </SelectTrigger>
+          <SelectContent>
+            {PRICE_RANGES.map(range => (
+              <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       {activeFilterCount > 0 && (
         <Button variant="ghost" onClick={clearAllFilters} className="w-full">
@@ -276,11 +281,9 @@ export default function DashboardAssignments() {
             ].map((plan) => (
               <Card key={plan.tier} className={cn("relative", plan.popular && "border-primary shadow-lg")}>
                 {plan.popular && <Badge className="absolute -top-2 right-4 bg-primary">Most Popular</Badge>}
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg">{plan.tier}</CardTitle>
-                  <p className="text-2xl font-bold">{plan.price}</p>
-                </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
+                  <h3 className="text-lg font-semibold">{plan.tier}</h3>
+                  <p className="text-2xl font-bold mb-4">{plan.price}</p>
                   <ul className="text-sm text-muted-foreground space-y-2">
                     {plan.features.map((f, i) => (
                       <li key={i} className="flex items-center gap-2">
@@ -319,12 +322,10 @@ export default function DashboardAssignments() {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-              <Crown className="h-3 w-3 mr-1" />
-              {tierLabel} Member
-            </Badge>
-          </div>
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 w-fit">
+            <Crown className="h-3 w-3 mr-1" />
+            {tierLabel} Member
+          </Badge>
         </div>
 
         {/* City Filter Chips */}
@@ -358,7 +359,7 @@ export default function DashboardAssignments() {
           </div>
         </div>
 
-        {/* Search & Controls Bar */}
+        {/* Search & Filter Bar - matches presale layout */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -369,7 +370,31 @@ export default function DashboardAssignments() {
               className="pl-10 h-10"
             />
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap">
+            {/* Desktop Filters */}
+            <div className="hidden lg:flex gap-2">
+              <Select value={selectedBeds} onValueChange={setSelectedBeds}>
+                <SelectTrigger className="w-[120px] h-10">
+                  <SelectValue placeholder="Beds" />
+                </SelectTrigger>
+                <SelectContent>
+                  {BEDS_OPTIONS.map(opt => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Select value={selectedPrice} onValueChange={setSelectedPrice}>
+                <SelectTrigger className="w-[140px] h-10">
+                  <SelectValue placeholder="Price" />
+                </SelectTrigger>
+                <SelectContent>
+                  {PRICE_RANGES.map(range => (
+                    <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Saved Toggle */}
             <Button
               variant={showSavedOnly ? "default" : "outline"}
@@ -391,7 +416,7 @@ export default function DashboardAssignments() {
                 )}
               >
                 <LayoutGrid className="h-4 w-4" />
-                Grid
+                <span className="hidden sm:inline">Grid</span>
               </button>
               <button
                 onClick={() => setViewMode("map")}
@@ -401,7 +426,7 @@ export default function DashboardAssignments() {
                 )}
               >
                 <Map className="h-4 w-4" />
-                Map
+                <span className="hidden sm:inline">Map</span>
               </button>
             </div>
 
@@ -422,7 +447,7 @@ export default function DashboardAssignments() {
                   <SheetTitle>Filters</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6">
-                  <FilterControls />
+                  <MobileFilterControls />
                 </div>
               </SheetContent>
             </Sheet>
@@ -430,70 +455,53 @@ export default function DashboardAssignments() {
         </div>
 
         {/* Content */}
-        <div className="flex gap-6">
-          {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block w-64 flex-shrink-0">
-            <Card className="sticky top-20">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base">Filters</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <FilterControls />
-              </CardContent>
-            </Card>
-          </aside>
-
-          {/* Main Content */}
-          <div className="flex-1 min-w-0">
-            {isLoading ? (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {Array.from({ length: 6 }).map((_, i) => (
-                  <Skeleton key={i} className="h-80 rounded-xl" />
-                ))}
-              </div>
-            ) : viewMode === "map" ? (
-              <SafeMapWrapper height="h-[600px]">
-                <Suspense fallback={
-                  <div className="h-[600px] bg-muted animate-pulse rounded-xl flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                  </div>
-                }>
-                  <div className="h-[600px] rounded-xl overflow-hidden border border-border">
-                    <AssignmentsMap 
-                      assignments={filteredAssignments}
-                      savedIds={savedIds}
-                      onToggleSave={toggleSave}
-                      currentUserId={user?.id}
-                    />
-                  </div>
-                </Suspense>
-              </SafeMapWrapper>
-            ) : filteredAssignments.length === 0 ? (
-              <div className="text-center py-12">
-                <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium mb-2">No assignments found</h3>
-                <p className="text-muted-foreground mb-4">
-                  Try adjusting your filters or search query
-                </p>
-                <Button variant="outline" onClick={clearAllFilters}>
-                  Clear All Filters
-                </Button>
-              </div>
-            ) : (
-              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {filteredAssignments.map((assignment) => (
-                  <AssignmentCard
-                    key={assignment.id}
-                    assignment={assignment}
-                    isSaved={savedIds.has(assignment.id)}
-                    onToggleSave={() => toggleSave(assignment.id)}
-                    isOwn={assignment.agent_id === user?.id}
-                  />
-                ))}
-              </div>
-            )}
+        {isLoading ? (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="h-80 rounded-xl" />
+            ))}
           </div>
-        </div>
+        ) : viewMode === "map" ? (
+          <SafeMapWrapper height="h-[600px]">
+            <Suspense fallback={
+              <div className="h-[600px] bg-muted animate-pulse rounded-xl flex items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            }>
+              <div className="h-[600px] rounded-xl overflow-hidden border border-border">
+                <AssignmentsMap 
+                  assignments={filteredAssignments}
+                  savedIds={savedIds}
+                  onToggleSave={toggleSave}
+                  currentUserId={user?.id}
+                />
+              </div>
+            </Suspense>
+          </SafeMapWrapper>
+        ) : filteredAssignments.length === 0 ? (
+          <div className="text-center py-12">
+            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No assignments found</h3>
+            <p className="text-muted-foreground mb-4">
+              Try adjusting your filters or search query
+            </p>
+            <Button variant="outline" onClick={clearAllFilters}>
+              Clear All Filters
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {filteredAssignments.map((assignment) => (
+              <AssignmentCard
+                key={assignment.id}
+                assignment={assignment}
+                isSaved={savedIds.has(assignment.id)}
+                onToggleSave={() => toggleSave(assignment.id)}
+                isOwn={assignment.agent_id === user?.id}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </DashboardLayout>
   );
@@ -604,7 +612,7 @@ function AssignmentCard({ assignment, isSaved, onToggleSave, isOwn }: Assignment
         )}
 
         <div className="flex gap-2">
-          <Link to={`/assignments/${assignment.id}`} className="flex-1">
+          <Link to={`/dashboard/assignments/${assignment.id}`} className="flex-1">
             <Button variant="outline" className="w-full" size="sm">
               View Details
               <ChevronRight className="h-4 w-4 ml-1" />
