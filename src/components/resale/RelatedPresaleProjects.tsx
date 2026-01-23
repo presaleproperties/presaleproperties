@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ChevronRight, MapPin, Calendar, Building2 } from "lucide-react";
+import { ChevronRight, MapPin, Calendar, Building2, ExternalLink } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { generateProjectUrl } from "@/lib/seoUrls";
 
@@ -29,6 +29,10 @@ interface PresaleProject {
   completion_year: number | null;
   completion_month: number | null;
   developer_name: string | null;
+  developer_id: string | null;
+  developers?: {
+    website_url: string | null;
+  } | null;
 }
 
 const STATUS_COLORS: Record<string, string> = {
@@ -57,7 +61,7 @@ export const RelatedPresaleProjects = ({
     queryFn: async () => {
       let query = supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, featured_image, starting_price, price_range, status, project_type, completion_year, completion_month, developer_name")
+        .select("id, name, slug, city, neighborhood, featured_image, starting_price, price_range, status, project_type, completion_year, completion_month, developer_name, developer_id, developers(website_url)")
         .eq("is_published", true)
         .ilike("city", city)
         .neq("status", "sold_out")
@@ -78,7 +82,7 @@ export const RelatedPresaleProjects = ({
       if (neighborhood && data && data.length < limit) {
         const { data: cityData } = await supabase
           .from("presale_projects")
-          .select("id, name, slug, city, neighborhood, featured_image, starting_price, price_range, status, project_type, completion_year, completion_month, developer_name")
+          .select("id, name, slug, city, neighborhood, featured_image, starting_price, price_range, status, project_type, completion_year, completion_month, developer_name, developer_id, developers(website_url)")
           .eq("is_published", true)
           .ilike("city", city)
           .neq("status", "sold_out")
@@ -223,11 +227,24 @@ export const RelatedPresaleProjects = ({
                     )}
                   </div>
 
-                  {/* Developer */}
+                  {/* Developer with backlink */}
                   {project.developer_name && (
                     <div className="flex items-center text-[10px] sm:text-xs text-muted-foreground mt-2 pt-2 border-t border-border">
                       <Building2 className="h-2.5 w-2.5 sm:h-3 sm:w-3 mr-1 shrink-0" />
-                      <span className="line-clamp-1 truncate">{project.developer_name}</span>
+                      {project.developers?.website_url ? (
+                        <a
+                          href={project.developers.website_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="line-clamp-1 truncate hover:text-primary hover:underline transition-colors flex items-center gap-0.5"
+                        >
+                          {project.developer_name}
+                          <ExternalLink className="h-2 w-2 sm:h-2.5 sm:w-2.5 shrink-0 opacity-60" />
+                        </a>
+                      ) : (
+                        <span className="line-clamp-1 truncate">{project.developer_name}</span>
+                      )}
                     </div>
                   )}
                 </div>
