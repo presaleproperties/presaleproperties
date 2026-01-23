@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, useLocation, Link, useNavigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame, Home, ChevronRight as ChevronRightIcon, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -19,6 +19,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
@@ -30,6 +36,46 @@ import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefi
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { supabase } from "@/integrations/supabase/client";
+
+// SEO FAQs for presale projects page
+const PRESALE_FAQS = [
+  {
+    question: "What is a presale condo in BC?",
+    answer: "A presale condo in BC is a property you purchase before construction is complete—sometimes before it even begins. You sign a contract, pay deposits over time (typically 15-25%), and take possession when the building is finished. This gives you time to save, lock in today's pricing, and customize finishes."
+  },
+  {
+    question: "How do I buy a presale condo in Vancouver?",
+    answer: "To buy a presale condo in Vancouver: 1) Register for VIP access with developers or a realtor to get early pricing. 2) Review floor plans and the disclosure statement. 3) Sign the contract and pay your initial deposit (usually 5%). 4) You have 7 days to rescind under BC's REDMA protection. 5) Pay remaining deposits on schedule until completion."
+  },
+  {
+    question: "What deposit is required for presale condos?",
+    answer: "Most BC presale condos require 15-25% total deposit, paid in installments. A typical structure is 5% at signing, 5% in 90 days, 5% in 180 days, and 5-10% at 12 months. Some developers offer reduced deposit programs (as low as 10% total) to attract first-time buyers."
+  },
+  {
+    question: "Are presale condos a good investment in 2026?",
+    answer: "Presale condos can be excellent investments in 2026 for several reasons: You lock in today's price while the market appreciates during construction (2-4 years). Your deposit grows with the property's value. New builds have lower maintenance costs and modern amenities. Many investors have seen 20-40% equity gains by completion."
+  },
+  {
+    question: "What is the 7-day rescission period in BC?",
+    answer: "Under BC's Real Estate Development Marketing Act (REDMA), you have 7 calendar days to cancel a presale contract after signing—no questions asked. Your deposit is fully refunded. This protection gives you time to review the disclosure statement with a lawyer and secure financing approval."
+  },
+  {
+    question: "Can I sell my presale condo before completion?",
+    answer: "This is called an 'assignment sale.' Some developers allow assignments (often with a fee of 1-2%), while others restrict them. Always check the assignment clause in your contract. If allowed, you can sell your contract to another buyer before completion, potentially capturing equity gains."
+  }
+];
+
+// City SEO links for internal linking
+const CITY_SEO_LINKS = [
+  { city: "Vancouver", slug: "vancouver-presale-condos", label: "Vancouver Presales" },
+  { city: "Surrey", slug: "surrey-presale-condos", label: "Surrey Presales" },
+  { city: "Burnaby", slug: "burnaby-presale-condos", label: "Burnaby Presales" },
+  { city: "Coquitlam", slug: "coquitlam-presale-condos", label: "Coquitlam Presales" },
+  { city: "Langley", slug: "langley-presale-condos", label: "Langley Presales" },
+  { city: "Richmond", slug: "richmond-presale-condos", label: "Richmond Presales" },
+  { city: "Delta", slug: "delta-presale-condos", label: "Delta Presales" },
+  { city: "Abbotsford", slug: "abbotsford-presale-condos", label: "Abbotsford Presales" },
+];
 
 // Lazy load map component
 const ProjectsMap = lazy(() => import("@/components/projects/ProjectsMap").then(m => ({ default: m.ProjectsMap })));
@@ -580,39 +626,31 @@ export default function PresaleProjects() {
     </div>
   );
 
-  // Dynamic SEO based on filters
-  const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search}`;
+  // Dynamic SEO based on filters - optimized for target keywords
+  const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
   
   const getSeoTitle = () => {
-    const parts: string[] = [];
-    
-    if (filters.projectType !== "any") {
-      const typeLabel = filters.projectType === "condo" ? "Presale Condos" : 
-                        filters.projectType === "townhome" ? "Presale Townhomes" : "New Developments";
-      parts.push(typeLabel);
-    } else {
-      parts.push("Presale Projects");
-    }
-    
     if (filters.city !== "any") {
-      parts.push(`in ${filters.city}`);
-    } else {
-      parts.push("in Metro Vancouver");
+      const typeLabel = filters.projectType === "condo" ? "Presale Condos" : 
+                        filters.projectType === "townhome" ? "Presale Townhomes" : "Presale Projects";
+      return `${typeLabel} in ${filters.city} 2026 | New Construction | PresaleProperties`;
     }
-    
-    
-    return `${parts.join(" ")} | New Construction Homes | PresaleProperties.com`;
+    // Main page - target broad keywords
+    return "Presale Condos & Townhomes in BC 2026 | New Construction Homes";
   };
 
   const getSeoDescription = () => {
-    const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Langley, Coquitlam, Burnaby, Delta & Abbotsford";
-    const typeText = filters.projectType === "condo" ? "presale condos" : 
-                     filters.projectType === "townhome" ? "presale townhomes" : 
-                     "new construction condos, townhomes & homes";
-    
-    return `Browse ${totalCount}+ ${typeText} in ${cityText}. View floor plans, VIP pricing, deposit structures & register for early access to the best pre-construction developments.`;
+    if (filters.city !== "any") {
+      const typeText = filters.projectType === "condo" ? "presale condos" : 
+                       filters.projectType === "townhome" ? "presale townhomes" : 
+                       "presale condos & townhomes";
+      return `Browse ${totalCount}+ ${typeText} in ${filters.city}. View floor plans, VIP pricing & deposit structures. Register for early access to new construction in ${filters.city}, BC.`;
+    }
+    // Main page - comprehensive description
+    return `Discover ${totalCount}+ presale condos & new construction homes in Metro Vancouver & Fraser Valley. Compare floor plans, VIP pricing & deposits for Vancouver, Surrey, Langley, Burnaby & more.`;
   };
 
+  // ItemList structured data for project listings
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -636,6 +674,20 @@ export default function PresaleProjects() {
         }
       }
     })) || []
+  };
+
+  // FAQPage structured data for SEO
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": PRESALE_FAQS.map(faq => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
   };
 
   return (
@@ -671,9 +723,13 @@ export default function PresaleProjects() {
         <meta name="geo.placename" content={filters.city !== "any" ? filters.city : "Metro Vancouver"} />
         <meta name="author" content="PresaleProperties.com" />
         
-        {/* Structured Data */}
+        {/* Structured Data - ItemList */}
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
+        </script>
+        {/* Structured Data - FAQPage */}
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
         </script>
       </Helmet>
 
@@ -703,8 +759,8 @@ export default function PresaleProjects() {
               <div>
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
                   {filters.city !== "any" 
-                    ? `Presale Projects in ${filters.city}` 
-                    : "Pre-Construction New Homes"}
+                    ? `Presale Condos & Townhomes in ${filters.city}` 
+                    : "Presale Condos & New Construction Homes in BC"}
                 </h1>
                 <p className="text-sm text-muted-foreground mt-0.5">
                   <span className="font-semibold text-foreground">{totalCount}</span> projects available
@@ -1019,6 +1075,71 @@ export default function PresaleProjects() {
         <ScrollReveal animation="fade-up">
           <NewConstructionBenefits />
         </ScrollReveal>
+
+        {/* SEO Content Section - City Quick Links */}
+        {activeFilterCount === 0 && (
+          <ScrollReveal animation="fade-up">
+            <section className="py-12 bg-background border-t border-border">
+              <div className="container px-4">
+                <h2 className="text-2xl font-bold text-foreground mb-4">
+                  Browse Presale Condos by City
+                </h2>
+                <p className="text-muted-foreground mb-6 max-w-3xl">
+                  Explore new construction condos and presale townhomes across Metro Vancouver and the Fraser Valley. 
+                  Each city offers unique opportunities from transit-oriented condos to family-friendly townhome communities.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+                  {CITY_SEO_LINKS.map((link) => (
+                    <Link
+                      key={link.slug}
+                      to={`/${link.slug}`}
+                      className="p-3 rounded-lg border border-border bg-card hover:border-primary hover:bg-primary/5 transition-all text-center group"
+                    >
+                      <Building2 className="h-5 w-5 mx-auto mb-1 text-muted-foreground group-hover:text-primary transition-colors" />
+                      <span className="text-sm font-medium text-foreground group-hover:text-primary transition-colors">
+                        {link.city}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </section>
+          </ScrollReveal>
+        )}
+
+        {/* FAQs Section for SEO */}
+        {activeFilterCount === 0 && (
+          <ScrollReveal animation="fade-up">
+            <section className="py-12 bg-muted/30 border-t border-border">
+              <div className="container px-4">
+                <div className="max-w-4xl mx-auto">
+                  <div className="flex items-center gap-2 mb-6">
+                    <HelpCircle className="h-6 w-6 text-primary" />
+                    <h2 className="text-2xl font-bold text-foreground">
+                      Frequently Asked Questions About Presale Condos
+                    </h2>
+                  </div>
+                  <Accordion type="single" collapsible className="space-y-3">
+                    {PRESALE_FAQS.map((faq, index) => (
+                      <AccordionItem 
+                        key={index} 
+                        value={`faq-${index}`}
+                        className="bg-card border border-border rounded-lg px-4"
+                      >
+                        <AccordionTrigger className="text-left font-medium text-foreground hover:text-primary py-4">
+                          {faq.question}
+                        </AccordionTrigger>
+                        <AccordionContent className="text-muted-foreground pb-4 leading-relaxed">
+                          {faq.answer}
+                        </AccordionContent>
+                      </AccordionItem>
+                    ))}
+                  </Accordion>
+                </div>
+              </div>
+            </section>
+          </ScrollReveal>
+        )}
         
         <ScrollReveal animation="fade-up" delay={100}>
           <RelatedContent />
