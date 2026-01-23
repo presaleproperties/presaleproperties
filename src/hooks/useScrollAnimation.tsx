@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useLayoutEffect } from "react";
 
 interface UseScrollAnimationOptions {
   threshold?: number;
@@ -12,7 +12,25 @@ export function useScrollAnimation({
   triggerOnce = true,
 }: UseScrollAnimationOptions = {}) {
   const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  // Start visible to prevent flash on navigation - will be set to false only if below fold
+  const [isVisible, setIsVisible] = useState(true);
+  const hasCheckedInitial = useRef(false);
+
+  // Check immediately on mount if element is in viewport (above fold)
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element || hasCheckedInitial.current) return;
+    
+    hasCheckedInitial.current = true;
+    
+    const rect = element.getBoundingClientRect();
+    const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+    
+    // Only hide if below the fold - prevents flash for above-fold content
+    if (!isInViewport) {
+      setIsVisible(false);
+    }
+  }, []);
 
   useEffect(() => {
     const element = ref.current;

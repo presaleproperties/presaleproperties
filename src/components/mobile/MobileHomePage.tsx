@@ -513,13 +513,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   );
 }
 
-// Animated carousel section wrapper
-function CarouselSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+// Carousel section wrapper - no animation to prevent blinking on navigation
+function CarouselSection({ children }: { children: React.ReactNode; delay?: number }) {
   return (
-    <div 
-      className="animate-fade-in"
-      style={{ animationDelay: `${delay}ms`, animationFillMode: 'both' }}
-    >
+    <div>
       {children}
     </div>
   );
