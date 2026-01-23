@@ -11,15 +11,99 @@ serve(async (req) => {
   }
 
   try {
-    const { description, projectContext, isShortDescription, type, projectName, city, neighborhood } = await req.json();
+    const { description, projectContext, isShortDescription, type, projectName, city, neighborhood, listingData, brochureContent } = await req.json();
+
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
+    // Handle assignment description generation
+    if (type === 'generate_assignment') {
+      const assignmentPrompt = `You are a real estate marketing expert specializing in BC presale assignments. Generate a compelling, factual property description.
+
+PROPERTY DETAILS:
+- Project: ${listingData.project_name || 'Not specified'}
+- Developer: ${listingData.developer_name || 'Not specified'}
+- Location: ${listingData.neighborhood ? listingData.neighborhood + ', ' : ''}${listingData.city || 'Metro Vancouver'}
+- Address: ${listingData.address || 'Not specified'}
+- Unit Type: ${listingData.unit_type || 'Not specified'}
+- Bedrooms: ${listingData.beds !== undefined ? listingData.beds : 'Not specified'}
+- Bathrooms: ${listingData.baths !== undefined ? listingData.baths : 'Not specified'}
+- Interior Size: ${listingData.interior_sqft ? listingData.interior_sqft + ' sqft' : 'Not specified'}
+- Exterior Size: ${listingData.exterior_sqft ? listingData.exterior_sqft + ' sqft' : 'Not specified'}
+- Floor Level: ${listingData.floor_level || 'Not specified'}
+- Exposure/Views: ${listingData.exposure || 'Not specified'}
+- Parking: ${listingData.has_parking ? (listingData.parking_count || 1) + ' stall(s)' : 'None'}
+- Storage: ${listingData.has_storage ? 'Included' : 'None'}
+- Assignment Price: ${listingData.assignment_price ? '$' + listingData.assignment_price.toLocaleString() : 'Not specified'}
+- Original Price: ${listingData.original_price ? '$' + listingData.original_price.toLocaleString() : 'Not specified'}
+- Completion: ${listingData.completion_month ? ['January','February','March','April','May','June','July','August','September','October','November','December'][listingData.completion_month - 1] : ''} ${listingData.completion_year || ''}
+- Construction Status: ${listingData.construction_status?.replace('_', ' ') || 'Not specified'}
+
+${brochureContent ? `BROCHURE/PROJECT INFORMATION:\n${brochureContent}\n` : ''}
+
+CRITICAL RULES:
+1. ONLY include facts from the property details and brochure above - DO NOT invent or assume any information
+2. If a detail is "Not specified", do NOT mention it at all
+3. Write in a professional, marketing-focused tone that highlights value
+4. Structure: Opening hook → Key features → Location benefits → Call to action
+5. Keep it between 100-200 words
+6. Highlight any assignment savings if original price is available
+7. Mention completion timeline if available
+8. Use bullet points (•) for amenities if from brochure
+9. End with a compelling reason to inquire
+
+Write a compelling description that sells this assignment opportunity:`;
+
+      const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash",
+          messages: [
+            { role: "user", content: assignmentPrompt },
+          ],
+          max_tokens: 1000,
+        }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 429) {
+          return new Response(
+            JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+            { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        if (response.status === 402) {
+          return new Response(
+            JSON.stringify({ error: "AI credits required. Please add funds to continue." }),
+            { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          );
+        }
+        const errorText = await response.text();
+        console.error("AI gateway error:", response.status, errorText);
+        throw new Error("AI generation failed");
+      }
+
+      const data = await response.json();
+      const generatedDescription = data.choices?.[0]?.message?.content;
+
+      if (!generatedDescription) {
+        throw new Error("No description generated");
+      }
+
+      return new Response(
+        JSON.stringify({ formatted: generatedDescription.trim() }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
+    }
 
     // Handle SEO generation
     if (type === 'seo') {
-      const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-      if (!LOVABLE_API_KEY) {
-        throw new Error("LOVABLE_API_KEY is not configured");
-      }
-
       const seoPrompt = `You are an SEO expert for real estate presale listings. Generate optimized SEO title and meta description.
 
 PROJECT DETAILS:
@@ -85,11 +169,6 @@ Respond in this exact JSON format:
         JSON.stringify({ error: "Description too short to format" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
-    }
-
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
     }
 
     // Different prompts for short vs full descriptions
