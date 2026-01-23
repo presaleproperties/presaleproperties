@@ -257,7 +257,7 @@ export function ResaleListingMiniMap({
       </div>
 
       {/* Map Container */}
-      <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted">
+      <div className="relative rounded-xl overflow-hidden border border-border/50 bg-muted z-0">
         <style>{`
           .property-marker-icon {
             background: transparent !important;
@@ -336,7 +336,7 @@ export function ResaleListingMiniMap({
         <div ref={mapContainerRef} className="w-full h-[340px] md:h-[380px]" />
         
         {/* Minimal filter pills at bottom */}
-        <div className="absolute bottom-2 left-2 right-2 z-[1000] flex justify-center gap-1">
+        <div className="absolute bottom-2 left-2 right-2 z-10 flex justify-center gap-1">
           {amenityCategories.map(({ key, icon: Icon }) => {
             const isActive = activeCategories.has(key);
             return (
