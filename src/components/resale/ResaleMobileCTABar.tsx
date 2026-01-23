@@ -45,29 +45,29 @@ export const ResaleMobileCTABar = ({
 
   return (
     <>
-      {/* Fixed bottom CTA bar - mobile only with keyboard-aware visibility */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] hide-on-keyboard safe-area-pb">
-        <div className="px-3 py-3 flex items-center gap-2">
-          {/* Price display - more compact */}
+      {/* Fixed bottom CTA bar - mobile AND tablet (hidden only on desktop xl+) */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 xl:hidden bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] hide-on-keyboard safe-area-pb">
+        <div className="px-3 py-3 flex items-center gap-2 sm:gap-3">
+          {/* Price display - responsive sizing */}
           {formattedPrice && (
             <div className="flex-shrink-0 min-w-0">
-              <p className="text-2xl sm:text-3xl leading-none font-bold text-foreground tabular-nums tracking-tight">
+              <p className="text-2xl sm:text-3xl md:text-4xl leading-none font-bold text-foreground tabular-nums tracking-tight">
                 {formattedPrice}
               </p>
-              <p className="text-[10px] text-muted-foreground font-medium">List Price</p>
+              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">List Price</p>
             </div>
           )}
 
-          <div className="flex-1 flex gap-2 justify-end items-center">
+          <div className="flex-1 flex gap-2 sm:gap-3 justify-end items-center">
             {/* WhatsApp Call button */}
             <Button
               variant="outline"
               size="icon"
               onClick={handleWhatsAppCall}
-              className="h-12 w-12 min-h-[48px] min-w-[48px] rounded-xl border-border touch-active bg-green-50 hover:bg-green-100 border-green-200"
+              className="h-12 w-12 sm:h-14 sm:w-14 min-h-[48px] min-w-[48px] rounded-xl border-green-200 touch-active bg-green-50 hover:bg-green-100 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800"
               aria-label="WhatsApp Call"
             >
-              <Phone className="h-5 w-5 text-green-600" />
+              <Phone className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
             </Button>
 
             {/* WhatsApp Message button */}
@@ -75,18 +75,18 @@ export const ResaleMobileCTABar = ({
               variant="outline"
               size="icon"
               onClick={handleWhatsAppMessage}
-              className="h-12 w-12 min-h-[48px] min-w-[48px] rounded-xl border-border touch-active bg-green-50 hover:bg-green-100 border-green-200"
+              className="h-12 w-12 sm:h-14 sm:w-14 min-h-[48px] min-w-[48px] rounded-xl border-green-200 touch-active bg-green-50 hover:bg-green-100 dark:bg-green-950 dark:hover:bg-green-900 dark:border-green-800"
               aria-label="WhatsApp Message"
             >
-              <MessageCircle className="h-5 w-5 text-green-600" />
+              <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-green-600 dark:text-green-400" />
             </Button>
 
             {/* Schedule showing button - primary CTA */}
             <Sheet open={showScheduler} onOpenChange={setShowScheduler}>
               <SheetTrigger asChild>
-                <Button className="h-12 min-h-[48px] px-4 gap-2 bg-foreground hover:bg-foreground/90 text-background font-semibold text-sm rounded-xl touch-active shadow-lg hover:shadow-xl transition-all duration-200">
-                  <Calendar className="h-4 w-4" />
-                  <span className="hidden xs:inline">Schedule</span> Showing
+                <Button className="h-12 sm:h-14 min-h-[48px] px-4 sm:px-6 gap-2 bg-foreground hover:bg-foreground/90 text-background font-semibold text-sm sm:text-base rounded-xl touch-active shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
+                  Schedule Showing
                 </Button>
               </SheetTrigger>
               <SheetContent side="bottom" className="h-auto max-h-[90vh] rounded-t-2xl">
@@ -106,8 +106,8 @@ export const ResaleMobileCTABar = ({
         </div>
       </div>
 
-      {/* Spacer to prevent content from being hidden behind fixed bar */}
-      <div className="h-24 lg:hidden" />
+      {/* Spacer to prevent content from being hidden behind fixed bar - mobile and tablet */}
+      <div className="h-24 xl:hidden" />
     </>
   );
 };
