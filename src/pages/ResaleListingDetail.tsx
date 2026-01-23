@@ -2,7 +2,6 @@ import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useRef, useState, useEffect } from "react";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Bed, Bath, Maximize, Building2, Calendar, MapPin, Car, Home, DollarSign, Clock, Layers, ChevronRight, Map, Navigation, Sparkles, Phone, User, Flame, Snowflake, Eye, FileText, Users, Waves, TreePine, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -25,6 +24,7 @@ import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { ResaleMobileCTABar } from "@/components/resale/ResaleMobileCTABar";
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
     style: "currency",
@@ -124,7 +124,6 @@ export default function ResaleListingDetail() {
   const formRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
-  const [showMobileScheduler, setShowMobileScheduler] = useState(false);
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -1033,28 +1032,14 @@ export default function ResaleListingDetail() {
         </article>
       </main>
 
-      {/* Mobile CTA Bar - Only on mobile, not tablet (form is inline on tablet) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-40 shadow-lg safe-area-pb">
-        <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 shrink-0 rounded-xl">
-          <Phone className="h-5 w-5" />
-        </Button>
-        <Button onClick={() => setShowMobileScheduler(true)} className="flex-1 h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold">
-          <Calendar className="h-4 w-4 mr-2" />
-          Schedule Showing
-        </Button>
-      </div>
-
-      {/* Mobile Scheduler Sheet */}
-      <Sheet open={showMobileScheduler} onOpenChange={setShowMobileScheduler}>
-        <SheetContent side="bottom" className="h-auto max-h-[90vh] rounded-t-2xl">
-          <SheetHeader className="pb-2">
-            <SheetTitle className="text-left">{address}</SheetTitle>
-          </SheetHeader>
-          <div className="overflow-y-auto max-h-[calc(90vh-80px)] -mx-6 px-6 pb-safe">
-            <ResaleScheduleForm listingId={listing.id} listingAddress={address} listingCity={listing.city} />
-          </div>
-        </SheetContent>
-      </Sheet>
+      {/* Mobile & Tablet CTA Bar */}
+      <ResaleMobileCTABar
+        listingId={listing.id}
+        listingAddress={address}
+        listingCity={listing.city}
+        listingPrice={listing.listing_price}
+        formattedPrice={formatPrice(listing.listing_price)}
+      />
 
       <Footer />
     </div>;
