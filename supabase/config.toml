@@ -18,6 +18,9 @@ verify_jwt = false
 [functions.parse-project-brochure]
 verify_jwt = false
 
+[functions.parse-assignment-brochure]
+verify_jwt = false
+
 [functions.sort-project-images]
 verify_jwt = false
 
