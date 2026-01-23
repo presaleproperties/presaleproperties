@@ -19,6 +19,7 @@ import { PropertyValueTrends } from "@/components/resale/PropertyValueTrends";
 import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { SimilarListings } from "@/components/resale/SimilarListings";
+import { ResaleAgentCard } from "@/components/resale/ResaleAgentCard";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
@@ -72,9 +73,11 @@ type MLSListing = {
   cumulative_days_on_market: number | null;
   list_date: string | null;
   public_remarks: string | null;
+  list_agent_key: string | null;
   list_agent_name: string | null;
   list_agent_phone: string | null;
   list_agent_email: string | null;
+  list_office_key: string | null;
   list_office_name: string | null;
   list_office_phone: string | null;
   buyer_agent_name: string | null;
@@ -97,6 +100,20 @@ type MLSListing = {
   open_house_start_time: string | null;
   open_house_end_time: string | null;
   open_house_remarks: string | null;
+};
+
+type MLSAgent = {
+  agent_key: string;
+  full_name: string | null;
+  email: string | null;
+  phone: string | null;
+  office_key: string | null;
+};
+
+type MLSOffice = {
+  office_key: string;
+  office_name: string | null;
+  phone: string | null;
 };
 export default function ResaleListingDetail() {
   const {
@@ -129,6 +146,42 @@ export default function ResaleListingDetail() {
       return data as MLSListing | null;
     },
     enabled: !!listingKey
+  });
+
+  // Fetch agent details from mls_agents table
+  const { data: agentData } = useQuery({
+    queryKey: ["mls-agent", listing?.list_agent_key],
+    queryFn: async () => {
+      if (!listing?.list_agent_key) return null;
+      
+      // Fetch agent
+      const { data: agent } = await supabase
+        .from("mls_agents")
+        .select("agent_key, full_name, email, phone, office_key")
+        .eq("agent_key", listing.list_agent_key)
+        .maybeSingle();
+      
+      if (!agent) return null;
+
+      // Fetch office if agent has office_key
+      let officeName = listing.list_office_name;
+      if (agent.office_key && !officeName) {
+        const { data: office } = await supabase
+          .from("mls_offices")
+          .select("office_name")
+          .eq("office_key", agent.office_key)
+          .maybeSingle();
+        officeName = office?.office_name || null;
+      }
+
+      return {
+        full_name: agent.full_name || listing.list_agent_name,
+        email: agent.email || listing.list_agent_email,
+        phone: agent.phone || listing.list_agent_phone,
+        office_name: officeName,
+      };
+    },
+    enabled: !!listing?.list_agent_key,
   });
 
   // Track listing view with behavioral tracking
@@ -888,6 +941,20 @@ export default function ResaleListingDetail() {
             {/* Property Value Trends */}
             <PropertyValueTrends city={listing.city} neighborhood={listing.neighborhood} propertyType={listing.property_sub_type || listing.property_type} currentPrice={listing.listing_price} />
 
+            {/* Agent Contact Card - Mobile/Tablet */}
+            <div className="lg:hidden">
+              {(agentData || listing.list_agent_name) && (
+                <ResaleAgentCard 
+                  agent={agentData || {
+                    full_name: listing.list_agent_name,
+                    email: listing.list_agent_email,
+                    phone: listing.list_agent_phone,
+                    office_name: listing.list_office_name,
+                  }} 
+                />
+              )}
+            </div>
+
             {/* Listing Details - Compact */}
             <div className="border-t pt-4 space-y-2">
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -910,11 +977,23 @@ export default function ResaleListingDetail() {
 
           {/* Right Column - Contact Form & Calculator (Desktop Only) */}
           <div className="hidden lg:block space-y-6">
-            <div ref={formRef} className="sticky top-24">
+            <div ref={formRef} className="sticky top-24 space-y-6">
               {/* Schedule Tour Form */}
-              <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm mb-6">
+              <div className="bg-card border rounded-xl p-4 md:p-6 shadow-sm">
                 <ResaleScheduleForm listingId={listing.id} listingAddress={address} listingCity={listing.city} />
               </div>
+
+              {/* Agent Contact Card */}
+              {(agentData || listing.list_agent_name) && (
+                <ResaleAgentCard 
+                  agent={agentData || {
+                    full_name: listing.list_agent_name,
+                    email: listing.list_agent_email,
+                    phone: listing.list_agent_phone,
+                    office_name: listing.list_office_name,
+                  }} 
+                />
+              )}
 
               {/* Mortgage Calculator */}
               <MortgageCalculator 
