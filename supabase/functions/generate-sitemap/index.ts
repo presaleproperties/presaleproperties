@@ -42,23 +42,24 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString().split("T")[0];
 
-    // Static pages
+    // Static pages - only include routes that exist in App.tsx
     const staticPages: { url: string; priority: string; changefreq: string; lastmod?: string }[] = [
       { url: "/", priority: "1.0", changefreq: "daily", lastmod: now },
       { url: "/presale-projects", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/assignments", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/resale", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/map-search", priority: "0.85", changefreq: "daily", lastmod: now },
-      { url: "/market-trends", priority: "0.85", changefreq: "weekly", lastmod: now },
       { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/presale-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
-      { url: "/calculator", priority: "0.85", changefreq: "monthly", lastmod: now },
+      { url: "/roi-calculator", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/mortgage-calculator", priority: "0.8", changefreq: "monthly", lastmod: now },
+      { url: "/investment-snapshot", priority: "0.8", changefreq: "monthly", lastmod: now },
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
-      { url: "/developers", priority: "0.7", changefreq: "monthly", lastmod: now },
+      { url: "/for-developers", priority: "0.7", changefreq: "monthly", lastmod: now },
+      { url: "/vip", priority: "0.7", changefreq: "monthly", lastmod: now },
     ];
 
     // Primary and secondary cities
@@ -84,14 +85,11 @@ Deno.serve(async (req) => {
     // Resale / Move-In Ready city pages with property types, price ranges, and bedrooms
     const resaleCityPages = allCities.flatMap(city => [
       { url: `/resale/${city}`, priority: "0.85", changefreq: "daily", lastmod: now },
-      // Property types (new naming: condos, townhomes, homes)
+      // Property types
       { url: `/resale/${city}/condos`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/townhomes`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/homes`, priority: "0.8", changefreq: "daily", lastmod: now },
-      // Legacy property type routes
-      { url: `/resale/${city}/townhouses`, priority: "0.75", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/houses`, priority: "0.75", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/duplexes`, priority: "0.7", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/townhouses`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/resale/${city}/duplexes`, priority: "0.75", changefreq: "daily", lastmod: now },
       // Price ranges
       { url: `/resale/${city}/under-500k`, priority: "0.8", changefreq: "daily", lastmod: now },
       { url: `/resale/${city}/under-750k`, priority: "0.8", changefreq: "daily", lastmod: now },
@@ -131,14 +129,7 @@ Deno.serve(async (req) => {
       ])
     );
 
-    // City Market Report pages
-    const marketReportPages = allCities.map(city => ({
-      url: `/market-report/${city}`,
-      priority: "0.8",
-      changefreq: "monthly",
-      lastmod: now
-    }));
-    // Price-based SEO pages
+    // Price-based SEO pages - only for routes that exist
     const pricePoints = ["500k", "700k", "900k", "1000k"];
     const priceCities = primaryCities;
     const pricePages = priceCities.flatMap(city => 
@@ -147,13 +138,6 @@ Deno.serve(async (req) => {
         { url: `/presale-townhomes-under-${price}-${city}`, priority: "0.8", changefreq: "daily", lastmod: now }
       ])
     );
-
-    // Investment and filter pages
-    const filterPages = [
-      { url: "/investment-presale-properties", priority: "0.8", changefreq: "weekly", lastmod: now },
-      { url: "/presale-townhomes-under-500k", priority: "0.8", changefreq: "weekly", lastmod: now },
-      { url: "/presale-condos-under-400k", priority: "0.8", changefreq: "weekly", lastmod: now },
-    ];
 
     // Fetch presale projects with neighborhood data for SEO URLs
     const { data: projects } = await supabase
@@ -225,20 +209,35 @@ Deno.serve(async (req) => {
       changefreq: "weekly"
     }));
 
+    // Fetch MLS resale listings - HIGH SEO VALUE
+    const { data: mlsListings } = await supabase
+      .from("mls_listings")
+      .select("listing_key, updated_at")
+      .eq("status", "Active")
+      .limit(5000); // Limit to prevent sitemap bloat
+
+    const mlsListingPages = (mlsListings || []).map(l => ({
+      url: `/resale/${l.listing_key}`,
+      lastmod: l.updated_at?.split("T")[0] || now,
+      priority: "0.7",
+      changefreq: "daily"
+    }));
+
+    console.log(`Sitemap: ${mlsListingPages.length} MLS listings added`);
+
     // Build XML - note: order matters for crawl priority
     const allPages = [
       ...staticPages,
       ...cityProductPages,
       ...seoHubPages,
-      ...marketReportPages,
       ...projectPages, // Projects now have SEO-friendly URLs and high priority
       ...neighborhoodPages,
       ...resaleCityPages,
       ...neighborhoodPropertyPages,
       ...pricePages,
-      ...filterPages,
       ...blogPages,
-      ...listingPages
+      ...listingPages,
+      ...mlsListingPages, // Individual resale listings - high SEO value
     ];
     
     const urlEntries = allPages.map(page => `
