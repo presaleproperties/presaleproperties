@@ -14,16 +14,12 @@ interface ResaleMobileCTABarProps {
   listingId: string;
   listingAddress: string;
   listingCity: string;
-  listingPrice?: number;
-  formattedPrice?: string;
 }
 
 export const ResaleMobileCTABar = ({
   listingId,
   listingAddress,
   listingCity,
-  listingPrice,
-  formattedPrice,
 }: ResaleMobileCTABarProps) => {
   const [showScheduler, setShowScheduler] = useState(false);
 
@@ -45,20 +41,8 @@ export const ResaleMobileCTABar = ({
 
   return (
     <>
-      {/* Fixed bottom CTA bar - mobile AND tablet (hidden only on desktop xl+) */}
       <div className="fixed bottom-0 left-0 right-0 z-50 xl:hidden bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] hide-on-keyboard safe-area-pb">
-        <div className="px-3 py-3 flex items-center gap-2 sm:gap-3">
-          {/* Price display - responsive sizing */}
-          {formattedPrice && (
-            <div className="flex-shrink-0 min-w-0">
-              <p className="text-2xl sm:text-3xl md:text-4xl leading-none font-bold text-foreground tabular-nums tracking-tight">
-                {formattedPrice}
-              </p>
-              <p className="text-[10px] sm:text-xs text-muted-foreground font-medium">List Price</p>
-            </div>
-          )}
-
-          <div className="flex-1 flex gap-2 sm:gap-3 justify-end items-center">
+        <div className="px-3 py-3 flex items-center justify-center gap-2 sm:gap-3">
             {/* Phone Call button */}
             <Button
               variant="outline"
@@ -102,7 +86,6 @@ export const ResaleMobileCTABar = ({
                 </div>
               </SheetContent>
             </Sheet>
-          </div>
         </div>
       </div>
 

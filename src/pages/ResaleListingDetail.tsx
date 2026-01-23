@@ -1037,8 +1037,6 @@ export default function ResaleListingDetail() {
         listingId={listing.id}
         listingAddress={address}
         listingCity={listing.city}
-        listingPrice={listing.listing_price}
-        formattedPrice={formatPrice(listing.listing_price)}
       />
 
       <Footer />
