@@ -26,7 +26,8 @@ import {
   ArrowLeft,
   Wand2,
   MapPin,
-  CheckCircle2
+  CheckCircle2,
+  Sparkles
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AssignmentBrochureUploader, ExtractedAssignmentData } from "@/components/listings/AssignmentBrochureUploader";
@@ -145,7 +146,9 @@ export default function ListingForm() {
   const [floorplans, setFloorplans] = useState<UploadedFile[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingFloorplans, setUploadingFloorplans] = useState(false);
-  const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
+const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
+  const [brochureContent, setBrochureContent] = useState<string>("");
+  const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   
   // Address autocomplete state
   const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
@@ -525,6 +528,80 @@ export default function ListingForm() {
                        data.unit_type === "3bed" ? "3BR" : "Penthouse";
       const floorText = data.floor_level ? ` Floor ${data.floor_level}` : "";
       form.setValue("title", `${unitLabel}${floorText} at ${data.project_name}`);
+    }
+    
+    // Store brochure content for AI description generation
+    if (data.description) {
+      setBrochureContent(data.description);
+    }
+  };
+
+  // AI Description Generator
+  const handleGenerateDescription = async () => {
+    const values = form.getValues();
+    
+    // Validate we have minimum data
+    if (!values.project_name) {
+      toast({
+        title: "Missing Information",
+        description: "Please enter a project name before generating a description.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setIsGeneratingDescription(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('format-description', {
+        body: {
+          type: 'generate_assignment',
+          listingData: {
+            project_name: values.project_name,
+            developer_name: values.developer_name,
+            city: values.city,
+            neighborhood: values.neighborhood,
+            address: values.address,
+            unit_type: UNIT_TYPES.find(u => u.value === values.unit_type)?.label || values.unit_type,
+            beds: values.beds,
+            baths: values.baths,
+            interior_sqft: values.interior_sqft,
+            exterior_sqft: values.exterior_sqft,
+            floor_level: values.floor_level,
+            exposure: values.exposure,
+            has_parking: values.has_parking,
+            parking_count: values.parking_count,
+            has_storage: values.has_storage,
+            assignment_price: values.assignment_price,
+            original_price: values.original_price,
+            completion_month: values.completion_month,
+            completion_year: values.completion_year,
+            construction_status: values.construction_status,
+          },
+          brochureContent: brochureContent || undefined,
+        }
+      });
+      
+      if (error) throw error;
+      
+      if (data?.formatted) {
+        form.setValue("description", data.formatted);
+        toast({
+          title: "Description Generated",
+          description: "AI-generated description applied. Feel free to edit it.",
+        });
+      } else if (data?.error) {
+        throw new Error(data.error);
+      }
+    } catch (err) {
+      console.error("AI generation error:", err);
+      toast({
+        title: "Generation Failed",
+        description: err instanceof Error ? err.message : "Could not generate description",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeneratingDescription(false);
     }
   };
 
@@ -1247,10 +1324,29 @@ export default function ListingForm() {
             {/* Description */}
             <Card>
               <CardHeader>
-                <CardTitle>Description</CardTitle>
-                <CardDescription>Detailed description of the property</CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Description</CardTitle>
+                    <CardDescription>Detailed description of the property</CardDescription>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleGenerateDescription}
+                    disabled={isGeneratingDescription}
+                    className="gap-2"
+                  >
+                    {isGeneratingDescription ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-4 w-4" />
+                    )}
+                    {isGeneratingDescription ? "Generating..." : "AI Generate"}
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="space-y-3">
                 <FormField
                   control={form.control}
                   name="description"
@@ -1267,6 +1363,12 @@ export default function ListingForm() {
                     </FormItem>
                   )}
                 />
+                {brochureContent && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />
+                    Brochure content available for AI generation
+                  </p>
+                )}
               </CardContent>
             </Card>
 
