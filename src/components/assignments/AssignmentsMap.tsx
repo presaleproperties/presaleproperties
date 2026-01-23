@@ -1,13 +1,15 @@
-import { useRef, useEffect, useCallback, useMemo } from "react";
+import { useRef, useEffect, useCallback, useMemo, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
-import { Heart, ZoomIn, ZoomOut, Locate } from "lucide-react";
+import { ZoomIn, ZoomOut, Locate } from "lucide-react";
 
 const DEFAULT_CENTER: [number, number] = [49.2827, -123.1207];
 const DEFAULT_ZOOM = 11;
+const TILE_URL = "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
+const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>';
 
 interface Assignment {
   id: string;
@@ -45,28 +47,49 @@ function formatPrice(price: number): string {
 function createPricePillIcon(assignment: Assignment, isSaved: boolean): L.DivIcon {
   const hasSavings = assignment.original_price && assignment.original_price > assignment.assignment_price;
   
+  const bgColor = hasSavings ? '#16a34a' : '#ffffff';
+  const textColor = hasSavings ? '#ffffff' : '#1f2937';
+  const borderStyle = hasSavings ? 'none' : '1px solid #e5e7eb';
+  
   return L.divIcon({
     className: "custom-price-pill",
     html: `
-      <div class="relative">
-        <div class="
-          px-2.5 py-1.5 rounded-full text-xs font-bold shadow-lg
-          ${hasSavings ? 'bg-green-500 text-white' : 'bg-white text-gray-900 border border-gray-200'}
-          hover:scale-105 transition-transform cursor-pointer
-          flex items-center gap-1
+      <div style="
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      ">
+        <div style="
+          padding: 6px 10px;
+          border-radius: 9999px;
+          font-size: 12px;
+          font-weight: 700;
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          background-color: ${bgColor};
+          color: ${textColor};
+          border: ${borderStyle};
+          white-space: nowrap;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          transition: transform 0.15s ease;
         ">
           ${formatPrice(assignment.assignment_price)}
-          ${isSaved ? '<span class="text-red-500">♥</span>' : ''}
+          ${isSaved ? '<span style="color: #ef4444;">♥</span>' : ''}
         </div>
-        <div class="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 
-          border-l-[6px] border-l-transparent 
-          border-r-[6px] border-r-transparent 
-          ${hasSavings ? 'border-t-[6px] border-t-green-500' : 'border-t-[6px] border-t-white'}
+        <div style="
+          width: 0;
+          height: 0;
+          border-left: 6px solid transparent;
+          border-right: 6px solid transparent;
+          border-top: 6px solid ${bgColor};
         "></div>
       </div>
     `,
-    iconSize: [80, 36],
-    iconAnchor: [40, 36],
+    iconSize: [80, 42],
+    iconAnchor: [40, 42],
   });
 }
 
@@ -75,10 +98,19 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   return L.divIcon({
     className: "custom-cluster",
     html: `
-      <div class="
-        w-10 h-10 rounded-full bg-primary text-primary-foreground
-        flex items-center justify-center text-sm font-bold shadow-lg
-        border-2 border-white
+      <div style="
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 700;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 2px solid white;
       ">
         ${count}
       </div>
@@ -88,7 +120,7 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   });
 }
 
-function popupHtml(assignment: Assignment, isOwn: boolean): string {
+function getPopupHtml(assignment: Assignment, isOwn: boolean): string {
   const savings = assignment.original_price 
     ? assignment.original_price - assignment.assignment_price 
     : null;
@@ -102,25 +134,27 @@ function popupHtml(assignment: Assignment, isOwn: boolean): string {
   const mainPhoto = assignment.listing_photos?.sort((a, b) => a.sort_order - b.sort_order)?.[0]?.url;
 
   return `
-    <div class="w-64 p-0 font-sans">
-      <div class="relative h-32 bg-muted rounded-t-lg overflow-hidden">
+    <div style="width: 256px; padding: 0; font-family: system-ui, -apple-system, sans-serif;">
+      <div style="position: relative; height: 128px; background: #f3f4f6; border-radius: 8px 8px 0 0; overflow: hidden;">
         ${mainPhoto 
-          ? `<img src="${mainPhoto}" alt="${assignment.title}" class="w-full h-full object-cover" />`
-          : `<div class="w-full h-full flex items-center justify-center text-muted-foreground">No Image</div>`
+          ? `<img src="${mainPhoto}" alt="${assignment.title}" style="width: 100%; height: 100%; object-fit: cover;" />`
+          : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #9ca3af;">No Image</div>`
         }
-        ${isOwn ? `<span class="absolute top-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">Your Listing</span>` : ''}
-        ${savings && savings > 0 ? `<span class="absolute bottom-2 left-2 bg-green-600 text-white text-xs px-2 py-0.5 rounded">Save $${(savings/1000).toFixed(0)}K</span>` : ''}
+        ${isOwn ? `<span style="position: absolute; top: 8px; left: 8px; background: hsl(var(--primary)); color: white; font-size: 11px; padding: 2px 8px; border-radius: 4px;">Your Listing</span>` : ''}
+        ${savings && savings > 0 ? `<span style="position: absolute; bottom: 8px; left: 8px; background: #16a34a; color: white; font-size: 11px; padding: 2px 8px; border-radius: 4px;">Save $${(savings/1000).toFixed(0)}K</span>` : ''}
       </div>
-      <div class="p-3">
-        <h3 class="font-semibold text-sm mb-1 line-clamp-1">${assignment.title || assignment.project_name}</h3>
-        <p class="text-xs text-muted-foreground mb-2">${assignment.neighborhood ? `${assignment.neighborhood}, ` : ''}${assignment.city}</p>
-        <div class="flex items-center justify-between">
-          <span class="font-bold text-primary">${formattedPrice}</span>
-          <span class="text-xs text-muted-foreground">${assignment.beds} bed · ${assignment.baths} bath</span>
+      <div style="padding: 12px;">
+        <h3 style="font-weight: 600; font-size: 14px; margin: 0 0 4px 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${assignment.title || assignment.project_name}</h3>
+        <p style="font-size: 12px; color: #6b7280; margin: 0 0 8px 0;">${assignment.neighborhood ? `${assignment.neighborhood}, ` : ''}${assignment.city}</p>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-weight: 700; color: hsl(var(--primary));">${formattedPrice}</span>
+          <span style="font-size: 12px; color: #6b7280;">${assignment.beds} bed · ${assignment.baths} bath</span>
         </div>
         <a 
           href="/assignments/${assignment.id}" 
-          class="mt-2 block text-center bg-primary text-primary-foreground text-xs py-1.5 px-3 rounded hover:bg-primary/90 transition-colors"
+          style="display: block; margin-top: 8px; text-align: center; background: hsl(var(--primary)); color: white; font-size: 12px; padding: 6px 12px; border-radius: 6px; text-decoration: none; transition: opacity 0.15s;"
+          onmouseover="this.style.opacity='0.9'"
+          onmouseout="this.style.opacity='1'"
         >
           View Details
         </a>
@@ -136,58 +170,72 @@ export default function AssignmentsMap({
   currentUserId 
 }: AssignmentsMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<L.Map | null>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
   const clusterGroupRef = useRef<L.MarkerClusterGroup | null>(null);
+  const [isMapReady, setIsMapReady] = useState(false);
 
   const validAssignments = useMemo(() => {
     return assignments.filter(a => a.map_lat && a.map_lng);
   }, [assignments]);
 
+  // Initialize map
   const initializeMap = useCallback(() => {
-    if (!mapContainerRef.current || mapRef.current) return;
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    const map = L.map(mapContainerRef.current, {
-      center: DEFAULT_CENTER,
-      zoom: DEFAULT_ZOOM,
-      zoomControl: false,
-    });
+    try {
+      const map = L.map(mapContainerRef.current, {
+        center: DEFAULT_CENTER,
+        zoom: DEFAULT_ZOOM,
+        zoomControl: false,
+        attributionControl: true,
+      });
 
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-      maxZoom: 19,
-    }).addTo(map);
+      L.tileLayer(TILE_URL, {
+        attribution: TILE_ATTRIBUTION,
+        maxZoom: 19,
+      }).addTo(map);
 
-    const clusterGroup = L.markerClusterGroup({
-      chunkedLoading: true,
-      maxClusterRadius: 50,
-      iconCreateFunction: createClusterIcon,
-      spiderfyOnMaxZoom: true,
-      showCoverageOnHover: false,
-      zoomToBoundsOnClick: true,
-    });
+      const clusterGroup = L.markerClusterGroup({
+        chunkedLoading: true,
+        maxClusterRadius: 50,
+        iconCreateFunction: createClusterIcon,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        animate: true,
+      });
 
-    map.addLayer(clusterGroup);
+      map.addLayer(clusterGroup);
 
-    mapRef.current = map;
-    clusterGroupRef.current = clusterGroup;
+      mapInstanceRef.current = map;
+      clusterGroupRef.current = clusterGroup;
+      setIsMapReady(true);
+    } catch (error) {
+      console.error("[AssignmentsMap] Error initializing map:", error);
+    }
   }, []);
 
-  // Initialize map
+  // Initialize on mount
   useEffect(() => {
-    initializeMap();
+    // Small delay to ensure container is ready
+    const timer = setTimeout(() => {
+      initializeMap();
+    }, 100);
 
     return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
+      clearTimeout(timer);
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
         clusterGroupRef.current = null;
+        setIsMapReady(false);
       }
     };
   }, [initializeMap]);
 
   // Update markers when assignments change
   useEffect(() => {
-    if (!clusterGroupRef.current || !mapRef.current) return;
+    if (!isMapReady || !clusterGroupRef.current || !mapInstanceRef.current) return;
 
     clusterGroupRef.current.clearLayers();
 
@@ -203,9 +251,10 @@ export default function AssignmentsMap({
         icon: createPricePillIcon(assignment, isSaved),
       });
 
-      marker.bindPopup(popupHtml(assignment, isOwn), {
+      marker.bindPopup(getPopupHtml(assignment, isOwn), {
         maxWidth: 280,
         className: "custom-popup",
+        closeButton: true,
       });
 
       markers.push(marker);
@@ -216,74 +265,96 @@ export default function AssignmentsMap({
     // Fit bounds to show all markers
     if (markers.length > 0) {
       const group = L.featureGroup(markers);
-      mapRef.current.fitBounds(group.getBounds().pad(0.1));
+      const bounds = group.getBounds();
+      if (bounds.isValid()) {
+        mapInstanceRef.current.fitBounds(bounds.pad(0.1), {
+          maxZoom: 14,
+          animate: true,
+        });
+      }
     }
-  }, [validAssignments, savedIds, currentUserId]);
+  }, [validAssignments, savedIds, currentUserId, isMapReady]);
 
-  const handleLocateUser = () => {
-    if (!mapRef.current) return;
+  const handleLocateUser = useCallback(() => {
+    if (!mapInstanceRef.current) return;
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        mapRef.current?.setView(
+        mapInstanceRef.current?.flyTo(
           [position.coords.latitude, position.coords.longitude],
-          14
+          14,
+          { animate: true, duration: 0.8 }
         );
       },
       (error) => {
         console.error("Geolocation error:", error);
       }
     );
-  };
+  }, []);
 
-  const handleZoomIn = () => mapRef.current?.zoomIn();
-  const handleZoomOut = () => mapRef.current?.zoomOut();
+  const handleZoomIn = useCallback(() => {
+    mapInstanceRef.current?.zoomIn();
+  }, []);
+
+  const handleZoomOut = useCallback(() => {
+    mapInstanceRef.current?.zoomOut();
+  }, []);
 
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden">
-      <div ref={mapContainerRef} className="absolute inset-0" />
+      <div ref={mapContainerRef} className="absolute inset-0 z-0" />
 
       {/* Custom Controls */}
       <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-[1000]">
         <button
           onClick={handleLocateUser}
-          className="p-2.5 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          className="p-2.5 bg-background rounded-lg shadow-lg hover:bg-muted transition-colors border border-border"
           title="Find my location"
         >
-          <Locate className="h-5 w-5 text-gray-700" />
+          <Locate className="h-5 w-5 text-foreground" />
         </button>
         <button
           onClick={handleZoomIn}
-          className="p-2.5 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          className="p-2.5 bg-background rounded-lg shadow-lg hover:bg-muted transition-colors border border-border"
         >
-          <ZoomIn className="h-5 w-5 text-gray-700" />
+          <ZoomIn className="h-5 w-5 text-foreground" />
         </button>
         <button
           onClick={handleZoomOut}
-          className="p-2.5 bg-white rounded-lg shadow-lg hover:bg-gray-50 transition-colors"
+          className="p-2.5 bg-background rounded-lg shadow-lg hover:bg-muted transition-colors border border-border"
         >
-          <ZoomOut className="h-5 w-5 text-gray-700" />
+          <ZoomOut className="h-5 w-5 text-foreground" />
         </button>
       </div>
 
       {/* Legend */}
-      <div className="absolute top-4 left-4 bg-white/95 backdrop-blur-sm rounded-lg shadow-lg p-3 z-[1000]">
-        <p className="text-xs font-medium mb-2">Legend</p>
-        <div className="flex flex-col gap-1.5 text-xs">
+      <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm rounded-lg shadow-lg p-3 z-[1000] border border-border">
+        <p className="text-xs font-medium mb-2 text-foreground">Legend</p>
+        <div className="flex flex-col gap-1.5 text-xs text-muted-foreground">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-green-500"></div>
+            <div className="w-4 h-4 rounded-full bg-green-600"></div>
             <span>Below original price</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded-full bg-white border border-gray-300"></div>
+            <div className="w-4 h-4 rounded-full bg-background border border-border"></div>
             <span>At or above original</span>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-red-500">♥</span>
+            <span className="text-destructive">♥</span>
             <span>Saved</span>
           </div>
         </div>
       </div>
+
+      {/* Loading state */}
+      {!isMapReady && (
+        <div className="absolute inset-0 flex items-center justify-center bg-muted">
+          <div className="text-center text-muted-foreground">
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+            <p className="text-sm">Loading map...</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
