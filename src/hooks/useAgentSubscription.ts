@@ -49,7 +49,8 @@ export function useAgentSubscription() {
 
   const hasActiveSubscription = subscription?.status === "active" && subscription?.tier !== "none";
   
-  const canAccessAssignments = hasActiveSubscription;
+  // Free access for now - all agents can access assignments
+  const canAccessAssignments = true;
 
   const tierLabel = subscription?.tier ? {
     none: "No Plan",
