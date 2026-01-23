@@ -84,12 +84,41 @@ export default function Blog() {
     });
   };
 
+  // Generate CollectionPage schema for SEO
+  const collectionSchema = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Presale & New Construction Blog | Vancouver Real Estate 2026",
+    "description": "Expert guides on buying presale & new construction in Vancouver. First-time buyer tips, market updates, investment strategies.",
+    "url": "https://presaleproperties.com/blog",
+    "publisher": {
+      "@type": "Organization",
+      "name": "PresaleProperties.com",
+      "url": "https://presaleproperties.com"
+    },
+    "mainEntity": {
+      "@type": "ItemList",
+      "numberOfItems": posts.length,
+      "itemListElement": posts.slice(0, 10).map((post, index) => ({
+        "@type": "ListItem",
+        "position": index + 1,
+        "url": `https://presaleproperties.com/blog/${post.slug}`,
+        "name": post.title
+      }))
+    }
+  };
+
   return (
     <>
       <Helmet>
         <title>Presale & New Construction Blog | Vancouver Real Estate 2026</title>
         <meta name="description" content="Expert guides on buying presale & new construction in Vancouver. First-time buyer tips, market updates, investment strategies. Free resources & advice." />
         <link rel="canonical" href="https://presaleproperties.com/blog" />
+        <meta property="og:type" content="website" />
+        <meta property="og:title" content="Presale & New Construction Blog | Vancouver Real Estate 2026" />
+        <meta property="og:description" content="Expert guides on buying presale & new construction in Vancouver." />
+        <meta property="og:url" content="https://presaleproperties.com/blog" />
+        <script type="application/ld+json">{JSON.stringify(collectionSchema)}</script>
       </Helmet>
 
       <ConversionHeader />
