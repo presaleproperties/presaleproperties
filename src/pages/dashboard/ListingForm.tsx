@@ -23,10 +23,17 @@ import {
   FileText,
   Save,
   ArrowLeft,
-  Wand2
+  Wand2,
+  MapPin,
+  CheckCircle2
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { AssignmentBrochureUploader, ExtractedAssignmentData } from "@/components/listings/AssignmentBrochureUploader";
+
+interface AddressSuggestion {
+  description: string;
+  placeId: string;
+}
 
 const CITIES = [
   "Vancouver",
@@ -138,6 +145,15 @@ export default function ListingForm() {
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingFloorplans, setUploadingFloorplans] = useState(false);
   const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
+  
+  // Address autocomplete state
+  const [addressSuggestions, setAddressSuggestions] = useState<AddressSuggestion[]>([]);
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [mapLat, setMapLat] = useState<number | null>(null);
+  const [mapLng, setMapLng] = useState<number | null>(null);
+  const [addressInputValue, setAddressInputValue] = useState("");
 
   const form = useForm<ListingFormData>({
     resolver: zodResolver(listingSchema),
@@ -226,6 +242,15 @@ export default function ListingForm() {
         description: listing.description || "",
         visibility_mode: (listing as any).visibility_mode || "public",
       });
+      
+      // Load existing coordinates and address
+      if (listing.address) {
+        setAddressInputValue(listing.address);
+      }
+      if (listing.map_lat && listing.map_lng) {
+        setMapLat(Number(listing.map_lat));
+        setMapLng(Number(listing.map_lng));
+      }
 
       // Fetch photos
       const { data: photoData } = await supabase
@@ -328,6 +353,96 @@ export default function ListingForm() {
 
   const removeFloorplan = (index: number) => {
     setFloorplans(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Debounced address autocomplete
+  const debounceTimeoutRef = useCallback(() => {
+    let timeout: NodeJS.Timeout | null = null;
+    return (fn: () => void, delay: number) => {
+      if (timeout) clearTimeout(timeout);
+      timeout = setTimeout(fn, delay);
+    };
+  }, [])();
+
+  const handleAddressInputChange = async (value: string) => {
+    setAddressInputValue(value);
+    form.setValue("address", value);
+    
+    if (value.length < 3) {
+      setAddressSuggestions([]);
+      setShowAddressSuggestions(false);
+      return;
+    }
+
+    debounceTimeoutRef(async () => {
+      setIsLoadingSuggestions(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('geocode-address', {
+          body: { address: value, action: 'autocomplete' }
+        });
+        
+        if (!error && data?.predictions) {
+          setAddressSuggestions(data.predictions);
+          setShowAddressSuggestions(data.predictions.length > 0);
+        }
+      } catch (err) {
+        console.error('Address autocomplete error:', err);
+      } finally {
+        setIsLoadingSuggestions(false);
+      }
+    }, 300);
+  };
+
+  const handleAddressSuggestionClick = async (suggestion: AddressSuggestion) => {
+    setAddressInputValue(suggestion.description);
+    form.setValue("address", suggestion.description);
+    setShowAddressSuggestions(false);
+    setAddressSuggestions([]);
+    
+    // Geocode the selected address
+    setIsGeocoding(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('geocode-address', {
+        body: { address: suggestion.description, action: 'geocode' }
+      });
+      
+      if (!error && data?.lat && data?.lng) {
+        setMapLat(data.lat);
+        setMapLng(data.lng);
+        
+        // Auto-fill city and neighborhood if available and fields are empty
+        const currentCity = form.getValues("city");
+        const currentNeighborhood = form.getValues("neighborhood");
+        
+        if (data.city && !currentCity) {
+          // Check if the city matches our list
+          const matchedCity = CITIES.find(c => 
+            c.toLowerCase() === data.city.toLowerCase() ||
+            data.city.toLowerCase().includes(c.toLowerCase())
+          );
+          if (matchedCity) {
+            form.setValue("city", matchedCity);
+          }
+        }
+        if (data.neighborhood && !currentNeighborhood) {
+          form.setValue("neighborhood", data.neighborhood);
+        }
+        
+        toast({
+          title: "Location Found",
+          description: `Coordinates saved for map display`,
+        });
+      }
+    } catch (err) {
+      console.error('Geocoding error:', err);
+      toast({
+        title: "Geocoding Failed",
+        description: "Could not get coordinates for this address",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeocoding(false);
+    }
   };
 
   // Handle data extracted from brochure AI
@@ -445,6 +560,8 @@ export default function ListingForm() {
         has_storage: data.has_storage,
         description: data.description || null,
         visibility_mode: data.visibility_mode,
+        map_lat: mapLat,
+        map_lng: mapLng,
       };
 
       let listingId = id;
@@ -703,10 +820,59 @@ export default function ListingForm() {
                   name="address"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Optional - building address" {...field} />
-                      </FormControl>
+                      <FormLabel className="flex items-center gap-2">
+                        Address
+                        {mapLat && mapLng && (
+                          <span className="inline-flex items-center gap-1 text-xs text-primary font-normal">
+                            <CheckCircle2 className="h-3 w-3" />
+                            Geocoded
+                          </span>
+                        )}
+                      </FormLabel>
+                      <div className="relative">
+                        <FormControl>
+                          <div className="relative">
+                            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                            <Input 
+                              placeholder="Start typing to search address..."
+                              className="pl-9 pr-9"
+                              value={addressInputValue || field.value || ""}
+                              onChange={(e) => handleAddressInputChange(e.target.value)}
+                              onFocus={() => addressSuggestions.length > 0 && setShowAddressSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowAddressSuggestions(false), 200)}
+                              autoComplete="off"
+                            />
+                            {(isLoadingSuggestions || isGeocoding) && (
+                              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                                <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                              </div>
+                            )}
+                          </div>
+                        </FormControl>
+                        
+                        {/* Address suggestions dropdown */}
+                        {showAddressSuggestions && addressSuggestions.length > 0 && (
+                          <div className="absolute z-50 top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-60 overflow-y-auto">
+                            {addressSuggestions.map((suggestion, idx) => (
+                              <button
+                                key={suggestion.placeId || idx}
+                                type="button"
+                                className="w-full px-3 py-2 text-left text-sm hover:bg-accent hover:text-accent-foreground transition-colors flex items-start gap-2"
+                                onMouseDown={(e) => {
+                                  e.preventDefault();
+                                  handleAddressSuggestionClick(suggestion);
+                                }}
+                              >
+                                <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
+                                <span className="line-clamp-2">{suggestion.description}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      <FormDescription className="text-xs">
+                        Search for the building address to enable map pin placement
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
