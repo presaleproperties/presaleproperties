@@ -92,7 +92,7 @@ export default function NeighborhoodPropertyTypePage() {
   // Page metadata
   const pageTitle = `New ${typeConfig.plural} in ${neighborhood}, ${city} | 2024-2026 Built`;
   const pageDescription = `Browse ${listings?.length || 0}+ brand new ${typeConfig.plural.toLowerCase()} for sale in ${neighborhood}, ${city}. All ${typeConfig.description} built 2024 or later. View prices, photos & floor plans.`;
-  const canonicalUrl = `https://presaleproperties.lovable.app/resale/${citySlug}/${neighborhoodSlug}/${propertyType}`;
+  const canonicalUrl = `https://presaleproperties.com/resale/${citySlug}/${neighborhoodSlug}/${propertyType}`;
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
@@ -128,7 +128,7 @@ export default function NeighborhoodPropertyTypePage() {
               "item": {
                 "@type": "RealEstateListing",
                 "name": listing.unparsed_address || `${listing.street_number} ${listing.street_name}`,
-                "url": `https://presaleproperties.lovable.app/resale/${listing.listing_key}`,
+                "url": `https://presaleproperties.com/resale/${listing.listing_key}`,
                 "price": listing.listing_price,
                 "priceCurrency": "CAD",
               }
