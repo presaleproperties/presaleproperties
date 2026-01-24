@@ -164,27 +164,31 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
   });
 }
 
-// Cluster showing "X Units"
+// Cluster showing count only - clean circular design
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
-  const label = count === 1 ? '1 Unit' : `${count} Units`;
+  const size = count >= 100 ? 44 : count >= 10 ? 40 : 36;
+  const fontSize = count >= 100 ? 12 : count >= 10 ? 13 : 14;
   
   return L.divIcon({
     html: `<div style="
-      background: hsl(222, 47%, 20%);
+      background: linear-gradient(135deg, hsl(222, 47%, 18%) 0%, hsl(222, 47%, 25%) 100%);
       color: white;
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: 600;
-      font-size: 11px;
-      white-space: nowrap;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-      border: 1.5px solid hsl(45, 89%, 55%);
-      line-height: 1.2;
-    ">${label}</div>`,
+      width: ${size}px;
+      height: ${size}px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: ${fontSize}px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+      border: 2.5px solid hsl(45, 89%, 55%);
+      font-family: system-ui, -apple-system, sans-serif;
+    ">${count}</div>`,
     className: "marker-cluster-custom",
-    iconSize: L.point(70, 26),
-    iconAnchor: L.point(35, 13),
+    iconSize: L.point(size, size),
+    iconAnchor: L.point(size / 2, size / 2),
   });
 }
 
