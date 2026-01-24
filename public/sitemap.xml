@@ -1,229 +1,446 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- Core Pages -->
   <url>
     <loc>https://presaleproperties.com/</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/presale-projects</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/assignments</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://presaleproperties.com/map-search</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
     <loc>https://presaleproperties.com/blog</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/guides</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/presale-guide</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/buyers-guide</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/roi-calculator</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/mortgage-calculator</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/buyers-guide</loc>
-    <lastmod>2026-01-07</lastmod>
+    <loc>https://presaleproperties.com/investment-snapshot</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/agents</loc>
-    <lastmod>2026-01-07</lastmod>
+    <loc>https://presaleproperties.com/vip</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/for-developers</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/contact</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/about</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
-  <!-- City SEO Pages - Condos -->
+
+  <!-- Presale City Pages - Condos -->
   <url>
     <loc>https://presaleproperties.com/surrey-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/vancouver-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/langley-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/coquitlam-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/burnaby-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/richmond-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/delta-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/abbotsford-presale-condos</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.85</priority>
   </url>
-  <!-- City SEO Pages - Townhomes -->
+
+  <!-- Presale City Pages - Townhomes -->
   <url>
     <loc>https://presaleproperties.com/surrey-presale-townhomes</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/vancouver-presale-townhomes</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/langley-presale-townhomes</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/coquitlam-presale-townhomes</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/burnaby-presale-townhomes</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/richmond-presale-townhomes</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.95</priority>
   </url>
-  <!-- Projects -->
+
+  <!-- NEW: Resale / New Homes City Pages -->
   <url>
-    <loc>https://presaleproperties.com/presale-projects/jericho-park</loc>
-    <lastmod>2026-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://presaleproperties.com/resale/vancouver</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/presale-projects/renfrew</loc>
-    <lastmod>2026-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://presaleproperties.com/resale/surrey</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/presale-projects/abbey-heights</loc>
-    <lastmod>2026-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://presaleproperties.com/resale/burnaby</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/presale-projects/the-mason</loc>
-    <lastmod>2026-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://presaleproperties.com/resale/langley</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/presale-projects/uptown-surrey</loc>
-    <lastmod>2026-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://presaleproperties.com/resale/coquitlam</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/presale-projects/parkside-living</loc>
-    <lastmod>2026-01-07</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
+    <loc>https://presaleproperties.com/resale/richmond</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
+
+  <!-- Resale Property Type Pages - HIGH SEO VALUE -->
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/condos</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/townhouses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/houses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/condos</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/townhouses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/houses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/burnaby/condos</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/burnaby/townhouses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/langley/condos</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/langley/townhouses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/coquitlam/condos</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/coquitlam/townhouses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/richmond/condos</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/richmond/townhouses</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <!-- Resale Price Range Pages -->
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/under-750k</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/under-1m</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/under-500k</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/under-750k</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/under-1m</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/burnaby/under-750k</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/langley/under-750k</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Resale Bedroom Pages -->
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/2-bedroom</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/vancouver/3-bedroom</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/2-bedroom</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/resale/surrey/3-bedroom</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Popular Searches Hub -->
+  <url>
+    <loc>https://presaleproperties.com/resale/popular-searches</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
   <!-- Blog Posts -->
   <url>
     <loc>https://presaleproperties.com/blog/surrey-presale-condos-2026</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/blog/langley-presale-condos-2026</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/blog/first-time-buyer-guide</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
+    <priority>0.85</priority>
   </url>
   <url>
     <loc>https://presaleproperties.com/blog/presale-vs-resale</loc>
-    <lastmod>2026-01-07</lastmod>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.85</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/blog/7-day-rescission-period</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/blog/appraisal-shortfall</loc>
+    <lastmod>2026-01-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.75</priority>
+  </url>
+  <url>
+    <loc>https://presaleproperties.com/blog/burnaby-presales-2026</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/blog/7-day-rescission-period</loc>
-    <lastmod>2026-01-07</lastmod>
+    <loc>https://presaleproperties.com/blog/coquitlam-presales-2026</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://presaleproperties.com/blog/appraisal-shortfall</loc>
-    <lastmod>2026-01-07</lastmod>
+    <loc>https://presaleproperties.com/blog/richmond-presales-2026</loc>
+    <lastmod>2026-01-24</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
   </url>
 </urlset>
