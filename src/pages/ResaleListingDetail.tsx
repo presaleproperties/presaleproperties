@@ -667,6 +667,7 @@ export default function ResaleListingDetail() {
 
             {/* Listing History */}
             <ListingHistory
+              listingKey={listing.listing_key}
               listDate={listing.list_date}
               currentPrice={listing.listing_price}
               originalPrice={listing.original_list_price}

@@ -1960,6 +1960,30 @@ export type Database = {
         }
         Relationships: []
       }
+      mls_price_history: {
+        Row: {
+          id: string
+          listing_key: string
+          previous_price: number | null
+          price: number
+          recorded_at: string
+        }
+        Insert: {
+          id?: string
+          listing_key: string
+          previous_price?: number | null
+          price: number
+          recorded_at?: string
+        }
+        Update: {
+          id?: string
+          listing_key?: string
+          previous_price?: number | null
+          price?: number
+          recorded_at?: string
+        }
+        Relationships: []
+      }
       mls_sync_logs: {
         Row: {
           completed_at: string | null
