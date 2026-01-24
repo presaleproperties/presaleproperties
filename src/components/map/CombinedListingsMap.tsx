@@ -66,7 +66,7 @@ interface SavedMapState {
 interface CombinedListingsMapProps {
   resaleListings: MLSListing[];
   presaleProjects: PresaleProject[];
-  mode: "all" | "presale" | "resale" | "assignments";
+  mode: "all" | "presale" | "resale";
   onListingSelect?: (id: string, type: "resale" | "presale") => void;
   onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[]) => void;
   onMapInteraction?: () => void;

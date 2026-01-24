@@ -273,15 +273,6 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
             </NavigationMenu>
             
             <Link
-              to="/assignments"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1.5"
-            >
-              Assignments
-              <span className="text-[10px] font-semibold bg-primary/10 text-primary px-1.5 py-0.5 rounded">
-                Agents
-              </span>
-            </Link>
-            <Link
               to="/blog"
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
@@ -404,17 +395,6 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           ))}
                         </CollapsibleContent>
                       </Collapsible>
-
-                      <Link
-                        to="/assignments"
-                        onClick={() => setOpen(false)}
-                        className="flex items-center gap-3 text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
-                      >
-                        Assignments
-                        <span className="text-xs font-semibold bg-primary/10 text-primary px-2 py-1 rounded">
-                          Agents
-                        </span>
-                      </Link>
 
                       <Link
                         to="/blog"

@@ -1,16 +1,12 @@
 import { cn } from "@/lib/utils";
-import { Lock } from "lucide-react";
 
-export type MapMode = "all" | "presale" | "resale" | "assignments";
+type MapMode = "all" | "presale" | "resale";
 
 interface UnifiedMapToggleProps {
   mode: MapMode;
   onModeChange: (mode: MapMode) => void;
   presaleCount?: number;
   resaleCount?: number;
-  assignmentsCount?: number;
-  showAssignments?: boolean;
-  isAgentLoggedIn?: boolean;
   className?: string;
 }
 
@@ -19,9 +15,6 @@ export function UnifiedMapToggle({
   onModeChange, 
   presaleCount, 
   resaleCount,
-  assignmentsCount,
-  showAssignments = true,
-  isAgentLoggedIn = false,
   className 
 }: UnifiedMapToggleProps) {
   return (
@@ -62,20 +55,6 @@ export function UnifiedMapToggle({
       >
         Move-In
       </button>
-      {showAssignments && (
-        <button
-          onClick={() => onModeChange("assignments")}
-          className={cn(
-            "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
-            mode === "assignments"
-              ? "bg-foreground text-background shadow-sm"
-              : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
-          )}
-        >
-          {!isAgentLoggedIn && <Lock className="h-3 w-3" />}
-          Assignments
-        </button>
-      )}
     </div>
   );
 }
