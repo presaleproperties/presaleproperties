@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Home, ChevronLeft, ChevronRight, Video, Sparkles, Building } from "lucide-react";
+import { MapPin, Home, ChevronLeft, ChevronRight, Video, Building, Flame, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -64,6 +64,19 @@ const formatPropertyType = (type: string | null, subType?: string | null) => {
     "House": "House",
   };
   return typeMap[type] || type;
+};
+
+// Market activity badge logic
+const getMarketActivityBadge = (daysOnMarket: number | null) => {
+  if (daysOnMarket === null || daysOnMarket === undefined) return null;
+  
+  if (daysOnMarket <= 7) {
+    return { label: "HOT", icon: Flame, className: "bg-orange-500 text-white" };
+  }
+  if (daysOnMarket >= 60) {
+    return { label: "OPPORTUNITY", icon: Clock, className: "bg-amber-600 text-white" };
+  }
+  return null;
 };
 
 export function ResaleListingCard({
@@ -147,8 +160,10 @@ export function ResaleListingCard({
     calculatedDom = Math.floor((today.getTime() - listDateObj.getTime()) / (1000 * 60 * 60 * 24));
   }
   const isNew = calculatedDom !== null && calculatedDom !== undefined && calculatedDom <= 7;
+  const isLongOnMarket = calculatedDom !== null && calculatedDom !== undefined && calculatedDom >= 60;
   const isNewConstruction = yearBuilt !== null && yearBuilt !== undefined && yearBuilt >= 2024;
   const displayType = formatPropertyType(propertyType, propertySubType);
+  const marketBadge = getMarketActivityBadge(calculatedDom);
 
   // Check for price reduction
   const isPriceReduced = originalPrice !== null && originalPrice !== undefined && originalPrice > price;
@@ -195,19 +210,29 @@ export function ResaleListingCard({
                 <Badge className="bg-emerald-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
                   MOVE-IN READY
                 </Badge>
+                {/* Price Drop Badge - Most prominent */}
                 {isPriceReduced && (
-                  <Badge className="bg-red-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
-                    PRICE REDUCED
+                  <Badge className="bg-red-600 text-white text-[9px] sm:text-[10px] font-bold shadow-lg px-1.5 py-0.5 animate-pulse">
+                    PRICE DROP -{priceReductionPercent}%
+                  </Badge>
+                )}
+                {/* Hot Badge - New listings under 7 days */}
+                {isNew && !isPriceReduced && (
+                  <Badge className="bg-orange-500 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                    <Flame className="h-2.5 w-2.5" />
+                    HOT
+                  </Badge>
+                )}
+                {/* Opportunity Badge - Long on market 60+ days */}
+                {isLongOnMarket && !isPriceReduced && !isNew && (
+                  <Badge className="bg-amber-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                    <Clock className="h-2.5 w-2.5" />
+                    OPPORTUNITY
                   </Badge>
                 )}
                 {isNewConstruction && (
                   <Badge className="bg-background/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-medium shadow-sm px-1.5 py-0.5 border border-border/50">
                     Built {yearBuilt}
-                  </Badge>
-                )}
-                {isNew && !isNewConstruction && !isPriceReduced && (
-                  <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5">
-                    Just Listed
                   </Badge>
                 )}
                 {virtualTourUrl && (
