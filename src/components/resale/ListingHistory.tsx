@@ -1,7 +1,17 @@
 import { Calendar, Clock, TrendingDown, ArrowDownRight, History } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+
+interface PriceHistoryEntry {
+  id: string;
+  recorded_at: string;
+  price: number;
+  previous_price: number | null;
+}
 
 interface ListingHistoryProps {
+  listingKey: string;
   listDate: string | null;
   currentPrice: number;
   originalPrice: number | null;
@@ -27,12 +37,32 @@ const formatDate = (dateString: string) => {
 };
 
 export function ListingHistory({
+  listingKey,
   listDate,
   currentPrice,
   originalPrice,
   daysOnMarket,
   modificationTimestamp,
 }: ListingHistoryProps) {
+  // Fetch price history from database
+  const { data: priceHistory } = useQuery({
+    queryKey: ["priceHistory", listingKey],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("mls_price_history")
+        .select("*")
+        .eq("listing_key", listingKey)
+        .order("recorded_at", { ascending: true });
+
+      if (error) {
+        console.error("Error fetching price history:", error);
+        return [];
+      }
+      return data as PriceHistoryEntry[];
+    },
+    enabled: !!listingKey,
+  });
+
   // Calculate days on market if not provided
   let calculatedDom = daysOnMarket;
   if (calculatedDom === null && listDate) {
@@ -41,11 +71,23 @@ export function ListingHistory({
     calculatedDom = Math.floor((today.getTime() - listDateObj.getTime()) / (1000 * 60 * 60 * 24));
   }
 
-  // Check if there's been a price reduction
-  const hasPriceReduction = originalPrice !== null && originalPrice > currentPrice;
-  const priceReduction = hasPriceReduction ? originalPrice - currentPrice : 0;
-  const priceReductionPercent = hasPriceReduction 
-    ? Math.round((priceReduction / originalPrice) * 100) 
+  // Check if there's been a price reduction (from API or from our tracked history)
+  const hasPriceReductionFromApi = originalPrice !== null && originalPrice > currentPrice;
+  const hasPriceReductionFromHistory = priceHistory && priceHistory.length > 0;
+  const hasPriceReduction = hasPriceReductionFromApi || hasPriceReductionFromHistory;
+
+  // Calculate total price reduction
+  let totalOriginalPrice = originalPrice;
+  if (!totalOriginalPrice && priceHistory && priceHistory.length > 0) {
+    // Get the first recorded previous_price as the original
+    totalOriginalPrice = priceHistory[0].previous_price || priceHistory[0].price;
+  }
+
+  const priceReduction = totalOriginalPrice && totalOriginalPrice > currentPrice 
+    ? totalOriginalPrice - currentPrice 
+    : 0;
+  const priceReductionPercent = totalOriginalPrice && priceReduction > 0
+    ? Math.round((priceReduction / totalOriginalPrice) * 100) 
     : 0;
 
   // Build timeline events
@@ -59,18 +101,35 @@ export function ListingHistory({
 
   // Add list date event
   if (listDate) {
+    const initialPrice = totalOriginalPrice || currentPrice;
     events.push({
       date: listDate,
       label: "Listed",
-      description: hasPriceReduction 
-        ? `Original price: ${formatPrice(originalPrice!)}` 
-        : `List price: ${formatPrice(currentPrice)}`,
+      description: `List price: ${formatPrice(initialPrice)}`,
       type: "listed",
     });
   }
 
-  // Add price reduction event if applicable
-  if (hasPriceReduction && modificationTimestamp) {
+  // Add price change events from our tracked history
+  if (priceHistory && priceHistory.length > 0) {
+    priceHistory.forEach((entry) => {
+      const changeAmount = entry.previous_price ? entry.previous_price - entry.price : 0;
+      const changePercent = entry.previous_price 
+        ? Math.round((changeAmount / entry.previous_price) * 100)
+        : 0;
+      
+      events.push({
+        date: entry.recorded_at,
+        label: changeAmount > 0 ? "Price Reduced" : "Price Changed",
+        description: changeAmount > 0 
+          ? `Reduced by ${formatPrice(changeAmount)} (${changePercent}%) to ${formatPrice(entry.price)}`
+          : `Changed to ${formatPrice(entry.price)}`,
+        type: "price_change",
+        highlight: changeAmount > 0,
+      });
+    });
+  } else if (hasPriceReductionFromApi && modificationTimestamp) {
+    // Fallback to API-provided original price if no tracked history
     events.push({
       date: modificationTimestamp,
       label: "Price Reduced",
@@ -79,6 +138,9 @@ export function ListingHistory({
       highlight: true,
     });
   }
+
+  // Sort events by date
+  events.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
   return (
     <div className="bg-muted/30 rounded-xl p-4 md:p-5">
@@ -118,7 +180,7 @@ export function ListingHistory({
       </div>
 
       {/* Price Reduction Alert */}
-      {hasPriceReduction && (
+      {hasPriceReduction && priceReduction > 0 && (
         <div className="bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg p-3 mb-4">
           <div className="flex items-center gap-2 mb-1">
             <TrendingDown className="h-4 w-4 text-red-600 dark:text-red-400" />
@@ -131,7 +193,7 @@ export function ListingHistory({
           </div>
           <div className="flex items-baseline gap-2 text-sm">
             <span className="text-muted-foreground line-through">
-              {formatPrice(originalPrice!)}
+              {formatPrice(totalOriginalPrice!)}
             </span>
             <ArrowDownRight className="h-3 w-3 text-red-600 dark:text-red-400" />
             <span className="font-semibold text-foreground">

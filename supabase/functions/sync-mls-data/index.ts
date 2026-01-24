@@ -478,6 +478,30 @@ Deno.serve(async (req) => {
     for (let i = 0; i < allProperties.length; i += UPSERT_BATCH_SIZE) {
       const batch = allProperties.slice(i, i + UPSERT_BATCH_SIZE);
       
+      // Get listing keys for this batch to check existing prices
+      const batchListingKeys = batch.map(p => p.ListingKey || p.ListingId).filter(Boolean);
+      
+      // Fetch existing listings to detect price changes
+      const { data: existingListings } = await supabase
+        .from("mls_listings")
+        .select("listing_key, listing_price")
+        .in("listing_key", batchListingKeys);
+      
+      // Create a map of existing prices for quick lookup
+      const existingPriceMap = new Map<string, number>();
+      if (existingListings) {
+        existingListings.forEach(listing => {
+          existingPriceMap.set(listing.listing_key, listing.listing_price);
+        });
+      }
+      
+      // Track price changes for this batch
+      const priceChanges: Array<{
+        listing_key: string;
+        price: number;
+        previous_price: number;
+      }> = [];
+      
       const mlsListings = batch.map(property => {
         const listingKey = property.ListingKey || property.ListingId || `ddf-${Date.now()}-${Math.random()}`;
         
@@ -488,10 +512,23 @@ Deno.serve(async (req) => {
         // Use inferred property type for more accurate categorization
         const inferredType = inferPropertyType(property);
         
+        const newPrice = toInt(property.ListPrice) || 0;
+        
+        // Check if this is a price change from existing listing
+        const existingPrice = existingPriceMap.get(listingKey);
+        if (existingPrice !== undefined && existingPrice !== newPrice && newPrice > 0) {
+          priceChanges.push({
+            listing_key: listingKey,
+            price: newPrice,
+            previous_price: existingPrice,
+          });
+          console.log(`Price change detected for ${listingKey}: ${existingPrice} -> ${newPrice}`);
+        }
+        
         return {
           listing_key: listingKey,
           listing_id: property.ListingId || listingKey,
-          listing_price: toInt(property.ListPrice) || 0,
+          listing_price: newPrice,
           mls_status: property.StandardStatus || "Active",
           standard_status: property.StandardStatus || "Active",
           property_type: property.PropertyType || "Residential",
@@ -593,6 +630,19 @@ Deno.serve(async (req) => {
             : null,
         };
       });
+
+      // Log price changes to mls_price_history before upserting
+      if (priceChanges.length > 0) {
+        const { error: priceHistoryError } = await supabase
+          .from("mls_price_history")
+          .insert(priceChanges);
+        
+        if (priceHistoryError) {
+          console.error("Error logging price changes:", priceHistoryError);
+        } else {
+          console.log(`Logged ${priceChanges.length} price changes to history`);
+        }
+      }
 
       // Upsert batch
       const { error: upsertError } = await supabase
