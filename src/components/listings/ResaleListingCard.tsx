@@ -9,6 +9,7 @@ interface ResaleListingCardProps {
   id: string;
   listingKey: string;
   price: number;
+  originalPrice?: number | null;
   address: string;
   city: string;
   neighborhood?: string | null;
@@ -69,6 +70,7 @@ export function ResaleListingCard({
   id,
   listingKey,
   price,
+  originalPrice,
   address,
   city,
   neighborhood,
@@ -148,6 +150,11 @@ export function ResaleListingCard({
   const isNewConstruction = yearBuilt !== null && yearBuilt !== undefined && yearBuilt >= 2024;
   const displayType = formatPropertyType(propertyType, propertySubType);
 
+  // Check for price reduction
+  const isPriceReduced = originalPrice !== null && originalPrice !== undefined && originalPrice > price;
+  const priceReduction = isPriceReduced ? originalPrice - price : 0;
+  const priceReductionPercent = isPriceReduced ? Math.round((priceReduction / originalPrice) * 100) : 0;
+
   // Build specs string
   const specsArray = [];
   if (beds !== null && beds !== undefined) specsArray.push(`${beds} Bed`);
@@ -188,12 +195,17 @@ export function ResaleListingCard({
                 <Badge className="bg-emerald-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
                   MOVE-IN READY
                 </Badge>
+                {isPriceReduced && (
+                  <Badge className="bg-red-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
+                    PRICE REDUCED
+                  </Badge>
+                )}
                 {isNewConstruction && (
                   <Badge className="bg-background/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-medium shadow-sm px-1.5 py-0.5 border border-border/50">
                     Built {yearBuilt}
                   </Badge>
                 )}
-                {isNew && !isNewConstruction && (
+                {isNew && !isNewConstruction && !isPriceReduced && (
                   <Badge className="bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5">
                     Just Listed
                   </Badge>

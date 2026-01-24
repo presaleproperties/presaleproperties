@@ -21,6 +21,7 @@ import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { ResaleAgentCard } from "@/components/resale/ResaleAgentCard";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
+import { ListingHistory } from "@/components/resale/ListingHistory";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
@@ -100,6 +101,7 @@ type MLSListing = {
   open_house_start_time: string | null;
   open_house_end_time: string | null;
   open_house_remarks: string | null;
+  modification_timestamp: string | null;
 };
 
 type MLSAgent = {
@@ -662,6 +664,15 @@ export default function ResaleListingDetail() {
                   {listing.public_remarks}
                 </p>
               </div>}
+
+            {/* Listing History */}
+            <ListingHistory
+              listDate={listing.list_date}
+              currentPrice={listing.listing_price}
+              originalPrice={listing.original_list_price}
+              daysOnMarket={daysOnMarket}
+              modificationTimestamp={listing.modification_timestamp ? String(listing.modification_timestamp) : null}
+            />
 
             {/* Home Facts & Features - Comprehensive REW-style */}
             <div className="space-y-6">
