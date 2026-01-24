@@ -28,6 +28,8 @@ import { CTASection } from "@/components/home/CTASection";
 import { PullToRefresh } from "@/components/ui/pull-to-refresh";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { FAQSchema } from "@/components/seo/FAQSchema";
+import { AssignmentGatewall } from "@/components/assignments/AssignmentGatewall";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 
 const ITEMS_PER_PAGE = 12;
@@ -83,6 +85,7 @@ const ASSIGNMENT_FAQS = [
 ];
 
 export default function Assignments() {
+  const { user, loading: authLoading } = useAuth();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
@@ -101,6 +104,8 @@ export default function Assignments() {
 
   const { data, isLoading } = useQuery({
     queryKey: ["assignments", filters, currentPage],
+    // Only fetch data when user is logged in
+    enabled: !!user,
     queryFn: async () => {
       // First, get total count
       let countQuery = supabase
@@ -398,6 +403,34 @@ export default function Assignments() {
       </div>
     );
   };
+
+  // Show gatewall for non-authenticated users
+  if (!authLoading && !user) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Helmet>
+          <title>Presale Assignments | Agent-Exclusive Portal</title>
+          <meta name="description" content="Access exclusive presale condo assignments in Metro Vancouver. Register as a verified agent to browse pre-construction assignments and connect with sellers." />
+          <link rel="canonical" href="https://presaleproperties.com/assignments" />
+        </Helmet>
+
+        <FAQSchema faqs={ASSIGNMENT_FAQS} />
+
+        <ConversionHeader />
+
+        {/* Breadcrumb */}
+        <div className="border-b bg-muted/30">
+          <div className="container px-4 py-3">
+            <Breadcrumbs items={[{ label: "Assignments" }]} />
+          </div>
+        </div>
+
+        <AssignmentGatewall />
+
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
