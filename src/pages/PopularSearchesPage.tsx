@@ -58,7 +58,7 @@ export default function PopularSearchesPage() {
           name="description" 
           content="Browse all new construction homes, condos, and townhomes for sale in Metro Vancouver & Fraser Valley. Built 2024 or later. Find new condos in Vancouver, Surrey, Burnaby, Richmond & more." 
         />
-        <link rel="canonical" href="https://presaleproperties.lovable.app/resale/popular-searches" />
+        <link rel="canonical" href="https://presaleproperties.com/resale/popular-searches" />
       </Helmet>
 
       <ConversionHeader />
@@ -217,17 +217,17 @@ export default function PopularSearchesPage() {
               "@type": "CollectionPage",
               "name": "New Construction Homes for Sale in BC",
               "description": "Browse all new construction homes, condos, and townhomes for sale in Metro Vancouver & Fraser Valley.",
-              "url": "https://presaleproperties.lovable.app/resale/popular-searches",
+              "url": "https://presaleproperties.com/resale/popular-searches",
               "isPartOf": {
                 "@type": "WebSite",
                 "name": "PresaleProperties",
-                "url": "https://presaleproperties.lovable.app"
+                "url": "https://presaleproperties.com"
               },
               "breadcrumb": {
                 "@type": "BreadcrumbList",
                 "itemListElement": [
-                  { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.lovable.app" },
-                  { "@type": "ListItem", "position": 2, "name": "New Construction", "item": "https://presaleproperties.lovable.app/resale" },
+                  { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
+                  { "@type": "ListItem", "position": 2, "name": "New Construction", "item": "https://presaleproperties.com/resale" },
                   { "@type": "ListItem", "position": 3, "name": "Popular Searches" }
                 ]
               }
