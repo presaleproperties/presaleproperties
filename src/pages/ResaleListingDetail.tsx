@@ -268,8 +268,41 @@ export default function ResaleListingDetail() {
     return parts.length > 0 ? parts.join(" ") : listing.city;
   };
   const address = getAddress();
-  const pageTitle = `${address} | ${listing.city} | PresaleProperties`;
-  const pageDescription = `${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${formatPropertyType(listing.property_type)} for sale in ${listing.city}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''}`;
+  
+  // Determine if this is a new construction home
+  const isNewConstruction = listing.year_built !== null && listing.year_built >= 2024;
+  const yearBuiltLabel = listing.year_built ? `Built ${listing.year_built}` : "";
+  
+  // SEO-optimized property type label
+  const getPropertyTypeLabel = () => {
+    const subType = listing.property_sub_type?.toLowerCase() || "";
+    const propType = listing.property_type?.toLowerCase() || "";
+    
+    if (subType.includes("condo") || subType.includes("apartment") || propType.includes("condo")) {
+      return "Condo";
+    }
+    if (subType.includes("townhouse") || subType.includes("townhome") || propType.includes("town")) {
+      return "Townhome";
+    }
+    if (subType.includes("single") || subType.includes("house") || subType.includes("detached")) {
+      return "Detached Home";
+    }
+    if (subType.includes("duplex")) {
+      return "Duplex";
+    }
+    return "Home";
+  };
+  const propertyTypeLabel = getPropertyTypeLabel();
+  
+  // SEO-optimized title and description with "new home" keywords
+  const pageTitle = isNewConstruction 
+    ? `NEW ${propertyTypeLabel.toUpperCase()} | ${address} | ${listing.city} | Brand New Home for Sale`
+    : `${address} | ${listing.city} ${propertyTypeLabel} for Sale | PresaleProperties`;
+  
+  const pageDescription = isNewConstruction
+    ? `Brand new ${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyTypeLabel.toLowerCase()} for sale in ${listing.city}, BC. ${yearBuiltLabel}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''} Move-in ready new construction home.`
+    : `${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyTypeLabel.toLowerCase()} for sale in ${listing.city}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''}`;
+  
   const canonicalUrl = `https://presaleproperties.com/resale/${listing.listing_key}`;
 
   // Calculate days on market
@@ -284,14 +317,15 @@ export default function ResaleListingDetail() {
   };
   const daysOnMarket = getDaysOnMarket();
 
-  // JSON-LD Structured Data
+  // Enhanced JSON-LD Structured Data with new construction attributes
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
-    "name": address,
+    "name": isNewConstruction ? `New ${propertyTypeLabel} at ${address}` : address,
     "description": listing.public_remarks || pageDescription,
     "url": canonicalUrl,
     "image": photos[0]?.url,
+    "datePosted": listing.list_date,
     "address": {
       "@type": "PostalAddress",
       "streetAddress": address,
@@ -317,8 +351,14 @@ export default function ResaleListingDetail() {
       "@type": "QuantitativeValue",
       "value": listing.living_area,
       "unitCode": "FTK"
-    } : undefined
+    } : undefined,
+    "yearBuilt": listing.year_built,
+    "additionalProperty": isNewConstruction ? [
+      { "@type": "PropertyValue", "name": "Construction Status", "value": "New Construction" },
+      { "@type": "PropertyValue", "name": "Year Built", "value": listing.year_built }
+    ] : undefined
   };
+  
   const breadcrumbData = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -330,29 +370,39 @@ export default function ResaleListingDetail() {
     }, {
       "@type": "ListItem",
       "position": 2,
-      "name": "For Sale",
+      "name": "New Homes for Sale",
       "item": "https://presaleproperties.com/resale"
     }, {
       "@type": "ListItem",
       "position": 3,
-      "name": listing.city,
-      "item": `https://presaleproperties.com/resale?city=${listing.city}`
+      "name": `${listing.city} New Homes`,
+      "item": `https://presaleproperties.com/resale/${listing.city.toLowerCase().replace(/\s+/g, '-')}`
     }, {
       "@type": "ListItem",
       "position": 4,
       "name": address
     }]
   };
+  
+  // SEO keywords meta
+  const keywords = isNewConstruction
+    ? `new ${propertyTypeLabel.toLowerCase()} ${listing.city}, brand new home ${listing.city}, ${listing.year_built} built home, new construction ${listing.city}, move-in ready home ${listing.city}`
+    : `${propertyTypeLabel.toLowerCase()} for sale ${listing.city}, ${listing.city} real estate, MLS listing ${listing.city}`;
+
   return <div className="min-h-screen bg-background">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        <meta name="keywords" content={keywords} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:type" content="website" />
+        <meta property="og:type" content="realestate.listing" />
         {photos[0] && <meta property="og:image" content={photos[0].url} />}
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>

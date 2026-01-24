@@ -199,19 +199,29 @@ export default function ResaleBedroomPage() {
     return <NotFound />;
   }
 
-  // SEO content with high-intent keywords
-  const pageTitle = `${bedroomConfig.label} New Homes in ${cityConfig.name} | 2025+ Move-In Ready`;
-  const pageDescription = `Find ${totalCount}+ ${bedroomConfig.label.toLowerCase()} new construction homes for sale in ${cityConfig.name}, BC. ${bedroomConfig.description} Built 2025 or later, ready to move in.`;
+  // SEO content with high-intent keywords for "new homes", "brand new"
+  const pageTitle = `${bedroomConfig.label.toUpperCase()} NEW HOMES in ${cityConfig.name} | Brand New Construction 2024-2026`;
+  const pageDescription = `Find ${totalCount}+ brand new ${bedroomConfig.label.toLowerCase()} homes for sale in ${cityConfig.name}, BC. ${bedroomConfig.description} New construction condos, townhomes & houses built 2024-2026.`;
   const canonicalUrl = `https://presaleproperties.com/resale/${citySlug}/${bedroomCount}`;
+  const keywords = `${bedroomConfig.label.toLowerCase()} new homes ${cityConfig.name}, brand new ${bedroomConfig.label.toLowerCase()} home, ${bedroomConfig.label.toLowerCase()} new condo ${cityConfig.name}, ${bedroomConfig.label.toLowerCase()} new townhome, new construction ${bedroomConfig.label.toLowerCase()} ${cityConfig.name}`;
 
-  // Structured data
+  // Structured data with listings
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `${bedroomConfig.label} New Homes in ${cityConfig.name}`,
+    "name": `${bedroomConfig.label} Brand New Homes in ${cityConfig.name}`,
     "description": pageDescription,
     "url": canonicalUrl,
     "numberOfItems": totalCount,
+    "itemListElement": listings?.slice(0, 10).map((listing, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": `New ${bedroomConfig.label} Home - ${getAddress(listing)}`,
+        "url": `https://presaleproperties.com/resale/${listing.listing_key}`
+      }
+    })) || []
   };
 
   const breadcrumbSchema = {
@@ -219,9 +229,25 @@ export default function ResaleBedroomPage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "Move-In Ready", "item": "https://presaleproperties.com/resale" },
-      { "@type": "ListItem", "position": 3, "name": cityConfig.name, "item": `https://presaleproperties.com/resale/${citySlug}` },
-      { "@type": "ListItem", "position": 4, "name": bedroomConfig.label }
+      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/resale" },
+      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/resale/${citySlug}` },
+      { "@type": "ListItem", "position": 4, "name": `${bedroomConfig.label} Homes` }
+    ]
+  };
+  
+  // FAQ Schema
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `How many ${bedroomConfig.label.toLowerCase()} new homes are for sale in ${cityConfig.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `There are currently ${totalCount}+ brand new ${bedroomConfig.label.toLowerCase()} homes for sale in ${cityConfig.name}. All are new construction built 2024-2026.`
+        }
+      }
     ]
   };
 
@@ -240,13 +266,18 @@ export default function ResaleBedroomPage() {
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        <meta name="keywords" content={keywords} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
         <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       <ConversionHeader />

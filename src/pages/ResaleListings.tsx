@@ -500,18 +500,19 @@ export default function ResaleListings() {
     </div>
   );
 
-  // Dynamic SEO
-  const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search}`;
+  // Dynamic SEO - Enhanced for "new homes", "brand new", etc.
+  const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search ? '' : ''}`;
   
   const getSeoTitle = () => {
-    const parts: string[] = [];
+    const parts: string[] = ["NEW"];
     
     if (filters.propertyType !== "any") {
       const typeLabel = filters.propertyType === "Apartment/Condo" ? "Condos" : 
-                        filters.propertyType === "Townhouse" ? "Townhouses" : "Homes";
+                        filters.propertyType === "Townhouse" ? "Townhomes" : 
+                        filters.propertyType === "House" ? "Homes" : "Homes";
       parts.push(typeLabel);
     } else {
-      parts.push("Homes");
+      parts.push("Homes, Condos & Townhomes");
     }
     
     parts.push("for Sale");
@@ -522,16 +523,32 @@ export default function ResaleListings() {
       parts.push("in Metro Vancouver");
     }
     
-    return `${parts.join(" ")} | MLS Listings | PresaleProperties.com`;
+    parts.push("| Brand New Construction 2024-2026");
+    
+    return parts.join(" ");
   };
 
   const getSeoDescription = () => {
-    const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Burnaby, Coquitlam & more";
-    const typeText = filters.propertyType === "Apartment/Condo" ? "condos" : 
-                     filters.propertyType === "Townhouse" ? "townhouses" : 
-                     "homes, condos & townhouses";
+    const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Burnaby, Coquitlam, Langley & more";
+    const typeText = filters.propertyType === "Apartment/Condo" ? "new condos" : 
+                     filters.propertyType === "Townhouse" ? "new townhomes" : 
+                     filters.propertyType === "House" ? "new detached homes" :
+                     "brand new homes, condos, townhomes & detached houses";
     
-    return `Browse ${totalCount.toLocaleString()}+ ${typeText} for sale in ${cityText}. View MLS listings with photos, prices & details.`;
+    return `Browse ${totalCount.toLocaleString()}+ ${typeText} for sale in ${cityText}, BC. All properties are new construction built 2024-2026. Move-in ready with photos, prices & virtual tours.`;
+  };
+  
+  const getKeywords = () => {
+    const city = filters.city !== "any" ? filters.city : "Vancouver Surrey Burnaby Coquitlam Langley Richmond";
+    const typeKeywords = filters.propertyType === "Apartment/Condo" 
+      ? "new condos, brand new condos, new condo for sale" 
+      : filters.propertyType === "Townhouse" 
+        ? "new townhomes, brand new townhomes, new townhouse for sale"
+        : filters.propertyType === "House"
+          ? "new homes, brand new homes, new detached homes, new houses for sale"
+          : "new homes, brand new homes, new condos, new townhomes, new construction homes";
+    
+    return `${typeKeywords}, ${city} new homes, ${city} new construction, move-in ready homes ${city}, 2024 built homes, 2025 new homes, brand new homes BC`;
   };
 
   const structuredData = {
@@ -546,7 +563,7 @@ export default function ResaleListings() {
       "position": index + 1,
       "item": {
         "@type": "RealEstateListing",
-        "name": getAddress(listing),
+        "name": `New Home - ${getAddress(listing)}`,
         "url": `https://presaleproperties.com/resale/${listing.listing_key}`,
         "offers": {
           "@type": "Offer",
@@ -556,13 +573,45 @@ export default function ResaleListings() {
       }
     })) || []
   };
+  
+  // FAQ Schema for main resale page
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Where can I find new homes for sale in Metro Vancouver?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `PresaleProperties.com lists ${totalCount}+ brand new homes for sale across Metro Vancouver and Fraser Valley. Browse new condos, townhomes, and detached houses built 2024-2026.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are these homes move-in ready?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes! All properties listed are new construction homes that are completed and move-in ready. These are not presale - they are brand new homes you can buy and move into immediately."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What types of new construction homes are available?",
+        "acceptedAnswer": {
+          "@type": "Answer", 
+          "text": "We list new condos, new townhomes, new detached homes (houses), and new duplexes across BC. All properties are built 2024 or later."
+        }
+      }
+    ]
+  };
 
   return (
     <>
       <Helmet>
         <title>{getSeoTitle()}</title>
         <meta name="description" content={getSeoDescription()} />
-        <meta name="keywords" content={`${filters.city !== "any" ? filters.city : "Vancouver Surrey Burnaby Coquitlam Langley"} real estate, homes for sale, condos, townhouses, MLS listings, Metro Vancouver`} />
+        <meta name="keywords" content={getKeywords()} />
         <link rel="canonical" href={canonicalUrl} />
         
         <meta property="og:type" content="website" />
@@ -580,6 +629,9 @@ export default function ResaleListings() {
         
         <script type="application/ld+json">
           {JSON.stringify(structuredData)}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify(faqSchema)}
         </script>
       </Helmet>
 
