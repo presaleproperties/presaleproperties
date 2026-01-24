@@ -22,6 +22,7 @@ type MLSListing = {
   id: string;
   listing_key: string;
   listing_price: number;
+  original_list_price: number | null;
   city: string;
   neighborhood: string | null;
   unparsed_address: string | null;
@@ -63,7 +64,7 @@ function CityCarousel({ city }: CityCarouselProps) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url")
+        .select("id, listing_key, listing_price, original_list_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url")
         .eq("mls_status", "Active")
         .ilike("city", `%${city}%`)
         .gte("year_built", 2024)
@@ -187,6 +188,7 @@ function CityCarousel({ city }: CityCarouselProps) {
               id={listing.id}
               listingKey={listing.listing_key}
               price={listing.listing_price}
+              originalPrice={listing.original_list_price}
               address={getAddress(listing)}
               city={listing.city}
               neighborhood={listing.neighborhood}
