@@ -1,4 +1,4 @@
-import { Calendar, Clock, TrendingDown, ArrowDownRight, History } from "lucide-react";
+import { Calendar, Clock, TrendingDown, ArrowDownRight, History, Flame, Target } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,13 @@ interface PriceHistoryEntry {
   price: number;
   previous_price: number | null;
 }
+
+// Market activity thresholds
+const MARKET_THRESHOLDS = {
+  HOT: 7,           // Under 7 days = Hot listing
+  NORMAL: 60,       // 7-60 days = Normal
+  OPPORTUNITY: 60,  // 60+ days = Opportunity for negotiation
+};
 
 interface ListingHistoryProps {
   listingKey: string;
@@ -148,6 +155,52 @@ export function ListingHistory({
         <History className="h-4 w-4 text-primary" />
         Listing History
       </h3>
+
+      {/* Market Activity Badges */}
+      {calculatedDom !== null && (
+        <div className="mb-4">
+          {calculatedDom <= MARKET_THRESHOLDS.HOT && (
+            <div className="bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-orange-500">
+                  <Flame className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">
+                    Hot Listing!
+                  </span>
+                  <p className="text-xs text-muted-foreground">
+                    Listed {calculatedDom === 0 ? "today" : calculatedDom === 1 ? "yesterday" : `${calculatedDom} days ago`} - Act fast!
+                  </p>
+                </div>
+                <Badge className="ml-auto bg-orange-500 text-white text-xs">
+                  NEW
+                </Badge>
+              </div>
+            </div>
+          )}
+          {calculatedDom >= MARKET_THRESHOLDS.OPPORTUNITY && (
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 rounded-full bg-amber-600">
+                  <Target className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <span className="text-sm font-semibold text-amber-700 dark:text-amber-400">
+                    Negotiation Opportunity
+                  </span>
+                  <p className="text-xs text-muted-foreground">
+                    On market for {calculatedDom} days - seller may be motivated
+                  </p>
+                </div>
+                <Badge className="ml-auto bg-amber-600 text-white text-xs">
+                  {calculatedDom}+ DAYS
+                </Badge>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Summary Stats */}
       <div className="grid grid-cols-2 gap-3 mb-4">
