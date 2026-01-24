@@ -429,8 +429,9 @@ export default function ResaleListingDetail() {
         <nav aria-label="Breadcrumb" className="flex items-center gap-1 text-sm text-muted-foreground mb-3 lg:mb-2 overflow-x-auto">
           <ol className="flex items-center gap-1">
             <li>
-              <Link to="/" className="hover:text-foreground transition-colors shrink-0">
+              <Link to="/" className="hover:text-foreground transition-colors shrink-0 flex items-center gap-1">
                 <Home className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Home</span>
               </Link>
             </li>
             <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
