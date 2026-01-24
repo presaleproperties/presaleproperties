@@ -254,19 +254,36 @@ export default function ResalePropertyTypePage() {
     return <NotFound />;
   }
 
-  // SEO content
-  const pageTitle = `New ${propertyTypeConfig.namePlural} for Sale in ${cityConfig.name} | 2025+ Construction | PresaleProperties`;
-  const pageDescription = `Browse ${totalCount}+ new construction ${propertyTypeConfig.namePlural.toLowerCase()} for sale in ${cityConfig.name}, BC. Built 2025 or later. Move-in ready homes with photos, prices & details.`;
+  // SEO content with enhanced keywords for new homes, brand new, etc.
+  const pageTitle = `NEW ${propertyTypeConfig.namePlural.toUpperCase()} for Sale in ${cityConfig.name} | Brand New ${propertyTypeConfig.namePlural} 2024-2026 | PresaleProperties`;
+  const pageDescription = `Browse ${totalCount}+ brand new ${propertyTypeConfig.namePlural.toLowerCase()} for sale in ${cityConfig.name}, BC. New construction ${propertyTypeConfig.namePlural.toLowerCase()} built 2024-2026. Move-in ready new homes with photos, prices & virtual tours.`;
   const canonicalUrl = `https://presaleproperties.com/resale/${citySlug}/${propertyType}`;
+  
+  // Enhanced keywords for SEO
+  const keywords = `new ${propertyTypeConfig.namePlural.toLowerCase()} ${cityConfig.name}, brand new ${propertyTypeConfig.namePlural.toLowerCase()} for sale, ${cityConfig.name} new construction, new homes ${cityConfig.name}, 2024 built ${propertyTypeConfig.namePlural.toLowerCase()}, 2025 new ${propertyTypeConfig.namePlural.toLowerCase()}, move-in ready ${propertyTypeConfig.namePlural.toLowerCase()} ${cityConfig.name}`;
 
-  // JSON-LD structured data
+  // JSON-LD structured data with enhanced new home signals
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `New ${propertyTypeConfig.namePlural} in ${cityConfig.name}`,
+    "name": `New ${propertyTypeConfig.namePlural} for Sale in ${cityConfig.name}`,
     "description": pageDescription,
     "url": canonicalUrl,
     "numberOfItems": totalCount,
+    "itemListElement": listings?.slice(0, 10).map((listing, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": `New ${propertyTypeConfig.name} - ${getAddress(listing)}`,
+        "url": `https://presaleproperties.com/resale/${listing.listing_key}`,
+        "offers": {
+          "@type": "Offer",
+          "price": listing.listing_price,
+          "priceCurrency": "CAD"
+        }
+      }
+    })) || []
   };
 
   const breadcrumbSchema = {
@@ -274,16 +291,48 @@ export default function ResalePropertyTypePage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "Move-In Ready", "item": "https://presaleproperties.com/resale" },
-      { "@type": "ListItem", "position": 3, "name": cityConfig.name, "item": `https://presaleproperties.com/resale/${citySlug}` },
-      { "@type": "ListItem", "position": 4, "name": propertyTypeConfig.namePlural }
+      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/resale" },
+      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/resale/${citySlug}` },
+      { "@type": "ListItem", "position": 4, "name": `New ${propertyTypeConfig.namePlural}` }
+    ]
+  };
+  
+  // FAQ Schema for SEO
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `How many new ${propertyTypeConfig.namePlural.toLowerCase()} are for sale in ${cityConfig.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `There are currently ${totalCount}+ brand new ${propertyTypeConfig.namePlural.toLowerCase()} for sale in ${cityConfig.name}, BC. All properties are new construction built 2024 or later.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `What is the average price of a new ${propertyTypeConfig.name.toLowerCase()} in ${cityConfig.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `New ${propertyTypeConfig.namePlural.toLowerCase()} in ${cityConfig.name} range in price. Browse our listings to see current market prices for brand new ${propertyTypeConfig.namePlural.toLowerCase()}.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `Are these ${propertyTypeConfig.namePlural.toLowerCase()} move-in ready?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Yes! All ${propertyTypeConfig.namePlural.toLowerCase()} listed here are new construction homes built 2024-2026 and are move-in ready.`
+        }
+      }
     ]
   };
 
   const FilterControls = () => (
     <div className="space-y-4">
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
-        <span className="text-sm font-medium text-primary">✓ 2025+ New Construction Only</span>
+        <span className="text-sm font-medium text-primary">✓ 2024+ New Construction Only</span>
       </div>
 
       <div>
@@ -317,12 +366,18 @@ export default function ResalePropertyTypePage() {
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        <meta name="keywords" content={keywords} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       <ConversionHeader />

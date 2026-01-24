@@ -269,19 +269,34 @@ export default function ResalePriceRangePage() {
 
   const PriceIcon = priceConfig.icon;
 
-  // SEO content
-  const pageTitle = `New Homes ${priceConfig.label} in ${cityConfig.name} | 2025+ Construction | PresaleProperties`;
-  const pageDescription = `Find ${totalCount}+ new construction homes ${priceConfig.label.toLowerCase()} in ${cityConfig.name}, BC. ${priceConfig.description}. Move-in ready 2025+ built homes.`;
+  // SEO content - Enhanced for "new homes", "brand new" keywords
+  const pageTitle = `NEW HOMES ${priceConfig.label.toUpperCase()} in ${cityConfig.name} | Brand New Construction 2024-2026`;
+  const pageDescription = `Find ${totalCount}+ brand new homes ${priceConfig.label.toLowerCase()} in ${cityConfig.name}, BC. ${priceConfig.description}. All new construction condos, townhomes & detached homes built 2024-2026. Move-in ready!`;
   const canonicalUrl = `https://presaleproperties.com/resale/${citySlug}/${priceRange}`;
+  const keywords = `new homes ${priceConfig.label.toLowerCase()} ${cityConfig.name}, brand new homes ${cityConfig.name}, affordable new construction ${cityConfig.name}, new condos ${priceConfig.label.toLowerCase()}, new townhomes ${priceConfig.label.toLowerCase()}, 2024 built homes ${cityConfig.name}`;
 
-  // JSON-LD structured data
+  // JSON-LD structured data with listings
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    "name": `New Homes ${priceConfig.label} in ${cityConfig.name}`,
+    "name": `Brand New Homes ${priceConfig.label} in ${cityConfig.name}`,
     "description": pageDescription,
     "url": canonicalUrl,
     "numberOfItems": totalCount,
+    "itemListElement": listings?.slice(0, 10).map((listing, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": `New Home - ${getAddress(listing)}`,
+        "url": `https://presaleproperties.com/resale/${listing.listing_key}`,
+        "offers": {
+          "@type": "Offer",
+          "price": listing.listing_price,
+          "priceCurrency": "CAD"
+        }
+      }
+    })) || []
   };
 
   const breadcrumbSchema = {
@@ -289,9 +304,33 @@ export default function ResalePriceRangePage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "Move-In Ready", "item": "https://presaleproperties.com/resale" },
-      { "@type": "ListItem", "position": 3, "name": cityConfig.name, "item": `https://presaleproperties.com/resale/${citySlug}` },
-      { "@type": "ListItem", "position": 4, "name": priceConfig.label }
+      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/resale" },
+      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/resale/${citySlug}` },
+      { "@type": "ListItem", "position": 4, "name": `${priceConfig.label}` }
+    ]
+  };
+  
+  // FAQ Schema
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `Are there brand new homes ${priceConfig.label.toLowerCase()} in ${cityConfig.name}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Yes! There are currently ${totalCount}+ brand new homes ${priceConfig.label.toLowerCase()} in ${cityConfig.name}. All are new construction built 2024-2026.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `What types of new homes are available ${priceConfig.label.toLowerCase()}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `In this price range, you can find new condos, new townhomes, and new detached homes in ${cityConfig.name}. ${priceConfig.description}`
+        }
+      }
     ]
   };
 
@@ -300,12 +339,18 @@ export default function ResalePriceRangePage() {
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
+        <meta name="keywords" content={keywords} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={pageTitle} />
         <meta property="og:description" content={pageDescription} />
         <meta property="og:url" content={canonicalUrl} />
+        <meta property="og:type" content="website" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content={pageTitle} />
+        <meta name="twitter:description" content={pageDescription} />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>
       </Helmet>
 
       <ConversionHeader />

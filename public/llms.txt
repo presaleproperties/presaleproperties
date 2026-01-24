@@ -1,38 +1,68 @@
-# PresaleProperties.com - BC Presale Real Estate Platform
+# PresaleProperties.com - BC New Construction & Presale Real Estate Platform
 
-> PresaleProperties.com is the leading marketplace for presale condos, townhomes, and assignment listings in Metro Vancouver and British Columbia, Canada.
+> PresaleProperties.com is the leading marketplace for NEW HOMES, presale condos, townhomes, detached houses, and assignment listings in Metro Vancouver and British Columbia, Canada. We specialize in brand new construction homes built 2024-2026.
 
 ## About
 
-PresaleProperties.com provides comprehensive information on new construction presale projects and assignment sales across British Columbia. We help homebuyers and investors find, compare, and purchase presale properties with verified pricing, floor plans, and developer information.
+PresaleProperties.com provides comprehensive information on NEW CONSTRUCTION homes, presale projects, and move-in ready properties across British Columbia. We help homebuyers and investors find BRAND NEW condos, townhomes, duplexes, and detached homes with verified pricing, photos, and listing details.
+
+## What We Offer
+
+### NEW HOMES & BRAND NEW CONSTRUCTION
+- **Move-In Ready New Homes**: Browse 1000+ brand new homes built 2024-2026
+- **New Condos for Sale**: Modern condominium units in new developments
+- **New Townhomes**: Brand new townhouse and row house listings
+- **New Detached Homes**: Single family houses with new construction
+- **New Duplexes**: Half-duplex and duplex properties
+
+### PRESALE PROPERTIES
+- **Presale Condos**: Pre-construction condo developments
+- **Presale Townhomes**: Pre-construction townhouse projects
+- **Assignment Sales**: Presale assignment opportunities
 
 ## Service Areas
 
-- Vancouver, BC
-- Burnaby, BC
-- Surrey, BC
-- Langley, BC
-- Coquitlam, BC
-- Richmond, BC
-- New Westminster, BC
-- Port Moody, BC
-- Delta, BC
-- Abbotsford, BC
+We cover all major Metro Vancouver and Fraser Valley cities:
+- Vancouver, BC - New Condos, Townhomes, Homes
+- Burnaby, BC - New Condos, Townhomes, Homes
+- Surrey, BC - New Condos, Townhomes, Detached Homes
+- Langley, BC - New Townhomes, Homes, Condos
+- Coquitlam, BC - New Condos, Townhomes
+- Richmond, BC - New Condos, Townhomes
+- New Westminster, BC - New Condos
+- Port Moody, BC - New Townhomes, Condos
+- Delta, BC - New Homes, Townhomes
+- Abbotsford, BC - New Homes, Townhomes
+- White Rock, BC - New Condos, Homes
+- Maple Ridge, BC - New Homes
+- Chilliwack, BC - New Homes
 
 ## Key Features
 
-- **Presale Projects Directory**: Browse 100+ verified presale condo and townhome developments
-- **Assignment Listings**: Find presale assignment opportunities from verified real estate agents
-- **AI-Powered Search**: Natural language search to find projects matching specific criteria
-- **Project Comparison**: Compare multiple projects side-by-side
-- **Price Tracking**: Starting prices, deposit requirements, and incentives
-- **Interactive Maps**: View project locations with neighborhood context
-- **Buyer Resources**: Presale guides, mortgage calculators, and FAQs
+- **New Construction MLS Listings**: Real-time MLS data for 2024+ built properties
+- **Presale Projects Directory**: Browse 100+ verified presale developments
+- **Assignment Listings**: Find presale assignment opportunities
+- **Advanced Search**: Filter by city, price, bedrooms, property type
+- **Price History Tracking**: See price reductions and market trends
+- **Interactive Maps**: View new home locations with neighborhood context
+- **Buyer Resources**: Mortgage calculators, ROI tools, and buyer guides
 
 ## Content Types
 
-### Presale Projects
-Each project listing includes:
+### New Construction MLS Listings (Move-In Ready)
+Each new home listing includes:
+- Property type (condo, townhome, house, duplex)
+- Year built (2024, 2025, 2026)
+- Bedrooms and bathrooms
+- Square footage
+- Listing price and price history
+- High-quality photos
+- Agent contact information
+- Days on market
+- Neighborhood and city location
+
+### Presale Projects (Pre-Construction)
+Each presale project includes:
 - Developer name and track record
 - Starting prices and price ranges
 - Deposit structure (typically 5-20%)
@@ -40,36 +70,45 @@ Each project listing includes:
 - Amenities and features
 - Estimated completion dates
 - Assignment policies
-- Rental restrictions
-- Strata fees
 - Floor plans and brochures
-- Location with SkyTrain proximity
-
-### Assignment Listings
-Assignment listings include:
-- Assignment price and original purchase price
-- Unit specifications (beds, baths, square footage)
-- Project name and developer
-- Completion timeline
-- Agent contact information
 
 ## Main Pages
 
-- Homepage: /
-- Presale Projects Directory: /presale-projects
-- Assignment Listings: /assignments
+### New Homes (Move-In Ready)
+- All New Homes: /resale
+- Vancouver New Condos: /resale/vancouver/condos
+- Vancouver New Townhomes: /resale/vancouver/townhouses
+- Vancouver New Houses: /resale/vancouver/houses
+- Surrey New Homes: /resale/surrey
+- Burnaby New Condos: /resale/burnaby/condos
+- Langley New Townhomes: /resale/langley/townhouses
+- Popular Searches: /resale/popular-searches
+
+### Presale Projects
+- All Presale Projects: /presale-projects
 - Vancouver Presale Condos: /vancouver-presale-condos
 - Surrey Presale Condos: /surrey-presale-condos
-- Langley Presale Condos: /langley-presale-condos
-- Burnaby Presale Condos: /burnaby-presale-condos
-- Coquitlam Presale Condos: /coquitlam-presale-condos
-- Presale Buyer's Guide: /presale-guide
+- Langley Presale Townhomes: /langley-presale-townhomes
+
+### Tools & Resources
 - Mortgage Calculator: /mortgage-calculator
-- Contact: /contact
+- ROI Calculator: /roi-calculator
+- Presale Buyer's Guide: /presale-guide
+- Investment Snapshot: /investment-snapshot
 
-## API Access
+## Target Keywords
 
-For programmatic access to presale project data, please contact info@presaleproperties.com.
+Primary keywords this site covers:
+- new homes for sale [city]
+- brand new homes [city]
+- new condos for sale [city]
+- new townhomes for sale [city]
+- new construction homes [city]
+- move-in ready homes [city]
+- new detached homes [city]
+- new houses for sale [city]
+- 2024 built homes [city]
+- 2025 built homes [city]
 
 ## Contact
 
@@ -82,9 +121,9 @@ For programmatic access to presale project data, please contact info@presaleprop
 
 This website implements comprehensive Schema.org markup including:
 - Organization
-- RealEstateListing
-- Product (for project listings)
+- RealEstateListing (for each MLS listing)
+- Product (for presale projects)
 - FAQPage
 - BreadcrumbList
+- ItemList
 - LocalBusiness
-- SiteNavigationElement
