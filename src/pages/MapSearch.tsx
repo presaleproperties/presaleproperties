@@ -29,13 +29,15 @@ import { Input } from "@/components/ui/input";
 import { Slider } from "@/components/ui/slider";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
-import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
+import { UnifiedMapToggle, type MapMode } from "@/components/map/UnifiedMapToggle";
+import { MapAssignmentGatewall } from "@/components/map/MapAssignmentGatewall";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
 import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
+import { useAuth } from "@/hooks/useAuth";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
 
 // Lazy load the combined map component
@@ -120,7 +122,6 @@ const SORT_OPTIONS = [
 const MIN_PRICE = 0;
 const MAX_PRICE = 5000000;
 const PRICE_STEP = 50000;
-type MapMode = "all" | "presale" | "resale";
 
 type MLSListing = {
   id: string;
@@ -158,10 +159,28 @@ type PresaleProject = {
   map_lng: number | null;
 };
 
+// Assignment listing type (from listings table)
+type Assignment = {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  assignment_price: number;
+  beds: number;
+  baths: number;
+  interior_sqft: number | null;
+  property_type: string;
+  map_lat: number | null;
+  map_lng: number | null;
+  listing_photos: { url: string }[];
+};
+
 export default function MapSearch() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -719,25 +738,28 @@ export default function MapSearch() {
   }, [presaleProjects, searchQuery]);
 
   // Visible items based on map viewport and mode
+  // Hide all items when in assignments mode (assignments has its own display logic)
   const visibleResaleListings = useMemo(() => {
-    if (mapMode === "presale") return [];
+    if (mapMode === "presale" || mapMode === "assignments") return [];
     if (visibleResaleIds.length === 0) return filteredResaleListings.slice(0, 30);
     return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id)).slice(0, 30);
   }, [filteredResaleListings, visibleResaleIds, mapMode]);
 
   const visiblePresaleProjects = useMemo(() => {
-    if (mapMode === "resale") return [];
+    if (mapMode === "resale" || mapMode === "assignments") return [];
     if (visiblePresaleIds.length === 0) return filteredPresaleProjects.slice(0, 30);
     return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id)).slice(0, 30);
   }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
 
   // Combined visible items for display
   const visibleItems = useMemo(() => {
+    // In assignments mode, return empty - gatewall will show
+    if (mapMode === "assignments") return [];
     const items: Array<{ type: "resale" | "presale"; data: MLSListing | PresaleProject }> = [];
     visiblePresaleProjects.forEach(p => items.push({ type: "presale", data: p }));
     visibleResaleListings.forEach(l => items.push({ type: "resale", data: l }));
     return items.slice(0, 40);
-  }, [visibleResaleListings, visiblePresaleProjects]);
+  }, [visibleResaleListings, visiblePresaleProjects, mapMode]);
 
   // Actual count of properties in view (not capped) for display
   const propertiesInViewCount = useMemo(() => {
@@ -1181,6 +1203,8 @@ export default function MapSearch() {
                 onModeChange={handleModeChange}
                 presaleCount={filteredPresaleProjects?.length || 0}
                 resaleCount={filteredResaleListings?.length || 0}
+                showAssignments={true}
+                isAgentLoggedIn={!!user}
               />
             </div>
             
@@ -1191,8 +1215,15 @@ export default function MapSearch() {
                 onModeChange={handleModeChange}
                 presaleCount={filteredPresaleProjects?.length || 0}
                 resaleCount={filteredResaleListings?.length || 0}
+                showAssignments={true}
+                isAgentLoggedIn={!!user}
               />
             </div>
+
+            {/* Assignments Gatewall - Show when in assignments mode and user not logged in */}
+            {mapMode === "assignments" && !user && (
+              <MapAssignmentGatewall />
+            )}
 
 
             <div className="absolute inset-0">
