@@ -746,7 +746,7 @@ export default function MapSearch() {
     return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id)).slice(0, 30);
   }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
 
-  // Combined visible items for display - with focused item pinned in place
+  // Combined visible items for display - with focused item pinned in place and sorted
   const visibleItems = useMemo(() => {
     const items: Array<{ type: "resale" | "presale"; data: MLSListing | PresaleProject }> = [];
     
@@ -779,8 +779,29 @@ export default function MapSearch() {
       }
     }
     
-    return items.slice(0, 40);
-  }, [visibleResaleListings, visiblePresaleProjects, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings]);
+    // Apply sorting based on filter
+    const sortedItems = [...items];
+    const sortValue = filters.sort;
+    
+    sortedItems.sort((a, b) => {
+      const priceA = a.type === "presale" 
+        ? (a.data as PresaleProject).starting_price || 0 
+        : (a.data as MLSListing).listing_price || 0;
+      const priceB = b.type === "presale" 
+        ? (b.data as PresaleProject).starting_price || 0 
+        : (b.data as MLSListing).listing_price || 0;
+      
+      if (sortValue === "price_asc") {
+        return priceA - priceB;
+      } else if (sortValue === "price_desc") {
+        return priceB - priceA;
+      }
+      // Default: newest (already sorted by list_date from query)
+      return 0;
+    });
+    
+    return sortedItems.slice(0, 40);
+  }, [visibleResaleListings, visiblePresaleProjects, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filters.sort]);
 
   // Actual count of properties in view (not capped) for display
   const propertiesInViewCount = useMemo(() => {
@@ -1646,8 +1667,8 @@ export default function MapSearch() {
                 </Sheet>
               </div>
               
-              {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range */}
-              <div className="flex items-center gap-3 px-3 pb-2.5 flex-wrap">
+              {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
+              <div className="flex items-center gap-2 px-3 pb-2.5 flex-wrap">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
@@ -1682,6 +1703,36 @@ export default function MapSearch() {
                   allLabel="Any Price"
                 />
                 
+                {/* Bedrooms Dropdown */}
+                <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
+                  <SelectTrigger className="h-8 min-w-[90px] text-xs bg-background border-border">
+                    <Bed className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                    <SelectValue placeholder="Beds" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-[100]">
+                    {BED_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.value === "any" ? "Any Beds" : opt.label === "Studio" ? "Studio" : `${opt.label}+ Bed`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                {/* Bathrooms Dropdown */}
+                <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
+                  <SelectTrigger className="h-8 min-w-[90px] text-xs bg-background border-border">
+                    <Bath className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
+                    <SelectValue placeholder="Baths" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-[100]">
+                    {BATH_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.value === "any" ? "Any Baths" : `${opt.label} Bath`}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
                 {/* Clear Filters - only show if filters active */}
                 {activeFilterCount > 0 && (
                   <Button 
@@ -1707,10 +1758,10 @@ export default function MapSearch() {
                   {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "Results"}
                 </span>
                 <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                  <SelectTrigger className="w-[100px] h-7 text-xs border-0 bg-transparent shadow-none px-1 gap-1">
+                  <SelectTrigger className="w-[110px] h-7 text-xs border border-border bg-background hover:bg-muted px-2 gap-1 rounded-md">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-popover border-border z-[100]">
                     {SORT_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
