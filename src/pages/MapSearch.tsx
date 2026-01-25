@@ -1717,7 +1717,7 @@ export default function MapSearch() {
                       </span>
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[100]">
+                  <SelectContent className="bg-popover border-border z-[9999]">
                     {BED_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.value === "any" ? "Any Beds" : opt.label === "Studio" ? "Studio" : `${opt.label}+ Bed`}
@@ -1739,7 +1739,7 @@ export default function MapSearch() {
                       </span>
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[100]">
+                  <SelectContent className="bg-popover border-border z-[9999]">
                     {BATH_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.value === "any" ? "Any Baths" : `${opt.label} Bath`}
