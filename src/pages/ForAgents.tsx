@@ -6,108 +6,94 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { 
-  CheckCircle, 
   ArrowRight,
-  Zap,
   FileText,
   Users,
-  TrendingUp,
   Shield,
-  Clock,
   Building2,
   Star,
   Sparkles,
   Crown,
-  Bell,
-  DollarSign,
-  BarChart3,
-  Target,
   BadgeCheck,
-  ChevronRight
+  Lock,
+  Megaphone,
+  FolderOpen,
+  Eye,
+  Upload,
+  CheckCircle2,
+  Layers,
+  Globe,
+  TrendingUp
 } from "lucide-react";
 
-const tiers = [
+// Core value propositions
+const coreFeatures = [
   {
-    name: "Core",
-    price: 99,
-    description: "Essential tools for growing agents",
-    badge: null,
-    features: [
-      "Access to all presale floor plans",
-      "Real-time pricing updates",
-      "5 assignment listings/month",
-      "Basic lead notifications",
-      "Email support"
-    ],
-    cta: "Start with Core",
-    popular: false
+    icon: FolderOpen,
+    title: "Complete Project Library",
+    description: "Access floor plans, brochures, and pricing sheets for every presale project in BC.",
+    highlight: "100+ Projects",
+    gradient: "from-amber-500/20 to-orange-500/20"
   },
   {
-    name: "Pro",
-    price: 199,
-    description: "Scale your presale business",
-    badge: "Most Popular",
-    features: [
-      "Everything in Core, plus:",
-      "Unlimited assignment listings",
-      "Priority access to new projects",
-      "Featured agent profile",
-      "Advanced analytics dashboard",
-      "Priority support"
-    ],
-    cta: "Go Pro",
-    popular: true
+    icon: Lock,
+    title: "Off-Market Assignments",
+    description: "Exclusive access to assignment listings before they hit public sites. Find deals for your clients first.",
+    highlight: "Exclusive Access",
+    gradient: "from-violet-500/20 to-purple-500/20"
   },
   {
-    name: "Elite",
-    price: 399,
-    description: "For top-producing agents",
-    badge: "Best Value",
-    features: [
-      "Everything in Pro, plus:",
-      "Early access to VIP launches",
-      "Off-market deal access",
-      "Dedicated account manager",
-      "White-glove listing service",
-      "Co-marketing opportunities"
-    ],
-    cta: "Join Elite",
-    popular: false
+    icon: Upload,
+    title: "Post Your Assignments",
+    description: "List your client's assignments to our network of verified agents. Reach serious buyers instantly.",
+    highlight: "500+ Agents",
+    gradient: "from-emerald-500/20 to-teal-500/20"
+  },
+  {
+    icon: Megaphone,
+    title: "Advertise & Promote",
+    description: "Feature your listings and profile to stand out. Premium placement gets you more leads.",
+    highlight: "10x Visibility",
+    gradient: "from-rose-500/20 to-pink-500/20"
   }
 ];
 
-const benefits = [
+const platformBenefits = [
   {
     icon: FileText,
-    title: "Every Floor Plan & Pricing Sheet",
-    description: "Instant access to brochures, floor plans, and pricing for 100+ BC presale projects. Updated in real-time.",
-    highlight: true
-  },
-  {
-    icon: Zap,
-    title: "Lightning-Fast Updates",
-    description: "Real-time notifications when new projects launch, prices change, or incentives become available."
+    stat: "100+",
+    label: "Projects",
+    description: "Floor plans & pricing"
   },
   {
     icon: Users,
-    title: "Off-Market Assignment Access",
-    description: "Browse and list assignments in our exclusive agent marketplace before they hit public sites."
-  },
-  {
-    icon: TrendingUp,
-    title: "Market Intelligence",
-    description: "CMHC rental data, price history, and ROI calculators built for investor conversations."
-  },
-  {
-    icon: Shield,
-    title: "Verified Agent Network",
-    description: "Connect with 500+ licensed BC agents. All members are BCFSA verified."
+    stat: "500+",
+    label: "Agents",
+    description: "BCFSA verified network"
   },
   {
     icon: Building2,
-    title: "Developer Connections",
-    description: "Direct relationships with 50+ developers. VIP access to launches and incentives."
+    stat: "50+",
+    label: "Developers",
+    description: "Direct partnerships"
+  },
+  {
+    icon: Layers,
+    stat: "Real-time",
+    label: "Updates",
+    description: "Always current data"
   }
+];
+
+const whatYouGet = [
+  "Instant access to all presale floor plans",
+  "Download brochures & pricing sheets",
+  "Browse off-market assignments",
+  "Post assignments to verified agents",
+  "Featured listing promotions",
+  "Real-time project updates",
+  "CMHC rental data & ROI tools",
+  "Direct developer connections"
 ];
 
 const testimonials = [
@@ -131,18 +117,11 @@ const testimonials = [
   }
 ];
 
-const stats = [
-  { value: "100+", label: "Active Projects" },
-  { value: "500+", label: "Verified Agents" },
-  { value: "50+", label: "Developer Partners" },
-  { value: "$2B+", label: "Volume Represented" }
-];
-
 export default function ForAgents() {
   return (
     <>
       <Helmet>
-        <title>For Agents | Presale Floor Plans & Pricing Access | PresaleProperties</title>
+        <title>For Agents | Presale Floor Plans, Off-Market Assignments & More | PresaleProperties</title>
         <meta 
           name="description" 
           content="Join Vancouver's #1 presale agent network. Instant access to floor plans, pricing, off-market assignments, and verified developer connections." 
@@ -153,212 +132,232 @@ export default function ForAgents() {
       <ConversionHeader />
 
       <main className="overflow-hidden">
-        {/* Hero Section - Premium dark gradient */}
-        <section className="relative py-20 lg:py-32 bg-gradient-to-b from-foreground via-foreground/95 to-foreground/90 text-background overflow-hidden">
-          {/* Animated background elements */}
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-20 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-float" />
-            <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary-glow/15 rounded-full blur-3xl animate-float" style={{ animationDelay: "1s" }} />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-radial from-primary/10 to-transparent rounded-full" />
+        {/* Hero Section - Premium dark with gold accents */}
+        <section className="relative py-24 lg:py-36 bg-foreground text-background overflow-hidden">
+          {/* Premium background effects */}
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,hsl(var(--primary)/0.15),transparent_50%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,hsl(var(--primary)/0.1),transparent_50%)]" />
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
           </div>
 
-          <div className="container relative z-10 max-w-5xl">
-            <div className="text-center mb-8">
-              <Badge variant="outline" className="mb-6 px-4 py-2 border-primary/50 text-primary bg-primary/10 backdrop-blur-sm">
+          <div className="container relative z-10 max-w-6xl">
+            <div className="text-center">
+              <Badge variant="outline" className="mb-8 px-5 py-2.5 border-primary/40 text-primary bg-primary/10 backdrop-blur-sm text-sm font-medium">
                 <Crown className="w-4 h-4 mr-2" />
-                Exclusive Agent Network
+                Vancouver's Premier Agent Network
               </Badge>
               
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight">
-                <span className="text-background">Every Floor Plan.</span>
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]">
+                <span className="text-background">Your Complete</span>
                 <br />
-                <span className="text-background">Every Brochure.</span>
-                <br />
-                <span className="text-gradient-gold">One Portal.</span>
+                <span className="text-gradient-gold">Presale Toolkit</span>
               </h1>
               
-              <p className="text-xl md:text-2xl text-background/70 max-w-3xl mx-auto mb-10 leading-relaxed">
-                Stop chasing developers for documents. Get instant access to floor plans, pricing sheets, 
-                and brochures for <strong className="text-background">100+ BC presale projects</strong>. 
-                Plus exclusive access to off-market assignments.
+              <p className="text-xl md:text-2xl text-background/70 max-w-3xl mx-auto mb-12 leading-relaxed">
+                Access <span className="text-background font-semibold">every floor plan</span>, browse{" "}
+                <span className="text-background font-semibold">off-market assignments</span>, and{" "}
+                <span className="text-background font-semibold">promote your listings</span> to 500+ verified BC agents.
               </p>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
                 <Link to="/login?tab=signup&type=agent">
-                  <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group">
+                  <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
                     <Sparkles className="mr-2 h-5 w-5" />
-                    Join the Network
+                    Join Free Today
                     <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                   </Button>
                 </Link>
                 <Link to="/login?type=agent">
-                  <Button size="xl" variant="outline" className="border-background/30 text-background hover:bg-background/10 hover:text-background text-lg">
+                  <Button size="xl" variant="outline" className="border-background/30 text-background hover:bg-background/10 hover:text-background text-lg w-full sm:w-auto">
                     Agent Login
                   </Button>
                 </Link>
               </div>
+
+              {/* Stats row */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+                {platformBenefits.map((item, index) => (
+                  <div key={index} className="p-5 rounded-2xl bg-background/5 backdrop-blur-sm border border-background/10 hover:border-primary/30 transition-colors">
+                    <item.icon className="h-6 w-6 text-primary mx-auto mb-2" />
+                    <div className="text-2xl md:text-3xl font-bold text-primary">{item.stat}</div>
+                    <div className="text-sm font-medium text-background/80">{item.label}</div>
+                    <div className="text-xs text-background/50 mt-1">{item.description}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Trust Bar */}
+        <section className="py-5 bg-muted/50 border-b border-border">
+          <div className="container">
+            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <BadgeCheck className="h-5 w-5 text-success" />
+                <span className="font-medium">BCFSA Verified Only</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Shield className="h-5 w-5 text-primary" />
+                <span className="font-medium">Secure & Encrypted</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Globe className="h-5 w-5 text-info" />
+                <span className="font-medium">Real-Time Sync</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Star className="h-5 w-5 text-warning fill-warning" />
+                <span className="font-medium">4.9/5 Rating</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Core Value Props - Big Feature Cards */}
+        <section className="py-20 lg:py-28">
+          <div className="container max-w-6xl">
+            <div className="text-center mb-16">
+              <Badge variant="secondary" className="mb-4 text-sm">Everything You Need</Badge>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-5">
+                Four Pillars of{" "}
+                <span className="text-gradient-gold">Agent Success</span>
+              </h2>
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Built by presale agents, for presale agents. Every feature designed to help you close more deals.
+              </p>
             </div>
 
-            {/* Stats bar */}
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
-              {stats.map((stat, index) => (
-                <div key={index} className="text-center p-4 rounded-xl bg-background/5 backdrop-blur-sm border border-background/10">
-                  <div className="text-3xl md:text-4xl font-bold text-primary mb-1">{stat.value}</div>
-                  <div className="text-sm text-background/60">{stat.label}</div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {coreFeatures.map((feature, index) => (
+                <Card 
+                  key={index} 
+                  className="group relative overflow-hidden border-border/50 hover:border-primary/40 transition-all duration-300 hover:shadow-elevated"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${feature.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
+                  <CardContent className="relative p-8">
+                    <div className="flex items-start gap-5">
+                      <div className="w-14 h-14 rounded-2xl bg-primary/10 group-hover:bg-primary flex items-center justify-center transition-colors duration-300 flex-shrink-0">
+                        <feature.icon className="h-7 w-7 text-primary group-hover:text-primary-foreground transition-colors duration-300" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className="text-xl font-bold">{feature.title}</h3>
+                          <Badge variant="outline" className="border-primary/30 text-primary bg-primary/5 text-xs">
+                            {feature.highlight}
+                          </Badge>
+                        </div>
+                        <p className="text-muted-foreground leading-relaxed">{feature.description}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* What's Included - Checklist Section */}
+        <section className="py-20 lg:py-28 bg-gradient-to-b from-muted/30 via-muted/50 to-muted/30">
+          <div className="container max-w-5xl">
+            <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+              <div>
+                <Badge variant="secondary" className="mb-4">Full Access Included</Badge>
+                <h2 className="text-3xl md:text-4xl font-bold tracking-tight mb-6">
+                  Everything a Presale Agent{" "}
+                  <span className="text-gradient-gold">Needs to Win</span>
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Join our network and get instant access to the tools and resources that top-producing agents use every day.
+                </p>
+                
+                <Link to="/login?tab=signup&type=agent">
+                  <Button size="lg" className="shadow-gold hover:shadow-gold-glow">
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Get Started Free
+                    <ArrowRight className="ml-2 h-5 w-5" />
+                  </Button>
+                </Link>
+              </div>
+              
+              <div className="bg-card rounded-3xl border border-border/50 p-8 shadow-elevated">
+                <div className="grid gap-4">
+                  {whatYouGet.map((item, index) => (
+                    <div 
+                      key={index} 
+                      className="flex items-center gap-4 p-3 rounded-xl hover:bg-muted/50 transition-colors"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                        <CheckCircle2 className="h-5 w-5 text-primary" />
+                      </div>
+                      <span className="font-medium">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works */}
+        <section className="py-20 lg:py-28">
+          <div className="container max-w-5xl">
+            <div className="text-center mb-16">
+              <Badge variant="secondary" className="mb-4">Quick Start</Badge>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-5">
+                Start in{" "}
+                <span className="text-gradient-gold">3 Minutes</span>
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Simple setup. No credit card required.
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8">
+              {[
+                { 
+                  step: "1", 
+                  title: "Create Account", 
+                  description: "Sign up with your BCFSA license number. We verify within 24 hours.",
+                  icon: Users
+                },
+                { 
+                  step: "2", 
+                  title: "Explore Platform", 
+                  description: "Browse floor plans, assignments, and connect with developer partners.",
+                  icon: Eye
+                },
+                { 
+                  step: "3", 
+                  title: "Close More Deals", 
+                  description: "Use our tools to win more presale and assignment listings.",
+                  icon: TrendingUp
+                }
+              ].map((item, index) => (
+                <div key={index} className="relative">
+                  {index < 2 && (
+                    <div className="hidden md:block absolute top-10 left-[60%] w-[80%] h-px bg-gradient-to-r from-primary/40 to-transparent" />
+                  )}
+                  <div className="text-center">
+                    <div className="relative mb-6">
+                      <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-primary to-primary-deep text-primary-foreground flex items-center justify-center mx-auto shadow-gold">
+                        <item.icon className="h-9 w-9" />
+                      </div>
+                      <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-foreground text-background flex items-center justify-center text-sm font-bold shadow-lg">
+                        {item.step}
+                      </div>
+                    </div>
+                    <h3 className="text-xl font-bold mb-3">{item.title}</h3>
+                    <p className="text-muted-foreground">{item.description}</p>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Trust Bar */}
-        <section className="py-6 bg-muted/50 border-y border-border">
-          <div className="container">
-            <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <BadgeCheck className="h-5 w-5 text-success" />
-                <span>BCFSA Verified Agents Only</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-primary" />
-                <span>256-bit SSL Encrypted</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Clock className="h-5 w-5 text-info" />
-                <span>Real-Time Data Sync</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Star className="h-5 w-5 text-warning" />
-                <span>4.9/5 Agent Rating</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Benefits Grid */}
-        <section className="py-20 lg:py-28">
-          <div className="container max-w-6xl">
-            <div className="text-center mb-14">
-              <Badge variant="secondary" className="mb-4">Why Agents Choose Us</Badge>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-                Everything You Need to{" "}
-                <span className="text-gradient-gold">Dominate Presales</span>
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                Built by agents, for agents. Every feature designed to save you time and close more deals.
-              </p>
-            </div>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {benefits.map((benefit, index) => (
-                <Card 
-                  key={index} 
-                  className={`group hover-lift border-border/50 bg-card/50 backdrop-blur-sm ${
-                    benefit.highlight ? "ring-2 ring-primary/50 bg-primary/5" : ""
-                  }`}
-                >
-                  <CardContent className="p-6">
-                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${
-                      benefit.highlight 
-                        ? "bg-primary text-primary-foreground" 
-                        : "bg-primary/10 group-hover:bg-primary/20"
-                    }`}>
-                      <benefit.icon className={`h-6 w-6 ${benefit.highlight ? "" : "text-primary"}`} />
-                    </div>
-                    <h3 className="font-semibold text-lg mb-2">{benefit.title}</h3>
-                    <p className="text-muted-foreground">{benefit.description}</p>
-                    {benefit.highlight && (
-                      <Badge className="mt-3 bg-primary/10 text-primary border-primary/30">
-                        #1 Agent Benefit
-                      </Badge>
-                    )}
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Pricing Section */}
-        <section className="py-20 lg:py-28 bg-gradient-to-b from-muted/30 to-muted/50">
-          <div className="container max-w-6xl">
-            <div className="text-center mb-14">
-              <Badge variant="secondary" className="mb-4">Simple Pricing</Badge>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-                Choose Your{" "}
-                <span className="text-gradient-gold">Growth Plan</span>
-              </h2>
-              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                No hidden fees. Cancel anytime. Start with a 14-day free trial.
-              </p>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
-              {tiers.map((tier, index) => (
-                <Card 
-                  key={index} 
-                  className={`relative overflow-hidden transition-all duration-300 ${
-                    tier.popular 
-                      ? "border-primary shadow-gold scale-105 z-10" 
-                      : "border-border/50 hover:border-primary/30 hover:shadow-elevated"
-                  }`}
-                >
-                  {tier.badge && (
-                    <div className="absolute top-0 right-0">
-                      <div className={`px-4 py-1 text-xs font-semibold ${
-                        tier.popular 
-                          ? "bg-primary text-primary-foreground" 
-                          : "bg-foreground text-background"
-                      }`}>
-                        {tier.badge}
-                      </div>
-                    </div>
-                  )}
-                  
-                  <CardContent className="p-6 lg:p-8">
-                    <div className="mb-6">
-                      <h3 className="text-xl font-bold mb-2">{tier.name}</h3>
-                      <p className="text-sm text-muted-foreground mb-4">{tier.description}</p>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-4xl font-bold">${tier.price}</span>
-                        <span className="text-muted-foreground">/month</span>
-                      </div>
-                    </div>
-
-                    <ul className="space-y-3 mb-8">
-                      {tier.features.map((feature, fIndex) => (
-                        <li key={fIndex} className="flex items-start gap-3">
-                          <CheckCircle className={`h-5 w-5 flex-shrink-0 mt-0.5 ${
-                            tier.popular ? "text-primary" : "text-success"
-                          }`} />
-                          <span className="text-sm">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <Link to="/login?tab=signup&type=agent" className="block">
-                      <Button 
-                        className="w-full" 
-                        variant={tier.popular ? "default" : "outline"}
-                        size="lg"
-                      >
-                        {tier.cta}
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-
-            <p className="text-center text-sm text-muted-foreground mt-8">
-              All plans include a 14-day free trial. No credit card required to start.
-            </p>
-          </div>
-        </section>
-
         {/* Testimonials */}
-        <section className="py-20 lg:py-28">
+        <section className="py-20 lg:py-28 bg-muted/30">
           <div className="container max-w-6xl">
             <div className="text-center mb-14">
               <Badge variant="secondary" className="mb-4">Agent Success Stories</Badge>
@@ -370,7 +369,7 @@ export default function ForAgents() {
 
             <div className="grid md:grid-cols-3 gap-6">
               {testimonials.map((testimonial, index) => (
-                <Card key={index} className="border-border/50 bg-card/50">
+                <Card key={index} className="border-border/50 bg-card hover:shadow-elevated transition-shadow">
                   <CardContent className="p-6">
                     <div className="flex gap-1 mb-4">
                       {[...Array(5)].map((_, i) => (
@@ -381,12 +380,12 @@ export default function ForAgents() {
                       "{testimonial.quote}"
                     </blockquote>
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-sm font-semibold text-primary">
+                      <div className="w-11 h-11 rounded-full bg-gradient-to-br from-primary to-primary-deep flex items-center justify-center text-sm font-semibold text-primary-foreground shadow-sm">
                         {testimonial.avatar}
                       </div>
                       <div>
-                        <div className="font-semibold text-sm">{testimonial.name}</div>
-                        <div className="text-xs text-muted-foreground">{testimonial.title}</div>
+                        <div className="font-semibold">{testimonial.name}</div>
+                        <div className="text-sm text-muted-foreground">{testimonial.title}</div>
                       </div>
                     </div>
                   </CardContent>
@@ -396,95 +395,45 @@ export default function ForAgents() {
           </div>
         </section>
 
-        {/* How It Works */}
-        <section className="py-20 lg:py-28 bg-muted/30">
-          <div className="container max-w-5xl">
-            <div className="text-center mb-14">
-              <Badge variant="secondary" className="mb-4">Quick Start</Badge>
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-4">
-                Get Started in{" "}
-                <span className="text-gradient-gold">3 Minutes</span>
-              </h2>
-            </div>
-
-            <div className="grid md:grid-cols-3 gap-8">
-              {[
-                { 
-                  step: "1", 
-                  title: "Create Your Profile", 
-                  description: "Sign up with your BCFSA license. We verify within 24 hours.",
-                  icon: Users
-                },
-                { 
-                  step: "2", 
-                  title: "Explore the Platform", 
-                  description: "Browse floor plans, assignments, and developer partnerships.",
-                  icon: Target
-                },
-                { 
-                  step: "3", 
-                  title: "Start Closing Deals", 
-                  description: "Use our tools to win more presale and assignment listings.",
-                  icon: TrendingUp
-                }
-              ].map((item, index) => (
-                <div key={index} className="text-center">
-                  <div className="relative mb-6">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-primary-deep text-primary-foreground flex items-center justify-center mx-auto shadow-gold">
-                      <item.icon className="h-7 w-7" />
-                    </div>
-                    <div className="absolute -top-2 -right-2 w-8 h-8 rounded-full bg-foreground text-background text-sm font-bold flex items-center justify-center">
-                      {item.step}
-                    </div>
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-                  <p className="text-muted-foreground">{item.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
         {/* Final CTA */}
-        <section className="py-24 lg:py-32 bg-gradient-to-b from-foreground to-foreground/95 text-background relative overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute top-10 right-20 w-64 h-64 bg-primary/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-20 w-80 h-80 bg-primary-glow/15 rounded-full blur-3xl" />
+        <section className="py-24 lg:py-32 bg-foreground text-background relative overflow-hidden">
+          <div className="absolute inset-0">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,hsl(var(--primary)/0.2),transparent_70%)]" />
           </div>
-
-          <div className="container relative z-10 max-w-3xl text-center">
-            <Sparkles className="h-12 w-12 text-primary mx-auto mb-6" />
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 tracking-tight">
-              Ready to Sell More Presales?
+          
+          <div className="container relative z-10 max-w-4xl text-center">
+            <Badge variant="outline" className="mb-6 px-4 py-2 border-primary/40 text-primary bg-primary/10">
+              <Sparkles className="w-4 h-4 mr-2" />
+              Free to Join
+            </Badge>
+            
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight">
+              Ready to Dominate{" "}
+              <span className="text-gradient-gold">Presales?</span>
             </h2>
-            <p className="text-xl text-background/70 mb-10 max-w-xl mx-auto">
-              Join 500+ agents who are already using our platform to close more deals and grow their presale business.
+            
+            <p className="text-xl text-background/70 mb-10 max-w-2xl mx-auto">
+              Join 500+ verified BC agents who use our platform to access floor plans, 
+              find off-market assignments, and close more deals.
             </p>
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/login?tab=signup&type=agent">
-                <Button size="xl" className="shadow-gold-glow text-lg font-semibold group">
+                <Button size="xl" className="shadow-gold-glow hover:shadow-gold text-lg font-semibold group w-full sm:w-auto">
                   <Crown className="mr-2 h-5 w-5" />
-                  Start Free Trial
+                  Join the Network
                   <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
                 </Button>
               </Link>
-              <Link to="/contact">
-                <Button size="xl" variant="outline" className="border-background/30 text-background hover:bg-background/10 hover:text-background text-lg">
-                  Talk to Sales
+              <Link to="/dashboard/assignments">
+                <Button size="xl" variant="outline" className="border-background/30 text-background hover:bg-background/10 text-lg w-full sm:w-auto">
+                  Browse Assignments
                 </Button>
               </Link>
             </div>
-            <p className="text-sm text-background/50 mt-6">
-              14-day free trial • No credit card required • Cancel anytime
-            </p>
-          </div>
-        </section>
 
-        {/* Footer Note */}
-        <section className="py-8 border-t bg-card">
-          <div className="container max-w-3xl">
-            <p className="text-sm text-muted-foreground text-center">
-              Agent Portal access requires BCFSA license verification. All agents must be in good standing with the BC Financial Services Authority.
+            <p className="text-sm text-background/50 mt-8">
+              BCFSA license required • Verification within 24 hours • No credit card needed
             </p>
           </div>
         </section>
