@@ -1669,7 +1669,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-2 px-3 pb-2.5 flex-wrap">
+              <div className="flex items-center gap-2 px-3 pb-2.5 overflow-x-auto scrollbar-hide">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
