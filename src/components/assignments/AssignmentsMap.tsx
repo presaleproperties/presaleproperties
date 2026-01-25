@@ -45,67 +45,38 @@ const formatPrice = (price: number) => {
   return `$${(price / 1000).toFixed(0)}K`;
 };
 
-// Assignment marker - pin with building icon (matches presale style exactly)
-const createPricePillIcon = () => {
-  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
+// Icon cache for performance
+const assignmentIconCache = new Map<string, L.DivIcon>();
 
-  return L.divIcon({
-    className: "assignment-pin-marker",
-    html: `
-      <div style="
-        position: relative;
-        width: 24px;
-        height: 30px;
-      ">
-        <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 7.5 12 18 12 18s12-10.5 12-18c0-6.627-5.373-12-12-12z" fill="hsl(222, 47%, 25%)"/>
-          <circle cx="12" cy="11" r="7" fill="hsl(45, 89%, 55%)"/>
-        </svg>
-        <div style="
-          position: absolute;
-          top: 5px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          width: 14px;
-          height: 14px;
-        ">
-          ${buildingIcon}
-        </div>
-      </div>
-    `,
+// Assignment marker - optimized pin with building icon
+const createPricePillIcon = () => {
+  const cacheKey = 'assignment-pin';
+  const cached = assignmentIconCache.get(cacheKey);
+  if (cached) return cached;
+
+  const icon = L.divIcon({
+    className: "assign-pin",
+    html: `<div class="assign-marker"></div>`,
     iconSize: [24, 30],
     iconAnchor: [12, 30],
     popupAnchor: [0, -30],
   });
+  
+  assignmentIconCache.set(cacheKey, icon);
+  return icon;
 };
 
-// Custom cluster icon (matches presale style exactly)
+// Custom cluster icon - optimized
 const createClusterIcon = (cluster: L.MarkerCluster) => {
   const count = cluster.getChildCount();
+  const sizeClass = count >= 100 ? 'lg' : count >= 10 ? 'md' : 'sm';
+  const size = count >= 100 ? 44 : count >= 10 ? 40 : 36;
+  
   return L.divIcon({
-    className: "custom-cluster-icon",
-    html: `
-      <div style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: #F5C243;
-        color: #1a1a1a;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        font-size: 12px;
-        font-weight: 700;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        border: 2px solid white;
-        font-family: system-ui, -apple-system, sans-serif;
-      ">${count}</div>
-    `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
+    className: "mc",
+    html: `<div class="cl ${sizeClass}">${count}</div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 };
 
@@ -170,21 +141,32 @@ export function AssignmentsMap({
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
       zoomControl: false,
+      preferCanvas: true,
+      fadeAnimation: false,
+      markerZoomAnimation: false,
     });
 
     L.tileLayer(TILE_URL, {
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 2,
     }).addTo(map);
 
-    // Create marker cluster group - matches presale settings
+    // Create marker cluster group - optimized settings
     clusterGroupRef.current = L.markerClusterGroup({
       iconCreateFunction: createClusterIcon,
-      maxClusterRadius: 80,
+      maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       disableClusteringAtZoom: 16,
-      spiderfyDistanceMultiplier: 1.5,
+      chunkedLoading: true,
+      chunkDelay: 10,
+      chunkInterval: 50,
+      animate: false,
+      animateAddingMarkers: false,
+      removeOutsideVisibleBounds: true,
     });
     map.addLayer(clusterGroupRef.current);
 
