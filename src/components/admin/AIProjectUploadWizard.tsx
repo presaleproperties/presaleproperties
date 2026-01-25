@@ -114,10 +114,12 @@ export function AIProjectUploadWizard() {
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [featuredImage, setFeaturedImage] = useState<string>("");
   const [brochureFiles, setBrochureFiles] = useState<string[]>([]);
+  const [floorplanFiles, setFloorplanFiles] = useState<string[]>([]);
   const [driveUrl, setDriveUrl] = useState("");
   const [isImportingDrive, setIsImportingDrive] = useState(false);
   const [isFormattingDescription, setIsFormattingDescription] = useState(false);
   const brochureFileInputRef = useRef<HTMLInputElement>(null);
+  const floorplanFileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
   const [extractImagesFromPDFs, setExtractImagesFromPDFs] = useState(true);
   
@@ -681,6 +683,7 @@ export function AIProjectUploadWizard() {
         amenities: formData.amenities || null,
         faq: formData.faq || [],
         brochure_files: brochureFiles.length > 0 ? brochureFiles : null,
+        floorplan_files: floorplanFiles.length > 0 ? floorplanFiles : null,
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         is_indexed: formData.is_indexed ?? true,
@@ -883,6 +886,52 @@ export function AIProjectUploadWizard() {
 
   const removeBrochure = () => {
     setBrochureFiles([]);
+  };
+
+  // Floorplan upload handler
+  const handleFloorplanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploadingImages(true);
+    try {
+      const file = files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `floorplans/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("listing-files")
+        .upload(fileName, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("listing-files")
+        .getPublicUrl(fileName);
+
+      setFloorplanFiles([urlData.publicUrl]);
+
+      toast({
+        title: "Upload Complete",
+        description: "Floorplan PDF uploaded successfully",
+      });
+    } catch (error) {
+      console.error("Error uploading floorplan:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload floorplan",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUploadingImages(false);
+      if (floorplanFileInputRef.current) {
+        floorplanFileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const removeFloorplan = () => {
+    setFloorplanFiles([]);
   };
 
   // Render based on current step
@@ -1861,6 +1910,92 @@ export function AIProjectUploadWizard() {
                         accept=".pdf"
                         className="hidden"
                         onChange={handleBrochureUpload}
+                      />
+                    </label>
+                  )}
+                </CardContent>
+              </Card>
+
+              {/* Floorplan PDF */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Floorplan PDF
+                  </CardTitle>
+                  <CardDescription>
+                    Upload a PDF with all unit floorplans for verified agents
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {floorplanFiles.length > 0 ? (
+                    <div className="space-y-2">
+                      {floorplanFiles.map((url, index) => {
+                        const fileName = decodeURIComponent(url.split('/').pop() || 'floorplan.pdf');
+                        const displayName = fileName.length > 30 
+                          ? fileName.substring(0, 27) + '...' + fileName.slice(-7) 
+                          : fileName;
+                        
+                        return (
+                          <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
+                            <div className="flex items-center gap-3 min-w-0 flex-1">
+                              <div className="p-2 bg-primary/10 rounded">
+                                <FileText className="h-5 w-5 text-primary" />
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-sm font-medium truncate" title={fileName}>
+                                  {displayName}
+                                </p>
+                                <p className="text-xs text-muted-foreground">PDF Floorplan</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                                className="h-8 w-8"
+                              >
+                                <a href={url} target="_blank" rel="noopener noreferrer" title="Open in new tab">
+                                  <ExternalLink className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                asChild
+                                className="h-8 w-8"
+                              >
+                                <a href={url} download title="Download">
+                                  <Download className="h-4 w-4" />
+                                </a>
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-destructive hover:text-destructive"
+                                onClick={removeFloorplan}
+                              >
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-4 cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="h-6 w-6 text-muted-foreground mb-1" />
+                      <span className="text-sm text-muted-foreground">Upload floorplan PDF</span>
+                      <input
+                        ref={floorplanFileInputRef}
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={handleFloorplanUpload}
                       />
                     </label>
                   )}
