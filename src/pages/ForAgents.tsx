@@ -79,8 +79,9 @@ const tiers = [
 const benefits = [
   {
     icon: FileText,
-    title: "Instant Floor Plans & Pricing",
-    description: "No more chasing developers. Get every floor plan and price sheet the moment they're released."
+    title: "Every Floor Plan & Pricing Sheet",
+    description: "Instant access to brochures, floor plans, and pricing for 100+ BC presale projects. Updated in real-time.",
+    highlight: true
   },
   {
     icon: Zap,
@@ -169,14 +170,17 @@ export default function ForAgents() {
               </Badge>
               
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 leading-tight">
-                <span className="text-background">Stop Chasing Developers.</span>
+                <span className="text-background">Every Floor Plan.</span>
                 <br />
-                <span className="text-gradient-gold">Start Closing Presales.</span>
+                <span className="text-background">Every Brochure.</span>
+                <br />
+                <span className="text-gradient-gold">One Portal.</span>
               </h1>
               
               <p className="text-xl md:text-2xl text-background/70 max-w-3xl mx-auto mb-10 leading-relaxed">
-                Get instant access to every floor plan, price sheet, and off-market assignment in Metro Vancouver. 
-                Join 500+ agents already selling smarter.
+                Stop chasing developers for documents. Get instant access to floor plans, pricing sheets, 
+                and brochures for <strong className="text-background">100+ BC presale projects</strong>. 
+                Plus exclusive access to off-market assignments.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -247,13 +251,27 @@ export default function ForAgents() {
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {benefits.map((benefit, index) => (
-                <Card key={index} className="group hover-lift border-border/50 bg-card/50 backdrop-blur-sm">
+                <Card 
+                  key={index} 
+                  className={`group hover-lift border-border/50 bg-card/50 backdrop-blur-sm ${
+                    benefit.highlight ? "ring-2 ring-primary/50 bg-primary/5" : ""
+                  }`}
+                >
                   <CardContent className="p-6">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                      <benefit.icon className="h-6 w-6 text-primary" />
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-colors ${
+                      benefit.highlight 
+                        ? "bg-primary text-primary-foreground" 
+                        : "bg-primary/10 group-hover:bg-primary/20"
+                    }`}>
+                      <benefit.icon className={`h-6 w-6 ${benefit.highlight ? "" : "text-primary"}`} />
                     </div>
                     <h3 className="font-semibold text-lg mb-2">{benefit.title}</h3>
                     <p className="text-muted-foreground">{benefit.description}</p>
+                    {benefit.highlight && (
+                      <Badge className="mt-3 bg-primary/10 text-primary border-primary/30">
+                        #1 Agent Benefit
+                      </Badge>
+                    )}
                   </CardContent>
                 </Card>
               ))}

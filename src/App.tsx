@@ -26,6 +26,7 @@ import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardBilling from "./pages/dashboard/DashboardBilling";
 import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
 import DashboardMessages from "./pages/dashboard/DashboardMessages";
+import DashboardProjectDocuments from "./pages/dashboard/DashboardProjectDocuments";
 import ListingForm from "./pages/dashboard/ListingForm";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import DeveloperProjects from "./pages/developer/DeveloperProjects";
@@ -228,6 +229,7 @@ const App = () => (
             
             {/* Agent Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
+            <Route path="/dashboard/projects" element={<ProtectedRoute><DashboardProjectDocuments /></ProtectedRoute>} />
             <Route path="/dashboard/assignments" element={<ProtectedRoute><DashboardAssignments /></ProtectedRoute>} />
             <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />

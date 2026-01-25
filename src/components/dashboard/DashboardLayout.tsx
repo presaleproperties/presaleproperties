@@ -18,7 +18,8 @@ import {
   ChevronRight,
   Sparkles,
   MessageSquare,
-  FileText
+  FileText,
+  FolderOpen,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -33,11 +34,17 @@ const navItems = [
     description: "Your dashboard home"
   },
   { 
+    label: "Project Documents", 
+    href: "/dashboard/projects", 
+    icon: FolderOpen,
+    description: "Floorplans & brochures",
+    badge: "Premium"
+  },
+  { 
     label: "Assignment Portal", 
     href: "/dashboard/assignments", 
     icon: Building2,
-    description: "Browse all assignments",
-    badge: "New"
+    description: "Browse all assignments"
   },
   { 
     label: "My Listings", 

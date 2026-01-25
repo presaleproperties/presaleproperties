@@ -20,7 +20,8 @@ import {
   Sparkles,
   Target,
   Zap,
-  Crown
+  Crown,
+  FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -142,6 +143,12 @@ export default function DashboardOverview() {
                 </p>
               </div>
               <div className="flex gap-3">
+                <Link to="/dashboard/projects">
+                  <Button variant="outline" className="gap-2">
+                    <FolderOpen className="h-4 w-4" />
+                    Project Documents
+                  </Button>
+                </Link>
                 <Link to="/dashboard/assignments">
                   <Button variant="outline" className="gap-2">
                     <Eye className="h-4 w-4" />
