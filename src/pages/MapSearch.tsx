@@ -1461,7 +1461,7 @@ export default function MapSearch() {
             showList ? "w-[40%] min-w-[420px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
             {/* Top Bar - Search + Filter + Quick Filters */}
-            <div className="shrink-0 border-b border-border bg-background">
+            <div className="shrink-0 border-b border-border bg-background relative z-50">
               {/* Search Bar Row */}
               <div className="flex items-center gap-2 px-3 pt-3 pb-3">
                 {/* Search Bar */}
