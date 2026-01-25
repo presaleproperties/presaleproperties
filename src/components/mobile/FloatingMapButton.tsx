@@ -161,17 +161,18 @@ export function FloatingMapButton() {
         "fixed bottom-6 right-4 z-50",
         "flex items-center justify-center",
         "w-12 h-12 rounded-full",
-        "bg-foreground text-background",
+        "bg-primary text-primary-foreground",
         "ring-2 ring-offset-2 ring-offset-transparent",
-        "shadow-[0_4px_24px_rgba(0,0,0,0.3),0_0_0_1px_rgba(255,255,255,0.1)]",
-        "hover:shadow-[0_6px_32px_rgba(0,0,0,0.4),0_0_0_1px_rgba(255,255,255,0.15)]",
+        "shadow-[0_4px_24px_rgba(245,194,67,0.4),0_0_0_1px_rgba(255,255,255,0.1)]",
+        "hover:shadow-[0_6px_32px_rgba(245,194,67,0.5),0_0_0_1px_rgba(255,255,255,0.15)]",
+        "hover:scale-105",
         "active:scale-95",
         "transition-all duration-300",
         "lg:right-6",
         // Subtle glow effect on first impression
         isPulsing 
-          ? "ring-blue-400/50 shadow-[0_0_12px_3px_rgba(59,130,246,0.35),0_4px_24px_rgba(0,0,0,0.3)]"
-          : "ring-background/20 hover:ring-background/30",
+          ? "ring-primary/50 shadow-[0_0_16px_4px_rgba(245,194,67,0.45),0_4px_24px_rgba(0,0,0,0.3)]"
+          : "ring-primary/30 hover:ring-primary/50",
         isVisible 
           ? "translate-y-0 opacity-100" 
           : "translate-y-20 opacity-0 pointer-events-none"
