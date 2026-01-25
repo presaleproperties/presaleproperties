@@ -37,9 +37,9 @@ const coreFeatures = [
   },
   {
     icon: Lock,
-    title: "Off-Market Assignments",
-    description: "Exclusive access to assignment listings before they hit public sites. Find deals for your clients first.",
-    highlight: "Exclusive Access",
+    title: "All Assignments, One Place",
+    description: "Stop scrolling Facebook groups. Search by location, price, and unit type. Connect with listing agents instantly—no more lost posts.",
+    highlight: "Searchable & Organized",
     gradient: "from-violet-500/20 to-purple-500/20"
   },
   {
