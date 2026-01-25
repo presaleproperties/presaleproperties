@@ -690,29 +690,29 @@ export default function PresaleProjectDetail() {
                 {/* Lead Magnets Bar - Save, Price Alert, ROI Analysis */}
                 <ProjectLeadMagnetsBar projectId={project.id} projectName={project.name} city={project.city} />
 
-                {/* Quick Facts - visible on tablet and desktop, more compact */}
-                <div className="hidden md:block space-y-1.5 mb-2">
-                  {project.developer_name && <div className="flex items-center gap-2 text-xs">
-                      <Building2 className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+{/* Quick Facts - visible on tablet and desktop, larger text */}
+                <div className="hidden md:block space-y-2 mb-3">
+                  {project.developer_name && <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                      <Building2 className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Developer:</span>
-                      <span className="font-medium truncate">{project.developer_name}</span>
+                      <span className="font-semibold truncate">{project.developer_name}</span>
                     </div>}
-                  {project.completion_year && <div className="flex items-center gap-2 text-xs">
-                      <Calendar className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  {project.completion_year && <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                      <Calendar className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Completion:</span>
-                      <span className="font-medium">
+                      <span className="font-semibold">
                         {project.completion_month ? `${getMonthName(project.completion_month)} ` : ""}{project.completion_year}
                       </span>
                     </div>}
-                  {project.unit_mix && <div className="flex items-center gap-2 text-xs">
-                      <Home className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  {project.unit_mix && <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                      <Home className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Units:</span>
-                      <span className="font-medium truncate">{project.unit_mix}</span>
+                      <span className="font-semibold truncate">{project.unit_mix}</span>
                     </div>}
-                  {project.deposit_structure && <div className="flex items-center gap-2 text-xs">
-                      <DollarSign className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  {project.deposit_structure && <div className="flex items-center gap-2.5 text-sm lg:text-base">
+                      <DollarSign className="h-4 w-4 lg:h-5 lg:w-5 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Deposit:</span>
-                      <span className="font-medium truncate">{project.deposit_structure}</span>
+                      <span className="font-semibold truncate">{project.deposit_structure}</span>
                     </div>}
                 </div>
 
