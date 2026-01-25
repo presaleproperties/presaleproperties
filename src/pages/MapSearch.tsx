@@ -176,6 +176,7 @@ export default function MapSearch() {
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
+  const [isListInteracting, setIsListInteracting] = useState(false); // Pause visible updates during list click
 
   // MOBILE ONLY: prevent iOS/Android overscroll from revealing body background (white bands)
   useEffect(() => {
@@ -333,13 +334,16 @@ export default function MapSearch() {
     staleTime: 10 * 60 * 1000,
   });
 
+  // handleItemSelect is called when a PIN on the map is clicked
+  // It should scroll the list to show the selected card
   const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
     setSelectedItemId(id);
     setSelectedItemType(type);
-    setFocusedCarouselItemId(id); // Also set as focused when pin is clicked
+    setFocusedCarouselItemId(id);
     setFocusedCarouselItemType(type);
     setShowCarousel(true);
     
+    // Scroll to the card in carousel/list (only when clicking from MAP, not from list)
     setTimeout(() => {
       if (carouselRef.current) {
         const cardElement = carouselRef.current.querySelector(`[data-item-id="${id}"]`);
@@ -357,9 +361,11 @@ export default function MapSearch() {
   }, []);
 
   const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[]) => {
+    // Skip update if user is interacting with the list (prevents card jumping)
+    if (isListInteracting) return;
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
-  }, []);
+  }, [isListInteracting]);
 
   // Hide carousel when user starts panning/zooming the map on mobile
   const handleMapInteraction = useCallback(() => {
@@ -454,6 +460,10 @@ export default function MapSearch() {
     
     // First click - prevent navigation, focus and fly to pin
     e.preventDefault();
+    
+    // Pause visible items updates to prevent card jumping
+    setIsListInteracting(true);
+    
     setFocusedCarouselItemId(id);
     setFocusedCarouselItemType(type);
     setSelectedItemId(id);
@@ -467,6 +477,11 @@ export default function MapSearch() {
       // Highlight the pin with animation
       mapNavigationRef.current.highlightItem(id, type);
     }
+    
+    // Resume visible items updates after fly animation completes
+    setTimeout(() => {
+      setIsListInteracting(false);
+    }, 1000);
   }, [focusedCarouselItemId]);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
@@ -731,13 +746,41 @@ export default function MapSearch() {
     return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id)).slice(0, 30);
   }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
 
-  // Combined visible items for display
+  // Combined visible items for display - with focused item pinned in place
   const visibleItems = useMemo(() => {
     const items: Array<{ type: "resale" | "presale"; data: MLSListing | PresaleProject }> = [];
-    visiblePresaleProjects.forEach(p => items.push({ type: "presale", data: p }));
-    visibleResaleListings.forEach(l => items.push({ type: "resale", data: l }));
+    
+    // Track if focused item is already in visible items
+    let focusedItemIncluded = false;
+    const focusedId = focusedCarouselItemId;
+    
+    // Add presale projects
+    visiblePresaleProjects.forEach(p => {
+      if (p.id === focusedId) focusedItemIncluded = true;
+      items.push({ type: "presale", data: p });
+    });
+    
+    // Add resale listings
+    visibleResaleListings.forEach(l => {
+      if (l.id === focusedId) focusedItemIncluded = true;
+      items.push({ type: "resale", data: l });
+    });
+    
+    // If focused item is not in visible items, find and add it to maintain stability
+    if (focusedId && !focusedItemIncluded) {
+      const focusedPresale = filteredPresaleProjects.find(p => p.id === focusedId);
+      if (focusedPresale) {
+        items.unshift({ type: "presale", data: focusedPresale });
+      } else {
+        const focusedResale = filteredResaleListings.find(l => l.id === focusedId);
+        if (focusedResale) {
+          items.unshift({ type: "resale", data: focusedResale });
+        }
+      }
+    }
+    
     return items.slice(0, 40);
-  }, [visibleResaleListings, visiblePresaleProjects]);
+  }, [visibleResaleListings, visiblePresaleProjects, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings]);
 
   // Actual count of properties in view (not capped) for display
   const propertiesInViewCount = useMemo(() => {
