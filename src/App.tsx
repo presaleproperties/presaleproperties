@@ -9,9 +9,6 @@ import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import Index from "./pages/Index";
-import Assignments from "./pages/Assignments";
-import ListingDetail from "./pages/ListingDetail";
-import About from "./pages/About";
 import Contact from "./pages/Contact";
 
 import ForAgents from "./pages/ForAgents";
@@ -186,9 +183,6 @@ const App = () => (
             {/* Content Hub & Category Pages */}
             <Route path="/guides" element={<ContentHub />} />
             <Route path="/guides/:categorySlug" element={<BlogCategoryPage />} />
-            <Route path="/assignments" element={<Assignments />} />
-            <Route path="/assignments/:id" element={<ListingDetail />} />
-            <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
             
             <Route path="/buyers-guide" element={<BuyersGuide />} />
