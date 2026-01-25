@@ -8,12 +8,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { 
-  RefreshCw, 
-  Database, 
-  CheckCircle2, 
-  XCircle, 
-  Clock, 
+import {
+  RefreshCw,
+  Database,
+  CheckCircle2,
+  XCircle,
+  Clock,
   AlertTriangle,
   ExternalLink,
   Play,
@@ -22,7 +22,8 @@ import {
   Eye,
   EyeOff,
   Trash2,
-  Users
+  Users,
+  Calendar
 } from "lucide-react";
 import {
   AlertDialog,
@@ -79,10 +80,14 @@ interface GeocodingLog {
   trigger_source: string | null;
 }
 
+// Year options for the filter
+const YEAR_OPTIONS = [2020, 2021, 2022, 2023, 2024, 2025, 2026];
+
 export default function AdminMLSSync() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [enabledCities, setEnabledCities] = useState<string[]>([]);
+  const [minYearBuilt, setMinYearBuilt] = useState<number>(2024);
 
   // Default Metro Vancouver & Fraser Valley cities
   const defaultEnabledCities = [
@@ -130,6 +135,27 @@ export default function AdminMLSSync() {
       return data?.value as string[] | null;
     },
   });
+
+  // Fetch min year built setting
+  const { data: savedMinYearBuilt } = useQuery({
+    queryKey: ["resale-min-year-built"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "resale_min_year_built")
+        .maybeSingle();
+      
+      return data?.value as number | null;
+    },
+  });
+
+  // Initialize min year built from saved setting
+  useEffect(() => {
+    if (savedMinYearBuilt !== undefined && savedMinYearBuilt !== null) {
+      setMinYearBuilt(savedMinYearBuilt);
+    }
+  }, [savedMinYearBuilt]);
 
   // Initialize enabled cities from saved settings or defaults
   useEffect(() => {
@@ -243,6 +269,28 @@ export default function AdminMLSSync() {
     },
   });
 
+  // Save min year built mutation
+  const saveMinYearBuiltMutation = useMutation({
+    mutationFn: async (year: number) => {
+      const { error } = await supabase
+        .from("app_settings")
+        .upsert({ key: "resale_min_year_built", value: year }, { onConflict: "key" });
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast({ title: "Year built filter saved", description: `Showing homes built ${minYearBuilt} and newer` });
+      queryClient.invalidateQueries({ queryKey: ["resale-min-year-built"] });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Failed to save",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   // Clear all listings mutation
   const clearListingsMutation = useMutation({
     mutationFn: async () => {
@@ -281,16 +329,9 @@ export default function AdminMLSSync() {
       return data;
     },
     onSuccess: (data) => {
-      const agentInfo = data.agents ? 
-        `${data.agents.fetched} agents (${data.agents.remaining} remaining)` : 
-        `${data.agentsSynced || 0} agents`;
-      const officeInfo = data.offices ? 
-        `${data.offices.fetched} offices (${data.offices.remaining} remaining)` : 
-        `${data.officesSynced || 0} offices`;
-      
       toast({
-        title: "Agent & office sync completed",
-        description: `Synced ${agentInfo}, ${officeInfo}. Updated ${data.listingsUpdated || 0} listings.`,
+        title: "Agent sync completed",
+        description: `Synced ${data.agentsProcessed || 0} agents and ${data.officesProcessed || 0} offices`,
       });
       queryClient.invalidateQueries({ queryKey: ["mls-agent-stats"] });
     },
@@ -303,11 +344,14 @@ export default function AdminMLSSync() {
     },
   });
 
-  // Geocode MLS listings mutation
+  // Geocode missing listings mutation
   const geocodeMutation = useMutation({
-    mutationFn: async () => {
-      const { data, error } = await supabase.functions.invoke("geocode-mls-listings", {
-        body: { batchSize: 50 },
+    mutationFn: async (options?: { city?: string; batchSize?: number }) => {
+      const { data, error } = await supabase.functions.invoke("geocode-listings", {
+        body: { 
+          city: options?.city,
+          batchSize: options?.batchSize || 50,
+        },
       });
       
       if (error) throw error;
@@ -315,10 +359,11 @@ export default function AdminMLSSync() {
     },
     onSuccess: (data) => {
       toast({
-        title: "Geocoding completed",
-        description: `Updated ${data.updated || 0} listings. ${data.remaining || 0} remaining. ${data.apiCalls || 0} API calls made.`,
+        title: "Geocoding batch completed",
+        description: `Updated ${data.updated || 0} listings, ${data.remaining || 0} remaining`,
       });
-      queryClient.invalidateQueries({ queryKey: ["mls-geocode-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["geocoding-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["geocoding-api-stats"] });
       queryClient.invalidateQueries({ queryKey: ["geocoding-logs"] });
     },
     onError: (error: Error) => {
@@ -327,12 +372,13 @@ export default function AdminMLSSync() {
         description: error.message,
         variant: "destructive",
       });
+      queryClient.invalidateQueries({ queryKey: ["geocoding-logs"] });
     },
   });
 
-  // Fetch geocoding stats
+  // Geocoding stats query
   const { data: geocodeStats } = useQuery({
-    queryKey: ["mls-geocode-stats"],
+    queryKey: ["geocoding-stats"],
     queryFn: async () => {
       const { count: missingCoords } = await supabase
         .from("mls_listings")
@@ -354,40 +400,56 @@ export default function AdminMLSSync() {
     },
   });
 
-  // Fetch geocoding logs
-  const { data: geocodingLogs, isLoading: geocodingLogsLoading } = useQuery({
+  // Geocoding API usage stats
+  const { data: geocodingApiStats } = useQuery({
+    queryKey: ["geocoding-api-stats"],
+    queryFn: async () => {
+      const today = new Date().toISOString().split("T")[0];
+      
+      const { data: todayLogs } = await supabase
+        .from("geocoding_logs")
+        .select("api_calls_made, listings_updated")
+        .gte("started_at", today);
+
+      const { data: allLogs } = await supabase
+        .from("geocoding_logs")
+        .select("api_calls_made, listings_updated");
+
+      const todayApiCalls = todayLogs?.reduce((sum, log) => sum + (log.api_calls_made || 0), 0) || 0;
+      const totalApiCalls = allLogs?.reduce((sum, log) => sum + (log.api_calls_made || 0), 0) || 0;
+      const totalUpdated = allLogs?.reduce((sum, log) => sum + (log.listings_updated || 0), 0) || 0;
+
+      return {
+        todayApiCalls,
+        totalApiCalls,
+        totalUpdated,
+      };
+    },
+  });
+
+  // Geocoding logs
+  const { data: geocodingLogs } = useQuery({
     queryKey: ["geocoding-logs"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("geocoding_logs")
         .select("*")
         .order("started_at", { ascending: false })
-        .limit(20);
-      
+        .limit(10);
+
       if (error) throw error;
       return data as GeocodingLog[];
     },
   });
 
-  // Calculate geocoding statistics from logs
-  const geocodingApiStats = geocodingLogs ? {
-    totalApiCalls: geocodingLogs.reduce((sum, log) => sum + (log.api_calls_made || 0), 0),
-    totalUpdated: geocodingLogs.reduce((sum, log) => sum + (log.listings_updated || 0), 0),
-    todayApiCalls: geocodingLogs
-      .filter(log => new Date(log.started_at).toDateString() === new Date().toDateString())
-      .reduce((sum, log) => sum + (log.api_calls_made || 0), 0),
-    lastRun: geocodingLogs[0]?.started_at,
-    lastRunStatus: geocodingLogs[0]?.status,
-  } : null;
-
-  // Fetch agent/office stats with coverage percentages
+  // Agent stats
   const { data: agentStats } = useQuery({
     queryKey: ["mls-agent-stats"],
     queryFn: async () => {
       const { count: agents } = await supabase
         .from("mls_agents")
         .select("*", { count: "exact", head: true });
-      
+
       const { count: offices } = await supabase
         .from("mls_offices")
         .select("*", { count: "exact", head: true });
@@ -499,38 +561,97 @@ export default function AdminMLSSync() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Last Sync</CardTitle>
+              <CardTitle className="text-sm font-medium">Last Synced</CardTitle>
               <Clock className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
                 {listingStats?.lastSyncedAt 
-                  ? format(new Date(listingStats.lastSyncedAt), "MMM d")
+                  ? format(new Date(listingStats.lastSyncedAt), "h:mm a")
                   : "Never"}
               </div>
               <p className="text-xs text-muted-foreground">
                 {listingStats?.lastSyncedAt 
-                  ? format(new Date(listingStats.lastSyncedAt), "h:mm a")
-                  : "No data synced yet"}
+                  ? format(new Date(listingStats.lastSyncedAt), "MMM d, yyyy")
+                  : "Run sync to populate"}
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Feed Status</CardTitle>
-              <Settings2 className="h-4 w-4 text-muted-foreground" />
+              <CardTitle className="text-sm font-medium">Visible on Site</CardTitle>
+              <Eye className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
-                Connected
-              </div>
+              <div className="text-2xl font-bold">{visibleListingsCount.toLocaleString()}</div>
               <p className="text-xs text-muted-foreground">
-                CREA DDF API
+                {enabledCities.length} cities enabled
               </p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Year Built Filter - NEW SECTION */}
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Year Built Filter
+                </CardTitle>
+                <CardDescription>
+                  Control which years of homes appear on the resale/move-in ready section. Set to 2024+ for new construction only, or allow older homes.
+                </CardDescription>
+              </div>
+              <Badge variant="outline" className="text-sm">
+                Showing {minYearBuilt}+ builds
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex flex-wrap gap-2">
+              {YEAR_OPTIONS.map((year) => (
+                <Button
+                  key={year}
+                  variant={minYearBuilt === year ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setMinYearBuilt(year)}
+                  className={minYearBuilt === year ? "" : ""}
+                >
+                  {year}+
+                </Button>
+              ))}
+            </div>
+            
+            <div className="flex items-center gap-4 pt-4 border-t">
+              <Button 
+                onClick={() => saveMinYearBuiltMutation.mutate(minYearBuilt)}
+                disabled={saveMinYearBuiltMutation.isPending || minYearBuilt === savedMinYearBuilt}
+              >
+                {saveMinYearBuiltMutation.isPending ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                )}
+                Save Year Filter
+              </Button>
+              <p className="text-sm text-muted-foreground">
+                Currently showing homes built <strong>{savedMinYearBuilt || 2024}</strong> and newer on the site.
+              </p>
+            </div>
+
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Impact</AlertTitle>
+              <AlertDescription>
+                This setting affects all resale pages, map search, carousels, and property alerts. 
+                Lower years will show more properties but may include older homes that aren't "new construction."
+              </AlertDescription>
+            </Alert>
+          </CardContent>
+        </Card>
 
         {/* City Visibility Control */}
         <Card>
@@ -641,101 +762,88 @@ export default function AdminMLSSync() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <Alert className="bg-green-50 border-green-200">
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              <AlertTitle className="text-green-800">Strata Filter Active</AlertTitle>
-              <AlertDescription className="text-green-700">
-                Your DDF feed has <strong>13,175 strata properties</strong> (condos + townhomes) available.
-                Use "Sync Strata Only" for condo/townhome focused sites.
-              </AlertDescription>
-            </Alert>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Strata Only Sync */}
-              <div className="p-4 rounded-lg border-2 border-primary bg-primary/5 space-y-3">
-                <div className="flex items-center gap-2">
-                  <Badge className="bg-primary">Recommended</Badge>
-                </div>
-                <h4 className="font-semibold">Strata Properties Only</h4>
-                <p className="text-sm text-muted-foreground">
-                  Condos, apartments, and strata-titled townhomes. Uses DDF filter: CommonInterest = 'Condo/Strata'
-                </p>
-                <Button
-                  onClick={() => syncMutation.mutate({ metroVancouverResidential: true })}
-                  disabled={syncMutation.isPending}
-                  className="w-full"
-                >
-                  {syncMutation.isPending ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Play className="h-4 w-4 mr-2" />
-                  )}
-                  Sync Strata Only
-                </Button>
-              </div>
-
-              {/* All BC Listings */}
-              <div className="p-4 rounded-lg border border-muted bg-muted/30 space-y-3">
-                <h4 className="font-semibold">All BC Listings</h4>
-                <p className="text-sm text-muted-foreground">
-                  Sync all active BC listings including single family, land, and commercial (~36k total).
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => syncMutation.mutate({})}
-                  disabled={syncMutation.isPending}
-                  className="w-full"
-                >
-                  {syncMutation.isPending ? (
-                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  ) : (
-                    <Play className="h-4 w-4 mr-2" />
-                  )}
-                  Sync All BC
-                </Button>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t flex items-center justify-between">
-              <p className="text-xs text-muted-foreground">
-                <strong>Note:</strong> The sync runs in batches of 3,000 listings per request. For large syncs, you may need to run multiple times to import all data.
-              </p>
-              
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button 
-                    variant="destructive" 
-                    size="sm"
-                    disabled={clearListingsMutation.isPending || (listingStats?.total || 0) === 0}
-                  >
-                    {clearListingsMutation.isPending ? (
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <Button
+                variant="outline"
+                className="h-auto p-4 justify-start"
+                onClick={() => syncMutation.mutate({ metroVancouverResidential: false })}
+                disabled={syncMutation.isPending}
+              >
+                <div className="text-left">
+                  <div className="flex items-center gap-2 font-semibold">
+                    {syncMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
                     ) : (
-                      <Trash2 className="h-4 w-4 mr-2" />
+                      <Play className="h-4 w-4" />
                     )}
-                    Clear All Listings
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Clear All MLS Listings?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This will permanently delete all <strong>{listingStats?.total?.toLocaleString() || 0}</strong> MLS listings from the database. 
-                      This action cannot be undone. You will need to run a new sync to repopulate the data.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => clearListingsMutation.mutate()}
-                      className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                    >
-                      Yes, Clear All Listings
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                    Strata Only (Default)
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Condos & strata townhomes - CommonInterest = 'Condo/Strata'
+                  </p>
+                </div>
+              </Button>
+
+              <Button
+                variant="outline"
+                className="h-auto p-4 justify-start"
+                onClick={() => syncMutation.mutate({ metroVancouverResidential: true })}
+                disabled={syncMutation.isPending}
+              >
+                <div className="text-left">
+                  <div className="flex items-center gap-2 font-semibold">
+                    {syncMutation.isPending ? (
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Settings2 className="h-4 w-4" />
+                    )}
+                    All Residential
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Houses, condos, townhomes - All PropertyType = 'Residential'
+                  </p>
+                </div>
+              </Button>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              <strong>Note:</strong> The sync runs in batches of 3,000 listings per request. For large syncs, you may need to run multiple times to import all data.
+            </p>
+            
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  disabled={clearListingsMutation.isPending || (listingStats?.total || 0) === 0}
+                >
+                  {clearListingsMutation.isPending ? (
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Clear All Listings
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Clear All MLS Listings?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will permanently delete all <strong>{listingStats?.total?.toLocaleString() || 0}</strong> MLS listings from the database. 
+                    This action cannot be undone. You will need to run a new sync to repopulate the data.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => clearListingsMutation.mutate()}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Yes, Clear All Listings
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </CardContent>
         </Card>
 
@@ -798,81 +906,68 @@ export default function AdminMLSSync() {
               </div>
             )}
 
-            {/* Manual Geocode Button */}
-            <div className="flex items-center gap-4 pt-2 border-t">
+            {/* Manual Geocode Actions */}
+            <div className="flex flex-wrap gap-2 pt-4 border-t">
               <Button
-                onClick={() => geocodeMutation.mutate()}
-                disabled={geocodeMutation.isPending || (geocodeStats?.missingCoords || 0) === 0}
+                variant="outline"
+                size="sm"
+                onClick={() => geocodeMutation.mutate({ batchSize: 50 })}
+                disabled={geocodeMutation.isPending}
               >
                 {geocodeMutation.isPending ? (
                   <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
                   <MapPin className="h-4 w-4 mr-2" />
                 )}
-                Geocode 50 Listings Now
+                Geocode 50 Listings
               </Button>
-              <div className="text-xs text-muted-foreground">
-                <p>Uses Google Maps Geocoding API ($5 per 1,000 requests)</p>
-                <p className="text-muted-foreground/70">Est. remaining cost: ${((geocodeStats?.missingCoords || 0) * 0.005).toFixed(2)}</p>
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => geocodeMutation.mutate({ batchSize: 100 })}
+                disabled={geocodeMutation.isPending}
+              >
+                Geocode 100 Listings
+              </Button>
             </div>
 
-            {/* Geocoding History Table */}
-            <div className="pt-4 border-t">
-              <h4 className="font-medium mb-3">Geocoding History</h4>
-              {geocodingLogsLoading ? (
-                <div className="space-y-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Skeleton key={i} className="h-10 w-full" />
-                  ))}
-                </div>
-              ) : geocodingLogs && geocodingLogs.length > 0 ? (
-                <div className="max-h-[300px] overflow-y-auto">
+            {/* Recent Geocoding Logs */}
+            {geocodingLogs && geocodingLogs.length > 0 && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-medium">Recent Geocoding Activity</h4>
+                <div className="max-h-[200px] overflow-y-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Source</TableHead>
+                        <TableHead>Time</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Processed</TableHead>
                         <TableHead className="text-right">Updated</TableHead>
-                        <TableHead className="text-right">Errors</TableHead>
                         <TableHead className="text-right">API Calls</TableHead>
-                        <TableHead className="text-right">Remaining</TableHead>
+                        <TableHead>Source</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {geocodingLogs.map((log) => (
+                      {geocodingLogs.slice(0, 5).map((log) => (
                         <TableRow key={log.id}>
                           <TableCell className="text-xs">
                             {format(new Date(log.started_at), "MMM d, h:mm a")}
                           </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className="text-xs">
-                              {log.trigger_source === 'cron' ? '⏰ Cron' : '👤 Manual'}
-                            </Badge>
-                          </TableCell>
                           <TableCell>{getStatusBadge(log.status)}</TableCell>
                           <TableCell className="text-right">{log.listings_processed ?? "-"}</TableCell>
-                          <TableCell className="text-right text-green-600">{log.listings_updated ?? "-"}</TableCell>
-                          <TableCell className="text-right text-red-600">{log.listings_errors || "-"}</TableCell>
-                          <TableCell className="text-right text-blue-600">{log.api_calls_made ?? "-"}</TableCell>
-                          <TableCell className="text-right text-orange-600">{log.remaining_count?.toLocaleString() ?? "-"}</TableCell>
+                          <TableCell className="text-right">{log.listings_updated ?? "-"}</TableCell>
+                          <TableCell className="text-right">{log.api_calls_made ?? "-"}</TableCell>
+                          <TableCell className="text-xs text-muted-foreground">
+                            {log.trigger_source || "manual"}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
                 </div>
-              ) : (
-                <div className="text-center py-6 text-muted-foreground">
-                  <MapPin className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">No geocoding history yet</p>
-                  <p className="text-xs">Run geocoding to start tracking progress</p>
-                </div>
-              )}
-            </div>
+              </div>
+            )}
 
-            {/* Cron Schedule Info */}
             <Alert className="bg-blue-50 border-blue-200">
               <Clock className="h-4 w-4 text-blue-600" />
               <AlertTitle className="text-blue-800">Automated Geocoding Schedule</AlertTitle>
