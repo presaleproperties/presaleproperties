@@ -14,6 +14,7 @@ import ListingDetail from "./pages/ListingDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import ForDevelopers from "./pages/ForDevelopers";
+import ForAgents from "./pages/ForAgents";
 import BuyersGuide from "./pages/BuyersGuide";
 import PresaleGuide from "./pages/PresaleGuide";
 import MortgageCalculatorPage from "./pages/MortgageCalculatorPage";
@@ -24,6 +25,7 @@ import DashboardLeads from "./pages/dashboard/DashboardLeads";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardBilling from "./pages/dashboard/DashboardBilling";
 import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
+import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import ListingForm from "./pages/dashboard/ListingForm";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import DeveloperProjects from "./pages/developer/DeveloperProjects";
@@ -230,9 +232,13 @@ const App = () => (
             <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
             <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
+            <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
             <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
             <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
             <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
+            
+            {/* For Agents Marketing Page */}
+            <Route path="/for-agents" element={<ForAgents />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
