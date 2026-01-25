@@ -1669,7 +1669,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-2 px-3 pb-2.5 overflow-x-auto scrollbar-hide relative z-50">
+              <div className="flex items-center gap-2 px-3 pb-2.5 relative z-50">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
@@ -1767,7 +1767,7 @@ export default function MapSearch() {
             </div>
 
             {/* Results Header - Count + Sort + Map/List Toggle */}
-            <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-muted/30">
+            <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-muted/30 relative z-10">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-foreground">
                   {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "Results"}
