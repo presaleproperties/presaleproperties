@@ -51,9 +51,9 @@ const coreFeatures = [
   },
   {
     icon: Megaphone,
-    title: "Advertise & Promote",
-    description: "Feature your listings and profile to stand out. Premium placement gets you more leads.",
-    highlight: "10x Visibility",
+    title: "Promote Your Exclusives",
+    description: "Feature your exclusive assignments with premium placement. Get your listings in front of serious buyers and agents.",
+    highlight: "Premium Exposure",
     gradient: "from-rose-500/20 to-pink-500/20"
   }
 ];
