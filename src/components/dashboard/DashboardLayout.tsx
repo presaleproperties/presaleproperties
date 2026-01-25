@@ -16,7 +16,9 @@ import {
   CreditCard,
   Shield,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  MessageSquare,
+  FileText
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -40,8 +42,14 @@ const navItems = [
   { 
     label: "My Listings", 
     href: "/dashboard/listings", 
-    icon: Building2,
+    icon: FileText,
     description: "Manage your listings"
+  },
+  { 
+    label: "Messages", 
+    href: "/dashboard/messages", 
+    icon: MessageSquare,
+    description: "Agent-to-agent inbox"
   },
   { 
     label: "Leads", 
