@@ -93,100 +93,61 @@ function formatPrice(price: number): string {
   return `$${Math.round(price / 1000)}K`;
 }
 
+// Icon cache for performance - avoid recreating identical icons
+const iconCache = new Map<string, L.DivIcon>();
+
 // Gold price pill - brand style, compact - with optional highlight
 function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean = false): L.DivIcon {
   const priceText = formatPrice(listing.listing_price);
+  const cacheKey = `resale-${priceText}-${isHighlighted}`;
+  
+  const cached = iconCache.get(cacheKey);
+  if (cached && !isHighlighted) return cached; // Only cache non-highlighted
+  
   const size = isHighlighted ? [80, 32] : [60, 22];
   
-  return L.divIcon({
-    className: `custom-price-marker resale-marker ${isHighlighted ? 'marker-highlighted' : ''}`,
-    html: `
-      <div class="price-pill-inner ${isHighlighted ? 'bouncing' : ''}" style="
-        background: ${isHighlighted ? 'hsl(45, 89%, 55%)' : 'hsl(45, 89%, 55%)'};
-        color: ${isHighlighted ? 'hsl(222, 47%, 11%)' : 'hsl(222, 47%, 11%)'};
-        padding: ${isHighlighted ? '6px 14px' : '3px 8px'};
-        border-radius: ${isHighlighted ? '16px' : '12px'};
-        font-weight: ${isHighlighted ? '700' : '600'};
-        font-size: ${isHighlighted ? '14px' : '11px'};
-        white-space: nowrap;
-        box-shadow: ${isHighlighted ? '0 0 0 4px hsla(45, 89%, 55%, 0.4), 0 6px 20px rgba(0,0,0,0.5)' : '0 1px 4px rgba(0,0,0,0.2)'};
-        border: ${isHighlighted ? '3px solid hsl(222, 47%, 20%)' : '1.5px solid white'};
-        cursor: pointer;
-        line-height: 1.2;
-        transform-origin: center bottom;
-      ">
-        ${priceText}
-      </div>
-    `,
+  const icon = L.divIcon({
+    className: `price-marker ${isHighlighted ? 'marker-hl' : ''}`,
+    html: `<div class="pp${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
     iconSize: [size[0], size[1]],
     iconAnchor: [size[0] / 2, size[1]],
     popupAnchor: [0, -size[1] - 2],
   });
+  
+  if (!isHighlighted) iconCache.set(cacheKey, icon);
+  return icon;
 }
 
 // Presale marker - dark navy teardrop with gold ring and building icon - with optional highlight
 function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = false): L.DivIcon {
-  const size = isHighlighted ? 44 : 28;
-  const iconSize = isHighlighted ? 18 : 12;
+  const cacheKey = `presale-${isHighlighted}`;
   
-  return L.divIcon({
-    className: `custom-presale-pin ${isHighlighted ? 'marker-highlighted' : ''}`,
-    html: `
-      <div class="${isHighlighted ? 'bouncing' : ''}" style="
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        transform-origin: center bottom;
-      ">
-        <div style="
-          background: ${isHighlighted ? 'hsl(45, 89%, 55%)' : 'hsl(222, 47%, 20%)'};
-          width: ${size}px;
-          height: ${size}px;
-          border-radius: 50% 50% 50% 0;
-          transform: rotate(-45deg);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: ${isHighlighted ? '0 0 0 6px hsla(45, 89%, 55%, 0.4), 0 8px 24px rgba(0,0,0,0.5)' : '0 2px 4px rgba(0,0,0,0.3)'};
-          border: ${isHighlighted ? '4px solid hsl(222, 47%, 20%)' : '2px solid hsl(45, 89%, 55%)'};
-          transition: all 0.2s ease;
-        ">
-          <svg xmlns="http://www.w3.org/2000/svg" width="${iconSize}" height="${iconSize}" viewBox="0 0 24 24" fill="${isHighlighted ? 'hsl(222, 47%, 20%)' : 'hsl(45, 89%, 55%)'}" stroke="none" style="transform: rotate(45deg);">
-            <path d="M3 21h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18v-2H3v2zm0-4h18V7H3v2zm0-6v2h18V3H3z"/>
-          </svg>
-        </div>
-      </div>
-    `,
+  const cached = iconCache.get(cacheKey);
+  if (cached && !isHighlighted) return cached;
+  
+  const size = isHighlighted ? 44 : 28;
+  
+  const icon = L.divIcon({
+    className: `presale-pin${isHighlighted ? ' hl' : ''}`,
+    html: `<div class="pin${isHighlighted ? ' hl' : ''}"></div>`,
     iconSize: [size, size + 6],
     iconAnchor: [size / 2, size + 6],
     popupAnchor: [0, -(size + 6)],
   });
+  
+  if (!isHighlighted) iconCache.set(cacheKey, icon);
+  return icon;
 }
 
-// Cluster showing count only - clean circular design
+// Cluster showing count only - clean circular design (optimized)
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
+  const sizeClass = count >= 100 ? 'lg' : count >= 10 ? 'md' : 'sm';
   const size = count >= 100 ? 44 : count >= 10 ? 40 : 36;
-  const fontSize = count >= 100 ? 12 : count >= 10 ? 13 : 14;
   
   return L.divIcon({
-    html: `<div style="
-      background: linear-gradient(135deg, hsl(222, 47%, 18%) 0%, hsl(222, 47%, 25%) 100%);
-      color: white;
-      width: ${size}px;
-      height: ${size}px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: ${fontSize}px;
-      box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-      border: 2.5px solid hsl(45, 89%, 55%);
-      font-family: system-ui, -apple-system, sans-serif;
-    ">${count}</div>`,
-    className: "marker-cluster-custom",
+    html: `<div class="cl ${sizeClass}">${count}</div>`,
+    className: "mc",
     iconSize: L.point(size, size),
     iconAnchor: L.point(size / 2, size / 2),
   });
@@ -370,27 +331,36 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
+      preferCanvas: true, // Use canvas for better performance
+      fadeAnimation: false, // Disable fade for speed
+      zoomAnimation: true,
+      markerZoomAnimation: false, // Disable marker zoom animation
     });
 
     L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
-      maxZoom: 19 
+      maxZoom: 19,
+      updateWhenIdle: true, // Only update tiles when map stops moving
+      updateWhenZooming: false, // Don't update during zoom
+      keepBuffer: 2, // Keep fewer tiles in memory
     }).addTo(map);
 
-    // Cluster group for resale listings only
-    // Low radius = fewer/smaller clusters → more individual pins visible
+    // Cluster group for resale listings only - optimized settings
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 50,
-      chunkInterval: 100,
-      maxClusterRadius: 35, // tighter clustering – more individual pins
+      chunkDelay: 10, // Faster chunk processing
+      chunkInterval: 50, // More frequent chunks
+      chunkProgress: null, // Disable progress callback overhead
+      maxClusterRadius: 40, // Slightly larger for fewer clusters = faster
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 15, // unclustered at neighborhood zoom
-      animate: false,
+      disableClusteringAtZoom: 15,
+      animate: false, // No cluster animations
+      animateAddingMarkers: false, // No add animation
       removeOutsideVisibleBounds: true,
+      singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.8,
+      spiderfyDistanceMultiplier: 1.5,
     });
 
     // Separate layer for presale projects (no clustering)
