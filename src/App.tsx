@@ -13,7 +13,7 @@ import Assignments from "./pages/Assignments";
 import ListingDetail from "./pages/ListingDetail";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import ForDevelopers from "./pages/ForDevelopers";
+
 import ForAgents from "./pages/ForAgents";
 import BuyersGuide from "./pages/BuyersGuide";
 import PresaleGuide from "./pages/PresaleGuide";
@@ -190,7 +190,7 @@ const App = () => (
             <Route path="/assignments/:id" element={<ListingDetail />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/for-developers" element={<ForDevelopers />} />
+            
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
             <Route path="/mortgage-calculator" element={<MortgageCalculatorPage />} />
