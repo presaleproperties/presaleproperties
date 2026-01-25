@@ -34,6 +34,7 @@ import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
 import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
@@ -1705,9 +1706,16 @@ export default function MapSearch() {
                 
                 {/* Bedrooms Dropdown */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-                  <SelectTrigger className="h-8 min-w-[90px] text-xs bg-background border-border">
-                    <Bed className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                    <SelectValue placeholder="Beds" />
+                  <SelectTrigger className={cn(
+                    "h-8 text-xs min-w-[100px] font-normal gap-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
+                    filters.beds !== "any" && "border-primary/50 bg-primary/5"
+                  )}>
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">
+                        {filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+ Bed`}
+                      </span>
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-[100]">
                     {BED_OPTIONS.map((opt) => (
@@ -1720,9 +1728,16 @@ export default function MapSearch() {
                 
                 {/* Bathrooms Dropdown */}
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
-                  <SelectTrigger className="h-8 min-w-[90px] text-xs bg-background border-border">
-                    <Bath className="h-3.5 w-3.5 mr-1.5 text-muted-foreground" />
-                    <SelectValue placeholder="Baths" />
+                  <SelectTrigger className={cn(
+                    "h-8 text-xs min-w-[100px] font-normal gap-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
+                    filters.baths !== "any" && "border-primary/50 bg-primary/5"
+                  )}>
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">
+                        {filters.baths === "any" ? "Baths" : `${filters.baths}+ Bath`}
+                      </span>
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border z-[100]">
                     {BATH_OPTIONS.map((opt) => (
