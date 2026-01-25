@@ -4,10 +4,13 @@ import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Home, Search } from "lucide-react";
+import { Home, Search, Users, Building2 } from "lucide-react";
 
 const NotFound = () => {
   const location = useLocation();
+  
+  // Check if the attempted URL is agent-related
+  const isAgentRelated = location.pathname.toLowerCase().includes("agent");
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
@@ -29,20 +32,43 @@ const NotFound = () => {
           <p className="text-muted-foreground mb-8">
             The page you're looking for doesn't exist or has been moved.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link to="/">
-              <Button size="lg" className="w-full sm:w-auto">
-                <Home className="h-4 w-4 mr-2" />
-                Return Home
-              </Button>
-            </Link>
-            <Link to="/presale-projects">
-              <Button size="lg" variant="outline" className="w-full sm:w-auto">
-                <Search className="h-4 w-4 mr-2" />
-                Browse Projects
-              </Button>
-            </Link>
-          </div>
+          
+          {isAgentRelated ? (
+            <>
+              <p className="text-sm text-muted-foreground mb-6">
+                Looking for agent resources? Try one of these:
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Link to="/for-agents">
+                  <Button size="lg" className="w-full sm:w-auto">
+                    <Users className="h-4 w-4 mr-2" />
+                    Agent Portal Info
+                  </Button>
+                </Link>
+                <Link to="/dashboard">
+                  <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                    <Building2 className="h-4 w-4 mr-2" />
+                    Agent Dashboard
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link to="/">
+                <Button size="lg" className="w-full sm:w-auto">
+                  <Home className="h-4 w-4 mr-2" />
+                  Return Home
+                </Button>
+              </Link>
+              <Link to="/presale-projects">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto">
+                  <Search className="h-4 w-4 mr-2" />
+                  Browse Projects
+                </Button>
+              </Link>
+            </div>
+          )}
         </div>
       </main>
       

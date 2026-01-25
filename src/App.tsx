@@ -276,6 +276,12 @@ const App = () => (
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/searches" element={<AdminProtectedRoute><AdminClientSearches /></AdminProtectedRoute>} />
             
+            {/* Agent URL Redirects - common typos/variants */}
+            <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
+            <Route path="/agents" element={<Navigate to="/for-agents" replace />} />
+            <Route path="/agent-portal" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/agent-dashboard" element={<Navigate to="/dashboard" replace />} />
+            
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
             
