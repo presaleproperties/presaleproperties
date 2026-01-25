@@ -189,38 +189,43 @@ export function ProjectHighlights({
           </div>
         ))}
 
-        {/* Developer Tile - with link if available */}
+        {/* Developer Tile - fully clickable with link to developer website */}
         {developerName && (
-          <div className="group flex flex-col items-center text-center p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200 min-w-0 overflow-hidden">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-1.5 sm:mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-200 overflow-hidden shrink-0">
-              {developer?.logo_url ? (
-                <img src={developer.logo_url} alt={developerName} className="w-full h-full object-contain p-0.5 sm:p-1" />
-              ) : (
+          developer?.website_url ? (
+            <a
+              href={developer.website_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex flex-col items-center text-center p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200 min-w-0 overflow-hidden cursor-pointer"
+            >
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-1.5 sm:mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-200 overflow-hidden shrink-0">
+                {developer?.logo_url ? (
+                  <img src={developer.logo_url} alt={developerName} className="w-full h-full object-contain p-0.5 sm:p-1" />
+                ) : (
+                  <Landmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />
+                )}
+              </div>
+              <div className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground font-semibold uppercase tracking-wide sm:tracking-widest mb-0.5">
+                Developer
+              </div>
+              <div className="font-bold text-[11px] sm:text-xs md:text-sm text-primary group-hover:underline leading-tight flex items-center gap-0.5 truncate w-full justify-center px-0.5 sm:px-1">
+                <span className="truncate">{developerName.length > 14 ? developerName.substring(0, 14) + "..." : developerName}</span>
+                <ExternalLink className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 shrink-0 opacity-70" />
+              </div>
+            </a>
+          ) : (
+            <div className="group flex flex-col items-center text-center p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl bg-background/80 backdrop-blur-sm border border-border/40 hover:border-primary/30 hover:shadow-md transition-all duration-200 min-w-0 overflow-hidden">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 flex items-center justify-center mb-1.5 sm:mb-2 md:mb-3 group-hover:scale-105 transition-transform duration-200 overflow-hidden shrink-0">
                 <Landmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-5 md:w-5 text-primary" />
-              )}
-            </div>
-            <div className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground font-semibold uppercase tracking-wide sm:tracking-widest mb-0.5">
-              Developer
-            </div>
-            {developer?.website_url ? (
-              <a
-                href={developer.website_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-bold text-[11px] sm:text-xs md:text-sm text-primary hover:underline leading-tight flex items-center gap-0.5 truncate w-full justify-center px-0.5 sm:px-1"
-              >
-                <span className="truncate">{developerName.length > 12 ? developerName.substring(0, 12) + "..." : developerName}</span>
-                <ExternalLink className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 shrink-0" />
-              </a>
-            ) : (
-              <Link
-                to={`/developers`}
-                className="font-bold text-[11px] sm:text-xs md:text-sm text-foreground hover:text-primary leading-tight transition-colors truncate w-full px-0.5 sm:px-1"
-              >
+              </div>
+              <div className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground font-semibold uppercase tracking-wide sm:tracking-widest mb-0.5">
+                Developer
+              </div>
+              <div className="font-bold text-[11px] sm:text-xs md:text-sm text-foreground leading-tight truncate w-full px-0.5 sm:px-1">
                 {developerName.length > 14 ? developerName.substring(0, 14) + "..." : developerName}
-              </Link>
-            )}
-          </div>
+              </div>
+            </div>
+          )
         )}
       </div>
     </div>
