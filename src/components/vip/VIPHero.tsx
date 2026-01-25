@@ -9,6 +9,11 @@ export const VIPHero = () => {
   return (
     <section className="relative py-20 md:py-28 px-4 bg-gradient-to-b from-muted/50 to-background">
       <div className="max-w-[900px] mx-auto text-center">
+        {/* Tagline */}
+        <p className="text-primary text-sm sm:text-base md:text-lg font-bold tracking-widest uppercase mb-6">
+          VANCOUVER'S NEW CONSTRUCTION MARKETPLACE
+        </p>
+
         {/* Badge */}
         <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full text-sm font-medium mb-8">
           <Crown className="w-4 h-4" />
@@ -16,13 +21,13 @@ export const VIPHero = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight mb-6 tracking-tight">
+        <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.05] mb-6 tracking-tightest">
           Claim Your
-          <span className="text-primary block mt-2">$1,500 Closing Credit</span>
+          <span className="text-primary block mt-2 drop-shadow-[0_0_25px_hsl(43_96%_56%/0.3)]">$1,500 Closing Credit</span>
         </h1>
 
         {/* Subheadline */}
-        <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
           Join our VIP membership and receive exclusive early access to Vancouver's best presales, 
           VIP pricing, and expert guidance—plus a $1,500 credit toward your closing costs.
         </p>

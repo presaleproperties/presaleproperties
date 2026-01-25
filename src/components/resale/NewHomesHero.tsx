@@ -83,18 +83,18 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
       {/* Content */}
       <div className="relative z-10 container px-4 text-center">
         <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
-          {/* Badge */}
-          <span className="inline-block text-xs md:text-sm font-semibold uppercase tracking-widest text-white bg-primary/90 px-4 py-2 rounded-full">
-            New Construction • Built 2024+
-          </span>
+          {/* Tagline */}
+          <p className="text-primary text-sm sm:text-base md:text-lg animate-fade-in font-bold tracking-widest uppercase drop-shadow-sm">
+            VANCOUVER'S NEW CONSTRUCTION MARKETPLACE
+          </p>
 
           {/* Headline */}
-          <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            Find <span className="text-primary">New Construction</span> Homes
+          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05] drop-shadow-lg">
+            Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(43_96%_56%/0.5)]">New</span> Home
           </h1>
           
-          <p className="text-white/90 text-base md:text-xl max-w-2xl mx-auto font-medium">
-            Condos, Townhomes & Single Family Homes Across Metro Vancouver
+          <p className="text-white/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed">
+            Search Presale & move-in ready homes
           </p>
 
           {/* Search Card */}
