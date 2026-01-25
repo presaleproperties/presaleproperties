@@ -78,24 +78,28 @@ function createPricePillIcon(listing: MLSListing): L.DivIcon {
 
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
+  const size = count >= 100 ? 44 : count >= 10 ? 40 : 36;
+  const fontSize = count >= 100 ? 12 : count >= 10 ? 13 : 14;
+  
   return L.divIcon({
     html: `<div style="
-      background: hsl(222, 47%, 20%);
+      background: linear-gradient(135deg, hsl(222, 47%, 18%) 0%, hsl(222, 47%, 25%) 100%);
       color: white;
-      width: 36px;
-      height: 36px;
+      width: ${size}px;
+      height: ${size}px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 13px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      border: 2px solid white;
+      font-size: ${fontSize}px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
+      border: 2.5px solid hsl(45, 89%, 55%);
+      font-family: system-ui, -apple-system, sans-serif;
     ">${count}</div>`,
     className: "marker-cluster-custom",
-    iconSize: L.point(36, 36),
-    iconAnchor: L.point(18, 18),
+    iconSize: L.point(size, size),
+    iconAnchor: L.point(size / 2, size / 2),
   });
 }
 
@@ -114,8 +118,8 @@ function getPhoto(listing: MLSListing): string | null {
 function popupHtml(listing: MLSListing): string {
   const photo = getPhoto(listing);
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${getAddress(listing)}" style="width:100%;height:120px;object-fit:cover;border-radius:8px 8px 0 0;" loading="eager" />`
-    : `<div style="width:100%;height:120px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;border-radius:8px 8px 0 0;"><span style="color:#94a3b8;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${getAddress(listing)}" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;" loading="eager" fetchpriority="high" />`
+    : `<div style="width:100%;height:160px;background:linear-gradient(135deg, #f1f5f9, #e2e8f0);display:flex;align-items:center;justify-content:center;border-radius:12px 12px 0 0;"><span style="color:#94a3b8;font-weight:500;">No Image</span></div>`;
   
   // Build attribution string
   const attribution = listing.list_agent_name && listing.list_office_name
@@ -123,19 +127,19 @@ function popupHtml(listing: MLSListing): string {
     : listing.list_agent_name || listing.list_office_name || null;
   
   return `
-    <div style="width:200px;font-family:system-ui,sans-serif;">
+    <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.2);">
       ${photoHtml}
-      <div style="padding:10px;">
-        <div style="font-weight:700;font-size:16px;color:#1e293b;">${formatPrice(listing.listing_price)}</div>
-        <div style="font-size:13px;color:#64748b;margin-top:2px;">${getAddress(listing)}</div>
-        <div style="font-size:12px;color:#94a3b8;">${listing.city}</div>
-        <div style="display:flex;gap:10px;margin-top:6px;font-size:12px;color:#64748b;">
+      <div style="padding:14px 16px;">
+        <div style="font-weight:800;font-size:20px;color:#1e293b;letter-spacing:-0.02em;">${formatPrice(listing.listing_price)}</div>
+        <div style="font-size:14px;color:#475569;margin-top:4px;font-weight:500;">${getAddress(listing)}</div>
+        <div style="font-size:13px;color:#64748b;margin-top:2px;">${listing.city}</div>
+        <div style="display:flex;gap:12px;margin-top:10px;font-size:13px;color:#475569;font-weight:500;">
           ${listing.bedrooms_total ? `<span>${listing.bedrooms_total} bed</span>` : ""}
           ${listing.bathrooms_total ? `<span>${listing.bathrooms_total} bath</span>` : ""}
-          ${listing.living_area ? `<span>${listing.living_area} sqft</span>` : ""}
+          ${listing.living_area ? `<span>${listing.living_area.toLocaleString()} sqft</span>` : ""}
         </div>
-        ${attribution ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;border-top:1px solid #e2e8f0;padding-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
-        <a href="/resale/${listing.listing_key}" style="display:block;margin-top:8px;background:hsl(45, 89%, 61%);color:hsl(222, 47%, 11%);text-align:center;padding:6px;border-radius:6px;text-decoration:none;font-weight:600;font-size:13px;">View Details</a>
+        ${attribution ? `<div style="font-size:11px;color:#94a3b8;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
+        <a href="/resale/${listing.listing_key}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(43,96%,56%),hsl(38,92%,50%));color:hsl(222,47%,11%);text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.15s;">View Details</a>
       </div>
     </div>
   `;
