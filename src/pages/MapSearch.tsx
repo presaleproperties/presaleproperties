@@ -1669,7 +1669,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-2 px-3 pb-2.5 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-2 px-3 pb-2.5 overflow-x-auto scrollbar-hide relative z-50">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
@@ -1803,7 +1803,7 @@ export default function MapSearch() {
             </div>
 
             {/* Scrollable Grid - REW-style sizing with our branding */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4">
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4 relative z-0">
               <div className="grid grid-cols-2 gap-4">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
