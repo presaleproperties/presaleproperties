@@ -31,7 +31,7 @@ const coreFeatures = [
   {
     icon: FolderOpen,
     title: "Complete Project Library",
-    description: "Access floor plans, brochures, and pricing sheets for every presale project in BC.",
+    description: "Access floor plans and brochures for every presale project in BC. Always up-to-date.",
     highlight: "100+ Projects",
     gradient: "from-amber-500/20 to-orange-500/20"
   },
@@ -87,10 +87,10 @@ const platformBenefits = [
 
 const whatYouGet = [
   "Instant access to all presale floor plans",
-  "Download brochures & pricing sheets",
+  "Download project brochures",
   "Browse off-market assignments",
   "Post assignments to verified agents",
-  "Featured listing promotions",
+  "Promote your exclusive assignments",
   "Real-time project updates",
   "CMHC rental data & ROI tools",
   "Direct developer connections"
