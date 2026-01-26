@@ -1707,13 +1707,13 @@ export default function MapSearch() {
                 {/* Bedrooms Dropdown */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[100px] font-normal gap-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
+                    "h-8 text-xs min-w-[80px] font-normal gap-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
                     filters.beds !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <span className="flex items-center gap-1.5 truncate">
+                    <span className="flex items-center gap-1 truncate">
                       <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
                       <span className="truncate">
-                        {filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+ Bed`}
+                        {filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+`}
                       </span>
                     </span>
                   </SelectTrigger>
@@ -1729,13 +1729,13 @@ export default function MapSearch() {
                 {/* Bathrooms Dropdown */}
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[100px] font-normal gap-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
+                    "h-8 text-xs min-w-[80px] font-normal gap-1 rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
                     filters.baths !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <span className="flex items-center gap-1.5 truncate">
+                    <span className="flex items-center gap-1 truncate">
                       <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
                       <span className="truncate">
-                        {filters.baths === "any" ? "Baths" : `${filters.baths}+ Bath`}
+                        {filters.baths === "any" ? "Baths" : `${filters.baths}+`}
                       </span>
                     </span>
                   </SelectTrigger>
