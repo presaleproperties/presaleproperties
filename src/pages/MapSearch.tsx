@@ -1018,6 +1018,7 @@ export default function MapSearch() {
       <Helmet>
         <title>Map Search | Find New Homes in Metro Vancouver | PresaleProperties</title>
         <meta name="description" content="Search presale condos and move-in ready new homes on an interactive map. Find all new construction in Metro Vancouver." />
+        <meta name="robots" content="noindex, follow" />
         <link rel="canonical" href="https://presaleproperties.com/map-search" />
       </Helmet>
 

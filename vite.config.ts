@@ -4,12 +4,12 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 
 // Routes to prerender for SEO
+// NOTE: /map-search is EXCLUDED (noindex page)
 const prerenderRoutes = [
   // Primary pages
   "/",
   "/properties",
   "/presale-projects",
-  "/map-search",
   "/assignments",
   "/calculator",
   "/contact",
