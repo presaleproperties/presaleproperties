@@ -2794,6 +2794,7 @@ export type Database = {
           created_at: string
           id: string
           issues: Json | null
+          non_indexed_analysis: Json | null
           sitemap_breakdown: Json | null
           sitemap_url_count: number | null
           started_at: string
@@ -2809,6 +2810,7 @@ export type Database = {
           created_at?: string
           id?: string
           issues?: Json | null
+          non_indexed_analysis?: Json | null
           sitemap_breakdown?: Json | null
           sitemap_url_count?: number | null
           started_at?: string
@@ -2824,6 +2826,7 @@ export type Database = {
           created_at?: string
           id?: string
           issues?: Json | null
+          non_indexed_analysis?: Json | null
           sitemap_breakdown?: Json | null
           sitemap_url_count?: number | null
           started_at?: string
