@@ -1457,11 +1457,11 @@ export default function MapSearch() {
           </div>
 
           {/* Desktop List Panel - ~40% width for REW-style layout */}
-          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
+          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out overflow-x-hidden ${
             showList ? "w-[40%] min-w-[420px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
             {/* Top Bar - Search + Filter + Quick Filters */}
-            <div className="shrink-0 border-b border-border bg-background relative z-50">
+            <div className="shrink-0 border-b border-border bg-background relative z-50 overflow-visible">
               {/* Search Bar Row */}
               <div className="flex items-center gap-2 px-3 pt-3 pb-3">
                 {/* Search Bar */}
@@ -1669,7 +1669,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-2 px-3 pb-2.5 relative z-50">
+              <div className="flex items-center gap-2 px-3 pb-2.5 relative z-50 overflow-visible">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
@@ -1707,15 +1707,15 @@ export default function MapSearch() {
                 {/* Bedrooms Dropdown */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[90px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
+                    "h-8 text-xs min-w-[100px] font-normal gap-1 justify-between",
                     filters.beds !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <span className="inline-flex flex-row items-center gap-1.5">
-                      <Bed className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                      <span>{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+`}</span>
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+ Bed`}</span>
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[9999]">
+                  <SelectContent className="bg-popover border-border z-[9999]" position="popper" sideOffset={4}>
                     {BED_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.value === "any" ? "Any Beds" : opt.label === "Studio" ? "Studio" : `${opt.label}+ Bed`}
@@ -1727,15 +1727,15 @@ export default function MapSearch() {
                 {/* Bathrooms Dropdown */}
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[90px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground",
+                    "h-8 text-xs min-w-[100px] font-normal gap-1 justify-between",
                     filters.baths !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <span className="inline-flex flex-row items-center gap-1.5">
-                      <Bath className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                      <span>{filters.baths === "any" ? "Baths" : `${filters.baths}+`}</span>
+                    <span className="flex items-center gap-1.5 truncate">
+                      <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">{filters.baths === "any" ? "Baths" : `${filters.baths}+ Bath`}</span>
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[9999]">
+                  <SelectContent className="bg-popover border-border z-[9999]" position="popper" sideOffset={4}>
                     {BATH_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.value === "any" ? "Any Baths" : `${opt.label} Bath`}
