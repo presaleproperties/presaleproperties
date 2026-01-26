@@ -30,6 +30,27 @@ const getProjectTypeSlug = (type: string): string => {
   return typeMap[type] || 'homes';
 };
 
+/**
+ * Controlled Sitemap Generator
+ * 
+ * PART 5 — SITEMAP REBUILD
+ * Target: 150-300 high-value URLs only
+ * 
+ * INCLUDES:
+ * ✅ Homepage
+ * ✅ Core city presale pages (/{city}-presale-condos, /{city}-presale-townhomes)
+ * ✅ Active, indexable project pages
+ * ✅ Blog posts
+ * ✅ Developer directory pages (if content-rich)
+ * ✅ Guide/educational pages
+ * 
+ * EXCLUDES:
+ * ❌ /map-search
+ * ❌ Filter URLs (?city=, ?type=, ?price=, etc.)
+ * ❌ Parameter URLs (?lat=, ?lng=, ?zoom=)
+ * ❌ Noindexed pages
+ * ❌ Individual MLS listings (too volatile, handled by image sitemap)
+ */
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -42,25 +63,59 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString().split("T")[0];
 
-    // Static pages - only include routes that exist in App.tsx
+    // ==========================================
+    // 1. STATIC CORE PAGES (Highest Priority)
+    // ==========================================
     const staticPages: { url: string; priority: string; changefreq: string; lastmod?: string }[] = [
+      // Homepage - Maximum priority
       { url: "/", priority: "1.0", changefreq: "daily", lastmod: now },
+      
+      // Main listing hubs
       { url: "/presale-projects", priority: "0.9", changefreq: "daily", lastmod: now },
-      { url: "/assignments", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/properties", priority: "0.9", changefreq: "daily", lastmod: now },
-      { url: "/map-search", priority: "0.85", changefreq: "daily", lastmod: now },
-      { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
-      { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
+      { url: "/assignments", priority: "0.85", changefreq: "daily", lastmod: now },
+      
+      // Educational / Guide pages
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/presale-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
-      { url: "/roi-calculator", priority: "0.85", changefreq: "monthly", lastmod: now },
-      { url: "/mortgage-calculator", priority: "0.8", changefreq: "monthly", lastmod: now },
-      { url: "/investment-snapshot", priority: "0.8", changefreq: "monthly", lastmod: now },
+      { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
+      
+      // Tools
+      { url: "/roi-calculator", priority: "0.8", changefreq: "monthly", lastmod: now },
+      { url: "/mortgage-calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
+      
+      // Company pages
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
-      { url: "/for-developers", priority: "0.7", changefreq: "monthly", lastmod: now },
-      { url: "/vip", priority: "0.7", changefreq: "monthly", lastmod: now },
-      // SEO Neighborhood Landing Pages - High value local content
+      { url: "/developers", priority: "0.7", changefreq: "weekly", lastmod: now },
+      { url: "/for-developers", priority: "0.65", changefreq: "monthly", lastmod: now },
+    ];
+    
+    // NOTE: /map-search is EXCLUDED (noindex page)
+
+    // ==========================================
+    // 2. CITY PRESALE PAGES (Primary Ranking)
+    // ==========================================
+    // These are the ONLY city URLs that should rank
+    const primaryCities = ["surrey", "vancouver", "langley", "coquitlam", "burnaby", "richmond"];
+    const secondaryCities = ["delta", "abbotsford", "port-coquitlam", "port-moody", 
+      "new-westminster", "north-vancouver", "white-rock", "maple-ridge"];
+
+    const cityPresalePages = [
+      ...primaryCities.flatMap(city => [
+        { url: `/${city}-presale-condos`, priority: "0.95", changefreq: "daily", lastmod: now },
+        { url: `/${city}-presale-townhomes`, priority: "0.95", changefreq: "daily", lastmod: now }
+      ]),
+      ...secondaryCities.flatMap(city => [
+        { url: `/${city}-presale-condos`, priority: "0.85", changefreq: "daily", lastmod: now },
+        { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
+      ])
+    ];
+
+    // ==========================================
+    // 3. NEIGHBORHOOD LANDING PAGES
+    // ==========================================
+    const neighborhoodLandingPages = [
       { url: "/burnaby-brentwood-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
       { url: "/burnaby-metrotown-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
       { url: "/surrey-cloverdale-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
@@ -75,91 +130,32 @@ Deno.serve(async (req) => {
       { url: "/maple-ridge-town-centre-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
     ];
 
-    // Primary and secondary cities
-    const primaryCities = ["surrey", "vancouver", "langley", "coquitlam", "burnaby", "richmond"];
-    const secondaryCities = ["delta", "abbotsford", "port-coquitlam", "port-moody", "new-westminster",
-      "north-vancouver", "white-rock", "maple-ridge", "chilliwack"];
+    // ==========================================
+    // 4. PROPERTIES CITY PAGES (Clean URLs only)
+    // ==========================================
     const allCities = [...primaryCities, ...secondaryCities];
-
-    // City + Product type SEO pages - highest priority for sitelinks
-    const cityProductPages = [
-      // Primary cities get highest priority (0.95)
-      ...primaryCities.flatMap(city => [
-        { url: `/${city}-presale-condos`, priority: "0.95", changefreq: "daily", lastmod: now },
-        { url: `/${city}-presale-townhomes`, priority: "0.95", changefreq: "daily", lastmod: now }
-      ]),
-      // Secondary cities get slightly lower priority
-      ...secondaryCities.flatMap(city => [
-        { url: `/${city}-presale-condos`, priority: "0.85", changefreq: "daily", lastmod: now },
-        { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
-      ])
-    ];
-
-    // Properties / Move-In Ready city pages with property types, price ranges, and bedrooms
-    const propertiesCityPages = allCities.flatMap(city => [
-      { url: `/properties/${city}`, priority: "0.85", changefreq: "daily", lastmod: now },
-      // Property types
-      { url: `/properties/${city}/condos`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/townhouses`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/duplexes`, priority: "0.75", changefreq: "daily", lastmod: now },
-      // Price ranges
-      { url: `/properties/${city}/under-500k`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/under-750k`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/under-1m`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/under-1.5m`, priority: "0.75", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/under-2m`, priority: "0.75", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/luxury`, priority: "0.75", changefreq: "daily", lastmod: now },
-      // Bedroom counts
-      { url: `/properties/${city}/1-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/2-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/3-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/properties/${city}/4-bedroom`, priority: "0.75", changefreq: "daily", lastmod: now },
-    ]);
-
-    // Popular Searches SEO hub page
+    const propertiesCityPages = allCities.map(city => ({
+      url: `/properties/${city}`,
+      priority: "0.85",
+      changefreq: "daily",
+      lastmod: now
+    }));
+    
+    // Popular searches hub
     const seoHubPages = [
-      { url: "/properties/popular-searches", priority: "0.85", changefreq: "weekly", lastmod: now },
+      { url: "/properties/popular-searches", priority: "0.8", changefreq: "weekly", lastmod: now },
     ];
 
-    // Top neighborhoods for SEO - neighborhood + property type pages
-    const topNeighborhoods: Record<string, string[]> = {
-      vancouver: ["downtown", "yaletown", "kitsilano", "mount-pleasant", "fairview"],
-      surrey: ["city-centre", "fleetwood", "guildford", "south-surrey", "clayton"],
-      burnaby: ["metrotown", "brentwood", "highgate", "edmonds"],
-      richmond: ["city-centre", "steveston", "brighouse", "west-cambie"],
-      langley: ["willoughby", "walnut-grove", "murrayville", "yorkson"],
-      coquitlam: ["burke-mountain", "burquitlam", "westwood-plateau"],
-      "new-westminster": ["downtown", "sapperton", "queensborough"],
-      "port-moody": ["suter-brook", "heritage-woods", "moody-centre"],
-    };
-
-    const neighborhoodPropertyPages = Object.entries(topNeighborhoods).flatMap(([city, neighborhoods]) =>
-      neighborhoods.flatMap(neighborhood => [
-        { url: `/properties/${city}/${neighborhood}/condos`, priority: "0.75", changefreq: "daily", lastmod: now },
-        { url: `/properties/${city}/${neighborhood}/townhomes`, priority: "0.75", changefreq: "daily", lastmod: now },
-        { url: `/properties/${city}/${neighborhood}/homes`, priority: "0.7", changefreq: "daily", lastmod: now },
-      ])
-    );
-
-    // Price-based SEO pages - only for routes that exist
-    const pricePoints = ["500k", "700k", "900k", "1000k"];
-    const priceCities = primaryCities;
-    const pricePages = priceCities.flatMap(city => 
-      pricePoints.flatMap(price => [
-        { url: `/presale-condos-under-${price}-${city}`, priority: "0.8", changefreq: "daily", lastmod: now },
-        { url: `/presale-townhomes-under-${price}-${city}`, priority: "0.8", changefreq: "daily", lastmod: now }
-      ])
-    );
-
-    // Fetch presale projects with neighborhood data for SEO URLs
+    // ==========================================
+    // 5. ACTIVE PRESALE PROJECTS (High Value)
+    // ==========================================
     const { data: projects } = await supabase
       .from("presale_projects")
-      .select("slug, neighborhood, city, project_type, updated_at")
+      .select("slug, neighborhood, city, project_type, updated_at, status")
       .eq("is_published", true)
-      .eq("is_indexed", true);
+      .eq("is_indexed", true)
+      .in("status", ["registering", "selling", "coming_soon"]); // Only active projects
 
-    // Generate SEO-friendly project URLs
     const projectPages = (projects || []).map(p => {
       const neighborhoodSlug = slugify(p.neighborhood || p.city);
       const typeSlug = getProjectTypeSlug(p.project_type);
@@ -173,24 +169,9 @@ Deno.serve(async (req) => {
       };
     });
 
-    // Collect unique neighborhoods for neighborhood landing pages
-    const neighborhoodsSet = new Set<string>();
-    (projects || []).forEach(p => {
-      if (p.neighborhood && p.city) {
-        const citySlug = slugify(p.city);
-        const neighborhoodSlug = slugify(p.neighborhood);
-        neighborhoodsSet.add(`/${citySlug}-${neighborhoodSlug}-presale`);
-      }
-    });
-    
-    const neighborhoodPages = Array.from(neighborhoodsSet).map(url => ({
-      url,
-      priority: "0.85",
-      changefreq: "weekly",
-      lastmod: now
-    }));
-
-    // Fetch blog posts
+    // ==========================================
+    // 6. BLOG POSTS
+    // ==========================================
     const { data: posts } = await supabase
       .from("blog_posts")
       .select("slug, updated_at, category")
@@ -204,54 +185,44 @@ Deno.serve(async (req) => {
       return {
         url: `/blog/${p.slug}`,
         lastmod: p.updated_at?.split("T")[0] || now,
-        priority: isHighPriority ? "0.85" : "0.75",
+        priority: isHighPriority ? "0.8" : "0.7",
         changefreq: "monthly"
       };
     });
 
-    // Fetch assignment listings
-    const { data: listings } = await supabase
-      .from("listings")
-      .select("id, updated_at")
-      .eq("status", "published");
+    // ==========================================
+    // 7. DEVELOPER DIRECTORY PAGES
+    // ==========================================
+    const { data: developers } = await supabase
+      .from("developers")
+      .select("slug, updated_at")
+      .eq("is_active", true);
 
-    const listingPages = (listings || []).map(l => ({
-      url: `/assignments/${l.id}`,
-      lastmod: l.updated_at?.split("T")[0] || now,
-      priority: "0.75",
-      changefreq: "weekly"
-    }));
-
-    // Fetch MLS resale listings - HIGH SEO VALUE
-    const { data: mlsListings } = await supabase
-      .from("mls_listings")
-      .select("listing_key, updated_at")
-      .eq("status", "Active")
-      .limit(5000); // Limit to prevent sitemap bloat
-
-    const mlsListingPages = (mlsListings || []).map(l => ({
-      url: `/properties/${l.listing_key}`,
-      lastmod: l.updated_at?.split("T")[0] || now,
+    const developerPages = (developers || []).map(d => ({
+      url: `/developers/${d.slug}`,
+      lastmod: d.updated_at?.split("T")[0] || now,
       priority: "0.7",
-      changefreq: "daily"
+      changefreq: "monthly"
     }));
 
-    console.log(`Sitemap: ${mlsListingPages.length} MLS listings added`);
-
-    // Build XML - note: order matters for crawl priority
+    // ==========================================
+    // BUILD CONTROLLED SITEMAP
+    // ==========================================
+    // Order matters for crawl priority
     const allPages = [
       ...staticPages,
-      ...cityProductPages,
-      ...seoHubPages,
-      ...projectPages, // Projects now have SEO-friendly URLs and high priority
-      ...neighborhoodPages,
+      ...cityPresalePages,
+      ...neighborhoodLandingPages,
+      ...projectPages,
       ...propertiesCityPages,
-      ...neighborhoodPropertyPages,
-      ...pricePages,
+      ...seoHubPages,
       ...blogPages,
-      ...listingPages,
-      ...mlsListingPages, // Individual resale listings - high SEO value
+      ...developerPages,
     ];
+    
+    // NOTE: Individual MLS listings are NOT included
+    // They create sitemap bloat and volatility
+    // Use image sitemap for listing photos instead
     
     const urlEntries = allPages.map(page => `
   <url>
@@ -268,20 +239,33 @@ ${urlEntries}
 
     // Log generation stats
     const totalUrls = allPages.length;
-    console.log(`Sitemap generated: ${totalUrls} URLs total`);
-    console.log(`- Static pages: ${staticPages.length}`);
-    console.log(`- City/Product pages: ${cityProductPages.length}`);
-    console.log(`- Presale projects: ${projectPages.length}`);
-    console.log(`- Neighborhood pages: ${neighborhoodPages.length}`);
-    console.log(`- Blog posts: ${blogPages.length}`);
-    console.log(`- MLS listings: ${mlsListingPages.length}`);
+    console.log(`✅ Sitemap generated: ${totalUrls} URLs (target: 150-300)`);
+    console.log(`  - Static pages: ${staticPages.length}`);
+    console.log(`  - City presale pages: ${cityPresalePages.length}`);
+    console.log(`  - Neighborhood pages: ${neighborhoodLandingPages.length}`);
+    console.log(`  - Presale projects: ${projectPages.length}`);
+    console.log(`  - Properties city pages: ${propertiesCityPages.length}`);
+    console.log(`  - Blog posts: ${blogPages.length}`);
+    console.log(`  - Developer pages: ${developerPages.length}`);
 
     // Store generation timestamp for monitoring
     await supabase
       .from("app_settings")
       .upsert({
         key: "sitemap_last_generated",
-        value: { timestamp: new Date().toISOString(), url_count: totalUrls },
+        value: { 
+          timestamp: new Date().toISOString(), 
+          url_count: totalUrls,
+          breakdown: {
+            static: staticPages.length,
+            cityPresale: cityPresalePages.length,
+            neighborhoods: neighborhoodLandingPages.length,
+            projects: projectPages.length,
+            propertiesCities: propertiesCityPages.length,
+            blog: blogPages.length,
+            developers: developerPages.length,
+          }
+        },
         updated_at: new Date().toISOString()
       }, { onConflict: "key" });
 
