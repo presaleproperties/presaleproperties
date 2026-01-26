@@ -1457,11 +1457,11 @@ export default function MapSearch() {
           </div>
 
           {/* Desktop List Panel - ~40% width for REW-style layout */}
-          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
+          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out overflow-x-hidden ${
             showList ? "w-[40%] min-w-[420px] opacity-100" : "w-0 opacity-0 overflow-hidden"
           }`}>
             {/* Top Bar - Search + Filter + Quick Filters */}
-            <div className="shrink-0 border-b border-border bg-background relative z-50">
+            <div className="shrink-0 border-b border-border bg-background relative z-50 overflow-visible">
               {/* Search Bar Row */}
               <div className="flex items-center gap-2 px-3 pt-3 pb-3">
                 {/* Search Bar */}
@@ -1669,7 +1669,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-2 px-3 pb-2.5 relative z-50">
+              <div className="flex items-center gap-2 px-3 pb-2.5 relative z-50 overflow-visible">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
