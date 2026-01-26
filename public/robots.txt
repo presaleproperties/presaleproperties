@@ -46,13 +46,33 @@ Allow: /
 User-agent: *
 Allow: /
 
+# ============================================
+# NOINDEX URLs - Allow crawl but pages set noindex
+# (Do NOT disallow - we want link equity to flow)
+# ============================================
+# /map-search - Dynamic map UI (noindex via meta tag)
+# ?city=, ?type=, ?price= - Filter params (noindex via meta tag)
+# ?lat=, ?lng=, ?zoom= - Map params (noindex via meta tag)
+
+# ============================================
+# BLOCKED PATHS - No crawl value
+# ============================================
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /dashboard
+Disallow: /dashboard/*
+Disallow: /login
+Disallow: /buyer/login
+Disallow: /buyer/signup
+Disallow: /exclusive-offer
+Disallow: /campaign/*
+Disallow: /api/
+
 # Sitemap
 Sitemap: https://presaleproperties.com/sitemap.xml
 
+# Image Sitemap
+Sitemap: https://presaleproperties.com/image-sitemap.xml
+
 # LLMs.txt - AI-readable site description
 # Available at: /llms.txt and /.well-known/llms.txt
-
-# Disallow admin/dashboard areas from indexing
-Disallow: /admin
-Disallow: /dashboard
-Disallow: /login

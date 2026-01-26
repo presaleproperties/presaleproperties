@@ -8,6 +8,8 @@ import {
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
   Building, HomeIcon, Warehouse, DollarSign, Search, Navigation
 } from "lucide-react";
+
+// SEO: This page is NOINDEX - dynamic map/filter URLs should not be indexed
 import { Button } from "@/components/ui/button";
 import {
   Select,
