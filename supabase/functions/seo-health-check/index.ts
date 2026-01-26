@@ -18,6 +18,15 @@ interface Issue {
   message: string;
   url?: string;
   details?: string;
+  count?: number;
+}
+
+interface NonIndexedAnalysis {
+  duplicateCanonical: { count: number; examples: string[] };
+  thinContent: { count: number; examples: string[] };
+  parameterUrls: { count: number; examples: string[] };
+  redirectChains: { count: number; examples: string[] };
+  blockedByRobots: { count: number; examples: string[] };
 }
 
 interface CityPageStatus {
@@ -298,7 +307,117 @@ Deno.serve(async (req) => {
     }
 
     // ==========================================
-    // 6. GENERATE SUMMARY
+    // 6. ANALYZE POTENTIAL NON-INDEXED REASONS
+    // ==========================================
+    console.log("🔎 Analyzing potential non-indexed page patterns...");
+    
+    const nonIndexedAnalysis: NonIndexedAnalysis = {
+      duplicateCanonical: { count: 0, examples: [] },
+      thinContent: { count: 0, examples: [] },
+      parameterUrls: { count: 0, examples: [] },
+      redirectChains: { count: 0, examples: [] },
+      blockedByRobots: { count: 0, examples: [] },
+    };
+
+    // Check for duplicate content patterns (similar URL structures)
+    const urlPatterns = new Map<string, string[]>();
+    for (const url of sitemapUrls) {
+      // Group by base pattern (without slug)
+      const match = url.match(/^(.*-presale-(?:condos|townhomes|homes|duplexes))-/);
+      if (match) {
+        const pattern = match[1];
+        if (!urlPatterns.has(pattern)) {
+          urlPatterns.set(pattern, []);
+        }
+        urlPatterns.get(pattern)!.push(url);
+      }
+    }
+
+    // Check for potential thin content (blog posts without substantial content)
+    const { data: blogPosts } = await supabase
+      .from("blog_posts")
+      .select("slug, content, title")
+      .eq("is_published", true);
+
+    if (blogPosts) {
+      for (const post of blogPosts) {
+        const contentLength = (post.content || "").length;
+        if (contentLength < 500) {
+          nonIndexedAnalysis.thinContent.count++;
+          if (nonIndexedAnalysis.thinContent.examples.length < 5) {
+            nonIndexedAnalysis.thinContent.examples.push(`/blog/${post.slug} (${contentLength} chars)`);
+          }
+        }
+      }
+      
+      if (nonIndexedAnalysis.thinContent.count > 0) {
+        warnings.push({
+          type: "thin_content",
+          severity: "warning",
+          message: `${nonIndexedAnalysis.thinContent.count} blog posts have thin content (<500 chars)`,
+          details: `Examples: ${nonIndexedAnalysis.thinContent.examples.join(", ")}`,
+        });
+      }
+    }
+
+    // Check for presale projects with missing required SEO fields
+    const { data: projectsWithMissingSEO } = await supabase
+      .from("presale_projects")
+      .select("slug, name, seo_title, seo_description, short_description")
+      .eq("is_published", true)
+      .eq("is_indexed", true);
+
+    let missingMetaCount = 0;
+    const missingMetaExamples: string[] = [];
+    
+    if (projectsWithMissingSEO) {
+      for (const project of projectsWithMissingSEO) {
+        const hasMeta = project.seo_title && project.seo_description;
+        const hasDescription = project.short_description && project.short_description.length > 100;
+        
+        if (!hasMeta && !hasDescription) {
+          missingMetaCount++;
+          if (missingMetaExamples.length < 5) {
+            missingMetaExamples.push(project.name);
+          }
+        }
+      }
+      
+      if (missingMetaCount > 0) {
+        warnings.push({
+          type: "missing_meta",
+          severity: "warning",
+          message: `${missingMetaCount} projects missing SEO meta or descriptions`,
+          details: `Examples: ${missingMetaExamples.join(", ")}`,
+        });
+      }
+    }
+
+    // Check for potential duplicate title patterns
+    const { data: projectTitles } = await supabase
+      .from("presale_projects")
+      .select("name, city, neighborhood")
+      .eq("is_published", true);
+
+    const titlePatterns = new Map<string, number>();
+    if (projectTitles) {
+      for (const p of projectTitles) {
+        const pattern = `${p.city}-${p.neighborhood}`.toLowerCase();
+        titlePatterns.set(pattern, (titlePatterns.get(pattern) || 0) + 1);
+      }
+      
+      for (const [pattern, count] of titlePatterns) {
+        if (count > 3) {
+          nonIndexedAnalysis.duplicateCanonical.count += count;
+          if (nonIndexedAnalysis.duplicateCanonical.examples.length < 3) {
+            nonIndexedAnalysis.duplicateCanonical.examples.push(`${pattern}: ${count} projects`);
+          }
+        }
+      }
+    }
+
+    // ==========================================
+    // 7. GENERATE SUMMARY
     // ==========================================
     const errorCount = issues.filter(i => i.severity === "error").length;
     const warningCount = issues.filter(i => i.severity === "warning").length + warnings.length;
@@ -315,7 +434,7 @@ Deno.serve(async (req) => {
     console.log(summary);
 
     // ==========================================
-    // 7. UPDATE HEALTH CHECK RECORD
+    // 8. UPDATE HEALTH CHECK RECORD
     // ==========================================
     await supabase
       .from("seo_health_checks")
@@ -326,6 +445,7 @@ Deno.serve(async (req) => {
         issues: issues,
         warnings: warnings,
         city_pages_status: cityPagesStatus,
+        non_indexed_analysis: nonIndexedAnalysis,
         summary: summary,
         completed_at: new Date().toISOString(),
       })
