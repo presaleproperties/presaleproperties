@@ -21,6 +21,19 @@ const prerenderRoutes = [
   "/for-agents",
   "/for-developers",
   
+  // Neighborhood presale pages
+  "/burnaby-brentwood-presale",
+  "/burnaby-metrotown-presale",
+  "/surrey-cloverdale-presale",
+  "/south-surrey-presale",
+  "/langley-willoughby-presale",
+  "/surrey-city-centre-presale",
+  "/coquitlam-burquitlam-presale",
+  "/vancouver-mount-pleasant-presale",
+  "/richmond-brighouse-presale",
+  "/north-vancouver-lonsdale-presale",
+  "/new-westminster-downtown-presale",
+  "/maple-ridge-town-centre-presale",
   // City presale pages
   "/vancouver-presale-condos",
   "/vancouver-presale-townhomes",

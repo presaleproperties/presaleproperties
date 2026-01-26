@@ -207,6 +207,8 @@ const App = () => (
             <Route path="/surrey-city-centre-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/coquitlam-burquitlam-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/burnaby-metrotown-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/burnaby-brentwood-presale" element={<NeighborhoodLandingPage />} />
+            <Route path="/surrey-cloverdale-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/vancouver-mount-pleasant-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/richmond-brighouse-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/north-vancouver-lonsdale-presale" element={<NeighborhoodLandingPage />} />
