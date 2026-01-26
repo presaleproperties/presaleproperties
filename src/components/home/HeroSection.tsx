@@ -55,7 +55,7 @@ export function HeroSection({
 
     // Navigate directly to listing page for MLS listing type
     if (type === "listing" && slug) {
-      navigate(`/resale/${slug}`);
+      navigate(`/properties/${slug}`);
       return;
     }
 
@@ -67,7 +67,7 @@ export function HeroSection({
 
     // For cities and neighborhoods, go to search results
     setSearchQuery(value);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/properties";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
   };
   const handleCityClick = (city: string) => {
@@ -75,7 +75,7 @@ export function HeroSection({
     if (activeTab === "projects") {
       navigate(`/${citySlug}-presale-condos`);
     } else {
-      navigate(`/resale/${citySlug}`);
+      navigate(`/properties/${citySlug}`);
     }
   };
   return <section className="relative min-h-[560px] sm:min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden">

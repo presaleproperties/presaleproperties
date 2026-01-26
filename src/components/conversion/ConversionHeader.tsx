@@ -229,7 +229,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                             {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
-                                  to={`/resale/${city.slug}?type=condo`}
+                                  to={`/properties/${city.slug}?type=condo`}
                                   className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
                                 >
                                   <MapPin className="h-3 w-3 text-muted-foreground" />
@@ -245,7 +245,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                             {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
                               <NavigationMenuLink key={`townhome-${city.slug}`} asChild>
                                 <Link
-                                  to={`/resale/${city.slug}?type=townhouse`}
+                                  to={`/properties/${city.slug}?type=townhouse`}
                                   className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
                                 >
                                   <MapPin className="h-3 w-3 text-muted-foreground" />

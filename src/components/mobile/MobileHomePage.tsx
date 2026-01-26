@@ -131,7 +131,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
     if (activeTab === "projects") {
       navigate(`/${slug}-presale-condos`);
     } else {
-      navigate(`/resale/${slug}`);
+      navigate(`/properties/${slug}`);
     }
   };
 

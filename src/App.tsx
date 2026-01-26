@@ -8,6 +8,7 @@ import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
+import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
 
@@ -134,45 +135,52 @@ const App = () => (
             {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
             <Route path="/presale/:slug" element={<PresaleRedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
-            <Route path="/resale" element={<ResaleListings />} />
-            {/* City-specific resale pages - MUST be before :listingKey route */}
-            <Route path="/resale/vancouver" element={<CityResalePage />} />
-            <Route path="/resale/surrey" element={<CityResalePage />} />
-            <Route path="/resale/coquitlam" element={<CityResalePage />} />
-            <Route path="/resale/burnaby" element={<CityResalePage />} />
-            <Route path="/resale/delta" element={<CityResalePage />} />
-            <Route path="/resale/langley" element={<CityResalePage />} />
-            <Route path="/resale/abbotsford" element={<CityResalePage />} />
-            <Route path="/resale/chilliwack" element={<CityResalePage />} />
-            <Route path="/resale/richmond" element={<CityResalePage />} />
-            <Route path="/resale/new-westminster" element={<CityResalePage />} />
-            <Route path="/resale/port-coquitlam" element={<CityResalePage />} />
-            <Route path="/resale/port-moody" element={<CityResalePage />} />
-            <Route path="/resale/white-rock" element={<CityResalePage />} />
+            <Route path="/properties" element={<ResaleListings />} />
+            {/* City-specific properties pages - MUST be before :listingKey route */}
+            <Route path="/properties/vancouver" element={<CityResalePage />} />
+            <Route path="/properties/surrey" element={<CityResalePage />} />
+            <Route path="/properties/coquitlam" element={<CityResalePage />} />
+            <Route path="/properties/burnaby" element={<CityResalePage />} />
+            <Route path="/properties/delta" element={<CityResalePage />} />
+            <Route path="/properties/langley" element={<CityResalePage />} />
+            <Route path="/properties/abbotsford" element={<CityResalePage />} />
+            <Route path="/properties/chilliwack" element={<CityResalePage />} />
+            <Route path="/properties/richmond" element={<CityResalePage />} />
+            <Route path="/properties/new-westminster" element={<CityResalePage />} />
+            <Route path="/properties/port-coquitlam" element={<CityResalePage />} />
+            <Route path="/properties/port-moody" element={<CityResalePage />} />
+            <Route path="/properties/white-rock" element={<CityResalePage />} />
             {/* Property type and price range routes - MUST be before :listingKey */}
-            <Route path="/resale/:citySlug/condos" element={<ResalePropertyTypePage />} />
-            <Route path="/resale/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
-            <Route path="/resale/:citySlug/houses" element={<ResalePropertyTypePage />} />
-            <Route path="/resale/:citySlug/duplexes" element={<ResalePropertyTypePage />} />
-            <Route path="/resale/:citySlug/under-500k" element={<ResalePriceRangePage />} />
-            <Route path="/resale/:citySlug/under-750k" element={<ResalePriceRangePage />} />
-            <Route path="/resale/:citySlug/under-1m" element={<ResalePriceRangePage />} />
-            <Route path="/resale/:citySlug/under-1.5m" element={<ResalePriceRangePage />} />
-            <Route path="/resale/:citySlug/under-2m" element={<ResalePriceRangePage />} />
-            <Route path="/resale/:citySlug/luxury" element={<ResalePriceRangePage />} />
+            <Route path="/properties/:citySlug/condos" element={<ResalePropertyTypePage />} />
+            <Route path="/properties/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
+            <Route path="/properties/:citySlug/houses" element={<ResalePropertyTypePage />} />
+            <Route path="/properties/:citySlug/duplexes" element={<ResalePropertyTypePage />} />
+            <Route path="/properties/:citySlug/under-500k" element={<ResalePriceRangePage />} />
+            <Route path="/properties/:citySlug/under-750k" element={<ResalePriceRangePage />} />
+            <Route path="/properties/:citySlug/under-1m" element={<ResalePriceRangePage />} />
+            <Route path="/properties/:citySlug/under-1.5m" element={<ResalePriceRangePage />} />
+            <Route path="/properties/:citySlug/under-2m" element={<ResalePriceRangePage />} />
+            <Route path="/properties/:citySlug/luxury" element={<ResalePriceRangePage />} />
             {/* Bedroom count routes */}
-            <Route path="/resale/:citySlug/1-bedroom" element={<ResaleBedroomPage />} />
-            <Route path="/resale/:citySlug/2-bedroom" element={<ResaleBedroomPage />} />
-            <Route path="/resale/:citySlug/3-bedroom" element={<ResaleBedroomPage />} />
-            <Route path="/resale/:citySlug/4-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/properties/:citySlug/1-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/properties/:citySlug/2-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/properties/:citySlug/3-bedroom" element={<ResaleBedroomPage />} />
+            <Route path="/properties/:citySlug/4-bedroom" element={<ResaleBedroomPage />} />
             {/* Neighborhood + Property Type routes */}
-            <Route path="/resale/:citySlug/:neighborhoodSlug/condos" element={<NeighborhoodPropertyTypePage />} />
-            <Route path="/resale/:citySlug/:neighborhoodSlug/townhomes" element={<NeighborhoodPropertyTypePage />} />
-            <Route path="/resale/:citySlug/:neighborhoodSlug/homes" element={<NeighborhoodPropertyTypePage />} />
+            <Route path="/properties/:citySlug/:neighborhoodSlug/condos" element={<NeighborhoodPropertyTypePage />} />
+            <Route path="/properties/:citySlug/:neighborhoodSlug/townhomes" element={<NeighborhoodPropertyTypePage />} />
+            <Route path="/properties/:citySlug/:neighborhoodSlug/homes" element={<NeighborhoodPropertyTypePage />} />
             {/* Popular Searches SEO Hub */}
-            <Route path="/resale/popular-searches" element={<PopularSearchesPage />} />
+            <Route path="/properties/popular-searches" element={<PopularSearchesPage />} />
             {/* Dynamic listing key route - MUST be after city/type/price/bedroom/neighborhood routes */}
-            <Route path="/resale/:listingKey" element={<ResaleListingDetail />} />
+            <Route path="/properties/:listingKey" element={<ResaleListingDetail />} />
+            
+            {/* Legacy /resale/* redirects for SEO preservation */}
+            <Route path="/resale" element={<Navigate to="/properties" replace />} />
+            <Route path="/resale/popular-searches" element={<Navigate to="/properties/popular-searches" replace />} />
+            <Route path="/resale/:segment" element={<ResaleToPropertiesRedirect />} />
+            <Route path="/resale/:citySlug/:segment" element={<ResaleToPropertiesRedirect />} />
+            <Route path="/resale/:citySlug/:neighborhoodSlug/:type" element={<ResaleToPropertiesRedirect />} />
             <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />

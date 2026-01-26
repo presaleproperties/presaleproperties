@@ -40,14 +40,14 @@ export function ResaleHeroSection() {
     setSearchQuery(value);
     setShowSuggestions(false);
     if (type === "city") {
-      navigate(`/resale/${value.toLowerCase()}`);
+      navigate(`/properties/${value.toLowerCase()}`);
     } else {
-      navigate(`/resale?q=${encodeURIComponent(value)}`);
+      navigate(`/properties?q=${encodeURIComponent(value)}`);
     }
   };
 
   const handleCityClick = (city: string) => {
-    navigate(`/resale/${city.toLowerCase()}`);
+    navigate(`/properties/${city.toLowerCase()}`);
   };
 
   return (

@@ -567,7 +567,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       });
     }
     onOpenChange(false);
-    navigate(`/resale/${listing.id}`);
+    navigate(`/properties/${listing.id}`);
   };
 
   const handleModeChange = (mode: SearchMode) => {
@@ -640,7 +640,7 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
   const handleCompareViewListing = (id: string) => {
     setShowCompare(false);
     onOpenChange(false);
-    navigate(`/resale/${id}`);
+    navigate(`/properties/${id}`);
   };
 
   const formatPrice = (price: number | null) => {

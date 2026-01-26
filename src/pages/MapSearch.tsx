@@ -887,7 +887,7 @@ export default function MapSearch() {
         toast.success(`Viewing ${suggestion.label}`);
         setSearchQuery("");
       } else {
-        navigate(`/resale/${suggestion.value}`);
+        navigate(`/properties/${suggestion.value}`);
       }
     }
   }, [navigate, updateFilter]);

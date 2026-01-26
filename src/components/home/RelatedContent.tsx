@@ -93,7 +93,7 @@ export function RelatedContent() {
               {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                 <Link 
                   key={city.slug} 
-                  to={`/resale/${city.slug}`}
+                  to={`/properties/${city.slug}`}
                   className="group"
                 >
                   <Card className="hover:shadow-md transition-all duration-200 hover:border-primary/50">

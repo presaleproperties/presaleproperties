@@ -49,9 +49,9 @@ export function LoftyPageTracker() {
           pageType = "project_detail";
         } else if (currentPath === "/presale-projects") {
           pageType = "project_directory";
-        } else if (currentPath.startsWith("/resale/") && currentPath !== "/resale") {
+        } else if (currentPath.startsWith("/properties/") && currentPath !== "/properties") {
           pageType = "listing_detail";
-        } else if (currentPath === "/resale") {
+        } else if (currentPath === "/properties") {
           pageType = "listing_directory";
         } else if (currentPath.startsWith("/blog/") && currentPath !== "/blog") {
           pageType = "blog_post";

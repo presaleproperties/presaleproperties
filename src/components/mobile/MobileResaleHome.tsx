@@ -61,14 +61,14 @@ export function MobileResaleHome() {
     setSearchQuery(value);
     setShowSuggestions(false);
     if (type === "city") {
-      navigate(`/resale/${value.toLowerCase()}`);
+      navigate(`/properties/${value.toLowerCase()}`);
     } else {
-      navigate(`/resale?q=${encodeURIComponent(value)}`);
+      navigate(`/properties?q=${encodeURIComponent(value)}`);
     }
   };
 
   const handleCityClick = (slug: string) => {
-    navigate(`/resale/${slug}`);
+    navigate(`/properties/${slug}`);
   };
 
   const handleRefresh = useCallback(async () => {
