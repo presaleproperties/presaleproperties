@@ -122,3 +122,6 @@ verify_jwt = false
 
 [functions.send-inquiry-notification]
 verify_jwt = false
+
+[functions.generate-image-sitemap]
+verify_jwt = false

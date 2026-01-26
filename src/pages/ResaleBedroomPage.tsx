@@ -219,7 +219,7 @@ export default function ResaleBedroomPage() {
       "item": {
         "@type": "RealEstateListing",
         "name": `New ${bedroomConfig.label} Home - ${getAddress(listing)}`,
-        "url": `https://presaleproperties.com/resale/${listing.listing_key}`
+        "url": `https://presaleproperties.com/properties/${listing.listing_key}`
       }
     })) || []
   };
@@ -229,8 +229,8 @@ export default function ResaleBedroomPage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/resale" },
-      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/resale/${citySlug}` },
+      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/properties" },
+      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/properties/${citySlug}` },
       { "@type": "ListItem", "position": 4, "name": `${bedroomConfig.label} Homes` }
     ]
   };
@@ -299,13 +299,13 @@ export default function ResaleBedroomPage() {
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to="/resale">Move-In Ready</Link>
+                    <Link to="/properties">Move-In Ready</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
-                    <Link to={`/resale/${citySlug}`}>{cityConfig.name}</Link>
+                    <Link to={`/properties/${citySlug}`}>{cityConfig.name}</Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

@@ -291,8 +291,8 @@ export default function ResalePropertyTypePage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/resale" },
-      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/resale/${citySlug}` },
+      { "@type": "ListItem", "position": 2, "name": "New Homes for Sale", "item": "https://presaleproperties.com/properties" },
+      { "@type": "ListItem", "position": 3, "name": `${cityConfig.name} New Homes`, "item": `https://presaleproperties.com/properties/${citySlug}` },
       { "@type": "ListItem", "position": 4, "name": `New ${propertyTypeConfig.namePlural}` }
     ]
   };
@@ -387,9 +387,9 @@ export default function ResalePropertyTypePage() {
         <nav className="flex items-center gap-1 text-sm text-muted-foreground mb-4 overflow-x-auto">
           <Link to="/" className="hover:text-foreground transition-colors shrink-0"><Home className="h-3.5 w-3.5" /></Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">Move-In Ready</Link>
+          <Link to="/properties" className="hover:text-foreground transition-colors shrink-0">Move-In Ready</Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
-          <Link to={`/resale/${citySlug}`} className="hover:text-foreground transition-colors shrink-0">{cityConfig.name}</Link>
+          <Link to={`/properties/${citySlug}`} className="hover:text-foreground transition-colors shrink-0">{cityConfig.name}</Link>
           <ChevronRight className="h-3.5 w-3.5 shrink-0" />
           <span className="text-foreground font-medium">{propertyTypeConfig.namePlural}</span>
         </nav>

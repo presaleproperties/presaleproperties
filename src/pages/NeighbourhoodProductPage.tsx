@@ -302,8 +302,8 @@ export default function NeighbourhoodProductPage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": isPresale ? "Presale Projects" : "For Sale", "item": isPresale ? "https://presaleproperties.com/presale-projects" : "https://presaleproperties.com/resale" },
-      { "@type": "ListItem", "position": 3, "name": cityName, "item": isPresale ? `https://presaleproperties.com/${parsed.city}-presale-condos` : `https://presaleproperties.com/resale?city=${cityName}` },
+      { "@type": "ListItem", "position": 2, "name": isPresale ? "Presale Projects" : "For Sale", "item": isPresale ? "https://presaleproperties.com/presale-projects" : "https://presaleproperties.com/properties" },
+      { "@type": "ListItem", "position": 3, "name": cityName, "item": isPresale ? `https://presaleproperties.com/${parsed.city}-presale-condos` : `https://presaleproperties.com/properties/${parsed.city}` },
       { "@type": "ListItem", "position": 4, "name": neighbourhoodConfig.displayName }
     ]
   };
@@ -347,14 +347,14 @@ export default function NeighbourhoodProductPage() {
             </Link>
             <ChevronRight className="h-3.5 w-3.5 shrink-0" />
             <Link 
-              to={isPresale ? "/presale-projects" : "/resale"} 
+              to={isPresale ? "/presale-projects" : "/properties"} 
               className="hover:text-foreground transition-colors shrink-0"
             >
               {isPresale ? "Presale Projects" : "For Sale"}
             </Link>
             <ChevronRight className="h-3.5 w-3.5 shrink-0" />
             <Link 
-              to={isPresale ? `/presale-projects?city=${cityName}` : `/resale?city=${cityName}`}
+              to={isPresale ? `/presale-projects?city=${cityName}` : `/properties/${parsed.city}`}
               className="hover:text-foreground transition-colors shrink-0"
             >
               {cityName}
