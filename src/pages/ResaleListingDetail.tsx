@@ -371,12 +371,12 @@ export default function ResaleListingDetail() {
       "@type": "ListItem",
       "position": 2,
       "name": "New Homes for Sale",
-      "item": "https://presaleproperties.com/resale"
+      "item": "https://presaleproperties.com/properties"
     }, {
       "@type": "ListItem",
       "position": 3,
       "name": `${listing.city} New Homes`,
-      "item": `https://presaleproperties.com/resale/${listing.city.toLowerCase().replace(/\s+/g, '-')}`
+      "item": `https://presaleproperties.com/properties/${listing.city.toLowerCase().replace(/\s+/g, '-')}`
     }, {
       "@type": "ListItem",
       "position": 4,
@@ -420,7 +420,7 @@ export default function ResaleListingDetail() {
             navigator.clipboard.writeText(shareUrl);
           }
         }}
-        backPath="/resale"
+        backPath="/properties"
       />
       
       <main className="container px-4 py-3 lg:py-4 pb-24 lg:pb-8">
@@ -436,7 +436,7 @@ export default function ResaleListingDetail() {
             </li>
             <li><ChevronRight className="h-3.5 w-3.5 shrink-0" /></li>
             <li>
-              <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
+              <Link to="/properties" className="hover:text-foreground transition-colors shrink-0">
                 For Sale
               </Link>
             </li>

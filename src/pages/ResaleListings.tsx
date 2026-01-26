@@ -646,7 +646,7 @@ export default function ResaleListings() {
                 <Home className="h-3.5 w-3.5" />
               </Link>
               <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
-              <Link to="/resale" className="hover:text-foreground transition-colors shrink-0">
+              <Link to="/properties" className="hover:text-foreground transition-colors shrink-0">
                 Move-In Ready
               </Link>
               {filters.city !== "any" && (

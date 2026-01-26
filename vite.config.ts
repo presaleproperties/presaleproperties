@@ -7,7 +7,7 @@ import { componentTagger } from "lovable-tagger";
 const prerenderRoutes = [
   // Primary pages
   "/",
-  "/resale",
+  "/properties",
   "/presale-projects",
   "/map-search",
   "/assignments",
@@ -52,7 +52,7 @@ const prerenderRoutes = [
   "/abbotsford-presale-condos",
   "/abbotsford-presale-townhomes",
   
-  // City properties pages  
+  // City properties pages (new construction resale)
   "/properties/vancouver",
   "/properties/surrey",
   "/properties/burnaby",
@@ -61,7 +61,11 @@ const prerenderRoutes = [
   "/properties/richmond",
   "/properties/delta",
   "/properties/abbotsford",
-  "/properties",
+  "/properties/north-vancouver",
+  "/properties/new-westminster",
+  "/properties/port-moody",
+  "/properties/maple-ridge",
+  "/properties/popular-searches",
 ];
 
 // https://vitejs.dev/config/

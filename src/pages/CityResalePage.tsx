@@ -524,7 +524,7 @@ export default function CityResalePage() {
     "@type": "BreadcrumbList",
     "itemListElement": [
       { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "For Sale", "item": "https://presaleproperties.com/resale" },
+      { "@type": "ListItem", "position": 2, "name": "For Sale", "item": "https://presaleproperties.com/properties" },
       { "@type": "ListItem", "position": 3, "name": cityConfig.name }
     ]
   };
@@ -534,7 +534,7 @@ export default function CityResalePage() {
       <Helmet>
         <title>{cityConfig.metaTitle}</title>
         <meta name="description" content={cityConfig.metaDescription} />
-        <link rel="canonical" href={`https://presaleproperties.com/resale/${citySlug}`} />
+        <link rel="canonical" href={`https://presaleproperties.com/properties/${citySlug}`} />
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
       </Helmet>
 
@@ -549,7 +549,7 @@ export default function CityResalePage() {
               <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
                 <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
                 <span>/</span>
-                <Link to="/resale" className="hover:text-foreground transition-colors">For Sale</Link>
+                <Link to="/properties" className="hover:text-foreground transition-colors">For Sale</Link>
                 <span>/</span>
                 <span className="text-foreground">{cityConfig.name}</span>
               </nav>

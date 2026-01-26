@@ -11,7 +11,7 @@
 const ROUTES_TO_PRERENDER = [
   // Primary pages
   "/",
-  "/resale",
+  "/properties",
   "/presale-projects",
   "/calculator",
   "/contact",
@@ -40,13 +40,16 @@ const ROUTES_TO_PRERENDER = [
   "/abbotsford-presale-condos",
   "/abbotsford-presale-townhomes",
   
-  // City resale pages  
-  "/resale/vancouver",
-  "/resale/surrey",
-  "/resale/burnaby",
-  "/resale/coquitlam",
-  "/resale/langley",
-  "/resale/richmond",
+  // City properties pages (new construction)
+  "/properties/vancouver",
+  "/properties/surrey",
+  "/properties/burnaby",
+  "/properties/coquitlam",
+  "/properties/langley",
+  "/properties/richmond",
+  "/properties/north-vancouver",
+  "/properties/new-westminster",
+  "/properties/popular-searches",
 ];
 
 console.log(`
