@@ -154,7 +154,7 @@ Deno.serve(async (req) => {
       .select("slug, neighborhood, city, project_type, updated_at, status")
       .eq("is_published", true)
       .eq("is_indexed", true)
-      .in("status", ["registering", "selling", "coming_soon"]); // Only active projects
+      .eq("status", "active"); // Only active projects
 
     const projectPages = (projects || []).map(p => {
       const neighborhoodSlug = slugify(p.neighborhood || p.city);
