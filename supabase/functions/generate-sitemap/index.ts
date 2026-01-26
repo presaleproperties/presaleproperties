@@ -266,6 +266,25 @@ Deno.serve(async (req) => {
 ${urlEntries}
 </urlset>`;
 
+    // Log generation stats
+    const totalUrls = allPages.length;
+    console.log(`Sitemap generated: ${totalUrls} URLs total`);
+    console.log(`- Static pages: ${staticPages.length}`);
+    console.log(`- City/Product pages: ${cityProductPages.length}`);
+    console.log(`- Presale projects: ${projectPages.length}`);
+    console.log(`- Neighborhood pages: ${neighborhoodPages.length}`);
+    console.log(`- Blog posts: ${blogPages.length}`);
+    console.log(`- MLS listings: ${mlsListingPages.length}`);
+
+    // Store generation timestamp for monitoring
+    await supabase
+      .from("app_settings")
+      .upsert({
+        key: "sitemap_last_generated",
+        value: { timestamp: new Date().toISOString(), url_count: totalUrls },
+        updated_at: new Date().toISOString()
+      }, { onConflict: "key" });
+
     return new Response(sitemap, {
       headers: corsHeaders,
     });
