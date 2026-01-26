@@ -570,6 +570,112 @@ export const NEIGHBORHOOD_SEO_CONFIG: Record<string, {
       { question: "Why is Maple Ridge so affordable?", answer: "Maple Ridge's distance from Vancouver and limited transit options keep prices lower. However, this creates exceptional value for those who can work remotely or commute flexibly." },
       { question: "What outdoor activities are available?", answer: "Maple Ridge offers unmatched outdoor access: Golden Ears Provincial Park, Alouette Lake, mountain biking trails, and the Pitt River for kayaking - all within 15-20 minutes." }
     ]
+  },
+  "burnaby-brentwood": {
+    slug: "burnaby-brentwood",
+    displayName: "Brentwood",
+    city: "Burnaby",
+    citySlug: "burnaby",
+    overview: "Brentwood has transformed into one of Metro Vancouver's most exciting urban neighbourhoods, featuring stunning high-rise towers, the Brentwood Town Centre redevelopment, and direct Millennium Line SkyTrain access. This transit-oriented community offers a perfect blend of urban convenience and residential livability, with new retail, restaurants, and green spaces emerging around the modernized Brentwood Mall. Presale developments in Brentwood attract young professionals, investors, and families seeking premium transit-connected living.",
+    whyBuy: [
+      "Brentwood Town Centre SkyTrain Station",
+      "Major Brentwood Mall redevelopment underway",
+      "High-rise living with mountain views",
+      "20 minutes to Downtown Vancouver",
+      "Strong appreciation trajectory"
+    ],
+    marketStats: {
+      avgCondoPrice: "$650,000 - $950,000",
+      avgTownhomePrice: "$1,100,000 - $1,500,000",
+      pricePerSqft: "$950 - $1,200",
+      avgRental: "$2,400 - $3,200/month",
+      rentalYield: "4.0% - 4.6%"
+    },
+    location: {
+      walkScore: 88,
+      transitScore: 90,
+      highlights: [
+        "Brentwood Town Centre SkyTrain",
+        "20 minutes to Downtown Vancouver",
+        "10 minutes to Metrotown",
+        "Adjacent to Burnaby Lake trails"
+      ]
+    },
+    schools: [
+      { name: "Burnaby North Secondary", rating: "8/10", distance: "1.5 km" },
+      { name: "Brentwood Park Elementary", rating: "8/10", distance: "0.8 km" },
+      { name: "BCIT Burnaby Campus", rating: "N/A", distance: "4.0 km" }
+    ],
+    shopping: [
+      { name: "Brentwood Town Centre", distance: "0.2 km" },
+      { name: "Amazing Brentwood", distance: "0.1 km" },
+      { name: "Madison Centre", distance: "1.5 km" }
+    ],
+    parks: [
+      { name: "Confederation Park", distance: "1.0 km" },
+      { name: "Burnaby Lake Regional Park", distance: "2.5 km" },
+      { name: "Brentwood Park", distance: "0.8 km" }
+    ],
+    investmentAnalysis: "Brentwood represents one of Metro Vancouver's most ambitious transit-oriented developments, with billions invested in transforming the area into a vibrant urban hub. The area has seen 8-12% annual appreciation since the Brentwood Town Centre redevelopment began. With strong rental demand from professionals working along the Millennium Line corridor, investors can expect solid 4.0-4.6% yields with excellent capital growth potential.",
+    faqs: [
+      { question: "What is the Brentwood Town Centre redevelopment?", answer: "The Amazing Brentwood is a multi-billion dollar transformation including 11 residential towers, retail, restaurants, a movie theatre, and public plazas - all connected to SkyTrain. It's one of BC's largest mixed-use developments." },
+      { question: "How does Brentwood compare to Metrotown?", answer: "Brentwood offers newer, more modern developments with similar transit access. It's slightly less dense than Metrotown with a more curated retail experience. Prices are comparable, but Brentwood's newer towers often feature more premium finishes." },
+      { question: "Is Brentwood good for investors?", answer: "Excellent! Brentwood's combination of SkyTrain access, new amenities, and young professional demographics creates strong rental demand. The area's ongoing transformation suggests continued appreciation above Metro Vancouver averages." },
+      { question: "What transit options are available?", answer: "Brentwood Town Centre SkyTrain station provides direct access to Downtown Vancouver (20 min), Metrotown (10 min), and the entire Millennium Line network. Multiple bus routes also serve the area." }
+    ]
+  },
+  "surrey-cloverdale": {
+    slug: "surrey-cloverdale",
+    displayName: "Cloverdale",
+    city: "Surrey",
+    citySlug: "surrey",
+    overview: "Cloverdale is Surrey's charming heritage neighbourhood, known for its historic downtown, annual Cloverdale Rodeo, and family-friendly atmosphere. This established community offers a unique small-town feel within Metro Vancouver, with tree-lined streets, character homes, and a thriving local business district. New presale developments blend modern living with Cloverdale's distinctive heritage character, attracting families and buyers seeking community-oriented living.",
+    whyBuy: [
+      "Historic downtown with character shops",
+      "Annual Cloverdale Rodeo & Country Fair",
+      "Strong family community atmosphere",
+      "Affordable presale pricing for Surrey",
+      "Future SkyTrain consideration (long-term)"
+    ],
+    marketStats: {
+      avgCondoPrice: "$480,000 - $650,000",
+      avgTownhomePrice: "$700,000 - $950,000",
+      pricePerSqft: "$600 - $800",
+      avgRental: "$1,800 - $2,500/month",
+      rentalYield: "4.2% - 5.0%"
+    },
+    location: {
+      walkScore: 55,
+      transitScore: 40,
+      highlights: [
+        "Historic 176 Street downtown",
+        "15 minutes to Highway 1",
+        "20 minutes to Surrey Central SkyTrain",
+        "Near Agricultural Land Reserve"
+      ]
+    },
+    schools: [
+      { name: "Lord Tweedsmuir Secondary", rating: "8/10", distance: "1.5 km" },
+      { name: "Clayton Heights Secondary", rating: "8/10", distance: "3.0 km" },
+      { name: "Cloverdale Traditional Elementary", rating: "8/10", distance: "1.0 km" }
+    ],
+    shopping: [
+      { name: "Cloverdale Town Centre", distance: "0.5 km" },
+      { name: "176 Street heritage shops", distance: "0.3 km" },
+      { name: "Cloverdale Crossing", distance: "1.5 km" }
+    ],
+    parks: [
+      { name: "Cloverdale Athletic Park", distance: "0.8 km" },
+      { name: "Clover Valley Park", distance: "2.0 km" },
+      { name: "Surrey Bend Regional Park", distance: "6.0 km" }
+    ],
+    investmentAnalysis: "Cloverdale offers exceptional value for families and investors seeking affordable entry into Surrey's housing market. The area provides strong rental yields (4.2-5.0%) driven by family tenants attracted to the schools and community atmosphere. While transit is more limited than central Surrey, ongoing development in Clayton Heights and the long-term possibility of SkyTrain extension position Cloverdale for steady appreciation.",
+    faqs: [
+      { question: "What makes Cloverdale unique?", answer: "Cloverdale retains its heritage small-town character with a walkable downtown core, annual rodeo, and strong community identity - rare in rapidly urbanizing Surrey. It's perfect for buyers seeking neighbourhood charm." },
+      { question: "Are there good schools in Cloverdale?", answer: "Yes! Cloverdale has excellent schools including Lord Tweedsmuir Secondary, Cloverdale Traditional Elementary, and nearby Clayton Heights Secondary. The family-focused community prioritizes education." },
+      { question: "Is Cloverdale connected to SkyTrain?", answer: "Not directly - the closest SkyTrain is Surrey Central (20 min drive). However, bus routes connect to SkyTrain, and future transit expansion is being studied. Most residents currently drive." },
+      { question: "What's the investment potential?", answer: "Cloverdale offers strong rental yields due to affordable pricing and family demand. Long-term, the area may benefit from Surrey's continued eastward growth and potential transit improvements." }
+    ]
   }
 };
 
@@ -579,7 +685,17 @@ export const getNeighborhoodSlugs = (): string[] => {
 };
 
 export default function NeighborhoodLandingPage() {
-  const { neighborhoodSlug } = useParams<{ neighborhoodSlug: string }>();
+  const { neighborhoodSlug: paramSlug } = useParams<{ neighborhoodSlug: string }>();
+  const location = window.location.pathname;
+  
+  // Extract slug from URL path - handles both param-based and static routes
+  // URL format: /burnaby-brentwood-presale -> burnaby-brentwood
+  const neighborhoodSlug = useMemo(() => {
+    if (paramSlug) return paramSlug;
+    // Extract from pathname by removing leading "/" and trailing "-presale"
+    const path = location.replace(/^\//, '').replace(/-presale$/, '');
+    return path || null;
+  }, [paramSlug, location]);
   
   const config = useMemo(() => {
     if (!neighborhoodSlug) return null;

@@ -60,6 +60,19 @@ Deno.serve(async (req) => {
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/for-developers", priority: "0.7", changefreq: "monthly", lastmod: now },
       { url: "/vip", priority: "0.7", changefreq: "monthly", lastmod: now },
+      // SEO Neighborhood Landing Pages - High value local content
+      { url: "/burnaby-brentwood-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/burnaby-metrotown-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/surrey-cloverdale-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/south-surrey-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/langley-willoughby-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/surrey-city-centre-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/coquitlam-burquitlam-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/vancouver-mount-pleasant-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/richmond-brighouse-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/north-vancouver-lonsdale-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/new-westminster-downtown-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
+      { url: "/maple-ridge-town-centre-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
     ];
 
     // Primary and secondary cities
