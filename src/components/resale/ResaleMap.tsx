@@ -139,7 +139,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
             ${listing.bedrooms_total ? `${listing.bedrooms_total} bed` : ''} 
             ${listing.bathrooms_total ? `• ${listing.bathrooms_total} bath` : ''}
           </div>
-          <a href="/resale/${listing.listing_key}" class="resale-popup-link">View Details →</a>
+          <a href="/properties/${listing.listing_key}" class="resale-popup-link">View Details →</a>
         </div>
       `;
       marker.bindPopup(popupContent, { closeButton: true, className: "resale-popup-container" });

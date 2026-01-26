@@ -17,13 +17,13 @@ export function ListingModeToggle({ className, size = "default" }: ListingModeTo
   const isPresale = !isResale;
 
   const handlePresaleClick = () => {
-    if (location.pathname === "/resale") {
+    if (location.pathname === "/properties") {
       navigate("/presale-projects");
     } else if (location.pathname === "/map-search") {
       navigate("/map-search?mode=presale");
-    } else if (location.pathname.startsWith("/resale/")) {
+    } else if (location.pathname.startsWith("/properties/")) {
       // City page - convert to presale city page
-      const city = location.pathname.replace("/resale/", "");
+      const city = location.pathname.replace("/properties/", "");
       navigate(`/${city}-presale-condos`);
     } else {
       navigate("/presale-projects");
@@ -32,14 +32,14 @@ export function ListingModeToggle({ className, size = "default" }: ListingModeTo
 
   const handleResaleClick = () => {
     if (location.pathname === "/presale-projects") {
-      navigate("/resale");
+      navigate("/properties");
     } else if (location.pathname.includes("?view=map") || location.pathname === "/map-search") {
       navigate("/map-search?mode=resale");
     } else if (location.pathname.includes("-presale-")) {
       // City page - try to convert
-      navigate("/resale");
+      navigate("/properties");
     } else {
-      navigate("/resale");
+      navigate("/properties");
     }
   };
 

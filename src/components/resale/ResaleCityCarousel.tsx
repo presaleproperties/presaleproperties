@@ -154,7 +154,7 @@ export function ResaleCityCarousel({ city, title, subtitle }: ResaleCityCarousel
             </Button>
           </div>
           <Link 
-            to={`/resale/${city.toLowerCase()}`}
+            to={`/properties/${city.toLowerCase()}`}
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
           >
             View All

@@ -55,10 +55,10 @@ export function SEOInternalLinks({ city, citySlug, propertyType, currentPrice, t
           <ul className="space-y-2 text-sm">
             {isResale ? (
               <>
-                <li><Link to={`/resale/${citySlug}/condos`} className="text-foreground hover:text-primary transition-colors">New Condos in {city}</Link></li>
-                <li><Link to={`/resale/${citySlug}/townhouses`} className="text-foreground hover:text-primary transition-colors">New Townhouses in {city}</Link></li>
-                <li><Link to={`/resale/${citySlug}/houses`} className="text-foreground hover:text-primary transition-colors">New Houses in {city}</Link></li>
-                <li><Link to={`/resale/${citySlug}/duplexes`} className="text-foreground hover:text-primary transition-colors">New Duplexes in {city}</Link></li>
+                <li><Link to={`/properties/${citySlug}/condos`} className="text-foreground hover:text-primary transition-colors">New Condos in {city}</Link></li>
+                <li><Link to={`/properties/${citySlug}/townhouses`} className="text-foreground hover:text-primary transition-colors">New Townhouses in {city}</Link></li>
+                <li><Link to={`/properties/${citySlug}/houses`} className="text-foreground hover:text-primary transition-colors">New Houses in {city}</Link></li>
+                <li><Link to={`/properties/${citySlug}/duplexes`} className="text-foreground hover:text-primary transition-colors">New Duplexes in {city}</Link></li>
               </>
             ) : (
               <>
@@ -80,7 +80,7 @@ export function SEOInternalLinks({ city, citySlug, propertyType, currentPrice, t
               PRICE_RANGES_RESALE.map(range => (
                 <li key={range.slug}>
                   <Link 
-                    to={`/resale/${citySlug}/${range.slug}`} 
+                    to={`/properties/${citySlug}/${range.slug}`} 
                     className={`transition-colors ${currentPrice && currentPrice <= range.max ? 'text-primary font-medium' : 'text-foreground hover:text-primary'}`}
                   >
                     {range.label} in {city}
@@ -112,7 +112,7 @@ export function SEOInternalLinks({ city, citySlug, propertyType, currentPrice, t
             {otherCities.map(c => (
               <li key={c.slug}>
                 <Link 
-                  to={isResale ? `/resale/${c.slug}` : `/${c.slug}-presale-condos`} 
+                  to={isResale ? `/properties/${c.slug}` : `/${c.slug}-presale-condos`} 
                   className="text-foreground hover:text-primary transition-colors"
                 >
                   {isResale ? `New Homes in ${c.name}` : `Presales in ${c.name}`}
@@ -138,10 +138,10 @@ export function SEOInternalLinks({ city, citySlug, propertyType, currentPrice, t
               </>
             ) : (
               <>
-                <li><Link to={`/resale/${citySlug}`} className="text-foreground hover:text-primary transition-colors">Move-In Ready in {city}</Link></li>
-                <li><Link to={`/resale/${citySlug}/condos`} className="text-foreground hover:text-primary transition-colors">New Condos in {city}</Link></li>
-                <li><Link to={`/resale/${citySlug}/townhouses`} className="text-foreground hover:text-primary transition-colors">New Townhouses in {city}</Link></li>
-                <li><Link to="/resale" className="text-foreground hover:text-primary transition-colors">All Move-In Ready Homes</Link></li>
+                <li><Link to={`/properties/${citySlug}`} className="text-foreground hover:text-primary transition-colors">Move-In Ready in {city}</Link></li>
+                <li><Link to={`/properties/${citySlug}/condos`} className="text-foreground hover:text-primary transition-colors">New Condos in {city}</Link></li>
+                <li><Link to={`/properties/${citySlug}/townhouses`} className="text-foreground hover:text-primary transition-colors">New Townhouses in {city}</Link></li>
+                <li><Link to="/properties" className="text-foreground hover:text-primary transition-colors">All Move-In Ready Homes</Link></li>
               </>
             )}
           </ul>

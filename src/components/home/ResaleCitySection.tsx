@@ -165,7 +165,7 @@ function CityCarousel({ city }: CityCarouselProps) {
             </Button>
           </div>
           <Link 
-            to={`/resale?city=${encodeURIComponent(city)}`}
+            to={`/properties?city=${encodeURIComponent(city)}`}
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
           >
             View All
@@ -229,7 +229,7 @@ export function ResaleCitySection() {
             </p>
           </div>
           <Button variant="outline" asChild className="hidden sm:flex gap-1">
-            <Link to="/resale">
+            <Link to="/properties">
               View All Listings
               <ArrowRight className="h-4 w-4" />
             </Link>

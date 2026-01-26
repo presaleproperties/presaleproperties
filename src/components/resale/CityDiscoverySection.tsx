@@ -99,7 +99,7 @@ export function CityDiscoverySection() {
               return (
                 <Link
                   key={city.slug}
-                  to={`/resale/${city.slug}`}
+                  to={`/properties/${city.slug}`}
                   className="group bg-background rounded-xl border border-border p-4 md:p-5 hover:border-primary/30 hover:shadow-md transition-all"
                 >
                   <div className="flex items-start justify-between mb-3">

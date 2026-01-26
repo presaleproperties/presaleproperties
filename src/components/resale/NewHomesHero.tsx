@@ -50,12 +50,12 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
     if (typeFilter) params.set("type", typeFilter);
     params.set("new", "true"); // Filter for 2025+ only
     
-    navigate(`/resale?${params.toString()}`);
+    navigate(`/properties?${params.toString()}`);
   };
 
   const handleSuggestionSelect = (suggestion: any) => {
     if (suggestion.type === "city") {
-      navigate(`/resale/${suggestion.city.toLowerCase()}`);
+      navigate(`/properties/${suggestion.city.toLowerCase()}`);
     } else {
       handleSearch();
     }
@@ -63,7 +63,7 @@ export function NewHomesHero({ onOpenLeadForm }: NewHomesHeroProps) {
   };
 
   const handleCityClick = (city: string) => {
-    navigate(`/resale/${city.toLowerCase()}`);
+    navigate(`/properties/${city.toLowerCase()}`);
   };
 
   return (

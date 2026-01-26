@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
       { url: "/", priority: "1.0", changefreq: "daily", lastmod: now },
       { url: "/presale-projects", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/assignments", priority: "0.9", changefreq: "daily", lastmod: now },
-      { url: "/resale", priority: "0.9", changefreq: "daily", lastmod: now },
+      { url: "/properties", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/map-search", priority: "0.85", changefreq: "daily", lastmod: now },
       { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
@@ -95,31 +95,31 @@ Deno.serve(async (req) => {
       ])
     ];
 
-    // Resale / Move-In Ready city pages with property types, price ranges, and bedrooms
-    const resaleCityPages = allCities.flatMap(city => [
-      { url: `/resale/${city}`, priority: "0.85", changefreq: "daily", lastmod: now },
+    // Properties / Move-In Ready city pages with property types, price ranges, and bedrooms
+    const propertiesCityPages = allCities.flatMap(city => [
+      { url: `/properties/${city}`, priority: "0.85", changefreq: "daily", lastmod: now },
       // Property types
-      { url: `/resale/${city}/condos`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/townhouses`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/duplexes`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/condos`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/townhouses`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/houses`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/duplexes`, priority: "0.75", changefreq: "daily", lastmod: now },
       // Price ranges
-      { url: `/resale/${city}/under-500k`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/under-750k`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/under-1m`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/under-1.5m`, priority: "0.75", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/under-2m`, priority: "0.75", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/luxury`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/under-500k`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/under-750k`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/under-1m`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/under-1.5m`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/under-2m`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/luxury`, priority: "0.75", changefreq: "daily", lastmod: now },
       // Bedroom counts
-      { url: `/resale/${city}/1-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/2-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/3-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
-      { url: `/resale/${city}/4-bedroom`, priority: "0.75", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/1-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/2-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/3-bedroom`, priority: "0.8", changefreq: "daily", lastmod: now },
+      { url: `/properties/${city}/4-bedroom`, priority: "0.75", changefreq: "daily", lastmod: now },
     ]);
 
     // Popular Searches SEO hub page
     const seoHubPages = [
-      { url: "/resale/popular-searches", priority: "0.85", changefreq: "weekly", lastmod: now },
+      { url: "/properties/popular-searches", priority: "0.85", changefreq: "weekly", lastmod: now },
     ];
 
     // Top neighborhoods for SEO - neighborhood + property type pages
@@ -136,9 +136,9 @@ Deno.serve(async (req) => {
 
     const neighborhoodPropertyPages = Object.entries(topNeighborhoods).flatMap(([city, neighborhoods]) =>
       neighborhoods.flatMap(neighborhood => [
-        { url: `/resale/${city}/${neighborhood}/condos`, priority: "0.75", changefreq: "daily", lastmod: now },
-        { url: `/resale/${city}/${neighborhood}/townhomes`, priority: "0.75", changefreq: "daily", lastmod: now },
-        { url: `/resale/${city}/${neighborhood}/homes`, priority: "0.7", changefreq: "daily", lastmod: now },
+        { url: `/properties/${city}/${neighborhood}/condos`, priority: "0.75", changefreq: "daily", lastmod: now },
+        { url: `/properties/${city}/${neighborhood}/townhomes`, priority: "0.75", changefreq: "daily", lastmod: now },
+        { url: `/properties/${city}/${neighborhood}/homes`, priority: "0.7", changefreq: "daily", lastmod: now },
       ])
     );
 
@@ -230,7 +230,7 @@ Deno.serve(async (req) => {
       .limit(5000); // Limit to prevent sitemap bloat
 
     const mlsListingPages = (mlsListings || []).map(l => ({
-      url: `/resale/${l.listing_key}`,
+      url: `/properties/${l.listing_key}`,
       lastmod: l.updated_at?.split("T")[0] || now,
       priority: "0.7",
       changefreq: "daily"
@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
       ...seoHubPages,
       ...projectPages, // Projects now have SEO-friendly URLs and high priority
       ...neighborhoodPages,
-      ...resaleCityPages,
+      ...propertiesCityPages,
       ...neighborhoodPropertyPages,
       ...pricePages,
       ...blogPages,

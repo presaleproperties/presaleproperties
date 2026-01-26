@@ -52,15 +52,16 @@ const prerenderRoutes = [
   "/abbotsford-presale-condos",
   "/abbotsford-presale-townhomes",
   
-  // City resale pages  
-  "/resale/vancouver",
-  "/resale/surrey",
-  "/resale/burnaby",
-  "/resale/coquitlam",
-  "/resale/langley",
-  "/resale/richmond",
-  "/resale/delta",
-  "/resale/abbotsford",
+  // City properties pages  
+  "/properties/vancouver",
+  "/properties/surrey",
+  "/properties/burnaby",
+  "/properties/coquitlam",
+  "/properties/langley",
+  "/properties/richmond",
+  "/properties/delta",
+  "/properties/abbotsford",
+  "/properties",
 ];
 
 // https://vitejs.dev/config/
