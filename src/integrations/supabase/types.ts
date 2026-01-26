@@ -2785,6 +2785,54 @@ export type Database = {
         }
         Relationships: []
       }
+      seo_health_checks: {
+        Row: {
+          canonical_issues: Json | null
+          check_type: string
+          city_pages_status: Json | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          issues: Json | null
+          sitemap_breakdown: Json | null
+          sitemap_url_count: number | null
+          started_at: string
+          status: string
+          summary: string | null
+          warnings: Json | null
+        }
+        Insert: {
+          canonical_issues?: Json | null
+          check_type: string
+          city_pages_status?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          issues?: Json | null
+          sitemap_breakdown?: Json | null
+          sitemap_url_count?: number | null
+          started_at?: string
+          status?: string
+          summary?: string | null
+          warnings?: Json | null
+        }
+        Update: {
+          canonical_issues?: Json | null
+          check_type?: string
+          city_pages_status?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          issues?: Json | null
+          sitemap_breakdown?: Json | null
+          sitemap_url_count?: number | null
+          started_at?: string
+          status?: string
+          summary?: string | null
+          warnings?: Json | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
