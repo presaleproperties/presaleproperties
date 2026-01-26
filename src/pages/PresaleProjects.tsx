@@ -627,7 +627,31 @@ export default function PresaleProjects() {
   );
 
   // Dynamic SEO based on filters - optimized for target keywords
-  const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
+  // PART 2 — CANONICAL STRATEGY: Filter pages noindex and point to clean city pages
+  const hasActiveFilters = filters.city !== "any" || filters.projectType !== "any" || 
+                           filters.priceRange !== "any" || filters.depositPercent !== "any" || 
+                           filters.completionYear !== "any" || currentPage > 1;
+  
+  // Map filter city to clean canonical URL
+  const getCityCanonicalUrl = (city: string): string => {
+    const citySlug = city.toLowerCase().replace(/\s+/g, "-");
+    return `https://presaleproperties.com/${citySlug}-presale-condos`;
+  };
+  
+  // For filter pages, canonical should point to clean city page OR noindex
+  const getCanonicalUrl = () => {
+    if (filters.city !== "any" && filters.projectType === "any") {
+      // City filter only → canonical to clean city page
+      return getCityCanonicalUrl(filters.city);
+    }
+    // Base page without filters
+    return "https://presaleproperties.com/presale-projects";
+  };
+  
+  const canonicalUrl = getCanonicalUrl();
+  
+  // NOINDEX filter pages - they should not compete with clean city pages
+  const shouldNoindex = hasActiveFilters;
   
   const getSeoTitle = () => {
     if (filters.city !== "any") {
@@ -649,6 +673,11 @@ export default function PresaleProjects() {
     // Main page - comprehensive description
     return `Discover ${totalCount}+ presale condos & new construction homes in Metro Vancouver & Fraser Valley. Compare floor plans, VIP pricing & deposits for Vancouver, Surrey, Langley, Burnaby & more.`;
   };
+
+  // Robots meta - noindex filter pages to prevent duplicate content
+  const robotsMeta = shouldNoindex 
+    ? "noindex, follow" 
+    : "index, follow, max-image-preview:large, max-snippet:-1";
 
   // ItemList structured data for project listings
   const structuredData = {
@@ -698,7 +727,7 @@ export default function PresaleProjects() {
         <meta name="description" content={getSeoDescription()} />
         <meta name="keywords" content={`presale ${filters.city !== "any" ? filters.city : "Vancouver Surrey Langley Coquitlam Burnaby Delta Abbotsford"}, new construction condos, presale townhomes, pre-construction homes, VIP presale pricing, floor plans, Metro Vancouver real estate`} />
         <link rel="canonical" href={canonicalUrl} />
-        <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+        <meta name="robots" content={robotsMeta} />
         
         {/* Open Graph */}
         <meta property="og:type" content="website" />
