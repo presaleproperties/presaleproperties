@@ -36,7 +36,7 @@ interface AccessPackModalProps {
   onOpenChange: (open: boolean) => void;
   projectId?: string;
   projectName?: string;
-  variant?: "floorplans" | "fit_call";
+  variant?: "floorplans" | "fit_call" | "general_interest";
   source?: string;
 }
 
@@ -91,11 +91,11 @@ export function AccessPackModal({
       // Track form start for Meta Pixel
       MetaEvents.formStart({
         content_name: projectName || "Access Pack",
-        content_category: variant === "floorplans" ? "floorplans" : "callback",
+        content_category: variant === "floorplans" ? "floorplans" : variant === "general_interest" ? "general_interest" : "callback",
       });
       // Track form start for behavioral tracking
       trackFormStart({
-        form_name: variant === "floorplans" ? "access_pack" : "callback_request",
+        form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
         form_location: "access_pack_modal",
       });
     }
@@ -175,6 +175,7 @@ export function AccessPackModal({
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
           lead_source: source === "fit_call" ? "callback_request" 
+            : source === "general_interest" ? "general_interest"
             : source.startsWith("city_list_") ? source 
             : source === "sticky_bar" ? "sticky_bar"
             : source === "header" ? "header_inquiry"
@@ -209,7 +210,7 @@ export function AccessPackModal({
 
       // Track behavioral form submission
       trackFormSubmit({
-        form_name: variant === "floorplans" ? "access_pack" : "callback_request",
+        form_name: variant === "floorplans" ? "access_pack" : variant === "general_interest" ? "general_interest" : "callback_request",
         form_location: "access_pack_modal",
         first_name: data.firstName,
         last_name: data.lastName,
@@ -294,7 +295,7 @@ export function AccessPackModal({
       >
         <VisuallyHidden>
           <DialogTitle>
-            {variant === "floorplans" ? "Chat with us" : "Request a Call Back"}
+            {variant === "floorplans" ? "Chat with us" : variant === "general_interest" ? "Get New Home Updates" : "Request a Call Back"}
           </DialogTitle>
         </VisuallyHidden>
 
@@ -304,17 +305,21 @@ export function AccessPackModal({
               <div className="inline-flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-primary/10 rounded-full mb-2">
                 {variant === "floorplans" ? (
                   <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
+                ) : variant === "general_interest" ? (
+                  <CheckCircle className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 ) : (
                   <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                 )}
               </div>
               <h2 className="text-lg sm:text-xl font-bold">
-                {variant === "floorplans" ? "Chat With Us" : "Request a Call Back"}
+                {variant === "floorplans" ? "Chat With Us" : variant === "general_interest" ? "Get New Home Updates" : "Request a Call Back"}
               </h2>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                {projectName 
-                  ? `Get expert guidance on ${projectName}` 
-                  : "Connect with our presale experts"}
+                {variant === "general_interest"
+                  ? "Be first to see new move-in-ready inventory"
+                  : projectName 
+                    ? `Get expert guidance on ${projectName}` 
+                    : "Connect with our presale experts"}
               </p>
               <p className="text-xs text-green-600 font-medium mt-1">
                 ✓ Same-day callback available

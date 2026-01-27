@@ -121,6 +121,7 @@ serve(async (req: Request): Promise<Response> => {
           "floor_plan_request_step1": "Floor Plan Request (Partial)",
           "callback_request": "Request a Callback",
           "general_inquiry": "General Inquiry",
+          "general_interest": "New Homes Interest",
           "newsletter": "Newsletter Signup",
           "vip_membership": "VIP Membership Application",
           "new_homes_page": "New Homes Interest",

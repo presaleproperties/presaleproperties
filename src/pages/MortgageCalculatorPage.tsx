@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
+import { CalculatorLeadCapture, CalculatorLeadData } from "@/components/conversion/CalculatorLeadCapture";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -49,9 +50,6 @@ import {
   TrendingUp,
   TrendingDown,
   ArrowRight,
-  Mail,
-  Phone,
-  User,
   Info,
   CheckCircle,
   Sparkles,
@@ -60,7 +58,8 @@ import {
   Receipt,
   AlertTriangle,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Phone
 } from "lucide-react";
 
 // Debounce hook for performance
@@ -170,12 +169,6 @@ export default function MortgageCalculatorPage() {
   const [showLeadForm, setShowLeadForm] = useState(false);
   const [inputsCompleted, setInputsCompleted] = useState(0);
   const [leadSubmitted, setLeadSubmitted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [leadForm, setLeadForm] = useState({
-    name: "",
-    email: "",
-    phone: ""
-  });
 
   // Track input completions for soft lead capture trigger
   useEffect(() => {
@@ -629,65 +622,9 @@ export default function MortgageCalculatorPage() {
     console.log('Track:', eventName, params);
   };
 
-  // Handle lead form submission
-  const handleLeadSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!leadForm.name || !leadForm.email) {
-      toast.error("Please enter your name and email");
-      return;
-    }
-    
-    setIsSubmitting(true);
-    
-    try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const utmData = {
-        utm_source: urlParams.get('utm_source'),
-        utm_medium: urlParams.get('utm_medium'),
-        utm_campaign: urlParams.get('utm_campaign'),
-      };
-      const visitorId = localStorage.getItem("pp_vid") || undefined;
-      const sessionId = sessionStorage.getItem("pp_sid") || undefined;
-
-      const leadId = crypto.randomUUID();
-      const { error } = await supabase.from("project_leads").insert({
-        id: leadId,
-        name: leadForm.name,
-        email: leadForm.email,
-        phone: leadForm.phone || null,
-        message: `Mortgage Calculator Lead - Price: ${formatCurrency(propertyPrice)}, Down: ${downPaymentPercent}%, Rate: ${mortgageRate}%, Amort: ${amortization}yr, Payment: ${formatCurrency(calculations.monthlyPayment)}`,
-        lead_source: "mortgage_calculator",
-        persona: "buyer",
-        timeline: "0-3 months",
-        landing_page: window.location.pathname,
-        referrer: document.referrer || null,
-        visitor_id: visitorId,
-        session_id: sessionId,
-        utm_source: utmData.utm_source,
-        utm_medium: utmData.utm_medium,
-        utm_campaign: utmData.utm_campaign,
-      });
-
-      if (error) throw error;
-
-      // Sync to Zapier/Lofty
-      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
-
-      trackEvent("soft_lead_submit", {
-        ...getEventContext(),
-        lead_type: "mortgage_calculator",
-        ...utmData
-      });
-
-      setLeadSubmitted(true);
-      toast.success("Estimate sent! Check your email.");
-    } catch (error) {
-      console.error("Error submitting lead:", error);
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  // Generate calculator summary for lead capture
+  const getCalculatorSummary = () => {
+    return `Price: ${formatCurrency(propertyPrice)}, Down: ${downPaymentPercent.toFixed(0)}%, Rate: ${mortgageRate}%, Amort: ${amortization}yr, Payment: ${formatCurrency(calculations.monthlyPayment)}`;
   };
 
   // FAQ data
@@ -1821,97 +1758,19 @@ export default function MortgageCalculatorPage() {
           </div>
         </section>
 
-        {/* Soft Lead Capture Form */}
-        {showLeadForm && !leadSubmitted && (
+        {/* Soft Lead Capture Form - Using shared component */}
+        {showLeadForm && (
           <section className="py-8 bg-muted/30">
             <div className="container px-4">
               <div className="max-w-xl mx-auto">
-                <Card className="border-primary/20">
-                  <CardContent className="p-5 md:p-6">
-                    <div className="flex items-start gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <Mail className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground">Get your estimate emailed</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Plus tailored presale recommendations based on your budget
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <form onSubmit={handleLeadSubmit} className="space-y-3">
-                      <div className="grid sm:grid-cols-2 gap-3">
-                        <div className="relative">
-                          <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            type="text"
-                            placeholder="Your Name"
-                            value={leadForm.name}
-                            onChange={(e) => setLeadForm(prev => ({ ...prev, name: e.target.value }))}
-                            className="pl-9 h-11"
-                            required
-                          />
-                        </div>
-                        <div className="relative">
-                          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            type="email"
-                            placeholder="Email Address"
-                            value={leadForm.email}
-                            onChange={(e) => setLeadForm(prev => ({ ...prev, email: e.target.value }))}
-                            className="pl-9 h-11"
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          type="tel"
-                          placeholder="Phone (optional)"
-                          value={leadForm.phone}
-                          onChange={(e) => setLeadForm(prev => ({ ...prev, phone: e.target.value }))}
-                          className="pl-9 h-11"
-                        />
-                      </div>
-                      <Button type="submit" className="w-full h-11" disabled={isSubmitting}>
-                        {isSubmitting ? "Sending..." : "Send My Estimate"}
-                        <ArrowRight className="h-4 w-4 ml-1" />
-                      </Button>
-                    </form>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Lead Success State */}
-        {leadSubmitted && (
-          <section className="py-8 bg-muted/30">
-            <div className="container px-4">
-              <div className="max-w-xl mx-auto">
-                <Card className="border-green-500/30 bg-green-500/5">
-                  <CardContent className="p-5 md:p-6 text-center">
-                    <div className="w-12 h-12 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-3">
-                      <CheckCircle className="h-6 w-6 text-green-600" />
-                    </div>
-                    <h3 className="font-semibold text-foreground mb-1">Estimate Sent!</h3>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Check your email for your personalized mortgage breakdown and presale recommendations.
-                    </p>
-                    <Link to="/contact">
-                      <Button 
-                        variant="outline"
-                        onClick={() => trackEvent("affordability_call_click", getEventContext())}
-                      >
-                        <Phone className="h-4 w-4 mr-2" />
-                        Book a 10-min Affordability Call
-                      </Button>
-                    </Link>
-                  </CardContent>
-                </Card>
+                <CalculatorLeadCapture
+                  calculatorData={{
+                    calculatorType: "mortgage",
+                    summary: getCalculatorSummary(),
+                  }}
+                  onSubmitSuccess={() => setLeadSubmitted(true)}
+                  onTrackEvent={(event) => trackEvent(event, getEventContext())}
+                />
               </div>
             </div>
           </section>
