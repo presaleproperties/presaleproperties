@@ -98,6 +98,12 @@ serve(async (req: Request): Promise<Response> => {
       
       // Map lead_source to human-readable descriptions for Lofty
       const getFormType = (leadSource: string | null): string => {
+        // Handle city_list_* sources dynamically
+        if (leadSource?.startsWith("city_list_")) {
+          const city = leadSource.replace("city_list_", "").replace(/_/g, " ");
+          return `City List Request - ${city.charAt(0).toUpperCase() + city.slice(1)}`;
+        }
+        
         const sourceMap: Record<string, string> = {
           "scheduler": "Schedule a Preview",
           "floor_plan_request": "Floor Plan Request",
@@ -113,6 +119,8 @@ serve(async (req: Request): Promise<Response> => {
           "consultation": "Consultation Request",
           "exit_intent_guide": "Guide Download",
           "resale_inquiry": "Resale Property Inquiry",
+          "sticky_bar": "Sticky Bar Inquiry",
+          "header_inquiry": "Header Inquiry",
         };
         return sourceMap[leadSource || ""] || leadSource?.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()) || "Website Inquiry";
       };
@@ -175,6 +183,12 @@ serve(async (req: Request): Promise<Response> => {
         // UTM source tag
         if (lead.utm_source) {
           tags.push(`UTM: ${lead.utm_source}`);
+        }
+        
+        // City list specific tag
+        if (lead.lead_source?.startsWith("city_list_")) {
+          const city = lead.lead_source.replace("city_list_", "").replace(/_/g, " ");
+          tags.push(`City List: ${city.charAt(0).toUpperCase() + city.slice(1)}`);
         }
         
         return tags;
