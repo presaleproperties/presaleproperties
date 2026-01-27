@@ -48,6 +48,7 @@ interface ProjectLead {
   home_size: string | null;
   agent_status: string | null;
   lead_source: string | null;
+  landing_page: string | null;
   created_at: string;
   project_id: string | null;
   presale_projects: {
@@ -95,6 +96,7 @@ export default function AdminLeads() {
           home_size,
           agent_status,
           lead_source,
+          landing_page,
           created_at,
           project_id,
           presale_projects (
@@ -299,6 +301,7 @@ export default function AdminLeads() {
                     <TableHead>Contact</TableHead>
                     <TableHead>Project</TableHead>
                     <TableHead className="hidden lg:table-cell">Source</TableHead>
+                    <TableHead className="hidden xl:table-cell">Landing Page</TableHead>
                     <TableHead className="hidden lg:table-cell">Persona</TableHead>
                     <TableHead className="hidden md:table-cell">Home Size</TableHead>
                     <TableHead className="hidden md:table-cell">Agent</TableHead>
@@ -330,7 +333,41 @@ export default function AdminLeads() {
                       const personaLabel = lead.persona === "first_time" ? "First-time" : lead.persona === "investor" ? "Investor" : lead.persona === "realtor" ? "Realtor" : lead.persona || "—";
                       const homeSizeLabel = lead.home_size === "1_bed" ? "1 Bed" : lead.home_size === "2_bed" ? "2 Bed" : lead.home_size === "3_bed_plus" ? "3 Bed+" : lead.home_size || "—";
                       const agentStatusLabel = lead.agent_status === "i_am_realtor" ? "Is Agent" : lead.agent_status === "yes" ? "Has Agent" : "No Agent";
-                      const leadSourceLabel = lead.lead_source === "floor_plan_request" ? "Floor Plans" : lead.lead_source === "scheduler" ? "Tour Request" : lead.lead_source === "general_inquiry" ? "General" : lead.lead_source || "Floor Plans";
+                      
+                      // Format lead source for display
+                      const getLeadSourceLabel = (source: string | null): string => {
+                        if (!source) return "Floor Plans";
+                        if (source.startsWith("city_list_")) {
+                          const city = source.replace("city_list_", "").replace(/_/g, " ");
+                          return `City: ${city.charAt(0).toUpperCase() + city.slice(1)}`;
+                        }
+                        const sourceMap: Record<string, string> = {
+                          "floor_plan_request": "Floor Plans",
+                          "scheduler": "Tour Request",
+                          "general_inquiry": "General",
+                          "callback_request": "Callback",
+                          "sticky_bar": "Sticky Bar",
+                          "header_inquiry": "Header",
+                          "vip_membership": "VIP",
+                          "newsletter": "Newsletter",
+                          "roi_calculator": "ROI Calc",
+                          "mortgage_calculator": "Mortgage Calc",
+                        };
+                        return sourceMap[source] || source.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+                      };
+                      const leadSourceLabel = getLeadSourceLabel(lead.lead_source);
+                      
+                      // Format landing page for display (show just the path)
+                      const getLandingPageLabel = (url: string | null): string => {
+                        if (!url) return "—";
+                        try {
+                          const path = url.startsWith("http") ? new URL(url).pathname : url;
+                          if (path === "/" || path === "") return "Homepage";
+                          return path.length > 25 ? path.slice(0, 25) + "…" : path;
+                        } catch {
+                          return url.length > 25 ? url.slice(0, 25) + "…" : url;
+                        }
+                      };
                       
                       return (
                         <TableRow key={lead.id}>
@@ -362,9 +399,14 @@ export default function AdminLeads() {
                             )}
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">
-                            <Badge variant={leadSourceLabel === "Tour Request" ? "default" : "secondary"}>
+                            <Badge variant={leadSourceLabel === "Tour Request" ? "default" : lead.lead_source?.startsWith("city_list_") ? "default" : "secondary"}>
                               {leadSourceLabel}
                             </Badge>
+                          </TableCell>
+                          <TableCell className="hidden xl:table-cell">
+                            <span className="text-sm text-muted-foreground" title={lead.landing_page || undefined}>
+                              {getLandingPageLabel(lead.landing_page)}
+                            </span>
                           </TableCell>
                           <TableCell className="hidden lg:table-cell">
                             <Badge variant={lead.persona === "investor" ? "default" : "secondary"}>
