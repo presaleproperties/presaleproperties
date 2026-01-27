@@ -1,92 +1,136 @@
 
-# Update Lead Tracking for City List Sources
+# Lead Form Optimization Plan
 
 ## Overview
-Currently, leads from the City List CTA (like the one Jasneet Toor filled out on `/langley-presale-condos`) are being stored with `lead_source: "general_inquiry"` instead of the specific source like `city_list_langley`. This makes it impossible to distinguish which city list a lead requested.
+After analyzing the codebase, I found **10 distinct lead form types**. Per your requirements, I'll exclude **Floor Plan Request**, **Download List**, and **Scheduler** from optimization. This leaves **7 form types** to evaluate for consolidation.
 
-## Root Cause
-In `AccessPackModal.tsx` at line 177, the lead source mapping is too restrictive:
-```typescript
-lead_source: source === "fit_call" ? "callback_request" : "general_inquiry"
+## Current Form Inventory
+
+| Form Type | Component | Purpose | Can Consolidate? |
+|-----------|-----------|---------|------------------|
+| `city_list_*` | AccessPackModal | Download city list | ❌ Protected |
+| `floor_plan_request` | ProjectLeadForm | Floor plans | ❌ Protected |
+| `scheduler` / `resale_tour` | ResaleScheduleForm | Book showings | ❌ Protected |
+| `sticky_bar` | AccessPackModal (fit_call) | Request callback | ✅ Already unified |
+| `header_inquiry` | AccessPackModal (fit_call) | Request callback | ✅ Already unified |
+| `callback_request` | AccessPackModal (fit_call) | Request callback | ✅ Already unified |
+| `roi_calculator` | ROILeadCapture | ROI report | ⚠️ Evaluate |
+| `mortgage_calculator` | MortgageCalculatorPage | Mortgage estimate | ⚠️ Evaluate |
+| `new_homes_page` | NewHomesLeadCapture | New homes interest | ⚠️ Evaluate |
+| `resale_inquiry` | ResaleScheduleForm | Ask a question | ⚠️ Evaluate |
+| `vip_membership` | VIPMembershipForm | VIP signup | ❌ Keep (unique) |
+| `exit_intent_guide` | ExitIntentPopup | Guide download | ❌ Keep (unique) |
+
+## Recommended Consolidations
+
+### 1. Create Unified "Calculator Lead Capture" Component
+**Merge:** `roi_calculator` + `mortgage_calculator`
+
+Both forms capture similar data (name, email, phone) with calculator results. Create a shared `CalculatorLeadCapture` component.
+
+**Files to modify:**
+- `src/components/roi/ROILeadCapture.tsx` → Extract to shared component
+- `src/pages/MortgageCalculatorPage.tsx` → Use shared component
+
+**Savings:** 1 form type eliminated
+
+---
+
+### 2. Consolidate "General Interest" Forms
+**Merge:** `new_homes_page` + `resale_inquiry`
+
+Both capture general interest for non-presale properties. The `NewHomesLeadCapture` (used only on /resale) could use the existing `AccessPackModal` with a new variant.
+
+**Files to modify:**
+- `src/components/resale/NewHomesLeadCapture.tsx` → Replace with `AccessPackModal`
+- `src/components/conversion/AccessPackModal.tsx` → Add "general_interest" variant
+
+**Savings:** 1 form type eliminated
+
+---
+
+### 3. Standardize Callback Forms (Already Done ✅)
+**Status:** `sticky_bar`, `header_inquiry`, and `callback_request` already use the same `AccessPackModal` component with different `source` values for tracking. No changes needed.
+
+---
+
+## Form Architecture After Optimization
+
+```text
+┌─────────────────────────────────────────────────────────────┐
+│                    LEAD CAPTURE FORMS                       │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │           AccessPackModal (Unified)                  │   │
+│  │  • floorplans variant → Floor plans, City lists     │   │
+│  │  • fit_call variant → Callbacks (sticky/header)     │   │
+│  │  • general_interest variant → New homes interest    │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌───────────────────┐  ┌────────────────────────────┐     │
+│  │  ProjectLeadForm  │  │    ResaleScheduleForm      │     │
+│  │  (Project Detail) │  │  (Tour + Ask Question)     │     │
+│  └───────────────────┘  └────────────────────────────┘     │
+│                                                             │
+│  ┌───────────────────┐  ┌────────────────────────────┐     │
+│  │ CalculatorLeadCap │  │     ExitIntentPopup        │     │
+│  │ (ROI + Mortgage)  │  │    (Guide Download)        │     │
+│  └───────────────────┘  └────────────────────────────┘     │
+│                                                             │
+│  ┌───────────────────────────────────────────────────────┐ │
+│  │              VIPMembershipForm (Unique)               │ │
+│  │         (Email verification, premium flow)            │ │
+│  └───────────────────────────────────────────────────────┘ │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-This means any source value that isn't exactly `"fit_call"` gets mapped to `"general_inquiry"`, losing the specific context.
+## Implementation Summary
 
-## Changes Required
+| Task | Components Affected | Lines Changed | Impact |
+|------|---------------------|---------------|--------|
+| Create CalculatorLeadCapture | ROILeadCapture, MortgageCalculatorPage | ~150 lines | -1 form |
+| Add general_interest variant | AccessPackModal, NewHomesLeadCapture | ~80 lines | -1 form |
+| Update edge function mapping | send-project-lead | ~10 lines | Tracking |
 
-### 1. Update AccessPackModal Lead Source Mapping
-**File:** `src/components/conversion/AccessPackModal.tsx`
+## Final Form Count
 
-Update the lead_source logic to preserve specific source identifiers:
+**Before:** 10 distinct form types
+**After:** 8 distinct form types
+**Reduction:** 2 forms consolidated
 
-```typescript
-// Before
-lead_source: source === "fit_call" ? "callback_request" : "general_inquiry",
+## Technical Changes
 
-// After - Preserve specific sources
-lead_source: source === "fit_call" ? "callback_request" 
-           : source.startsWith("city_list_") ? source 
-           : source === "sticky_bar" ? "sticky_bar"
-           : source === "header" ? "header_inquiry"
-           : source === "modal" ? "floor_plan_request"
-           : source,  // Pass through any other specific sources
-```
+### File 1: Create shared CalculatorLeadCapture component
+**Path:** `src/components/conversion/CalculatorLeadCapture.tsx`
 
-This will correctly store:
-- `city_list_langley` for Langley city page leads
-- `city_list_burnaby` for Burnaby city page leads
-- `sticky_bar` for sticky conversion bar leads
-- `header_inquiry` for header CTA leads
-- `callback_request` for fit_call variant leads
+A new reusable component that accepts:
+- `calculatorType: "roi" | "mortgage"`
+- `calculatorData: object` (the results to include in lead message)
+- `onSubmitSuccess: () => void`
 
-### 2. Update Edge Function Form Type Mapping
-**File:** `supabase/functions/send-project-lead/index.ts`
+### File 2: Update ROILeadCapture
+**Path:** `src/components/roi/ROILeadCapture.tsx`
 
-Add mappings for the new specific sources so Zapier/Lofty receives human-readable labels:
+Replace with the new shared component, passing ROI-specific data.
 
-```typescript
-const sourceMap: Record<string, string> = {
-  // ... existing mappings ...
-  "sticky_bar": "Sticky Bar Inquiry",
-  "header_inquiry": "Header Inquiry",
-  // City list sources will be handled dynamically
-};
+### File 3: Update MortgageCalculatorPage
+**Path:** `src/pages/MortgageCalculatorPage.tsx`
 
-// Add dynamic handling for city_list_* sources
-if (leadSource?.startsWith("city_list_")) {
-  const city = leadSource.replace("city_list_", "").replace(/_/g, " ");
-  return `City List Request - ${city.charAt(0).toUpperCase() + city.slice(1)}`;
-}
-```
+Replace inline form with shared component, passing mortgage-specific data.
 
-### 3. Update Tag Generation for City Lists
-In the same edge function, enhance the `generateTags()` function to add city-specific tags for city list leads:
+### File 4: Update AccessPackModal
+**Path:** `src/components/conversion/AccessPackModal.tsx`
 
-```typescript
-// In generateTags() - add city list specific tag
-if (lead.lead_source?.startsWith("city_list_")) {
-  const city = lead.lead_source.replace("city_list_", "").replace(/_/g, " ");
-  tags.push(`City List: ${city.charAt(0).toUpperCase() + city.slice(1)}`);
-}
-```
+Add new `variant: "general_interest"` option with appropriate copy and tracking.
 
-## Impact
+### File 5: Update NewHomesLeadCapture
+**Path:** `src/components/resale/NewHomesLeadCapture.tsx`
 
-| Source Location | Before | After |
-|-----------------|--------|-------|
-| Langley City Page CTA | `general_inquiry` | `city_list_langley` |
-| Surrey City Page CTA | `general_inquiry` | `city_list_surrey` |
-| Sticky Bar | `general_inquiry` | `sticky_bar` |
-| Header CTA | `general_inquiry` | `header_inquiry` |
-| Default Modal | `general_inquiry` | `floor_plan_request` |
-| Fit Call | `callback_request` | `callback_request` (unchanged) |
+Replace entire component with `AccessPackModal` using the new variant.
 
-## Benefits
-1. **Admin Dashboard**: See exactly which city list each lead requested
-2. **Lofty CRM**: Leads tagged with specific city list (e.g., "City List: Langley")
-3. **Analytics**: Track conversion by city landing page
-4. **Attribution**: Full visibility into lead acquisition channels
+### File 6: Update Edge Function
+**Path:** `supabase/functions/send-project-lead/index.ts`
 
-## Files to Modify
-1. `src/components/conversion/AccessPackModal.tsx` - Line 177
-2. `supabase/functions/send-project-lead/index.ts` - Lines 100-118, 121-181
+Add mapping for new `calculator_lead` and `general_interest` source types.
