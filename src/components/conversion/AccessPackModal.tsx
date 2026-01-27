@@ -174,7 +174,12 @@ export function AccessPackModal({
           drip_sequence: dripSequence,
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
-          lead_source: source === "fit_call" ? "callback_request" : "general_inquiry",
+          lead_source: source === "fit_call" ? "callback_request" 
+            : source.startsWith("city_list_") ? source 
+            : source === "sticky_bar" ? "sticky_bar"
+            : source === "header" ? "header_inquiry"
+            : source === "modal" ? "floor_plan_request"
+            : source,
           utm_source: utmSource,
           utm_medium: utmMedium,
           utm_campaign: utmCampaign,
