@@ -97,11 +97,22 @@ serve(async (req: Request): Promise<Response> => {
       const project = lead.presale_projects as any;
       
       // Map lead_source to human-readable descriptions for Lofty
-      const getFormType = (leadSource: string | null): string => {
-        // Handle city_list_* sources dynamically
+      const getFormType = (leadSource: string | null, leadMessage: string | null): string => {
+        // Handle city_list_* sources dynamically - format as "[Page Name] - Download List"
         if (leadSource?.startsWith("city_list_")) {
           const city = leadSource.replace("city_list_", "").replace(/_/g, " ");
-          return `City List Request - ${city.charAt(0).toUpperCase() + city.slice(1)}`;
+          const capitalizedCity = city.charAt(0).toUpperCase() + city.slice(1);
+          
+          // Try to extract page context from message (e.g., "Source: city_list_langley" in message that contains "Langley Presale Condos")
+          // The message contains form data including property type preference
+          let propertyType = "Presale";
+          if (leadMessage?.toLowerCase().includes("townhome")) {
+            propertyType = "Presale Townhomes";
+          } else if (leadMessage?.toLowerCase().includes("condo")) {
+            propertyType = "Presale Condos";
+          }
+          
+          return `${capitalizedCity} ${propertyType} - Download List`;
         }
         
         const sourceMap: Record<string, string> = {
@@ -133,7 +144,7 @@ serve(async (req: Request): Promise<Response> => {
         tags.push("PresaleProperties.com");
         
         // Form type tag
-        const formType = getFormType(lead.lead_source);
+        const formType = getFormType(lead.lead_source, lead.message);
         if (formType) tags.push(formType);
         
         // Project tag
@@ -276,7 +287,7 @@ serve(async (req: Request): Promise<Response> => {
       const { firstName, lastName } = parseNames(lead.name, lead.message);
 
       const tags = generateTags();
-      const formType = getFormType(lead.lead_source);
+      const formType = getFormType(lead.lead_source, lead.message);
       const formLocation = getFormLocation(lead.landing_page);
       
       // Build full page URL
