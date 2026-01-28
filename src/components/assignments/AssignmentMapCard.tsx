@@ -20,7 +20,7 @@ interface AssignmentMapCardProps {
   assignment: Assignment;
   isFocused?: boolean;
   isSelected?: boolean;
-  onClick?: () => void;
+  onClick?: (e?: React.MouseEvent) => void;
   className?: string;
   variant?: "carousel" | "grid";
 }
