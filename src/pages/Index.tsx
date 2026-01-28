@@ -100,6 +100,7 @@ const Index = () => {
   };
 
   // SiteNavigationElement schema - helps Google create sitelinks
+  // Structured for 4 main sitelinks: Presale, Move-In Ready, Assignments, For Agents
   const siteNavigationSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -107,58 +108,44 @@ const Index = () => {
       {
         "@type": "SiteNavigationElement",
         "position": 1,
+        "name": "Presale Condos & Townhomes",
+        "description": "Browse 50+ presale condos and townhomes in Metro Vancouver. VIP pricing, floor plans & deposit structures.",
+        "url": "https://presaleproperties.com/presale-projects"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 2,
+        "name": "Move-In Ready Homes",
+        "description": "Brand new condos, townhomes & houses never lived in. Move in within 6 months.",
+        "url": "https://presaleproperties.com/properties"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 3,
+        "name": "Assignment Sales",
+        "description": "Buy presale contracts from original buyers. Skip the wait and get today's pricing.",
+        "url": "https://presaleproperties.com/for-agents"
+      },
+      {
+        "@type": "SiteNavigationElement",
+        "position": 4,
         "name": "Surrey Presale Condos",
         "description": "Browse presale condos in Surrey BC with VIP pricing and floorplans",
         "url": "https://presaleproperties.com/surrey-presale-condos"
       },
       {
         "@type": "SiteNavigationElement",
-        "position": 2,
+        "position": 5,
         "name": "Vancouver Presale Condos",
         "description": "Explore new presale condos in Vancouver with pricing and incentives",
         "url": "https://presaleproperties.com/vancouver-presale-condos"
       },
       {
         "@type": "SiteNavigationElement",
-        "position": 3,
+        "position": 6,
         "name": "Langley Presale Condos",
         "description": "Discover presale condos in Langley with VIP access and floorplans",
         "url": "https://presaleproperties.com/langley-presale-condos"
-      },
-      {
-        "@type": "SiteNavigationElement",
-        "position": 4,
-        "name": "Coquitlam Presale Condos",
-        "description": "Find presale condos in Coquitlam near Evergreen Line with pricing",
-        "url": "https://presaleproperties.com/coquitlam-presale-condos"
-      },
-      {
-        "@type": "SiteNavigationElement",
-        "position": 5,
-        "name": "Burnaby Presale Condos",
-        "description": "Browse presale condos in Burnaby near Metrotown and Brentwood",
-        "url": "https://presaleproperties.com/burnaby-presale-condos"
-      },
-      {
-        "@type": "SiteNavigationElement",
-        "position": 6,
-        "name": "Surrey Presale Townhomes",
-        "description": "Explore presale townhomes in Surrey with VIP pricing",
-        "url": "https://presaleproperties.com/surrey-presale-townhomes"
-      },
-      {
-        "@type": "SiteNavigationElement",
-        "position": 7,
-        "name": "Langley Presale Townhomes",
-        "description": "Browse presale townhomes in Langley with floorplans and pricing",
-        "url": "https://presaleproperties.com/langley-presale-townhomes"
-      },
-      {
-        "@type": "SiteNavigationElement",
-        "position": 8,
-        "name": "All Presale Projects",
-        "description": "Browse all presale condos and townhomes in Metro Vancouver",
-        "url": "https://presaleproperties.com/presale-projects"
       }
     ]
   };
