@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback, useMemo, useState, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet.markercluster/dist/MarkerCluster.css";
@@ -7,10 +7,9 @@ import "leaflet.markercluster";
 import { Navigation2, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 
-// Expose flyTo and highlightItem methods for parent navigation
 export interface CombinedListingsMapRef {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
-  highlightItem: (id: string, type: "resale" | "presale") => void;
+  highlightItem: (id: string, type: "resale" | "presale" | "assignment") => void;
   clearHighlight: () => void;
 }
 
@@ -19,7 +18,6 @@ const DEFAULT_ZOOM = 11;
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
 const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>';
 
-// Resale/MLS listing type
 interface MLSListing {
   id: string;
   listing_key: string;
@@ -42,7 +40,6 @@ interface MLSListing {
   list_office_name?: string | null;
 }
 
-// Presale project type
 interface PresaleProject {
   id: string;
   name: string;
@@ -57,6 +54,19 @@ interface PresaleProject {
   map_lng: number | null;
 }
 
+interface Assignment {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  assignment_price: number;
+  beds: number;
+  baths: number;
+  map_lat: number | null;
+  map_lng: number | null;
+}
+
 interface SavedMapState {
   center: { lat: number; lng: number };
   zoom: number;
@@ -66,23 +76,19 @@ interface SavedMapState {
 interface CombinedListingsMapProps {
   resaleListings: MLSListing[];
   presaleProjects: PresaleProject[];
-  mode: "all" | "presale" | "resale";
-  onListingSelect?: (id: string, type: "resale" | "presale") => void;
-  onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[]) => void;
+  assignments?: Assignment[];
+  mode: "all" | "presale" | "resale" | "assignments";
+  onListingSelect?: (id: string, type: "resale" | "presale" | "assignment") => void;
+  onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => void;
   onMapInteraction?: () => void;
   onMapStateChange?: (center: { lat: number; lng: number }, zoom: number) => void;
-  /** On mobile, skip popups and just use carousel */
   disablePopupsOnMobile?: boolean;
-  /** Center map on user's location when it becomes available */
   centerOnUserLocation?: boolean;
-  /** User location passed from parent (triggers centering) */
   initialUserLocation?: { lat: number; lng: number } | null;
-  /** Saved map state to restore on mount */
   savedMapState?: SavedMapState | null;
-  /** ID of item to highlight with animation */
   highlightedItemId?: string | null;
-  /** Type of highlighted item */
-  highlightedItemType?: "resale" | "presale" | null;
+  highlightedItemType?: "resale" | "presale" | "assignment" | null;
+  isVerifiedAgent?: boolean;
 }
 
 function formatPrice(price: number): string {
@@ -93,16 +99,14 @@ function formatPrice(price: number): string {
   return `$${Math.round(price / 1000)}K`;
 }
 
-// Icon cache for performance - avoid recreating identical icons
 const iconCache = new Map<string, L.DivIcon>();
 
-// Gold price pill - brand style, compact - with optional highlight
 function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean = false): L.DivIcon {
   const priceText = formatPrice(listing.listing_price);
   const cacheKey = `resale-${priceText}-${isHighlighted}`;
   
   const cached = iconCache.get(cacheKey);
-  if (cached && !isHighlighted) return cached; // Only cache non-highlighted
+  if (cached && !isHighlighted) return cached;
   
   const size = isHighlighted ? [80, 32] : [60, 22];
   
@@ -118,7 +122,6 @@ function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean =
   return icon;
 }
 
-// Presale marker - dark navy teardrop with gold ring and building icon - with optional highlight
 function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = false): L.DivIcon {
   const cacheKey = `presale-${isHighlighted}`;
   
@@ -139,7 +142,28 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
   return icon;
 }
 
-// Cluster showing count only - clean circular design (optimized)
+// Assignment marker - emerald colored pill
+function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean = false): L.DivIcon {
+  const priceText = formatPrice(assignment.assignment_price);
+  const cacheKey = `assignment-${priceText}-${isHighlighted}`;
+  
+  const cached = iconCache.get(cacheKey);
+  if (cached && !isHighlighted) return cached;
+  
+  const size = isHighlighted ? [80, 32] : [65, 24];
+  
+  const icon = L.divIcon({
+    className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
+    html: `<div class="ap${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
+    iconSize: [size[0], size[1]],
+    iconAnchor: [size[0] / 2, size[1]],
+    popupAnchor: [0, -size[1] - 2],
+  });
+  
+  if (!isHighlighted) iconCache.set(cacheKey, icon);
+  return icon;
+}
+
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
   const sizeClass = count >= 100 ? 'lg' : count >= 10 ? 'md' : 'sm';
@@ -169,18 +193,12 @@ function resalePopupHtml(listing: MLSListing): string {
   const photo = getResalePhoto(listing);
   const fullPrice = `$${listing.listing_price.toLocaleString()}`;
   const address = getResaleAddress(listing);
-  
-  // Build specs string like "3 bd • 2 ba • 1200 sq"
   const specs = [
     listing.bedrooms_total ? `${listing.bedrooms_total} bd` : null,
     listing.bathrooms_total ? `${listing.bathrooms_total} ba` : null,
     listing.living_area ? `${listing.living_area.toLocaleString()} sqft` : null,
   ].filter(Boolean).join(' • ');
-  
-  // Property type
   const propType = listing.property_sub_type || listing.property_type || '';
-  
-  // Brokerage
   const brokerage = listing.list_office_name || '';
   
   const photoHtml = photo 
@@ -202,7 +220,6 @@ function resalePopupHtml(listing: MLSListing): string {
           ${brokerage ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${brokerage}</div>` : ''}
         </div>
       </a>
-      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(222,47%,20%);"></div>
     </div>
   `;
 }
@@ -210,7 +227,6 @@ function resalePopupHtml(listing: MLSListing): string {
 function presalePopupHtml(project: PresaleProject): string {
   const photo = project.featured_image;
   const fullPrice = project.starting_price ? `From $${project.starting_price.toLocaleString()}` : 'Price TBA';
-  
   const statusLabel = project.status === "active" ? "Selling Now" : 
                       project.status === "registering" ? "Registering" : 
                       project.status === "coming_soon" ? "Coming Soon" : project.status;
@@ -233,7 +249,41 @@ function presalePopupHtml(project: PresaleProject): string {
           <div style="font-size:11px;color:#64748b;">${project.project_type || 'Condo'} • ${statusLabel}</div>
         </div>
       </a>
-      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(45,89%,50%);"></div>
+    </div>
+  `;
+}
+
+function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): string {
+  const fullPrice = `$${assignment.assignment_price.toLocaleString()}`;
+  
+  if (!isVerified) {
+    return `
+      <div style="position:relative;">
+        <div style="width:280px;font-family:system-ui,sans-serif;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid #10b981;">
+          <div style="padding:20px;text-align:center;">
+            <div style="font-size:24px;margin-bottom:8px;">🔒</div>
+            <div style="font-weight:600;font-size:14px;color:#1a1a1a;margin-bottom:4px;">Agent Access Required</div>
+            <div style="font-size:12px;color:#64748b;margin-bottom:12px;">Verify as an agent to view assignment details</div>
+            <a href="/for-agents" style="display:inline-block;background:#10b981;color:white;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Become a Verified Agent</a>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  return `
+    <div style="position:relative;">
+      <a href="/assignments/${assignment.id}" style="display:block;width:280px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid #10b981;">
+        <div style="padding:14px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+            <span style="background:#10b981;color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
+          </div>
+          <div style="font-weight:700;font-size:18px;color:#10b981;margin-bottom:4px;">${fullPrice}</div>
+          <div style="font-weight:600;font-size:14px;color:#1a1a1a;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${assignment.project_name}</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:4px;">${assignment.neighborhood || assignment.city}</div>
+          <div style="font-size:11px;color:#94a3b8;">${assignment.beds} bed • ${assignment.baths} bath</div>
+        </div>
+      </a>
     </div>
   `;
 }
@@ -241,6 +291,7 @@ function presalePopupHtml(project: PresaleProject): string {
 export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedListingsMapProps>(({ 
   resaleListings,
   presaleProjects,
+  assignments = [],
   mode,
   onListingSelect, 
   onVisibleItemsChange,
@@ -251,34 +302,36 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   initialUserLocation = null,
   savedMapState = null,
   highlightedItemId = null,
-  highlightedItemType = null
+  highlightedItemType = null,
+  isVerifiedAgent = false
 }, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const presaleLayerRef = useRef<L.LayerGroup | null>(null);
+  const assignmentLayerRef = useRef<L.LayerGroup | null>(null);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
   const hasCenteredOnUserRef = useRef(false);
   const hasRestoredSavedStateRef = useRef(false);
   
-  // Track markers by ID for highlighting
   const resaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const presaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
+  const assignmentMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const [internalHighlightId, setInternalHighlightId] = useState<string | null>(null);
 
-  // Expose flyTo and highlight methods to parent via ref
   useImperativeHandle(ref, () => ({
     flyTo: (lat: number, lng: number, zoom?: number) => {
       if (mapInstanceRef.current) {
         mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 0.8 });
       }
     },
-    highlightItem: (id: string, type: "resale" | "presale") => {
+    highlightItem: (id: string, type: "resale" | "presale" | "assignment") => {
       setInternalHighlightId(id);
-      // Find the marker and fly to it
-      const markersMap = type === "resale" ? resaleMarkersMapRef.current : presaleMarkersMapRef.current;
+      const markersMap = type === "resale" ? resaleMarkersMapRef.current : 
+                         type === "presale" ? presaleMarkersMapRef.current :
+                         assignmentMarkersMapRef.current;
       const marker = markersMap.get(id);
       if (marker && mapInstanceRef.current) {
         const latLng = marker.getLatLng();
@@ -300,6 +353,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     [presaleProjects]
   );
 
+  const validAssignments = useMemo(() => 
+    assignments.filter(a => a.map_lat && a.map_lng),
+    [assignments]
+  );
 
   const updateVisibleItems = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleItemsChange) return;
@@ -314,13 +371,16 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       .filter(p => bounds.contains([p.map_lat!, p.map_lng!]))
       .map(p => p.id);
     
-    onVisibleItemsChange(visibleResale, visiblePresale);
-  }, [validResaleListings, validPresaleProjects, onVisibleItemsChange]);
+    const visibleAssignments = validAssignments
+      .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
+      .map(a => a.id);
+    
+    onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments);
+  }, [validResaleListings, validPresaleProjects, validAssignments, onVisibleItemsChange]);
 
   const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
-    // Use saved state if available, otherwise defaults
     const initialCenter: L.LatLngExpression = savedMapState 
       ? [savedMapState.center.lat, savedMapState.center.lng]
       : DEFAULT_CENTER;
@@ -331,49 +391,49 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
-      preferCanvas: true, // Use canvas for better performance
-      fadeAnimation: false, // Disable fade for speed
+      preferCanvas: true,
+      fadeAnimation: false,
       zoomAnimation: true,
-      markerZoomAnimation: false, // Disable marker zoom animation
+      markerZoomAnimation: false,
     });
 
     L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
-      updateWhenIdle: true, // Only update tiles when map stops moving
-      updateWhenZooming: false, // Don't update during zoom
-      keepBuffer: 2, // Keep fewer tiles in memory
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 2,
     }).addTo(map);
 
-    // Cluster group for resale listings only - optimized settings
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 10, // Faster chunk processing
-      chunkInterval: 50, // More frequent chunks
-      chunkProgress: null, // Disable progress callback overhead
-      maxClusterRadius: 40, // Slightly larger for fewer clusters = faster
+      chunkDelay: 10,
+      chunkInterval: 50,
+      chunkProgress: null,
+      maxClusterRadius: 40,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       disableClusteringAtZoom: 15,
-      animate: false, // No cluster animations
-      animateAddingMarkers: false, // No add animation
+      animate: false,
+      animateAddingMarkers: false,
       removeOutsideVisibleBounds: true,
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
     });
 
-    // Separate layer for presale projects (no clustering)
     const presaleLayer = L.layerGroup();
+    const assignmentLayer = L.layerGroup();
 
     map.addLayer(clusterGroup);
     map.addLayer(presaleLayer);
+    map.addLayer(assignmentLayer);
     
     mapInstanceRef.current = map;
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
+    assignmentLayerRef.current = assignmentLayer;
 
-    // If we have saved state, mark as initialized to prevent fitBounds overriding
     if (savedMapState) {
       hasInitializedViewRef.current = true;
       hasRestoredSavedStateRef.current = true;
@@ -382,12 +442,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
     
-    // Notify parent when user starts interacting with map (drag/zoom)
     map.on("movestart", () => {
       if (onMapInteraction) onMapInteraction();
     });
     
-    // Save map state on every move/zoom for persistence
     map.on("moveend", () => {
       if (onMapStateChange && mapInstanceRef.current) {
         const center = mapInstanceRef.current.getCenter();
@@ -395,8 +453,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         onMapStateChange({ lat: center.lat, lng: center.lng }, zoom);
       }
     });
-
-    // Removed auto-geolocation from here - now handled by parent with permission prompt
   }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange]);
 
   useEffect(() => {
@@ -414,74 +470,39 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     const map = mapInstanceRef.current;
     const clusterGroup = markerClusterRef.current;
     const presaleLayer = presaleLayerRef.current;
-    if (!map || !clusterGroup || !presaleLayer) return;
+    const assignmentLayer = assignmentLayerRef.current;
+    if (!map || !clusterGroup || !presaleLayer || !assignmentLayer) return;
 
     clusterGroup.clearLayers();
     presaleLayer.clearLayers();
+    assignmentLayer.clearLayers();
+    resaleMarkersMapRef.current.clear();
+    presaleMarkersMapRef.current.clear();
+    assignmentMarkersMapRef.current.clear();
 
-    const resaleMarkers: L.Marker[] = [];
     const allCoords: L.LatLngTuple[] = [];
 
-    // Add resale listings to cluster group if mode is "all" or "resale"
+    // Add resale listings
     if (mode === "all" || mode === "resale") {
-      // Many MLS feeds reuse the exact same lat/lng for multiple units in the same building.
-      // When clustering is loosened, those price pills stack perfectly and become unreadable.
-      // We apply a tiny deterministic "fan" offset for identical coordinates so pins stay distinct.
-      const counts = new globalThis.Map<string, number>();
-      const nextIndex = new globalThis.Map<string, number>();
-
-      const coordKey = (lat: number, lng: number) => `${lat.toFixed(6)},${lng.toFixed(6)}`;
-
-      for (const l of validResaleListings) {
-        const lat = l.latitude!;
-        const lng = l.longitude!;
-        const key = coordKey(lat, lng);
-        counts.set(key, (counts.get(key) || 0) + 1);
-      }
-
-      const jitter = (lat: number, lng: number, idx: number) => {
-        // ~8–14m ring around the original point depending on idx
-        const baseMeters = 10;
-        const radiusMeters = baseMeters + (idx % 3) * 2;
-        const angle = (idx * 2.399963229728653) % (Math.PI * 2); // golden angle
-
-        const dLat = (radiusMeters * Math.cos(angle)) / 111320;
-        const dLng = (radiusMeters * Math.sin(angle)) / (111320 * Math.cos((lat * Math.PI) / 180));
-        return [lat + dLat, lng + dLng] as L.LatLngTuple;
-      };
-
-      // Clear old marker references
-      resaleMarkersMapRef.current.clear();
+      const seen = new Map<string, MLSListing>();
+      validResaleListings.forEach(l => {
+        const key = `${l.latitude?.toFixed(5)}-${l.longitude?.toFixed(5)}`;
+        if (!seen.has(key) || l.listing_price > (seen.get(key)?.listing_price || 0)) {
+          seen.set(key, l);
+        }
+      });
       
-      for (const listing of validResaleListings) {
-        const baseLat = listing.latitude!;
-        const baseLng = listing.longitude!;
-        const key = coordKey(baseLat, baseLng);
-
-        const dupCount = counts.get(key) || 0;
-        const idx = nextIndex.get(key) || 0;
-        nextIndex.set(key, idx + 1);
-
-        const position: L.LatLngTuple = dupCount > 1 ? jitter(baseLat, baseLng, idx) : [baseLat, baseLng];
-
-        const marker = L.marker(position, {
-          icon: createResalePricePillIcon(listing, false),
+      seen.forEach((listing) => {
+        const isHighlighted = internalHighlightId === listing.id || highlightedItemId === listing.id;
+        const marker = L.marker([listing.latitude!, listing.longitude!], {
+          icon: createResalePricePillIcon(listing, isHighlighted),
         });
 
-        // Store marker reference for highlighting
-        resaleMarkersMapRef.current.set(listing.id, marker);
-
-        // Only bind popup if not disabled (mobile uses carousel instead)
         if (!disablePopupsOnMobile) {
           marker.bindPopup(resalePopupHtml(listing), {
             maxWidth: 400,
-            minWidth: 340,
+            className: "premium-popup resale-popup",
             closeButton: true,
-            className: "resale-listing-popup",
-            offset: L.point(0, -10),
-            autoPan: true,
-            autoPanPaddingTopLeft: L.point(50, 100),
-            autoPanPaddingBottomRight: L.point(50, 50),
           });
         }
 
@@ -489,37 +510,25 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           onListingSelect?.(listing.id, "resale");
         });
 
-        resaleMarkers.push(marker);
-        // Use the *original* coordinate for fitBounds so the view doesn't drift.
-        allCoords.push([baseLat, baseLng]);
-      }
+        resaleMarkersMapRef.current.set(listing.id, marker);
+        clusterGroup.addLayer(marker);
+        allCoords.push([listing.latitude!, listing.longitude!]);
+      });
     }
 
-    // Clear old presale marker references
-    presaleMarkersMapRef.current.clear();
-
-    // Add presale projects as individual pins (not clustered) if mode is "all" or "presale"
+    // Add presale projects
     if (mode === "all" || mode === "presale") {
-      for (const project of validPresaleProjects) {
+      validPresaleProjects.forEach((project) => {
+        const isHighlighted = internalHighlightId === project.id || highlightedItemId === project.id;
         const marker = L.marker([project.map_lat!, project.map_lng!], {
-          icon: createPresalePinIcon(project, false),
-          zIndexOffset: 1000, // Keep presale pins above resale clusters
+          icon: createPresalePinIcon(project, isHighlighted),
         });
 
-        // Store marker reference for highlighting
-        presaleMarkersMapRef.current.set(project.id, marker);
-
-        // Only bind popup if not disabled (mobile uses carousel instead)
         if (!disablePopupsOnMobile) {
           marker.bindPopup(presalePopupHtml(project), {
-            maxWidth: 420,
-            minWidth: 360,
+            maxWidth: 400,
+            className: "premium-popup presale-popup",
             closeButton: true,
-            className: "presale-project-popup",
-            offset: L.point(0, -20),
-            autoPan: true,
-            autoPanPaddingTopLeft: L.point(50, 100),
-            autoPanPaddingBottomRight: L.point(50, 50),
           });
         }
 
@@ -527,216 +536,113 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           onListingSelect?.(project.id, "presale");
         });
 
+        presaleMarkersMapRef.current.set(project.id, marker);
         presaleLayer.addLayer(marker);
         allCoords.push([project.map_lat!, project.map_lng!]);
-      }
+      });
     }
 
-    clusterGroup.addLayers(resaleMarkers);
+    // Add assignments
+    if (mode === "all" || mode === "assignments") {
+      validAssignments.forEach((assignment) => {
+        const isHighlighted = internalHighlightId === assignment.id || highlightedItemId === assignment.id;
+        const marker = L.marker([assignment.map_lat!, assignment.map_lng!], {
+          icon: createAssignmentPinIcon(assignment, isHighlighted),
+        });
 
-    // Only fit bounds on initial load, not when toggling mode or filters
-    if (!hasInitializedViewRef.current && allCoords.length > 0) {
+        if (!disablePopupsOnMobile) {
+          marker.bindPopup(assignmentPopupHtml(assignment, isVerifiedAgent), {
+            maxWidth: 300,
+            className: "premium-popup assignment-popup",
+            closeButton: true,
+          });
+        }
+
+        marker.on("click", () => {
+          onListingSelect?.(assignment.id, "assignment");
+        });
+
+        assignmentMarkersMapRef.current.set(assignment.id, marker);
+        assignmentLayer.addLayer(marker);
+        allCoords.push([assignment.map_lat!, assignment.map_lng!]);
+      });
+    }
+
+    // Fit bounds on initial load
+    if (allCoords.length > 0 && !hasInitializedViewRef.current) {
       const bounds = L.latLngBounds(allCoords);
-      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 13, animate: false });
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
       hasInitializedViewRef.current = true;
     }
 
-    requestAnimationFrame(() => {
-      setTimeout(updateVisibleItems, 50);
-    });
-  }, [validResaleListings, validPresaleProjects, mode, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
+    updateVisibleItems();
+  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, internalHighlightId, highlightedItemId, isVerifiedAgent, updateVisibleItems]);
 
-  // Effect to handle highlighting of markers
+  // Center on user location
   useEffect(() => {
-    const highlightId = highlightedItemId || internalHighlightId;
-    const highlightType = highlightedItemType || (internalHighlightId ? 
-      (resaleMarkersMapRef.current.has(internalHighlightId) ? "resale" : "presale") : null);
+    if (!mapInstanceRef.current || !initialUserLocation || hasCenteredOnUserRef.current || hasRestoredSavedStateRef.current) return;
     
-    if (!highlightId || !highlightType) return;
-    
-    // Find the listing/project data to recreate the icon
-    if (highlightType === "resale") {
-      const listing = validResaleListings.find(l => l.id === highlightId);
-      const marker = resaleMarkersMapRef.current.get(highlightId);
-      if (listing && marker) {
-        marker.setIcon(createResalePricePillIcon(listing, true));
-        marker.setZIndexOffset(2000); // Bring to front
-        
-        // Reset after animation
-        const timeout = setTimeout(() => {
-          marker.setIcon(createResalePricePillIcon(listing, false));
-          marker.setZIndexOffset(0);
-        }, 2000);
-        return () => clearTimeout(timeout);
-      }
-    } else if (highlightType === "presale") {
-      const project = validPresaleProjects.find(p => p.id === highlightId);
-      const marker = presaleMarkersMapRef.current.get(highlightId);
-      if (project && marker) {
-        marker.setIcon(createPresalePinIcon(project, true));
-        marker.setZIndexOffset(3000); // Bring to front
-        
-        // Reset after animation
-        const timeout = setTimeout(() => {
-          marker.setIcon(createPresalePinIcon(project, false));
-          marker.setZIndexOffset(1000);
-        }, 2000);
-        return () => clearTimeout(timeout);
-      }
-    }
-  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects]);
-
-  // Create user location marker icon
-  const createUserLocationIcon = useCallback(() => {
-    return L.divIcon({
-      className: "user-location-marker",
-      html: `
-        <div style="
-          position: relative;
-          width: 20px;
-          height: 20px;
-        ">
-          <div style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 20px;
-            height: 20px;
-            background: hsl(217, 91%, 60%);
-            border: 3px solid white;
-            border-radius: 50%;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5);
-          "></div>
-          <div style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 40px;
-            height: 40px;
-            background: hsla(217, 91%, 60%, 0.2);
-            border-radius: 50%;
-            animation: pulse 2s ease-out infinite;
-          "></div>
-        </div>
-        <style>
-          @keyframes pulse {
-            0% { transform: translate(-50%, -50%) scale(0.8); opacity: 1; }
-            100% { transform: translate(-50%, -50%) scale(2); opacity: 0; }
-          }
-        </style>
-      `,
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
-    });
-  }, []);
-
-  // Add or update user location marker
-  const updateUserLocationMarker = useCallback((loc: L.LatLng) => {
-    if (!mapInstanceRef.current) return;
-    
-    if (userMarkerRef.current) {
-      userMarkerRef.current.setLatLng(loc);
-    } else {
-      const marker = L.marker(loc, { 
-        icon: createUserLocationIcon(),
-        zIndexOffset: 1000 
-      });
-      marker.addTo(mapInstanceRef.current);
-      userMarkerRef.current = marker;
-    }
-  }, [createUserLocationIcon]);
-
-  // Center on user location when provided from parent (after permission granted)
-  useEffect(() => {
-    if (!initialUserLocation || !mapInstanceRef.current || hasCenteredOnUserRef.current) return;
-    
-    const loc = L.latLng(initialUserLocation.lat, initialUserLocation.lng);
-    setUserLocation(loc);
-    updateUserLocationMarker(loc);
-    
-    // Center map on user location with a nice zoom level
-    mapInstanceRef.current.setView(loc, 13, { animate: true });
+    mapInstanceRef.current.setView([initialUserLocation.lat, initialUserLocation.lng], 13, { animate: true });
     hasCenteredOnUserRef.current = true;
-    hasInitializedViewRef.current = true; // Prevent fitBounds from overriding
-    
-    // Update visible items after centering
-    setTimeout(updateVisibleItems, 100);
-  }, [initialUserLocation, updateUserLocationMarker, updateVisibleItems]);
-
-  const handleLocateUser = () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
-      return;
-    }
-    
-    toast.loading("Finding your location...", { id: "location" });
-    
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = L.latLng(pos.coords.latitude, pos.coords.longitude);
-        setUserLocation(loc);
-        updateUserLocationMarker(loc);
-        mapInstanceRef.current?.setView(loc, 14, { animate: true });
-        toast.success("Location found!", { id: "location" });
-      },
-      (error) => {
-        console.log("Geolocation error:", error.message);
-        if (error.code === error.PERMISSION_DENIED) {
-          toast.error("Location access denied. Please enable location in your browser settings.", { id: "location" });
-        } else if (error.code === error.POSITION_UNAVAILABLE) {
-          toast.error("Location unavailable. Please try again.", { id: "location" });
-        } else {
-          toast.error("Could not get your location. Please try again.", { id: "location" });
-        }
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 }
-    );
-  };
-
-  const handleZoomIn = () => mapInstanceRef.current?.zoomIn();
-  const handleZoomOut = () => mapInstanceRef.current?.zoomOut();
+  }, [initialUserLocation]);
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapRef} className="w-full h-full" />
+      <style>{`
+        .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
+        .pp { background: linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,56%) 100%); color: hsl(222,47%,15%); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; }
+        .pp.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px hsl(45,89%,50%); }
+        .pin { width: 28px; height: 34px; background: linear-gradient(180deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2.5px solid hsl(45,89%,50%); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .pin.hl { width: 36px; height: 42px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .ap { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; }
+        .ap.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px #10b981; }
+        .mc { background: transparent !important; border: none !important; }
+        .cl { background: linear-gradient(135deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 0 2.5px hsl(45,89%,50%); }
+        .cl.sm { width: 36px; height: 36px; font-size: 12px; }
+        .cl.md { width: 40px; height: 40px; font-size: 13px; }
+        .cl.lg { width: 44px; height: 44px; font-size: 14px; }
+        .premium-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .premium-popup .leaflet-popup-content { margin: 0; }
+        .premium-popup .leaflet-popup-tip { display: none; }
+      `}</style>
+      <div ref={mapRef} className="w-full h-full z-0" />
       
-      {/* Custom Controls - Right side, positioned with proper spacing on mobile */}
-      <div 
-        className="absolute right-3 z-[900] flex flex-col gap-2"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 130px)' }}
-      >
-        {/* Zoom Controls - Matching search bar style */}
-        <div className="flex flex-col rounded-[14px] overflow-hidden bg-white/98 dark:bg-background/98 backdrop-blur-2xl shadow-lg shadow-black/8 border border-white/50 dark:border-white/10">
+      {/* Custom Controls */}
+      <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
+        <button
+          onClick={() => {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                  mapInstanceRef.current?.setView([pos.coords.latitude, pos.coords.longitude], 14, { animate: true });
+                },
+                () => toast.error("Could not get your location")
+              );
+            }
+          }}
+          className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
+          title="Find my location"
+        >
+          <Navigation2 className="h-4 w-4 text-muted-foreground" />
+        </button>
+        <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
-            onClick={handleZoomIn}
-            className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors active:bg-black/10 dark:active:bg-white/20"
-            aria-label="Zoom in"
+            onClick={() => mapInstanceRef.current?.zoomIn()}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <Plus className="h-4 w-4" />
           </button>
-          <div className="w-full h-px bg-black/8 dark:bg-white/10" />
+          <div className="w-full h-px bg-border/50" />
           <button
-            onClick={handleZoomOut}
-            className="w-10 h-10 flex items-center justify-center text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors active:bg-black/10 dark:active:bg-white/20"
-            aria-label="Zoom out"
+            onClick={() => mapInstanceRef.current?.zoomOut()}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <Minus className="h-4 w-4" />
           </button>
         </div>
-        
-        {/* Location Button - Matching search bar style */}
-        <button
-          onClick={handleLocateUser}
-          className="w-10 h-10 rounded-[14px] bg-white/98 dark:bg-background/98 backdrop-blur-2xl shadow-lg shadow-black/8 border border-white/50 dark:border-white/10 flex items-center justify-center hover:bg-white dark:hover:bg-background transition-colors active:bg-black/5 dark:active:bg-white/10"
-          aria-label="Find my location"
-        >
-          <Navigation2 className="h-4 w-4 text-muted-foreground/70" />
-        </button>
       </div>
     </div>
   );
 });
 
-CombinedListingsMap.displayName = 'CombinedListingsMap';
+CombinedListingsMap.displayName = "CombinedListingsMap";

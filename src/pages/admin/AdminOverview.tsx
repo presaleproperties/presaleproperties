@@ -15,20 +15,21 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   AlertCircle,
-  Clock,
   TrendingUp,
   Home,
   MapPin,
-  Mail,
   Eye,
   Plus,
   BarChart3,
-  RefreshCw
+  RefreshCw,
+  FileStack,
+  Sparkles,
+  CheckCircle,
+  Clock
 } from "lucide-react";
 import { format, subDays, startOfMonth } from "date-fns";
 
 interface DashboardStats {
-  // Core stats
   totalProjects: number;
   publishedProjects: number;
   totalLeads: number;
@@ -38,11 +39,10 @@ interface DashboardStats {
   pendingBookings: number;
   totalBlogPosts: number;
   publishedBlogs: number;
-  
-  // MLS stats
   mlsListings: number;
-  
-  // Recent activity
+  totalAssignments: number;
+  publishedAssignments: number;
+  pendingAssignments: number;
   recentLeads: Array<{
     id: string;
     name: string;
@@ -57,16 +57,12 @@ interface DashboardStats {
     appointment_date: string;
     status: string;
   }>;
-  
-  // Top projects by views
   topProjects: Array<{
     id: string;
     name: string;
     city: string;
     view_count: number;
   }>;
-  
-  // Lead sources
   leadsByCity: Record<string, number>;
 }
 
@@ -84,7 +80,6 @@ export default function AdminOverview() {
       const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
       const startOfLastMonth = startOfMonth(subDays(new Date(), 30)).toISOString();
       
-      // Fetch all data in parallel
       const [
         projectsRes,
         leadsRes,
@@ -96,7 +91,9 @@ export default function AdminOverview() {
         mlsRes,
         recentLeadsRes,
         recentBookingsRes,
-        topProjectsRes
+        topProjectsRes,
+        assignmentsRes,
+        pendingAssignmentsRes
       ] = await Promise.all([
         supabase.from("presale_projects").select("id, is_published", { count: "exact" }),
         supabase.from("project_leads").select("*", { count: "exact", head: true }),
@@ -108,10 +105,11 @@ export default function AdminOverview() {
         supabase.from("mls_listings").select("*", { count: "exact", head: true }),
         supabase.from("project_leads").select("id, name, email, created_at, project_id").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
-        supabase.from("presale_projects").select("id, name, city, view_count").eq("is_published", true).order("view_count", { ascending: false }).limit(5)
+        supabase.from("presale_projects").select("id, name, city, view_count").eq("is_published", true).order("view_count", { ascending: false }).limit(5),
+        supabase.from("listings").select("id, status", { count: "exact" }),
+        supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval")
       ]);
 
-      // Get leads by city
       const { data: leadsByCityData } = await supabase
         .from("project_leads")
         .select("city_interest");
@@ -127,6 +125,7 @@ export default function AdminOverview() {
 
       const publishedProjects = projectsRes.data?.filter(p => p.is_published).length || 0;
       const publishedBlogs = blogsRes.data?.filter(b => b.is_published).length || 0;
+      const publishedAssignments = assignmentsRes.data?.filter((l: any) => l.status === 'published').length || 0;
 
       setStats({
         totalProjects: projectsRes.count || 0,
@@ -139,6 +138,9 @@ export default function AdminOverview() {
         totalBlogPosts: blogsRes.count || 0,
         publishedBlogs,
         mlsListings: mlsRes.count || 0,
+        totalAssignments: assignmentsRes.count || 0,
+        publishedAssignments,
+        pendingAssignments: pendingAssignmentsRes.count || 0,
         recentLeads: recentLeadsRes.data || [],
         recentBookings: recentBookingsRes.data || [],
         topProjects: topProjectsRes.data || [],
@@ -169,10 +171,6 @@ export default function AdminOverview() {
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-32" />)}
           </div>
-          <div className="grid gap-4 lg:grid-cols-2">
-            <Skeleton className="h-80" />
-            <Skeleton className="h-80" />
-          </div>
         </div>
       </AdminLayout>
     );
@@ -180,153 +178,219 @@ export default function AdminOverview() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Dashboard Overview</h1>
-            <p className="text-muted-foreground">Welcome back! Here's what's happening with your platform.</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={refreshing}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
-              Refresh
-            </Button>
-            <Link to="/admin/projects/new">
-              <Button size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                New Project
+      <div className="space-y-8">
+        {/* Premium Header */}
+        <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 sm:p-8">
+          <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PGNpcmNsZSBjeD0iMzAiIGN5PSIzMCIgcj0iMiIvPjwvZz48L2c+PC9zdmc+')] opacity-50" />
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Command Center</h1>
+              <p className="text-slate-300 mt-1">Welcome back. Here's your platform overview.</p>
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleRefresh} 
+                disabled={refreshing}
+                className="bg-white/10 border-white/20 text-white hover:bg-white/20"
+              >
+                <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+                Refresh
               </Button>
-            </Link>
+              <Link to="/admin/projects/new">
+                <Button size="sm" className="bg-primary hover:bg-primary/90">
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Project
+                </Button>
+              </Link>
+            </div>
           </div>
         </div>
 
-        {/* Alerts */}
-        {stats && stats.pendingBookings > 0 && (
-          <Card className="border-amber-500/50 bg-amber-500/5">
-            <CardContent className="pt-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <AlertCircle className="h-5 w-5 text-amber-500" />
-                  <p className="text-sm">
-                    <strong>{stats.pendingBookings}</strong> booking{stats.pendingBookings !== 1 ? 's' : ''} awaiting confirmation
-                  </p>
-                </div>
-                <Link to="/admin/bookings">
-                  <Button variant="outline" size="sm">Review</Button>
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Urgent Alerts */}
+        {stats && (stats.pendingBookings > 0 || stats.pendingAssignments > 0) && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {stats.pendingBookings > 0 && (
+              <Card className="border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 transition-colors">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+                        <Clock className="h-5 w-5 text-amber-500" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-amber-700 dark:text-amber-400">
+                          {stats.pendingBookings} Booking{stats.pendingBookings !== 1 ? 's' : ''} Pending
+                        </p>
+                        <p className="text-xs text-muted-foreground">Awaiting confirmation</p>
+                      </div>
+                    </div>
+                    <Link to="/admin/bookings">
+                      <Button variant="outline" size="sm" className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10">
+                        Review
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+            {stats.pendingAssignments > 0 && (
+              <Card className="border-blue-500/30 bg-blue-500/5 hover:bg-blue-500/10 transition-colors">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+                        <FileStack className="h-5 w-5 text-blue-500" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-blue-700 dark:text-blue-400">
+                          {stats.pendingAssignments} Assignment{stats.pendingAssignments !== 1 ? 's' : ''} Pending
+                        </p>
+                        <p className="text-xs text-muted-foreground">Awaiting approval</p>
+                      </div>
+                    </div>
+                    <Link to="/admin/listings?tab=pending">
+                      <Button variant="outline" size="sm" className="border-blue-500/50 text-blue-600 hover:bg-blue-500/10">
+                        Review
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         )}
 
-        {/* Primary Stats Grid */}
+        {/* Primary Stats Grid - Premium Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Card className="relative overflow-hidden">
+          <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-violet-500/10 via-background to-background shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-violet-500/10 rounded-full blur-2xl group-hover:bg-violet-500/20 transition-colors" />
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Total Leads</CardTitle>
-              <Users className="h-4 w-4 text-primary" />
+              <div className="h-9 w-9 rounded-xl bg-violet-500/10 flex items-center justify-center">
+                <Users className="h-5 w-5 text-violet-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{stats?.totalLeads.toLocaleString()}</div>
-              <div className="flex items-center gap-1 mt-1">
+              <div className="flex items-center gap-1 mt-2">
                 {leadGrowth >= 0 ? (
-                  <ArrowUpRight className="h-4 w-4 text-green-500" />
+                  <div className="flex items-center gap-1 text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full text-xs font-medium">
+                    <ArrowUpRight className="h-3 w-3" />
+                    {Math.abs(leadGrowth)}%
+                  </div>
                 ) : (
-                  <ArrowDownRight className="h-4 w-4 text-red-500" />
+                  <div className="flex items-center gap-1 text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full text-xs font-medium">
+                    <ArrowDownRight className="h-3 w-3" />
+                    {Math.abs(leadGrowth)}%
+                  </div>
                 )}
-                <span className={`text-sm ${leadGrowth >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {Math.abs(leadGrowth)}%
-                </span>
                 <span className="text-xs text-muted-foreground">vs last month</span>
               </div>
             </CardContent>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/20 to-primary" />
           </Card>
 
-          <Card className="relative overflow-hidden">
+          <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-blue-500/10 via-background to-background shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-blue-500/10 rounded-full blur-2xl group-hover:bg-blue-500/20 transition-colors" />
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">Presale Projects</CardTitle>
-              <Building2 className="h-4 w-4 text-blue-500" />
+              <div className="h-9 w-9 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <Building2 className="h-5 w-5 text-blue-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{stats?.publishedProjects}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats?.totalProjects} total ({stats?.totalProjects! - stats?.publishedProjects!} drafts)
+              <p className="text-xs text-muted-foreground mt-2">
+                {stats?.totalProjects} total • {stats?.totalProjects! - stats?.publishedProjects!} drafts
               </p>
             </CardContent>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500/20 to-blue-500" />
           </Card>
 
-          <Card className="relative overflow-hidden">
+          <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-emerald-500/10 via-background to-background shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-emerald-500/10 rounded-full blur-2xl group-hover:bg-emerald-500/20 transition-colors" />
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium text-muted-foreground">Assignments</CardTitle>
+              <div className="h-9 w-9 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <FileStack className="h-5 w-5 text-emerald-500" />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="text-3xl font-bold">{stats?.publishedAssignments}</div>
+              <p className="text-xs text-muted-foreground mt-2">
+                {stats?.totalAssignments} total • {stats?.pendingAssignments} pending
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="group relative overflow-hidden border-0 bg-gradient-to-br from-amber-500/10 via-background to-background shadow-lg hover:shadow-xl transition-all duration-300">
+            <div className="absolute top-0 right-0 h-24 w-24 bg-amber-500/10 rounded-full blur-2xl group-hover:bg-amber-500/20 transition-colors" />
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">MLS Listings</CardTitle>
-              <Home className="h-4 w-4 text-green-500" />
+              <div className="h-9 w-9 rounded-xl bg-amber-500/10 flex items-center justify-center">
+                <Home className="h-5 w-5 text-amber-500" />
+              </div>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold">{stats?.mlsListings.toLocaleString()}</div>
-              <p className="text-xs text-muted-foreground mt-1">Move-in ready homes</p>
+              <p className="text-xs text-muted-foreground mt-2">Move-in ready homes</p>
             </CardContent>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-green-500/20 to-green-500" />
-          </Card>
-
-          <Card className="relative overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Tour Bookings</CardTitle>
-              <Calendar className="h-4 w-4 text-purple-500" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">{stats?.totalBookings}</div>
-              <p className="text-xs text-muted-foreground mt-1">
-                {stats?.pendingBookings} pending confirmation
-              </p>
-            </CardContent>
-            <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500/20 to-purple-500" />
           </Card>
         </div>
 
-        {/* Secondary Stats */}
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Link to="/admin/blogs">
-            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
-              <CardContent className="pt-6">
+        {/* Quick Stats Row */}
+        <div className="grid gap-3 sm:grid-cols-4">
+          <Link to="/admin/bookings" className="group">
+            <Card className="hover:border-purple-500/50 transition-all cursor-pointer h-full">
+              <CardContent className="pt-5 pb-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Blog Posts</p>
+                    <p className="text-2xl font-bold">{stats?.totalBookings}</p>
+                    <p className="text-xs text-muted-foreground">Tour Bookings</p>
+                  </div>
+                  <Calendar className="h-6 w-6 text-purple-500 opacity-50 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </CardContent>
+            </Card>
+          </Link>
+          
+          <Link to="/admin/blogs" className="group">
+            <Card className="hover:border-pink-500/50 transition-all cursor-pointer h-full">
+              <CardContent className="pt-5 pb-5">
+                <div className="flex items-center justify-between">
+                  <div>
                     <p className="text-2xl font-bold">{stats?.publishedBlogs}</p>
-                    <p className="text-xs text-muted-foreground">{stats?.totalBlogPosts! - stats?.publishedBlogs!} drafts</p>
+                    <p className="text-xs text-muted-foreground">Blog Posts</p>
                   </div>
-                  <FileText className="h-8 w-8 text-muted-foreground/50" />
+                  <FileText className="h-6 w-6 text-pink-500 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </div>
               </CardContent>
             </Card>
           </Link>
-
-          <Link to="/admin/leads">
-            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
-              <CardContent className="pt-6">
+          
+          <Link to="/admin/leads" className="group">
+            <Card className="hover:border-green-500/50 transition-all cursor-pointer h-full">
+              <CardContent className="pt-5 pb-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Leads This Month</p>
                     <p className="text-2xl font-bold">{stats?.leadsThisMonth}</p>
-                    <p className="text-xs text-muted-foreground">{stats?.leadsLastMonth} last month</p>
+                    <p className="text-xs text-muted-foreground">Leads This Month</p>
                   </div>
-                  <TrendingUp className="h-8 w-8 text-muted-foreground/50" />
+                  <TrendingUp className="h-6 w-6 text-green-500 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </div>
               </CardContent>
             </Card>
           </Link>
-
-          <Link to="/admin/leads/analytics">
-            <Card className="cursor-pointer transition-all hover:shadow-md hover:border-primary/50">
-              <CardContent className="pt-6">
+          
+          <Link to="/admin/leads/analytics" className="group">
+            <Card className="hover:border-cyan-500/50 transition-all cursor-pointer h-full">
+              <CardContent className="pt-5 pb-5">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-muted-foreground">Lead Analytics</p>
                     <p className="text-2xl font-bold">View</p>
-                    <p className="text-xs text-muted-foreground">Conversion insights</p>
+                    <p className="text-xs text-muted-foreground">Lead Analytics</p>
                   </div>
-                  <BarChart3 className="h-8 w-8 text-muted-foreground/50" />
+                  <BarChart3 className="h-6 w-6 text-cyan-500 opacity-50 group-hover:opacity-100 transition-opacity" />
                 </div>
               </CardContent>
             </Card>
@@ -336,39 +400,40 @@ export default function AdminOverview() {
         {/* Activity Panels */}
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Recent Leads */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/30">
               <div>
                 <CardTitle className="text-lg">Recent Leads</CardTitle>
                 <CardDescription>Latest inquiries from potential buyers</CardDescription>
               </div>
               <Link to="/admin/leads">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-primary hover:text-primary">
                   View All <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {stats?.recentLeads.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No leads yet</p>
+                <div className="text-center py-8">
+                  <Users className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No leads yet</p>
+                </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {stats?.recentLeads.map(lead => (
-                    <div key={lead.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <div key={lead.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Users className="h-5 w-5 text-primary" />
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                          {lead.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
                           <p className="font-medium text-sm">{lead.name}</p>
                           <p className="text-xs text-muted-foreground">{lead.email}</p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(lead.created_at), "MMM d, h:mm a")}
-                        </p>
-                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                      </p>
                     </div>
                   ))}
                 </div>
@@ -377,36 +442,42 @@ export default function AdminOverview() {
           </Card>
 
           {/* Recent Bookings */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card className="border-0 shadow-lg">
+            <CardHeader className="flex flex-row items-center justify-between border-b bg-muted/30">
               <div>
                 <CardTitle className="text-lg">Recent Bookings</CardTitle>
                 <CardDescription>Tour requests and appointments</CardDescription>
               </div>
               <Link to="/admin/bookings">
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="text-primary hover:text-primary">
                   View All <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-4">
               {stats?.recentBookings.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No bookings yet</p>
+                <div className="text-center py-8">
+                  <Calendar className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No bookings yet</p>
+                </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {stats?.recentBookings.map(booking => (
-                    <div key={booking.id} className="flex items-center justify-between p-3 rounded-lg bg-muted/50 hover:bg-muted transition-colors">
+                    <div key={booking.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                          <Calendar className="h-5 w-5 text-purple-500" />
+                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-500 to-indigo-600 flex items-center justify-center">
+                          <Calendar className="h-5 w-5 text-white" />
                         </div>
                         <div>
                           <p className="font-medium text-sm">{booking.name}</p>
-                          <p className="text-xs text-muted-foreground">{booking.project_name}</p>
+                          <p className="text-xs text-muted-foreground truncate max-w-[180px]">{booking.project_name}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <Badge variant={booking.status === 'confirmed' ? 'default' : booking.status === 'pending' ? 'secondary' : 'outline'}>
+                        <Badge 
+                          variant={booking.status === 'confirmed' ? 'default' : booking.status === 'pending' ? 'secondary' : 'outline'}
+                          className={booking.status === 'confirmed' ? 'bg-emerald-500' : ''}
+                        >
                           {booking.status}
                         </Badge>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -421,100 +492,53 @@ export default function AdminOverview() {
           </Card>
         </div>
 
-        {/* Top Projects & Quick Actions */}
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Top Projects by Views */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                Top Projects by Views
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {stats?.topProjects.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">No project views yet</p>
-              ) : (
-                <div className="space-y-3">
-                  {stats?.topProjects.map((project, index) => (
-                    <Link key={project.id} to={`/admin/projects/${project.id}`}>
-                      <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted transition-colors">
-                        <span className="text-2xl font-bold text-muted-foreground/50 w-8">
-                          {index + 1}
+        {/* Top Projects */}
+        <Card className="border-0 shadow-lg">
+          <CardHeader className="border-b bg-muted/30">
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Eye className="h-5 w-5 text-primary" />
+              Top Projects by Views
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-4">
+            {stats?.topProjects.length === 0 ? (
+              <div className="text-center py-8">
+                <Building2 className="h-10 w-10 text-muted-foreground/30 mx-auto mb-2" />
+                <p className="text-sm text-muted-foreground">No published projects yet</p>
+              </div>
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+                {stats?.topProjects.map((project, index) => (
+                  <Link key={project.id} to={`/admin/projects/${project.id}`}>
+                    <div className="p-4 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors cursor-pointer group">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                          index === 0 ? 'bg-amber-500/20 text-amber-600' :
+                          index === 1 ? 'bg-slate-400/20 text-slate-600' :
+                          index === 2 ? 'bg-orange-500/20 text-orange-600' :
+                          'bg-muted text-muted-foreground'
+                        }`}>
+                          #{index + 1}
                         </span>
-                        <div className="flex-1 min-w-0">
-                          <p className="font-medium truncate">{project.name}</p>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1">
-                            <MapPin className="h-3 w-3" />
-                            {project.city}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold">{project.view_count.toLocaleString()}</p>
-                          <p className="text-xs text-muted-foreground">views</p>
-                        </div>
                       </div>
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Quick Actions</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Link to="/admin/projects/new" className="block">
-                <Button variant="outline" className="w-full justify-between h-12">
-                  <span className="flex items-center gap-2">
-                    <Building2 className="h-4 w-4" />
-                    Add New Project
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/admin/blogs/new" className="block">
-                <Button variant="outline" className="w-full justify-between h-12">
-                  <span className="flex items-center gap-2">
-                    <FileText className="h-4 w-4" />
-                    Write Blog Post
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/admin/mls-sync" className="block">
-                <Button variant="outline" className="w-full justify-between h-12">
-                  <span className="flex items-center gap-2">
-                    <RefreshCw className="h-4 w-4" />
-                    MLS Sync Dashboard
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/admin/market-data" className="block">
-                <Button variant="outline" className="w-full justify-between h-12">
-                  <span className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4" />
-                    Update Market Data
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link to="/admin/email-templates" className="block">
-                <Button variant="outline" className="w-full justify-between h-12">
-                  <span className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Email Templates
-                  </span>
-                  <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        </div>
+                      <h4 className="font-semibold text-sm truncate group-hover:text-primary transition-colors">
+                        {project.name}
+                      </h4>
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
+                        <MapPin className="h-3 w-3" />
+                        {project.city}
+                      </div>
+                      <div className="flex items-center gap-1 text-xs mt-2">
+                        <Eye className="h-3 w-3 text-primary" />
+                        <span className="font-medium">{project.view_count.toLocaleString()} views</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
     </AdminLayout>
   );
