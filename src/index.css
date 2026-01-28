@@ -630,17 +630,17 @@
   animation: marker-bounce 0.8s ease-in-out, marker-pulse 1.5s ease-in-out infinite;
 }
 
-/* Assignment markers (teal - agent exclusive) */
+/* Assignment markers (copper - agent exclusive) */
 .assignment-marker .ap {
-  background: linear-gradient(135deg, hsl(173, 80%, 35%), hsl(173, 75%, 28%));
+  background: linear-gradient(135deg, hsl(18, 85%, 50%), hsl(15, 80%, 45%));
   color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 600;
+  padding: 5px 10px;
+  border-radius: 14px;
+  font-weight: 700;
   font-size: 11px;
   white-space: nowrap;
-  box-shadow: 0 2px 6px hsla(173, 80%, 35%, 0.4);
-  border: 1.5px solid white;
+  box-shadow: 0 2px 8px hsla(18, 85%, 50%, 0.4);
+  border: 2px solid hsl(18, 90%, 60%);
   cursor: pointer;
   line-height: 1.2;
   transform: translateZ(0);
@@ -648,7 +648,7 @@
 }
 
 .assignment-marker .ap.locked {
-  background: linear-gradient(135deg, hsl(173, 70%, 40%), hsl(173, 80%, 35%));
+  background: linear-gradient(135deg, hsl(18, 70%, 45%), hsl(15, 75%, 40%));
   font-size: 14px;
   padding: 5px 12px;
 }
@@ -658,7 +658,7 @@
   border-radius: 16px;
   font-weight: 700;
   font-size: 14px;
-  box-shadow: 0 0 0 4px hsla(173, 80%, 35%, 0.4), 0 6px 20px rgba(0,0,0,0.5);
+  box-shadow: 0 0 0 4px hsla(18, 85%, 50%, 0.4), 0 6px 20px rgba(0,0,0,0.5);
   border: 3px solid white;
   animation: marker-bounce 0.8s ease-in-out, marker-pulse 1.5s ease-in-out infinite;
 }
