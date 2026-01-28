@@ -11,30 +11,65 @@ export function RentalMetricsCards() {
   const { data: stats, isLoading } = useQuery({
     queryKey: ["rental-detailed-stats"],
     queryFn: async () => {
-      // Get all active rentals for detailed analysis
-      const { data: rentals, error } = await supabase
+      // First get total count
+      const { count: totalCount } = await supabase
         .from("mls_listings")
-        .select("lease_amount, pets_allowed, furnished, latitude, longitude, bedrooms_total, city, availability_date, property_type, property_sub_type")
+        .select("*", { count: "exact", head: true })
         .eq("is_rental", true)
         .eq("mls_status", "Active");
 
-      if (error) throw error;
+      if (!totalCount || totalCount === 0) {
+        return {
+          total: 0,
+          withCoords: 0,
+          petFriendly: 0,
+          furnished: 0,
+          avg1Bed: 0,
+          avg2Bed: 0,
+          avgTownhome: 0,
+          avgRent: 0,
+          minRent: 0,
+          maxRent: 0,
+          count1Bed: 0,
+          count2Bed: 0,
+          countTownhome: 0,
+          cityCount: 0,
+          immediate: 0,
+        };
+      }
 
-      const total = rentals?.length || 0;
-      const withCoords = rentals?.filter(r => r.latitude && r.longitude).length || 0;
-      const petFriendly = rentals?.filter(r => r.pets_allowed && r.pets_allowed.toLowerCase() !== "no").length || 0;
-      const furnished = rentals?.filter(r => r.furnished && r.furnished !== "Unfurnished").length || 0;
+      // Fetch all rentals in batches of 1000 to overcome Supabase limit
+      const allRentals: any[] = [];
+      const BATCH_SIZE = 1000;
+      const batches = Math.ceil(totalCount / BATCH_SIZE);
+
+      for (let i = 0; i < batches; i++) {
+        const { data, error } = await supabase
+          .from("mls_listings")
+          .select("lease_amount, pets_allowed, furnished, latitude, longitude, bedrooms_total, city, availability_date, property_type, property_sub_type")
+          .eq("is_rental", true)
+          .eq("mls_status", "Active")
+          .range(i * BATCH_SIZE, (i + 1) * BATCH_SIZE - 1);
+
+        if (error) throw error;
+        if (data) allRentals.push(...data);
+      }
+
+      const total = allRentals.length;
+      const withCoords = allRentals.filter(r => r.latitude && r.longitude).length;
+      const petFriendly = allRentals.filter(r => r.pets_allowed && r.pets_allowed.toLowerCase() !== "no").length;
+      const furnished = allRentals.filter(r => r.furnished && r.furnished !== "Unfurnished").length;
       
       // Separate apartments from townhomes
-      const apartments = rentals?.filter(r => {
+      const apartments = allRentals.filter(r => {
         const subType = r.property_sub_type?.toLowerCase() || '';
         return !subType.includes('townhouse') && !subType.includes('townhome');
-      }) || [];
+      });
       
-      const townhomes = rentals?.filter(r => {
+      const townhomes = allRentals.filter(r => {
         const subType = r.property_sub_type?.toLowerCase() || '';
         return subType.includes('townhouse') || subType.includes('townhome');
-      }) || [];
+      });
 
       // Calculate rent statistics by type
       const oneBedRentals = apartments.filter(r => r.bedrooms_total === 1 && r.lease_amount && r.lease_amount > 0);
@@ -52,7 +87,7 @@ export function RentalMetricsCards() {
         : 0;
 
       // Overall rent stats
-      const rentsWithValue = rentals?.filter(r => r.lease_amount && r.lease_amount > 0) || [];
+      const rentsWithValue = allRentals.filter(r => r.lease_amount && r.lease_amount > 0);
       const avgRent = rentsWithValue.length > 0 
         ? Math.round(rentsWithValue.reduce((sum, r) => sum + (r.lease_amount || 0), 0) / rentsWithValue.length)
         : 0;
@@ -64,13 +99,13 @@ export function RentalMetricsCards() {
         : 0;
 
       // City count
-      const uniqueCities = new Set(rentals?.map(r => r.city).filter(Boolean));
+      const uniqueCities = new Set(allRentals.map(r => r.city).filter(Boolean));
 
       // Immediate availability
-      const immediate = rentals?.filter(r => {
+      const immediate = allRentals.filter(r => {
         if (!r.availability_date) return true;
         return new Date(r.availability_date) <= new Date();
-      }).length || 0;
+      }).length;
 
       return {
         total,

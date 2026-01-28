@@ -391,21 +391,18 @@ Deno.serve(async (req) => {
       console.log("Filtering for: Strata properties (Condos + Strata Townhomes) via CommonInterest eq 'Condo/Strata'");
     }
     
-    // Include rentals: ListPrice eq 0 is the DDF convention for rental listings
-    // This captures rentals that might not have CommonInterest set
+    // Include rentals: DDF doesn't have dedicated rental listings with ListPrice eq 0
+    // Instead, rentals are identified from remarks parsing during processing
+    // When includeRentals is true, we fetch strata properties and identify rentals from remarks
     if (includeRentals) {
-      // Override previous filters to get rentals - they use ListPrice = 0
-      // We need to do a separate query or use OR logic
-      // DDF supports: (CommonInterest eq 'Condo/Strata') or (ListPrice eq 0)
-      if (metroVancouverResidential) {
-        // Remove the CommonInterest filter and use OR logic
-        const idx = filters.indexOf("CommonInterest eq 'Condo/Strata'");
-        if (idx > -1) filters.splice(idx, 1);
-        filters.push("(CommonInterest eq 'Condo/Strata' or ListPrice eq 0)");
-        console.log("Filtering for: Strata properties OR Rentals (ListPrice eq 0)");
+      if (!metroVancouverResidential) {
+        // If only rentals requested without strata filter, still fetch strata properties
+        // as that's where rentals are found (they're mixed in with sales listings)
+        filters.push("CommonInterest eq 'Condo/Strata'");
+        console.log("Filtering for: Strata properties to identify rentals from remarks");
       } else {
-        filters.push("ListPrice eq 0");
-        console.log("Filtering for: Rental listings only (ListPrice eq 0)");
+        // metroVancouverResidential is already set, strata filter already applied
+        console.log("Filtering for: Strata properties (will identify rentals during processing)");
       }
     }
 
