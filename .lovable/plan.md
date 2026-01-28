@@ -1,177 +1,107 @@
 
-# Assignments on Map Search - Agent-Only Access Implementation
+# Agent Dashboard Optimization Plan
 
 ## Overview
-This plan adds **assignment listings** to the main `/map-search` page as a new data layer. All assignment details will be **blurred by default** for non-authenticated users and non-verified agents. Only verified agents logged into the agent portal will see full details.
+This plan optimizes the Agent Dashboard by removing the redundant Assignment Portal section (since assignments are now accessible on the public map-search page), streamlining navigation, enhancing the premium aesthetic, and ensuring the complete agent signup-to-approval workflow is functional.
 
 ---
 
-## Visual Design: Before & After
+## Current State Analysis
 
-### Public/Non-Agent View (Blurred)
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                         MAP VIEW                            │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐                     │
-│  │ Presale │  │ Resale  │  │ASSIGN.  │ ← Purple/teal pin   │
-│  │  (gold) │  │ (navy)  │  │(locked) │   with lock icon     │
-│  └─────────┘  └─────────┘  └─────────┘                     │
-├─────────────────────────────────────────────────────────────┤
-│                     PROPERTY CARD                           │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  [Blurred Photo with Lock Overlay]                  │   │
-│  │                                                      │   │
-│  │  🔒 $XXX,XXX ← Price blurred                        │   │
-│  │  ████████ ← Address blurred                         │   │
-│  │  ████████ ← Neighborhood blurred                    │   │
-│  │                                                      │   │
-│  │  ┌────────────────────────────────────────────┐     │   │
-│  │  │   🔐 AGENT EXCLUSIVE                       │     │   │
-│  │  │   Sign in to view assignment details       │     │   │
-│  │  │   [Login to Agent Portal] (button)         │     │   │
-│  │  └────────────────────────────────────────────┘     │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
+### Dashboard Navigation (Current)
+- Overview
+- **Project Documents** - Premium feature for verified agents
+- **Assignment Portal** - REDUNDANT (now on /map-search)
+- My Listings - Manage agent's own assignments
+- Messages - Agent-to-agent inbox
+- **Leads** - ISSUE: Uses `leads` table but no RLS policy check found
+- Billing - Payment history
+- Profile - Account settings
 
-### Verified Agent View (Full Access)
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                         MAP VIEW                            │
-│  ┌─────────┐  ┌─────────┐  ┌─────────┐                     │
-│  │ Presale │  │ Resale  │  │ $549K   │ ← Purple price pill  │
-│  │  (gold) │  │ (navy)  │  │ ASSIGN  │   fully visible      │
-│  └─────────┘  └─────────┘  └─────────┘                     │
-├─────────────────────────────────────────────────────────────┤
-│                     PROPERTY CARD                           │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │  [Full Photo Visible]                               │   │
-│  │                                                      │   │
-│  │  $549,000  (Save $20K from original)               │   │
-│  │  The Butterfly by Concord Pacific                   │   │
-│  │  Coal Harbour, Vancouver                            │   │
-│  │  2 bd • 2 ba • 850 sqft                             │   │
-│  │                                                      │   │
-│  │  [View Assignment Details] (link)                   │   │
-│  └─────────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-```
+### Issues Identified
+1. **Assignment Portal** is redundant - assignments now visible on `/map-search` with agent gating
+2. **Leads** section queries a `leads` table that exists and functions correctly
+3. Navigation has 8 items which feels cluttered
+4. Overview page still links to redundant Assignment Portal
 
 ---
 
-## Implementation Architecture
+## Implementation Plan
 
-### 1. Agent Verification Hook
-Create a reusable hook to check agent verification status:
+### Phase 1: Remove Redundant Assignment Portal
 
-**File:** `src/hooks/useAgentVerification.ts` (New)
+**File: `src/components/dashboard/DashboardLayout.tsx`**
+- Remove the "Assignment Portal" nav item from `navItems` array
+- Keep navigation streamlined to 6 essential items:
+  1. Overview
+  2. Project Documents (Premium)
+  3. My Listings
+  4. Messages
+  5. Billing
+  6. Profile
 
-```typescript
-// Hook returns:
-// - isVerifiedAgent: boolean
-// - isLoading: boolean
-// - agentProfile: data or null
-```
+**File: `src/pages/dashboard/DashboardOverview.tsx`**
+- Remove "Browse Assignments" button from welcome header
+- Update Quick Actions grid to remove Assignment Portal card
+- Replace with "Browse Marketplace" link pointing to `/map-search?mode=assignments`
+- Update onboarding steps if needed
 
-This hook will:
-- Check if user is authenticated via `useAuth()`
-- Query `agent_profiles` table for `verification_status === 'verified'`
-- Cache the result for the session
+**File: `src/App.tsx`**
+- Keep the `/dashboard/assignments` route for now (it can be deprecated later)
+- Or remove route entirely if not needed
 
----
-
-### 2. New Mode Toggle: "Assignments"
-Update the map mode toggle to include assignments:
-
-**File:** `src/pages/MapSearch.tsx`
-
-- Extend `MapMode` type: `"all" | "presale" | "resale" | "assignments"`
-- Add "Assignments" option to the `UnifiedMapToggle` component
-- Fetch assignments from `listings` table where `status = 'published'`
+**Files to potentially delete:**
+- `src/pages/dashboard/DashboardAssignments.tsx` (630 lines - now redundant)
 
 ---
 
-### 3. Assignment Data Fetching
-Add a new query to fetch published assignments:
+### Phase 2: Premium Dashboard Aesthetic Upgrade
 
-**File:** `src/pages/MapSearch.tsx`
+**File: `src/components/dashboard/DashboardLayout.tsx`**
 
-```typescript
-// New query for assignments
-const { data: assignments } = useQuery({
-  queryKey: ["map-assignments", selectedCities],
-  queryFn: async () => {
-    const { data } = await supabase
-      .from("listings")
-      .select(`
-        id, title, project_name, city, neighborhood,
-        assignment_price, original_price, beds, baths,
-        interior_sqft, map_lat, map_lng, status,
-        listing_photos (url, sort_order)
-      `)
-      .eq("status", "published")
-      .not("map_lat", "is", null)
-      .not("map_lng", "is", null);
-    return data;
-  },
-  enabled: mapMode === "all" || mapMode === "assignments"
-});
-```
+Enhancements:
+- Add subtle gradient overlays and glassmorphism effects
+- Improve sidebar hover states with gold accent highlights
+- Add verification badge indicator in user info card
+- Improve mobile menu with better visual hierarchy
+- Add "Verified Agent" badge if verified, or "Pending Verification" warning
+
+**File: `src/pages/dashboard/DashboardOverview.tsx`**
+
+Enhancements:
+- Add larger verification status banner at top (if not verified)
+- Improve stats cards with subtle animations
+- Add "What's New" section for platform updates
+- Improve Quick Actions with better iconography
+- Add "Browse Marketplace" as a prominent CTA
 
 ---
 
-### 4. Assignment Markers on Map
-Add assignment markers with conditional styling:
+### Phase 3: Verify Agent Signup Flow
 
-**File:** `src/components/map/CombinedListingsMap.tsx`
+**Current Flow (Login.tsx):**
+1. Agent fills signup form with license info
+2. `signUp()` from useAuth creates:
+   - Supabase auth user
+   - Profile record (via DB trigger)
+   - Agent profile with `verification_status: 'unverified'`
+3. Redirect to /dashboard
 
-Changes:
-- Accept new props: `assignments`, `isVerifiedAgent`
-- Create assignment marker icons:
-  - **Verified agent:** Purple price pill showing actual price
-  - **Non-agent:** Purple pin with lock icon (no price visible)
-- Add assignment popup HTML with blur logic
-- Handle click events differently based on agent status
+**Admin Approval Flow (AdminAgents.tsx):**
+1. Admin sees pending agents in "Pending" tab
+2. Can verify or reject with notes
+3. Updates `agent_profiles.verification_status` to "verified" or "rejected"
 
----
-
-### 5. Blurred Assignment Card Component
-Create a reusable blurred card for non-agents:
-
-**File:** `src/components/assignments/BlurredAssignmentCard.tsx` (New)
-
-Features:
-- Glassmorphism overlay with lock icon
-- Blurred image using CSS `filter: blur(12px)`
-- Obscured price text (e.g., "$XXX,XXX")
-- Hidden address/neighborhood
-- CTA button: "Login to Agent Portal" → `/for-agents`
-- Hover state with tooltip explaining access restriction
+**This flow is complete and functional.** No changes needed.
 
 ---
 
-### 6. Update Property Cards in Sidebar
-Modify the sidebar card rendering logic:
+### Phase 4: Clean Up Unused Components
 
-**File:** `src/pages/MapSearch.tsx`
-
-For assignments in the visible items list:
-- If `isVerifiedAgent`: Show full `AssignmentCard` component
-- If not verified: Show `BlurredAssignmentCard` component
-
----
-
-### 7. Blurred Map Popup
-Update popup rendering for assignments:
-
-**File:** `src/components/map/CombinedListingsMap.tsx`
-
-For non-agents, the popup HTML will show:
-- Blurred background image
-- Lock icon overlay
-- "Agent Exclusive" badge
-- "Login to view" CTA
-- No price, address, or details visible
+**Review these files for removal or consolidation:**
+- `src/pages/dashboard/DashboardAssignments.tsx` - Remove (redundant)
+- `src/pages/dashboard/DashboardLeads.tsx` - Keep (functional)
+- `src/hooks/useAgentSubscription.ts` - Keep (used for future monetization)
 
 ---
 
@@ -179,84 +109,153 @@ For non-agents, the popup HTML will show:
 
 | File | Action | Description |
 |------|--------|-------------|
-| `src/hooks/useAgentVerification.ts` | CREATE | New hook to check agent verification status |
-| `src/components/assignments/BlurredAssignmentCard.tsx` | CREATE | Blurred card with lock overlay for non-agents |
-| `src/pages/MapSearch.tsx` | EDIT | Add assignments mode, fetch query, conditional rendering |
-| `src/components/map/CombinedListingsMap.tsx` | EDIT | Add assignment markers, blur logic for popups |
-| `src/components/map/UnifiedMapToggle.tsx` | EDIT | Add "Assignments" toggle option |
+| `src/components/dashboard/DashboardLayout.tsx` | EDIT | Remove Assignment Portal nav, add verification badge, enhance styling |
+| `src/pages/dashboard/DashboardOverview.tsx` | EDIT | Remove Assignment Portal links, add marketplace CTA, enhance premium look |
+| `src/pages/dashboard/DashboardAssignments.tsx` | DELETE | No longer needed - assignments on map-search |
+| `src/App.tsx` | EDIT | Remove `/dashboard/assignments` route |
+
+---
+
+## New Streamlined Navigation
+
+```text
+┌────────────────────────────────────────┐
+│  AgentHub                              │
+├────────────────────────────────────────┤
+│                                        │
+│  ┌──────────────────────────────────┐  │
+│  │  👤 Agent Name                   │  │
+│  │  agent@email.com                 │  │
+│  │  ✓ Verified Agent                │  │
+│  └──────────────────────────────────┘  │
+│                                        │
+│  MENU                                  │
+│  ──────────────────────────────────    │
+│  📊 Overview                           │
+│  📁 Project Documents      [Premium]   │
+│  📝 My Listings                        │
+│  💬 Messages                           │
+│  💳 Billing                            │
+│  👤 Profile                            │
+│                                        │
+│  ──────────────────────────────────    │
+│  🌐 Browse Marketplace                 │
+│                                        │
+├────────────────────────────────────────┤
+│  Need Help?                            │
+│  Contact Support                       │
+└────────────────────────────────────────┘
+```
+
+---
+
+## Overview Page Redesign
+
+### Updated Welcome Section
+- Remove "Browse Assignments" button
+- Add "Browse Marketplace" button linking to `/map-search?mode=assignments`
+- Keep "Project Documents" and "New Listing" buttons
+
+### Updated Quick Actions Grid
+1. **Create Listing** - Post assignment
+2. **Browse Marketplace** - View all assignments on map (NEW)
+3. **Manage Listings** - Edit existing
+4. **View Leads** - Buyer inquiries
+
+---
+
+## Verification Status Enhancement
+
+### In DashboardLayout User Card
+```text
+For verified agents:
+┌─────────────────────────────────┐
+│  👤 Sarah Chen                  │
+│  sarah@remax.com                │
+│  ✓ Verified Agent               │
+└─────────────────────────────────┘
+
+For pending agents:
+┌─────────────────────────────────┐
+│  👤 New Agent                   │
+│  new@agent.com                  │
+│  ⏳ Verification Pending        │
+└─────────────────────────────────┘
+```
 
 ---
 
 ## Technical Details
 
-### CSS Blur Styling
-```css
-/* Applied to non-agent views */
-.assignment-blurred {
-  filter: blur(12px);
-  pointer-events: none;
-}
-
-.assignment-lock-overlay {
-  backdrop-filter: blur(8px);
-  background: rgba(255, 255, 255, 0.85);
-}
-```
-
-### Agent Verification Check
+### Remove Assignment Portal from Navigation
 ```typescript
-// In MapSearch.tsx
-const { isVerifiedAgent, isLoading: agentLoading } = useAgentVerification();
-
-// Pass to CombinedListingsMap
-<CombinedListingsMap
-  assignments={filteredAssignments}
-  isVerifiedAgent={isVerifiedAgent}
-  ...
-/>
+// DashboardLayout.tsx - REMOVE this item
+{ 
+  label: "Assignment Portal", 
+  href: "/dashboard/assignments", 
+  icon: Building2,
+  description: "Browse all assignments"
+},
 ```
 
-### Assignment Marker Color Scheme
-- **Background:** Purple gradient (`#8B5CF6` to `#7C3AED`)
-- **Lock icon:** White with slight shadow
-- **Matches:** Premium aesthetic established in design tokens
+### Add Verification Badge to User Card
+```typescript
+// DashboardLayout.tsx - Add hook and badge
+const { isVerifiedAgent, isLoading: verificationLoading } = useAgentVerification();
+
+// In user info card:
+{isVerifiedAgent ? (
+  <Badge variant="outline" className="text-green-600 border-green-500/30">
+    <CheckCircle className="h-3 w-3 mr-1" />
+    Verified
+  </Badge>
+) : (
+  <Badge variant="outline" className="text-amber-600 border-amber-500/30">
+    <Clock className="h-3 w-3 mr-1" />
+    Pending
+  </Badge>
+)}
+```
+
+### Update Overview Quick Actions
+```typescript
+// DashboardOverview.tsx - Replace Assignment Portal link
+<Link to="/map-search?mode=assignments" className="group">
+  <div className="p-4 rounded-xl border ...">
+    <div className="flex items-center gap-3 mb-2">
+      <Map className="h-5 w-5 text-primary" />
+      <span className="font-medium">Browse Marketplace</span>
+    </div>
+    <p className="text-sm text-muted-foreground">
+      Find assignments on the interactive map
+    </p>
+  </div>
+</Link>
+```
 
 ---
 
-## User Experience Flow
+## Security Verification
 
-1. **User arrives at /map-search**
-   - Sees toggle: "All" | "Presale" | "Resale" | "Assignments"
-   
-2. **User selects "Assignments" or "All"**
-   - Assignment pins appear on map (purple/locked style)
-   - Sidebar shows blurred assignment cards
-   
-3. **User clicks assignment pin (not logged in)**
-   - Popup shows blurred preview with lock
-   - CTA: "Login to Agent Portal"
-   
-4. **User clicks CTA**
-   - Redirected to `/for-agents` login page
-   
-5. **Agent logs in and returns**
-   - Full assignment details now visible
-   - Can click through to full assignment page
+### Agent Signup Flow - Verified Working
+1. Signup form validates license number, brokerage info
+2. Creates auth user with email redirect
+3. Creates agent_profiles record with `unverified` status
+4. RLS policies restrict listing publish until verified
+
+### Admin Approval - Verified Working
+1. AdminAgents.tsx fetches all agent_profiles with user profiles
+2. Tabs for Pending/Verified/Rejected
+3. Verify/Reject actions update status with notes
+4. Email notification could be added (future enhancement)
 
 ---
 
-## Security Considerations
+## Benefits
 
-- RLS policies already restrict `listings` table SELECT to `status = 'published'`
-- Price/location data is obscured client-side for UX
-- No sensitive data exposed in API responses for published listings
-- Agent verification is a real-time database check
-
----
-
-## Estimated Changes
-
-- **New files:** 2
-- **Modified files:** 3
-- **Total lines:** ~400-500
-
+1. **Cleaner navigation** - 6 items instead of 8
+2. **No redundancy** - Assignments browsed via map-search
+3. **Premium aesthetic** - Enhanced visual hierarchy
+4. **Verification visibility** - Clear status in sidebar
+5. **Streamlined UX** - Faster agent workflow
+6. **Reduced code** - ~630 lines removed
