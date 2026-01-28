@@ -747,6 +747,11 @@
 }
 
 /* Cluster markers - optimized */
+.mc {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
 .mc .cl {
   background: linear-gradient(135deg, hsl(222, 47%, 18%) 0%, hsl(222, 47%, 25%) 100%);
   color: white;
@@ -760,6 +765,8 @@
   font-family: system-ui, -apple-system, sans-serif;
   transform: translateZ(0);
   will-change: transform;
+  pointer-events: auto !important;
+  cursor: pointer !important;
 }
 
 .mc .cl.sm { width: 36px; height: 36px; font-size: 14px; }
