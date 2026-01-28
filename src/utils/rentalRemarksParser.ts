@@ -258,12 +258,16 @@ function extractFurnishedStatus(remarks: string): string | null {
  * Check if remarks indicate this is a rental listing
  */
 function isRentalListing(remarks: string, listingPrice: number): boolean {
-  // If listing price is $0, check for rental keywords
+  // If listing price is $0, it's almost ALWAYS a rental in DDF
+  // Zero-price is the standard convention for lease listings
   if (listingPrice === 0) {
-    for (const pattern of RENTAL_KEYWORDS) {
-      if (pattern.test(remarks)) {
-        return true;
-      }
+    return true;
+  }
+  
+  // For non-zero price listings, check for explicit rental keywords
+  for (const pattern of RENTAL_KEYWORDS) {
+    if (pattern.test(remarks)) {
+      return true;
     }
   }
   
