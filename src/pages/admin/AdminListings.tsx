@@ -18,6 +18,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tables } from "@/integrations/supabase/types";
+import { AssignmentPreviewModal } from "@/components/admin/AssignmentPreviewModal";
 import { 
   CheckCircle, 
   XCircle, 
@@ -32,12 +33,11 @@ import {
   Globe,
   Star
 } from "lucide-react";
-import { Link } from "react-router-dom";
-
 type Listing = Tables<"listings"> & {
   agent_profile?: {
     full_name: string | null;
     email: string;
+    phone?: string | null;
   };
 };
 
@@ -62,6 +62,7 @@ export default function AdminListings() {
   const [notes, setNotes] = useState("");
   const [processing, setProcessing] = useState(false);
   const [updatingFeatured, setUpdatingFeatured] = useState<string | null>(null);
+  const [previewListing, setPreviewListing] = useState<Listing | null>(null);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -86,7 +87,7 @@ export default function AdminListings() {
         (data || []).map(async (listing) => {
           const { data: profile } = await supabase
             .from("profiles")
-            .select("full_name, email")
+            .select("full_name, email, phone")
             .eq("user_id", listing.agent_id)
             .single();
           
@@ -279,20 +280,12 @@ export default function AdminListings() {
             {showApprovalActions && (
               <>
                 <Button
-                  variant="outline"
-                  className="text-green-600 border-green-600 hover:bg-green-50"
-                  onClick={() => handleAction(listing, "approve")}
+                  variant="default"
+                  className="bg-primary hover:bg-primary/90"
+                  onClick={() => setPreviewListing(listing)}
                 >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Approve
-                </Button>
-                <Button
-                  variant="outline"
-                  className="text-red-600 border-red-600 hover:bg-red-50"
-                  onClick={() => handleAction(listing, "reject")}
-                >
-                  <XCircle className="h-4 w-4 mr-2" />
-                  Reject
+                  <Eye className="h-4 w-4 mr-2" />
+                  Preview & Review
                 </Button>
               </>
             )}
@@ -308,12 +301,14 @@ export default function AdminListings() {
               </div>
             )}
             
-            <Link to={`/assignments/${listing.id}`} target="_blank">
-              <Button variant="ghost" size="sm" className="w-full">
-                <Eye className="h-4 w-4 mr-2" />
-                Preview
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => setPreviewListing(listing)}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              Quick View
+            </Button>
           </div>
         </div>
       </CardContent>
@@ -465,6 +460,28 @@ export default function AdminListings() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Assignment Preview Modal */}
+      <AssignmentPreviewModal
+        listing={previewListing}
+        open={!!previewListing}
+        onOpenChange={(open) => !open && setPreviewListing(null)}
+        onApprove={() => {
+          if (previewListing) {
+            setSelectedListing(previewListing);
+            setActionType("approve");
+            setPreviewListing(null);
+          }
+        }}
+        onReject={() => {
+          if (previewListing) {
+            setSelectedListing(previewListing);
+            setActionType("reject");
+            setPreviewListing(null);
+          }
+        }}
+        processing={processing}
+      />
     </AdminLayout>
   );
 }
