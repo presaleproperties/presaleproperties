@@ -657,11 +657,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       updateVisibleItemsRef.current?.();
     });
     
-    // Notify parent when user starts interacting with map (drag/zoom)
-    map.on("movestart", () => {
-      if (!isMounted) return;
-      onMapInteractionRef.current?.();
-    });
+     // Notify parent when user starts interacting with map (USER gestures only).
+     // IMPORTANT: using "movestart" here can fire during programmatic flyTo/autoPan,
+     // which can immediately hide the mobile carousel right after a pin is clicked.
+     map.on("dragstart", () => {
+       if (!isMounted) return;
+       onMapInteractionRef.current?.();
+     });
+
+     map.on("zoomstart", () => {
+       if (!isMounted) return;
+       onMapInteractionRef.current?.();
+     });
     
     // Save map state on every move/zoom for persistence
     map.on("moveend", () => {
