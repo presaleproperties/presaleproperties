@@ -121,11 +121,12 @@ export default function ForAgents() {
   return (
     <>
       <Helmet>
-        <title>For Agents | Presale Floor Plans, Off-Market Assignments & More | PresaleProperties</title>
+        <title>Assignment Sales & Agent Tools | Presale Contract Marketplace | PresaleProperties</title>
         <meta 
           name="description" 
-          content="Join Vancouver's #1 presale agent network. Instant access to floor plans, pricing, off-market assignments, and verified developer connections." 
+          content="Browse off-market assignment sales and presale contract transfers. Access floor plans, VIP pricing, and connect with 500+ verified BC real estate agents." 
         />
+        <meta name="keywords" content="assignment sales Vancouver, presale assignment, contract assignment BC, off-market assignments, presale agent tools" />
         <link rel="canonical" href="https://presaleproperties.com/for-agents" />
       </Helmet>
 

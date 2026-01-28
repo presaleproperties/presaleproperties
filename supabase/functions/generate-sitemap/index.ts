@@ -70,10 +70,10 @@ Deno.serve(async (req) => {
       // Homepage - Maximum priority
       { url: "/", priority: "1.0", changefreq: "daily", lastmod: now },
       
-      // Main listing hubs
-      { url: "/presale-projects", priority: "0.9", changefreq: "daily", lastmod: now },
-      { url: "/properties", priority: "0.9", changefreq: "daily", lastmod: now },
-      { url: "/assignments", priority: "0.85", changefreq: "daily", lastmod: now },
+      // Main listing hubs - optimized for Google sitelinks
+      { url: "/presale-projects", priority: "0.95", changefreq: "daily", lastmod: now },
+      { url: "/properties", priority: "0.95", changefreq: "daily", lastmod: now },
+      { url: "/for-agents", priority: "0.9", changefreq: "weekly", lastmod: now },
       
       // Educational / Guide pages
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },

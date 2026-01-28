@@ -659,8 +659,8 @@ export default function PresaleProjects() {
                         filters.projectType === "townhome" ? "Presale Townhomes" : "Presale Projects";
       return `${typeLabel} in ${filters.city} 2026 | New Construction | PresaleProperties`;
     }
-    // Main page - target broad keywords
-    return "Presale Condos & Townhomes in BC 2026 | New Construction Homes";
+    // Main page - optimized for Google sitelinks
+    return "Presale Condos & Townhomes | New Construction in Metro Vancouver";
   };
 
   const getSeoDescription = () => {
@@ -670,8 +670,8 @@ export default function PresaleProjects() {
                        "presale condos & townhomes";
       return `Browse ${totalCount}+ ${typeText} in ${filters.city}. View floor plans, VIP pricing & deposit structures. Register for early access to new construction in ${filters.city}, BC.`;
     }
-    // Main page - comprehensive description
-    return `Discover ${totalCount}+ presale condos & new construction homes in Metro Vancouver & Fraser Valley. Compare floor plans, VIP pricing & deposits for Vancouver, Surrey, Langley, Burnaby & more.`;
+    // Main page - comprehensive description for sitelinks
+    return `Browse ${totalCount}+ presale condos, townhomes & new construction homes in Vancouver, Surrey, Langley, Coquitlam, Burnaby. VIP pricing, floor plans & deposit structures.`;
   };
 
   // Robots meta - noindex filter pages to prevent duplicate content

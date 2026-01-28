@@ -504,6 +504,11 @@ export default function ResaleListings() {
   const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search ? '' : ''}`;
   
   const getSeoTitle = () => {
+    // Main page - optimized for Google sitelinks "Move-In Ready Homes"
+    if (filters.city === "any" && filters.propertyType === "any") {
+      return "Move-In Ready Homes | Brand New Condos & Townhomes in Metro Vancouver";
+    }
+    
     const parts: string[] = ["NEW"];
     
     if (filters.propertyType !== "any") {
@@ -523,12 +528,17 @@ export default function ResaleListings() {
       parts.push("in Metro Vancouver");
     }
     
-    parts.push("| Brand New Construction 2024-2026");
+    parts.push("| Brand New 2024-2026");
     
     return parts.join(" ");
   };
 
   const getSeoDescription = () => {
+    // Main page - optimized for sitelinks
+    if (filters.city === "any" && filters.propertyType === "any") {
+      return `${totalCount.toLocaleString()}+ brand new condos, townhomes & houses for sale. Move-in ready homes built 2024-2026. Never lived in, with full warranty coverage.`;
+    }
+    
     const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Burnaby, Coquitlam, Langley & more";
     const typeText = filters.propertyType === "Apartment/Condo" ? "new condos" : 
                      filters.propertyType === "Townhouse" ? "new townhomes" : 
