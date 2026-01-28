@@ -12,7 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { 
   ArrowLeft, Bed, Bath, Square, Building2, Calendar, MapPin, 
   Lock, Shield, Phone, Mail, Briefcase, Car, Box,
-  Compass, Layers, DollarSign, Clock, CheckCircle2
+  Compass, Layers, DollarSign, Clock, CheckCircle2, Download, FileText
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { cn } from "@/lib/utils";
@@ -359,7 +359,8 @@ export default function AssignmentDetail() {
         .from("listings")
         .select(`
           *,
-          listing_photos (id, url, sort_order)
+          listing_photos (id, url, sort_order),
+          listing_files (id, url, file_name, file_type)
         `)
         .eq("id", id)
         .eq("status", "published")
@@ -537,6 +538,41 @@ export default function AssignmentDetail() {
                     projectName={assignment.project_name}
                     className="w-full"
                   />
+                )}
+
+                {/* Documents Section - Floor Plans & Brochures */}
+                {isVerifiedAgent && assignment.listing_files && assignment.listing_files.length > 0 && (
+                  <Card className="border-[hsl(18,85%,50%)]/20">
+                    <CardContent className="p-4 space-y-3">
+                      <h4 className="font-medium text-sm flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-[hsl(18,85%,50%)]" />
+                        Documents
+                      </h4>
+                      <div className="space-y-2">
+                        {assignment.listing_files.map((file: any) => (
+                          <a
+                            key={file.id}
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            className="flex items-center gap-3 p-3 rounded-lg border border-border hover:border-[hsl(18,85%,50%)]/50 hover:bg-[hsl(18,50%,98%)] transition-all group"
+                          >
+                            <div className="p-2 rounded-lg bg-[hsl(18,85%,50%)]/10 group-hover:bg-[hsl(18,85%,50%)]/20 transition-colors">
+                              <FileText className="h-4 w-4 text-[hsl(18,85%,50%)]" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">
+                                {file.file_name || (file.file_type === 'floorplan' ? 'Floor Plan' : 'Document')}
+                              </p>
+                              <p className="text-xs text-muted-foreground capitalize">{file.file_type || 'Document'}</p>
+                            </div>
+                            <Download className="h-4 w-4 text-muted-foreground group-hover:text-[hsl(18,85%,50%)] transition-colors" />
+                          </a>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 )}
 
                 {/* Quick Info Card */}
