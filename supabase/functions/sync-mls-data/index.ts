@@ -320,6 +320,7 @@ Deno.serve(async (req) => {
     let offset = 0;
     let maxBatches = 50; // Process max 50 batches (5000 listings) per call
     let metroVancouverResidential = false; // New filter: condos, townhomes, single family in Metro Van only
+    let includeRentals = false; // Fetch rental listings (ListPrice eq 0)
     
     try {
       const body = await req.json();
@@ -327,6 +328,7 @@ Deno.serve(async (req) => {
       if (body?.offset !== undefined) offset = parseInt(body.offset) || 0;
       if (body?.maxBatches) maxBatches = Math.min(parseInt(body.maxBatches) || 30, 50);
       if (body?.metroVancouverResidential) metroVancouverResidential = true;
+      if (body?.includeRentals) includeRentals = true;
     } catch {
       // No body or invalid JSON
     }
@@ -387,6 +389,24 @@ Deno.serve(async (req) => {
       // We'll sync all and filter locally for display
       filters.push("CommonInterest eq 'Condo/Strata'");
       console.log("Filtering for: Strata properties (Condos + Strata Townhomes) via CommonInterest eq 'Condo/Strata'");
+    }
+    
+    // Include rentals: ListPrice eq 0 is the DDF convention for rental listings
+    // This captures rentals that might not have CommonInterest set
+    if (includeRentals) {
+      // Override previous filters to get rentals - they use ListPrice = 0
+      // We need to do a separate query or use OR logic
+      // DDF supports: (CommonInterest eq 'Condo/Strata') or (ListPrice eq 0)
+      if (metroVancouverResidential) {
+        // Remove the CommonInterest filter and use OR logic
+        const idx = filters.indexOf("CommonInterest eq 'Condo/Strata'");
+        if (idx > -1) filters.splice(idx, 1);
+        filters.push("(CommonInterest eq 'Condo/Strata' or ListPrice eq 0)");
+        console.log("Filtering for: Strata properties OR Rentals (ListPrice eq 0)");
+      } else {
+        filters.push("ListPrice eq 0");
+        console.log("Filtering for: Rental listings only (ListPrice eq 0)");
+      }
     }
 
     let allProperties: DDFProperty[] = [];

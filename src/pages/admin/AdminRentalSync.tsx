@@ -354,7 +354,7 @@ export default function AdminRentalSync() {
                   Scan existing listings to identify rentals and update their metadata
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex gap-3">
+              <CardContent className="flex gap-3 flex-wrap">
                 <Button
                   variant="outline"
                   onClick={() => scanRentalsMutation.mutate()}
@@ -362,7 +362,27 @@ export default function AdminRentalSync() {
                   className="gap-2"
                 >
                   <RefreshCw className={`h-4 w-4 ${scanRentalsMutation.isPending ? "animate-spin" : ""}`} />
-                  Scan for Rentals
+                  Scan Existing Listings
+                </Button>
+                <Button
+                  variant="default"
+                  onClick={async () => {
+                    toast({ title: "Syncing rentals from MLS feed..." });
+                    try {
+                      const { error } = await supabase.functions.invoke("sync-mls-data", {
+                        body: { includeRentals: true, maxBatches: 30 }
+                      });
+                      if (error) throw error;
+                      toast({ title: "Rental sync started", description: "This may take a few minutes." });
+                      queryClient.invalidateQueries({ queryKey: ["rental-city-counts"] });
+                    } catch (err: any) {
+                      toast({ title: "Sync failed", description: err.message, variant: "destructive" });
+                    }
+                  }}
+                  className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+                >
+                  <RefreshCw className="h-4 w-4" />
+                  Sync Rentals from MLS
                 </Button>
               </CardContent>
             </Card>
