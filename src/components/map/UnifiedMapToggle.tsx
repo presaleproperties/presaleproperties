@@ -60,6 +60,7 @@ export function UnifiedMapToggle({
       >
         Move-In
       </button>
+      {/* Rental toggle temporarily hidden - keeping code for future reactivation
       <button
         onClick={() => onModeChange("rental")}
         className={cn(
@@ -72,6 +73,7 @@ export function UnifiedMapToggle({
         <Home className="h-3 w-3" />
         Rent
       </button>
+      */}
       <button
         onClick={() => onModeChange("assignments")}
         className={cn(
