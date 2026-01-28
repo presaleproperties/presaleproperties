@@ -47,10 +47,10 @@ export function BlurredAssignmentCard({
       className={cn(
         "relative rounded-xl border overflow-hidden transition-all duration-300 group bg-card",
         isFocused 
-          ? "border-purple-500 ring-2 ring-purple-500/30 shadow-xl shadow-purple-500/10" 
+          ? "border-teal-500 ring-2 ring-teal-500/30 shadow-xl shadow-teal-500/10" 
           : isSelected 
-            ? "border-purple-400/50 ring-1 ring-purple-400/20" 
-            : "border-border/50 hover:border-purple-400/50 hover:shadow-lg",
+            ? "border-teal-400/50 ring-1 ring-teal-400/20" 
+            : "border-border/50 hover:border-teal-400/50 hover:shadow-lg",
         isCarousel ? "w-[280px] shrink-0" : "",
         className
       )}
@@ -68,7 +68,7 @@ export function BlurredAssignmentCard({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-200/50 to-purple-100/30 dark:from-purple-900/30 dark:to-purple-800/20" />
+          <div className="w-full h-full bg-gradient-to-br from-teal-200/50 to-teal-100/30 dark:from-teal-900/30 dark:to-teal-800/20" />
         )}
         
         {/* Premium Glassmorphism Lock Overlay */}
@@ -76,21 +76,21 @@ export function BlurredAssignmentCard({
           {/* Glowing lock container */}
           <div className="relative">
             {/* Outer glow ring */}
-            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-purple-500/20 blur-xl animate-pulse" />
+            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-teal-500/20 blur-xl animate-pulse" />
             
             {/* Lock icon container with glassmorphism */}
-            <div className="relative w-14 h-14 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-purple-200/50 dark:border-purple-500/30 shadow-lg flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-inner">
+            <div className="relative w-14 h-14 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-teal-200/50 dark:border-teal-500/30 shadow-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-inner">
                 <Lock className="h-5 w-5 text-white drop-shadow-sm" />
               </div>
             </div>
           </div>
           
           {/* Agent Exclusive label with glassmorphism pill */}
-          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-purple-200/30 dark:border-purple-500/20 shadow-sm">
+          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-teal-200/30 dark:border-teal-500/20 shadow-sm">
             <div className="flex items-center gap-1.5">
-              <Shield className="h-3 w-3 text-purple-600 dark:text-purple-400" />
-              <span className="text-[11px] font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
+              <Shield className="h-3 w-3 text-teal-600 dark:text-teal-400" />
+              <span className="text-[11px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider">
                 Agent Exclusive
               </span>
             </div>
@@ -98,7 +98,7 @@ export function BlurredAssignmentCard({
         </div>
         
         {/* Assignment Badge */}
-        <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide z-10 shadow-md">
+        <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide z-10 shadow-md">
           Assignment
         </span>
       </div>
@@ -110,9 +110,9 @@ export function BlurredAssignmentCard({
       )}>
         {/* Blurred Price with lock */}
         <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-purple-100/50 dark:bg-purple-500/10">
-            <Lock className="h-3 w-3 text-purple-500" />
-            <span className="font-bold text-base text-purple-600/80 dark:text-purple-400/80 select-none tracking-tight">
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-teal-100/50 dark:bg-teal-500/10">
+            <Lock className="h-3 w-3 text-teal-500" />
+            <span className="font-bold text-base text-teal-600/80 dark:text-teal-400/80 select-none tracking-tight">
               $XXX,XXX
             </span>
           </div>
@@ -148,7 +148,7 @@ export function BlurredAssignmentCard({
           onClick={(e) => e.stopPropagation()}
           className="block"
         >
-          <button className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-purple-600 via-purple-600 to-purple-700 hover:from-purple-700 hover:via-purple-600 hover:to-purple-600 text-white text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.98]">
+          <button className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-teal-600 via-teal-600 to-teal-700 hover:from-teal-700 hover:via-teal-600 hover:to-teal-600 text-white text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:shadow-teal-500/20 active:scale-[0.98]">
             <Lock className="h-3.5 w-3.5" />
             Login to View Details
           </button>

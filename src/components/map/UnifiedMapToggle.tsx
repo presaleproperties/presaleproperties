@@ -63,7 +63,7 @@ export function UnifiedMapToggle({
         className={cn(
           "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
           mode === "assignments"
-            ? "bg-purple-600 text-white shadow-sm"
+            ? "bg-teal-600 text-white shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
         )}
       >
