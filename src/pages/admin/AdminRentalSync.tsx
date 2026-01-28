@@ -65,34 +65,67 @@ export default function AdminRentalSync() {
     "Coquitlam", "New Westminster", "North Vancouver"
   ];
 
-  // Fetch rental city counts
+  // Fetch rental city counts with breakdown by type
   const { data: cityCounts, isLoading: cityCountsLoading } = useQuery({
     queryKey: ["rental-city-counts"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("city, lease_amount")
+        .select("city, lease_amount, bedrooms_total, property_type, property_sub_type")
         .eq("is_rental", true)
         .eq("mls_status", "Active");
 
       if (error) throw error;
 
-      // Count by city and calculate avg rent
-      const cityData: Record<string, { count: number; totalRent: number }> = {};
+      // Count by city and calculate avg rent by type
+      const cityData: Record<string, { 
+        count: number; 
+        totalRent: number;
+        oneBed: { count: number; total: number };
+        twoBed: { count: number; total: number };
+        townhome: { count: number; total: number };
+      }> = {};
+      
       data?.forEach(listing => {
         const city = listing.city || "Unknown";
         if (!cityData[city]) {
-          cityData[city] = { count: 0, totalRent: 0 };
+          cityData[city] = { 
+            count: 0, 
+            totalRent: 0,
+            oneBed: { count: 0, total: 0 },
+            twoBed: { count: 0, total: 0 },
+            townhome: { count: 0, total: 0 },
+          };
         }
+        const leaseAmount = listing.lease_amount || 0;
         cityData[city].count++;
-        cityData[city].totalRent += listing.lease_amount || 0;
+        cityData[city].totalRent += leaseAmount;
+        
+        // Check if townhome
+        const isTownhome = listing.property_sub_type?.toLowerCase().includes('townhouse') ||
+          listing.property_sub_type?.toLowerCase().includes('townhome') ||
+          listing.property_type?.toLowerCase().includes('townhouse');
+        
+        if (isTownhome && leaseAmount > 0) {
+          cityData[city].townhome.count++;
+          cityData[city].townhome.total += leaseAmount;
+        } else if (listing.bedrooms_total === 1 && leaseAmount > 0) {
+          cityData[city].oneBed.count++;
+          cityData[city].oneBed.total += leaseAmount;
+        } else if (listing.bedrooms_total === 2 && leaseAmount > 0) {
+          cityData[city].twoBed.count++;
+          cityData[city].twoBed.total += leaseAmount;
+        }
       });
 
       return Object.entries(cityData)
         .map(([city, data]) => ({
           city,
           count: data.count,
-          avgRent: Math.round(data.totalRent / data.count),
+          avgRent: data.count > 0 ? Math.round(data.totalRent / data.count) : 0,
+          avg1Bed: data.oneBed.count > 0 ? Math.round(data.oneBed.total / data.oneBed.count) : null,
+          avg2Bed: data.twoBed.count > 0 ? Math.round(data.twoBed.total / data.twoBed.count) : null,
+          avgTownhome: data.townhome.count > 0 ? Math.round(data.townhome.total / data.townhome.count) : null,
         }))
         .sort((a, b) => b.count - a.count);
     },
@@ -352,36 +385,50 @@ export default function AdminRentalSync() {
                     ))}
                   </div>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>City</TableHead>
-                        <TableHead className="text-right">Rentals</TableHead>
-                        <TableHead className="text-right">Avg. Rent</TableHead>
-                        <TableHead className="text-center">Visible</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {cityCounts?.slice(0, 10).map(({ city, count, avgRent }) => (
-                        <TableRow key={city}>
-                          <TableCell className="font-medium">{city}</TableCell>
-                          <TableCell className="text-right">
-                            <Badge variant="secondary">{count}</Badge>
-                          </TableCell>
-                          <TableCell className="text-right font-medium text-success">
-                            {formatCurrency(avgRent)}/mo
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {enabledCities.includes(city) ? (
-                              <Eye className="h-4 w-4 text-success mx-auto" />
-                            ) : (
-                              <EyeOff className="h-4 w-4 text-muted-foreground mx-auto" />
-                            )}
-                          </TableCell>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>City</TableHead>
+                          <TableHead className="text-right">Rentals</TableHead>
+                          <TableHead className="text-right">1 Bed Avg</TableHead>
+                          <TableHead className="text-right">2 Bed Avg</TableHead>
+                          <TableHead className="text-right">Townhome Avg</TableHead>
+                          <TableHead className="text-right">Overall Avg</TableHead>
+                          <TableHead className="text-center">Visible</TableHead>
                         </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                      </TableHeader>
+                      <TableBody>
+                        {cityCounts?.slice(0, 10).map(({ city, count, avgRent, avg1Bed, avg2Bed, avgTownhome }) => (
+                          <TableRow key={city}>
+                            <TableCell className="font-medium">{city}</TableCell>
+                            <TableCell className="text-right">
+                              <Badge variant="secondary">{count}</Badge>
+                            </TableCell>
+                            <TableCell className="text-right font-medium text-primary">
+                              {avg1Bed ? `${formatCurrency(avg1Bed)}/mo` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-medium text-primary">
+                              {avg2Bed ? `${formatCurrency(avg2Bed)}/mo` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-medium text-secondary-foreground">
+                              {avgTownhome ? `${formatCurrency(avgTownhome)}/mo` : "—"}
+                            </TableCell>
+                            <TableCell className="text-right font-medium text-success">
+                              {formatCurrency(avgRent)}/mo
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {enabledCities.includes(city) ? (
+                                <Eye className="h-4 w-4 text-success mx-auto" />
+                              ) : (
+                                <EyeOff className="h-4 w-4 text-muted-foreground mx-auto" />
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
                 )}
               </CardContent>
             </Card>
