@@ -54,6 +54,7 @@ import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
 import AdminMarketData from "./pages/admin/AdminMarketData";
 import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
 import NotFound from "./pages/NotFound";
+import AdminSupportTickets from "./pages/admin/AdminSupportTickets";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminClientSearches from "./pages/admin/AdminClientSearches";
 import AdminClientForm from "./pages/admin/AdminClientForm";
@@ -279,6 +280,7 @@ const App = () => (
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             <Route path="/admin/buyers" element={<AdminProtectedRoute><AdminBuyers /></AdminProtectedRoute>} />
+            <Route path="/admin/support-tickets" element={<AdminProtectedRoute><AdminSupportTickets /></AdminProtectedRoute>} />
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
