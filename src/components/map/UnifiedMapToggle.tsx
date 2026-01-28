@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
-import { Lock } from "lucide-react";
+import { Lock, Home } from "lucide-react";
 
-type MapMode = "all" | "presale" | "resale" | "assignments";
+type MapMode = "all" | "presale" | "resale" | "assignments" | "rental";
 
 interface UnifiedMapToggleProps {
   mode: MapMode;
@@ -9,6 +9,7 @@ interface UnifiedMapToggleProps {
   presaleCount?: number;
   resaleCount?: number;
   assignmentCount?: number;
+  rentalCount?: number;
   className?: string;
 }
 
@@ -18,6 +19,7 @@ export function UnifiedMapToggle({
   presaleCount, 
   resaleCount,
   assignmentCount,
+  rentalCount,
   className 
 }: UnifiedMapToggleProps) {
   return (
@@ -57,6 +59,18 @@ export function UnifiedMapToggle({
         )}
       >
         Move-In
+      </button>
+      <button
+        onClick={() => onModeChange("rental")}
+        className={cn(
+          "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
+          mode === "rental"
+            ? "bg-emerald-600 text-white shadow-sm"
+            : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
+        )}
+      >
+        <Home className="h-3 w-3" />
+        Rent
       </button>
       <button
         onClick={() => onModeChange("assignments")}

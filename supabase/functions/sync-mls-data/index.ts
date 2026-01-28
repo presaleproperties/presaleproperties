@@ -80,6 +80,13 @@ interface DDFProperty {
     OpenHouseEndTime?: string;
     OpenHouseRemarks?: string;
   }>;
+  // Rental-specific fields
+  LeaseAmount?: number;
+  LeaseAmountFrequency?: string;
+  AvailabilityDate?: string;
+  PetsAllowed?: string;
+  Furnished?: string;
+  UtilitiesIncluded?: string[];
 }
 
 // BC geographic boundaries for coordinate validation
@@ -514,6 +521,12 @@ Deno.serve(async (req) => {
         
         const newPrice = toInt(property.ListPrice) || 0;
         
+        // Determine if this is a rental listing
+        const leaseAmount = property.LeaseAmount;
+        const isRental = (leaseAmount && leaseAmount > 0) || 
+                         (newPrice === 0 && property.PublicRemarks?.toLowerCase().includes("for rent")) ||
+                         property.PropertySubType?.toLowerCase().includes("lease");
+        
         // Check if this is a price change from existing listing
         const existingPrice = existingPriceMap.get(listingKey);
         if (existingPrice !== undefined && existingPrice !== newPrice && newPrice > 0) {
@@ -523,6 +536,36 @@ Deno.serve(async (req) => {
             previous_price: existingPrice,
           });
           console.log(`Price change detected for ${listingKey}: ${existingPrice} -> ${newPrice}`);
+        }
+        
+        // Parse pets allowed from remarks if not in dedicated field
+        let petsAllowed = property.PetsAllowed || null;
+        if (!petsAllowed && property.PublicRemarks) {
+          const remarks = property.PublicRemarks.toLowerCase();
+          if (remarks.includes("no pets") || remarks.includes("pets not allowed")) {
+            petsAllowed = "No";
+          } else if (remarks.includes("pets ok") || remarks.includes("pets allowed") || remarks.includes("pet friendly")) {
+            petsAllowed = "Yes";
+          } else if (remarks.includes("cats only")) {
+            petsAllowed = "Cats Only";
+          } else if (remarks.includes("small pets") || remarks.includes("small dog")) {
+            petsAllowed = "Small Pets";
+          }
+        }
+        
+        // Parse furnished status from remarks if not in dedicated field
+        let furnished = property.Furnished || null;
+        if (!furnished && property.PublicRemarks) {
+          const remarks = property.PublicRemarks.toLowerCase();
+          if (remarks.includes("fully furnished")) {
+            furnished = "Fully Furnished";
+          } else if (remarks.includes("partially furnished")) {
+            furnished = "Partially Furnished";
+          } else if (remarks.includes("furnished")) {
+            furnished = "Furnished";
+          } else if (remarks.includes("unfurnished")) {
+            furnished = "Unfurnished";
+          }
         }
         
         return {
@@ -591,6 +634,14 @@ Deno.serve(async (req) => {
           list_date: property.OriginalEntryTimestamp ? new Date(property.OriginalEntryTimestamp).toISOString() : new Date().toISOString(),
           modification_timestamp: property.ModificationTimestamp,
           last_synced_at: new Date().toISOString(),
+          // Rental-specific fields
+          is_rental: isRental,
+          lease_amount: leaseAmount || null,
+          lease_frequency: property.LeaseAmountFrequency || (isRental ? "Monthly" : null),
+          availability_date: property.AvailabilityDate || null,
+          pets_allowed: petsAllowed,
+          furnished: furnished,
+          utilities_included: property.UtilitiesIncluded || null,
           // Open House data - get the next upcoming open house
           open_house_date: property.OpenHouse && property.OpenHouse.length > 0 
             ? (() => {
