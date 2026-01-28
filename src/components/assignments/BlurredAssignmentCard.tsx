@@ -1,3 +1,4 @@
+import { forwardRef } from "react";
 import { Lock, Bed, Bath, Square, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
@@ -30,20 +31,21 @@ interface BlurredAssignmentCardProps {
  * Displays a teaser with obscured details and a premium glassmorphism lock overlay.
  * Uses copper/coral color scheme (hsl(18, 85%, 50%)) to match other assignment styling.
  */
-export function BlurredAssignmentCard({
+export const BlurredAssignmentCard = forwardRef<HTMLDivElement, BlurredAssignmentCardProps>(({
   assignment,
   isFocused = false,
   isSelected = false,
   onClick,
   className,
   variant = "grid",
-}: BlurredAssignmentCardProps) {
+}, ref) => {
   const photo = assignment.listing_photos?.[0]?.url;
   
   const isCarousel = variant === "carousel";
   
   return (
     <div 
+      ref={ref}
       onClick={onClick}
       className={cn(
         "relative rounded-xl border overflow-hidden transition-all duration-300 group bg-card",
@@ -162,4 +164,6 @@ export function BlurredAssignmentCard({
       </div>
     </div>
   );
-}
+});
+
+BlurredAssignmentCard.displayName = "BlurredAssignmentCard";

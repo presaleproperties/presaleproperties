@@ -552,10 +552,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments, visibleRentals);
   }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, onVisibleItemsChange]);
 
-  // Store callbacks in refs to avoid recreating initializeMap
+  // Store callbacks in refs to avoid recreating markers on every render
   const updateVisibleItemsRef = useRef(updateVisibleItems);
   const onMapInteractionRef = useRef(onMapInteraction);
   const onMapStateChangeRef = useRef(onMapStateChange);
+  const onListingSelectRef = useRef(onListingSelect);
   const savedMapStateRef = useRef(savedMapState);
   
   // Keep refs updated
@@ -570,6 +571,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   useEffect(() => {
     onMapStateChangeRef.current = onMapStateChange;
   }, [onMapStateChange]);
+  
+  useEffect(() => {
+    onListingSelectRef.current = onListingSelect;
+  }, [onListingSelect]);
 
   // Initialize map only once on mount
   useEffect(() => {
@@ -770,7 +775,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
 
         marker.on("click", () => {
-          onListingSelect?.(listing.id, "resale");
+          onListingSelectRef.current?.(listing.id, "resale");
         });
 
         resaleMarkers.push(marker);
@@ -808,7 +813,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
 
         marker.on("click", () => {
-          onListingSelect?.(project.id, "presale");
+          onListingSelectRef.current?.(project.id, "presale");
         });
 
         presaleLayer.addLayer(marker);
@@ -847,7 +852,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
 
         marker.on("click", () => {
-          onListingSelect?.(assignment.id, "assignment");
+          onListingSelectRef.current?.(assignment.id, "assignment");
         });
 
         assignmentLayer.addLayer(marker);
@@ -886,7 +891,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
 
         marker.on("click", () => {
-          onListingSelect?.(rental.id, "rental");
+          onListingSelectRef.current?.(rental.id, "rental");
         });
 
         rentalLayer.addLayer(marker);
@@ -904,9 +909,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     }
 
     requestAnimationFrame(() => {
-      setTimeout(updateVisibleItems, 50);
+      setTimeout(() => updateVisibleItemsRef.current?.(), 50);
     });
-  }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, mode, isVerifiedAgent, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
+  }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, mode, isVerifiedAgent, disablePopupsOnMobile]);
 
   // Effect to handle highlighting of markers
   useEffect(() => {
