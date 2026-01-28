@@ -94,6 +94,7 @@ import BuyerAuth from "./pages/BuyerAuth";
 import BuyerLogin from "./pages/BuyerLogin";
 import BuyerDashboard from "./pages/buyer/BuyerDashboard";
 import AdminBuyers from "./pages/admin/AdminBuyers";
+import AssignmentDetail from "./pages/AssignmentDetail";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 
 const queryClient = new QueryClient({
@@ -245,6 +246,9 @@ const App = () => (
             
             {/* For Agents Marketing Page */}
             <Route path="/for-agents" element={<ForAgents />} />
+            
+            {/* Public Assignment Detail - Agent-Gated Content */}
+            <Route path="/assignments/:id" element={<AssignmentDetail />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />

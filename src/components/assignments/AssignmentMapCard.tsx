@@ -55,10 +55,10 @@ export function AssignmentMapCard({
       className={cn(
         "relative rounded-xl border overflow-hidden transition-all group bg-card block",
         isFocused 
-          ? "border-purple-500 ring-2 ring-purple-500/30 shadow-lg" 
+          ? "border-teal-500 ring-2 ring-teal-500/30 shadow-lg" 
           : isSelected 
-            ? "border-purple-400/50 ring-1 ring-purple-400/20" 
-            : "border-border hover:border-purple-400/50 hover:shadow-lg",
+            ? "border-teal-400/50 ring-1 ring-teal-400/20" 
+            : "border-border hover:border-teal-400/50 hover:shadow-lg",
         isCarousel ? "w-[280px] shrink-0" : "",
         className
       )}
@@ -76,13 +76,13 @@ export function AssignmentMapCard({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/20 dark:to-purple-800/10 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/20 dark:to-teal-800/10 flex items-center justify-center">
             <span className="text-muted-foreground text-sm">No Image</span>
           </div>
         )}
         
         {/* Assignment Badge */}
-        <span className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+        <span className="absolute top-2 left-2 bg-teal-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
           Assignment
         </span>
         
