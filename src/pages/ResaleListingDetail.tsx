@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { ShareButtons } from "@/components/listings/ShareButtons";
+import { SocialShareButtons } from "@/components/social/SocialShareButtons";
 import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
@@ -557,7 +557,12 @@ export default function ResaleListingDetail() {
                       </a>
                     </Button>}
                   <div className="ml-auto">
-                    <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
+                    <SocialShareButtons 
+                      title={pageTitle} 
+                      description={pageDescription}
+                      image={photos[0]?.url}
+                      variant="compact"
+                    />
                   </div>
                 </div>
 
@@ -600,7 +605,12 @@ export default function ResaleListingDetail() {
                 Directions
               </Button>
               <div className="ml-auto">
-                <ShareButtons title={`${address} - ${formatPropertyType(listing.property_type)}`} />
+                <SocialShareButtons 
+                  title={pageTitle} 
+                  description={pageDescription}
+                  image={photos[0]?.url}
+                  variant="compact"
+                />
               </div>
             </div>
 
