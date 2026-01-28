@@ -1,13 +1,12 @@
 import { ReactNode, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { useAgentVerification } from "@/hooks/useAgentVerification";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { ContactSupportModal } from "./ContactSupportModal";
 import { 
   LayoutDashboard, 
+  Building2, 
   Users, 
   User, 
   LogOut,
@@ -21,10 +20,6 @@ import {
   MessageSquare,
   FileText,
   FolderOpen,
-  CheckCircle,
-  Clock,
-  Map,
-  HelpCircle,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -46,6 +41,12 @@ const navItems = [
     badge: "Premium"
   },
   { 
+    label: "Assignment Portal", 
+    href: "/dashboard/assignments", 
+    icon: Building2,
+    description: "Browse all assignments"
+  },
+  { 
     label: "My Listings", 
     href: "/dashboard/listings", 
     icon: FileText,
@@ -56,6 +57,12 @@ const navItems = [
     href: "/dashboard/messages", 
     icon: MessageSquare,
     description: "Agent-to-agent inbox"
+  },
+  { 
+    label: "Leads", 
+    href: "/dashboard/leads", 
+    icon: Users,
+    description: "View buyer inquiries"
   },
   { 
     label: "Billing", 
@@ -75,9 +82,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { signOut, user, isAdmin } = useAuth();
-  const { isVerifiedAgent } = useAgentVerification();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -150,17 +155,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
                 <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                {isVerifiedAgent ? (
-                  <Badge variant="outline" className="mt-1 text-[10px] px-1.5 py-0 h-4 text-green-600 border-green-500/30 bg-green-500/10">
-                    <CheckCircle className="h-2.5 w-2.5 mr-1" />
-                    Verified Agent
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="mt-1 text-[10px] px-1.5 py-0 h-4 text-amber-600 border-amber-500/30 bg-amber-500/10">
-                    <Clock className="h-2.5 w-2.5 mr-1" />
-                    Pending Verification
-                  </Badge>
-                )}
               </div>
             </div>
           </div>
@@ -213,37 +207,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             ))}
           </nav>
           
-          {/* Browse Marketplace Link */}
-          <div className="p-4 border-t border-border/50">
-            <Link to="/map-search?mode=assignments" className="block">
-              <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 hover:border-primary/40 transition-colors group">
-                <div className="flex items-center gap-3 mb-2">
-                  <div className="p-2 rounded-lg bg-primary/20 group-hover:bg-primary/30 transition-colors">
-                    <Map className="h-4 w-4 text-primary" />
-                  </div>
-                  <span className="text-sm font-medium">Browse Marketplace</span>
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Find assignments on the interactive map
-                </p>
-              </div>
-            </Link>
-          </div>
-
           {/* Quick Help */}
           <div className="p-4 border-t border-border/50">
-            <div className="p-4 rounded-xl bg-muted/30 border border-border/50">
+            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
               <p className="text-sm font-medium mb-1">Need Help?</p>
               <p className="text-xs text-muted-foreground mb-3">
                 Get support or learn how to maximize your listings.
               </p>
-              <Button 
-                size="sm" 
-                variant="outline" 
-                className="w-full text-xs gap-2"
-                onClick={() => setSupportModalOpen(true)}
-              >
-                <HelpCircle className="h-3.5 w-3.5" />
+              <Button size="sm" variant="outline" className="w-full text-xs">
                 Contact Support
               </Button>
             </div>
@@ -266,29 +237,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{user?.email?.split("@")[0]}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
-                  {isVerifiedAgent ? (
-                    <Badge variant="outline" className="mt-1 text-[10px] px-1.5 py-0 h-4 text-green-600 border-green-500/30 bg-green-500/10">
-                      <CheckCircle className="h-2.5 w-2.5 mr-1" />
-                      Verified
-                    </Badge>
-                  ) : (
-                    <Badge variant="outline" className="mt-1 text-[10px] px-1.5 py-0 h-4 text-amber-600 border-amber-500/30 bg-amber-500/10">
-                      <Clock className="h-2.5 w-2.5 mr-1" />
-                      Pending
-                    </Badge>
-                  )}
                 </div>
               </div>
-
-              {/* Browse Marketplace Mobile */}
-              <Link 
-                to="/map-search?mode=assignments" 
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center gap-3 rounded-xl px-3 py-3 mb-4 text-sm bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20"
-              >
-                <Map className="h-5 w-5 text-primary" />
-                <span className="font-medium text-primary">Browse Marketplace</span>
-              </Link>
 
               {navItems.map((item) => (
                 <Link
@@ -322,12 +272,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </main>
       </div>
-
-      {/* Support Modal */}
-      <ContactSupportModal 
-        open={supportModalOpen} 
-        onOpenChange={setSupportModalOpen} 
-      />
     </div>
   );
 }

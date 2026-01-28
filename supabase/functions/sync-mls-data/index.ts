@@ -80,13 +80,6 @@ interface DDFProperty {
     OpenHouseEndTime?: string;
     OpenHouseRemarks?: string;
   }>;
-  // Rental-specific fields
-  LeaseAmount?: number;
-  LeaseAmountFrequency?: string;
-  AvailabilityDate?: string;
-  PetsAllowed?: string;
-  Furnished?: string;
-  UtilitiesIncluded?: string[];
 }
 
 // BC geographic boundaries for coordinate validation
@@ -320,7 +313,6 @@ Deno.serve(async (req) => {
     let offset = 0;
     let maxBatches = 50; // Process max 50 batches (5000 listings) per call
     let metroVancouverResidential = false; // New filter: condos, townhomes, single family in Metro Van only
-    let includeRentals = false; // Fetch rental listings (ListPrice eq 0)
     
     try {
       const body = await req.json();
@@ -328,7 +320,6 @@ Deno.serve(async (req) => {
       if (body?.offset !== undefined) offset = parseInt(body.offset) || 0;
       if (body?.maxBatches) maxBatches = Math.min(parseInt(body.maxBatches) || 30, 50);
       if (body?.metroVancouverResidential) metroVancouverResidential = true;
-      if (body?.includeRentals) includeRentals = true;
     } catch {
       // No body or invalid JSON
     }
@@ -389,21 +380,6 @@ Deno.serve(async (req) => {
       // We'll sync all and filter locally for display
       filters.push("CommonInterest eq 'Condo/Strata'");
       console.log("Filtering for: Strata properties (Condos + Strata Townhomes) via CommonInterest eq 'Condo/Strata'");
-    }
-    
-    // Include rentals: DDF doesn't have dedicated rental listings with ListPrice eq 0
-    // Instead, rentals are identified from remarks parsing during processing
-    // When includeRentals is true, we fetch strata properties and identify rentals from remarks
-    if (includeRentals) {
-      if (!metroVancouverResidential) {
-        // If only rentals requested without strata filter, still fetch strata properties
-        // as that's where rentals are found (they're mixed in with sales listings)
-        filters.push("CommonInterest eq 'Condo/Strata'");
-        console.log("Filtering for: Strata properties to identify rentals from remarks");
-      } else {
-        // metroVancouverResidential is already set, strata filter already applied
-        console.log("Filtering for: Strata properties (will identify rentals during processing)");
-      }
     }
 
     let allProperties: DDFProperty[] = [];
@@ -536,50 +512,7 @@ Deno.serve(async (req) => {
         // Use inferred property type for more accurate categorization
         const inferredType = inferPropertyType(property);
         
-        const listPrice = toInt(property.ListPrice) || 0;
-        
-        // Determine if this is a rental listing based on multiple signals
-        const leaseAmountFromAPI = property.LeaseAmount;
-        const remarksLower = property.PublicRemarks?.toLowerCase() || '';
-        const subTypeLower = property.PropertySubType?.toLowerCase() || '';
-        
-        // Check rental indicators
-        const hasLeaseAmount = leaseAmountFromAPI && leaseAmountFromAPI > 0;
-        const hasRentalKeywords = remarksLower.includes("for rent") || 
-                                   remarksLower.includes("for lease") ||
-                                   remarksLower.includes("/month") ||
-                                   remarksLower.includes("per month") ||
-                                   remarksLower.includes("tenant");
-        const isLeaseType = subTypeLower.includes("lease") || subTypeLower.includes("rental");
-        const isZeroPriceListing = listPrice === 0;
-        
-        // Determine if rental
-        const isRental = hasLeaseAmount || isLeaseType || (isZeroPriceListing && hasRentalKeywords);
-        
-        // For rental listings, determine the lease amount:
-        // 1. Use LeaseAmount if available
-        // 2. For zero-price listings, try to extract from remarks
-        // 3. If ListPrice is in rental range ($500-$20000), use it as rent
-        let finalLeaseAmount: number | null = leaseAmountFromAPI || null;
-        
-        if (isRental && !finalLeaseAmount) {
-          // Try to extract rent from remarks
-          const rentMatch = remarksLower.match(/\$\s*([\d,]+)\s*(?:\/|\s*per\s*)?\s*(?:mo|month)/i);
-          if (rentMatch) {
-            const extracted = parseInt(rentMatch[1].replace(/,/g, ''));
-            if (extracted >= 500 && extracted <= 25000) {
-              finalLeaseAmount = extracted;
-            }
-          }
-          
-          // If still no rent and listing price looks like rent, use it
-          if (!finalLeaseAmount && listPrice >= 500 && listPrice <= 25000) {
-            finalLeaseAmount = listPrice;
-          }
-        }
-        
-        // For sales listings, use listPrice; for rentals, set to 0 (rent in lease_amount)
-        const newPrice = isRental ? 0 : listPrice;
+        const newPrice = toInt(property.ListPrice) || 0;
         
         // Check if this is a price change from existing listing
         const existingPrice = existingPriceMap.get(listingKey);
@@ -590,36 +523,6 @@ Deno.serve(async (req) => {
             previous_price: existingPrice,
           });
           console.log(`Price change detected for ${listingKey}: ${existingPrice} -> ${newPrice}`);
-        }
-        
-        // Parse pets allowed from remarks if not in dedicated field
-        let petsAllowed = property.PetsAllowed || null;
-        if (!petsAllowed && property.PublicRemarks) {
-          const remarks = property.PublicRemarks.toLowerCase();
-          if (remarks.includes("no pets") || remarks.includes("pets not allowed")) {
-            petsAllowed = "No";
-          } else if (remarks.includes("pets ok") || remarks.includes("pets allowed") || remarks.includes("pet friendly")) {
-            petsAllowed = "Yes";
-          } else if (remarks.includes("cats only")) {
-            petsAllowed = "Cats Only";
-          } else if (remarks.includes("small pets") || remarks.includes("small dog")) {
-            petsAllowed = "Small Pets";
-          }
-        }
-        
-        // Parse furnished status from remarks if not in dedicated field
-        let furnished = property.Furnished || null;
-        if (!furnished && property.PublicRemarks) {
-          const remarks = property.PublicRemarks.toLowerCase();
-          if (remarks.includes("fully furnished")) {
-            furnished = "Fully Furnished";
-          } else if (remarks.includes("partially furnished")) {
-            furnished = "Partially Furnished";
-          } else if (remarks.includes("furnished")) {
-            furnished = "Furnished";
-          } else if (remarks.includes("unfurnished")) {
-            furnished = "Unfurnished";
-          }
         }
         
         return {
@@ -688,14 +591,6 @@ Deno.serve(async (req) => {
           list_date: property.OriginalEntryTimestamp ? new Date(property.OriginalEntryTimestamp).toISOString() : new Date().toISOString(),
           modification_timestamp: property.ModificationTimestamp,
           last_synced_at: new Date().toISOString(),
-          // Rental-specific fields
-          is_rental: isRental,
-          lease_amount: finalLeaseAmount,
-          lease_frequency: property.LeaseAmountFrequency || (isRental ? "Monthly" : null),
-          availability_date: property.AvailabilityDate || null,
-          pets_allowed: petsAllowed,
-          furnished: furnished,
-          utilities_included: property.UtilitiesIncluded || null,
           // Open House data - get the next upcoming open house
           open_house_date: property.OpenHouse && property.OpenHouse.length > 0 
             ? (() => {

@@ -1671,7 +1671,6 @@ export type Database = {
           appliances: string[] | null
           association_fee: number | null
           association_fee_frequency: string | null
-          availability_date: string | null
           bathrooms_full: number | null
           bathrooms_half: number | null
           bathrooms_total: number | null
@@ -1691,16 +1690,12 @@ export type Database = {
           directions: string | null
           expiration_date: string | null
           exterior_features: string[] | null
-          furnished: string | null
           garage_spaces: number | null
           heating: string[] | null
           id: string
           interior_features: string[] | null
-          is_rental: boolean | null
           last_synced_at: string
           latitude: number | null
-          lease_amount: number | null
-          lease_frequency: string | null
           list_agent_email: string | null
           list_agent_key: string | null
           list_agent_mls_id: string | null
@@ -1729,7 +1724,6 @@ export type Database = {
           open_house_start_time: string | null
           original_list_price: number | null
           parking_total: number | null
-          pets_allowed: string | null
           photos: Json | null
           photos_change_timestamp: string | null
           pool_yn: boolean | null
@@ -1752,7 +1746,6 @@ export type Database = {
           unit_number: string | null
           unparsed_address: string | null
           updated_at: string
-          utilities_included: string[] | null
           video_url: string | null
           view: string[] | null
           virtual_tour_url: string | null
@@ -1763,7 +1756,6 @@ export type Database = {
           appliances?: string[] | null
           association_fee?: number | null
           association_fee_frequency?: string | null
-          availability_date?: string | null
           bathrooms_full?: number | null
           bathrooms_half?: number | null
           bathrooms_total?: number | null
@@ -1783,16 +1775,12 @@ export type Database = {
           directions?: string | null
           expiration_date?: string | null
           exterior_features?: string[] | null
-          furnished?: string | null
           garage_spaces?: number | null
           heating?: string[] | null
           id?: string
           interior_features?: string[] | null
-          is_rental?: boolean | null
           last_synced_at?: string
           latitude?: number | null
-          lease_amount?: number | null
-          lease_frequency?: string | null
           list_agent_email?: string | null
           list_agent_key?: string | null
           list_agent_mls_id?: string | null
@@ -1821,7 +1809,6 @@ export type Database = {
           open_house_start_time?: string | null
           original_list_price?: number | null
           parking_total?: number | null
-          pets_allowed?: string | null
           photos?: Json | null
           photos_change_timestamp?: string | null
           pool_yn?: boolean | null
@@ -1844,7 +1831,6 @@ export type Database = {
           unit_number?: string | null
           unparsed_address?: string | null
           updated_at?: string
-          utilities_included?: string[] | null
           video_url?: string | null
           view?: string[] | null
           virtual_tour_url?: string | null
@@ -1855,7 +1841,6 @@ export type Database = {
           appliances?: string[] | null
           association_fee?: number | null
           association_fee_frequency?: string | null
-          availability_date?: string | null
           bathrooms_full?: number | null
           bathrooms_half?: number | null
           bathrooms_total?: number | null
@@ -1875,16 +1860,12 @@ export type Database = {
           directions?: string | null
           expiration_date?: string | null
           exterior_features?: string[] | null
-          furnished?: string | null
           garage_spaces?: number | null
           heating?: string[] | null
           id?: string
           interior_features?: string[] | null
-          is_rental?: boolean | null
           last_synced_at?: string
           latitude?: number | null
-          lease_amount?: number | null
-          lease_frequency?: string | null
           list_agent_email?: string | null
           list_agent_key?: string | null
           list_agent_mls_id?: string | null
@@ -1913,7 +1894,6 @@ export type Database = {
           open_house_start_time?: string | null
           original_list_price?: number | null
           parking_total?: number | null
-          pets_allowed?: string | null
           photos?: Json | null
           photos_change_timestamp?: string | null
           pool_yn?: boolean | null
@@ -1936,7 +1916,6 @@ export type Database = {
           unit_number?: string | null
           unparsed_address?: string | null
           updated_at?: string
-          utilities_included?: string[] | null
           video_url?: string | null
           view?: string[] | null
           virtual_tour_url?: string | null
@@ -2854,51 +2833,6 @@ export type Database = {
           status?: string
           summary?: string | null
           warnings?: Json | null
-        }
-        Relationships: []
-      }
-      support_tickets: {
-        Row: {
-          admin_notes: string | null
-          created_at: string
-          email: string
-          id: string
-          message: string
-          name: string
-          priority: string
-          resolved_at: string | null
-          status: string
-          subject: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          admin_notes?: string | null
-          created_at?: string
-          email: string
-          id?: string
-          message: string
-          name: string
-          priority?: string
-          resolved_at?: string | null
-          status?: string
-          subject: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          admin_notes?: string | null
-          created_at?: string
-          email?: string
-          id?: string
-          message?: string
-          name?: string
-          priority?: string
-          resolved_at?: string | null
-          status?: string
-          subject?: string
-          updated_at?: string
-          user_id?: string | null
         }
         Relationships: []
       }

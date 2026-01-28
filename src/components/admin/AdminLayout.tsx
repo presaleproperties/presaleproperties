@@ -63,7 +63,6 @@ const navGroups = [
       { href: "/admin/leads", label: "Leads", icon: Users2 },
       { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
       { href: "/admin/agents", label: "Agents", icon: Users2 },
-      { href: "/admin/support-tickets", label: "Support Tickets", icon: Mail },
     ]
   },
   {
@@ -87,7 +86,6 @@ const navGroups = [
       { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
       { href: "/admin/email-workflows", label: "Email Workflows", icon: Workflow },
       { href: "/admin/mls-sync", label: "MLS Sync", icon: RefreshCw },
-      { href: "/admin/rental-sync", label: "Rental Sync", icon: RefreshCw },
       { href: "/admin/scheduler-settings", label: "Scheduler", icon: Clock },
       { href: "/admin/settings", label: "Settings", icon: Settings },
     ]

@@ -1,15 +1,12 @@
 import { cn } from "@/lib/utils";
-import { Lock, Home } from "lucide-react";
 
-type MapMode = "all" | "presale" | "resale" | "assignments" | "rental";
+type MapMode = "all" | "presale" | "resale";
 
 interface UnifiedMapToggleProps {
   mode: MapMode;
   onModeChange: (mode: MapMode) => void;
   presaleCount?: number;
   resaleCount?: number;
-  assignmentCount?: number;
-  rentalCount?: number;
   className?: string;
 }
 
@@ -18,8 +15,6 @@ export function UnifiedMapToggle({
   onModeChange, 
   presaleCount, 
   resaleCount,
-  assignmentCount,
-  rentalCount,
   className 
 }: UnifiedMapToggleProps) {
   return (
@@ -59,32 +54,6 @@ export function UnifiedMapToggle({
         )}
       >
         Move-In
-      </button>
-      {/* Rental toggle temporarily hidden - keeping code for future reactivation
-      <button
-        onClick={() => onModeChange("rental")}
-        className={cn(
-          "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
-          mode === "rental"
-            ? "bg-emerald-600 text-white shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
-        )}
-      >
-        <Home className="h-3 w-3" />
-        Rent
-      </button>
-      */}
-      <button
-        onClick={() => onModeChange("assignments")}
-        className={cn(
-          "px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
-          mode === "assignments"
-            ? "bg-[hsl(18,85%,50%)] text-white shadow-sm"
-            : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
-        )}
-      >
-        <Lock className="h-3 w-3" />
-        Assign
       </button>
     </div>
   );

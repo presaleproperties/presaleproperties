@@ -490,10 +490,6 @@
   }
 
   /* Leaflet map popup styling */
-  .leaflet-popup {
-    z-index: 10000 !important;
-  }
-  
   .leaflet-popup-content-wrapper {
     background: transparent !important;
     padding: 0 !important;
@@ -518,9 +514,7 @@
     display: none !important;
   }
   
-  .project-popup .leaflet-popup-content-wrapper,
-  .assignment-popup .leaflet-popup-content-wrapper,
-  .resale-listing-popup .leaflet-popup-content-wrapper {
+  .project-popup .leaflet-popup-content-wrapper {
     box-shadow: none !important;
   }
 
@@ -636,78 +630,6 @@
   animation: marker-bounce 0.8s ease-in-out, marker-pulse 1.5s ease-in-out infinite;
 }
 
-/* Assignment markers (copper - agent exclusive) */
-.assignment-marker {
-  pointer-events: auto !important;
-  z-index: 500 !important;
-}
-
-.assignment-marker .ap {
-  background: linear-gradient(135deg, hsl(18, 85%, 50%), hsl(15, 80%, 45%));
-  color: white;
-  padding: 5px 10px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 11px;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px hsla(18, 85%, 50%, 0.4);
-  border: 2px solid hsl(18, 90%, 60%);
-  cursor: pointer;
-  line-height: 1.2;
-  transform: translateZ(0);
-  will-change: transform;
-  pointer-events: auto;
-  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
-}
-
-.assignment-marker .ap:hover {
-  transform: translateZ(0) scale(1.05);
-  box-shadow: 0 4px 12px hsla(18, 85%, 50%, 0.5);
-}
-
-.assignment-marker .ap.locked {
-  background: linear-gradient(135deg, hsl(18, 70%, 45%), hsl(15, 75%, 40%));
-  font-size: 14px;
-  padding: 5px 12px;
-}
-
-.assignment-marker .ap.hl {
-  padding: 6px 14px;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 14px;
-  box-shadow: 0 0 0 4px hsla(18, 85%, 50%, 0.4), 0 6px 20px rgba(0,0,0,0.5);
-  border: 3px solid white;
-  animation: marker-bounce 0.8s ease-in-out, marker-pulse 1.5s ease-in-out infinite;
-}
-
-/* Rental price pill markers (emerald green) */
-.rental-marker .rp {
-  background: linear-gradient(135deg, hsl(158, 64%, 42%), hsl(160, 70%, 36%));
-  color: white;
-  padding: 3px 8px;
-  border-radius: 12px;
-  font-weight: 600;
-  font-size: 10px;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px hsla(158, 64%, 42%, 0.4);
-  border: 1.5px solid hsl(158, 64%, 55%);
-  cursor: pointer;
-  line-height: 1.2;
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-.rental-marker .rp.hl {
-  padding: 6px 14px;
-  border-radius: 16px;
-  font-weight: 700;
-  font-size: 13px;
-  box-shadow: 0 0 0 4px hsla(158, 64%, 42%, 0.4), 0 6px 20px rgba(0,0,0,0.5);
-  border: 3px solid white;
-  animation: marker-bounce 0.8s ease-in-out, marker-pulse 1.5s ease-in-out infinite;
-}
-
 /* Presale pin markers */
 .presale-pin .pin {
   background: hsl(222, 47%, 20%);
@@ -747,11 +669,6 @@
 }
 
 /* Cluster markers - optimized */
-.mc {
-  pointer-events: auto !important;
-  cursor: pointer !important;
-}
-
 .mc .cl {
   background: linear-gradient(135deg, hsl(222, 47%, 18%) 0%, hsl(222, 47%, 25%) 100%);
   color: white;
@@ -765,8 +682,6 @@
   font-family: system-ui, -apple-system, sans-serif;
   transform: translateZ(0);
   will-change: transform;
-  pointer-events: auto !important;
-  cursor: pointer !important;
 }
 
 .mc .cl.sm { width: 36px; height: 36px; font-size: 14px; }

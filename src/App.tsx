@@ -22,7 +22,7 @@ import DashboardListings from "./pages/dashboard/DashboardListings";
 import DashboardLeads from "./pages/dashboard/DashboardLeads";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardBilling from "./pages/dashboard/DashboardBilling";
-
+import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
 import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardProjectDocuments from "./pages/dashboard/DashboardProjectDocuments";
 import ListingForm from "./pages/dashboard/ListingForm";
@@ -49,13 +49,11 @@ import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDeveloperProfiles from "./pages/admin/AdminDeveloperProfiles";
 import AdminMLSSync from "./pages/admin/AdminMLSSync";
-import AdminRentalSync from "./pages/admin/AdminRentalSync";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
 import AdminMarketData from "./pages/admin/AdminMarketData";
 import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
 import NotFound from "./pages/NotFound";
-import AdminSupportTickets from "./pages/admin/AdminSupportTickets";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminClientSearches from "./pages/admin/AdminClientSearches";
 import AdminClientForm from "./pages/admin/AdminClientForm";
@@ -76,8 +74,6 @@ import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
-import Rentals from "./pages/Rentals";
-import RentalListingDetail from "./pages/RentalListingDetail";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import CityResalePage from "./pages/CityResalePage";
@@ -98,7 +94,6 @@ import BuyerAuth from "./pages/BuyerAuth";
 import BuyerLogin from "./pages/BuyerLogin";
 import BuyerDashboard from "./pages/buyer/BuyerDashboard";
 import AdminBuyers from "./pages/admin/AdminBuyers";
-import AssignmentDetail from "./pages/AssignmentDetail";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 
 const queryClient = new QueryClient({
@@ -140,8 +135,6 @@ const App = () => (
             {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
             <Route path="/presale/:slug" element={<PresaleRedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
-            <Route path="/rentals" element={<Rentals />} />
-            <Route path="/rentals/:listingKey" element={<RentalListingDetail />} />
             <Route path="/properties" element={<ResaleListings />} />
             {/* City-specific properties pages - MUST be before :listingKey route */}
             <Route path="/properties/vancouver" element={<CityResalePage />} />
@@ -241,7 +234,7 @@ const App = () => (
             {/* Agent Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
             <Route path="/dashboard/projects" element={<ProtectedRoute><DashboardProjectDocuments /></ProtectedRoute>} />
-            
+            <Route path="/dashboard/assignments" element={<ProtectedRoute><DashboardAssignments /></ProtectedRoute>} />
             <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
             <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
@@ -252,9 +245,6 @@ const App = () => (
             
             {/* For Agents Marketing Page */}
             <Route path="/for-agents" element={<ForAgents />} />
-            
-            {/* Public Assignment Detail - Agent-Gated Content */}
-            <Route path="/assignments/:id" element={<AssignmentDetail />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -278,7 +268,6 @@ const App = () => (
             <Route path="/admin/developers" element={<AdminProtectedRoute><AdminDevelopers /></AdminProtectedRoute>} />
             <Route path="/admin/developer-accounts" element={<AdminProtectedRoute><AdminDeveloperProfiles /></AdminProtectedRoute>} />
             <Route path="/admin/mls-sync" element={<AdminProtectedRoute><AdminMLSSync /></AdminProtectedRoute>} />
-            <Route path="/admin/rental-sync" element={<AdminProtectedRoute><AdminRentalSync /></AdminProtectedRoute>} />
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
@@ -286,7 +275,6 @@ const App = () => (
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
             <Route path="/admin/buyers" element={<AdminProtectedRoute><AdminBuyers /></AdminProtectedRoute>} />
-            <Route path="/admin/support-tickets" element={<AdminProtectedRoute><AdminSupportTickets /></AdminProtectedRoute>} />
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />

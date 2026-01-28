@@ -90,7 +90,10 @@ const MONTHS = [
   { value: 12, label: "December" },
 ];
 
-// Visibility modes removed - all assignments are now agent-to-agent only
+const VISIBILITY_MODES = [
+  { value: "public", label: "Public Assignment", description: "All details visible to everyone" },
+  { value: "restricted", label: "Restricted Assignment", description: "Developer-compliant mode - project/developer details hidden" },
+];
 
 const listingSchema = z.object({
   title: z.string().trim().min(5, "Title must be at least 5 characters").max(100),
@@ -634,21 +637,10 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
         parking_count: data.has_parking ? (data.parking_count || 1) : 0,
         has_storage: data.has_storage,
         description: data.description || null,
-        visibility_mode: "public" as const, // All assignments are agent-to-agent now
+        visibility_mode: data.visibility_mode,
         map_lat: mapLat,
         map_lng: mapLng,
       };
-
-      // Validate floor plan requirement
-      if (floorplans.length === 0) {
-        toast({
-          title: "Floor Plan Required",
-          description: "Please upload at least one floor plan before saving.",
-          variant: "destructive",
-        });
-        setSaving(false);
-        return;
-      }
 
       let listingId = id;
 
@@ -729,49 +721,36 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <Link to="/dashboard/listings">
-            <Button variant="ghost" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-2xl font-bold">
-              {isEditing ? "Edit Assignment" : "Create New Assignment"}
-            </h1>
-            <p className="text-muted-foreground">
-              {isEditing ? "Update your assignment" : "Add a new assignment to the marketplace"}
-            </p>
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/listings">
+              <Button variant="ghost" size="icon">
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold">
+                {isEditing ? "Edit Assignment" : "Create New Assignment"}
+              </h1>
+              <p className="text-muted-foreground">
+                {isEditing ? "Update your assignment" : "Add a new assignment to the marketplace"}
+              </p>
+            </div>
           </div>
+          
+          {!isEditing && (
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => setBrochureUploaderOpen(true)}
+              className="gap-2"
+            >
+              <Wand2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Auto-Fill from Brochure</span>
+              <span className="sm:hidden">Auto-Fill</span>
+            </Button>
+          )}
         </div>
-
-        {/* AI Brochure Uploader - Prominent CTA */}
-        {!isEditing && (
-          <Card className="border-primary/30 bg-gradient-to-r from-primary/10 via-primary/5 to-background overflow-hidden">
-            <CardContent className="p-6">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                <div className="p-3 rounded-xl bg-primary/20 w-fit">
-                  <Wand2 className="h-8 w-8 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg mb-1">Auto-Fill from Brochure</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Upload a project brochure or floorplan PDF and our AI will extract all the details automatically.
-                  </p>
-                </div>
-                <Button 
-                  type="button" 
-                  onClick={() => setBrochureUploaderOpen(true)}
-                  className="gap-2 shadow-lg shadow-primary/20"
-                  size="lg"
-                >
-                  <Sparkles className="h-5 w-5" />
-                  Upload Brochure
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
         {/* AI Brochure Uploader Modal */}
         <AssignmentBrochureUploader
@@ -781,7 +760,48 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
         />
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6" noValidate>
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+            {/* Visibility Mode */}
+            <Card className="border-primary/20 bg-primary/5">
+              <CardHeader>
+                <CardTitle>Assignment Visibility</CardTitle>
+                <CardDescription>
+                  Choose how this assignment will be displayed publicly
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="visibility_mode"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Visibility Mode *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select visibility mode" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {VISIBILITY_MODES.map(mode => (
+                            <SelectItem key={mode.value} value={mode.value}>
+                              <div>
+                                <span className="font-medium">{mode.label}</span>
+                                <span className="text-muted-foreground ml-2 text-xs">— {mode.description}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription className="text-sm">
+                        If the developer restricts public marketing, select <strong>Restricted Listing</strong> to remain compliant. Project and developer details will be shared only after buyer inquiry.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
 
             {/* Basic Information */}
             <Card>
@@ -1355,15 +1375,25 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
             {/* Photos */}
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ImageIcon className="h-5 w-5 text-primary" />
-                  Photos
-                </CardTitle>
-                <CardDescription>Upload photos of the unit and building (recommended: 5+ photos)</CardDescription>
+                <CardTitle>Photos</CardTitle>
+                <CardDescription>Upload photos of the unit and building</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {photos.length === 0 ? (
-                  <label className="flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed border-primary/30 bg-primary/5 cursor-pointer hover:border-primary/50 hover:bg-primary/10 transition-all">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {photos.map((photo, index) => (
+                    <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
+                      <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(index)}
+                        className="absolute top-2 right-2 p-1 bg-background/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  
+                  <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 transition-colors">
                     <input
                       type="file"
                       accept="image/*"
@@ -1373,150 +1403,60 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
                       disabled={uploadingPhotos}
                     />
                     {uploadingPhotos ? (
-                      <Loader2 className="h-10 w-10 animate-spin text-primary mb-3" />
+                      <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
                     ) : (
                       <>
-                        <div className="p-4 rounded-full bg-primary/10 mb-4">
-                          <Upload className="h-8 w-8 text-primary" />
-                        </div>
-                        <span className="font-medium mb-1">Drop photos here or click to upload</span>
-                        <span className="text-sm text-muted-foreground">JPG, PNG up to 10MB each</span>
+                        <ImageIcon className="h-6 w-6 text-muted-foreground mb-2" />
+                        <span className="text-xs text-muted-foreground">Add Photos</span>
                       </>
                     )}
                   </label>
-                ) : (
-                  <>
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                      {photos.map((photo, index) => (
-                        <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-border group">
-                          <img src={photo.url} alt={photo.name} className="w-full h-full object-cover" />
-                          <button
-                            type="button"
-                            onClick={() => removePhoto(index)}
-                            className="absolute top-2 right-2 p-1.5 bg-background/90 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                          {index === 0 && (
-                            <span className="absolute bottom-2 left-2 text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
-                              Main
-                            </span>
-                          )}
-                        </div>
-                      ))}
-                      
-                      <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-primary/50 hover:bg-muted/50 transition-all">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          onChange={handlePhotoUpload}
-                          className="hidden"
-                          disabled={uploadingPhotos}
-                        />
-                        {uploadingPhotos ? (
-                          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                        ) : (
-                          <>
-                            <ImageIcon className="h-6 w-6 text-muted-foreground mb-2" />
-                            <span className="text-xs text-muted-foreground">Add More</span>
-                          </>
-                        )}
-                      </label>
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {photos.length} photo{photos.length !== 1 ? "s" : ""} uploaded • Drag to reorder (first photo is the main image)
-                    </p>
-                  </>
-                )}
+                </div>
               </CardContent>
             </Card>
 
-            {/* Floorplans - Required */}
-            <Card className={floorplans.length === 0 ? "border-amber-500/50" : ""}>
+            {/* Floorplans */}
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-primary" />
-                  Floor Plans
-                  <span className="text-destructive">*</span>
-                </CardTitle>
-                <CardDescription>
-                  Upload floor plan documents or images (required for listing approval)
-                </CardDescription>
+                <CardTitle>Floor Plans</CardTitle>
+                <CardDescription>Upload floor plan documents or images</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {floorplans.length === 0 ? (
-                  <label className="flex flex-col items-center justify-center p-8 rounded-xl border-2 border-dashed border-amber-500/50 bg-amber-500/5 cursor-pointer hover:border-amber-500 hover:bg-amber-500/10 transition-all">
-                    <input
-                      type="file"
-                      accept="image/*,.pdf"
-                      multiple
-                      onChange={handleFloorplanUpload}
-                      className="hidden"
-                      disabled={uploadingFloorplans}
-                    />
-                    {uploadingFloorplans ? (
-                      <Loader2 className="h-10 w-10 animate-spin text-amber-600 mb-3" />
-                    ) : (
-                      <>
-                        <div className="p-4 rounded-full bg-amber-500/10 mb-4">
-                          <FileText className="h-8 w-8 text-amber-600" />
-                        </div>
-                        <span className="font-medium mb-1 text-amber-700">Floor plan required</span>
-                        <span className="text-sm text-muted-foreground">Upload PDF or image of the floor plan</span>
-                      </>
-                    )}
-                  </label>
-                ) : (
-                  <>
-                    <div className="space-y-2">
-                      {floorplans.map((fp, index) => (
-                        <div key={index} className="flex items-center gap-3 p-3 rounded-lg border border-green-500/30 bg-green-500/5">
-                          <div className="p-2 rounded-lg bg-green-500/10">
-                            <FileText className="h-5 w-5 text-green-600 shrink-0" />
-                          </div>
-                          <span className="text-sm flex-1 truncate font-medium">{fp.name}</span>
-                          <a 
-                            href={fp.url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-xs text-primary hover:underline"
-                          >
-                            View
-                          </a>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => removeFloorplan(index)}
-                            className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                <div className="space-y-2">
+                  {floorplans.map((fp, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 rounded-lg border border-border">
+                      <FileText className="h-5 w-5 text-muted-foreground shrink-0" />
+                      <span className="text-sm flex-1 truncate">{fp.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => removeFloorplan(index)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
-                    
-                    <label className="flex items-center gap-3 p-4 rounded-lg border-2 border-dashed border-border cursor-pointer hover:border-primary/50 transition-colors">
-                      <input
-                        type="file"
-                        accept="image/*,.pdf"
-                        multiple
-                        onChange={handleFloorplanUpload}
-                        className="hidden"
-                        disabled={uploadingFloorplans}
-                      />
-                      {uploadingFloorplans ? (
-                        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                      ) : (
-                        <>
-                          <Upload className="h-5 w-5 text-muted-foreground" />
-                          <span className="text-sm text-muted-foreground">Add another floor plan</span>
-                        </>
-                      )}
-                    </label>
-                  </>
-                )}
+                  ))}
+                </div>
+                
+                <label className="flex items-center gap-3 p-4 rounded-lg border-2 border-dashed border-border cursor-pointer hover:border-primary/50 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    multiple
+                    onChange={handleFloorplanUpload}
+                    className="hidden"
+                    disabled={uploadingFloorplans}
+                  />
+                  {uploadingFloorplans ? (
+                    <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                  ) : (
+                    <>
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Upload floor plan (PDF or image)</span>
+                    </>
+                  )}
+                </label>
               </CardContent>
             </Card>
 

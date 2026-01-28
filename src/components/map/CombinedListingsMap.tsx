@@ -10,7 +10,7 @@ import { toast } from "sonner";
 // Expose flyTo and highlightItem methods for parent navigation
 export interface CombinedListingsMapRef {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
-  highlightItem: (id: string, type: "resale" | "presale" | "assignment") => void;
+  highlightItem: (id: string, type: "resale" | "presale") => void;
   clearHighlight: () => void;
 }
 
@@ -57,47 +57,6 @@ interface PresaleProject {
   map_lng: number | null;
 }
 
-// Assignment listing type
-interface Assignment {
-  id: string;
-  title: string;
-  project_name: string;
-  city: string;
-  neighborhood: string | null;
-  assignment_price: number;
-  original_price: number | null;
-  beds: number;
-  baths: number;
-  interior_sqft: number | null;
-  map_lat: number | null;
-  map_lng: number | null;
-  listing_photos?: { url: string; sort_order: number | null }[];
-}
-
-// Rental listing type (from MLS with rental-specific fields)
-interface RentalListing {
-  id: string;
-  listing_key: string;
-  lease_amount: number | null;
-  city: string;
-  neighborhood: string | null;
-  street_number: string | null;
-  street_name: string | null;
-  street_suffix: string | null;
-  property_type: string;
-  property_sub_type: string | null;
-  bedrooms_total: number | null;
-  bathrooms_total: number | null;
-  living_area: number | null;
-  latitude: number | null;
-  longitude: number | null;
-  photos: any;
-  mls_status: string;
-  pets_allowed: string | null;
-  furnished: string | null;
-  availability_date: string | null;
-}
-
 interface SavedMapState {
   center: { lat: number; lng: number };
   zoom: number;
@@ -107,12 +66,9 @@ interface SavedMapState {
 interface CombinedListingsMapProps {
   resaleListings: MLSListing[];
   presaleProjects: PresaleProject[];
-  assignments?: Assignment[];
-  rentals?: RentalListing[];
-  isVerifiedAgent?: boolean;
-  mode: "all" | "presale" | "resale" | "assignments" | "rental";
-  onListingSelect?: (id: string, type: "resale" | "presale" | "assignment" | "rental") => void;
-  onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[], assignmentIds?: string[], rentalIds?: string[]) => void;
+  mode: "all" | "presale" | "resale";
+  onListingSelect?: (id: string, type: "resale" | "presale") => void;
+  onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[]) => void;
   onMapInteraction?: () => void;
   onMapStateChange?: (center: { lat: number; lng: number }, zoom: number) => void;
   /** On mobile, skip popups and just use carousel */
@@ -126,7 +82,7 @@ interface CombinedListingsMapProps {
   /** ID of item to highlight with animation */
   highlightedItemId?: string | null;
   /** Type of highlighted item */
-  highlightedItemType?: "resale" | "presale" | "rental" | null;
+  highlightedItemType?: "resale" | "presale" | null;
 }
 
 function formatPrice(price: number): string {
@@ -177,51 +133,6 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
     iconSize: [size, size + 6],
     iconAnchor: [size / 2, size + 6],
     popupAnchor: [0, -(size + 6)],
-  });
-  
-  if (!isHighlighted) iconCache.set(cacheKey, icon);
-  return icon;
-}
-
-// Assignment marker - purple price pill with lock icon for non-agents, full price for agents
-function createAssignmentMarkerIcon(assignment: Assignment, isVerifiedAgent: boolean, isHighlighted: boolean = false): L.DivIcon {
-  const priceText = isVerifiedAgent ? formatPrice(assignment.assignment_price) : '🔒';
-  const cacheKey = `assignment-${isVerifiedAgent}-${isVerifiedAgent ? priceText : 'locked'}-${isHighlighted}`;
-  
-  const cached = iconCache.get(cacheKey);
-  if (cached && !isHighlighted) return cached;
-  
-  const size = isHighlighted ? [80, 32] : [60, 24];
-  
-  const icon = L.divIcon({
-    className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
-    html: `<div class="ap${isHighlighted ? ' hl' : ''}${!isVerifiedAgent ? ' locked' : ''}">${priceText}</div>`,
-    iconSize: [size[0], size[1]],
-    iconAnchor: [size[0] / 2, size[1]],
-    popupAnchor: [0, -size[1] - 2],
-  });
-  
-  if (!isHighlighted) iconCache.set(cacheKey, icon);
-  return icon;
-}
-
-// Rental price pill - emerald green with /mo suffix - matches brand style
-function createRentalPricePillIcon(rental: RentalListing, isHighlighted: boolean = false): L.DivIcon {
-  const leaseAmount = rental.lease_amount || 0;
-  const priceText = `$${Math.round(leaseAmount).toLocaleString()}/mo`;
-  const cacheKey = `rental-${priceText}-${isHighlighted}`;
-  
-  const cached = iconCache.get(cacheKey);
-  if (cached && !isHighlighted) return cached;
-  
-  const size = isHighlighted ? [90, 32] : [70, 22];
-  
-  const icon = L.divIcon({
-    className: `rental-marker ${isHighlighted ? 'marker-hl' : ''}`,
-    html: `<div class="rp${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
-    iconSize: [size[0], size[1]],
-    iconAnchor: [size[0] / 2, size[1]],
-    popupAnchor: [0, -size[1] - 2],
   });
   
   if (!isHighlighted) iconCache.set(cacheKey, icon);
@@ -327,131 +238,9 @@ function presalePopupHtml(project: PresaleProject): string {
   `;
 }
 
-// Assignment popup HTML - full details for verified agents, blurred for others
-function assignmentPopupHtml(assignment: Assignment, isVerifiedAgent: boolean): string {
-  const photo = assignment.listing_photos?.[0]?.url;
-  
-  if (!isVerifiedAgent) {
-    // Fully blurred popup for non-agents - photo completely obscured
-    const photoHtml = photo 
-      ? `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:#f3e8e4;">
-          <img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;filter:blur(20px) saturate(0.3);transform:scale(1.3);opacity:0.5;" />
-          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(234,88,12,0.3),rgba(194,65,12,0.2));"></div>
-        </div>` 
-      : '<div style="width:100%;height:100%;background:linear-gradient(135deg,hsl(18,50%,90%),hsl(18,40%,85%));"></div>';
-    
-    return `
-      <div style="position:relative;">
-        <div style="display:flex;width:380px;font-family:system-ui,sans-serif;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(18,85%,50%);">
-          <div style="flex-shrink:0;position:relative;width:160px;min-height:120px;overflow:hidden;">
-            ${photoHtml}
-            <div style="position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,hsl(18,85%,55%),hsl(15,80%,45%));display:flex;align-items:center;justify-content:center;margin-bottom:6px;box-shadow:0 4px 12px hsla(18,85%,50%,0.4);">
-                <span style="font-size:20px;">🔒</span>
-              </div>
-              <span style="font-size:10px;font-weight:700;color:hsl(18,85%,40%);text-transform:uppercase;letter-spacing:0.5px;">Agent Only</span>
-            </div>
-            <span style="position:absolute;top:6px;left:6px;background:linear-gradient(135deg,hsl(18,85%,50%),hsl(15,80%,45%));color:white;font-size:9px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:0.3px;z-index:10;">ASSIGNMENT</span>
-          </div>
-          <div style="flex:1;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-            <div style="font-weight:700;font-size:18px;color:hsl(18,85%,40%);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
-              <span>🔒</span> $XXX,XXX
-            </div>
-            <div style="height:14px;width:75%;background:linear-gradient(90deg,#e2e8f0,#f1f5f9,#e2e8f0);border-radius:4px;margin-bottom:6px;"></div>
-            <div style="height:12px;width:55%;background:#f1f5f9;border-radius:4px;margin-bottom:10px;"></div>
-            <a href="/for-agents" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,hsl(18,85%,50%),hsl(15,80%,45%));color:white;font-size:11px;font-weight:600;padding:10px 14px;border-radius:8px;text-decoration:none;box-shadow:0 2px 8px hsla(18,85%,50%,0.3);transition:transform 0.2s,box-shadow 0.2s;">
-              🔒 Login to View Details
-            </a>
-          </div>
-        </div>
-        <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(18,85%,50%);"></div>
-      </div>
-    `;
-  }
-  
-  // Full popup for verified agents - matching presale/resale style
-  const fullPrice = `$${assignment.assignment_price.toLocaleString()}`;
-  const savings = assignment.original_price ? assignment.original_price - assignment.assignment_price : null;
-  const specs = [
-    `${assignment.beds} bd`,
-    `${assignment.baths} ba`,
-    assignment.interior_sqft ? `${assignment.interior_sqft.toLocaleString()} sqft` : null,
-  ].filter(Boolean).join(' • ');
-  
-  const photoHtml = photo 
-    ? `<img src="${photo}" alt="${assignment.title}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
-    : `<div style="width:160px;min-height:120px;background:linear-gradient(135deg,hsl(18,50%,95%),hsl(18,40%,90%));display:flex;align-items:center;justify-content:center;"><span style="color:hsl(18,85%,50%);font-size:11px;">No Image</span></div>`;
-  
-  const savingsHtml = savings && savings > 0 ? `<span style="position:absolute;top:6px;right:6px;background:#16a34a;color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;">Save $${Math.round(savings/1000)}K</span>` : '';
-  
-  return `
-    <div style="position:relative;">
-      <a href="/assignments/${assignment.id}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(18,85%,50%);">
-        <div style="flex-shrink:0;position:relative;">
-          ${photoHtml}
-          <span style="position:absolute;top:6px;left:6px;background:hsl(18,85%,50%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
-          ${savingsHtml}
-        </div>
-        <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-          <div style="font-weight:700;font-size:18px;color:hsl(18,85%,40%);margin-bottom:4px;">${fullPrice}</div>
-          <div style="font-size:13px;color:#475569;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${assignment.project_name}</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${specs}</div>
-          <div style="font-size:11px;color:#64748b;">${assignment.neighborhood || assignment.city}</div>
-        </div>
-      </a>
-      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(18,85%,50%);"></div>
-    </div>
-  `;
-}
-
-// Rental popup HTML - emerald green theme matching site branding
-function rentalPopupHtml(rental: RentalListing): string {
-  const photo = rental.photos && Array.isArray(rental.photos) && rental.photos.length > 0 
-    ? rental.photos[0]?.MediaURL || null 
-    : null;
-  const fullPrice = rental.lease_amount ? `$${rental.lease_amount.toLocaleString()}/mo` : 'Contact for Price';
-  const address = [rental.street_number, rental.street_name, rental.street_suffix].filter(Boolean).join(" ") || rental.neighborhood || rental.city;
-  
-  const specs = [
-    rental.bedrooms_total ? `${rental.bedrooms_total} bd` : null,
-    rental.bathrooms_total ? `${rental.bathrooms_total} ba` : null,
-    rental.living_area ? `${rental.living_area.toLocaleString()} sqft` : null,
-  ].filter(Boolean).join(' • ');
-  
-  const features = [];
-  if (rental.pets_allowed && rental.pets_allowed !== 'No') features.push('🐾 Pets OK');
-  if (rental.furnished && rental.furnished !== 'Unfurnished') features.push('🪑 Furnished');
-  const featuresHtml = features.length > 0 ? `<div style="font-size:10px;color:#16a34a;margin-top:4px;">${features.join(' • ')}</div>` : '';
-  
-  const photoHtml = photo 
-    ? `<img src="${photo}" alt="${address}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
-    : `<div style="width:160px;min-height:120px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;"><span style="color:#059669;font-size:11px;">No Image</span></div>`;
-  
-  return `
-    <div style="position:relative;">
-      <a href="/rentals/${rental.listing_key}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid #059669;">
-        <div style="flex-shrink:0;position:relative;">
-          ${photoHtml}
-          <span style="position:absolute;top:6px;left:6px;background:#059669;color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">FOR RENT</span>
-        </div>
-        <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-          <div style="font-weight:700;font-size:18px;color:#059669;margin-bottom:4px;">${fullPrice}</div>
-          <div style="font-size:13px;color:#475569;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${address}</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${specs}</div>
-          ${featuresHtml}
-        </div>
-      </a>
-      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid #059669;"></div>
-    </div>
-  `;
-}
-
 export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedListingsMapProps>(({ 
   resaleListings,
   presaleProjects,
-  assignments = [],
-  rentals = [],
-  isVerifiedAgent = false,
   mode,
   onListingSelect, 
   onVisibleItemsChange,
@@ -468,8 +257,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const presaleLayerRef = useRef<L.LayerGroup | null>(null);
-  const assignmentLayerRef = useRef<L.LayerGroup | null>(null);
-  const rentalLayerRef = useRef<L.LayerGroup | null>(null);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
@@ -479,8 +266,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   // Track markers by ID for highlighting
   const resaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const presaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
-  const assignmentMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
-  const rentalMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const [internalHighlightId, setInternalHighlightId] = useState<string | null>(null);
 
   // Expose flyTo and highlight methods to parent via ref
@@ -490,13 +275,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 0.8 });
       }
     },
-    highlightItem: (id: string, type: "resale" | "presale" | "assignment" | "rental") => {
+    highlightItem: (id: string, type: "resale" | "presale") => {
       setInternalHighlightId(id);
       // Find the marker and fly to it
-      const markersMap = type === "resale" ? resaleMarkersMapRef.current : 
-                         type === "presale" ? presaleMarkersMapRef.current : 
-                         type === "rental" ? rentalMarkersMapRef.current :
-                         assignmentMarkersMapRef.current;
+      const markersMap = type === "resale" ? resaleMarkersMapRef.current : presaleMarkersMapRef.current;
       const marker = markersMap.get(id);
       if (marker && mapInstanceRef.current) {
         const latLng = marker.getLatLng();
@@ -518,15 +300,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     [presaleProjects]
   );
 
-  const validAssignments = useMemo(() => 
-    assignments.filter(a => a.map_lat && a.map_lng),
-    [assignments]
-  );
-
-  const validRentals = useMemo(() => 
-    rentals.filter(r => r.latitude && r.longitude && r.lease_amount && r.lease_amount > 0),
-    [rentals]
-  );
 
   const updateVisibleItems = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleItemsChange) return;
@@ -541,54 +314,17 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       .filter(p => bounds.contains([p.map_lat!, p.map_lng!]))
       .map(p => p.id);
     
-    const visibleAssignments = validAssignments
-      .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
-      .map(a => a.id);
-    
-    const visibleRentals = validRentals
-      .filter(r => bounds.contains([r.latitude!, r.longitude!]))
-      .map(r => r.id);
-    
-    onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments, visibleRentals);
-  }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, onVisibleItemsChange]);
+    onVisibleItemsChange(visibleResale, visiblePresale);
+  }, [validResaleListings, validPresaleProjects, onVisibleItemsChange]);
 
-  // Store callbacks in refs to avoid recreating markers on every render
-  const updateVisibleItemsRef = useRef(updateVisibleItems);
-  const onMapInteractionRef = useRef(onMapInteraction);
-  const onMapStateChangeRef = useRef(onMapStateChange);
-  const onListingSelectRef = useRef(onListingSelect);
-  const savedMapStateRef = useRef(savedMapState);
-  
-  // Keep refs updated
-  useEffect(() => {
-    updateVisibleItemsRef.current = updateVisibleItems;
-  }, [updateVisibleItems]);
-  
-  useEffect(() => {
-    onMapInteractionRef.current = onMapInteraction;
-  }, [onMapInteraction]);
-  
-  useEffect(() => {
-    onMapStateChangeRef.current = onMapStateChange;
-  }, [onMapStateChange]);
-  
-  useEffect(() => {
-    onListingSelectRef.current = onListingSelect;
-  }, [onListingSelect]);
-
-  // Initialize map only once on mount
-  useEffect(() => {
+  const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
-    
-    // Track if component is still mounted
-    let isMounted = true;
 
     // Use saved state if available, otherwise defaults
-    const initialState = savedMapStateRef.current;
-    const initialCenter: L.LatLngExpression = initialState 
-      ? [initialState.center.lat, initialState.center.lng]
+    const initialCenter: L.LatLngExpression = savedMapState 
+      ? [savedMapState.center.lat, savedMapState.center.lng]
       : DEFAULT_CENTER;
-    const initialZoom = initialState ? initialState.zoom : DEFAULT_ZOOM;
+    const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
 
     const map = L.map(mapRef.current, {
       center: initialCenter,
@@ -625,79 +361,53 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
-      zoomToBoundsOnClick: true, // Ensure clicking clusters zooms in
     });
 
     // Separate layer for presale projects (no clustering)
     const presaleLayer = L.layerGroup();
-    
-    // Separate layer for assignment listings
-    const assignmentLayer = L.layerGroup();
-    
-    // Separate layer for rental listings
-    const rentalLayer = L.layerGroup();
 
     map.addLayer(clusterGroup);
     map.addLayer(presaleLayer);
-    map.addLayer(assignmentLayer);
-    map.addLayer(rentalLayer);
     
     mapInstanceRef.current = map;
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
-    assignmentLayerRef.current = assignmentLayer;
-    rentalLayerRef.current = rentalLayer;
 
     // If we have saved state, mark as initialized to prevent fitBounds overriding
-    if (initialState) {
+    if (savedMapState) {
       hasInitializedViewRef.current = true;
       hasRestoredSavedStateRef.current = true;
     }
 
-    map.on("moveend", () => {
-      if (!isMounted) return;
-      updateVisibleItemsRef.current?.();
-    });
-    map.on("zoomend", () => {
-      if (!isMounted) return;
-      updateVisibleItemsRef.current?.();
-    });
+    map.on("moveend", updateVisibleItems);
+    map.on("zoomend", updateVisibleItems);
     
-     // Notify parent when user starts interacting with map (USER gestures only).
-     // IMPORTANT: using "movestart" here can fire during programmatic flyTo/autoPan,
-     // which can immediately hide the mobile carousel right after a pin is clicked.
-     map.on("dragstart", () => {
-       if (!isMounted) return;
-       onMapInteractionRef.current?.();
-     });
-
-     map.on("zoomstart", () => {
-       if (!isMounted) return;
-       onMapInteractionRef.current?.();
-     });
+    // Notify parent when user starts interacting with map (drag/zoom)
+    map.on("movestart", () => {
+      if (onMapInteraction) onMapInteraction();
+    });
     
     // Save map state on every move/zoom for persistence
     map.on("moveend", () => {
-      if (!isMounted || !mapInstanceRef.current) return;
-      const center = mapInstanceRef.current.getCenter();
-      const zoom = mapInstanceRef.current.getZoom();
-      onMapStateChangeRef.current?.({ lat: center.lat, lng: center.lng }, zoom);
+      if (onMapStateChange && mapInstanceRef.current) {
+        const center = mapInstanceRef.current.getCenter();
+        const zoom = mapInstanceRef.current.getZoom();
+        onMapStateChange({ lat: center.lat, lng: center.lng }, zoom);
+      }
     });
 
+    // Removed auto-geolocation from here - now handled by parent with permission prompt
+  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange]);
+
+  useEffect(() => {
+    initializeMap();
     return () => {
-      isMounted = false;
       if (mapInstanceRef.current) {
-        // Remove all event listeners before destroying
-        mapInstanceRef.current.off();
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
-      markerClusterRef.current = null;
-      presaleLayerRef.current = null;
-      assignmentLayerRef.current = null;
-      rentalLayerRef.current = null;
     };
-  }, []); // Empty deps - only run once on mount
+  }, [initializeMap]);
 
   // Update markers when data or mode changes
   useEffect(() => {
@@ -776,7 +486,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
 
         marker.on("click", () => {
-          onListingSelectRef.current?.(listing.id, "resale");
+          onListingSelect?.(listing.id, "resale");
         });
 
         resaleMarkers.push(marker);
@@ -814,89 +524,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
 
         marker.on("click", () => {
-          onListingSelectRef.current?.(project.id, "presale");
+          onListingSelect?.(project.id, "presale");
         });
 
         presaleLayer.addLayer(marker);
         allCoords.push([project.map_lat!, project.map_lng!]);
-      }
-    }
-
-    // Clear old assignment marker references
-    assignmentMarkersMapRef.current.clear();
-    const assignmentLayer = assignmentLayerRef.current!;
-    assignmentLayer.clearLayers();
-
-    // Add assignment listings as individual pins if mode is "all" or "assignments"
-    if (mode === "all" || mode === "assignments") {
-      for (const assignment of validAssignments) {
-        const marker = L.marker([assignment.map_lat!, assignment.map_lng!], {
-          icon: createAssignmentMarkerIcon(assignment, isVerifiedAgent, false),
-          zIndexOffset: 1200, // Keep assignment pins above presale
-        });
-
-        // Store marker reference for highlighting
-        assignmentMarkersMapRef.current.set(assignment.id, marker);
-
-        // Only bind popup if not disabled (mobile uses carousel instead)
-        if (!disablePopupsOnMobile) {
-          marker.bindPopup(assignmentPopupHtml(assignment, isVerifiedAgent), {
-            maxWidth: 420,
-            minWidth: 360,
-            closeButton: true,
-            className: "assignment-popup",
-            offset: L.point(0, -20),
-            autoPan: true,
-            autoPanPaddingTopLeft: L.point(50, 100),
-            autoPanPaddingBottomRight: L.point(50, 50),
-          });
-        }
-
-        marker.on("click", () => {
-          onListingSelectRef.current?.(assignment.id, "assignment");
-        });
-
-        assignmentLayer.addLayer(marker);
-        allCoords.push([assignment.map_lat!, assignment.map_lng!]);
-      }
-    }
-
-    // Clear old rental marker references and layer
-    rentalMarkersMapRef.current.clear();
-    const rentalLayer = rentalLayerRef.current!;
-    rentalLayer.clearLayers();
-
-    // Add rental listings if mode is "all" or "rental"
-    if (mode === "all" || mode === "rental") {
-      for (const rental of validRentals) {
-        const marker = L.marker([rental.latitude!, rental.longitude!], {
-          icon: createRentalPricePillIcon(rental, false),
-          zIndexOffset: 1100, // Between presale and assignments
-        });
-
-        // Store marker reference for highlighting
-        rentalMarkersMapRef.current.set(rental.id, marker);
-
-        // Only bind popup if not disabled (mobile uses carousel instead)
-        if (!disablePopupsOnMobile) {
-          marker.bindPopup(rentalPopupHtml(rental), {
-            maxWidth: 420,
-            minWidth: 360,
-            closeButton: true,
-            className: "rental-popup",
-            offset: L.point(0, -20),
-            autoPan: true,
-            autoPanPaddingTopLeft: L.point(50, 100),
-            autoPanPaddingBottomRight: L.point(50, 50),
-          });
-        }
-
-        marker.on("click", () => {
-          onListingSelectRef.current?.(rental.id, "rental");
-        });
-
-        rentalLayer.addLayer(marker);
-        allCoords.push([rental.latitude!, rental.longitude!]);
       }
     }
 
@@ -910,16 +542,15 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     }
 
     requestAnimationFrame(() => {
-      setTimeout(() => updateVisibleItemsRef.current?.(), 50);
+      setTimeout(updateVisibleItems, 50);
     });
-  }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, mode, isVerifiedAgent, disablePopupsOnMobile]);
+  }, [validResaleListings, validPresaleProjects, mode, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
 
   // Effect to handle highlighting of markers
   useEffect(() => {
     const highlightId = highlightedItemId || internalHighlightId;
     const highlightType = highlightedItemType || (internalHighlightId ? 
-      (resaleMarkersMapRef.current.has(internalHighlightId) ? "resale" : 
-       presaleMarkersMapRef.current.has(internalHighlightId) ? "presale" : "assignment") : null);
+      (resaleMarkersMapRef.current.has(internalHighlightId) ? "resale" : "presale") : null);
     
     if (!highlightId || !highlightType) return;
     
@@ -952,36 +583,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }, 2000);
         return () => clearTimeout(timeout);
       }
-    } else if (highlightType === "assignment") {
-      const assignment = validAssignments.find(a => a.id === highlightId);
-      const marker = assignmentMarkersMapRef.current.get(highlightId);
-      if (assignment && marker) {
-        marker.setIcon(createAssignmentMarkerIcon(assignment, isVerifiedAgent, true));
-        marker.setZIndexOffset(3500); // Bring to front
-        
-        // Reset after animation
-        const timeout = setTimeout(() => {
-          marker.setIcon(createAssignmentMarkerIcon(assignment, isVerifiedAgent, false));
-          marker.setZIndexOffset(1200);
-        }, 2000);
-        return () => clearTimeout(timeout);
-      }
-    } else if (highlightType === "rental") {
-      const rental = validRentals.find(r => r.id === highlightId);
-      const marker = rentalMarkersMapRef.current.get(highlightId);
-      if (rental && marker) {
-        marker.setIcon(createRentalPricePillIcon(rental, true));
-        marker.setZIndexOffset(3000); // Bring to front
-        
-        // Reset after animation
-        const timeout = setTimeout(() => {
-          marker.setIcon(createRentalPricePillIcon(rental, false));
-          marker.setZIndexOffset(1100);
-        }, 2000);
-        return () => clearTimeout(timeout);
-      }
     }
-  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects, validAssignments, validRentals, isVerifiedAgent]);
+  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects]);
 
   // Create user location marker icon
   const createUserLocationIcon = useCallback(() => {

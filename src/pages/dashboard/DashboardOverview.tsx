@@ -21,8 +21,7 @@ import {
   Target,
   Zap,
   Crown,
-  FolderOpen,
-  Map
+  FolderOpen
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -143,17 +142,17 @@ export default function DashboardOverview() {
                   Manage your assignment listings and grow your business.
                 </p>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex gap-3">
                 <Link to="/dashboard/projects">
                   <Button variant="outline" className="gap-2">
                     <FolderOpen className="h-4 w-4" />
                     Project Documents
                   </Button>
                 </Link>
-                <Link to="/map-search?mode=assignments">
+                <Link to="/dashboard/assignments">
                   <Button variant="outline" className="gap-2">
-                    <Map className="h-4 w-4" />
-                    Browse Marketplace
+                    <Eye className="h-4 w-4" />
+                    Browse Assignments
                   </Button>
                 </Link>
                 <Link to="/dashboard/listings/new">
@@ -336,16 +335,19 @@ export default function DashboardOverview() {
                   </div>
                 </Link>
                 
-                <Link to="/map-search?mode=assignments" className="group">
+                <Link to="/dashboard/assignments" className="group">
                   <div className="p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all">
                     <div className="flex items-center gap-3 mb-2">
                       <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                        <Map className="h-5 w-5 text-primary" />
+                        <Building2 className="h-5 w-5 text-primary" />
                       </div>
-                      <span className="font-medium">Browse Marketplace</span>
+                      <span className="font-medium">Assignment Portal</span>
+                      <Badge className="text-[10px] px-1.5 py-0 h-4 bg-primary text-primary-foreground">
+                        New
+                      </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Find assignments on the interactive map
+                      Browse all available assignments
                     </p>
                   </div>
                 </Link>
