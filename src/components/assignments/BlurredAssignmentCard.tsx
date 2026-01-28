@@ -1,4 +1,4 @@
-import { Lock, Bed, Bath, Square } from "lucide-react";
+import { Lock, Bed, Bath, Square, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ interface BlurredAssignmentCardProps {
 
 /**
  * A blurred assignment card shown to non-verified users.
- * Displays a teaser with obscured details and a CTA to login.
+ * Displays a teaser with obscured details and a premium glassmorphism lock overlay.
  */
 export function BlurredAssignmentCard({
   assignment,
@@ -45,12 +45,12 @@ export function BlurredAssignmentCard({
     <div 
       onClick={onClick}
       className={cn(
-        "relative rounded-xl border overflow-hidden transition-all group bg-card cursor-pointer",
+        "relative rounded-xl border overflow-hidden transition-all duration-300 group bg-card",
         isFocused 
-          ? "border-purple-500 ring-2 ring-purple-500/30 shadow-lg" 
+          ? "border-purple-500 ring-2 ring-purple-500/30 shadow-xl shadow-purple-500/10" 
           : isSelected 
             ? "border-purple-400/50 ring-1 ring-purple-400/20" 
-            : "border-border hover:border-purple-400/50",
+            : "border-border/50 hover:border-purple-400/50 hover:shadow-lg",
         isCarousel ? "w-[280px] shrink-0" : "",
         className
       )}
@@ -64,50 +64,68 @@ export function BlurredAssignmentCard({
           <img 
             src={photo} 
             alt="Assignment property" 
-            className="w-full h-full object-cover filter blur-[8px] scale-110"
+            className="w-full h-full object-cover filter blur-[12px] scale-110 saturate-50"
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-purple-100 to-purple-50 dark:from-purple-900/20 dark:to-purple-800/10 filter blur-sm" />
+          <div className="w-full h-full bg-gradient-to-br from-purple-200/50 to-purple-100/30 dark:from-purple-900/30 dark:to-purple-800/20" />
         )}
         
-        {/* Lock Overlay */}
-        <div className="absolute inset-0 bg-background/60 dark:bg-background/70 backdrop-blur-[2px] flex flex-col items-center justify-center">
-          <div className="w-12 h-12 rounded-full bg-purple-500/20 flex items-center justify-center mb-2">
-            <Lock className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+        {/* Premium Glassmorphism Lock Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/80 dark:from-background/80 dark:via-background/60 dark:to-background/90 backdrop-blur-md flex flex-col items-center justify-center">
+          {/* Glowing lock container */}
+          <div className="relative">
+            {/* Outer glow ring */}
+            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-purple-500/20 blur-xl animate-pulse" />
+            
+            {/* Lock icon container with glassmorphism */}
+            <div className="relative w-14 h-14 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-purple-200/50 dark:border-purple-500/30 shadow-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center shadow-inner">
+                <Lock className="h-5 w-5 text-white drop-shadow-sm" />
+              </div>
+            </div>
           </div>
-          <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">
-            Agent Exclusive
-          </span>
+          
+          {/* Agent Exclusive label with glassmorphism pill */}
+          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-purple-200/30 dark:border-purple-500/20 shadow-sm">
+            <div className="flex items-center gap-1.5">
+              <Shield className="h-3 w-3 text-purple-600 dark:text-purple-400" />
+              <span className="text-[11px] font-bold text-purple-700 dark:text-purple-300 uppercase tracking-wider">
+                Agent Exclusive
+              </span>
+            </div>
+          </div>
         </div>
         
         {/* Assignment Badge */}
-        <span className="absolute top-2 left-2 bg-purple-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide z-10">
+        <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-purple-600 to-purple-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide z-10 shadow-md">
           Assignment
         </span>
       </div>
       
-      {/* Content Section */}
+      {/* Content Section with subtle glassmorphism */}
       <div className={cn(
-        "p-3",
-        isCarousel ? "p-3" : "p-3"
+        "p-3.5 bg-gradient-to-b from-card to-card/95",
+        isCarousel ? "p-3" : "p-3.5"
       )}>
-        {/* Blurred Price */}
-        <div className="flex items-center gap-2 mb-1">
-          <Lock className="h-3.5 w-3.5 text-purple-500" />
-          <span className="font-bold text-base text-foreground/70 select-none">
-            $XXX,XXX
-          </span>
+        {/* Blurred Price with lock */}
+        <div className="flex items-center gap-2 mb-2">
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-purple-100/50 dark:bg-purple-500/10">
+            <Lock className="h-3 w-3 text-purple-500" />
+            <span className="font-bold text-base text-purple-600/80 dark:text-purple-400/80 select-none tracking-tight">
+              $XXX,XXX
+            </span>
+          </div>
         </div>
         
-        {/* Blurred Project Name */}
-        <div className="h-4 w-3/4 bg-muted-foreground/20 rounded mb-1.5" />
+        {/* Blurred Project Name - shimmer placeholder */}
+        <div className="h-4 w-3/4 bg-gradient-to-r from-muted-foreground/15 via-muted-foreground/25 to-muted-foreground/15 rounded-md mb-2 animate-pulse" />
         
         {/* Blurred Location */}
-        <div className="h-3 w-1/2 bg-muted-foreground/15 rounded mb-2" />
+        <div className="h-3 w-1/2 bg-muted-foreground/10 rounded mb-3" />
         
-        {/* Specs (slightly visible to show what's there) */}
-        <div className="flex items-center gap-3 text-xs text-muted-foreground/60 mb-3">
+        {/* Specs (partially visible to tease) */}
+        <div className="flex items-center gap-3 text-xs text-muted-foreground/50 mb-4 pb-3 border-b border-border/50">
           <span className="flex items-center gap-1">
             <Bed className="h-3 w-3" />
             {assignment.beds} bd
@@ -124,14 +142,14 @@ export function BlurredAssignmentCard({
           )}
         </div>
         
-        {/* CTA Button */}
+        {/* Premium CTA Button with gradient */}
         <Link 
           to="/for-agents"
           onClick={(e) => e.stopPropagation()}
           className="block"
         >
-          <button className="w-full py-2 px-3 rounded-lg bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1.5">
-            <Lock className="h-3 w-3" />
+          <button className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-purple-600 via-purple-600 to-purple-700 hover:from-purple-700 hover:via-purple-600 hover:to-purple-600 text-white text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:shadow-purple-500/20 active:scale-[0.98]">
+            <Lock className="h-3.5 w-3.5" />
             Login to View Details
           </button>
         </Link>
