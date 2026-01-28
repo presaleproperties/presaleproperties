@@ -77,6 +77,7 @@ import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import CityResalePage from "./pages/CityResalePage";
+import AssignmentDetail from "./pages/AssignmentDetail";
 import Developers from "./pages/Developers";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
@@ -135,6 +136,10 @@ const App = () => (
             {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
             <Route path="/presale/:slug" element={<PresaleRedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
+            
+            {/* Assignment Detail - Verified agents only */}
+            <Route path="/assignments/:id" element={<AssignmentDetail />} />
+            
             <Route path="/properties" element={<ResaleListings />} />
             {/* City-specific properties pages - MUST be before :listingKey route */}
             <Route path="/properties/vancouver" element={<CityResalePage />} />

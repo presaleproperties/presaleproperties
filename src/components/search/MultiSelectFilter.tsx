@@ -95,12 +95,15 @@ export function MultiSelectFilter({
         </span>
         <span className="flex items-center gap-0.5 shrink-0">
           {selected.length > 0 && (
-            <button
+            <span
               onClick={clearAll}
-              className="p-0.5 hover:bg-muted rounded"
+              role="button"
+              tabIndex={0}
+              className="p-0.5 hover:bg-muted rounded cursor-pointer"
+              onKeyDown={(e) => e.key === 'Enter' && clearAll(e as any)}
             >
               <X className="h-3 w-3 text-muted-foreground" />
-            </button>
+            </span>
           )}
           <ChevronDown className={cn("h-3 w-3 text-muted-foreground transition-transform", open && "rotate-180")} />
         </span>
