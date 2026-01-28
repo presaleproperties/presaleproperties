@@ -10,7 +10,7 @@ import { toast } from "sonner";
 // Expose flyTo and highlightItem methods for parent navigation
 export interface CombinedListingsMapRef {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
-  highlightItem: (id: string, type: "resale" | "presale") => void;
+  highlightItem: (id: string, type: "resale" | "presale" | "assignment") => void;
   clearHighlight: () => void;
 }
 
@@ -664,6 +664,45 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       }
     }
 
+    // Clear old assignment marker references
+    assignmentMarkersMapRef.current.clear();
+    const assignmentLayer = assignmentLayerRef.current!;
+    assignmentLayer.clearLayers();
+
+    // Add assignment listings as individual pins if mode is "all" or "assignments"
+    if (mode === "all" || mode === "assignments") {
+      for (const assignment of validAssignments) {
+        const marker = L.marker([assignment.map_lat!, assignment.map_lng!], {
+          icon: createAssignmentMarkerIcon(assignment, isVerifiedAgent, false),
+          zIndexOffset: 1200, // Keep assignment pins above presale
+        });
+
+        // Store marker reference for highlighting
+        assignmentMarkersMapRef.current.set(assignment.id, marker);
+
+        // Only bind popup if not disabled (mobile uses carousel instead)
+        if (!disablePopupsOnMobile) {
+          marker.bindPopup(assignmentPopupHtml(assignment, isVerifiedAgent), {
+            maxWidth: 420,
+            minWidth: 360,
+            closeButton: true,
+            className: "assignment-popup",
+            offset: L.point(0, -20),
+            autoPan: true,
+            autoPanPaddingTopLeft: L.point(50, 100),
+            autoPanPaddingBottomRight: L.point(50, 50),
+          });
+        }
+
+        marker.on("click", () => {
+          onListingSelect?.(assignment.id, "assignment");
+        });
+
+        assignmentLayer.addLayer(marker);
+        allCoords.push([assignment.map_lat!, assignment.map_lng!]);
+      }
+    }
+
     clusterGroup.addLayers(resaleMarkers);
 
     // Only fit bounds on initial load, not when toggling mode or filters
@@ -676,13 +715,14 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     requestAnimationFrame(() => {
       setTimeout(updateVisibleItems, 50);
     });
-  }, [validResaleListings, validPresaleProjects, mode, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
+  }, [validResaleListings, validPresaleProjects, validAssignments, mode, isVerifiedAgent, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
 
   // Effect to handle highlighting of markers
   useEffect(() => {
     const highlightId = highlightedItemId || internalHighlightId;
     const highlightType = highlightedItemType || (internalHighlightId ? 
-      (resaleMarkersMapRef.current.has(internalHighlightId) ? "resale" : "presale") : null);
+      (resaleMarkersMapRef.current.has(internalHighlightId) ? "resale" : 
+       presaleMarkersMapRef.current.has(internalHighlightId) ? "presale" : "assignment") : null);
     
     if (!highlightId || !highlightType) return;
     
@@ -715,8 +755,22 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }, 2000);
         return () => clearTimeout(timeout);
       }
+    } else if (highlightType === "assignment") {
+      const assignment = validAssignments.find(a => a.id === highlightId);
+      const marker = assignmentMarkersMapRef.current.get(highlightId);
+      if (assignment && marker) {
+        marker.setIcon(createAssignmentMarkerIcon(assignment, isVerifiedAgent, true));
+        marker.setZIndexOffset(3500); // Bring to front
+        
+        // Reset after animation
+        const timeout = setTimeout(() => {
+          marker.setIcon(createAssignmentMarkerIcon(assignment, isVerifiedAgent, false));
+          marker.setZIndexOffset(1200);
+        }, 2000);
+        return () => clearTimeout(timeout);
+      }
     }
-  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects]);
+  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects, validAssignments, isVerifiedAgent]);
 
   // Create user location marker icon
   const createUserLocationIcon = useCallback(() => {
