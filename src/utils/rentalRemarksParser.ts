@@ -13,13 +13,25 @@ export interface ParsedRentalData {
   isRental: boolean;
 }
 
-// Price extraction patterns
+// Price extraction patterns - ordered by specificity
 const PRICE_PATTERNS = [
+  // "Gross lease per month $4,560" or "$4,560 per month"
+  /(?:gross\s+)?(?:rent|lease)(?:\s+(?:is|at|for|:))?\s*(?:per\s+month\s+)?\$\s*([\d,]+)/gi,
+  /\$\s*([\d,]+)\s*(?:\+\s*(?:gst|hst|tax))?(?:\s*per\s+month|\s*\/\s*mo(?:nth)?|\s*monthly)/gi,
+  // "$2,500/mo" or "$2500 / month"
   /\$\s*([\d,]+)\s*(?:\/|\s*per\s*)?\s*(?:mo(?:nth)?|m)\b/gi,
-  /\$\s*([\d,]+)\s*(?:monthly|per month)/gi,
-  /rent(?:al)?(?:\s+(?:is|at|of|:))?\s*\$?\s*([\d,]+)/gi,
-  /lease(?:\s+(?:at|for|:))?\s*\$?\s*([\d,]+)/gi,
-  /([\d,]+)\s*(?:\/|\s*per\s*)?\s*(?:mo(?:nth)?)\b/gi,
+  // "rent is $2500" or "rental at $2500"
+  /rent(?:al)?(?:\s+(?:is|at|of|:))?\s*\$?\s*([\d,]+)(?:\s*(?:\/|\s*per)?\s*(?:mo(?:nth)?)?)?/gi,
+  // "lease at $2500" or "lease for $2500"
+  /lease(?:\s+(?:is|at|for|of|:))?\s*\$?\s*([\d,]+)(?:\s*(?:\/|\s*per)?\s*(?:mo(?:nth)?)?)?/gi,
+  // "2500/month" or "2,500 per month" (no dollar sign)
+  /([\d,]+)\s*(?:\/|\s*per\s*)\s*(?:mo(?:nth)?)\b/gi,
+  // "$2500 month" or "$2,500 monthly"
+  /\$\s*([\d,]+)\s+(?:month(?:ly)?|per\s+month)/gi,
+  // "monthly rent of $2500" or "monthly rent: $2500"
+  /monthly\s+rent(?:\s+(?:is|of|:))?\s*\$?\s*([\d,]+)/gi,
+  // Price followed by frequency in parentheses: "$2500 (monthly)"
+  /\$\s*([\d,]+)\s*\((?:monthly|per\s+month|\/mo)\)/gi,
 ];
 
 // Pet policy patterns

@@ -519,13 +519,50 @@ Deno.serve(async (req) => {
         // Use inferred property type for more accurate categorization
         const inferredType = inferPropertyType(property);
         
-        const newPrice = toInt(property.ListPrice) || 0;
+        const listPrice = toInt(property.ListPrice) || 0;
         
-        // Determine if this is a rental listing
-        const leaseAmount = property.LeaseAmount;
-        const isRental = (leaseAmount && leaseAmount > 0) || 
-                         (newPrice === 0 && property.PublicRemarks?.toLowerCase().includes("for rent")) ||
-                         property.PropertySubType?.toLowerCase().includes("lease");
+        // Determine if this is a rental listing based on multiple signals
+        const leaseAmountFromAPI = property.LeaseAmount;
+        const remarksLower = property.PublicRemarks?.toLowerCase() || '';
+        const subTypeLower = property.PropertySubType?.toLowerCase() || '';
+        
+        // Check rental indicators
+        const hasLeaseAmount = leaseAmountFromAPI && leaseAmountFromAPI > 0;
+        const hasRentalKeywords = remarksLower.includes("for rent") || 
+                                   remarksLower.includes("for lease") ||
+                                   remarksLower.includes("/month") ||
+                                   remarksLower.includes("per month") ||
+                                   remarksLower.includes("tenant");
+        const isLeaseType = subTypeLower.includes("lease") || subTypeLower.includes("rental");
+        const isZeroPriceListing = listPrice === 0;
+        
+        // Determine if rental
+        const isRental = hasLeaseAmount || isLeaseType || (isZeroPriceListing && hasRentalKeywords);
+        
+        // For rental listings, determine the lease amount:
+        // 1. Use LeaseAmount if available
+        // 2. For zero-price listings, try to extract from remarks
+        // 3. If ListPrice is in rental range ($500-$20000), use it as rent
+        let finalLeaseAmount: number | null = leaseAmountFromAPI || null;
+        
+        if (isRental && !finalLeaseAmount) {
+          // Try to extract rent from remarks
+          const rentMatch = remarksLower.match(/\$\s*([\d,]+)\s*(?:\/|\s*per\s*)?\s*(?:mo|month)/i);
+          if (rentMatch) {
+            const extracted = parseInt(rentMatch[1].replace(/,/g, ''));
+            if (extracted >= 500 && extracted <= 25000) {
+              finalLeaseAmount = extracted;
+            }
+          }
+          
+          // If still no rent and listing price looks like rent, use it
+          if (!finalLeaseAmount && listPrice >= 500 && listPrice <= 25000) {
+            finalLeaseAmount = listPrice;
+          }
+        }
+        
+        // For sales listings, use listPrice; for rentals, set to 0 (rent in lease_amount)
+        const newPrice = isRental ? 0 : listPrice;
         
         // Check if this is a price change from existing listing
         const existingPrice = existingPriceMap.get(listingKey);
@@ -636,7 +673,7 @@ Deno.serve(async (req) => {
           last_synced_at: new Date().toISOString(),
           // Rental-specific fields
           is_rental: isRental,
-          lease_amount: leaseAmount || null,
+          lease_amount: finalLeaseAmount,
           lease_frequency: property.LeaseAmountFrequency || (isRental ? "Monthly" : null),
           availability_date: property.AvailabilityDate || null,
           pets_allowed: petsAllowed,
