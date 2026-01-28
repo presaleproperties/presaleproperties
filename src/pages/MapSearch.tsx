@@ -811,7 +811,8 @@ export default function MapSearch() {
         .eq("is_rental", true)
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
-        .not("longitude", "is", null);
+        .not("longitude", "is", null)
+        .gt("lease_amount", 0);
 
       // Filter by selected cities OR rental enabled cities
       if (selectedCities.length > 0) {
