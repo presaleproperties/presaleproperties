@@ -618,44 +618,42 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .premium-popup .leaflet-popup-close-button { top: 6px !important; right: 6px !important; width: 22px !important; height: 22px !important; background: rgba(255,255,255,0.9) !important; backdrop-filter: blur(4px); border-radius: 6px !important; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex !important; align-items: center !important; justify-content: center !important; font-size: 12px !important; color: #64748b !important; font-weight: 500 !important; z-index: 10; }
         .premium-popup .leaflet-popup-close-button:hover { color: #1e293b !important; background: white !important; }
         
-        /* Popup card base */
-        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: system-ui, -apple-system, sans-serif; border-radius: 12px; overflow: hidden; background: white; transition: transform 0.15s; }
+        /* Popup card base - matching grid styling */
+        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; border-radius: 12px; overflow: hidden; background: white; transition: transform 0.15s; }
         .popup-card:hover { transform: translateY(-1px); }
-        .popup-card.resale { border: 2px solid hsl(142, 76%, 36%); }
-        .popup-card.presale { border: 2px solid hsl(43, 96%, 56%); }
+        .popup-card.resale { border: 1px solid hsl(220, 13%, 90%); }
+        .popup-card.presale { border: 1px solid hsl(220, 13%, 90%); }
         .popup-card.assignment { border: 2px solid #10b981; }
         .popup-card.locked { display: block; width: 240px; border: 2px solid #10b981; }
         
         /* Image section */
         .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: #f1f5f9; }
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; }
+        .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: linear-gradient(135deg, hsl(220, 14%, 96%) 0%, hsl(220, 14%, 92%) 100%); }
         .popup-placeholder.presale { background: linear-gradient(135deg, hsl(45,89%,95%) 0%, hsl(45,89%,88%) 100%); color: hsl(45,89%,40%); }
         .popup-placeholder.assignment { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #10b981; }
         
-        /* Badge */
+        /* Badge - only assignment gets green */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 8px; font-weight: 700; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .popup-badge.resale { background: hsl(142, 76%, 36%); color: white; }
+        .popup-badge.resale { background: hsl(220, 14%, 96%); color: hsl(220, 25%, 20%); }
         .popup-badge.presale { background: hsl(43, 96%, 56%); color: hsl(222, 47%, 15%); }
         .popup-badge.assignment { background: #10b981; color: white; }
         
         /* Content section */
         .popup-content { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-        .popup-price { font-weight: 700; font-size: 16px; margin-bottom: 3px; letter-spacing: -0.3px; }
-        .popup-price.resale { color: hsl(142, 76%, 36%); }
-        .popup-price.presale { color: hsl(222, 47%, 20%); }
+        .popup-price { font-weight: 700; font-size: 16px; margin-bottom: 3px; letter-spacing: -0.3px; color: hsl(220, 25%, 8%); }
         .popup-price.assignment { color: #10b981; }
-        .popup-address { font-weight: 600; font-size: 13px; color: #1e293b; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .popup-specs { font-size: 11px; color: #64748b; margin-bottom: 2px; }
-        .popup-type { font-size: 10px; color: #94a3b8; }
-        .popup-status { font-size: 10px; color: #64748b; }
-        .popup-status .status-label { font-weight: 600; color: #10b981; }
+        .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 8%); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .popup-specs { font-size: 11px; color: hsl(220, 10%, 40%); margin-bottom: 2px; }
+        .popup-type { font-size: 10px; color: hsl(220, 10%, 55%); }
+        .popup-status { font-size: 10px; color: hsl(220, 10%, 40%); }
+        .popup-status .status-label { font-weight: 600; color: hsl(43, 96%, 45%); }
         
-        /* Locked assignment popup */
+        /* Locked assignment popup - only assignment stays green */
         .popup-lock { padding: 20px; text-align: center; }
         .lock-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #10b981; }
-        .lock-title { font-weight: 600; font-size: 13px; color: #1e293b; margin-bottom: 4px; }
-        .lock-desc { font-size: 11px; color: #64748b; margin-bottom: 12px; }
+        .lock-title { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 8%); margin-bottom: 4px; }
+        .lock-desc { font-size: 11px; color: hsl(220, 10%, 40%); margin-bottom: 12px; }
         .lock-btn { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 600; text-decoration: none; }
         .lock-btn:hover { opacity: 0.9; }
       `}</style>
