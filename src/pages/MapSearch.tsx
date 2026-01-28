@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, 
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
-  Building, HomeIcon, Warehouse, DollarSign, Search, Navigation
+  Building, HomeIcon, Warehouse, DollarSign, Search, Navigation, Lock
 } from "lucide-react";
 
 // SEO: This page is NOINDEX - dynamic map/filter URLs should not be indexed
@@ -39,6 +39,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
+import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
 
 // Lazy load the combined map component
@@ -164,6 +165,7 @@ type PresaleProject = {
 export default function MapSearch() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
+  const { isVerified: isVerifiedAgent } = useVerifiedAgent();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -1387,6 +1389,7 @@ export default function MapSearch() {
                       centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
+                      isVerifiedAgent={isVerifiedAgent}
                     />
                   )}
                 </Suspense>
@@ -1451,7 +1454,7 @@ export default function MapSearch() {
                     const link = item.type === "presale" 
                       ? `/presale-projects/${(data as PresaleProject).slug}` 
                       : item.type === "assignment"
-                      ? `/assignments/${(data as Assignment).id}`
+                      ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                       : `/resale/${(data as MLSListing).listing_key}`;
                     const isFocused = focusedCarouselItemId === id;
                     
@@ -1460,14 +1463,31 @@ export default function MapSearch() {
                         key={`${item.type}-${id}`}
                         data-item-id={id}
                         data-item-type={item.type}
-                        onClick={() => handleCarouselCardTap(id, item.type, link)}
-                        className="snap-start shrink-0 w-[240px] sm:w-[280px] cursor-pointer"
+                        onClick={() => {
+                          // For non-verified users viewing assignments, show toast instead of navigating
+                          if (isAssignment && !isVerifiedAgent) {
+                            toast.info("Verify as an agent to view assignment details", {
+                              action: {
+                                label: "Become Agent",
+                                onClick: () => navigate("/for-agents")
+                              }
+                            });
+                            return;
+                          }
+                          handleCarouselCardTap(id, item.type, link);
+                        }}
+                        className={cn(
+                          "snap-start shrink-0 w-[240px] sm:w-[280px]",
+                          isAssignment && !isVerifiedAgent ? "cursor-default" : "cursor-pointer"
+                        )}
                       >
                         <div className={`bg-background/95 backdrop-blur-xl rounded-2xl shadow-lg border overflow-hidden transition-all duration-200 ${
                           isFocused 
                             ? 'border-primary ring-2 ring-primary/30 scale-[1.02]' 
                             : selectedItemId === id 
                               ? 'border-primary/50 ring-1 ring-primary/20' 
+                              : isAssignment
+                              ? 'border-emerald-500/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           <div className="relative w-full aspect-[16/10] bg-muted">
@@ -1481,7 +1501,11 @@ export default function MapSearch() {
                               )
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
-                                <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" />
+                                <img 
+                                  src={getResalePhoto(data as MLSListing)!} 
+                                  alt={getResaleAddress(data as MLSListing)} 
+                                  className={cn("w-full h-full object-cover", isAssignment && !isVerifiedAgent && "blur-lg")} 
+                                />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center">
                                   <Home className="h-8 w-8 text-muted-foreground" />
@@ -1497,16 +1521,31 @@ export default function MapSearch() {
                             }`}>
                               {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'MOVE-IN'}
                             </Badge>
+                            {/* Lock overlay for non-verified agents viewing assignments */}
+                            {isAssignment && !isVerifiedAgent && (
+                              <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                                <div className="text-center">
+                                  <Lock className="h-6 w-6 text-white mx-auto mb-1" />
+                                  <p className="text-[10px] text-white font-medium">Agent Only</p>
+                                </div>
+                              </div>
+                            )}
                             {/* Tap indicator for focused card */}
-                            {isFocused && (
+                            {isFocused && !isAssignment && (
                               <div className="absolute bottom-2 right-2 bg-foreground/90 text-background text-[9px] font-semibold px-2 py-1 rounded-md">
                                 TAP TO VIEW
                               </div>
                             )}
                           </div>
-                          <div className="p-3 space-y-1">
+                          <div className={cn("p-3 space-y-1 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                            {/* Blur overlay for assignment content when not verified */}
+                            {isAssignment && !isVerifiedAgent && (
+                              <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
+                                <p className="text-xs text-muted-foreground text-center px-2">Agent access required</p>
+                              </div>
+                            )}
                             {/* Price */}
-                            <div className="font-bold text-foreground text-lg">
+                            <div className={cn("font-bold text-lg", isAssignment ? "text-emerald-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? formatPrice((data as PresaleProject).starting_price)
                                 : isAssignment
@@ -1516,7 +1555,7 @@ export default function MapSearch() {
                             </div>
                             
                             {/* Name/Address */}
-                            <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                            <h4 className={cn("font-medium text-foreground text-sm line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? (data as PresaleProject).name 
                                 : isAssignment
@@ -1525,7 +1564,7 @@ export default function MapSearch() {
                             </h4>
                             
                             {/* Location */}
-                            <div className="flex items-center gap-1 text-muted-foreground">
+                            <div className={cn("flex items-center gap-1 text-muted-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               <MapPin className="h-3 w-3 shrink-0" />
                               <span className="text-xs truncate">
                                 {isPresale 
@@ -1537,7 +1576,7 @@ export default function MapSearch() {
                               </span>
                             </div>
                             
-                            {/* Specs for resale and assignment */}
+                            {/* Specs for resale */}
                             {!isPresale && !isAssignment && (
                               <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
                                 {(data as MLSListing).bedrooms_total && (
@@ -1558,7 +1597,7 @@ export default function MapSearch() {
                             
                             {/* Specs for assignment */}
                             {isAssignment && (
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
+                              <div className={cn("flex items-center gap-3 text-xs text-muted-foreground pt-0.5", !isVerifiedAgent && "blur-sm")}>
                                 <span className="flex items-center gap-1">
                                   <Bed className="h-3 w-3" /> {(data as Assignment).beds}
                                 </span>
@@ -1940,7 +1979,7 @@ export default function MapSearch() {
                   const link = item.type === "presale" 
                     ? `/presale-projects/${(data as PresaleProject).slug}` 
                     : item.type === "assignment"
-                    ? `/assignments/${(data as Assignment).id}`
+                    ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                     : `/resale/${(data as MLSListing).listing_key}`;
                   const lat = item.type === "presale" 
                     ? (data as PresaleProject).map_lat 
@@ -1959,15 +1998,32 @@ export default function MapSearch() {
                       key={`${item.type}-${id}`}
                       to={link}
                       data-item-id={id}
-                      onClick={(e) => handleDesktopCardClick(e, id, item.type, link, lat, lng)}
+                      onClick={(e) => {
+                        // For non-verified users viewing assignments, prevent navigation and show toast
+                        if (isAssignment && !isVerifiedAgent) {
+                          e.preventDefault();
+                          toast.info("Verify as an agent to view assignment details", {
+                            action: {
+                              label: "Become Agent",
+                              onClick: () => navigate("/for-agents")
+                            }
+                          });
+                          return;
+                        }
+                        handleDesktopCardClick(e, id, item.type, link, lat, lng);
+                      }}
+                      className={isAssignment && !isVerifiedAgent ? "cursor-default" : undefined}
                     >
-                      <div className={`rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card ${
+                      <div className={cn(
+                        "rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card",
                         isFocused 
                           ? 'border-primary ring-2 ring-primary/30 shadow-lg' 
                           : selectedItemId === id 
                             ? 'border-primary/50 ring-1 ring-primary/20' 
+                            : isAssignment
+                            ? 'border-emerald-500/50 hover:border-emerald-500'
                             : 'border-border hover:border-primary/50'
-                      }`}>
+                      )}>
                         {/* Large Image - 3:2 aspect ratio matching REW */}
                         <div className="relative w-full aspect-[3/2] bg-muted overflow-hidden">
                           {isPresale ? (
@@ -1979,7 +2035,7 @@ export default function MapSearch() {
                               </div>
                             )
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center">
+                            <div className={cn("w-full h-full flex items-center justify-center", isAssignment && !isVerifiedAgent && "blur-lg")}>
                               <Home className="h-10 w-10 text-muted-foreground" />
                             </div>
                           )}
@@ -1993,8 +2049,17 @@ export default function MapSearch() {
                           }`}>
                             {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'MOVE-IN'}
                           </Badge>
+                          {/* Lock overlay for non-verified agents viewing assignments */}
+                          {isAssignment && !isVerifiedAgent && (
+                            <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                              <div className="text-center">
+                                <Lock className="h-6 w-6 text-white mx-auto mb-1" />
+                                <p className="text-[10px] text-white font-medium">Agent Access Only</p>
+                              </div>
+                            </div>
+                          )}
                           {/* Click hint for focused item */}
-                          {isFocused && (
+                          {isFocused && !(isAssignment && !isVerifiedAgent) && (
                             <div className="absolute inset-0 bg-primary/10 flex items-center justify-center pointer-events-none animate-fade-in">
                               <span className="text-xs font-semibold text-primary bg-background/90 px-3 py-1.5 rounded-full shadow-md">
                                 Click to view details
@@ -2004,9 +2069,15 @@ export default function MapSearch() {
                         </div>
                         
                         {/* Content - REW-style compact info */}
-                        <div className="p-2.5 space-y-1">
+                        <div className={cn("p-2.5 space-y-1 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                          {/* Blur overlay for assignment content when not verified */}
+                          {isAssignment && !isVerifiedAgent && (
+                            <div className="absolute inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-10">
+                              <p className="text-xs text-muted-foreground text-center px-2">Verify to view</p>
+                            </div>
+                          )}
                           {/* Price - Prominent */}
-                          <div className="font-bold text-foreground text-base leading-tight">
+                          <div className={cn("font-bold text-base leading-tight", isAssignment ? "text-emerald-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                             {isPresale
                               ? formatPrice((data as PresaleProject).starting_price)
                               : isAssignment
@@ -2016,7 +2087,7 @@ export default function MapSearch() {
                           </div>
                           
                           {/* Address */}
-                          <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                          <h4 className={cn("font-medium text-foreground text-sm line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                             {isPresale 
                               ? (data as PresaleProject).name 
                               : isAssignment
@@ -2025,7 +2096,7 @@ export default function MapSearch() {
                           </h4>
                           
                           {/* Location */}
-                          <div className="text-muted-foreground text-xs line-clamp-1">
+                          <div className={cn("text-muted-foreground text-xs line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                             {isPresale 
                               ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).city}`
                               : isAssignment
@@ -2043,7 +2114,7 @@ export default function MapSearch() {
                           
                           {/* Specs for assignments */}
                           {isAssignment && (
-                            <div className="text-muted-foreground text-xs">
+                            <div className={cn("text-muted-foreground text-xs", !isVerifiedAgent && "blur-sm")}>
                               {(data as Assignment).beds} bd • {(data as Assignment).baths} ba{(data as Assignment).interior_sqft ? ` • ${(data as Assignment).interior_sqft?.toLocaleString()} sf` : ''}
                             </div>
                           )}
