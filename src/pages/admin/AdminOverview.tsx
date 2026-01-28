@@ -65,6 +65,8 @@ interface DashboardStats {
     created_at: string;
     project_id: string | null;
     lead_source: string | null;
+    landing_page: string | null;
+    presale_projects: { name: string } | null;
   }>;
   recentBookings: Array<{
     id: string;
@@ -132,7 +134,7 @@ export default function AdminOverview() {
         supabase.from("mls_listings").select("lease_amount, bedrooms_total, property_sub_type").eq("is_rental", true).eq("mls_status", "Active").gt("lease_amount", 0),
         supabase.from("buyer_profiles").select("*", { count: "exact", head: true }).eq("is_vip", true),
         supabase.from("clients").select("id, last_seen_at", { count: "exact" }),
-        supabase.from("project_leads").select("id, name, email, created_at, project_id, lead_source").order("created_at", { ascending: false }).limit(5),
+        supabase.from("project_leads").select("id, name, email, created_at, project_id, lead_source, landing_page, presale_projects(name)").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
         supabase.from("presale_projects").select("id, name, city, view_count").eq("is_published", true).order("view_count", { ascending: false }).limit(5),
         supabase.from("mls_sync_logs").select("completed_at, sync_type").eq("status", "completed").order("completed_at", { ascending: false }).limit(5)
@@ -484,27 +486,42 @@ export default function AdminOverview() {
                 <p className="text-sm text-muted-foreground text-center py-12">No leads yet</p>
               ) : (
                 <div className="divide-y">
-                  {stats?.recentLeads.map(lead => (
-                    <div key={lead.id} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold text-sm">
-                          {lead.name.charAt(0).toUpperCase()}
+                  {stats?.recentLeads.map(lead => {
+                    // Get project name or format landing page
+                    const projectName = lead.presale_projects?.name;
+                    const landingPage = lead.landing_page ? lead.landing_page.replace(/^\//, '').split('/')[0] : null;
+                    const contextLabel = projectName || (landingPage ? landingPage.replace(/-/g, ' ') : null);
+                    
+                    return (
+                      <div key={lead.id} className="flex items-center justify-between p-4 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold text-sm">
+                            {lead.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{lead.name}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-muted-foreground">{lead.email}</p>
+                              {contextLabel && (
+                                <Badge variant="secondary" className="text-xs capitalize">
+                                  <MapPin className="h-3 w-3 mr-1" />
+                                  {contextLabel}
+                                </Badge>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{lead.name}</p>
-                          <p className="text-xs text-muted-foreground">{lead.email}</p>
+                        <div className="text-right">
+                          {lead.lead_source && (
+                            <Badge variant="outline" className="text-xs mb-1">{lead.lead_source.replace(/_/g, ' ')}</Badge>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                          </p>
                         </div>
                       </div>
-                      <div className="text-right">
-                        {lead.lead_source && (
-                          <Badge variant="outline" className="text-xs mb-1">{lead.lead_source.replace(/_/g, ' ')}</Badge>
-                        )}
-                        <p className="text-xs text-muted-foreground">
-                          {format(new Date(lead.created_at), "MMM d, h:mm a")}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
