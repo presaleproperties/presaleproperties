@@ -65,17 +65,35 @@ export default function AdminRentalSync() {
     "Coquitlam", "New Westminster", "North Vancouver"
   ];
 
-  // Fetch rental city counts with breakdown by type
+  // Fetch rental city counts with breakdown by type - using pagination to get all records
   const { data: cityCounts, isLoading: cityCountsLoading } = useQuery({
     queryKey: ["rental-city-counts"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get total count
+      const { count: totalCount } = await supabase
         .from("mls_listings")
-        .select("city, lease_amount, bedrooms_total, property_type, property_sub_type")
+        .select("*", { count: "exact", head: true })
         .eq("is_rental", true)
         .eq("mls_status", "Active");
 
-      if (error) throw error;
+      if (!totalCount || totalCount === 0) return [];
+
+      // Fetch in batches of 1000 to get all rentals
+      const allRentals: any[] = [];
+      const BATCH_SIZE = 1000;
+      const batches = Math.ceil(totalCount / BATCH_SIZE);
+
+      for (let i = 0; i < batches; i++) {
+        const { data, error } = await supabase
+          .from("mls_listings")
+          .select("city, lease_amount, bedrooms_total, property_type, property_sub_type")
+          .eq("is_rental", true)
+          .eq("mls_status", "Active")
+          .range(i * BATCH_SIZE, (i + 1) * BATCH_SIZE - 1);
+
+        if (error) throw error;
+        if (data) allRentals.push(...data);
+      }
 
       // Count by city and calculate avg rent by type
       const cityData: Record<string, { 
@@ -86,7 +104,7 @@ export default function AdminRentalSync() {
         townhome: { count: number; total: number };
       }> = {};
       
-      data?.forEach(listing => {
+      allRentals.forEach(listing => {
         const city = listing.city || "Unknown";
         if (!cityData[city]) {
           cityData[city] = { 
