@@ -1490,24 +1490,29 @@ export default function MapSearch() {
                               ? 'border-emerald-500/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
-                          <div className="relative w-full aspect-[16/10] bg-muted">
+                          <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
                             {isPresale ? (
                               (data as PresaleProject).featured_image ? (
-                                <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" />
+                                <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" loading="eager" />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center">
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
                                   <Building2 className="h-8 w-8 text-muted-foreground" />
                                 </div>
                               )
+                            ) : isAssignment ? (
+                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20", !isVerifiedAgent && "blur-lg")}>
+                                <Building2 className="h-8 w-8 text-emerald-500" />
+                              </div>
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
                                 <img 
                                   src={getResalePhoto(data as MLSListing)!} 
                                   alt={getResaleAddress(data as MLSListing)} 
-                                  className={cn("w-full h-full object-cover", isAssignment && !isVerifiedAgent && "blur-lg")} 
+                                  className="w-full h-full object-cover" 
+                                  loading="eager"
                                 />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center">
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
                                   <Home className="h-8 w-8 text-muted-foreground" />
                                 </div>
                               )
@@ -2034,10 +2039,23 @@ export default function MapSearch() {
                                 <Building2 className="h-10 w-10 text-muted-foreground" />
                               </div>
                             )
-                          ) : (
-                            <div className={cn("w-full h-full flex items-center justify-center", isAssignment && !isVerifiedAgent && "blur-lg")}>
-                              <Home className="h-10 w-10 text-muted-foreground" />
+                          ) : isAssignment ? (
+                            <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20", !isVerifiedAgent && "blur-lg")}>
+                              <Building2 className="h-10 w-10 text-emerald-500" />
                             </div>
+                          ) : (
+                            getResalePhoto(data as MLSListing) ? (
+                              <img 
+                                src={getResalePhoto(data as MLSListing)!} 
+                                alt={getResaleAddress(data as MLSListing)} 
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                                loading="lazy"
+                              />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                                <Home className="h-10 w-10 text-muted-foreground" />
+                              </div>
+                            )
                           )}
                           {/* Badge overlay */}
                           <Badge className={`absolute top-2 left-2 text-[9px] px-1.5 py-0.5 font-semibold shadow-md ${
