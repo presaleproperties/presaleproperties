@@ -22,7 +22,7 @@ import DashboardListings from "./pages/dashboard/DashboardListings";
 import DashboardLeads from "./pages/dashboard/DashboardLeads";
 import DashboardProfile from "./pages/dashboard/DashboardProfile";
 import DashboardBilling from "./pages/dashboard/DashboardBilling";
-import DashboardAssignments from "./pages/dashboard/DashboardAssignments";
+
 import DashboardMessages from "./pages/dashboard/DashboardMessages";
 import DashboardProjectDocuments from "./pages/dashboard/DashboardProjectDocuments";
 import ListingForm from "./pages/dashboard/ListingForm";
@@ -239,7 +239,7 @@ const App = () => (
             {/* Agent Dashboard Routes */}
             <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
             <Route path="/dashboard/projects" element={<ProtectedRoute><DashboardProjectDocuments /></ProtectedRoute>} />
-            <Route path="/dashboard/assignments" element={<ProtectedRoute><DashboardAssignments /></ProtectedRoute>} />
+            <Route path="/dashboard/assignments" element={<Navigate to="/map-search?mode=assignments" replace />} />
             <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
             <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
             <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
