@@ -842,7 +842,7 @@ export default function MapSearch() {
       
       return results;
     },
-    enabled: mapMode === "all" || mapMode === "rental",
+    enabled: false, // Temporarily disabled - rentals hidden from map
     staleTime: 2 * 60 * 1000,
   });
 
