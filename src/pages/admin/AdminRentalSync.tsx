@@ -6,12 +6,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { parseRentalRemarks } from "@/utils/rentalRemarksParser";
+import { RentalListingsTable } from "@/components/admin/RentalListingsTable";
+import { RentalMetricsCards } from "@/components/admin/RentalMetricsCards";
 import { 
   Home, RefreshCw, Eye, EyeOff, DollarSign, 
-  PawPrint, Sofa, MapPin, TrendingUp 
+  Settings, LayoutDashboard 
 } from "lucide-react";
 import {
   Select,
@@ -61,54 +64,6 @@ export default function AdminRentalSync() {
     "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley", 
     "Coquitlam", "New Westminster", "North Vancouver"
   ];
-
-  // Fetch rental stats
-  const { data: rentalStats, isLoading: statsLoading } = useQuery({
-    queryKey: ["rental-stats"],
-    queryFn: async () => {
-      const { count: total } = await supabase
-        .from("mls_listings")
-        .select("*", { count: "exact", head: true })
-        .eq("is_rental", true);
-
-      const { count: active } = await supabase
-        .from("mls_listings")
-        .select("*", { count: "exact", head: true })
-        .eq("is_rental", true)
-        .eq("mls_status", "Active");
-
-      const { count: withCoords } = await supabase
-        .from("mls_listings")
-        .select("*", { count: "exact", head: true })
-        .eq("is_rental", true)
-        .eq("mls_status", "Active")
-        .not("latitude", "is", null);
-
-      const { count: petFriendly } = await supabase
-        .from("mls_listings")
-        .select("*", { count: "exact", head: true })
-        .eq("is_rental", true)
-        .eq("mls_status", "Active")
-        .not("pets_allowed", "is", null)
-        .neq("pets_allowed", "No");
-
-      const { count: furnished } = await supabase
-        .from("mls_listings")
-        .select("*", { count: "exact", head: true })
-        .eq("is_rental", true)
-        .eq("mls_status", "Active")
-        .not("furnished", "is", null)
-        .neq("furnished", "Unfurnished");
-
-      return {
-        total: total || 0,
-        active: active || 0,
-        withCoords: withCoords || 0,
-        petFriendly: petFriendly || 0,
-        furnished: furnished || 0,
-      };
-    },
-  });
 
   // Fetch rental city counts
   const { data: cityCounts, isLoading: cityCountsLoading } = useQuery({
@@ -214,10 +169,9 @@ export default function AdminRentalSync() {
     },
   });
 
-  // Scan for rentals mutation (re-classifies existing listings using the parser utility)
+  // Scan for rentals mutation
   const scanRentalsMutation = useMutation({
     mutationFn: async () => {
-      // Find listings that might be rentals based on various indicators
       const { data: potentialRentals, error } = await supabase
         .from("mls_listings")
         .select("listing_key, public_remarks, listing_price, lease_amount")
@@ -228,7 +182,7 @@ export default function AdminRentalSync() {
       if (error) throw error;
 
       let updated = 0;
-      let batchUpdates: { 
+      const batchUpdates: { 
         listing_key: string; 
         is_rental: boolean; 
         lease_amount: number | null;
@@ -240,13 +194,8 @@ export default function AdminRentalSync() {
       }[] = [];
 
       for (const listing of potentialRentals || []) {
-        // Use the parser utility to extract rental data
         const parsed = parseRentalRemarks(listing.public_remarks, listing.listing_price || 0);
-        
-        // If already has lease_amount from API, use that instead
         const finalLeaseAmount = listing.lease_amount || parsed.leaseAmount;
-        
-        // Determine if this is a rental
         const isRental = parsed.isRental || (finalLeaseAmount && finalLeaseAmount > 400 && finalLeaseAmount < 25000);
         
         if (isRental) {
@@ -264,7 +213,6 @@ export default function AdminRentalSync() {
         }
       }
 
-      // Batch update in chunks of 50
       const chunkSize = 50;
       for (let i = 0; i < batchUpdates.length; i += chunkSize) {
         const chunk = batchUpdates.slice(i, i + chunkSize);
@@ -292,6 +240,8 @@ export default function AdminRentalSync() {
       });
       queryClient.invalidateQueries({ queryKey: ["rental-stats"] });
       queryClient.invalidateQueries({ queryKey: ["rental-city-counts"] });
+      queryClient.invalidateQueries({ queryKey: ["rental-detailed-stats"] });
+      queryClient.invalidateQueries({ queryKey: ["rental-listings"] });
     },
     onError: (error: Error) => {
       toast({
@@ -316,236 +266,242 @@ export default function AdminRentalSync() {
     <AdminLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Rental Listings</h1>
+          <h1 className="text-3xl font-bold">Rental Listings Dashboard</h1>
           <p className="text-muted-foreground">
-            Manage rental listing visibility and sync settings
+            Manage, monitor, and analyze rental listings separately from sales
           </p>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total Rentals
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Home className="h-5 w-5 text-emerald-600" />
-                {statsLoading ? (
-                  <Skeleton className="h-8 w-16" />
-                ) : (
-                  <span className="text-2xl font-bold">{rentalStats?.total || 0}</span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="dashboard" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="dashboard" className="gap-2">
+              <LayoutDashboard className="h-4 w-4" />
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="listings" className="gap-2">
+              <Home className="h-4 w-4" />
+              All Listings
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Active Listings
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-                {statsLoading ? (
-                  <Skeleton className="h-8 w-16" />
-                ) : (
-                  <span className="text-2xl font-bold">{rentalStats?.active || 0}</span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+          {/* Dashboard Tab */}
+          <TabsContent value="dashboard" className="space-y-6">
+            <RentalMetricsCards />
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                With Coordinates
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-purple-600" />
-                {statsLoading ? (
-                  <Skeleton className="h-8 w-16" />
-                ) : (
-                  <span className="text-2xl font-bold">{rentalStats?.withCoords || 0}</span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Quick Actions</CardTitle>
+                <CardDescription>
+                  Scan existing listings to identify rentals and update their metadata
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => scanRentalsMutation.mutate()}
+                  disabled={scanRentalsMutation.isPending}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${scanRentalsMutation.isPending ? "animate-spin" : ""}`} />
+                  Scan for Rentals
+                </Button>
+              </CardContent>
+            </Card>
 
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Pet Friendly
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <PawPrint className="h-5 w-5 text-amber-600" />
-                {statsLoading ? (
-                  <Skeleton className="h-8 w-16" />
-                ) : (
-                  <span className="text-2xl font-bold">{rentalStats?.petFriendly || 0}</span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                Furnished
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center gap-2">
-                <Sofa className="h-5 w-5 text-rose-600" />
-                {statsLoading ? (
-                  <Skeleton className="h-8 w-16" />
-                ) : (
-                  <span className="text-2xl font-bold">{rentalStats?.furnished || 0}</span>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actions</CardTitle>
-            <CardDescription>
-              Scan existing listings to identify rentals and save your settings
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => scanRentalsMutation.mutate()}
-              disabled={scanRentalsMutation.isPending}
-              className="gap-2"
-            >
-              <RefreshCw className={`h-4 w-4 ${scanRentalsMutation.isPending ? "animate-spin" : ""}`} />
-              Scan for Rentals
-            </Button>
-            <Button
-              onClick={() => saveSettingsMutation.mutate()}
-              disabled={saveSettingsMutation.isPending}
-            >
-              Save Settings
-            </Button>
-          </CardContent>
-        </Card>
-
-        {/* Price Range Filters */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5" />
-              Price Range Filters
-            </CardTitle>
-            <CardDescription>
-              Set minimum and maximum monthly rent to display on the website
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Minimum Rent</label>
-                <Select value={minLease} onValueChange={setMinLease}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {PRICE_RANGES.map(r => (
-                      <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  Rentals by City
+                </CardTitle>
+                <CardDescription>
+                  Overview of rental distribution and average rents by city
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {cityCountsLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>City</TableHead>
+                        <TableHead className="text-right">Rentals</TableHead>
+                        <TableHead className="text-right">Avg. Rent</TableHead>
+                        <TableHead className="text-center">Visible</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cityCounts?.slice(0, 10).map(({ city, count, avgRent }) => (
+                        <TableRow key={city}>
+                          <TableCell className="font-medium">{city}</TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant="secondary">{count}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-success">
+                            {formatCurrency(avgRent)}/mo
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {enabledCities.includes(city) ? (
+                              <Eye className="h-4 w-4 text-success mx-auto" />
+                            ) : (
+                              <EyeOff className="h-4 w-4 text-muted-foreground mx-auto" />
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Maximum Rent</label>
-                <Select value={maxLease} onValueChange={setMaxLease}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {MAX_PRICE_RANGES.map(r => (
-                      <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+          {/* Listings Tab */}
+          <TabsContent value="listings">
+            <RentalListingsTable />
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions</CardTitle>
+                <CardDescription>
+                  Scan existing listings to identify rentals and save your settings
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => scanRentalsMutation.mutate()}
+                  disabled={scanRentalsMutation.isPending}
+                  className="gap-2"
+                >
+                  <RefreshCw className={`h-4 w-4 ${scanRentalsMutation.isPending ? "animate-spin" : ""}`} />
+                  Scan for Rentals
+                </Button>
+                <Button
+                  onClick={() => saveSettingsMutation.mutate()}
+                  disabled={saveSettingsMutation.isPending}
+                >
+                  Save Settings
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Price Range Filters
+                </CardTitle>
+                <CardDescription>
+                  Set minimum and maximum monthly rent to display on the website
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Minimum Rent</label>
+                    <Select value={minLease} onValueChange={setMinLease}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {PRICE_RANGES.map(r => (
+                          <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Maximum Rent</label>
+                    <Select value={maxLease} onValueChange={setMaxLease}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {MAX_PRICE_RANGES.map(r => (
+                          <SelectItem key={r.value} value={r.value}>{r.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Eye className="h-5 w-5" />
+                  City Visibility Control
+                </CardTitle>
+                <CardDescription>
+                  Enable or disable rental listings by city. Only enabled cities will appear on the website.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {cityCountsLoading ? (
+                  <div className="space-y-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <Skeleton key={i} className="h-12 w-full" />
                     ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* City Visibility Control */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Eye className="h-5 w-5" />
-              City Visibility Control
-            </CardTitle>
-            <CardDescription>
-              Enable or disable rental listings by city. Only enabled cities will appear on the website.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {cityCountsLoading ? (
-              <div className="space-y-2">
-                {Array.from({ length: 8 }).map((_, i) => (
-                  <Skeleton key={i} className="h-12 w-full" />
-                ))}
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12">Visible</TableHead>
-                    <TableHead>City</TableHead>
-                    <TableHead className="text-right">Rentals</TableHead>
-                    <TableHead className="text-right">Avg. Rent</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {cityCounts?.map(({ city, count, avgRent }) => (
-                    <TableRow key={city}>
-                      <TableCell>
-                        <Switch
-                          checked={enabledCities.includes(city)}
-                          onCheckedChange={() => toggleCity(city)}
-                        />
-                      </TableCell>
-                      <TableCell className="font-medium">
-                        <div className="flex items-center gap-2">
-                          {city}
-                          {enabledCities.includes(city) ? (
-                            <Eye className="h-4 w-4 text-green-600" />
-                          ) : (
-                            <EyeOff className="h-4 w-4 text-muted-foreground" />
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Badge variant="secondary">{count}</Badge>
-                      </TableCell>
-                      <TableCell className="text-right text-emerald-600 font-medium">
-                        {formatCurrency(avgRent)}/mo
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                  </div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="w-12">Visible</TableHead>
+                        <TableHead>City</TableHead>
+                        <TableHead className="text-right">Rentals</TableHead>
+                        <TableHead className="text-right">Avg. Rent</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cityCounts?.map(({ city, count, avgRent }) => (
+                        <TableRow key={city}>
+                          <TableCell>
+                            <Switch
+                              checked={enabledCities.includes(city)}
+                              onCheckedChange={() => toggleCity(city)}
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">
+                            <div className="flex items-center gap-2">
+                              {city}
+                              {enabledCities.includes(city) ? (
+                                <Eye className="h-4 w-4 text-success" />
+                              ) : (
+                                <EyeOff className="h-4 w-4 text-muted-foreground" />
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Badge variant="secondary">{count}</Badge>
+                          </TableCell>
+                          <TableCell className="text-right font-medium text-success">
+                            {formatCurrency(avgRent)}/mo
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </AdminLayout>
   );
