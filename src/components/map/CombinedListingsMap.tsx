@@ -74,6 +74,30 @@ interface Assignment {
   listing_photos?: { url: string; sort_order: number | null }[];
 }
 
+// Rental listing type (from MLS with rental-specific fields)
+interface RentalListing {
+  id: string;
+  listing_key: string;
+  lease_amount: number | null;
+  city: string;
+  neighborhood: string | null;
+  street_number: string | null;
+  street_name: string | null;
+  street_suffix: string | null;
+  property_type: string;
+  property_sub_type: string | null;
+  bedrooms_total: number | null;
+  bathrooms_total: number | null;
+  living_area: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  photos: any;
+  mls_status: string;
+  pets_allowed: string | null;
+  furnished: string | null;
+  availability_date: string | null;
+}
+
 interface SavedMapState {
   center: { lat: number; lng: number };
   zoom: number;
@@ -84,10 +108,11 @@ interface CombinedListingsMapProps {
   resaleListings: MLSListing[];
   presaleProjects: PresaleProject[];
   assignments?: Assignment[];
+  rentals?: RentalListing[];
   isVerifiedAgent?: boolean;
-  mode: "all" | "presale" | "resale" | "assignments";
-  onListingSelect?: (id: string, type: "resale" | "presale" | "assignment") => void;
-  onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => void;
+  mode: "all" | "presale" | "resale" | "assignments" | "rental";
+  onListingSelect?: (id: string, type: "resale" | "presale" | "assignment" | "rental") => void;
+  onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[], assignmentIds?: string[], rentalIds?: string[]) => void;
   onMapInteraction?: () => void;
   onMapStateChange?: (center: { lat: number; lng: number }, zoom: number) => void;
   /** On mobile, skip popups and just use carousel */
@@ -101,7 +126,7 @@ interface CombinedListingsMapProps {
   /** ID of item to highlight with animation */
   highlightedItemId?: string | null;
   /** Type of highlighted item */
-  highlightedItemType?: "resale" | "presale" | null;
+  highlightedItemType?: "resale" | "presale" | "rental" | null;
 }
 
 function formatPrice(price: number): string {
@@ -171,6 +196,29 @@ function createAssignmentMarkerIcon(assignment: Assignment, isVerifiedAgent: boo
   const icon = L.divIcon({
     className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
     html: `<div class="ap${isHighlighted ? ' hl' : ''}${!isVerifiedAgent ? ' locked' : ''}">${priceText}</div>`,
+    iconSize: [size[0], size[1]],
+    iconAnchor: [size[0] / 2, size[1]],
+    popupAnchor: [0, -size[1] - 2],
+  });
+  
+  if (!isHighlighted) iconCache.set(cacheKey, icon);
+  return icon;
+}
+
+// Rental price pill - emerald green with /mo suffix - matches brand style
+function createRentalPricePillIcon(rental: RentalListing, isHighlighted: boolean = false): L.DivIcon {
+  const leaseAmount = rental.lease_amount || 0;
+  const priceText = `$${Math.round(leaseAmount).toLocaleString()}/mo`;
+  const cacheKey = `rental-${priceText}-${isHighlighted}`;
+  
+  const cached = iconCache.get(cacheKey);
+  if (cached && !isHighlighted) return cached;
+  
+  const size = isHighlighted ? [90, 32] : [70, 22];
+  
+  const icon = L.divIcon({
+    className: `rental-marker ${isHighlighted ? 'marker-hl' : ''}`,
+    html: `<div class="rp${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
     iconSize: [size[0], size[1]],
     iconAnchor: [size[0] / 2, size[1]],
     popupAnchor: [0, -size[1] - 2],
@@ -350,10 +398,53 @@ function assignmentPopupHtml(assignment: Assignment, isVerifiedAgent: boolean): 
   `;
 }
 
+// Rental popup HTML - emerald green theme matching site branding
+function rentalPopupHtml(rental: RentalListing): string {
+  const photo = rental.photos && Array.isArray(rental.photos) && rental.photos.length > 0 
+    ? rental.photos[0]?.MediaURL || null 
+    : null;
+  const fullPrice = rental.lease_amount ? `$${rental.lease_amount.toLocaleString()}/mo` : 'Contact for Price';
+  const address = [rental.street_number, rental.street_name, rental.street_suffix].filter(Boolean).join(" ") || rental.neighborhood || rental.city;
+  
+  const specs = [
+    rental.bedrooms_total ? `${rental.bedrooms_total} bd` : null,
+    rental.bathrooms_total ? `${rental.bathrooms_total} ba` : null,
+    rental.living_area ? `${rental.living_area.toLocaleString()} sqft` : null,
+  ].filter(Boolean).join(' • ');
+  
+  const features = [];
+  if (rental.pets_allowed && rental.pets_allowed !== 'No') features.push('🐾 Pets OK');
+  if (rental.furnished && rental.furnished !== 'Unfurnished') features.push('🪑 Furnished');
+  const featuresHtml = features.length > 0 ? `<div style="font-size:10px;color:#16a34a;margin-top:4px;">${features.join(' • ')}</div>` : '';
+  
+  const photoHtml = photo 
+    ? `<img src="${photo}" alt="${address}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
+    : `<div style="width:160px;min-height:120px;background:#ecfdf5;display:flex;align-items:center;justify-content:center;"><span style="color:#059669;font-size:11px;">No Image</span></div>`;
+  
+  return `
+    <div style="position:relative;">
+      <a href="/rentals/${rental.listing_key}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid #059669;">
+        <div style="flex-shrink:0;position:relative;">
+          ${photoHtml}
+          <span style="position:absolute;top:6px;left:6px;background:#059669;color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">FOR RENT</span>
+        </div>
+        <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+          <div style="font-weight:700;font-size:18px;color:#059669;margin-bottom:4px;">${fullPrice}</div>
+          <div style="font-size:13px;color:#475569;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${address}</div>
+          <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${specs}</div>
+          ${featuresHtml}
+        </div>
+      </a>
+      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid #059669;"></div>
+    </div>
+  `;
+}
+
 export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedListingsMapProps>(({ 
   resaleListings,
   presaleProjects,
   assignments = [],
+  rentals = [],
   isVerifiedAgent = false,
   mode,
   onListingSelect, 
@@ -372,6 +463,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const markerClusterRef = useRef<L.MarkerClusterGroup | null>(null);
   const presaleLayerRef = useRef<L.LayerGroup | null>(null);
   const assignmentLayerRef = useRef<L.LayerGroup | null>(null);
+  const rentalLayerRef = useRef<L.LayerGroup | null>(null);
   const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
   const hasInitializedViewRef = useRef(false);
@@ -382,6 +474,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const resaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const presaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const assignmentMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
+  const rentalMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const [internalHighlightId, setInternalHighlightId] = useState<string | null>(null);
 
   // Expose flyTo and highlight methods to parent via ref
@@ -391,11 +484,12 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 0.8 });
       }
     },
-    highlightItem: (id: string, type: "resale" | "presale" | "assignment") => {
+    highlightItem: (id: string, type: "resale" | "presale" | "assignment" | "rental") => {
       setInternalHighlightId(id);
       // Find the marker and fly to it
       const markersMap = type === "resale" ? resaleMarkersMapRef.current : 
                          type === "presale" ? presaleMarkersMapRef.current : 
+                         type === "rental" ? rentalMarkersMapRef.current :
                          assignmentMarkersMapRef.current;
       const marker = markersMap.get(id);
       if (marker && mapInstanceRef.current) {
@@ -423,6 +517,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     [assignments]
   );
 
+  const validRentals = useMemo(() => 
+    rentals.filter(r => r.latitude && r.longitude),
+    [rentals]
+  );
 
   const updateVisibleItems = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleItemsChange) return;
@@ -441,8 +539,12 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
       .map(a => a.id);
     
-    onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments);
-  }, [validResaleListings, validPresaleProjects, validAssignments, onVisibleItemsChange]);
+    const visibleRentals = validRentals
+      .filter(r => bounds.contains([r.latitude!, r.longitude!]))
+      .map(r => r.id);
+    
+    onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments, visibleRentals);
+  }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, onVisibleItemsChange]);
 
   const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
