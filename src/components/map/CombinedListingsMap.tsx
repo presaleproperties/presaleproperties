@@ -546,14 +546,38 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments, visibleRentals);
   }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, onVisibleItemsChange]);
 
-  const initializeMap = useCallback(() => {
+  // Store callbacks in refs to avoid recreating initializeMap
+  const updateVisibleItemsRef = useRef(updateVisibleItems);
+  const onMapInteractionRef = useRef(onMapInteraction);
+  const onMapStateChangeRef = useRef(onMapStateChange);
+  const savedMapStateRef = useRef(savedMapState);
+  
+  // Keep refs updated
+  useEffect(() => {
+    updateVisibleItemsRef.current = updateVisibleItems;
+  }, [updateVisibleItems]);
+  
+  useEffect(() => {
+    onMapInteractionRef.current = onMapInteraction;
+  }, [onMapInteraction]);
+  
+  useEffect(() => {
+    onMapStateChangeRef.current = onMapStateChange;
+  }, [onMapStateChange]);
+
+  // Initialize map only once on mount
+  useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
+    
+    // Track if component is still mounted
+    let isMounted = true;
 
     // Use saved state if available, otherwise defaults
-    const initialCenter: L.LatLngExpression = savedMapState 
-      ? [savedMapState.center.lat, savedMapState.center.lng]
+    const initialState = savedMapStateRef.current;
+    const initialCenter: L.LatLngExpression = initialState 
+      ? [initialState.center.lat, initialState.center.lng]
       : DEFAULT_CENTER;
-    const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
+    const initialZoom = initialState ? initialState.zoom : DEFAULT_ZOOM;
 
     const map = L.map(mapRef.current, {
       center: initialCenter,
@@ -613,40 +637,48 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     rentalLayerRef.current = rentalLayer;
 
     // If we have saved state, mark as initialized to prevent fitBounds overriding
-    if (savedMapState) {
+    if (initialState) {
       hasInitializedViewRef.current = true;
       hasRestoredSavedStateRef.current = true;
     }
 
-    map.on("moveend", updateVisibleItems);
-    map.on("zoomend", updateVisibleItems);
+    map.on("moveend", () => {
+      if (!isMounted) return;
+      updateVisibleItemsRef.current?.();
+    });
+    map.on("zoomend", () => {
+      if (!isMounted) return;
+      updateVisibleItemsRef.current?.();
+    });
     
     // Notify parent when user starts interacting with map (drag/zoom)
     map.on("movestart", () => {
-      if (onMapInteraction) onMapInteraction();
+      if (!isMounted) return;
+      onMapInteractionRef.current?.();
     });
     
     // Save map state on every move/zoom for persistence
     map.on("moveend", () => {
-      if (onMapStateChange && mapInstanceRef.current) {
-        const center = mapInstanceRef.current.getCenter();
-        const zoom = mapInstanceRef.current.getZoom();
-        onMapStateChange({ lat: center.lat, lng: center.lng }, zoom);
-      }
+      if (!isMounted || !mapInstanceRef.current) return;
+      const center = mapInstanceRef.current.getCenter();
+      const zoom = mapInstanceRef.current.getZoom();
+      onMapStateChangeRef.current?.({ lat: center.lat, lng: center.lng }, zoom);
     });
 
-    // Removed auto-geolocation from here - now handled by parent with permission prompt
-  }, [updateVisibleItems, savedMapState, onMapInteraction, onMapStateChange]);
-
-  useEffect(() => {
-    initializeMap();
     return () => {
+      isMounted = false;
       if (mapInstanceRef.current) {
+        // Remove all event listeners before destroying
+        mapInstanceRef.current.off();
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
       }
+      markerClusterRef.current = null;
+      presaleLayerRef.current = null;
+      assignmentLayerRef.current = null;
+      rentalLayerRef.current = null;
     };
-  }, [initializeMap]);
+  }, []); // Empty deps - only run once on mount
 
   // Update markers when data or mode changes
   useEffect(() => {
