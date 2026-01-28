@@ -1,5 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
-  <rect width="32" height="32" rx="6" ry="6" fill="transparent"/>
-  <text x="16" y="22" font-family="Arial, sans-serif" font-size="18" font-weight="bold" fill="#ffb600" text-anchor="middle">P</text>
-  <circle cx="24" cy="22" r="2" fill="#ffb600"/>
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ff8a50"/>
+      <stop offset="50%" style="stop-color:#ff6b6b"/>
+      <stop offset="100%" style="stop-color:#c44dff"/>
+    </linearGradient>
+  </defs>
+  <path d="M16 28C16 28 4 20 4 12C4 8 7 4 12 4C14.5 4 16 6 16 6C16 6 17.5 4 20 4C25 4 28 8 28 12C28 20 16 28 16 28Z" fill="url(#brandGradient)"/>
 </svg>
