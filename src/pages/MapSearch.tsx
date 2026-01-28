@@ -39,6 +39,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
+import { useRentalEnabledCities } from "@/hooks/useRentalEnabledCities";
 import { useAgentVerification } from "@/hooks/useAgentVerification";
 import { BlurredAssignmentCard } from "@/components/assignments/BlurredAssignmentCard";
 import { AssignmentMapCard } from "@/components/assignments/AssignmentMapCard";
@@ -126,7 +127,7 @@ const SORT_OPTIONS = [
 const MIN_PRICE = 0;
 const MAX_PRICE = 5000000;
 const PRICE_STEP = 50000;
-type MapMode = "all" | "presale" | "resale" | "assignments";
+type MapMode = "all" | "presale" | "resale" | "assignments" | "rental";
 
 // Assignment listing type
 type Assignment = {
@@ -167,6 +168,30 @@ type MLSListing = {
   list_office_name?: string | null;
 };
 
+// Rental listing type (from MLS with rental-specific fields)
+type RentalListing = {
+  id: string;
+  listing_key: string;
+  lease_amount: number | null;
+  city: string;
+  neighborhood: string | null;
+  street_number: string | null;
+  street_name: string | null;
+  street_suffix: string | null;
+  property_type: string;
+  property_sub_type: string | null;
+  bedrooms_total: number | null;
+  bathrooms_total: number | null;
+  living_area: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  photos: any;
+  mls_status: string;
+  pets_allowed: string | null;
+  furnished: string | null;
+  availability_date: string | null;
+};
+
 type PresaleProject = {
   id: string;
   name: string;
@@ -195,12 +220,13 @@ export default function MapSearch() {
   const [showList, setShowList] = useState(true);
   const [showCarousel, setShowCarousel] = useState(false); // Hidden by default on mobile, shows when property clicked
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | "rental" | null>(null);
   const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null); // For tap-to-focus-to-navigate
-  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | "rental" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [visibleAssignmentIds, setVisibleAssignmentIds] = useState<string[]>([]);
+  const [visibleRentalIds, setVisibleRentalIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   const [isListInteracting, setIsListInteracting] = useState(false); // Pause visible updates during list click
