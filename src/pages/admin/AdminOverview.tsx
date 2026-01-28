@@ -49,6 +49,8 @@ interface DashboardStats {
     email: string;
     created_at: string;
     project_id: string | null;
+    landing_page: string | null;
+    presale_projects?: { name: string } | null;
   }>;
   recentBookings: Array<{
     id: string;
@@ -103,7 +105,7 @@ export default function AdminOverview() {
         supabase.from("bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("blog_posts").select("id, is_published", { count: "exact" }),
         supabase.from("mls_listings").select("*", { count: "exact", head: true }),
-        supabase.from("project_leads").select("id, name, email, created_at, project_id").order("created_at", { ascending: false }).limit(5),
+        supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, presale_projects(name)").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
         supabase.from("presale_projects").select("id, name, city, view_count").eq("is_published", true).order("view_count", { ascending: false }).limit(5),
         supabase.from("listings").select("id, status", { count: "exact" }),
@@ -420,22 +422,30 @@ export default function AdminOverview() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {stats?.recentLeads.map(lead => (
-                    <div key={lead.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
-                          {lead.name.charAt(0).toUpperCase()}
+                  {stats?.recentLeads.map(lead => {
+                    const projectName = lead.presale_projects?.name || lead.landing_page || null;
+                    return (
+                      <div key={lead.id} className="flex items-center justify-between p-3 rounded-xl bg-muted/30 hover:bg-muted/50 transition-colors">
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                            {lead.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-sm">{lead.name}</p>
+                            <p className="text-xs text-muted-foreground truncate">{lead.email}</p>
+                            {projectName && (
+                              <p className="text-xs text-primary font-medium truncate mt-0.5">
+                                {projectName}
+                              </p>
+                            )}
+                          </div>
                         </div>
-                        <div>
-                          <p className="font-medium text-sm">{lead.name}</p>
-                          <p className="text-xs text-muted-foreground">{lead.email}</p>
-                        </div>
+                        <p className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                          {format(new Date(lead.created_at), "MMM d, h:mm a")}
+                        </p>
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        {format(new Date(lead.created_at), "MMM d, h:mm a")}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </CardContent>
