@@ -297,7 +297,7 @@ export default function AdminOverview() {
               <Users className="h-5 w-5 text-emerald-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-emerald-900 dark:text-emerald-100">{stats?.totalLeads.toLocaleString()}</div>
+              <div className="text-4xl font-bold text-emerald-900 dark:text-emerald-100">{(stats?.totalLeads ?? 0).toLocaleString()}</div>
               <div className="flex items-center gap-2 mt-2">
                 {leadGrowth >= 0 ? (
                   <Badge className="bg-emerald-500 hover:bg-emerald-600">
@@ -342,7 +342,7 @@ export default function AdminOverview() {
               <Home className="h-5 w-5 text-violet-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-violet-900 dark:text-violet-100">{stats?.mlsListings.toLocaleString()}</div>
+              <div className="text-4xl font-bold text-violet-900 dark:text-violet-100">{(stats?.mlsListings ?? 0).toLocaleString()}</div>
               <p className="text-xs text-muted-foreground mt-2">Move-in ready homes</p>
             </CardContent>
           </Card>
@@ -370,7 +370,7 @@ export default function AdminOverview() {
                   <DollarSign className="h-5 w-5 text-emerald-400" />
                   Rental Market Intelligence
                 </CardTitle>
-                <CardDescription className="text-slate-400">Metro Vancouver average rents from {stats?.rentalListings.toLocaleString()} active listings</CardDescription>
+                <CardDescription className="text-slate-400">Metro Vancouver average rents from {(stats?.rentalListings ?? 0).toLocaleString()} active listings</CardDescription>
               </div>
               <Link to="/admin/rental-sync">
                 <Button variant="outline" size="sm" className="border-white/20 text-white hover:bg-white/10">
