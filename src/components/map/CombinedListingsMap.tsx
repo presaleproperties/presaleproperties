@@ -597,15 +597,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     
     // Separate layer for assignment listings
     const assignmentLayer = L.layerGroup();
+    
+    // Separate layer for rental listings
+    const rentalLayer = L.layerGroup();
 
     map.addLayer(clusterGroup);
     map.addLayer(presaleLayer);
     map.addLayer(assignmentLayer);
+    map.addLayer(rentalLayer);
     
     mapInstanceRef.current = map;
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
     assignmentLayerRef.current = assignmentLayer;
+    rentalLayerRef.current = rentalLayer;
 
     // If we have saved state, mark as initialized to prevent fitBounds overriding
     if (savedMapState) {
@@ -805,6 +810,45 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       }
     }
 
+    // Clear old rental marker references and layer
+    rentalMarkersMapRef.current.clear();
+    const rentalLayer = rentalLayerRef.current!;
+    rentalLayer.clearLayers();
+
+    // Add rental listings if mode is "all" or "rental"
+    if (mode === "all" || mode === "rental") {
+      for (const rental of validRentals) {
+        const marker = L.marker([rental.latitude!, rental.longitude!], {
+          icon: createRentalPricePillIcon(rental, false),
+          zIndexOffset: 1100, // Between presale and assignments
+        });
+
+        // Store marker reference for highlighting
+        rentalMarkersMapRef.current.set(rental.id, marker);
+
+        // Only bind popup if not disabled (mobile uses carousel instead)
+        if (!disablePopupsOnMobile) {
+          marker.bindPopup(rentalPopupHtml(rental), {
+            maxWidth: 420,
+            minWidth: 360,
+            closeButton: true,
+            className: "rental-popup",
+            offset: L.point(0, -20),
+            autoPan: true,
+            autoPanPaddingTopLeft: L.point(50, 100),
+            autoPanPaddingBottomRight: L.point(50, 50),
+          });
+        }
+
+        marker.on("click", () => {
+          onListingSelect?.(rental.id, "rental");
+        });
+
+        rentalLayer.addLayer(marker);
+        allCoords.push([rental.latitude!, rental.longitude!]);
+      }
+    }
+
     clusterGroup.addLayers(resaleMarkers);
 
     // Only fit bounds on initial load, not when toggling mode or filters
@@ -817,7 +861,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     requestAnimationFrame(() => {
       setTimeout(updateVisibleItems, 50);
     });
-  }, [validResaleListings, validPresaleProjects, validAssignments, mode, isVerifiedAgent, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
+  }, [validResaleListings, validPresaleProjects, validAssignments, validRentals, mode, isVerifiedAgent, onListingSelect, updateVisibleItems, disablePopupsOnMobile]);
 
   // Effect to handle highlighting of markers
   useEffect(() => {
@@ -871,8 +915,22 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }, 2000);
         return () => clearTimeout(timeout);
       }
+    } else if (highlightType === "rental") {
+      const rental = validRentals.find(r => r.id === highlightId);
+      const marker = rentalMarkersMapRef.current.get(highlightId);
+      if (rental && marker) {
+        marker.setIcon(createRentalPricePillIcon(rental, true));
+        marker.setZIndexOffset(3000); // Bring to front
+        
+        // Reset after animation
+        const timeout = setTimeout(() => {
+          marker.setIcon(createRentalPricePillIcon(rental, false));
+          marker.setZIndexOffset(1100);
+        }, 2000);
+        return () => clearTimeout(timeout);
+      }
     }
-  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects, validAssignments, isVerifiedAgent]);
+  }, [highlightedItemId, highlightedItemType, internalHighlightId, validResaleListings, validPresaleProjects, validAssignments, validRentals, isVerifiedAgent]);
 
   // Create user location marker icon
   const createUserLocationIcon = useCallback(() => {

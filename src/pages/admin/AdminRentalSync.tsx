@@ -8,6 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { parseRentalRemarks } from "@/utils/rentalRemarksParser";
 import { 
   Home, RefreshCw, Eye, EyeOff, DollarSign, 
   PawPrint, Sofa, MapPin, TrendingUp 
@@ -213,52 +214,81 @@ export default function AdminRentalSync() {
     },
   });
 
-  // Scan for rentals mutation (re-classifies existing listings)
+  // Scan for rentals mutation (re-classifies existing listings using the parser utility)
   const scanRentalsMutation = useMutation({
     mutationFn: async () => {
-      // Find listings that should be marked as rentals based on remarks
+      // Find listings that might be rentals based on various indicators
       const { data: potentialRentals, error } = await supabase
         .from("mls_listings")
-        .select("listing_key, public_remarks, listing_price")
-        .eq("is_rental", false)
-        .or("listing_price.eq.0,public_remarks.ilike.%for rent%,public_remarks.ilike.%$/month%")
-        .limit(500);
+        .select("listing_key, public_remarks, listing_price, lease_amount")
+        .or("is_rental.eq.false,is_rental.is.null")
+        .or("listing_price.eq.0,public_remarks.ilike.%for rent%,public_remarks.ilike.%$/month%,public_remarks.ilike.%per month%,lease_amount.gt.0")
+        .limit(2000);
 
       if (error) throw error;
 
       let updated = 0;
-      for (const listing of potentialRentals || []) {
-        const remarks = listing.public_remarks?.toLowerCase() || "";
-        
-        // Try to extract monthly rent from remarks
-        const rentMatch = remarks.match(/\$?([\d,]+)\s*\/?(?:mo|month)/i);
-        const leaseAmount = rentMatch ? parseInt(rentMatch[1].replace(/,/g, "")) : null;
+      let batchUpdates: { 
+        listing_key: string; 
+        is_rental: boolean; 
+        lease_amount: number | null;
+        lease_frequency: string | null;
+        pets_allowed: string | null;
+        furnished: string | null;
+        availability_date: string | null;
+        utilities_included: string[] | null;
+      }[] = [];
 
-        if (leaseAmount && leaseAmount > 500 && leaseAmount < 20000) {
-          await supabase
-            .from("mls_listings")
-            .update({
-              is_rental: true,
-              lease_amount: leaseAmount,
-              lease_frequency: "Monthly",
-            })
-            .eq("listing_key", listing.listing_key);
-          updated++;
-        } else if (listing.listing_price === 0 && remarks.includes("for rent")) {
-          await supabase
-            .from("mls_listings")
-            .update({ is_rental: true })
-            .eq("listing_key", listing.listing_key);
+      for (const listing of potentialRentals || []) {
+        // Use the parser utility to extract rental data
+        const parsed = parseRentalRemarks(listing.public_remarks, listing.listing_price || 0);
+        
+        // If already has lease_amount from API, use that instead
+        const finalLeaseAmount = listing.lease_amount || parsed.leaseAmount;
+        
+        // Determine if this is a rental
+        const isRental = parsed.isRental || (finalLeaseAmount && finalLeaseAmount > 400 && finalLeaseAmount < 25000);
+        
+        if (isRental) {
+          batchUpdates.push({
+            listing_key: listing.listing_key,
+            is_rental: true,
+            lease_amount: finalLeaseAmount,
+            lease_frequency: parsed.leaseFrequency || 'Monthly',
+            pets_allowed: parsed.petsAllowed,
+            furnished: parsed.furnished,
+            availability_date: parsed.availabilityDate,
+            utilities_included: parsed.utilitiesIncluded.length > 0 ? parsed.utilitiesIncluded : null,
+          });
           updated++;
         }
       }
 
-      return { updated };
+      // Batch update in chunks of 50
+      const chunkSize = 50;
+      for (let i = 0; i < batchUpdates.length; i += chunkSize) {
+        const chunk = batchUpdates.slice(i, i + chunkSize);
+        for (const update of chunk) {
+          await supabase
+            .from("mls_listings")
+            .update({
+              is_rental: update.is_rental,
+              lease_amount: update.lease_amount,
+              lease_frequency: update.lease_frequency,
+              pets_allowed: update.pets_allowed,
+              furnished: update.furnished,
+              utilities_included: update.utilities_included,
+            })
+            .eq("listing_key", update.listing_key);
+        }
+      }
+
+      return { updated, scanned: potentialRentals?.length || 0 };
     },
     onSuccess: (data) => {
       toast({
         title: "Rental scan complete",
-        description: `Identified and updated ${data.updated} rental listings`,
+        description: `Scanned ${data.scanned} listings, identified and updated ${data.updated} rentals`,
       });
       queryClient.invalidateQueries({ queryKey: ["rental-stats"] });
       queryClient.invalidateQueries({ queryKey: ["rental-city-counts"] });
