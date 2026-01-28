@@ -490,6 +490,10 @@
   }
 
   /* Leaflet map popup styling */
+  .leaflet-popup {
+    z-index: 10000 !important;
+  }
+  
   .leaflet-popup-content-wrapper {
     background: transparent !important;
     padding: 0 !important;
@@ -514,7 +518,9 @@
     display: none !important;
   }
   
-  .project-popup .leaflet-popup-content-wrapper {
+  .project-popup .leaflet-popup-content-wrapper,
+  .assignment-popup .leaflet-popup-content-wrapper,
+  .resale-listing-popup .leaflet-popup-content-wrapper {
     box-shadow: none !important;
   }
 
@@ -631,6 +637,11 @@
 }
 
 /* Assignment markers (copper - agent exclusive) */
+.assignment-marker {
+  pointer-events: auto !important;
+  z-index: 500 !important;
+}
+
 .assignment-marker .ap {
   background: linear-gradient(135deg, hsl(18, 85%, 50%), hsl(15, 80%, 45%));
   color: white;
@@ -645,6 +656,13 @@
   line-height: 1.2;
   transform: translateZ(0);
   will-change: transform;
+  pointer-events: auto;
+  transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
+}
+
+.assignment-marker .ap:hover {
+  transform: translateZ(0) scale(1.05);
+  box-shadow: 0 4px 12px hsla(18, 85%, 50%, 0.5);
 }
 
 .assignment-marker .ap.locked {

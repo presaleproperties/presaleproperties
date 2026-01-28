@@ -332,28 +332,34 @@ function assignmentPopupHtml(assignment: Assignment, isVerifiedAgent: boolean): 
   const photo = assignment.listing_photos?.[0]?.url;
   
   if (!isVerifiedAgent) {
-    // Blurred popup for non-agents - matching presale/resale card style
-    const photoHtml = photo ? `<img src="${photo}" alt="Assignment" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);" />` : '';
+    // Fully blurred popup for non-agents - photo completely obscured
+    const photoHtml = photo 
+      ? `<div style="width:100%;height:100%;position:relative;overflow:hidden;background:#f3e8e4;">
+          <img src="${photo}" alt="" style="width:100%;height:100%;object-fit:cover;filter:blur(20px) saturate(0.3);transform:scale(1.3);opacity:0.5;" />
+          <div style="position:absolute;inset:0;background:linear-gradient(135deg,rgba(234,88,12,0.3),rgba(194,65,12,0.2));"></div>
+        </div>` 
+      : '<div style="width:100%;height:100%;background:linear-gradient(135deg,hsl(18,50%,90%),hsl(18,40%,85%));"></div>';
+    
     return `
       <div style="position:relative;">
         <div style="display:flex;width:380px;font-family:system-ui,sans-serif;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(18,85%,50%);">
-          <div style="flex-shrink:0;position:relative;width:160px;min-height:120px;background:linear-gradient(135deg,hsl(18,50%,95%),hsl(18,40%,90%));overflow:hidden;">
+          <div style="flex-shrink:0;position:relative;width:160px;min-height:120px;overflow:hidden;">
             ${photoHtml}
-            <div style="position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              <div style="width:40px;height:40px;border-radius:50%;background:hsla(18,85%,50%,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:4px;">
-                <span style="font-size:18px;">🔒</span>
+            <div style="position:absolute;inset:0;background:rgba(255,255,255,0.85);backdrop-filter:blur(4px);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,hsl(18,85%,55%),hsl(15,80%,45%));display:flex;align-items:center;justify-content:center;margin-bottom:6px;box-shadow:0 4px 12px hsla(18,85%,50%,0.4);">
+                <span style="font-size:20px;">🔒</span>
               </div>
-              <span style="font-size:9px;font-weight:700;color:hsl(18,85%,40%);text-transform:uppercase;letter-spacing:0.5px;">Agent Only</span>
+              <span style="font-size:10px;font-weight:700;color:hsl(18,85%,40%);text-transform:uppercase;letter-spacing:0.5px;">Agent Only</span>
             </div>
-            <span style="position:absolute;top:6px;left:6px;background:hsl(18,85%,50%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
+            <span style="position:absolute;top:6px;left:6px;background:linear-gradient(135deg,hsl(18,85%,50%),hsl(15,80%,45%));color:white;font-size:9px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:0.3px;z-index:10;">ASSIGNMENT</span>
           </div>
-          <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-            <div style="font-weight:700;font-size:18px;color:hsl(18,85%,40%);margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+          <div style="flex:1;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+            <div style="font-weight:700;font-size:18px;color:hsl(18,85%,40%);margin-bottom:6px;display:flex;align-items:center;gap:6px;">
               <span>🔒</span> $XXX,XXX
             </div>
-            <div style="height:16px;width:70%;background:#e2e8f0;border-radius:4px;margin-bottom:6px;"></div>
-            <div style="height:12px;width:50%;background:#f1f5f9;border-radius:4px;margin-bottom:8px;"></div>
-            <a href="/for-agents" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;background:hsl(18,85%,50%);color:white;font-size:11px;font-weight:600;padding:8px 12px;border-radius:6px;text-decoration:none;">
+            <div style="height:14px;width:75%;background:linear-gradient(90deg,#e2e8f0,#f1f5f9,#e2e8f0);border-radius:4px;margin-bottom:6px;"></div>
+            <div style="height:12px;width:55%;background:#f1f5f9;border-radius:4px;margin-bottom:10px;"></div>
+            <a href="/for-agents" onclick="event.stopPropagation();" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;background:linear-gradient(135deg,hsl(18,85%,50%),hsl(15,80%,45%));color:white;font-size:11px;font-weight:600;padding:10px 14px;border-radius:8px;text-decoration:none;box-shadow:0 2px 8px hsla(18,85%,50%,0.3);transition:transform 0.2s,box-shadow 0.2s;">
               🔒 Login to View Details
             </a>
           </div>
