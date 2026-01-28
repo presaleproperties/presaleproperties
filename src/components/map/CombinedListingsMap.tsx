@@ -625,6 +625,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
+      zoomToBoundsOnClick: true, // Ensure clicking clusters zooms in
     });
 
     // Separate layer for presale projects (no clustering)
