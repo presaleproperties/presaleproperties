@@ -518,7 +518,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   );
 
   const validRentals = useMemo(() => 
-    rentals.filter(r => r.latitude && r.longitude),
+    rentals.filter(r => r.latitude && r.longitude && r.lease_amount && r.lease_amount > 0),
     [rentals]
   );
 
