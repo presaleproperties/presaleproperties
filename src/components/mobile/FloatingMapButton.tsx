@@ -38,9 +38,12 @@ export function FloatingMapButton() {
   const isAdminPage = location.pathname.startsWith("/admin");
   const isDashboardPage = location.pathname.startsWith("/dashboard");
   const isForAgentsPage = location.pathname === "/for-agents";
+  
+  // Detail pages for all property types
   const isPresaleDetailPage = location.pathname.startsWith("/presale/") || location.pathname.startsWith("/presale-projects/");
-  const isResaleDetailPage = /^\/resale\/[^/]+$/.test(location.pathname) && !["vancouver", "surrey", "burnaby", "langley", "coquitlam", "richmond", "delta", "abbotsford", "chilliwack"].includes(location.pathname.split("/")[2] || "");
-  const isDetailPage = isPresaleDetailPage || isResaleDetailPage;
+  const isMLSPropertyDetailPage = location.pathname.startsWith("/properties/");
+  const isAssignmentDetailPage = location.pathname.startsWith("/assignments/");
+  const isDetailPage = isPresaleDetailPage || isMLSPropertyDetailPage || isAssignmentDetailPage;
   
   // Parse current route to extract context (city, type, neighborhood)
   const mapContext = useMemo(() => {
