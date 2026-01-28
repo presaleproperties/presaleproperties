@@ -63,6 +63,7 @@ const navGroups = [
       { href: "/admin/leads", label: "Leads", icon: Users2 },
       { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
       { href: "/admin/agents", label: "Agents", icon: Users2 },
+      { href: "/admin/support-tickets", label: "Support Tickets", icon: Mail },
     ]
   },
   {

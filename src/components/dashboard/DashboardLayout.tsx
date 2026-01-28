@@ -5,6 +5,7 @@ import { useAgentVerification } from "@/hooks/useAgentVerification";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { ContactSupportModal } from "./ContactSupportModal";
 import { 
   LayoutDashboard, 
   Users, 
@@ -23,6 +24,7 @@ import {
   CheckCircle,
   Clock,
   Map,
+  HelpCircle,
 } from "lucide-react";
 
 interface DashboardLayoutProps {
@@ -75,6 +77,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { signOut, user, isAdmin } = useAuth();
   const { isVerifiedAgent } = useAgentVerification();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [supportModalOpen, setSupportModalOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -234,7 +237,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <p className="text-xs text-muted-foreground mb-3">
                 Get support or learn how to maximize your listings.
               </p>
-              <Button size="sm" variant="outline" className="w-full text-xs">
+              <Button 
+                size="sm" 
+                variant="outline" 
+                className="w-full text-xs gap-2"
+                onClick={() => setSupportModalOpen(true)}
+              >
+                <HelpCircle className="h-3.5 w-3.5" />
                 Contact Support
               </Button>
             </div>
@@ -313,6 +322,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
         </main>
       </div>
+
+      {/* Support Modal */}
+      <ContactSupportModal 
+        open={supportModalOpen} 
+        onOpenChange={setSupportModalOpen} 
+      />
     </div>
   );
 }
