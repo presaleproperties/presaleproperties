@@ -55,10 +55,10 @@ export function AssignmentMapCard({
       className={cn(
         "relative rounded-xl border overflow-hidden transition-all group bg-card block",
         isFocused 
-          ? "border-teal-500 ring-2 ring-teal-500/30 shadow-lg" 
+          ? "border-[hsl(18,85%,50%)] ring-2 ring-[hsl(18,85%,50%)]/30 shadow-lg" 
           : isSelected 
-            ? "border-teal-400/50 ring-1 ring-teal-400/20" 
-            : "border-border hover:border-teal-400/50 hover:shadow-lg",
+            ? "border-[hsl(18,85%,50%)]/50 ring-1 ring-[hsl(18,85%,50%)]/20" 
+            : "border-border hover:border-[hsl(18,85%,50%)]/50 hover:shadow-lg",
         isCarousel ? "w-[280px] shrink-0" : "",
         className
       )}
@@ -76,13 +76,13 @@ export function AssignmentMapCard({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-teal-100 to-teal-50 dark:from-teal-900/20 dark:to-teal-800/10 flex items-center justify-center">
+          <div className="w-full h-full bg-gradient-to-br from-[hsl(18,50%,95%)] to-[hsl(18,40%,90%)] dark:from-[hsl(18,40%,20%)] dark:to-[hsl(18,30%,15%)] flex items-center justify-center">
             <span className="text-muted-foreground text-sm">No Image</span>
           </div>
         )}
         
         {/* Assignment Badge */}
-        <span className="absolute top-2 left-2 bg-teal-600 text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
+        <span className="absolute top-2 left-2 bg-[hsl(18,85%,50%)] text-white text-[10px] font-bold px-2 py-1 rounded-md uppercase tracking-wide">
           Assignment
         </span>
         

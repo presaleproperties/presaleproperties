@@ -11,12 +11,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { 
   ArrowLeft, Bed, Bath, Square, Building2, Calendar, MapPin, 
-  Lock, Shield, Phone, Mail, Briefcase, MessageSquare, Car, Box,
+  Lock, Shield, Phone, Mail, Briefcase, Car, Box,
   Compass, Layers, DollarSign, Clock, CheckCircle2
 } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { cn } from "@/lib/utils";
 import { SendInquiryButton } from "@/components/agent/SendInquiryButton";
+
+// Copper/coral theme color - HSL values
+const ASSIGNMENT_COLOR = "hsl(18, 85%, 50%)";
+const ASSIGNMENT_COLOR_DARK = "hsl(18, 85%, 40%)";
+const ASSIGNMENT_COLOR_LIGHT = "hsl(18, 50%, 95%)";
 
 function formatPrice(price: number): string {
   return `$${price.toLocaleString()}`;
@@ -60,17 +65,17 @@ function AgentContactCard({
 
   if (!isVerifiedAgent) {
     return (
-      <Card className="border-teal-200 dark:border-teal-800 bg-gradient-to-br from-teal-50/50 to-white dark:from-teal-950/30 dark:to-background">
+      <Card className="border-[hsl(18,85%,50%)]/30 bg-gradient-to-br from-[hsl(18,50%,98%)] to-white dark:from-[hsl(18,30%,10%)] dark:to-background">
         <CardContent className="p-6 text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
-            <Lock className="h-8 w-8 text-teal-600 dark:text-teal-400" />
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-[hsl(18,85%,50%)]/10 flex items-center justify-center">
+            <Lock className="h-8 w-8 text-[hsl(18,85%,50%)]" />
           </div>
           <h3 className="font-semibold text-lg mb-2">Agent Contact Locked</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Only verified agents can view listing agent contact details and send inquiries.
           </p>
           <Link to="/for-agents">
-            <Button className="w-full bg-teal-600 hover:bg-teal-700">
+            <Button className="w-full bg-[hsl(18,85%,50%)] hover:bg-[hsl(18,85%,45%)] text-white">
               <Shield className="h-4 w-4 mr-2" />
               Login to Agent Portal
             </Button>
@@ -81,10 +86,10 @@ function AgentContactCard({
   }
 
   return (
-    <Card className="border-teal-200 dark:border-teal-800">
+    <Card className="border-[hsl(18,85%,50%)]/30">
       <CardContent className="p-6">
         <div className="flex items-center gap-2 mb-4">
-          <Shield className="h-5 w-5 text-teal-600" />
+          <Shield className="h-5 w-5 text-[hsl(18,85%,50%)]" />
           <h3 className="font-semibold text-lg">Listing Agent</h3>
           <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
             <CheckCircle2 className="h-3 w-3 mr-1" />
@@ -94,8 +99,8 @@ function AgentContactCard({
         
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-teal-100 dark:bg-teal-900/50 flex items-center justify-center">
-              <Briefcase className="h-6 w-6 text-teal-600" />
+            <div className="w-12 h-12 rounded-full bg-[hsl(18,85%,50%)]/10 flex items-center justify-center">
+              <Briefcase className="h-6 w-6 text-[hsl(18,85%,50%)]" />
             </div>
             <div>
               <p className="font-medium">{agentProfile?.full_name || "Agent"}</p>
@@ -106,7 +111,7 @@ function AgentContactCard({
           {agentProfile?.email && (
             <div className="flex items-center gap-2 text-sm">
               <Mail className="h-4 w-4 text-muted-foreground" />
-              <a href={`mailto:${agentProfile.email}`} className="text-teal-600 hover:underline">
+              <a href={`mailto:${agentProfile.email}`} className="text-[hsl(18,85%,50%)] hover:underline">
                 {agentProfile.email}
               </a>
             </div>
@@ -115,7 +120,7 @@ function AgentContactCard({
           {agentProfile?.phone && (
             <div className="flex items-center gap-2 text-sm">
               <Phone className="h-4 w-4 text-muted-foreground" />
-              <a href={`tel:${agentProfile.phone}`} className="text-teal-600 hover:underline">
+              <a href={`tel:${agentProfile.phone}`} className="text-[hsl(18,85%,50%)] hover:underline">
                 {agentProfile.phone}
               </a>
             </div>
@@ -137,8 +142,8 @@ function BlurredOverlay() {
   return (
     <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/90 to-white dark:from-background/80 dark:via-background/90 dark:to-background backdrop-blur-md flex flex-col items-center justify-center z-10 rounded-xl">
       <div className="text-center max-w-md px-6">
-        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-teal-100 to-teal-200 dark:from-teal-900/50 dark:to-teal-800/50 flex items-center justify-center">
-          <Lock className="h-10 w-10 text-teal-600 dark:text-teal-400" />
+        <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-gradient-to-br from-[hsl(18,50%,95%)] to-[hsl(18,40%,90%)] flex items-center justify-center">
+          <Lock className="h-10 w-10 text-[hsl(18,85%,50%)]" />
         </div>
         <h2 className="text-2xl font-bold mb-2">Agent-Exclusive Listing</h2>
         <p className="text-muted-foreground mb-6">
@@ -146,11 +151,197 @@ function BlurredOverlay() {
           Login to your agent portal to view full details and connect with the listing agent.
         </p>
         <Link to="/for-agents">
-          <Button size="lg" className="bg-teal-600 hover:bg-teal-700">
+          <Button size="lg" className="bg-[hsl(18,85%,50%)] hover:bg-[hsl(18,85%,45%)] text-white">
             <Shield className="h-5 w-5 mr-2" />
             Access Agent Portal
           </Button>
         </Link>
+      </div>
+    </div>
+  );
+}
+
+// Quick Stats Component
+function QuickStats({ assignment, isVerifiedAgent }: { assignment: any; isVerifiedAgent: boolean }) {
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+      <div className="bg-muted/50 rounded-lg p-4 text-center">
+        <Bed className="h-5 w-5 mx-auto mb-1 text-[hsl(18,85%,50%)]" />
+        <p className="text-lg font-semibold">{assignment.beds}</p>
+        <p className="text-xs text-muted-foreground">Bedrooms</p>
+      </div>
+      <div className="bg-muted/50 rounded-lg p-4 text-center">
+        <Bath className="h-5 w-5 mx-auto mb-1 text-[hsl(18,85%,50%)]" />
+        <p className="text-lg font-semibold">{assignment.baths}</p>
+        <p className="text-xs text-muted-foreground">Bathrooms</p>
+      </div>
+      <div className="bg-muted/50 rounded-lg p-4 text-center">
+        <Square className="h-5 w-5 mx-auto mb-1 text-[hsl(18,85%,50%)]" />
+        <p className="text-lg font-semibold">
+          {isVerifiedAgent && assignment.interior_sqft 
+            ? assignment.interior_sqft.toLocaleString() 
+            : "***"
+          }
+        </p>
+        <p className="text-xs text-muted-foreground">Sq Ft</p>
+      </div>
+      <div className="bg-muted/50 rounded-lg p-4 text-center">
+        <Building2 className="h-5 w-5 mx-auto mb-1 text-[hsl(18,85%,50%)]" />
+        <p className="text-lg font-semibold capitalize">{assignment.property_type}</p>
+        <p className="text-xs text-muted-foreground">Type</p>
+      </div>
+    </div>
+  );
+}
+
+// Project Information Component
+function ProjectInfo({ assignment, isVerifiedAgent }: { assignment: any; isVerifiedAgent: boolean }) {
+  return (
+    <div>
+      <h2 className="text-lg font-semibold mb-4">Project Information</h2>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="flex items-center gap-3">
+          <Building2 className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <p className="text-sm text-muted-foreground">Project</p>
+            <p className="font-medium">
+              {isVerifiedAgent ? assignment.project_name : "Hidden"}
+            </p>
+          </div>
+        </div>
+        {assignment.developer_name && (
+          <div className="flex items-center gap-3">
+            <Briefcase className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Developer</p>
+              <p className="font-medium">
+                {isVerifiedAgent ? assignment.developer_name : "Hidden"}
+              </p>
+            </div>
+          </div>
+        )}
+        {assignment.floor_level && (
+          <div className="flex items-center gap-3">
+            <Layers className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Floor</p>
+              <p className="font-medium">{assignment.floor_level}</p>
+            </div>
+          </div>
+        )}
+        {assignment.exposure && (
+          <div className="flex items-center gap-3">
+            <Compass className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Exposure</p>
+              <p className="font-medium">{assignment.exposure}</p>
+            </div>
+          </div>
+        )}
+        <div className="flex items-center gap-3">
+          <Clock className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <p className="text-sm text-muted-foreground">Construction</p>
+            <p className="font-medium capitalize">
+              {assignment.construction_status?.replace(/_/g, " ")}
+            </p>
+          </div>
+        </div>
+        {(assignment.completion_month || assignment.completion_year) && (
+          <div className="flex items-center gap-3">
+            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Completion</p>
+              <p className="font-medium">
+                {assignment.completion_month && `Q${Math.ceil(assignment.completion_month / 3)} `}
+                {assignment.completion_year}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Features Component
+function Features({ assignment }: { assignment: any }) {
+  return (
+    <div>
+      <h2 className="text-lg font-semibold mb-4">Features</h2>
+      <div className="grid sm:grid-cols-3 gap-3">
+        <div className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border",
+          assignment.has_parking ? "border-green-200 bg-green-50 text-green-700" : "border-muted"
+        )}>
+          <Car className="h-4 w-4" />
+          <span className="text-sm">
+            {assignment.has_parking 
+              ? `${assignment.parking_count || 1} Parking` 
+              : "No Parking"
+            }
+          </span>
+        </div>
+        <div className={cn(
+          "flex items-center gap-2 p-3 rounded-lg border",
+          assignment.has_storage ? "border-green-200 bg-green-50 text-green-700" : "border-muted"
+        )}>
+          <Box className="h-4 w-4" />
+          <span className="text-sm">
+            {assignment.has_storage ? "Storage Locker" : "No Storage"}
+          </span>
+        </div>
+        {assignment.exterior_sqft && (
+          <div className="flex items-center gap-2 p-3 rounded-lg border border-muted">
+            <Square className="h-4 w-4" />
+            <span className="text-sm">{assignment.exterior_sqft} sqft Outdoor</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Financial Details Component
+function FinancialDetails({ assignment }: { assignment: any }) {
+  return (
+    <div>
+      <h2 className="text-lg font-semibold mb-4">Financial Details</h2>
+      <div className="grid sm:grid-cols-2 gap-4">
+        <div className="flex items-center gap-3">
+          <DollarSign className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <p className="text-sm text-muted-foreground">Assignment Price</p>
+            <p className="font-medium">{formatPrice(assignment.assignment_price)}</p>
+          </div>
+        </div>
+        {assignment.original_price && (
+          <div className="flex items-center gap-3">
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Original Price</p>
+              <p className="font-medium">{formatPrice(assignment.original_price)}</p>
+            </div>
+          </div>
+        )}
+        {assignment.deposit_paid && (
+          <div className="flex items-center gap-3">
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Deposit Paid</p>
+              <p className="font-medium">{formatPrice(assignment.deposit_paid)}</p>
+            </div>
+          </div>
+        )}
+        {assignment.assignment_fee && (
+          <div className="flex items-center gap-3">
+            <DollarSign className="h-5 w-5 text-muted-foreground" />
+            <div>
+              <p className="text-sm text-muted-foreground">Assignment Fee</p>
+              <p className="font-medium">{formatPrice(assignment.assignment_fee)}</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -187,7 +378,7 @@ export default function AssignmentDetail() {
   if (isLoading || agentLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[hsl(18,85%,50%)]"></div>
       </div>
     );
   }
@@ -255,14 +446,14 @@ export default function AssignmentDetail() {
                       )}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-teal-100 to-teal-50">
-                      <Building2 className="h-16 w-16 text-teal-300" />
+                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[hsl(18,50%,95%)] to-[hsl(18,40%,90%)]">
+                      <Building2 className="h-16 w-16 text-[hsl(18,85%,50%)]/30" />
                     </div>
                   )}
                   
                   {/* Badges */}
                   <div className="absolute top-4 left-4 flex gap-2">
-                    <Badge className="bg-teal-600 text-white">Assignment</Badge>
+                    <Badge className="bg-[hsl(18,85%,50%)] text-white hover:bg-[hsl(18,85%,45%)]">Assignment</Badge>
                     {savings && savings > 0 && (
                       <Badge className="bg-green-600 text-white">
                         Save ${Math.round(savings / 1000)}K
@@ -298,181 +489,23 @@ export default function AssignmentDetail() {
                 </div>
 
                 {/* Quick Stats */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  <div className="bg-muted/50 rounded-lg p-4 text-center">
-                    <Bed className="h-5 w-5 mx-auto mb-1 text-teal-600" />
-                    <p className="text-lg font-semibold">{assignment.beds}</p>
-                    <p className="text-xs text-muted-foreground">Bedrooms</p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-4 text-center">
-                    <Bath className="h-5 w-5 mx-auto mb-1 text-teal-600" />
-                    <p className="text-lg font-semibold">{assignment.baths}</p>
-                    <p className="text-xs text-muted-foreground">Bathrooms</p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-4 text-center">
-                    <Square className="h-5 w-5 mx-auto mb-1 text-teal-600" />
-                    <p className="text-lg font-semibold">
-                      {isVerifiedAgent && assignment.interior_sqft 
-                        ? assignment.interior_sqft.toLocaleString() 
-                        : "***"
-                      }
-                    </p>
-                    <p className="text-xs text-muted-foreground">Sq Ft</p>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-4 text-center">
-                    <Building2 className="h-5 w-5 mx-auto mb-1 text-teal-600" />
-                    <p className="text-lg font-semibold capitalize">{assignment.property_type}</p>
-                    <p className="text-xs text-muted-foreground">Type</p>
-                  </div>
-                </div>
+                <QuickStats assignment={assignment} isVerifiedAgent={isVerifiedAgent} />
 
                 <Separator />
 
                 {/* Project Details */}
-                <div>
-                  <h2 className="text-lg font-semibold mb-4">Project Information</h2>
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3">
-                      <Building2 className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Project</p>
-                        <p className="font-medium">
-                          {isVerifiedAgent ? assignment.project_name : "Hidden"}
-                        </p>
-                      </div>
-                    </div>
-                    {assignment.developer_name && (
-                      <div className="flex items-center gap-3">
-                        <Briefcase className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Developer</p>
-                          <p className="font-medium">
-                            {isVerifiedAgent ? assignment.developer_name : "Hidden"}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                    {assignment.floor_level && (
-                      <div className="flex items-center gap-3">
-                        <Layers className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Floor</p>
-                          <p className="font-medium">{assignment.floor_level}</p>
-                        </div>
-                      </div>
-                    )}
-                    {assignment.exposure && (
-                      <div className="flex items-center gap-3">
-                        <Compass className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Exposure</p>
-                          <p className="font-medium">{assignment.exposure}</p>
-                        </div>
-                      </div>
-                    )}
-                    <div className="flex items-center gap-3">
-                      <Clock className="h-5 w-5 text-muted-foreground" />
-                      <div>
-                        <p className="text-sm text-muted-foreground">Construction</p>
-                        <p className="font-medium capitalize">
-                          {assignment.construction_status?.replace(/_/g, " ")}
-                        </p>
-                      </div>
-                    </div>
-                    {(assignment.completion_month || assignment.completion_year) && (
-                      <div className="flex items-center gap-3">
-                        <Calendar className="h-5 w-5 text-muted-foreground" />
-                        <div>
-                          <p className="text-sm text-muted-foreground">Completion</p>
-                          <p className="font-medium">
-                            {assignment.completion_month && `Q${Math.ceil(assignment.completion_month / 3)} `}
-                            {assignment.completion_year}
-                          </p>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <ProjectInfo assignment={assignment} isVerifiedAgent={isVerifiedAgent} />
 
                 <Separator />
 
                 {/* Features */}
-                <div>
-                  <h2 className="text-lg font-semibold mb-4">Features</h2>
-                  <div className="grid sm:grid-cols-3 gap-3">
-                    <div className={cn(
-                      "flex items-center gap-2 p-3 rounded-lg border",
-                      assignment.has_parking ? "border-green-200 bg-green-50 text-green-700" : "border-muted"
-                    )}>
-                      <Car className="h-4 w-4" />
-                      <span className="text-sm">
-                        {assignment.has_parking 
-                          ? `${assignment.parking_count || 1} Parking` 
-                          : "No Parking"
-                        }
-                      </span>
-                    </div>
-                    <div className={cn(
-                      "flex items-center gap-2 p-3 rounded-lg border",
-                      assignment.has_storage ? "border-green-200 bg-green-50 text-green-700" : "border-muted"
-                    )}>
-                      <Box className="h-4 w-4" />
-                      <span className="text-sm">
-                        {assignment.has_storage ? "Storage Locker" : "No Storage"}
-                      </span>
-                    </div>
-                    {assignment.exterior_sqft && (
-                      <div className="flex items-center gap-2 p-3 rounded-lg border border-muted">
-                        <Square className="h-4 w-4" />
-                        <span className="text-sm">{assignment.exterior_sqft} sqft Outdoor</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <Features assignment={assignment} />
 
                 {/* Financial Details */}
                 {isVerifiedAgent && (
                   <>
                     <Separator />
-                    <div>
-                      <h2 className="text-lg font-semibold mb-4">Financial Details</h2>
-                      <div className="grid sm:grid-cols-2 gap-4">
-                        <div className="flex items-center gap-3">
-                          <DollarSign className="h-5 w-5 text-muted-foreground" />
-                          <div>
-                            <p className="text-sm text-muted-foreground">Assignment Price</p>
-                            <p className="font-medium">{formatPrice(assignment.assignment_price)}</p>
-                          </div>
-                        </div>
-                        {assignment.original_price && (
-                          <div className="flex items-center gap-3">
-                            <DollarSign className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm text-muted-foreground">Original Price</p>
-                              <p className="font-medium">{formatPrice(assignment.original_price)}</p>
-                            </div>
-                          </div>
-                        )}
-                        {assignment.deposit_paid && (
-                          <div className="flex items-center gap-3">
-                            <DollarSign className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm text-muted-foreground">Deposit Paid</p>
-                              <p className="font-medium">{formatPrice(assignment.deposit_paid)}</p>
-                            </div>
-                          </div>
-                        )}
-                        {assignment.assignment_fee && (
-                          <div className="flex items-center gap-3">
-                            <DollarSign className="h-5 w-5 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm text-muted-foreground">Assignment Fee</p>
-                              <p className="font-medium">{formatPrice(assignment.assignment_fee)}</p>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </div>
+                    <FinancialDetails assignment={assignment} />
                   </>
                 )}
 
@@ -514,7 +547,7 @@ export default function AssignmentDetail() {
                       Assignment sales allow buyers to purchase a pre-sale contract from the original purchaser 
                       before the building is complete. This is an agent-to-agent transaction.
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-teal-600">
+                    <div className="flex items-center gap-2 text-xs text-[hsl(18,85%,50%)]">
                       <Shield className="h-3 w-3" />
                       <span>Verified agents only</span>
                     </div>

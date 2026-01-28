@@ -28,6 +28,7 @@ interface BlurredAssignmentCardProps {
 /**
  * A blurred assignment card shown to non-verified users.
  * Displays a teaser with obscured details and a premium glassmorphism lock overlay.
+ * Uses copper/coral color scheme (hsl(18, 85%, 50%)) to match other assignment styling.
  */
 export function BlurredAssignmentCard({
   assignment,
@@ -47,10 +48,10 @@ export function BlurredAssignmentCard({
       className={cn(
         "relative rounded-xl border overflow-hidden transition-all duration-300 group bg-card",
         isFocused 
-          ? "border-teal-500 ring-2 ring-teal-500/30 shadow-xl shadow-teal-500/10" 
+          ? "border-[hsl(18,85%,50%)] ring-2 ring-[hsl(18,85%,50%)]/30 shadow-xl shadow-[hsl(18,85%,50%)]/10" 
           : isSelected 
-            ? "border-teal-400/50 ring-1 ring-teal-400/20" 
-            : "border-border/50 hover:border-teal-400/50 hover:shadow-lg",
+            ? "border-[hsl(18,85%,50%)]/50 ring-1 ring-[hsl(18,85%,50%)]/20" 
+            : "border-border/50 hover:border-[hsl(18,85%,50%)]/50 hover:shadow-lg",
         isCarousel ? "w-[280px] shrink-0" : "",
         className
       )}
@@ -68,7 +69,7 @@ export function BlurredAssignmentCard({
             loading="lazy"
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-teal-200/50 to-teal-100/30 dark:from-teal-900/30 dark:to-teal-800/20" />
+          <div className="w-full h-full bg-gradient-to-br from-[hsl(18,50%,90%)] to-[hsl(18,40%,85%)] dark:from-[hsl(18,30%,20%)] dark:to-[hsl(18,25%,15%)]" />
         )}
         
         {/* Premium Glassmorphism Lock Overlay */}
@@ -76,21 +77,21 @@ export function BlurredAssignmentCard({
           {/* Glowing lock container */}
           <div className="relative">
             {/* Outer glow ring */}
-            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-teal-500/20 blur-xl animate-pulse" />
+            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-[hsl(18,85%,50%)]/20 blur-xl animate-pulse" />
             
             {/* Lock icon container with glassmorphism */}
-            <div className="relative w-14 h-14 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-teal-200/50 dark:border-teal-500/30 shadow-lg flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-700 flex items-center justify-center shadow-inner">
+            <div className="relative w-14 h-14 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-[hsl(18,85%,50%)]/30 shadow-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(18,85%,55%)] to-[hsl(15,80%,45%)] flex items-center justify-center shadow-inner">
                 <Lock className="h-5 w-5 text-white drop-shadow-sm" />
               </div>
             </div>
           </div>
           
           {/* Agent Exclusive label with glassmorphism pill */}
-          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-teal-200/30 dark:border-teal-500/20 shadow-sm">
+          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-[hsl(18,85%,50%)]/20 shadow-sm">
             <div className="flex items-center gap-1.5">
-              <Shield className="h-3 w-3 text-teal-600 dark:text-teal-400" />
-              <span className="text-[11px] font-bold text-teal-700 dark:text-teal-300 uppercase tracking-wider">
+              <Shield className="h-3 w-3 text-[hsl(18,85%,50%)]" />
+              <span className="text-[11px] font-bold text-[hsl(18,85%,40%)] dark:text-[hsl(18,85%,60%)] uppercase tracking-wider">
                 Agent Exclusive
               </span>
             </div>
@@ -98,7 +99,7 @@ export function BlurredAssignmentCard({
         </div>
         
         {/* Assignment Badge */}
-        <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-teal-600 to-teal-700 text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide z-10 shadow-md">
+        <span className="absolute top-2.5 left-2.5 bg-gradient-to-r from-[hsl(18,85%,50%)] to-[hsl(15,80%,45%)] text-white text-[10px] font-bold px-2.5 py-1 rounded-lg uppercase tracking-wide z-10 shadow-md">
           Assignment
         </span>
       </div>
@@ -110,9 +111,9 @@ export function BlurredAssignmentCard({
       )}>
         {/* Blurred Price with lock */}
         <div className="flex items-center gap-2 mb-2">
-          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-teal-100/50 dark:bg-teal-500/10">
-            <Lock className="h-3 w-3 text-teal-500" />
-            <span className="font-bold text-base text-teal-600/80 dark:text-teal-400/80 select-none tracking-tight">
+          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-[hsl(18,85%,50%)]/10">
+            <Lock className="h-3 w-3 text-[hsl(18,85%,50%)]" />
+            <span className="font-bold text-base text-[hsl(18,85%,40%)]/80 dark:text-[hsl(18,85%,60%)]/80 select-none tracking-tight">
               $XXX,XXX
             </span>
           </div>
@@ -148,7 +149,7 @@ export function BlurredAssignmentCard({
           onClick={(e) => e.stopPropagation()}
           className="block"
         >
-          <button className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-teal-600 via-teal-600 to-teal-700 hover:from-teal-700 hover:via-teal-600 hover:to-teal-600 text-white text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:shadow-teal-500/20 active:scale-[0.98]">
+          <button className="w-full py-2.5 px-4 rounded-lg bg-gradient-to-r from-[hsl(18,85%,50%)] via-[hsl(18,85%,50%)] to-[hsl(15,80%,45%)] hover:from-[hsl(15,80%,45%)] hover:via-[hsl(18,85%,50%)] hover:to-[hsl(18,85%,50%)] text-white text-xs font-semibold transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg hover:shadow-[hsl(18,85%,50%)]/20 active:scale-[0.98]">
             <Lock className="h-3.5 w-3.5" />
             Login to View Details
           </button>

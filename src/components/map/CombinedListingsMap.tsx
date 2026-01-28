@@ -284,38 +284,38 @@ function assignmentPopupHtml(assignment: Assignment, isVerifiedAgent: boolean): 
   const photo = assignment.listing_photos?.[0]?.url;
   
   if (!isVerifiedAgent) {
-    // Blurred popup for non-agents
+    // Blurred popup for non-agents - matching presale/resale card style
     const photoHtml = photo ? `<img src="${photo}" alt="Assignment" style="width:100%;height:100%;object-fit:cover;filter:blur(8px);transform:scale(1.1);" />` : '';
     return `
       <div style="position:relative;">
-        <div style="display:flex;width:380px;font-family:system-ui,sans-serif;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(173,80%,35%);">
-          <div style="flex-shrink:0;position:relative;width:160px;min-height:120px;background:linear-gradient(135deg,hsl(173,50%,95%),hsl(173,40%,90%));overflow:hidden;">
+        <div style="display:flex;width:380px;font-family:system-ui,sans-serif;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(18,85%,50%);">
+          <div style="flex-shrink:0;position:relative;width:160px;min-height:120px;background:linear-gradient(135deg,hsl(18,50%,95%),hsl(18,40%,90%));overflow:hidden;">
             ${photoHtml}
             <div style="position:absolute;inset:0;background:rgba(255,255,255,0.7);display:flex;flex-direction:column;align-items:center;justify-content:center;">
-              <div style="width:40px;height:40px;border-radius:50%;background:hsla(173,80%,35%,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:4px;">
+              <div style="width:40px;height:40px;border-radius:50%;background:hsla(18,85%,50%,0.2);display:flex;align-items:center;justify-content:center;margin-bottom:4px;">
                 <span style="font-size:18px;">🔒</span>
               </div>
-              <span style="font-size:9px;font-weight:700;color:hsl(173,80%,30%);text-transform:uppercase;letter-spacing:0.5px;">Agent Only</span>
+              <span style="font-size:9px;font-weight:700;color:hsl(18,85%,40%);text-transform:uppercase;letter-spacing:0.5px;">Agent Only</span>
             </div>
-            <span style="position:absolute;top:6px;left:6px;background:hsl(173,80%,35%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
+            <span style="position:absolute;top:6px;left:6px;background:hsl(18,85%,50%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
           </div>
           <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-            <div style="font-weight:700;font-size:18px;color:hsl(173,80%,30%);margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+            <div style="font-weight:700;font-size:18px;color:hsl(18,85%,40%);margin-bottom:4px;display:flex;align-items:center;gap:6px;">
               <span>🔒</span> $XXX,XXX
             </div>
             <div style="height:16px;width:70%;background:#e2e8f0;border-radius:4px;margin-bottom:6px;"></div>
             <div style="height:12px;width:50%;background:#f1f5f9;border-radius:4px;margin-bottom:8px;"></div>
-            <a href="/for-agents" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;background:hsl(173,80%,35%);color:white;font-size:11px;font-weight:600;padding:8px 12px;border-radius:6px;text-decoration:none;">
+            <a href="/for-agents" style="display:inline-flex;align-items:center;justify-content:center;gap:6px;background:hsl(18,85%,50%);color:white;font-size:11px;font-weight:600;padding:8px 12px;border-radius:6px;text-decoration:none;">
               🔒 Login to View Details
             </a>
           </div>
         </div>
-        <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(173,80%,35%);"></div>
+        <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(18,85%,50%);"></div>
       </div>
     `;
   }
   
-  // Full popup for verified agents
+  // Full popup for verified agents - matching presale/resale style
   const fullPrice = `$${assignment.assignment_price.toLocaleString()}`;
   const savings = assignment.original_price ? assignment.original_price - assignment.assignment_price : null;
   const specs = [
@@ -326,26 +326,26 @@ function assignmentPopupHtml(assignment: Assignment, isVerifiedAgent: boolean): 
   
   const photoHtml = photo 
     ? `<img src="${photo}" alt="${assignment.title}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
-    : `<div style="width:160px;min-height:120px;background:linear-gradient(135deg,hsl(173,50%,95%),hsl(173,40%,90%));display:flex;align-items:center;justify-content:center;"><span style="color:hsl(173,80%,35%);font-size:11px;">No Image</span></div>`;
+    : `<div style="width:160px;min-height:120px;background:linear-gradient(135deg,hsl(18,50%,95%),hsl(18,40%,90%));display:flex;align-items:center;justify-content:center;"><span style="color:hsl(18,85%,50%);font-size:11px;">No Image</span></div>`;
   
   const savingsHtml = savings && savings > 0 ? `<span style="position:absolute;top:6px;right:6px;background:#16a34a;color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;">Save $${Math.round(savings/1000)}K</span>` : '';
   
   return `
     <div style="position:relative;">
-      <a href="/assignments/${assignment.id}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(173,80%,35%);">
+      <a href="/assignments/${assignment.id}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(18,85%,50%);">
         <div style="flex-shrink:0;position:relative;">
           ${photoHtml}
-          <span style="position:absolute;top:6px;left:6px;background:hsl(173,80%,35%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
+          <span style="position:absolute;top:6px;left:6px;background:hsl(18,85%,50%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
           ${savingsHtml}
         </div>
         <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-          <div style="font-weight:700;font-size:18px;color:hsl(173,80%,30%);margin-bottom:4px;">${fullPrice}</div>
+          <div style="font-weight:700;font-size:18px;color:hsl(18,85%,40%);margin-bottom:4px;">${fullPrice}</div>
           <div style="font-size:13px;color:#475569;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${assignment.project_name}</div>
           <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${specs}</div>
           <div style="font-size:11px;color:#64748b;">${assignment.neighborhood || assignment.city}</div>
         </div>
       </a>
-      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(173,80%,35%);"></div>
+      <div style="position:absolute;bottom:-10px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:10px solid hsl(18,85%,50%);"></div>
     </div>
   `;
 }
