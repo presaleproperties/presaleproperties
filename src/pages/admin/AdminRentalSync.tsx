@@ -14,7 +14,7 @@ import { RentalListingsTable } from "@/components/admin/RentalListingsTable";
 import { RentalMetricsCards } from "@/components/admin/RentalMetricsCards";
 import { 
   Home, RefreshCw, Eye, EyeOff, DollarSign, 
-  Settings, LayoutDashboard 
+  Settings, LayoutDashboard, Globe, Loader2 
 } from "lucide-react";
 import {
   Select,
@@ -58,6 +58,7 @@ export default function AdminRentalSync() {
   const [enabledCities, setEnabledCities] = useState<string[]>([]);
   const [minLease, setMinLease] = useState("0");
   const [maxLease, setMaxLease] = useState("99999");
+  const [isScrapingREW, setIsScrapingREW] = useState(false);
 
   // Default Metro Vancouver cities for rentals
   const defaultEnabledCities = [
@@ -369,39 +370,99 @@ export default function AdminRentalSync() {
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
                 <CardDescription>
-                  Scan existing listings to identify rentals and update their metadata
+                  Scan existing listings, sync from MLS, or scrape rent prices from REW.ca
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex gap-3 flex-wrap">
-                <Button
-                  variant="outline"
-                  onClick={() => scanRentalsMutation.mutate()}
-                  disabled={scanRentalsMutation.isPending}
-                  className="gap-2"
-                >
-                  <RefreshCw className={`h-4 w-4 ${scanRentalsMutation.isPending ? "animate-spin" : ""}`} />
-                  Scan Existing Listings
-                </Button>
-                <Button
-                  variant="default"
-                  onClick={async () => {
-                    toast({ title: "Syncing rentals from MLS feed..." });
-                    try {
-                      const { error } = await supabase.functions.invoke("sync-mls-data", {
-                        body: { includeRentals: true, maxBatches: 30 }
-                      });
-                      if (error) throw error;
-                      toast({ title: "Rental sync started", description: "This may take a few minutes." });
-                      queryClient.invalidateQueries({ queryKey: ["rental-city-counts"] });
-                    } catch (err: any) {
-                      toast({ title: "Sync failed", description: err.message, variant: "destructive" });
-                    }
-                  }}
-                  className="gap-2 bg-emerald-600 hover:bg-emerald-700"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  Sync Rentals from MLS
-                </Button>
+              <CardContent className="space-y-4">
+                <div className="flex gap-3 flex-wrap">
+                  <Button
+                    variant="outline"
+                    onClick={() => scanRentalsMutation.mutate()}
+                    disabled={scanRentalsMutation.isPending}
+                    className="gap-2"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${scanRentalsMutation.isPending ? "animate-spin" : ""}`} />
+                    Scan Existing Listings
+                  </Button>
+                  <Button
+                    variant="default"
+                    onClick={async () => {
+                      toast({ title: "Syncing rentals from MLS feed..." });
+                      try {
+                        const { error } = await supabase.functions.invoke("sync-mls-data", {
+                          body: { includeRentals: true, maxBatches: 30 }
+                        });
+                        if (error) throw error;
+                        toast({ title: "Rental sync started", description: "This may take a few minutes." });
+                        queryClient.invalidateQueries({ queryKey: ["rental-city-counts"] });
+                      } catch (err: any) {
+                        toast({ title: "Sync failed", description: err.message, variant: "destructive" });
+                      }
+                    }}
+                    className="gap-2 bg-emerald-600 hover:bg-emerald-700"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Sync Rentals from MLS
+                  </Button>
+                </div>
+
+                {/* REW.ca Scraping Section */}
+                <div className="border-t pt-4">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h4 className="font-medium flex items-center gap-2">
+                        <Globe className="h-4 w-4 text-blue-500" />
+                        REW.ca Price Scraper
+                      </h4>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Scrape rental prices from REW.ca and match to MLS listings by address/MLS#.
+                        This fills in missing rent amounts that the DDF feed doesn't provide.
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        ⏰ Runs automatically daily at 5:00 AM PST
+                      </p>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      onClick={async () => {
+                        setIsScrapingREW(true);
+                        toast({ 
+                          title: "Scraping REW.ca...", 
+                          description: "This may take several minutes. Check back shortly." 
+                        });
+                        try {
+                          const { data, error } = await supabase.functions.invoke("scrape-rew-rentals", {
+                            body: { maxPages: 3 }
+                          });
+                          if (error) throw error;
+                          toast({ 
+                            title: "REW Scrape Complete", 
+                            description: `Scraped ${data?.listingsScraped || 0} listings, updated ${data?.listingsUpdated || 0} with rent prices.` 
+                          });
+                          queryClient.invalidateQueries({ queryKey: ["rental-city-counts"] });
+                          queryClient.invalidateQueries({ queryKey: ["rental-detailed-stats"] });
+                        } catch (err: any) {
+                          toast({ 
+                            title: "REW Scrape failed", 
+                            description: err.message, 
+                            variant: "destructive" 
+                          });
+                        } finally {
+                          setIsScrapingREW(false);
+                        }
+                      }}
+                      disabled={isScrapingREW}
+                      className="gap-2"
+                    >
+                      {isScrapingREW ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Globe className="h-4 w-4" />
+                      )}
+                      {isScrapingREW ? "Scraping..." : "Scrape REW.ca Now"}
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
