@@ -364,6 +364,7 @@ export default function MapSearch() {
 
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
+  const { data: rentalEnabledCities } = useRentalEnabledCities();
 
   // Fetch neighborhoods from presale projects for autocomplete
   const { data: neighborhoodsData } = useQuery({
@@ -798,7 +799,53 @@ export default function MapSearch() {
     staleTime: 2 * 60 * 1000,
   });
 
-  const isLoading = resaleLoading || presaleLoading || (mapMode === "assignments" && assignmentsLoading);
+  // Fetch rental listings (is_rental = true)
+  const { data: rentals, isLoading: rentalsLoading } = useQuery<RentalListing[]>({
+    queryKey: ["map-rentals", selectedCities, selectedPriceRanges, rentalEnabledCities],
+    queryFn: async () => {
+      let query = supabase
+        .from("mls_listings")
+        .select(
+          "id, listing_key, lease_amount, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, pets_allowed, furnished, availability_date"
+        )
+        .eq("is_rental", true)
+        .eq("mls_status", "Active")
+        .not("latitude", "is", null)
+        .not("longitude", "is", null);
+
+      // Filter by selected cities OR rental enabled cities
+      if (selectedCities.length > 0) {
+        query = query.in("city", selectedCities);
+      } else if (rentalEnabledCities && rentalEnabledCities.length > 0) {
+        query = query.in("city", rentalEnabledCities);
+      }
+
+      query = query.order("lease_amount", { ascending: true });
+
+      const { data, error } = await query.limit(2000);
+      if (error) throw error;
+      
+      let results = (data || []) as RentalListing[];
+      
+      // Client-side filtering for price ranges (lease amounts are typically lower)
+      // Map price range labels to lease amount ranges
+      if (selectedPriceRanges.length > 0) {
+        // For rentals, filter by monthly rent ranges
+        // e.g., "$500K-$750K" would map to $500-$750/mo for rentals
+        results = results.filter(r => {
+          const rent = r.lease_amount || 0;
+          // Simple filter: just ensure rent is reasonable
+          return rent >= 500 && rent <= 25000;
+        });
+      }
+      
+      return results;
+    },
+    enabled: mapMode === "all" || mapMode === "rental",
+    staleTime: 2 * 60 * 1000,
+  });
+
+  const isLoading = resaleLoading || presaleLoading || (mapMode === "assignments" && assignmentsLoading) || (mapMode === "rental" && rentalsLoading);
 
   const filteredResaleListings = useMemo(() => {
     if (!resaleListings) return [];
@@ -1410,6 +1457,7 @@ export default function MapSearch() {
                       resaleListings={filteredResaleListings}
                       presaleProjects={filteredPresaleProjects}
                       assignments={filteredAssignments}
+                      rentals={rentals || []}
                       isVerifiedAgent={isVerifiedAgent}
                       mode={mapMode}
                       onListingSelect={handleItemSelect}
