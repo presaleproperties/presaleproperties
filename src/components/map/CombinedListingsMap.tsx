@@ -194,30 +194,33 @@ function resalePopupHtml(listing: MLSListing): string {
   const fullPrice = `$${listing.listing_price.toLocaleString()}`;
   const address = getResaleAddress(listing);
   const specs = [
-    listing.bedrooms_total ? `${listing.bedrooms_total} bd` : null,
-    listing.bathrooms_total ? `${listing.bathrooms_total} ba` : null,
+    listing.bedrooms_total ? `${listing.bedrooms_total} bed` : null,
+    listing.bathrooms_total ? `${listing.bathrooms_total} bath` : null,
     listing.living_area ? `${listing.living_area.toLocaleString()} sqft` : null,
   ].filter(Boolean).join(' • ');
   const propType = listing.property_sub_type || listing.property_type || '';
   const brokerage = listing.list_office_name || '';
   
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${address}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
-    : `<div style="width:160px;min-height:120px;background:#f1f5f9;display:flex;align-items:center;justify-content:center;"><span style="color:#94a3b8;font-size:11px;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${address}" style="width:160px;height:100%;min-height:130px;object-fit:cover;border-radius:0;" loading="eager" />`
+    : `<div style="width:160px;min-height:130px;background:linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);display:flex;align-items:center;justify-content:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>`;
   
   return `
     <div style="position:relative;">
-      <a href="/resale/${listing.listing_key}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(222,47%,20%);">
+      <a href="/resale/${listing.listing_key}" style="display:flex;width:400px;font-family:system-ui,-apple-system,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18),0 0 0 1px rgba(0,0,0,0.05);border:2.5px solid hsl(142,76%,36%);">
         <div style="flex-shrink:0;position:relative;">
           ${photoHtml}
-          <span style="position:absolute;top:6px;left:6px;background:hsl(222,47%,20%);color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">MOVE-IN READY</span>
+          <span style="position:absolute;top:8px;left:8px;background:linear-gradient(135deg, hsl(142,76%,36%) 0%, hsl(142,76%,28%) 100%);color:white;font-size:9px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,0.15);">Move-In Ready</span>
         </div>
-        <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-          <div style="font-weight:700;font-size:18px;color:hsl(222,47%,20%);margin-bottom:4px;">${fullPrice}</div>
-          <div style="font-size:13px;color:#475569;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${address}</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${specs}</div>
-          ${propType ? `<div style="font-size:11px;color:#64748b;">${propType}</div>` : ''}
-          ${brokerage ? `<div style="font-size:10px;color:#94a3b8;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${brokerage}</div>` : ''}
+        <div style="flex:1;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+          <div style="font-weight:800;font-size:20px;color:hsl(142,76%,36%);margin-bottom:6px;letter-spacing:-0.3px;">${fullPrice}</div>
+          <div style="font-weight:600;font-size:14px;color:#1e293b;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${address}</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:3px;">${specs}</div>
+          ${propType ? `<div style="font-size:12px;color:#64748b;margin-bottom:2px;">${propType}</div>` : ''}
+          ${brokerage ? `<div style="font-size:10px;color:#94a3b8;margin-top:6px;padding-top:6px;border-top:1px solid #e2e8f0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${brokerage}</div>` : ''}
+          <div style="margin-top:8px;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:10px;font-weight:600;color:hsl(142,76%,36%);background:hsl(142,76%,95%);padding:3px 8px;border-radius:4px;">Click to view details →</span>
+          </div>
         </div>
       </a>
     </div>
@@ -230,23 +233,31 @@ function presalePopupHtml(project: PresaleProject): string {
   const statusLabel = project.status === "active" ? "Selling Now" : 
                       project.status === "registering" ? "Registering" : 
                       project.status === "coming_soon" ? "Coming Soon" : project.status;
+  const statusColor = project.status === "active" ? "#10b981" : project.status === "registering" ? "#f59e0b" : "#64748b";
   
   const photoHtml = photo 
-    ? `<img src="${photo}" alt="${project.name}" style="width:160px;height:100%;min-height:120px;object-fit:cover;border-radius:0;" loading="eager" />`
-    : `<div style="width:160px;min-height:120px;background:hsl(45,89%,95%);display:flex;align-items:center;justify-content:center;"><span style="color:hsl(45,89%,40%);font-size:11px;">No Image</span></div>`;
+    ? `<img src="${photo}" alt="${project.name}" style="width:160px;height:100%;min-height:130px;object-fit:cover;border-radius:0;" loading="eager" />`
+    : `<div style="width:160px;min-height:130px;background:linear-gradient(135deg, hsl(45,89%,95%) 0%, hsl(45,89%,88%) 100%);display:flex;align-items:center;justify-content:center;"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="hsl(45,89%,40%)" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><path d="M9 9v.01"/><path d="M9 12v.01"/><path d="M9 15v.01"/><path d="M9 18v.01"/></svg></div>`;
   
   return `
     <div style="position:relative;">
-      <a href="/presale-projects/${project.slug}" style="display:flex;width:380px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid hsl(45,89%,50%);">
+      <a href="/presale-projects/${project.slug}" style="display:flex;width:400px;font-family:system-ui,-apple-system,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18),0 0 0 1px rgba(0,0,0,0.05);border:2.5px solid hsl(45,89%,50%);">
         <div style="flex-shrink:0;position:relative;">
           ${photoHtml}
-          <span style="position:absolute;top:6px;left:6px;background:hsl(45,89%,50%);color:hsl(222,47%,15%);font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">PRESALE</span>
+          <span style="position:absolute;top:8px;left:8px;background:linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,48%) 100%);color:hsl(222,47%,15%);font-size:9px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,0.15);">Presale</span>
         </div>
-        <div style="flex:1;padding:12px 14px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
-          <div style="font-weight:700;font-size:15px;color:hsl(45,89%,40%);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${project.name}</div>
-          <div style="font-weight:700;font-size:17px;color:hsl(222,47%,20%);margin-bottom:4px;white-space:nowrap;">${fullPrice}</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:2px;">${project.neighborhood}, ${project.city}</div>
-          <div style="font-size:11px;color:#64748b;">${project.project_type || 'Condo'} • ${statusLabel}</div>
+        <div style="flex:1;padding:14px 16px;display:flex;flex-direction:column;justify-content:center;min-width:0;">
+          <div style="font-weight:700;font-size:15px;color:hsl(45,89%,35%);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${project.name}</div>
+          <div style="font-weight:800;font-size:19px;color:hsl(222,47%,20%);margin-bottom:6px;white-space:nowrap;letter-spacing:-0.3px;">${fullPrice}</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:4px;">${project.neighborhood}, ${project.city}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+            <span style="font-size:11px;color:#64748b;">${project.project_type || 'Condo'}</span>
+            <span style="width:4px;height:4px;border-radius:50%;background:#cbd5e1;"></span>
+            <span style="font-size:11px;font-weight:600;color:${statusColor};">${statusLabel}</span>
+          </div>
+          <div style="margin-top:6px;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:10px;font-weight:600;color:hsl(45,89%,35%);background:hsl(45,89%,95%);padding:3px 8px;border-radius:4px;">View floor plans →</span>
+          </div>
         </div>
       </a>
     </div>
@@ -259,12 +270,14 @@ function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): strin
   if (!isVerified) {
     return `
       <div style="position:relative;">
-        <div style="width:280px;font-family:system-ui,sans-serif;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid #10b981;">
-          <div style="padding:20px;text-align:center;">
-            <div style="font-size:24px;margin-bottom:8px;">🔒</div>
-            <div style="font-weight:600;font-size:14px;color:#1a1a1a;margin-bottom:4px;">Agent Access Required</div>
-            <div style="font-size:12px;color:#64748b;margin-bottom:12px;">Verify as an agent to view assignment details</div>
-            <a href="/for-agents" style="display:inline-block;background:#10b981;color:white;padding:8px 16px;border-radius:6px;font-size:12px;font-weight:600;text-decoration:none;">Become a Verified Agent</a>
+        <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:2.5px solid #10b981;">
+          <div style="padding:24px;text-align:center;">
+            <div style="width:48px;height:48px;background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            </div>
+            <div style="font-weight:700;font-size:16px;color:#1e293b;margin-bottom:6px;">Agent Access Required</div>
+            <div style="font-size:13px;color:#64748b;margin-bottom:16px;line-height:1.5;">Verify as a licensed agent to view assignment listings and contact details</div>
+            <a href="/for-agents" style="display:inline-block;background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:white;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;text-decoration:none;box-shadow:0 2px 8px rgba(16,185,129,0.3);">Become a Verified Agent</a>
           </div>
         </div>
       </div>
@@ -273,15 +286,21 @@ function assignmentPopupHtml(assignment: Assignment, isVerified: boolean): strin
   
   return `
     <div style="position:relative;">
-      <a href="/assignments/${assignment.id}" style="display:block;width:280px;font-family:system-ui,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:10px;overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.18);border:2px solid #10b981;">
-        <div style="padding:14px;">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-            <span style="background:#10b981;color:white;font-size:9px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.3px;">ASSIGNMENT</span>
+      <a href="/assignments/${assignment.id}" style="display:block;width:320px;font-family:system-ui,-apple-system,sans-serif;text-decoration:none;color:inherit;background:white;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);border:2.5px solid #10b981;">
+        <div style="padding:16px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="background:linear-gradient(135deg, #10b981 0%, #059669 100%);color:white;font-size:9px;font-weight:700;padding:4px 10px;border-radius:6px;letter-spacing:0.5px;text-transform:uppercase;box-shadow:0 2px 8px rgba(0,0,0,0.1);">Assignment</span>
           </div>
-          <div style="font-weight:700;font-size:18px;color:#10b981;margin-bottom:4px;">${fullPrice}</div>
-          <div style="font-weight:600;font-size:14px;color:#1a1a1a;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${assignment.project_name}</div>
-          <div style="font-size:12px;color:#64748b;margin-bottom:4px;">${assignment.neighborhood || assignment.city}</div>
-          <div style="font-size:11px;color:#94a3b8;">${assignment.beds} bed • ${assignment.baths} bath</div>
+          <div style="font-weight:800;font-size:22px;color:#10b981;margin-bottom:6px;letter-spacing:-0.3px;">${fullPrice}</div>
+          <div style="font-weight:600;font-size:15px;color:#1e293b;margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${assignment.project_name}</div>
+          <div style="font-size:13px;color:#64748b;margin-bottom:6px;">${assignment.neighborhood || assignment.city}</div>
+          <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:#64748b;padding-top:8px;border-top:1px solid #e2e8f0;">
+            <span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 22v-7h6v7"/><path d="M9 15v7h6v-7"/><path d="M15 22v-4h6v4"/></svg> ${assignment.beds} bed</span>
+            <span style="display:flex;align-items:center;gap:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6L6.5 3.5a1.5 1.5 0 0 0-1-.5C4.5 3 4 4 4 4.5V12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1.5c0-.5-.5-1.5-1.5-1.5H18"/><path d="M12 6V3"/><path d="M2 18h20"/><path d="M6 18v4"/><path d="M18 18v4"/></svg> ${assignment.baths} bath</span>
+          </div>
+          <div style="margin-top:10px;">
+            <span style="font-size:10px;font-weight:600;color:#10b981;background:#ecfdf5;padding:3px 8px;border-radius:4px;">View details →</span>
+          </div>
         </div>
       </a>
     </div>
@@ -601,9 +620,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .cl.sm { width: 36px; height: 36px; font-size: 12px; }
         .cl.md { width: 40px; height: 40px; font-size: 13px; }
         .cl.lg { width: 44px; height: 44px; font-size: 14px; }
-        .premium-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+        .premium-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 12px 48px rgba(0,0,0,0.22); background: transparent; }
         .premium-popup .leaflet-popup-content { margin: 0; }
         .premium-popup .leaflet-popup-tip { display: none; }
+        .premium-popup .leaflet-popup-close-button { top: 8px !important; right: 8px !important; width: 24px !important; height: 24px !important; background: rgba(255,255,255,0.95) !important; backdrop-filter: blur(8px); border-radius: 6px !important; box-shadow: 0 2px 8px rgba(0,0,0,0.1); display: flex !important; align-items: center !important; justify-content: center !important; font-size: 14px !important; color: #64748b !important; font-weight: 500 !important; }
+        .premium-popup .leaflet-popup-close-button:hover { color: #1e293b !important; background: white !important; }
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" />
       
