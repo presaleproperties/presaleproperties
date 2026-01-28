@@ -128,3 +128,6 @@ verify_jwt = false
 
 [functions.seo-health-check]
 verify_jwt = false
+
+[functions.parse-social-post]
+verify_jwt = false

@@ -1,6 +1,5 @@
-import { useState, useCallback } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,15 +21,19 @@ import {
   X, 
   Image as ImageIcon,
   FileText,
-  Save,
   ArrowLeft,
   Wand2,
   MapPin,
   CheckCircle2,
-  Sparkles
+  Sparkles,
+  Globe,
+  Lock,
+  Zap,
+  Save,
 } from "lucide-react";
-import { Link } from "react-router-dom";
 import { AssignmentBrochureUploader, ExtractedAssignmentData } from "@/components/listings/AssignmentBrochureUploader";
+import { SocialMediaImporter, ExtractedSocialData } from "@/components/listings/SocialMediaImporter";
+import { InteractiveMapPicker } from "@/components/listings/InteractiveMapPicker";
 
 interface AddressSuggestion {
   description: string;
@@ -91,8 +94,20 @@ const MONTHS = [
 ];
 
 const VISIBILITY_MODES = [
-  { value: "public", label: "Public Assignment", description: "All details visible to everyone" },
-  { value: "restricted", label: "Restricted Assignment", description: "Developer-compliant mode - project/developer details hidden" },
+  { 
+    value: "public", 
+    label: "Public Assignment", 
+    description: "Visible to everyone on the website and map",
+    icon: Globe,
+    detail: "Use this when you have developer approval to market publicly. All details will be visible to buyers, agents, and the public."
+  },
+  { 
+    value: "restricted", 
+    label: "Restricted (REALTOR® Only)", 
+    description: "Only visible to verified agents",
+    icon: Lock,
+    detail: "Only verified real estate agents logged into the portal can view this listing. Perfect for assignments without public marketing approval."
+  },
 ];
 
 const listingSchema = z.object({
@@ -146,7 +161,8 @@ export default function ListingForm() {
   const [floorplans, setFloorplans] = useState<UploadedFile[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
   const [uploadingFloorplans, setUploadingFloorplans] = useState(false);
-const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
+  const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
+  const [socialImporterOpen, setSocialImporterOpen] = useState(false);
   const [brochureContent, setBrochureContent] = useState<string>("");
   const [isGeneratingDescription, setIsGeneratingDescription] = useState(false);
   
@@ -536,6 +552,96 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
     }
   };
 
+  // Handle data from social media import
+  const handleSocialDataExtracted = (data: ExtractedSocialData) => {
+    const currentValues = form.getValues();
+    
+    // Apply all extracted fields
+    if (data.project_name && !currentValues.project_name) {
+      form.setValue("project_name", data.project_name);
+    }
+    if (data.developer_name && !currentValues.developer_name) {
+      form.setValue("developer_name", data.developer_name);
+    }
+    if (data.city && !currentValues.city) {
+      form.setValue("city", data.city);
+    }
+    if (data.neighborhood && !currentValues.neighborhood) {
+      form.setValue("neighborhood", data.neighborhood);
+    }
+    if (data.address && !currentValues.address) {
+      form.setValue("address", data.address);
+      setAddressInputValue(data.address);
+    }
+    if (data.property_type) {
+      form.setValue("property_type", data.property_type);
+    }
+    if (data.unit_type) {
+      form.setValue("unit_type", data.unit_type);
+    }
+    if (data.beds !== undefined) {
+      form.setValue("beds", data.beds);
+    }
+    if (data.baths !== undefined) {
+      form.setValue("baths", data.baths);
+    }
+    if (data.interior_sqft) {
+      form.setValue("interior_sqft", data.interior_sqft);
+    }
+    if (data.exterior_sqft) {
+      form.setValue("exterior_sqft", data.exterior_sqft);
+    }
+    if (data.floor_level) {
+      form.setValue("floor_level", data.floor_level);
+    }
+    if (data.exposure && !currentValues.exposure) {
+      form.setValue("exposure", data.exposure);
+    }
+    if (data.assignment_price) {
+      form.setValue("assignment_price", data.assignment_price);
+    }
+    if (data.original_price) {
+      form.setValue("original_price", data.original_price);
+    }
+    if (data.deposit_paid) {
+      form.setValue("deposit_paid", data.deposit_paid);
+    }
+    if (data.completion_month) {
+      form.setValue("completion_month", data.completion_month);
+    }
+    if (data.completion_year) {
+      form.setValue("completion_year", data.completion_year);
+    }
+    if (data.construction_status) {
+      form.setValue("construction_status", data.construction_status);
+    }
+    if (data.has_parking !== undefined) {
+      form.setValue("has_parking", data.has_parking);
+      if (data.parking_count) {
+        form.setValue("parking_count", data.parking_count);
+      }
+    }
+    if (data.has_storage !== undefined) {
+      form.setValue("has_storage", data.has_storage);
+    }
+    if (data.description && !currentValues.description) {
+      form.setValue("description", data.description);
+      setBrochureContent(data.description);
+    }
+
+    // Auto-generate title if empty
+    if (!currentValues.title && data.project_name && data.unit_type) {
+      const unitLabel = data.unit_type === "studio" ? "Studio" : 
+                       data.unit_type === "1bed" ? "1BR" :
+                       data.unit_type === "1bed_den" ? "1BR+Den" :
+                       data.unit_type === "2bed" ? "2BR" :
+                       data.unit_type === "2bed_den" ? "2BR+Den" :
+                       data.unit_type === "3bed" ? "3BR" : "Penthouse";
+      const floorText = data.floor_level ? ` Floor ${data.floor_level}` : "";
+      form.setValue("title", `${unitLabel}${floorText} at ${data.project_name}`);
+    }
+  };
+
   // AI Description Generator
   const handleGenerateDescription = async () => {
     const values = form.getValues();
@@ -721,7 +827,7 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
     <DashboardLayout>
       <div className="space-y-6 max-w-4xl">
         {/* Header */}
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <Link to="/dashboard/listings">
               <Button variant="ghost" size="icon">
@@ -732,70 +838,142 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
               <h1 className="text-2xl font-bold">
                 {isEditing ? "Edit Assignment" : "Create New Assignment"}
               </h1>
-              <p className="text-muted-foreground">
-                {isEditing ? "Update your assignment" : "Add a new assignment to the marketplace"}
+              <p className="text-muted-foreground text-sm">
+                {isEditing ? "Update your assignment" : "Upload under 5 minutes with AI auto-fill"}
               </p>
             </div>
           </div>
-          
-          {!isEditing && (
-            <Button 
-              type="button" 
-              variant="outline" 
-              onClick={() => setBrochureUploaderOpen(true)}
-              className="gap-2"
-            >
-              <Wand2 className="h-4 w-4" />
-              <span className="hidden sm:inline">Auto-Fill from Brochure</span>
-              <span className="sm:hidden">Auto-Fill</span>
-            </Button>
-          )}
         </div>
 
-        {/* AI Brochure Uploader Modal */}
+        {/* Quick Import Section - Only show for new listings */}
+        {!isEditing && (
+          <Card className="border-2 border-dashed border-primary/30 bg-gradient-to-br from-primary/5 via-background to-primary/5">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <Zap className="h-5 w-5 text-primary" />
+                Quick Import
+              </CardTitle>
+              <CardDescription>
+                Import your listing data automatically from existing marketing materials
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setSocialImporterOpen(true)}
+                  className="h-auto py-4 flex-col gap-2 hover:bg-primary/5 hover:border-primary/50"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-green-500 flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="font-semibold">Facebook / WhatsApp</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Upload screenshot & paste description
+                  </span>
+                </Button>
+                
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setBrochureUploaderOpen(true)}
+                  className="h-auto py-4 flex-col gap-2 hover:bg-primary/5 hover:border-primary/50"
+                >
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                      <FileText className="h-4 w-4 text-primary-foreground" />
+                    </div>
+                    <span className="font-semibold">PDF Brochure</span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    Extract from developer floorplan PDF
+                  </span>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* AI Import Modals */}
         <AssignmentBrochureUploader
           isOpen={brochureUploaderOpen}
           onClose={() => setBrochureUploaderOpen(false)}
           onDataExtracted={handleBrochureDataExtracted}
         />
+        <SocialMediaImporter
+          isOpen={socialImporterOpen}
+          onClose={() => setSocialImporterOpen(false)}
+          onDataExtracted={handleSocialDataExtracted}
+        />
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             {/* Visibility Mode */}
-            <Card className="border-primary/20 bg-primary/5">
-              <CardHeader>
-                <CardTitle>Assignment Visibility</CardTitle>
+            <Card className="overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 border-b">
+                <CardTitle className="flex items-center gap-2">
+                  <Globe className="h-5 w-5 text-primary" />
+                  Assignment Visibility
+                </CardTitle>
                 <CardDescription>
-                  Choose how this assignment will be displayed publicly
+                  Choose who can see this assignment listing
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="pt-6">
                 <FormField
                   control={form.control}
                   name="visibility_mode"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Visibility Mode *</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select visibility mode" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {VISIBILITY_MODES.map(mode => (
-                            <SelectItem key={mode.value} value={mode.value}>
-                              <div>
-                                <span className="font-medium">{mode.label}</span>
-                                <span className="text-muted-foreground ml-2 text-xs">— {mode.description}</span>
+                      <div className="grid sm:grid-cols-2 gap-4">
+                        {VISIBILITY_MODES.map((mode) => {
+                          const Icon = mode.icon;
+                          const isSelected = field.value === mode.value;
+                          return (
+                            <button
+                              key={mode.value}
+                              type="button"
+                              onClick={() => field.onChange(mode.value)}
+                              className={`p-4 rounded-xl border-2 text-left transition-all ${
+                                isSelected
+                                  ? mode.value === "public"
+                                    ? "border-primary bg-primary/5 ring-2 ring-primary/20"
+                                    : "border-amber-500 bg-amber-500/5 ring-2 ring-amber-500/20"
+                                  : "border-border hover:border-muted-foreground/30"
+                              }`}
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${
+                                  mode.value === "public"
+                                    ? "bg-primary/10 text-primary"
+                                    : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                }`}>
+                                  <Icon className="h-5 w-5" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-semibold">{mode.label}</span>
+                                    {isSelected && (
+                                      <CheckCircle2 className={`h-4 w-4 ${
+                                        mode.value === "public" ? "text-primary" : "text-amber-500"
+                                      }`} />
+                                    )}
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-1">
+                                    {mode.description}
+                                  </p>
+                                </div>
                               </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormDescription className="text-sm">
-                        If the developer restricts public marketing, select <strong>Restricted Listing</strong> to remain compliant. Project and developer details will be shared only after buyer inquiry.
-                      </FormDescription>
+                              <p className="text-xs text-muted-foreground mt-3 pl-13">
+                                {mode.detail}
+                              </p>
+                            </button>
+                          );
+                        })}
+                      </div>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -955,6 +1133,28 @@ const [brochureUploaderOpen, setBrochureUploaderOpen] = useState(false);
                     </FormItem>
                   )}
                 />
+
+                {/* Interactive Map for Pin Adjustment */}
+                {(mapLat && mapLng) && (
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-primary" />
+                      Adjust Pin Location
+                    </label>
+                    <InteractiveMapPicker
+                      lat={mapLat}
+                      lng={mapLng}
+                      onLocationChange={(lat, lng) => {
+                        setMapLat(lat);
+                        setMapLng(lng);
+                      }}
+                      className="h-[250px]"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Drag the pin to fine-tune the exact building location for accurate map display
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
