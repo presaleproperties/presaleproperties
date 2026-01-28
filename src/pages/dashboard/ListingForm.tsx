@@ -30,7 +30,13 @@ import {
   Lock,
   Zap,
   Save,
+  CalendarIcon,
+  Clock,
 } from "lucide-react";
+import { format, addDays } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { AssignmentBrochureUploader, ExtractedAssignmentData } from "@/components/listings/AssignmentBrochureUploader";
 import { SocialMediaImporter, ExtractedSocialData } from "@/components/listings/SocialMediaImporter";
 import { InteractiveMapPicker } from "@/components/listings/InteractiveMapPicker";
@@ -137,6 +143,7 @@ const listingSchema = z.object({
   has_storage: z.boolean(),
   description: z.string().trim().max(5000).optional(),
   visibility_mode: z.enum(["public", "restricted"]),
+  expires_at: z.date().optional(),
 });
 
 type ListingFormData = z.infer<typeof listingSchema>;
@@ -204,6 +211,7 @@ export default function ListingForm() {
       has_storage: false,
       description: "",
       visibility_mode: "public",
+      expires_at: addDays(new Date(), 90), // Default 90 days from now
     },
   });
 
@@ -261,6 +269,7 @@ export default function ListingForm() {
         has_storage: listing.has_storage || false,
         description: listing.description || "",
         visibility_mode: (listing as any).visibility_mode || "public",
+        expires_at: listing.expires_at ? new Date(listing.expires_at) : addDays(new Date(), 90),
       });
       
       // Load existing coordinates and address
@@ -746,6 +755,7 @@ export default function ListingForm() {
         visibility_mode: data.visibility_mode,
         map_lat: mapLat,
         map_lng: mapLng,
+        expires_at: data.expires_at ? data.expires_at.toISOString() : null,
       };
 
       let listingId = id;
@@ -1517,6 +1527,108 @@ export default function ListingForm() {
                       </FormItem>
                     )}
                   />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Listing Expiry */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Clock className="h-5 w-5" />
+                  Listing Expiry
+                </CardTitle>
+                <CardDescription>
+                  Set when this assignment should automatically expire and be removed from public view
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <FormField
+                  control={form.control}
+                  name="expires_at"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-col">
+                      <FormLabel>Expiry Date</FormLabel>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <FormControl>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className={cn(
+                                "w-full sm:w-[280px] pl-3 text-left font-normal",
+                                !field.value && "text-muted-foreground"
+                              )}
+                            >
+                              {field.value ? (
+                                format(field.value, "PPP")
+                              ) : (
+                                <span>Pick a date</span>
+                              )}
+                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                            </Button>
+                          </FormControl>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value}
+                            onSelect={field.onChange}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      <FormDescription>
+                        The listing will automatically be unpublished on this date. You can extend it later.
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => form.setValue("expires_at", addDays(new Date(), 30))}
+                  >
+                    30 Days
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => form.setValue("expires_at", addDays(new Date(), 60))}
+                  >
+                    60 Days
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => form.setValue("expires_at", addDays(new Date(), 90))}
+                  >
+                    90 Days
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => form.setValue("expires_at", addDays(new Date(), 180))}
+                  >
+                    6 Months
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => form.setValue("expires_at", addDays(new Date(), 365))}
+                  >
+                    1 Year
+                  </Button>
                 </div>
               </CardContent>
             </Card>

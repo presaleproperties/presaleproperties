@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { AdminLayout } from "@/components/admin/AdminLayout";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
@@ -15,24 +14,23 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Tables } from "@/integrations/supabase/types";
 import { AssignmentPreviewModal } from "@/components/admin/AssignmentPreviewModal";
+import { AdminAssignmentCard } from "@/components/admin/AdminAssignmentCard";
 import { 
   CheckCircle, 
-  XCircle, 
   Building2,
-  MapPin,
-  Bed,
-  Bath,
-  User,
   Loader2,
-  Eye,
-  Lock,
-  Globe,
-  Star
+  Star,
+  AlertTriangle,
+  Search,
+  Pause,
+  FileX,
 } from "lucide-react";
+
 type Listing = Tables<"listings"> & {
   agent_profile?: {
     full_name: string | null;
@@ -41,18 +39,7 @@ type Listing = Tables<"listings"> & {
   };
 };
 
-const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  draft: { label: "Draft", variant: "secondary" },
-  pending_payment: { label: "Pending Payment", variant: "outline" },
-  pending_approval: { label: "Pending Approval", variant: "outline" },
-  published: { label: "Published", variant: "default" },
-  rejected: { label: "Rejected", variant: "destructive" },
-  expired: { label: "Expired", variant: "secondary" },
-  paused: { label: "Paused", variant: "secondary" },
-};
-
 export default function AdminListings() {
-  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,6 +50,7 @@ export default function AdminListings() {
   const [processing, setProcessing] = useState(false);
   const [updatingFeatured, setUpdatingFeatured] = useState<string | null>(null);
   const [previewListing, setPreviewListing] = useState<Listing | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -129,9 +117,12 @@ export default function AdminListings() {
 
       if (actionType === "approve") {
         updates.published_at = new Date().toISOString();
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + 365);
-        updates.expires_at = expiresAt.toISOString();
+        // Set default expiry to 365 days if not already set
+        if (!selectedListing.expires_at) {
+          const expiresAt = new Date();
+          expiresAt.setDate(expiresAt.getDate() + 365);
+          updates.expires_at = expiresAt.toISOString();
+        }
       } else {
         updates.rejection_reason = notes || null;
       }
@@ -193,124 +184,44 @@ export default function AdminListings() {
     }
   };
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("en-CA", {
-      style: "currency",
-      currency: "CAD",
-      maximumFractionDigits: 0,
-    }).format(price);
+  // Filter by search query
+  const filterBySearch = (list: Listing[]) => {
+    if (!searchQuery.trim()) return list;
+    const query = searchQuery.toLowerCase();
+    return list.filter(l => 
+      l.title.toLowerCase().includes(query) ||
+      l.project_name.toLowerCase().includes(query) ||
+      l.city.toLowerCase().includes(query) ||
+      l.agent_profile?.full_name?.toLowerCase().includes(query) ||
+      l.agent_profile?.email?.toLowerCase().includes(query)
+    );
   };
 
   const pendingListings = listings.filter(l => l.status === "pending_approval");
   const publishedListings = listings.filter(l => l.status === "published");
   const featuredListings = listings.filter(l => l.is_featured);
+  const pausedListings = listings.filter(l => l.status === "paused");
+  const expiredListings = listings.filter(l => l.status === "expired");
 
-  const filteredListings = (() => {
+  const getFilteredListings = () => {
     switch (activeTab) {
-      case "pending": return pendingListings;
-      case "published": return publishedListings;
-      case "featured": return featuredListings;
-      default: return listings;
+      case "pending": return filterBySearch(pendingListings);
+      case "published": return filterBySearch(publishedListings);
+      case "featured": return filterBySearch(featuredListings);
+      case "paused": return filterBySearch(pausedListings);
+      case "expired": return filterBySearch(expiredListings);
+      default: return filterBySearch(listings);
     }
-  })();
+  };
 
-  const renderListingCard = (listing: Listing, showApprovalActions = false) => (
-    <Card key={listing.id}>
-      <CardContent className="p-4 sm:p-6">
-        <div className="flex flex-col lg:flex-row lg:items-start gap-4">
-          <div className="flex-1 space-y-3 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-semibold text-lg truncate">{listing.title}</h3>
-              <Badge variant={statusLabels[listing.status]?.variant || "secondary"}>
-                {statusLabels[listing.status]?.label || listing.status}
-              </Badge>
-              {listing.is_featured && (
-                <Badge className="bg-amber-500/10 text-amber-600 border-amber-500/20">
-                  <Star className="h-3 w-3 mr-1 fill-current" />
-                  Featured
-                </Badge>
-              )}
-              {listing.visibility_mode === "restricted" ? (
-                <Badge variant="outline" className="text-amber-600 border-amber-600">
-                  <Lock className="h-3 w-3 mr-1" />
-                  Restricted
-                </Badge>
-              ) : (
-                <Badge variant="outline" className="text-green-600 border-green-600">
-                  <Globe className="h-3 w-3 mr-1" />
-                  Public
-                </Badge>
-              )}
-            </div>
-            
-            <p className="text-muted-foreground">{listing.project_name}</p>
-            
-            <div className="flex flex-wrap items-center gap-4 text-sm">
-              <span className="flex items-center gap-1">
-                <MapPin className="h-4 w-4 text-muted-foreground" />
-                {listing.city}
-                {listing.neighborhood && `, ${listing.neighborhood}`}
-              </span>
-              <span className="flex items-center gap-1">
-                <Bed className="h-4 w-4 text-muted-foreground" />
-                {listing.beds} bed
-              </span>
-              <span className="flex items-center gap-1">
-                <Bath className="h-4 w-4 text-muted-foreground" />
-                {listing.baths} bath
-              </span>
-            </div>
+  const filteredListings = getFilteredListings();
 
-            {listing.agent_profile && (
-              <div className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span>
-                  {listing.agent_profile.full_name || "Unknown Agent"} 
-                  <span className="text-muted-foreground"> ({listing.agent_profile.email})</span>
-                </span>
-              </div>
-            )}
-
-            <div className="text-lg font-bold text-primary">
-              {formatPrice(listing.assignment_price)}
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-2 shrink-0">
-            {showApprovalActions && (
-              <>
-                <Button
-                  variant="default"
-                  className="bg-primary hover:bg-primary/90"
-                  onClick={() => setPreviewListing(listing)}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  Preview & Review
-                </Button>
-              </>
-            )}
-            
-            {listing.status === "published" && !showApprovalActions && (
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-sm text-muted-foreground">Featured</span>
-                <Switch
-                  checked={listing.is_featured || false}
-                  onCheckedChange={() => toggleFeatured(listing)}
-                  disabled={updatingFeatured === listing.id}
-                />
-              </div>
-            )}
-            
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={() => setPreviewListing(listing)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Quick View
-            </Button>
-          </div>
-        </div>
+  const renderEmptyState = (icon: React.ReactNode, title: string, description?: string) => (
+    <Card>
+      <CardContent className="py-12 text-center">
+        <div className="mx-auto mb-4 text-muted-foreground">{icon}</div>
+        <h3 className="text-lg font-medium mb-2">{title}</h3>
+        {description && <p className="text-muted-foreground">{description}</p>}
       </CardContent>
     </Card>
   );
@@ -318,13 +229,44 @@ export default function AdminListings() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold">Assignments</h1>
-          <p className="text-muted-foreground">Manage assignments and approval queue</p>
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold">Assignment Management</h1>
+            <p className="text-muted-foreground">Manage, approve, and monitor all assignments</p>
+          </div>
+          
+          {/* Quick Stats */}
+          <div className="flex items-center gap-3">
+            {pendingListings.length > 0 && (
+              <Badge variant="destructive" className="px-3 py-1">
+                <AlertTriangle className="h-3.5 w-3.5 mr-1" />
+                {pendingListings.length} Pending Review
+              </Badge>
+            )}
+            {expiredListings.length > 0 && (
+              <Badge variant="secondary" className="px-3 py-1">
+                <FileX className="h-3.5 w-3.5 mr-1" />
+                {expiredListings.length} Expired
+              </Badge>
+            )}
+          </div>
         </div>
 
+        {/* Search */}
+        <div className="relative max-w-md">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by title, project, city, or agent..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+
+        {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-flex">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 lg:w-auto lg:inline-flex">
             <TabsTrigger value="pending" className="relative">
               Pending
               {pendingListings.length > 0 && (
@@ -340,6 +282,14 @@ export default function AdminListings() {
               <Star className="h-4 w-4 mr-1" />
               Featured ({featuredListings.length})
             </TabsTrigger>
+            <TabsTrigger value="paused">
+              <Pause className="h-4 w-4 mr-1" />
+              Paused ({pausedListings.length})
+            </TabsTrigger>
+            <TabsTrigger value="expired">
+              <FileX className="h-4 w-4 mr-1" />
+              Expired ({expiredListings.length})
+            </TabsTrigger>
             <TabsTrigger value="all">
               All ({listings.length})
             </TabsTrigger>
@@ -352,65 +302,139 @@ export default function AdminListings() {
           ) : (
             <>
               <TabsContent value="pending" className="mt-6">
-                {pendingListings.length === 0 ? (
-                  <Card>
-                    <CardContent className="py-12 text-center">
-                      <CheckCircle className="h-12 w-12 text-green-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-medium mb-2">All caught up!</h3>
-                      <p className="text-muted-foreground">No assignments pending approval</p>
-                    </CardContent>
-                  </Card>
+                {filteredListings.length === 0 ? (
+                  renderEmptyState(
+                    <CheckCircle className="h-12 w-12 text-green-500" />,
+                    "All caught up!",
+                    "No assignments pending approval"
+                  )
                 ) : (
                   <div className="space-y-4">
-                    {pendingListings.map((listing) => renderListingCard(listing, true))}
+                    {filteredListings.map((listing) => (
+                      <AdminAssignmentCard
+                        key={listing.id}
+                        listing={listing}
+                        showApprovalActions
+                        onRefresh={fetchListings}
+                        onPreview={() => setPreviewListing(listing)}
+                        onApprove={() => handleAction(listing, "approve")}
+                        onReject={() => handleAction(listing, "reject")}
+                      />
+                    ))}
                   </div>
                 )}
               </TabsContent>
 
               <TabsContent value="published" className="mt-6">
-                <div className="space-y-4">
-                  {publishedListings.length === 0 ? (
-                    <Card>
-                      <CardContent className="py-12 text-center">
-                        <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No published assignments</h3>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    publishedListings.map((listing) => renderListingCard(listing))
-                  )}
-                </div>
+                {filteredListings.length === 0 ? (
+                  renderEmptyState(
+                    <Building2 className="h-12 w-12 text-muted-foreground" />,
+                    "No published assignments"
+                  )
+                ) : (
+                  <div className="space-y-4">
+                    {filteredListings.map((listing) => (
+                      <AdminAssignmentCard
+                        key={listing.id}
+                        listing={listing}
+                        onRefresh={fetchListings}
+                        onPreview={() => setPreviewListing(listing)}
+                        onToggleFeatured={() => toggleFeatured(listing)}
+                        isUpdatingFeatured={updatingFeatured === listing.id}
+                      />
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="featured" className="mt-6">
-                <div className="space-y-4">
-                  {featuredListings.length === 0 ? (
-                    <Card>
-                      <CardContent className="py-12 text-center">
-                        <Star className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No featured assignments</h3>
-                        <p className="text-muted-foreground">Feature assignments from the Published tab</p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    featuredListings.map((listing) => renderListingCard(listing))
-                  )}
-                </div>
+                {filteredListings.length === 0 ? (
+                  renderEmptyState(
+                    <Star className="h-12 w-12 text-muted-foreground" />,
+                    "No featured assignments",
+                    "Feature assignments from the Published tab"
+                  )
+                ) : (
+                  <div className="space-y-4">
+                    {filteredListings.map((listing) => (
+                      <AdminAssignmentCard
+                        key={listing.id}
+                        listing={listing}
+                        onRefresh={fetchListings}
+                        onPreview={() => setPreviewListing(listing)}
+                        onToggleFeatured={() => toggleFeatured(listing)}
+                        isUpdatingFeatured={updatingFeatured === listing.id}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="paused" className="mt-6">
+                {filteredListings.length === 0 ? (
+                  renderEmptyState(
+                    <Pause className="h-12 w-12 text-muted-foreground" />,
+                    "No paused assignments",
+                    "Paused assignments will appear here"
+                  )
+                ) : (
+                  <div className="space-y-4">
+                    {filteredListings.map((listing) => (
+                      <AdminAssignmentCard
+                        key={listing.id}
+                        listing={listing}
+                        onRefresh={fetchListings}
+                        onPreview={() => setPreviewListing(listing)}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="expired" className="mt-6">
+                {filteredListings.length === 0 ? (
+                  renderEmptyState(
+                    <FileX className="h-12 w-12 text-muted-foreground" />,
+                    "No expired assignments",
+                    "Expired assignments will appear here"
+                  )
+                ) : (
+                  <div className="space-y-4">
+                    {filteredListings.map((listing) => (
+                      <AdminAssignmentCard
+                        key={listing.id}
+                        listing={listing}
+                        onRefresh={fetchListings}
+                        onPreview={() => setPreviewListing(listing)}
+                      />
+                    ))}
+                  </div>
+                )}
               </TabsContent>
 
               <TabsContent value="all" className="mt-6">
-                <div className="space-y-4">
-                  {listings.length === 0 ? (
-                    <Card>
-                      <CardContent className="py-12 text-center">
-                        <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No assignments yet</h3>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    listings.map((listing) => renderListingCard(listing, listing.status === "pending_approval"))
-                  )}
-                </div>
+                {filteredListings.length === 0 ? (
+                  renderEmptyState(
+                    <Building2 className="h-12 w-12 text-muted-foreground" />,
+                    searchQuery ? "No matching assignments" : "No assignments yet"
+                  )
+                ) : (
+                  <div className="space-y-4">
+                    {filteredListings.map((listing) => (
+                      <AdminAssignmentCard
+                        key={listing.id}
+                        listing={listing}
+                        showApprovalActions={listing.status === "pending_approval"}
+                        onRefresh={fetchListings}
+                        onPreview={() => setPreviewListing(listing)}
+                        onApprove={() => handleAction(listing, "approve")}
+                        onReject={() => handleAction(listing, "reject")}
+                        onToggleFeatured={listing.status === "published" ? () => toggleFeatured(listing) : undefined}
+                        isUpdatingFeatured={updatingFeatured === listing.id}
+                      />
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             </>
           )}
