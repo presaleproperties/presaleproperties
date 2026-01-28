@@ -74,7 +74,7 @@ export default function RentalListingDetail() {
   const photos = listing.photos as { MediaURL: string; order?: number }[] || [];
   const mainPhoto = photos[0]?.MediaURL;
 
-  const formatRent = (amount: number) => `$${amount.toLocaleString()}`;
+  const formatRent = (amount: number | null) => amount ? `$${amount.toLocaleString()}` : "Contact";
   const frequency = listing.lease_frequency?.toLowerCase() || "month";
   const frequencyLabel = frequency === "monthly" || frequency === "month" ? "/month" : `/${frequency}`;
 
