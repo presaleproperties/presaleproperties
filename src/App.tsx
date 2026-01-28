@@ -49,6 +49,7 @@ import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
 import AdminLogin from "./pages/admin/AdminLogin";
 import AdminDeveloperProfiles from "./pages/admin/AdminDeveloperProfiles";
 import AdminMLSSync from "./pages/admin/AdminMLSSync";
+import AdminRentalSync from "./pages/admin/AdminRentalSync";
 import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
 import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
 import AdminMarketData from "./pages/admin/AdminMarketData";
@@ -75,6 +76,8 @@ import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import ROICalculator from "./pages/ROICalculator";
 import MapSearch from "./pages/MapSearch";
+import Rentals from "./pages/Rentals";
+import RentalListingDetail from "./pages/RentalListingDetail";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import CityResalePage from "./pages/CityResalePage";
@@ -137,6 +140,8 @@ const App = () => (
             {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
             <Route path="/presale/:slug" element={<PresaleRedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
+            <Route path="/rentals" element={<Rentals />} />
+            <Route path="/rentals/:listingKey" element={<RentalListingDetail />} />
             <Route path="/properties" element={<ResaleListings />} />
             {/* City-specific properties pages - MUST be before :listingKey route */}
             <Route path="/properties/vancouver" element={<CityResalePage />} />
@@ -273,6 +278,7 @@ const App = () => (
             <Route path="/admin/developers" element={<AdminProtectedRoute><AdminDevelopers /></AdminProtectedRoute>} />
             <Route path="/admin/developer-accounts" element={<AdminProtectedRoute><AdminDeveloperProfiles /></AdminProtectedRoute>} />
             <Route path="/admin/mls-sync" element={<AdminProtectedRoute><AdminMLSSync /></AdminProtectedRoute>} />
+            <Route path="/admin/rental-sync" element={<AdminProtectedRoute><AdminRentalSync /></AdminProtectedRoute>} />
             <Route path="/admin/email-templates" element={<AdminProtectedRoute><AdminEmailTemplates /></AdminProtectedRoute>} />
             <Route path="/admin/email-workflows" element={<AdminProtectedRoute><AdminEmailWorkflows /></AdminProtectedRoute>} />
             <Route path="/admin/market-data" element={<AdminProtectedRoute><AdminMarketData /></AdminProtectedRoute>} />
