@@ -169,17 +169,33 @@ export default function AdminRentalSync() {
     },
   });
 
-  // Scan for rentals mutation
+  // Scan for rentals mutation - more aggressive detection
   const scanRentalsMutation = useMutation({
     mutationFn: async () => {
-      const { data: potentialRentals, error } = await supabase
+      // First, mark ALL zero-price listings as rentals (this is the DDF convention)
+      const { data: zeroPriceListings, error: zeroError } = await supabase
         .from("mls_listings")
         .select("listing_key, public_remarks, listing_price, lease_amount")
+        .eq("listing_price", 0)
+        .eq("mls_status", "Active")
+        .or("is_rental.eq.false,is_rental.is.null");
+
+      if (zeroError) throw zeroError;
+
+      // Also fetch listings with rental keywords that aren't zero-price
+      const { data: keywordListings, error: keywordError } = await supabase
+        .from("mls_listings")
+        .select("listing_key, public_remarks, listing_price, lease_amount")
+        .eq("mls_status", "Active")
         .or("is_rental.eq.false,is_rental.is.null")
-        .or("listing_price.eq.0,public_remarks.ilike.%for rent%,public_remarks.ilike.%$/month%,public_remarks.ilike.%per month%,lease_amount.gt.0")
+        .gt("listing_price", 0)
+        .or("public_remarks.ilike.%for rent%,public_remarks.ilike.%for lease%,public_remarks.ilike.%$/month%,public_remarks.ilike.%per month%,public_remarks.ilike.%tenant%,public_remarks.ilike.%landlord%,lease_amount.gt.0")
         .limit(2000);
 
-      if (error) throw error;
+      if (keywordError) throw keywordError;
+
+      // Combine both sets
+      const allPotentialRentals = [...(zeroPriceListings || []), ...(keywordListings || [])];
 
       let updated = 0;
       const batchUpdates: { 
@@ -193,10 +209,14 @@ export default function AdminRentalSync() {
         utilities_included: string[] | null;
       }[] = [];
 
-      for (const listing of potentialRentals || []) {
+      for (const listing of allPotentialRentals) {
         const parsed = parseRentalRemarks(listing.public_remarks, listing.listing_price || 0);
         const finalLeaseAmount = listing.lease_amount || parsed.leaseAmount;
-        const isRental = parsed.isRental || (finalLeaseAmount && finalLeaseAmount > 400 && finalLeaseAmount < 25000);
+        
+        // Zero-price listings are ALWAYS rentals in DDF
+        // For non-zero, check if parser detected it as rental
+        const isZeroPrice = listing.listing_price === 0;
+        const isRental = isZeroPrice || parsed.isRental || (finalLeaseAmount && finalLeaseAmount > 400 && finalLeaseAmount < 25000);
         
         if (isRental) {
           batchUpdates.push({
@@ -213,11 +233,13 @@ export default function AdminRentalSync() {
         }
       }
 
-      const chunkSize = 50;
+      // Batch update in chunks of 100 for faster processing
+      const chunkSize = 100;
       for (let i = 0; i < batchUpdates.length; i += chunkSize) {
         const chunk = batchUpdates.slice(i, i + chunkSize);
-        for (const update of chunk) {
-          await supabase
+        // Use Promise.all for parallel updates within each chunk
+        await Promise.all(chunk.map(update => 
+          supabase
             .from("mls_listings")
             .update({
               is_rental: update.is_rental,
@@ -227,11 +249,11 @@ export default function AdminRentalSync() {
               furnished: update.furnished,
               utilities_included: update.utilities_included,
             })
-            .eq("listing_key", update.listing_key);
-        }
+            .eq("listing_key", update.listing_key)
+        ));
       }
 
-      return { updated, scanned: potentialRentals?.length || 0 };
+      return { updated, scanned: allPotentialRentals.length };
     },
     onSuccess: (data) => {
       toast({
