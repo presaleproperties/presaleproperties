@@ -56,39 +56,44 @@ export function BlurredAssignmentCard({
         className
       )}
     >
-      {/* Blurred Image Section */}
+      {/* Fully Blurred Image Section - Photo completely obscured for public */}
       <div className={cn(
         "relative bg-muted overflow-hidden",
         isCarousel ? "aspect-[4/3]" : "aspect-[3/2]"
       )}>
+        {/* Heavy blur layer - photo is unrecognizable */}
         {photo ? (
-          <img 
-            src={photo} 
-            alt="Assignment property" 
-            className="w-full h-full object-cover filter blur-[12px] scale-110 saturate-50"
-            loading="lazy"
-          />
+          <div className="w-full h-full relative">
+            <img 
+              src={photo} 
+              alt="" 
+              className="w-full h-full object-cover blur-[24px] scale-125 saturate-[0.3] opacity-40"
+              loading="lazy"
+            />
+            {/* Color overlay to further obscure */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[hsl(18,50%,92%)]/80 to-[hsl(18,40%,88%)]/80 dark:from-[hsl(18,30%,20%)]/90 dark:to-[hsl(18,25%,15%)]/90" />
+          </div>
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-[hsl(18,50%,90%)] to-[hsl(18,40%,85%)] dark:from-[hsl(18,30%,20%)] dark:to-[hsl(18,25%,15%)]" />
+          <div className="w-full h-full bg-gradient-to-br from-[hsl(18,50%,92%)] to-[hsl(18,40%,88%)] dark:from-[hsl(18,30%,20%)] dark:to-[hsl(18,25%,15%)]" />
         )}
         
         {/* Premium Glassmorphism Lock Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/80 dark:from-background/80 dark:via-background/60 dark:to-background/90 backdrop-blur-md flex flex-col items-center justify-center">
+        <div className="absolute inset-0 bg-gradient-to-b from-white/80 via-white/70 to-white/85 dark:from-background/85 dark:via-background/75 dark:to-background/90 backdrop-blur-sm flex flex-col items-center justify-center">
           {/* Glowing lock container */}
           <div className="relative">
             {/* Outer glow ring */}
-            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-[hsl(18,85%,50%)]/20 blur-xl animate-pulse" />
+            <div className="absolute inset-0 w-16 h-16 -m-2 rounded-full bg-[hsl(18,85%,50%)]/25 blur-xl animate-pulse" />
             
             {/* Lock icon container with glassmorphism */}
-            <div className="relative w-14 h-14 rounded-full bg-white/80 dark:bg-white/10 backdrop-blur-xl border border-[hsl(18,85%,50%)]/30 shadow-lg flex items-center justify-center">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(18,85%,55%)] to-[hsl(15,80%,45%)] flex items-center justify-center shadow-inner">
+            <div className="relative w-14 h-14 rounded-full bg-white/90 dark:bg-white/15 backdrop-blur-xl border-2 border-[hsl(18,85%,50%)]/40 shadow-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[hsl(18,85%,55%)] to-[hsl(15,80%,45%)] flex items-center justify-center shadow-lg">
                 <Lock className="h-5 w-5 text-white drop-shadow-sm" />
               </div>
             </div>
           </div>
           
           {/* Agent Exclusive label with glassmorphism pill */}
-          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/70 dark:bg-white/10 backdrop-blur-lg border border-[hsl(18,85%,50%)]/20 shadow-sm">
+          <div className="mt-3 px-4 py-1.5 rounded-full bg-white/80 dark:bg-white/15 backdrop-blur-lg border border-[hsl(18,85%,50%)]/30 shadow-sm">
             <div className="flex items-center gap-1.5">
               <Shield className="h-3 w-3 text-[hsl(18,85%,50%)]" />
               <span className="text-[11px] font-bold text-[hsl(18,85%,40%)] dark:text-[hsl(18,85%,60%)] uppercase tracking-wider">

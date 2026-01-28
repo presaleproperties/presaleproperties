@@ -390,7 +390,10 @@ export default function MapSearch() {
 
   // handleItemSelect is called when a PIN on the map is clicked
   // It should scroll the list to show the selected card
-  const handleItemSelect = useCallback((id: string, type: "resale" | "presale" | "assignment") => {
+  const handleItemSelect = useCallback((id: string, type: "resale" | "presale" | "assignment" | "rental") => {
+    // Skip rental types for now since rentals are disabled
+    if (type === "rental") return;
+    
     setSelectedItemId(id);
     setSelectedItemType(type);
     setFocusedCarouselItemId(id);
@@ -414,12 +417,13 @@ export default function MapSearch() {
     }, 100);
   }, []);
 
-  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => {
+  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[], assignmentIds?: string[], rentalIds?: string[]) => {
     // Skip update if user is interacting with the list (prevents card jumping)
     if (isListInteracting) return;
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
     if (assignmentIds) setVisibleAssignmentIds(assignmentIds);
+    // rentalIds ignored for now since rentals are disabled
   }, [isListInteracting]);
 
   // Hide carousel when user starts panning/zooming the map on mobile
