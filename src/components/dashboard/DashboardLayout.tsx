@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
-  Building2, 
   Users, 
   User, 
   LogOut,
@@ -39,12 +38,6 @@ const navItems = [
     icon: FolderOpen,
     description: "Floorplans & brochures",
     badge: "Premium"
-  },
-  { 
-    label: "Assignment Portal", 
-    href: "/dashboard/assignments", 
-    icon: Building2,
-    description: "Browse all assignments"
   },
   { 
     label: "My Listings", 

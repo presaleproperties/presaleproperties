@@ -142,17 +142,19 @@ export default function DashboardOverview() {
                   Manage your assignment listings and grow your business.
                 </p>
               </div>
-              <div className="flex gap-3">
+              <div className="flex flex-wrap gap-3">
                 <Link to="/dashboard/projects">
-                  <Button variant="outline" className="gap-2">
+                  <Button variant="outline" className="gap-2 border-primary/30 hover:border-primary hover:bg-primary/5">
                     <FolderOpen className="h-4 w-4" />
-                    Project Documents
+                    <span className="hidden sm:inline">Project Documents</span>
+                    <span className="sm:hidden">Documents</span>
                   </Button>
                 </Link>
-                <Link to="/dashboard/assignments">
-                  <Button variant="outline" className="gap-2">
-                    <Eye className="h-4 w-4" />
-                    Browse Assignments
+                <Link to="/map-search?mode=assignments">
+                  <Button variant="outline" className="gap-2 border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/5">
+                    <Building2 className="h-4 w-4 text-emerald-600" />
+                    <span className="hidden sm:inline">Browse Marketplace</span>
+                    <span className="sm:hidden">Marketplace</span>
                   </Button>
                 </Link>
                 <Link to="/dashboard/listings/new">
@@ -335,19 +337,19 @@ export default function DashboardOverview() {
                   </div>
                 </Link>
                 
-                <Link to="/dashboard/assignments" className="group">
-                  <div className="p-4 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all">
+                <Link to="/map-search?mode=assignments" className="group">
+                  <div className="p-4 rounded-xl border border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all bg-gradient-to-br from-emerald-500/5 to-transparent">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                        <Building2 className="h-5 w-5 text-primary" />
+                      <div className="p-2 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
+                        <Building2 className="h-5 w-5 text-emerald-600" />
                       </div>
-                      <span className="font-medium">Assignment Portal</span>
-                      <Badge className="text-[10px] px-1.5 py-0 h-4 bg-primary text-primary-foreground">
-                        New
+                      <span className="font-medium">Assignment Marketplace</span>
+                      <Badge className="text-[10px] px-1.5 py-0 h-4 bg-emerald-500 text-white">
+                        Live
                       </Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Browse all available assignments
+                      Browse assignments on the map
                     </p>
                   </div>
                 </Link>
