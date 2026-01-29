@@ -709,6 +709,21 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       
       {/* Custom Controls */}
       <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
+        <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
+          <button
+            onClick={() => mapInstanceRef.current?.zoomIn()}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
+          <div className="w-full h-px bg-border/50" />
+          <button
+            onClick={() => mapInstanceRef.current?.zoomOut()}
+            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+          >
+            <Minus className="h-4 w-4" />
+          </button>
+        </div>
         <button
           onClick={() => {
             if (navigator.geolocation) {
@@ -725,21 +740,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         >
           <Navigation2 className="h-4 w-4 text-muted-foreground" />
         </button>
-        <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
-          <button
-            onClick={() => mapInstanceRef.current?.zoomIn()}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-          <div className="w-full h-px bg-border/50" />
-          <button
-            onClick={() => mapInstanceRef.current?.zoomOut()}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
-          >
-            <Minus className="h-4 w-4" />
-          </button>
-        </div>
       </div>
     </div>
   );
