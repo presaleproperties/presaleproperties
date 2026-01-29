@@ -105,15 +105,15 @@ Deno.serve(async (req) => {
     const title = `For Sale: ${address}, ${listing.city}, BC`;
     const description = `Browse photos of this ${propertyType} in ${listing.neighborhood || listing.city} listed for ${formatPrice(listing.listing_price)}. This property features ${listing.bedrooms_total || 0} beds, ${listing.bathrooms_total || 0} baths${listing.living_area ? ` and is ${listing.living_area} Sqft` : ''}.${isNewConstruction ? ' Built ' + listing.year_built + '.' : ''}`;
 
-    // Build SEO-friendly address slug for canonical URL
+    // Build SEO-friendly address slug for canonical URL (REW-style: address-city-bc-listingKey)
     const slugify = (text: string) => text.toLowerCase()
       .replace(/['']/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .replace(/-+/g, '-');
     
-    const addressSlug = slugify(`${address} ${listing.city}`);
-    const canonicalUrl = `${SITE_URL}/properties/${addressSlug}/${listingKey}`;
+    const addressSlug = slugify(`${address} ${listing.city} bc`);
+    const canonicalUrl = `${SITE_URL}/properties/${addressSlug}-${listingKey}`;
 
     // Generate HTML with OG meta tags
     const html = `<!DOCTYPE html>
