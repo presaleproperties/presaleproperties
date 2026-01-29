@@ -346,9 +346,17 @@ export default function ResaleListingDetail() {
   };
   const canonicalUrl = `https://presaleproperties.com/properties/${buildAddressSlug()}`;
 
-  // Share URL - use canonical URL for proper social previews
-  // Social platforms cache previews, so we use a clean canonical URL
-  const getShareUrl = () => canonicalUrl;
+  // Share URL for social media previews
+  // Since Lovable is an SPA and social crawlers don't execute JavaScript,
+  // we use a backend proxy that returns server-rendered HTML with OG tags.
+  // Note: Supabase Edge Functions return text/plain but crawlers parse the HTML body.
+  // For production, consider using a prerendering service (prerender.io) or
+  // Cloudflare Workers to intercept bot requests at the domain level.
+  const getShareUrl = () => {
+    // Use the OG meta proxy endpoint for social sharing
+    // This returns a complete HTML page with OG tags that crawlers can parse
+    return `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?listingKey=${listing.listing_key}`;
+  };
   
   // Hero image URL for sharing
   const heroImageUrl = photos[0]?.url || 'https://presaleproperties.com/og-image.png';
