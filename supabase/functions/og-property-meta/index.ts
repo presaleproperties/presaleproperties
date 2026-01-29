@@ -2,10 +2,16 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 const SITE_URL = "https://presaleproperties.com";
+
+const ensureHttps = (url: string) => {
+  if (!url) return url;
+  return url.startsWith("http://") ? url.replace("http://", "https://") : url;
+};
 
 Deno.serve(async (req) => {
   // Handle CORS preflight
@@ -87,8 +93,13 @@ Deno.serve(async (req) => {
     let heroImage = `${SITE_URL}/og-image.png`;
     if (listing.photos && Array.isArray(listing.photos) && listing.photos.length > 0) {
       const firstPhoto = listing.photos[0];
-      heroImage = firstPhoto?.MediaURL || firstPhoto?.url || (typeof firstPhoto === 'string' ? firstPhoto : heroImage);
+      heroImage =
+        firstPhoto?.MediaURL ||
+        firstPhoto?.url ||
+        (typeof firstPhoto === "string" ? firstPhoto : heroImage);
     }
+
+    heroImage = ensureHttps(heroImage);
 
     // Build title and description
     const title = `For Sale: ${address}, ${listing.city}, BC`;
@@ -111,6 +122,7 @@ Deno.serve(async (req) => {
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${description}">
   <meta property="og:image" content="${heroImage}">
+  <meta property="og:image:secure_url" content="${heroImage}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="PresaleProperties.com">
@@ -124,14 +136,12 @@ Deno.serve(async (req) => {
   
   <link rel="canonical" href="${canonicalUrl}">
   
-  <!-- Redirect to actual page for browsers -->
-  <meta http-equiv="refresh" content="0;url=${canonicalUrl}">
-  <script>window.location.href = "${canonicalUrl}";</script>
+  <!-- Intentionally NO auto-redirect. Social apps may follow redirects and use the destination page's meta (SPA homepage). -->
 </head>
 <body>
   <h1>${title}</h1>
   <p>${description}</p>
-  <p>Redirecting to <a href="${canonicalUrl}">${canonicalUrl}</a>...</p>
+  <p><a href="${canonicalUrl}">View listing</a></p>
 </body>
 </html>`;
 
