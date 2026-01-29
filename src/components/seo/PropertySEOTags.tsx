@@ -23,11 +23,41 @@ interface PropertySEOTagsProps {
   className?: string;
 }
 
-// BC Home Warranty links
+// BC Home Warranty links - Official BC Housing sources
 const WARRANTY_LINKS = {
   bcHousing: "https://www.bchousing.org/licensing-consumer-services/new-home-warranty/warranty-coverage",
   rescission: "https://www.bchousing.org/licensing-consumer-services/new-home-warranty/buying-new-home/rescission-period",
   depositProtection: "https://www.bchousing.org/licensing-consumer-services/new-home-warranty/buying-new-home/deposit-protection",
+};
+
+// Supported cities for /properties/{city} routes (have dedicated city pages)
+const SUPPORTED_PROPERTY_CITY_PAGES = [
+  "vancouver", "surrey", "coquitlam", "burnaby", "delta", 
+  "langley", "abbotsford", "chilliwack", "richmond", 
+  "new-westminster", "port-coquitlam", "port-moody", "white-rock"
+];
+
+// Supported cities for presale pages (/{city}-presale-condos)
+const SUPPORTED_PRESALE_CITIES = [
+  "surrey", "langley", "coquitlam", "burnaby", "vancouver", 
+  "richmond", "delta", "abbotsford", "port-moody", "new-westminster"
+];
+
+
+// Neighborhoods with dedicated landing pages
+const NEIGHBORHOOD_LANDING_PAGES: Record<string, string> = {
+  "south-surrey": "/south-surrey-presale",
+  "willoughby": "/langley-willoughby-presale",
+  "surrey-central": "/surrey-city-centre-presale",
+  "burquitlam": "/coquitlam-burquitlam-presale",
+  "metrotown": "/burnaby-metrotown-presale",
+  "brentwood": "/burnaby-brentwood-presale",
+  "cloverdale": "/surrey-cloverdale-presale",
+  "mount-pleasant": "/vancouver-mount-pleasant-presale",
+  "brighouse": "/richmond-brighouse-presale",
+  "lonsdale": "/north-vancouver-lonsdale-presale",
+  "downtown": "/new-westminster-downtown-presale",
+  "town-centre": "/maple-ridge-town-centre-presale",
 };
 
 // Generate SEO-friendly tags based on property characteristics
@@ -38,81 +68,121 @@ function generatePropertyTags(props: PropertySEOTagsProps): { label: string; url
   const citySlug = slugify(city);
   const neighborhoodSlug = neighborhood ? slugify(neighborhood) : null;
   
-  // Bedroom-based tags
-  if (bedrooms && bedrooms >= 1 && bedrooms <= 5) {
-    tags.push({
-      label: `${bedrooms} bedroom homes ${city}`,
-      url: `/properties/${citySlug}/${bedrooms}-bedroom`,
-    });
-  }
+  // Check if city has supported routes
+  const hasCityPropertyPage = SUPPORTED_PROPERTY_CITY_PAGES.includes(citySlug);
+  const hasCityPresaleRoute = SUPPORTED_PRESALE_CITIES.includes(citySlug);
   
-  // Property type tags
+  // Property type tags - map to valid route slugs
+  // These routes are dynamic (/properties/:citySlug/:type) so work for any city
+  const typeToRouteSlug: Record<string, string> = {
+    condo: "condos",
+    apartment: "condos",
+    "Apartment/Condo": "condos",
+    townhome: "townhouses",
+    townhouse: "townhouses",
+    "Residential Attached": "townhouses",
+    "Row/Townhouse": "townhouses",
+    "Residential Detached": "houses",
+    house: "houses",
+    "Single Family": "houses",
+    duplex: "duplexes",
+  };
+  
   const typeLabels: Record<string, string> = {
     condo: "condos",
     townhome: "townhomes",
     townhouse: "townhomes",
     "Residential Attached": "townhomes",
-    "Residential Detached": "detached homes",
+    "Residential Detached": "homes",
     duplex: "duplexes",
     mixed: "homes",
   };
   
+  const routeSlug = typeToRouteSlug[propertyType];
   const typeLabel = typeLabels[propertyType] || "homes";
   
+  // Bedroom-based tags - link to map search for more reliable results
+  if (bedrooms && bedrooms >= 1 && bedrooms <= 4) {
+    tags.push({
+      label: `${bedrooms} bedroom homes ${city}`,
+      url: `/map-search?city=${encodeURIComponent(city)}&beds=${bedrooms}`,
+    });
+  }
+  
+  // Property type tag - use map search for reliable cross-city support
+  if (routeSlug) {
+    tags.push({
+      label: `${typeLabel} in ${city}`,
+      url: `/map-search?city=${encodeURIComponent(city)}&type=${routeSlug}`,
+    });
+  }
+  
+  // City presale listings - use presale project page format
+  if (hasCityPresaleRoute) {
+    const presaleTypeSlug = propertyType.toLowerCase().includes("townhome") || propertyType.toLowerCase().includes("townhouse") 
+      ? "townhomes" 
+      : "condos";
+    tags.push({
+      label: `${city} presale ${presaleTypeSlug}`,
+      url: `/${citySlug}-presale-${presaleTypeSlug}`,
+    });
+  }
+  
+  // Neighborhood-specific tags - only if we have a dedicated landing page
+  if (neighborhood && neighborhoodSlug) {
+    const neighborhoodUrl = NEIGHBORHOOD_LANDING_PAGES[neighborhoodSlug];
+    if (neighborhoodUrl) {
+      tags.push({
+        label: `${neighborhood} presales`,
+        url: neighborhoodUrl,
+      });
+    }
+  }
+  
+  // Developer tag - link to developers page with search
+  if (developerName) {
+    tags.push({
+      label: `${developerName} projects`,
+      url: `/presale-projects?developer=${encodeURIComponent(developerName)}`,
+    });
+  }
+  
+  // Project search tag - link to presale projects with search
+  if (projectName) {
+    tags.push({
+      label: `similar to ${projectName}`,
+      url: `/presale-projects?city=${encodeURIComponent(city)}`,
+    });
+  }
+  
+  // City real estate - link to properties page if supported, else map search
+  if (hasCityPropertyPage) {
+    tags.push({
+      label: `${city} real estate`,
+      url: `/properties/${citySlug}`,
+    });
+  } else {
+    tags.push({
+      label: `${city} real estate`,
+      url: `/map-search?city=${encodeURIComponent(city)}`,
+    });
+  }
+  
+  // Map search tag - always valid
   tags.push({
-    label: `${typeLabel} ${city}`,
-    url: `/properties/${citySlug}/${slugify(typeLabel)}`,
+    label: `${city} on map`,
+    url: `/map-search?city=${encodeURIComponent(city)}`,
   });
   
-  // New construction tag if applicable
+  // New construction tag - link to presale projects
   if (yearBuilt && yearBuilt >= 2024) {
     tags.push({
       label: `new construction ${city}`,
-      url: `/properties/${citySlug}?yearBuilt=2024`,
+      url: `/presale-projects?city=${encodeURIComponent(city)}`,
     });
   }
   
-  // Neighborhood-specific tags
-  if (neighborhood && neighborhoodSlug) {
-    tags.push({
-      label: `${neighborhood} ${typeLabel}`,
-      url: `/${citySlug}-${neighborhoodSlug}-presale`,
-    });
-    
-    tags.push({
-      label: `${neighborhood} homes`,
-      url: `/${citySlug}-${neighborhoodSlug}-presale`,
-    });
-  }
-  
-  // Developer tag if available
-  if (developerName) {
-    tags.push({
-      label: `${developerName} ${city}`,
-      url: `/developers/${slugify(developerName)}`,
-    });
-  }
-  
-  // Project name tag if available
-  if (projectName) {
-    tags.push({
-      label: `${projectName} ${city}`,
-      url: `/presale-projects?q=${encodeURIComponent(projectName)}`,
-    });
-  }
-  
-  // City-wide presale tag
-  tags.push({
-    label: `${city} presale listings`,
-    url: `/${citySlug}-presale-condos`,
-  });
-  
-  tags.push({
-    label: `${city} real estate`,
-    url: `/properties/${citySlug}`,
-  });
-  
-  // Feature-based tags
+  // Feature-based tags - link to map search with search term
   if (features && features.length > 0) {
     const featureKeywords = ["luxury", "boutique", "waterfront", "mountain view", "modern", "contemporary"];
     features.forEach(feature => {
@@ -121,17 +191,17 @@ function generatePropertyTags(props: PropertySEOTagsProps): { label: string; url
         if (lowerFeature.includes(keyword)) {
           tags.push({
             label: `${keyword} ${typeLabel} ${city}`,
-            url: `/properties/${citySlug}?q=${encodeURIComponent(keyword)}`,
+            url: `/map-search?city=${encodeURIComponent(city)}&q=${encodeURIComponent(keyword)}`,
           });
         }
       });
     });
   }
   
-  // Remove duplicates and limit to 12 tags
+  // Remove duplicates and limit to 10 tags
   const uniqueTags = tags.filter((tag, index, self) =>
     index === self.findIndex(t => t.label.toLowerCase() === tag.label.toLowerCase())
-  ).slice(0, 12);
+  ).slice(0, 10);
   
   return uniqueTags;
 }
@@ -161,6 +231,30 @@ export function PropertySEOTags({
 
   const citySlug = slugify(city);
   const neighborhoodSlug = neighborhood ? slugify(neighborhood) : null;
+  
+  // Determine valid URLs for location links
+  const hasCityPresaleRoute = SUPPORTED_PRESALE_CITIES.includes(citySlug);
+  const hasCityPropertyRoute = SUPPORTED_PROPERTY_CITY_PAGES.includes(citySlug);
+  
+  // Get neighborhood URL - use dedicated landing page if available, otherwise map search
+  const getNeighborhoodUrl = (): string => {
+    if (neighborhoodSlug && NEIGHBORHOOD_LANDING_PAGES[neighborhoodSlug]) {
+      return NEIGHBORHOOD_LANDING_PAGES[neighborhoodSlug];
+    }
+    // Fallback to map search with neighborhood filter
+    return `/map-search?city=${encodeURIComponent(city)}${neighborhood ? `&neighborhood=${encodeURIComponent(neighborhood)}` : ''}`;
+  };
+  
+  // Get city URL - use presale page if available, otherwise properties or map search
+  const getCityUrl = (): string => {
+    if (hasCityPresaleRoute) {
+      return `/${citySlug}-presale-condos`;
+    }
+    if (hasCityPropertyRoute) {
+      return `/properties/${citySlug}`;
+    }
+    return `/map-search?city=${encodeURIComponent(city)}`;
+  };
 
   return (
     <section className={className}>
@@ -177,7 +271,7 @@ export function PropertySEOTags({
             <div className="flex flex-wrap gap-x-2 gap-y-1">
               {neighborhood && (
                 <Link
-                  to={`/${citySlug}-${neighborhoodSlug}-presale`}
+                  to={getNeighborhoodUrl()}
                   className="text-primary hover:underline text-sm md:text-base font-medium"
                 >
                   {neighborhood}
@@ -185,7 +279,7 @@ export function PropertySEOTags({
               )}
               {neighborhood && <span className="text-muted-foreground">,</span>}
               <Link
-                to={`/${citySlug}-presale-condos`}
+                to={getCityUrl()}
                 className="text-primary hover:underline text-sm md:text-base font-medium"
               >
                 {city}
