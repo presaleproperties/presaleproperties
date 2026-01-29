@@ -162,13 +162,27 @@ export default function ResaleListings() {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
       const buildFilters = (query: any) => {
+        // Handle multi-select city filter (comma-separated values)
         if (filters.city === "any") {
           query = query.in("city", citiesToUse);
         } else {
-          query = query.eq("city", filters.city);
+          const cities = filters.city.split(",").filter(Boolean);
+          if (cities.length === 1) {
+            query = query.eq("city", cities[0]);
+          } else if (cities.length > 1) {
+            query = query.in("city", cities);
+          }
         }
+        // Handle multi-select propertyType filter
         if (filters.propertyType !== "any") {
-          query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+          const types = filters.propertyType.split(",").filter(Boolean);
+          if (types.length === 1) {
+            query = query.or(`property_type.ilike.%${types[0]}%,property_sub_type.ilike.%${types[0]}%`);
+          } else if (types.length > 1) {
+            // Build OR condition for multiple types
+            const orConditions = types.map(t => `property_type.ilike.%${t}%,property_sub_type.ilike.%${t}%`).join(",");
+            query = query.or(orConditions);
+          }
         }
         if (filters.priceRange !== "any") {
           const [min, max] = filters.priceRange.split("-").map(Number);
@@ -236,13 +250,26 @@ export default function ResaleListings() {
         .not("latitude", "is", null)
         .not("longitude", "is", null);
 
+      // Handle multi-select city filter
       if (filters.city === "any") {
         query = query.in("city", citiesToUse);
       } else {
-        query = query.eq("city", filters.city);
+        const cities = filters.city.split(",").filter(Boolean);
+        if (cities.length === 1) {
+          query = query.eq("city", cities[0]);
+        } else if (cities.length > 1) {
+          query = query.in("city", cities);
+        }
       }
+      // Handle multi-select propertyType filter
       if (filters.propertyType !== "any") {
-        query = query.or(`property_type.ilike.%${filters.propertyType}%,property_sub_type.ilike.%${filters.propertyType}%`);
+        const types = filters.propertyType.split(",").filter(Boolean);
+        if (types.length === 1) {
+          query = query.or(`property_type.ilike.%${types[0]}%,property_sub_type.ilike.%${types[0]}%`);
+        } else if (types.length > 1) {
+          const orConditions = types.map(t => `property_type.ilike.%${t}%,property_sub_type.ilike.%${t}%`).join(",");
+          query = query.or(orConditions);
+        }
       }
       if (filters.priceRange !== "any") {
         const [min, max] = filters.priceRange.split("-").map(Number);
@@ -331,8 +358,8 @@ export default function ResaleListings() {
 
   // Filter config for UnifiedSearchFilters - matching presale structure
   const filterConfig = [
-    { key: "city", label: "City", paramKey: "city", options: CITY_OPTIONS },
-    { key: "propertyType", label: "Type", paramKey: "type", options: TYPE_OPTIONS },
+    { key: "city", label: "City", paramKey: "city", options: CITY_OPTIONS, multiSelect: true },
+    { key: "propertyType", label: "Type", paramKey: "type", options: TYPE_OPTIONS, multiSelect: true },
     { key: "priceRange", label: "Price", paramKey: "price", options: PRICE_OPTIONS },
     { key: "beds", label: "Beds", paramKey: "beds", options: BEDS_OPTIONS },
     { key: "baths", label: "Baths", paramKey: "baths", options: BATHS_OPTIONS },
