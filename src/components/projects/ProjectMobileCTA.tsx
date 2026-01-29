@@ -22,8 +22,6 @@ const formSchema = z.object({
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   persona: z.enum(["first_time", "investor"]),
   workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
-  timeline: z.enum(["0_3", "3_plus"]),
-  propertyType: z.enum(["condo", "townhome"]),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -47,15 +45,7 @@ const AGENT_OPTIONS = [
   { value: "i_am_realtor", label: "I am a Realtor" },
 ];
 
-const TIMELINES = [
-  { value: "0_3", label: "0–3 months" },
-  { value: "3_plus", label: "3+ months" },
-];
-
-const PROPERTY_TYPES = [
-  { value: "condo", label: "Condo" },
-  { value: "townhome", label: "Townhome" },
-];
+// Removed TIMELINES and PROPERTY_TYPES - no longer needed
 
 export function ProjectMobileCTA({ 
   projectName,
@@ -79,8 +69,6 @@ export function ProjectMobileCTA({
       phone: "",
       persona: "first_time",
       workingWithAgent: "no",
-      timeline: "0_3",
-      propertyType: "condo",
     },
   });
 
@@ -134,8 +122,6 @@ export function ProjectMobileCTA({
         `Last Name: ${data.lastName}`,
         `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
         `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
-        `Timeline: ${TIMELINES.find(t => t.value === data.timeline)?.label}`,
-        `Property Type: ${PROPERTY_TYPES.find(pt => pt.value === data.propertyType)?.label}`,
         `Source: mobile_footer`,
       ].filter(Boolean).join(" | ");
 
@@ -162,7 +148,6 @@ export function ProjectMobileCTA({
           phone: data.phone,
           message: messageData,
           persona: actualPersona,
-          timeline: data.timeline,
           drip_sequence: dripSequence,
           last_drip_sent: 0,
           next_drip_at: nextDripAt,
@@ -233,7 +218,6 @@ export function ProjectMobileCTA({
             page_path: window.location.pathname,
             project_name: projectName || "general",
             persona: actualPersona,
-            timeline: data.timeline,
             working_with_agent: data.workingWithAgent,
           });
         }
@@ -280,7 +264,7 @@ export function ProjectMobileCTA({
       {/* Spacer to prevent content from being hidden behind fixed bar */}
       <div className="h-24 lg:hidden" aria-hidden="true" />
       
-      {/* Fixed CTA bar - Portal-like rendering at viewport bottom */}
+      {/* Fixed CTA bar - Portal-like rendering at viewport bottom with highest z-index */}
       <div 
         className="lg:hidden"
         style={{
@@ -288,53 +272,56 @@ export function ProjectMobileCTA({
           bottom: 0,
           left: 0,
           right: 0,
-          zIndex: 9999,
+          zIndex: 99999,
           isolation: 'isolate',
           transform: 'translateZ(0)',
           willChange: 'transform',
+          pointerEvents: 'auto',
         }}
       >
         <div 
-          className={`bg-background border-t border-border shadow-[0_-8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out ${
-            isExpanded ? 'rounded-t-3xl shadow-[0_-12px_40px_rgba(0,0,0,0.25)]' : ''
+          className={`bg-background border-t border-border transition-all duration-300 ease-out ${
+            isExpanded 
+              ? 'rounded-t-3xl shadow-[0_-16px_50px_rgba(0,0,0,0.3)]' 
+              : 'shadow-[0_-8px_30px_rgba(0,0,0,0.2)]'
           }`}
         >
           {/* Expanded Form View */}
           {isExpanded && (
             <div 
-              className="overflow-y-auto overscroll-contain bg-background"
-              style={{ maxHeight: 'calc(90vh - 80px)' }}
+              className="overflow-y-auto overscroll-contain bg-background rounded-t-3xl"
+              style={{ maxHeight: 'calc(85vh - 70px)' }}
             >
               {/* Premium Header with close button */}
-              <div className="sticky top-0 bg-background z-10 px-4 pt-4 pb-3 border-b border-border">
+              <div className="sticky top-0 bg-background z-10 px-5 pt-5 pb-4 border-b border-border/50 rounded-t-3xl">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
-                      <MessageCircle className="h-4 w-4 text-primary" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
+                      <Download className="h-5 w-5 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-sm">Get Pricing & Floor Plans</h3>
-                      <p className="text-xs text-muted-foreground">for {projectName}</p>
+                      <h3 className="font-bold text-base">Get Pricing & Floor Plans</h3>
+                      <p className="text-xs text-muted-foreground">{projectName}</p>
                     </div>
                   </div>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8 rounded-full"
+                    className="h-9 w-9 rounded-full hover:bg-muted"
                     onClick={handleClose}
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
 
               {!isSuccess ? (
-                <div className="p-4 pb-6">
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+                <div className="p-5 pb-8">
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     {/* Contact Info */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="firstName" className="text-xs">
+                        <Label htmlFor="firstName" className="text-xs font-medium text-muted-foreground">
                           First Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -343,11 +330,11 @@ export function ProjectMobileCTA({
                           autoComplete="given-name"
                           autoCapitalize="words"
                           {...form.register("firstName")}
-                          className="h-11 mt-1 text-[16px]"
+                          className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-xs">
+                        <Label htmlFor="lastName" className="text-xs font-medium text-muted-foreground">
                           Last Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -356,13 +343,13 @@ export function ProjectMobileCTA({
                           autoComplete="family-name"
                           autoCapitalize="words"
                           {...form.register("lastName")}
-                          className="h-11 mt-1 text-[16px]"
+                          className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="email" className="text-xs">
+                      <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
                         Email <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -373,12 +360,12 @@ export function ProjectMobileCTA({
                         autoComplete="email"
                         autoCapitalize="none"
                         {...form.register("email")}
-                        className="h-11 mt-1 text-[16px]"
+                        className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="phone" className="text-xs">
+                      <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">
                         Phone <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -388,24 +375,24 @@ export function ProjectMobileCTA({
                         placeholder="604-555-0123"
                         autoComplete="tel"
                         {...form.register("phone")}
-                        className="h-11 mt-1 text-[16px]"
+                        className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
                       />
                     </div>
 
                     {/* I am a... */}
                     <div>
-                      <Label className="text-xs font-medium">I am a...</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">I am a...</Label>
                       <RadioGroup
                         value={form.watch("persona")}
                         onValueChange={(v) => form.setValue("persona", v as any)}
-                        className="grid grid-cols-2 gap-2 mt-1.5"
+                        className="grid grid-cols-2 gap-2 mt-2"
                       >
                         {PERSONAS.map((p) => (
                           <Label
                             key={p.value}
-                            className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-sm transition-all ${
+                            className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                               form.watch("persona") === p.value
-                                ? "border-primary bg-primary/10 text-primary font-medium"
+                                ? "border-foreground bg-foreground text-background"
                                 : "border-border hover:border-muted-foreground/50"
                             }`}
                           >
@@ -418,18 +405,18 @@ export function ProjectMobileCTA({
 
                     {/* Working with agent */}
                     <div>
-                      <Label className="text-xs font-medium">Working with a Realtor?</Label>
+                      <Label className="text-xs font-medium text-muted-foreground">Working with a Realtor?</Label>
                       <RadioGroup
                         value={form.watch("workingWithAgent")}
                         onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-                        className="grid grid-cols-3 gap-2 mt-1.5"
+                        className="grid grid-cols-3 gap-2 mt-2"
                       >
                         {AGENT_OPTIONS.map((a) => (
                           <Label
                             key={a.value}
-                            className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs transition-all ${
+                            className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-xs font-medium transition-all ${
                               form.watch("workingWithAgent") === a.value
-                                ? "border-primary bg-primary/10 text-primary font-medium"
+                                ? "border-foreground bg-foreground text-background"
                                 : "border-border hover:border-muted-foreground/50"
                             }`}
                           >
@@ -440,58 +427,9 @@ export function ProjectMobileCTA({
                       </RadioGroup>
                     </div>
 
-                    {/* Timeline & Property Type */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label className="text-xs font-medium">Timeline</Label>
-                        <RadioGroup
-                          value={form.watch("timeline")}
-                          onValueChange={(v) => form.setValue("timeline", v as any)}
-                          className="grid grid-cols-1 gap-2 mt-1.5"
-                        >
-                          {TIMELINES.map((t) => (
-                            <Label
-                              key={t.value}
-                              className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs transition-all ${
-                                form.watch("timeline") === t.value
-                                  ? "border-primary bg-primary/10 text-primary font-medium"
-                                  : "border-border hover:border-muted-foreground/50"
-                              }`}
-                            >
-                              <RadioGroupItem value={t.value} className="sr-only" />
-                              {t.label}
-                            </Label>
-                          ))}
-                        </RadioGroup>
-                      </div>
-
-                      <div>
-                        <Label className="text-xs font-medium">Looking for</Label>
-                        <RadioGroup
-                          value={form.watch("propertyType")}
-                          onValueChange={(v) => form.setValue("propertyType", v as any)}
-                          className="grid grid-cols-1 gap-2 mt-1.5"
-                        >
-                          {PROPERTY_TYPES.map((pt) => (
-                            <Label
-                              key={pt.value}
-                              className={`flex items-center justify-center h-10 rounded-lg border-2 cursor-pointer text-xs transition-all ${
-                                form.watch("propertyType") === pt.value
-                                  ? "border-primary bg-primary/10 text-primary font-medium"
-                                  : "border-border hover:border-muted-foreground/50"
-                              }`}
-                            >
-                              <RadioGroupItem value={pt.value} className="sr-only" />
-                              {pt.label}
-                            </Label>
-                          ))}
-                        </RadioGroup>
-                      </div>
-                    </div>
-
                     <Button 
                       type="submit" 
-                      className="w-full h-12 font-semibold text-base mt-2" 
+                      className="w-full h-14 font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all mt-3" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -507,30 +445,35 @@ export function ProjectMobileCTA({
                       )}
                     </Button>
 
-                    <p className="text-[10px] text-center text-muted-foreground leading-relaxed">
-                      By submitting, you agree to receive communications from PresaleProperties.{" "}
-                      <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
-                    </p>
+                    {/* Trust indicators */}
+                    <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
+                      <span className="flex items-center gap-1">
+                        <span className="text-green-600">✓</span> No spam
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <span className="text-green-600">✓</span> Same-day response
+                      </span>
+                    </div>
                   </form>
                 </div>
               ) : (
                 <div className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-green-500/10 rounded-full mb-3">
-                    <CheckCircle className="h-7 w-7 text-green-500" />
+                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/10 rounded-2xl mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
                   </div>
-                  <h3 className="text-lg font-bold mb-2">Thank You!</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    We've received your request and will be in touch shortly.
+                  <h3 className="text-xl font-bold mb-2">Request Sent!</h3>
+                  <p className="text-sm text-muted-foreground mb-5">
+                    Check your email for floor plans and pricing details.
                   </p>
                   {successWhatsappLink && (
-                    <Button asChild className="w-full h-11 bg-green-600 hover:bg-green-700 mb-2">
+                    <Button asChild className="w-full h-12 bg-green-600 hover:bg-green-700 rounded-xl mb-3">
                       <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Chat on WhatsApp
                       </a>
                     </Button>
                   )}
-                  <Button variant="outline" className="w-full h-11" onClick={handleClose}>
+                  <Button variant="outline" className="w-full h-12 rounded-xl" onClick={handleClose}>
                     Close
                   </Button>
                 </div>
