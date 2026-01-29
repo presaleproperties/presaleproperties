@@ -194,11 +194,23 @@ export default function PresaleProjects() {
         .eq("is_published", true);
 
       // Apply filters to count query
+      // Handle multi-select city filter (comma-separated values)
       if (filters.city !== "any") {
-        countQuery = countQuery.eq("city", filters.city);
+        const cities = filters.city.split(",").filter(Boolean);
+        if (cities.length === 1) {
+          countQuery = countQuery.eq("city", cities[0]);
+        } else if (cities.length > 1) {
+          countQuery = countQuery.in("city", cities);
+        }
       }
+      // Handle multi-select projectType filter
       if (filters.projectType !== "any") {
-        countQuery = countQuery.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
+        const types = filters.projectType.split(",").filter(Boolean);
+        if (types.length === 1) {
+          countQuery = countQuery.eq("project_type", types[0] as "condo" | "townhome" | "mixed");
+        } else if (types.length > 1) {
+          countQuery = countQuery.in("project_type", types as ("condo" | "townhome" | "mixed")[]);
+        }
       }
       if (filters.priceRange !== "any") {
         const [min, max] = filters.priceRange.split("-").map(Number);
@@ -226,11 +238,23 @@ export default function PresaleProjects() {
         .eq("is_published", true);
 
       // Apply filters
+      // Handle multi-select city filter (comma-separated values)
       if (filters.city !== "any") {
-        query = query.eq("city", filters.city);
+        const cities = filters.city.split(",").filter(Boolean);
+        if (cities.length === 1) {
+          query = query.eq("city", cities[0]);
+        } else if (cities.length > 1) {
+          query = query.in("city", cities);
+        }
       }
+      // Handle multi-select projectType filter
       if (filters.projectType !== "any") {
-        query = query.eq("project_type", filters.projectType as "condo" | "townhome" | "mixed");
+        const types = filters.projectType.split(",").filter(Boolean);
+        if (types.length === 1) {
+          query = query.eq("project_type", types[0] as "condo" | "townhome" | "mixed");
+        } else if (types.length > 1) {
+          query = query.in("project_type", types as ("condo" | "townhome" | "mixed")[]);
+        }
       }
       if (filters.priceRange !== "any") {
         const [min, max] = filters.priceRange.split("-").map(Number);
@@ -336,8 +360,8 @@ export default function PresaleProjects() {
 
   // Filter config for UnifiedSearchFilters
   const filterConfig = [
-    { key: "city", label: "City", paramKey: "city", options: CITY_OPTIONS },
-    { key: "projectType", label: "Type", paramKey: "type", options: TYPE_OPTIONS },
+    { key: "city", label: "City", paramKey: "city", options: CITY_OPTIONS, multiSelect: true },
+    { key: "projectType", label: "Type", paramKey: "type", options: TYPE_OPTIONS, multiSelect: true },
     { key: "priceRange", label: "Price", paramKey: "price", options: PRICE_RANGE_OPTIONS },
     { key: "depositPercent", label: "Deposit", paramKey: "deposit", options: DEPOSIT_OPTIONS },
     { key: "completionYear", label: "Completion", paramKey: "year", options: COMPLETION_OPTIONS },
