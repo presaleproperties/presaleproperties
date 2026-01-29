@@ -385,12 +385,25 @@
                 linear-gradient(135deg, hsl(var(--primary) / 0.3), hsl(var(--border))) border-box;
   }
 
-  /* Interactive card hover effect */
+  /* Interactive card hover effect - premium */
   .hover-lift {
     @apply transition-all duration-300 ease-out;
   }
   .hover-lift:hover {
-    @apply -translate-y-1 shadow-elevated;
+    @apply -translate-y-1;
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  /* Premium card styling */
+  .card-premium {
+    @apply bg-card rounded-xl border border-border/50 overflow-hidden;
+    box-shadow: var(--shadow-card);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .card-premium:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
+    border-color: hsl(var(--border) / 0.8);
   }
 
   /* Premium form focus styling */
@@ -415,6 +428,28 @@
   }
   .shine:hover::after {
     left: 100%;
+  }
+
+  /* Premium button glow effect */
+  .btn-glow {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-glow::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent, hsl(var(--primary) / 0.1), transparent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .btn-glow:hover::before {
+    opacity: 1;
+  }
+
+  /* Premium focus ring */
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background;
   }
 
   /* Animations for mobile UX */

@@ -353,8 +353,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     [assignments]
   );
 
-  // Debounced update for visible items to reduce lag
+  // Optimized debounced update for visible items - prevents UI lag
   const updateVisibleItemsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastBoundsRef = useRef<string>("");
   
   const updateVisibleItems = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleItemsChange) return;
@@ -369,20 +370,37 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       
       const bounds = mapInstanceRef.current.getBounds();
       
-      const visibleResale = validResaleListings
-        .filter(l => bounds.contains([l.latitude!, l.longitude!]))
-        .map(l => l.id);
+      // Skip if bounds haven't changed significantly (performance optimization)
+      const boundsKey = `${bounds.getNorth().toFixed(3)},${bounds.getSouth().toFixed(3)},${bounds.getEast().toFixed(3)},${bounds.getWest().toFixed(3)}`;
+      if (boundsKey === lastBoundsRef.current) return;
+      lastBoundsRef.current = boundsKey;
       
-      const visiblePresale = validPresaleProjects
-        .filter(p => bounds.contains([p.map_lat!, p.map_lng!]))
-        .map(p => p.id);
+      // Use requestIdleCallback for non-critical UI updates
+      const computeVisible = () => {
+        if (!mapInstanceRef.current) return;
+        
+        const visibleResale = validResaleListings
+          .filter(l => bounds.contains([l.latitude!, l.longitude!]))
+          .map(l => l.id);
+        
+        const visiblePresale = validPresaleProjects
+          .filter(p => bounds.contains([p.map_lat!, p.map_lng!]))
+          .map(p => p.id);
+        
+        const visibleAssignmentsIds = validAssignments
+          .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
+          .map(a => a.id);
+        
+        onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignmentsIds);
+      };
       
-      const visibleAssignments = validAssignments
-        .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
-        .map(a => a.id);
-      
-      onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignments);
-    }, 150); // 150ms debounce
+      // Use requestIdleCallback if available, otherwise use setTimeout
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(computeVisible, { timeout: 100 });
+      } else {
+        computeVisible();
+      }
+    }, 200); // 200ms debounce for smoother experience
   }, [validResaleListings, validPresaleProjects, validAssignments, onVisibleItemsChange]);
 
   const initializeMap = useCallback(() => {
@@ -393,40 +411,48 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       : DEFAULT_CENTER;
     const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
 
+    // Performance-optimized map initialization
     const map = L.map(mapRef.current, {
       center: initialCenter,
       zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
-      preferCanvas: true,
-      fadeAnimation: false,
-      zoomAnimation: true,
-      markerZoomAnimation: false,
+      preferCanvas: true, // Use canvas renderer for better performance
+      fadeAnimation: false, // Disable fade animations
+      zoomAnimation: false, // Disable zoom animations for speed
+      markerZoomAnimation: false, // Disable marker animations
+      inertia: true, // Keep inertia for smooth panning
+      inertiaDeceleration: 3000, // Faster deceleration
+      worldCopyJump: false,
+      maxBoundsViscosity: 0.8,
     });
 
+    // Optimized tile layer with aggressive caching
     L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
       updateWhenIdle: true,
       updateWhenZooming: false,
-      keepBuffer: 2,
+      keepBuffer: 4, // Increased buffer for smoother panning
+      crossOrigin: true, // Enable CORS for caching
     }).addTo(map);
 
+    // Highly optimized cluster settings for performance
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 10,
-      chunkInterval: 50,
-      chunkProgress: null,
-      maxClusterRadius: 40,
+      chunkDelay: 5, // Faster chunk processing
+      chunkInterval: 25, // Faster intervals
+      maxClusterRadius: 60, // Larger radius = fewer clusters = faster
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 15,
-      animate: false,
+      disableClusteringAtZoom: 16, // Disable clustering earlier
+      animate: false, // Critical: disable all animations
       animateAddingMarkers: false,
-      removeOutsideVisibleBounds: true,
+      removeOutsideVisibleBounds: true, // Critical: only render visible markers
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.5,
+      spiderfyDistanceMultiplier: 1.2,
+      zoomToBoundsOnClick: false, // Disable auto-zoom for speed
     });
 
     const presaleLayer = L.layerGroup();
@@ -446,6 +472,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       hasRestoredSavedStateRef.current = true;
     }
 
+    // Throttled event handlers
     map.on("moveend", updateVisibleItems);
     map.on("zoomend", updateVisibleItems);
     
