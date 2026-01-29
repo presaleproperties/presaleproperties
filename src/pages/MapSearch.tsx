@@ -1327,33 +1327,30 @@ export default function MapSearch() {
               </div>
             )}
 
-            {/* Bottom Carousel - Mobile/Tablet - Floating above map, Premium Apple Maps style */}
-            {/* Use safe bottom inset with minimum padding to prevent cutoff on tablets */}
+            {/* Bottom Carousel - Mobile/Tablet - Compact floating cards */}
             {showCarousel && visibleItems.length > 0 && (
               <div 
                 className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pointer-events-none"
               >
-                {/* Carousel Header */}
-                <div className="flex items-center justify-between pb-2 pt-1 pointer-events-auto" style={{ paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)' }}>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-4 py-2 rounded-xl shadow-xl border border-black/5 dark:border-white/10">
-                      {propertiesInViewCount} Properties
-                    </span>
-                  </div>
+                {/* Compact Carousel Header */}
+                <div className="flex items-center justify-between pb-1.5 pointer-events-auto" style={{ paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}>
+                  <span className="text-xs font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-3 py-1.5 rounded-lg shadow-lg border border-black/5 dark:border-white/10">
+                    {propertiesInViewCount} Properties
+                  </span>
                   <button
                     onClick={() => setShowCarousel(false)}
-                    className="w-10 h-10 rounded-xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors"
+                    className="w-8 h-8 rounded-lg bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors"
                     aria-label="Hide properties"
                   >
-                    <ChevronDown className="h-5 w-5 text-muted-foreground" />
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
                 </div>
                 
-                {/* Carousel Cards */}
+                {/* Compact Carousel Cards */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-3 overflow-x-auto snap-x snap-mandatory pointer-events-auto"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 16px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 16px)' }}
+                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory pointer-events-auto"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
                 >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
@@ -1390,11 +1387,11 @@ export default function MapSearch() {
                           handleCarouselCardTap(id, item.type, link);
                         }}
                         className={cn(
-                          "snap-start shrink-0 w-[240px] sm:w-[280px]",
+                          "snap-start shrink-0 w-[180px] sm:w-[200px]",
                           isAssignment && !isVerifiedAgent ? "cursor-default" : "cursor-pointer"
                         )}
                       >
-                        <div className={`bg-background/95 backdrop-blur-xl rounded-2xl shadow-lg border overflow-hidden transition-all duration-200 ${
+                        <div className={`bg-background/95 backdrop-blur-xl rounded-xl shadow-lg border overflow-hidden transition-all duration-200 ${
                           isFocused 
                             ? 'border-primary ring-2 ring-primary/30 scale-[1.02]' 
                             : selectedItemId === id 
@@ -1403,18 +1400,19 @@ export default function MapSearch() {
                               ? 'border-emerald-500/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
-                          <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
+                          {/* Compact image - shorter aspect ratio */}
+                          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
                             {isPresale ? (
                               (data as PresaleProject).featured_image ? (
                                 <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" loading="eager" />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                                  <Building2 className="h-8 w-8 text-muted-foreground" />
+                                  <Building2 className="h-6 w-6 text-muted-foreground" />
                                 </div>
                               )
                             ) : isAssignment ? (
                               <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20", !isVerifiedAgent && "blur-lg")}>
-                                <Building2 className="h-8 w-8 text-emerald-500" />
+                                <Building2 className="h-6 w-6 text-emerald-500" />
                               </div>
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
@@ -1426,44 +1424,45 @@ export default function MapSearch() {
                                 />
                               ) : (
                                 <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-                                  <Home className="h-8 w-8 text-muted-foreground" />
+                                  <Home className="h-6 w-6 text-muted-foreground" />
                                 </div>
                               )
                             )}
-                            <Badge className={`absolute top-2 left-2 text-[10px] font-semibold px-2 py-0.5 rounded-lg ${
+                            <Badge className={`absolute top-1.5 left-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-md ${
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
                                 : isAssignment
                                 ? 'bg-emerald-600/90 text-white'
                                 : 'bg-primary/90 text-primary-foreground'
                             }`}>
-                              {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'MOVE-IN'}
+                              {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'RESALE'}
                             </Badge>
                             {/* Lock overlay for non-verified agents viewing assignments */}
                             {isAssignment && !isVerifiedAgent && (
                               <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
                                 <div className="text-center">
-                                  <Lock className="h-6 w-6 text-white mx-auto mb-1" />
-                                  <p className="text-[10px] text-white font-medium">Agent Only</p>
+                                  <Lock className="h-5 w-5 text-white mx-auto mb-0.5" />
+                                  <p className="text-[9px] text-white font-medium">Agent Only</p>
                                 </div>
                               </div>
                             )}
                             {/* Tap indicator for focused card */}
                             {isFocused && !isAssignment && (
-                              <div className="absolute bottom-2 right-2 bg-foreground/90 text-background text-[9px] font-semibold px-2 py-1 rounded-md">
+                              <div className="absolute bottom-1.5 right-1.5 bg-foreground/90 text-background text-[8px] font-semibold px-1.5 py-0.5 rounded">
                                 TAP TO VIEW
                               </div>
                             )}
                           </div>
-                          <div className={cn("p-3 space-y-1 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                          {/* Compact content area */}
+                          <div className={cn("p-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
                             {/* Blur overlay for assignment content when not verified */}
                             {isAssignment && !isVerifiedAgent && (
                               <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
-                                <p className="text-xs text-muted-foreground text-center px-2">Agent access required</p>
+                                <p className="text-[10px] text-muted-foreground text-center px-1">Agent access</p>
                               </div>
                             )}
-                            {/* Price */}
-                            <div className={cn("font-bold text-lg", isAssignment ? "text-emerald-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            {/* Price - smaller */}
+                            <div className={cn("font-bold text-sm", isAssignment ? "text-emerald-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? formatPrice((data as PresaleProject).starting_price)
                                 : isAssignment
@@ -1472,8 +1471,8 @@ export default function MapSearch() {
                               }
                             </div>
                             
-                            {/* Name/Address */}
-                            <h4 className={cn("font-medium text-foreground text-sm line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            {/* Name/Address - smaller */}
+                            <h4 className={cn("font-medium text-foreground text-xs line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? (data as PresaleProject).name 
                                 : isAssignment
@@ -1481,59 +1480,33 @@ export default function MapSearch() {
                                 : getResaleAddress(data as MLSListing)}
                             </h4>
                             
-                            {/* Location */}
-                            <div className={cn("flex items-center gap-1 text-muted-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
-                              <MapPin className="h-3 w-3 shrink-0" />
-                              <span className="text-xs truncate">
+                            {/* Compact specs row - combined location & specs */}
+                            <div className={cn("flex items-center gap-2 text-[10px] text-muted-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                              <span className="truncate max-w-[60px]">
                                 {isPresale 
-                                  ? `${(data as PresaleProject).neighborhood}, ${(data as PresaleProject).city}`
+                                  ? (data as PresaleProject).city
                                   : isAssignment
-                                  ? `${(data as Assignment).neighborhood || (data as Assignment).city}`
-                                  : `${(data as MLSListing).neighborhood || (data as MLSListing).city}`
+                                  ? (data as Assignment).city
+                                  : (data as MLSListing).city
                                 }
                               </span>
+                              {!isPresale && (
+                                <>
+                                  <span className="text-border">•</span>
+                                  <span className="flex items-center gap-0.5">
+                                    <Bed className="h-2.5 w-2.5" /> 
+                                    {isAssignment ? (data as Assignment).beds : (data as MLSListing).bedrooms_total}
+                                  </span>
+                                  <span className="flex items-center gap-0.5">
+                                    <Bath className="h-2.5 w-2.5" /> 
+                                    {isAssignment ? (data as Assignment).baths : (data as MLSListing).bathrooms_total}
+                                  </span>
+                                </>
+                              )}
+                              {isPresale && (
+                                <span className="capitalize">{(data as PresaleProject).status?.replace(/_/g, ' ')}</span>
+                              )}
                             </div>
-                            
-                            {/* Specs for resale */}
-                            {!isPresale && !isAssignment && (
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground pt-0.5">
-                                {(data as MLSListing).bedrooms_total && (
-                                  <span className="flex items-center gap-1">
-                                    <Bed className="h-3 w-3" /> {(data as MLSListing).bedrooms_total}
-                                  </span>
-                                )}
-                                {(data as MLSListing).bathrooms_total && (
-                                  <span className="flex items-center gap-1">
-                                    <Bath className="h-3 w-3" /> {(data as MLSListing).bathrooms_total}
-                                  </span>
-                                )}
-                                {(data as MLSListing).living_area && (
-                                  <span>{(data as MLSListing).living_area?.toLocaleString()} sf</span>
-                                )}
-                              </div>
-                            )}
-                            
-                            {/* Specs for assignment */}
-                            {isAssignment && (
-                              <div className={cn("flex items-center gap-3 text-xs text-muted-foreground pt-0.5", !isVerifiedAgent && "blur-sm")}>
-                                <span className="flex items-center gap-1">
-                                  <Bed className="h-3 w-3" /> {(data as Assignment).beds}
-                                </span>
-                                <span className="flex items-center gap-1">
-                                  <Bath className="h-3 w-3" /> {(data as Assignment).baths}
-                                </span>
-                                {(data as Assignment).interior_sqft && (
-                                  <span>{(data as Assignment).interior_sqft?.toLocaleString()} sf</span>
-                                )}
-                              </div>
-                            )}
-                            
-                            {/* Status for presale */}
-                            {isPresale && (
-                              <div className="text-xs text-muted-foreground pt-0.5 capitalize">
-                                {(data as PresaleProject).status?.replace(/_/g, ' ')}
-                              </div>
-                            )}
                           </div>
                         </div>
                       </div>
