@@ -70,7 +70,16 @@ export function StickyConversionBar({ projectId, projectName }: StickyConversion
   return (
     <>
       {/* Desktop Floating Bar Only - Premium glass morphism */}
-      <div className="hidden lg:block fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
+      <div 
+        className="hidden lg:block"
+        style={{
+          position: 'fixed',
+          bottom: '24px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 50,
+        }}
+      >
         <div className="bg-background/95 backdrop-blur-lg border border-border/80 rounded-full shadow-premium px-2 py-2 flex items-center gap-2">
           <Button 
             onClick={openChatNow}
