@@ -163,13 +163,17 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
+    // Return response with explicit HTML content type
+    // Note: Headers must be set as a new Headers object to ensure proper content type
+    const responseHeaders = new Headers();
+    responseHeaders.set("Access-Control-Allow-Origin", "*");
+    responseHeaders.set("Access-Control-Allow-Headers", "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version");
+    responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+    responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
+    
     return new Response(html, {
       status: 200,
-      headers: {
-        ...corsHeaders,
-        "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=3600, s-maxage=86400",
-      },
+      headers: responseHeaders,
     });
   } catch (err) {
     console.error("Error in og-property-meta:", err);
