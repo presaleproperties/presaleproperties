@@ -280,7 +280,7 @@
       bottom: 0;
       left: 0;
       right: 0;
-      z-index: 50;
+      z-index: 9999;
       /* Smooth transition when keyboard appears */
       transition: transform 0.2s ease-out;
     }
@@ -290,6 +290,31 @@
       transform: translateY(100%);
       pointer-events: none;
     }
+  }
+
+  /* Ensure fixed CTAs always stay above Leaflet maps */
+  .leaflet-container {
+    z-index: 0 !important;
+  }
+  
+  .leaflet-pane {
+    z-index: 1 !important;
+  }
+  
+  .leaflet-top,
+  .leaflet-bottom {
+    z-index: 800 !important;
+  }
+  
+  .leaflet-control {
+    z-index: 800 !important;
+  }
+  
+  /* Fixed CTA bars must be above everything on property pages */
+  [style*="z-index: 9999"],
+  .z-\\[9999\\] {
+    z-index: 9999 !important;
+    isolation: isolate;
   }
 }
 

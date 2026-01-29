@@ -1235,7 +1235,10 @@ export default function ResaleListingDetail() {
       </main>
 
       {/* Mobile CTA Bar - Only on mobile, not tablet (form is inline on tablet) */}
-      <div className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-40 shadow-lg safe-area-pb">
+      <div 
+        className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-[9999] shadow-lg safe-area-pb hide-on-keyboard"
+        style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+      >
         <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 shrink-0 rounded-xl">
           <Phone className="h-5 w-5" />
         </Button>

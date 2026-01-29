@@ -647,7 +647,10 @@ const AdLandingPage = () => {
         </footer>
 
         {/* Sticky Bottom CTA - Premium glass effect */}
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-background/98 backdrop-blur-xl border-t border-primary/10 safe-area-bottom z-40 shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)]">
+        <div 
+          className="fixed bottom-0 left-0 right-0 p-4 bg-background/98 backdrop-blur-xl border-t border-primary/10 safe-area-bottom z-[9999] shadow-[0_-4px_20px_-4px_rgba(0,0,0,0.1)] hide-on-keyboard"
+          style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+        >
           <Button onClick={scrollToForm} size="lg" className="w-full h-14 text-base font-bold rounded-xl bg-gradient-to-r from-primary to-primary/90 hover:from-primary/95 hover:to-primary/85 shadow-lg shadow-primary/25 transition-all duration-200">
             {getCtaText()}
           </Button>

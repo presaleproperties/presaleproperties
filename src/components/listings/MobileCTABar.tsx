@@ -36,7 +36,10 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-background border-t border-border lg:hidden z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+    <div 
+      className="fixed bottom-0 left-0 right-0 bg-background border-t border-border lg:hidden z-[9999] shadow-[0_-4px_20px_rgba(0,0,0,0.1)]"
+      style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+    >
       {/* Safe area padding for iPhone notch */}
       <div className="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         {/* Price Row */}
