@@ -126,10 +126,10 @@ export function MobileResaleHome() {
         <div className="relative px-4 -mb-14 z-10">
           <div 
             ref={searchContainerRef}
-            className="bg-card rounded-xl shadow-lg border border-border p-4"
+            className="bg-white rounded-xl shadow-[0_15px_50px_-10px_rgba(0,0,0,0.3)] border border-border/10 overflow-hidden"
           >
             {/* Search Header */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between px-4 py-2 border-b border-border/20 bg-muted/30">
               <span className="text-sm font-semibold text-foreground">
                 Search New Homes
               </span>
@@ -143,7 +143,7 @@ export function MobileResaleHome() {
             </div>
 
             {/* Search Input */}
-            <form onSubmit={handleSearch} className="relative">
+            <form onSubmit={handleSearch} className="relative px-4 py-3">
               <Input
                 type="text"
                 placeholder="City, Neighbourhood, Address..."
@@ -153,14 +153,14 @@ export function MobileResaleHome() {
                   setShowSuggestions(true);
                 }}
                 onFocus={() => setShowSuggestions(true)}
-                className="h-14 text-base pl-4 pr-14 rounded-xl bg-muted/50 border-border focus:bg-background focus:border-primary/50 transition-all"
+                className="h-12 text-base pl-4 pr-14 rounded-xl border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary transition-all"
                 autoComplete="off"
               />
               <button 
                 type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
+                className="absolute right-6 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg bg-foreground text-background hover:bg-foreground/90 active:scale-95 transition-all"
               >
-                <Search className="h-5 w-5" />
+                <Search className="h-4 w-4" />
               </button>
             </form>
             
