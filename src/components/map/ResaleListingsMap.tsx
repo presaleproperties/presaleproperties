@@ -317,8 +317,16 @@ export function ResaleListingsMap({
   const handleZoomOut = () => mapInstanceRef.current?.zoomOut();
 
   return (
-    <div className="relative w-full h-full">
-      <div ref={mapRef} className="w-full h-full" />
+    <div className="relative w-full h-full" style={{ contain: 'layout style paint', willChange: 'transform' }}>
+      <style>{`
+        .leaflet-container { -webkit-transform: translate3d(0,0,0); transform: translate3d(0,0,0); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .leaflet-tile-container { -webkit-transform: translate3d(0,0,0); transform: translate3d(0,0,0); }
+        .leaflet-tile { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .leaflet-tile-loaded { opacity: 1 !important; }
+        .leaflet-fade-anim .leaflet-tile { transition: none !important; }
+        .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
+      `}</style>
+      <div ref={mapRef} className="w-full h-full" style={{ willChange: 'transform' }} />
       
       {/* Custom Controls - Bottom right on mobile to avoid conflicts */}
       <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">

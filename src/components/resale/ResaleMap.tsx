@@ -180,8 +180,14 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
   const handleZoomOut = () => mapRef.current?.zoomOut();
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" style={{ contain: 'layout style paint', willChange: 'transform' }}>
       <style>{`
+        .leaflet-container { -webkit-transform: translate3d(0,0,0); transform: translate3d(0,0,0); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .leaflet-tile-container { -webkit-transform: translate3d(0,0,0); transform: translate3d(0,0,0); }
+        .leaflet-tile { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
+        .leaflet-tile-loaded { opacity: 1 !important; }
+        .leaflet-fade-anim .leaflet-tile { transition: none !important; }
+        .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
         .resale-marker-icon {
           background: transparent !important;
           border: none !important;

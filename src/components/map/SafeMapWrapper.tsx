@@ -90,27 +90,23 @@ export function SafeMapWrapper({
     loadTime
   };
 
-  // Debug panel (only in development)
-  const DebugPanel = () => {
-    if (!debugMode || process.env.NODE_ENV === "production") return null;
-    
-    return (
-      <div className="absolute top-2 right-2 z-[1001] bg-background/95 backdrop-blur-sm border rounded-lg p-3 text-xs font-mono max-w-[200px]">
-        <p className="font-bold mb-2 text-foreground">Map Debug</p>
-        <div className="space-y-1 text-muted-foreground">
-          <p>Client: {debugInfo.isClient ? "✅" : "❌"}</p>
-          <p>Provider: {debugInfo.provider}</p>
-          <p>Error: {debugInfo.hasError ? "⚠️" : "✅"}</p>
-          {debugInfo.loadTime && <p>Load: {debugInfo.loadTime}ms</p>}
-          {debugInfo.errorMessage && (
-            <p className="text-destructive text-[10px] break-words">
-              {debugInfo.errorMessage}
-            </p>
-          )}
-        </div>
+  // Debug panel element (only in development) - defined inline to avoid ref warnings
+  const debugPanelElement = debugMode && process.env.NODE_ENV !== "production" ? (
+    <div className="absolute top-2 right-2 z-[1001] bg-background/95 backdrop-blur-sm border rounded-lg p-3 text-xs font-mono max-w-[200px]">
+      <p className="font-bold mb-2 text-foreground">Map Debug</p>
+      <div className="space-y-1 text-muted-foreground">
+        <p>Client: {debugInfo.isClient ? "✅" : "❌"}</p>
+        <p>Provider: {debugInfo.provider}</p>
+        <p>Error: {debugInfo.hasError ? "⚠️" : "✅"}</p>
+        {debugInfo.loadTime && <p>Load: {debugInfo.loadTime}ms</p>}
+        {debugInfo.errorMessage && (
+          <p className="text-destructive text-[10px] break-words">
+            {debugInfo.errorMessage}
+          </p>
+        )}
       </div>
-    );
-  };
+    </div>
+  ) : null;
 
   // Loading state while we check for client-side
   if (!isClient) {
@@ -165,14 +161,14 @@ export function SafeMapWrapper({
   );
 
   return (
-    <div className={`relative ${height}`}>
+    <div className={`relative ${height}`} style={{ contain: 'layout style paint' }}>
       <MapErrorBoundary 
         fallback={ErrorFallback} 
         onError={(error) => handleError(error)}
       >
         {children}
       </MapErrorBoundary>
-      <DebugPanel />
+      {debugPanelElement}
     </div>
   );
 }

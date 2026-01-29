@@ -625,17 +625,37 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   }, [initialUserLocation]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full" style={{ contain: 'layout style paint', willChange: 'transform' }}>
       <style>{`
+        /* GPU acceleration and flicker prevention */
+        .leaflet-container { 
+          -webkit-transform: translate3d(0,0,0); 
+          transform: translate3d(0,0,0);
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+        }
+        .leaflet-tile-container { 
+          -webkit-transform: translate3d(0,0,0); 
+          transform: translate3d(0,0,0);
+        }
+        .leaflet-tile { 
+          -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+          will-change: auto;
+        }
+        .leaflet-tile-loaded { opacity: 1 !important; }
+        .leaflet-fade-anim .leaflet-tile { transition: none !important; }
+        .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
+        
         .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
-        .pp { background: linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,56%) 100%); color: hsl(222,47%,15%); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; }
+        .pp { background: linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,56%) 100%); color: hsl(222,47%,15%); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; will-change: transform; }
         .pp.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px hsl(45,89%,50%); }
-        .pin { width: 28px; height: 34px; background: linear-gradient(180deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2.5px solid hsl(45,89%,50%); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .pin { width: 28px; height: 34px; background: linear-gradient(180deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2.5px solid hsl(45,89%,50%); box-shadow: 0 2px 8px rgba(0,0,0,0.2); will-change: transform; }
         .pin.hl { width: 36px; height: 42px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .ap { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; }
+        .ap { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; will-change: transform; }
         .ap.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px #10b981; }
         .mc { background: transparent !important; border: none !important; }
-        .cl { background: linear-gradient(135deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 0 2.5px hsl(45,89%,50%); }
+        .cl { background: linear-gradient(135deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 0 2.5px hsl(45,89%,50%); will-change: transform; }
         .cl.sm { width: 36px; height: 36px; font-size: 12px; }
         .cl.md { width: 40px; height: 40px; font-size: 13px; }
         .cl.lg { width: 44px; height: 44px; font-size: 14px; }
@@ -648,8 +668,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .premium-popup .leaflet-popup-close-button:hover { color: #1e293b !important; background: white !important; }
         
         /* Popup card base - matching grid styling */
-        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; border-radius: 12px; overflow: hidden; background: white; transition: transform 0.15s; }
-        .popup-card:hover { transform: translateY(-1px); }
+        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; border-radius: 12px; overflow: hidden; background: white; }
         .popup-card.resale { border: 1px solid hsl(220, 13%, 90%); }
         .popup-card.presale { border: 1px solid hsl(220, 13%, 90%); }
         .popup-card.assignment { border: 2px solid #10b981; }
@@ -686,7 +705,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .lock-btn { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 600; text-decoration: none; }
         .lock-btn:hover { opacity: 0.9; }
       `}</style>
-      <div ref={mapRef} className="w-full h-full z-0" />
+      <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
       
       {/* Custom Controls */}
       <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
