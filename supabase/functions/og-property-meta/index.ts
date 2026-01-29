@@ -89,21 +89,19 @@ Deno.serve(async (req) => {
     const propertyType = getPropertyTypeLabel();
     const isNewConstruction = listing.year_built !== null && listing.year_built >= 2024;
 
-    // Get the first photo
+    // Get the first photo - ensure it's a valid, public image URL
     let heroImage = `${SITE_URL}/og-image.png`;
     if (listing.photos && Array.isArray(listing.photos) && listing.photos.length > 0) {
       const firstPhoto = listing.photos[0];
-      heroImage =
-        firstPhoto?.MediaURL ||
-        firstPhoto?.url ||
-        (typeof firstPhoto === "string" ? firstPhoto : heroImage);
+      const photoUrl = firstPhoto?.MediaURL || firstPhoto?.url || (typeof firstPhoto === "string" ? firstPhoto : null);
+      if (photoUrl) {
+        heroImage = ensureHttps(photoUrl);
+      }
     }
 
-    heroImage = ensureHttps(heroImage);
-
     // Build title and description
-    const title = `For Sale: ${address}, ${listing.city}, BC`;
-    const description = `Browse photos of this ${propertyType} in ${listing.neighborhood || listing.city} listed for ${formatPrice(listing.listing_price)}. This property features ${listing.bedrooms_total || 0} beds, ${listing.bathrooms_total || 0} baths${listing.living_area ? ` and is ${listing.living_area} Sqft` : ''}.${isNewConstruction ? ' Built ' + listing.year_built + '.' : ''}`;
+    const title = `For Sale: ${address}, ${listing.city} BC`;
+    const description = `${isNewConstruction ? 'Brand new ' : ''}${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyType.toLowerCase()} for sale in ${listing.neighborhood || listing.city}, BC. ${isNewConstruction ? `Built ${listing.year_built}. ` : ''}${formatPrice(listing.listing_price)}.${listing.living_area ? ` ${listing.living_area} sqft.` : ''}`;
 
     // Build SEO-friendly address slug for canonical URL (REW-style: address-city-bc-listingKey)
     const slugify = (text: string) => text.toLowerCase()
@@ -116,6 +114,8 @@ Deno.serve(async (req) => {
     const canonicalUrl = `${SITE_URL}/properties/${addressSlug}-${listingKey}`;
 
     // Generate HTML with OG meta tags
+    // NOTE: This is a complete HTML document that social crawlers can parse
+    // The page includes a link to the actual listing for users who land here
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -124,16 +124,18 @@ Deno.serve(async (req) => {
   <title>${title}</title>
   <meta name="description" content="${description}">
   
-  <!-- Open Graph -->
+  <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
   <meta property="og:url" content="${canonicalUrl}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${description}">
   <meta property="og:image" content="${heroImage}">
   <meta property="og:image:secure_url" content="${heroImage}">
+  <meta property="og:image:type" content="image/jpeg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:site_name" content="PresaleProperties.com">
+  <meta property="og:locale" content="en_CA">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
@@ -144,20 +146,29 @@ Deno.serve(async (req) => {
   
   <link rel="canonical" href="${canonicalUrl}">
   
-  <!-- Intentionally NO auto-redirect. Social apps may follow redirects and use the destination page's meta (SPA homepage). -->
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 40px auto; padding: 20px; }
+    img { max-width: 100%; border-radius: 8px; }
+    h1 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .price { font-size: 1.25rem; color: #16a34a; font-weight: bold; }
+    .cta { display: inline-block; margin-top: 1rem; padding: 12px 24px; background: #2563eb; color: white; text-decoration: none; border-radius: 6px; }
+  </style>
 </head>
 <body>
+  <img src="${heroImage}" alt="${address}">
   <h1>${title}</h1>
+  <p class="price">${formatPrice(listing.listing_price)}</p>
   <p>${description}</p>
-  <p><a href="${canonicalUrl}">View listing</a></p>
+  <a href="${canonicalUrl}" class="cta">View Full Listing</a>
 </body>
 </html>`;
 
     return new Response(html, {
+      status: 200,
       headers: {
         ...corsHeaders,
         "Content-Type": "text/html; charset=utf-8",
-        "Cache-Control": "public, max-age=3600",
+        "Cache-Control": "public, max-age=3600, s-maxage=86400",
       },
     });
   } catch (err) {
