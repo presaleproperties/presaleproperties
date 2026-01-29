@@ -332,7 +332,7 @@ export default function ResaleListingDetail() {
     ? `Brand new ${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyTypeLabel.toLowerCase()} for sale in ${listing.city}, BC. ${yearBuiltLabel}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''} Move-in ready new construction home.`
     : `${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyTypeLabel.toLowerCase()} for sale in ${listing.city}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''}`;
   
-  // Build SEO-friendly canonical URL with address
+  // Build SEO-friendly canonical URL with address (REW-style: address-city-bc-listingKey)
   const buildAddressSlug = () => {
     const addr = address.toLowerCase()
       .replace(/['']/g, '')
@@ -342,17 +342,16 @@ export default function ResaleListingDetail() {
     const citySlug = listing.city.toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    return `${addr}-${citySlug}`;
+    return `${addr}-${citySlug}-bc-${listing.listing_key}`;
   };
-  const canonicalUrl = `https://presaleproperties.com/properties/${buildAddressSlug()}/${listing.listing_key}`;
+  const canonicalUrl = `https://presaleproperties.com/properties/${buildAddressSlug()}`;
 
-  // Share URL: use the backend meta proxy so chat apps can generate rich previews.
-  // (Avoid hardcoding the backend domain.)
-  const buildOgShareUrl = () => {
-    if (!listingKey) return typeof window !== "undefined" ? window.location.href : canonicalUrl;
-    // Cache-buster is important: WhatsApp/iMessage can cache previews per-URL.
-    return `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?listingKey=${listingKey}&v=${Date.now()}`;
-  };
+  // Share URL - use canonical URL for proper social previews
+  // Social platforms cache previews, so we use a clean canonical URL
+  const getShareUrl = () => canonicalUrl;
+  
+  // Hero image URL for sharing
+  const heroImageUrl = photos[0]?.url || 'https://presaleproperties.com/og-image.png';
 
   // Calculate days on market
   const getDaysOnMarket = () => {
@@ -462,7 +461,7 @@ export default function ResaleListingDetail() {
         price={formatPrice(listing.listing_price)}
         specs={`${listing.bedrooms_total || 0} bd • ${listing.bathrooms_total || 0} ba${listing.living_area ? ` • ${listing.living_area.toLocaleString()} sf` : ""} • ${formatPropertyType(listing.property_sub_type || listing.property_type)}`}
         onShare={() => {
-          const shareUrl = buildOgShareUrl();
+          const shareUrl = getShareUrl();
           const shareData = {
             title: pageTitle,
             text: pageDescription,
@@ -629,8 +628,8 @@ export default function ResaleListingDetail() {
                       size="sm"
                       className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg"
                       onClick={async () => {
-                        // Use the backend meta proxy URL for proper previews
-                        const shareUrl = buildOgShareUrl();
+                        // Use canonical URL for proper social previews
+                        const shareUrl = getShareUrl();
                         const shareData = {
                           title: pageTitle,
                           text: pageDescription,
@@ -710,8 +709,8 @@ export default function ResaleListingDetail() {
                   size="sm"
                   className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
                   onClick={async () => {
-                    // Use the backend meta proxy URL for proper previews
-                    const shareUrl = buildOgShareUrl();
+                    // Use canonical URL for proper social previews
+                    const shareUrl = getShareUrl();
                     const shareData = {
                       title: pageTitle,
                       text: pageDescription,
