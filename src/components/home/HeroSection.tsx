@@ -128,11 +128,11 @@ export function HeroSection({
 
           {/* Premium Search Card */}
           <div 
-            className="bg-white/98 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto animate-fade-in overflow-hidden border border-white/80 ring-1 ring-black/5" 
+            className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto animate-fade-in overflow-hidden border border-border/10" 
             style={{ animationDelay: "0.2s" }}
           >
             {/* Search Header with Tabs */}
-            <div className="flex items-center justify-between border-b border-border/30 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-muted/20 via-muted/40 to-muted/20">
+            <div className="flex items-center justify-between border-b border-border/20 px-4 sm:px-6 py-3 sm:py-4 bg-muted/30">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <button 
                   onClick={() => handleTabChange("projects")} 
