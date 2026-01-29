@@ -78,84 +78,159 @@ export function HeroSection({
       navigate(`/properties/${citySlug}`);
     }
   };
-  return <section className="relative min-h-[560px] sm:min-h-[580px] md:min-h-[680px] flex items-center justify-center overflow-hidden">
+  return (
+    <section className="relative min-h-[600px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[800px] flex items-center justify-center overflow-hidden">
       {/* Background Image - High Quality */}
-      <img src={heroImage} alt="Luxury presale homes" className="absolute inset-0 w-full h-full object-cover" loading="eager" decoding="sync" fetchPriority="high" />
+      <img 
+        src={heroImage} 
+        alt="Luxury presale homes" 
+        className="absolute inset-0 w-full h-full object-cover scale-105" 
+        loading="eager" 
+        decoding="sync" 
+        fetchPriority="high" 
+      />
       
-      {/* Premium Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/65 via-black/50 to-black/75 sm:from-black/55 sm:via-black/40 sm:to-black/65" />
+      {/* Premium Multi-Layer Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
       
-      {/* Subtle ambient glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-primary/10 via-transparent to-transparent opacity-60" />
+      {/* Subtle warm ambient glow */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-primary/8 via-transparent to-primary/5" />
       
       {/* Content */}
-      <div className="container relative z-10 py-5 sm:py-14 md:py-20 px-4">
-        <div className="max-w-3xl mx-auto text-center space-y-4 sm:space-y-6 md:space-y-8">
-          {/* Tagline */}
-          <p className="text-primary text-sm sm:text-base md:text-lg animate-fade-in font-bold tracking-widest uppercase drop-shadow-sm">VANCOUVER'S NEW CONSTRUCTION MARKETPLACE</p>
+      <div className="container relative z-10 py-8 sm:py-16 md:py-24 px-4">
+        <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8 md:space-y-10">
+          {/* Tagline - More refined */}
+          <p className="text-primary text-xs sm:text-sm md:text-base animate-fade-in font-semibold tracking-[0.25em] uppercase">
+            Vancouver's New Construction Marketplace
+          </p>
           
-          {/* Main Heading - SEO optimized H1 */}
-          <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05] drop-shadow-lg" style={{
-          animationDelay: "0.1s"
-        }}>
-            Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(43_96%_56%/0.5)]">New</span> Home
+          {/* Main Heading - Premium typography */}
+          <h1 
+            className="text-[36px] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white animate-fade-in leading-[1.1] drop-shadow-2xl" 
+            style={{ animationDelay: "0.1s" }}
+          >
+            Find Your{" "}
+            <span className="text-primary drop-shadow-[0_0_40px_hsl(43_96%_56%/0.6)] relative">
+              New
+              <span className="absolute -inset-1 bg-primary/10 blur-2xl -z-10" />
+            </span>{" "}
+            Home
           </h1>
           
-          {/* Subheadline */}
-          <p className="text-white/90 text-base sm:text-lg md:text-xl font-medium animate-fade-in max-w-xl mx-auto leading-relaxed" style={{
-          animationDelay: "0.15s"
-        }}>Search Presale & move-in ready homes</p>
+          {/* Subheadline - Cleaner */}
+          <p 
+            className="text-white/85 text-lg sm:text-xl md:text-2xl font-light animate-fade-in max-w-2xl mx-auto leading-relaxed tracking-wide" 
+            style={{ animationDelay: "0.15s" }}
+          >
+            Search Presale & Move-In Ready Homes
+          </p>
 
-
-          {/* Floating Search Card - Premium glass effect */}
-          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-premium max-w-2xl mx-auto animate-fade-in overflow-hidden border border-white/50" style={{
-          animationDelay: "0.2s"
-        }}>
+          {/* Premium Search Card */}
+          <div 
+            className="bg-white/98 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto animate-fade-in overflow-hidden border border-white/80 ring-1 ring-black/5" 
+            style={{ animationDelay: "0.2s" }}
+          >
             {/* Search Header with Tabs */}
-            <div className="flex items-center justify-between border-b border-border/50 px-2.5 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-transparent via-muted/30 to-transparent">
-            <div className="flex items-center gap-1 sm:gap-2">
-                <button onClick={() => handleTabChange("projects")} className={`px-3.5 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all duration-200 ${activeTab === "projects" ? "bg-foreground text-background shadow-elevated" : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+            <div className="flex items-center justify-between border-b border-border/30 px-4 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-muted/20 via-muted/40 to-muted/20">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <button 
+                  onClick={() => handleTabChange("projects")} 
+                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                    activeTab === "projects" 
+                      ? "bg-foreground text-background shadow-lg" 
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
                   Presale
                 </button>
-                <button onClick={() => handleTabChange("resale")} className={`px-3.5 sm:px-4 py-2 rounded-full text-[12px] sm:text-sm font-semibold transition-all duration-200 ${activeTab === "resale" ? "bg-foreground text-background shadow-elevated" : "bg-muted/80 text-muted-foreground hover:bg-muted hover:text-foreground"}`}>
+                <button 
+                  onClick={() => handleTabChange("resale")} 
+                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
+                    activeTab === "resale" 
+                      ? "bg-foreground text-background shadow-lg" 
+                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  }`}
+                >
                   Move-In Ready
                 </button>
               </div>
-              <Link to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"} className="hidden sm:flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium">
-                <MapPin className="h-4 w-4" />
-                Open Map
+              <Link 
+                to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"} 
+                className="flex items-center gap-2 text-sm text-foreground/80 hover:text-primary transition-colors font-medium group"
+              >
+                <MapPin className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                <span className="hidden sm:inline">Open Map</span>
               </Link>
             </div>
 
             {/* Search Input */}
             <form onSubmit={handleSearch}>
-              <div className="relative px-2.5 sm:px-4 py-3 sm:py-4" ref={searchContainerRef}>
-                <Input type="text" placeholder={activeTab === "projects" ? "Search projects, developers..." : "City, neighbourhood, address..."} value={searchQuery} onChange={e => {
-                setSearchQuery(e.target.value);
-                setShowSuggestions(true);
-              }} onFocus={() => setShowSuggestions(true)} className="h-11 sm:h-12 md:h-14 text-[15px] sm:text-base pl-4 pr-12 border-border/50 bg-background/80 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:border-primary/50 rounded-xl transition-all duration-200" autoComplete="off" />
-                <button type="submit" className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-primary active:scale-95 transition-all rounded-full hover:bg-primary/10">
+              <div className="relative px-4 sm:px-6 py-4 sm:py-5" ref={searchContainerRef}>
+                <Input 
+                  type="text" 
+                  placeholder={activeTab === "projects" ? "Search projects, developers, neighbourhoods..." : "City, neighbourhood, address..."} 
+                  value={searchQuery} 
+                  onChange={e => {
+                    setSearchQuery(e.target.value);
+                    setShowSuggestions(true);
+                  }} 
+                  onFocus={() => setShowSuggestions(true)} 
+                  className="h-12 sm:h-14 md:h-16 text-base sm:text-lg pl-5 pr-14 border-border/40 bg-muted/30 text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/40 rounded-xl transition-all duration-300" 
+                  autoComplete="off" 
+                />
+                <button 
+                  type="submit" 
+                  className="absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 active:scale-95 transition-all rounded-full"
+                >
                   <Search className="h-5 w-5" />
                 </button>
-                <SearchSuggestions query={searchQuery} onSelect={handleSuggestionSelect} isVisible={showSuggestions} onClose={() => setShowSuggestions(false)} searchMode={activeTab} />
+                <SearchSuggestions 
+                  query={searchQuery} 
+                  onSelect={handleSuggestionSelect} 
+                  isVisible={showSuggestions} 
+                  onClose={() => setShowSuggestions(false)} 
+                  searchMode={activeTab} 
+                />
               </div>
             </form>
           </div>
 
+          {/* Explore Map CTA - More prominent */}
+          <div 
+            className="animate-fade-in pt-2" 
+            style={{ animationDelay: "0.25s" }}
+          >
+            <Link 
+              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white font-medium text-sm sm:text-base hover:bg-white/25 hover:border-white/50 hover:scale-105 active:scale-100 transition-all duration-300 shadow-lg"
+            >
+              <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
+              Explore Interactive Map
+            </Link>
+          </div>
+
           {/* Top Cities - Premium pills */}
-          <div className="animate-fade-in" style={{
-          animationDelay: "0.3s"
-        }}>
-            <span className="text-[10px] sm:text-sm text-white/60 font-semibold tracking-widest uppercase block mb-3">
-              Top Cities
+          <div className="animate-fade-in pt-4" style={{ animationDelay: "0.3s" }}>
+            <span className="text-xs sm:text-sm text-white/50 font-medium tracking-[0.2em] uppercase block mb-4">
+              Popular Cities
             </span>
-            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5 md:gap-3 px-2">
-              {(activeTab === "projects" ? projectCities : resaleCities).map(city => <Button key={city} variant="outline" size="sm" onClick={() => handleCityClick(city)} className="rounded-full bg-white/10 backdrop-blur-md text-white border-white/25 hover:bg-white hover:text-foreground hover:border-white hover:shadow-elevated active:scale-95 transition-all duration-200 text-[11px] sm:text-xs md:text-sm px-3.5 sm:px-4 md:px-5 h-8 sm:h-9 font-semibold whitespace-nowrap">
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 px-2">
+              {(activeTab === "projects" ? projectCities : resaleCities).map(city => (
+                <Button 
+                  key={city} 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => handleCityClick(city)} 
+                  className="rounded-full bg-white/10 backdrop-blur-md text-white border-white/20 hover:bg-white hover:text-foreground hover:border-white hover:shadow-xl hover:scale-105 active:scale-100 transition-all duration-300 text-xs sm:text-sm px-4 sm:px-5 h-9 sm:h-10 font-medium whitespace-nowrap"
+                >
                   {city}
-                </Button>)}
+                </Button>
+              ))}
             </div>
           </div>
         </div>
       </div>
-    </section>;
+    </section>
+  );
 }
