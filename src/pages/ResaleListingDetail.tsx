@@ -307,6 +307,14 @@ export default function ResaleListingDetail() {
   
   const canonicalUrl = `https://presaleproperties.com/resale/${listing.listing_key}`;
 
+  // Share URL: use the backend meta proxy so chat apps can generate rich previews.
+  // (Avoid hardcoding the backend domain.)
+  const buildOgShareUrl = () => {
+    if (!listingKey) return typeof window !== "undefined" ? window.location.href : canonicalUrl;
+    // Cache-buster is important: WhatsApp/iMessage can cache previews per-URL.
+    return `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?listingKey=${listingKey}&v=${Date.now()}`;
+  };
+
   // Calculate days on market
   const getDaysOnMarket = () => {
     let dom = listing.days_on_market;
@@ -415,11 +423,17 @@ export default function ResaleListingDetail() {
         price={formatPrice(listing.listing_price)}
         specs={`${listing.bedrooms_total || 0} bd • ${listing.bathrooms_total || 0} ba${listing.living_area ? ` • ${listing.living_area.toLocaleString()} sf` : ""} • ${formatPropertyType(listing.property_sub_type || listing.property_type)}`}
         onShare={() => {
-          const shareUrl = window.location.href;
-          if (navigator.share && navigator.canShare?.({ url: shareUrl })) {
-            navigator.share({ title: address, url: shareUrl });
+          const shareUrl = buildOgShareUrl();
+          const shareData = {
+            title: pageTitle,
+            text: pageDescription,
+            url: shareUrl,
+          };
+          if (navigator.share && navigator.canShare?.(shareData)) {
+            navigator.share(shareData);
           } else {
             navigator.clipboard.writeText(shareUrl);
+            toast.success("Link copied to clipboard!");
           }
         }}
         backPath="/properties"
@@ -576,12 +590,12 @@ export default function ResaleListingDetail() {
                       size="sm"
                       className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg"
                       onClick={async () => {
-                        // Use the edge function URL for proper OG meta tags
-                        const ogUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?listingKey=${listingKey}`;
+                        // Use the backend meta proxy URL for proper previews
+                        const shareUrl = buildOgShareUrl();
                         const shareData = {
                           title: pageTitle,
                           text: pageDescription,
-                          url: ogUrl,
+                          url: shareUrl,
                         };
                         if (navigator.share && navigator.canShare?.(shareData)) {
                           try {
@@ -590,7 +604,7 @@ export default function ResaleListingDetail() {
                             // User cancelled
                           }
                         } else {
-                          await navigator.clipboard.writeText(ogUrl);
+                          await navigator.clipboard.writeText(shareUrl);
                           toast.success("Link copied to clipboard!");
                         }
                       }}
@@ -657,12 +671,12 @@ export default function ResaleListingDetail() {
                   size="sm"
                   className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
                   onClick={async () => {
-                    // Use the edge function URL for proper OG meta tags
-                    const ogUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?listingKey=${listingKey}`;
+                    // Use the backend meta proxy URL for proper previews
+                    const shareUrl = buildOgShareUrl();
                     const shareData = {
                       title: pageTitle,
                       text: pageDescription,
-                      url: ogUrl,
+                      url: shareUrl,
                     };
                     if (navigator.share && navigator.canShare?.(shareData)) {
                       try {
@@ -671,7 +685,7 @@ export default function ResaleListingDetail() {
                         // User cancelled
                       }
                     } else {
-                      await navigator.clipboard.writeText(ogUrl);
+                      await navigator.clipboard.writeText(shareUrl);
                       toast.success("Link copied to clipboard!");
                     }
                   }}
