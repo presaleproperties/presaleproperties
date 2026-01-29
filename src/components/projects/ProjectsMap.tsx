@@ -440,16 +440,6 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
 
       {/* Custom controls - bottom right to avoid overlaps on mobile */}
       <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
-        {/* Locate button */}
-        <button
-          onClick={handleLocate}
-          disabled={isLocating}
-          title="Zoom to my location"
-          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors disabled:opacity-50"
-        >
-          {isLocating ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <Navigation className="h-4 w-4 text-muted-foreground" />}
-        </button>
-        
         {/* Zoom controls */}
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
@@ -468,6 +458,16 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
             <span className="text-base font-medium">−</span>
           </button>
         </div>
+        
+        {/* Locate button */}
+        <button
+          onClick={handleLocate}
+          disabled={isLocating}
+          title="Zoom to my location"
+          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors disabled:opacity-50"
+        >
+          {isLocating ? <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /> : <Navigation className="h-4 w-4 text-muted-foreground" />}
+        </button>
       </div>
     </div>
   );

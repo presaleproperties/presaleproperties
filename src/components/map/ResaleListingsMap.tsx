@@ -330,13 +330,6 @@ export function ResaleListingsMap({
       
       {/* Custom Controls - Bottom right on mobile to avoid conflicts */}
       <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
-        <button
-          onClick={handleLocateUser}
-          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
-          aria-label="Find my location"
-        >
-          <Crosshair className="h-4 w-4 text-muted-foreground" />
-        </button>
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={handleZoomIn}
@@ -354,6 +347,13 @@ export function ResaleListingsMap({
             <Minus className="h-4 w-4" />
           </button>
         </div>
+        <button
+          onClick={handleLocateUser}
+          className="w-8 h-8 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
+          aria-label="Find my location"
+        >
+          <Crosshair className="h-4 w-4 text-muted-foreground" />
+        </button>
       </div>
     </div>
   );
