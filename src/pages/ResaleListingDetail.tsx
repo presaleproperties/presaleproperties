@@ -3,15 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useRef, useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Bed, Bath, Maximize, Building2, Calendar, MapPin, Car, Home, DollarSign, Clock, Layers, ChevronRight, Map, Navigation, Sparkles, Phone, User, Flame, Snowflake, Eye, FileText, Users, Waves, TreePine, MessageSquare } from "lucide-react";
+import { Bed, Bath, Maximize, Building2, Calendar, MapPin, Car, Home, DollarSign, Clock, Layers, ChevronRight, Map, Navigation, Sparkles, Phone, User, Flame, Snowflake, Eye, FileText, Users, Waves, TreePine, MessageSquare, Share2, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { Share2 } from "lucide-react";
 import { toast } from "sonner";
+import { useGuestFavorites } from "@/hooks/useGuestFavorites";
 import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
@@ -128,6 +128,7 @@ export default function ResaleListingDetail() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
   const [showMobileScheduler, setShowMobileScheduler] = useState(false);
+  const { isFavorite, toggleFavorite } = useGuestFavorites();
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({
       behavior: "smooth",
@@ -557,32 +558,46 @@ export default function ResaleListingDetail() {
                         Tour
                       </a>
                     </Button>}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg ml-auto"
-                    onClick={async () => {
-                      const shareUrl = window.location.href;
-                      const shareData = {
-                        title: pageTitle,
-                        text: pageDescription,
-                        url: shareUrl,
-                      };
-                      if (navigator.share && navigator.canShare?.(shareData)) {
-                        try {
-                          await navigator.share(shareData);
-                        } catch (err) {
-                          // User cancelled
+                  <div className="flex items-center gap-2 ml-auto">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg ${isFavorite(listing.id) ? 'bg-primary/10 border-primary' : ''}`}
+                      onClick={() => {
+                        toggleFavorite(listing.id);
+                        toast.success(isFavorite(listing.id) ? "Removed from favorites" : "Saved to favorites!");
+                      }}
+                    >
+                      <Heart className={`h-4 w-4 ${isFavorite(listing.id) ? 'fill-primary text-primary' : ''}`} />
+                      <span className="sr-only">Save</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg"
+                      onClick={async () => {
+                        const shareUrl = window.location.href;
+                        const shareData = {
+                          title: pageTitle,
+                          text: pageDescription,
+                          url: shareUrl,
+                        };
+                        if (navigator.share && navigator.canShare?.(shareData)) {
+                          try {
+                            await navigator.share(shareData);
+                          } catch (err) {
+                            // User cancelled
+                          }
+                        } else {
+                          await navigator.clipboard.writeText(shareUrl);
+                          toast.success("Link copied to clipboard!");
                         }
-                      } else {
-                        await navigator.clipboard.writeText(shareUrl);
-                        toast.success("Link copied to clipboard!");
-                      }
-                    }}
-                  >
-                    <Share2 className="h-4 w-4" />
-                    <span className="sr-only">Share</span>
-                  </Button>
+                      }}
+                    >
+                      <Share2 className="h-4 w-4" />
+                      <span className="sr-only">Share</span>
+                    </Button>
+                  </div>
                 </div>
 
                 {/* Schedule Form - Hidden on mobile/tablet, show on desktop only */}
@@ -623,32 +638,46 @@ export default function ResaleListingDetail() {
                 <Navigation className="h-3.5 w-3.5" />
                 Directions
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted ml-auto"
-                onClick={async () => {
-                  const shareUrl = window.location.href;
-                  const shareData = {
-                    title: pageTitle,
-                    text: pageDescription,
-                    url: shareUrl,
-                  };
-                  if (navigator.share && navigator.canShare?.(shareData)) {
-                    try {
-                      await navigator.share(shareData);
-                    } catch (err) {
-                      // User cancelled
+              <div className="flex items-center gap-2 ml-auto">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={`h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted ${isFavorite(listing.id) ? 'bg-primary/10 border-primary' : ''}`}
+                  onClick={() => {
+                    toggleFavorite(listing.id);
+                    toast.success(isFavorite(listing.id) ? "Removed from favorites" : "Saved to favorites!");
+                  }}
+                >
+                  <Heart className={`h-3.5 w-3.5 ${isFavorite(listing.id) ? 'fill-primary text-primary' : ''}`} />
+                  Save
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
+                  onClick={async () => {
+                    const shareUrl = window.location.href;
+                    const shareData = {
+                      title: pageTitle,
+                      text: pageDescription,
+                      url: shareUrl,
+                    };
+                    if (navigator.share && navigator.canShare?.(shareData)) {
+                      try {
+                        await navigator.share(shareData);
+                      } catch (err) {
+                        // User cancelled
+                      }
+                    } else {
+                      await navigator.clipboard.writeText(shareUrl);
+                      toast.success("Link copied to clipboard!");
                     }
-                  } else {
-                    await navigator.clipboard.writeText(shareUrl);
-                    toast.success("Link copied to clipboard!");
-                  }
-                }}
-              >
-                <Share2 className="h-3.5 w-3.5" />
-                Share
-              </Button>
+                  }}
+                >
+                  <Share2 className="h-3.5 w-3.5" />
+                  Share
+                </Button>
+              </div>
             </div>
 
             {/* Desktop Price Section */}
