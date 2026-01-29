@@ -5,6 +5,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { Crosshair, Plus, Minus } from "lucide-react";
+import { getListingUrl } from "@/lib/propertiesUrls";
 
 const DEFAULT_CENTER: L.LatLngExpression = [49.2827, -123.1207];
 const DEFAULT_ZOOM = 11;
@@ -126,6 +127,8 @@ function popupHtml(listing: MLSListing): string {
     ? `${listing.list_agent_name} • ${listing.list_office_name}`
     : listing.list_agent_name || listing.list_office_name || null;
   
+  const listingUrl = getListingUrl(listing.listing_key, getAddress(listing), listing.city);
+  
   return `
     <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.2);">
       ${photoHtml}
@@ -139,7 +142,7 @@ function popupHtml(listing: MLSListing): string {
           ${listing.living_area ? `<span>${listing.living_area.toLocaleString()} sqft</span>` : ""}
         </div>
         ${attribution ? `<div style="font-size:11px;color:#94a3b8;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
-        <a href="/properties/${listing.listing_key}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(43,96%,56%),hsl(38,92%,50%));color:hsl(222,47%,11%);text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.15s;">View Details</a>
+        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(43,96%,56%),hsl(38,92%,50%));color:hsl(222,47%,11%);text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.15s;">View Details</a>
       </div>
     </div>
   `;

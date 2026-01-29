@@ -5,6 +5,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { Locate, ZoomIn, ZoomOut, Home } from "lucide-react";
+import { getListingUrl } from "@/lib/propertiesUrls";
 
 const DEFAULT_CENTER: [number, number] = [49.2827, -123.1207];
 const DEFAULT_ZOOM = 11;
@@ -131,6 +132,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
         icon: createPricePillIcon(listing),
       });
 
+      const listingUrl = getListingUrl(listing.listing_key, listing.unparsed_address, listing.city);
       const popupContent = `
         <div class="resale-popup">
           <div class="resale-popup-price">${formatPrice(listing.listing_price)}</div>
@@ -139,7 +141,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
             ${listing.bedrooms_total ? `${listing.bedrooms_total} bed` : ''} 
             ${listing.bathrooms_total ? `• ${listing.bathrooms_total} bath` : ''}
           </div>
-          <a href="/properties/${listing.listing_key}" class="resale-popup-link">View Details →</a>
+          <a href="${listingUrl}" class="resale-popup-link">View Details →</a>
         </div>
       `;
       marker.bindPopup(popupContent, { closeButton: true, className: "resale-popup-container" });

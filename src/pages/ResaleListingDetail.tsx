@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useRef, useState, useEffect } from "react";
@@ -120,10 +120,14 @@ type MLSOffice = {
 };
 export default function ResaleListingDetail() {
   const {
-    listingKey
+    listingKey,
+    addressSlug
   } = useParams<{
     listingKey: string;
+    addressSlug?: string;
   }>();
+  const navigate = useNavigate();
+  const location = useLocation();
   const formRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
@@ -209,6 +213,30 @@ export default function ResaleListingDetail() {
       });
     }
   }, [listing?.id]);
+
+  // Redirect old URLs (without address slug) to new SEO-friendly URLs
+  useEffect(() => {
+    if (listing && !addressSlug) {
+      // Build address for slug
+      const addr = listing.unparsed_address || 
+        [listing.unit_number ? `#${listing.unit_number}` : null, listing.street_number, listing.street_name, listing.street_suffix]
+          .filter(Boolean).join(" ") || listing.city;
+      
+      // Import slugify inline to avoid circular dependency
+      const slug = addr.toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/-+/g, '-');
+      
+      const citySlug = listing.city.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+      
+      const newPath = `/properties/${slug}-${citySlug}/${listing.listing_key}`;
+      navigate(newPath, { replace: true });
+    }
+  }, [listing, addressSlug, navigate]);
   if (isLoading) {
     return <div className="min-h-screen bg-background">
         <ConversionHeader />
@@ -305,7 +333,19 @@ export default function ResaleListingDetail() {
     ? `Brand new ${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyTypeLabel.toLowerCase()} for sale in ${listing.city}, BC. ${yearBuiltLabel}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''} Move-in ready new construction home.`
     : `${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyTypeLabel.toLowerCase()} for sale in ${listing.city}. ${formatPrice(listing.listing_price)}. ${listing.living_area ? `${listing.living_area} sqft.` : ''}`;
   
-  const canonicalUrl = `https://presaleproperties.com/resale/${listing.listing_key}`;
+  // Build SEO-friendly canonical URL with address
+  const buildAddressSlug = () => {
+    const addr = address.toLowerCase()
+      .replace(/['']/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .replace(/-+/g, '-');
+    const citySlug = listing.city.toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+    return `${addr}-${citySlug}`;
+  };
+  const canonicalUrl = `https://presaleproperties.com/properties/${buildAddressSlug()}/${listing.listing_key}`;
 
   // Share URL: use the backend meta proxy so chat apps can generate rich previews.
   // (Avoid hardcoding the backend domain.)

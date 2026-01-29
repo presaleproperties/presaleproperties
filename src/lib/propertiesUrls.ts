@@ -154,18 +154,52 @@ export const getCityBedroomCanonicalUrl = (city: string, bedroomSlug: string): s
 // ============================================
 
 /**
- * Get individual listing URL
- * @example /properties/abc123xyz
+ * Build address slug from listing data
+ * @example "107-19911-76-avenue-langley"
  */
-export const getListingUrl = (listingKey: string): string => {
-  return `/properties/${listingKey}`;
+export const buildAddressSlug = (
+  address: string | null | undefined,
+  city: string | null | undefined
+): string => {
+  const parts: string[] = [];
+  if (address) parts.push(address);
+  if (city) parts.push(city);
+  
+  if (parts.length === 0) return "listing";
+  
+  return slugify(parts.join(" "));
+};
+
+/**
+ * Get individual listing URL with address for SEO
+ * @example /properties/107-19911-76-avenue-langley/29153217
+ */
+export const getListingUrl = (
+  listingKey: string,
+  address?: string | null,
+  city?: string | null
+): string => {
+  const addressSlug = buildAddressSlug(address, city);
+  return `/properties/${addressSlug}/${listingKey}`;
 };
 
 /**
  * Get canonical URL for individual listing
  */
-export const getListingCanonicalUrl = (listingKey: string): string => {
-  return `${DOMAIN}${getListingUrl(listingKey)}`;
+export const getListingCanonicalUrl = (
+  listingKey: string,
+  address?: string | null,
+  city?: string | null
+): string => {
+  return `${DOMAIN}${getListingUrl(listingKey, address, city)}`;
+};
+
+/**
+ * Legacy listing URL (for backwards compatibility/redirects)
+ * @example /properties/29153217
+ */
+export const getLegacyListingUrl = (listingKey: string): string => {
+  return `/properties/${listingKey}`;
 };
 
 // ============================================

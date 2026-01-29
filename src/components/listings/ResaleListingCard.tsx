@@ -4,6 +4,7 @@ import { MapPin, Home, ChevronLeft, ChevronRight, Video, Building, Flame, Clock 
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { getListingUrl } from "@/lib/propertiesUrls";
 
 interface ResaleListingCardProps {
   id: string;
@@ -178,7 +179,7 @@ export function ResaleListingCard({
   const specsString = specsArray.join(" • ");
 
   return (
-    <Link to={`/properties/${listingKey}`} className="block h-full w-full">
+    <Link to={getListingUrl(listingKey, address, city)} className="block h-full w-full">
       <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
         {/* Aspect ratio image container - matches PresaleProjectCard for consistent sizing */}
         <div 
