@@ -6,6 +6,14 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Home, Search, Users, Building2 } from "lucide-react";
 
+/**
+ * 404 Not Found Page
+ * 
+ * SEO Considerations:
+ * - Sets HTTP 404 status via meta tag for SSR/prerender detection
+ * - Uses noindex to prevent indexing of 404 pages
+ * - Provides helpful navigation to prevent soft 404 issues
+ */
 const NotFound = () => {
   const location = useLocation();
   
@@ -14,13 +22,25 @@ const NotFound = () => {
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
+    
+    // Signal to prerender services that this is a true 404
+    // This helps search engines understand the page doesn't exist
+    if (typeof window !== "undefined") {
+      // Set window variable for prerender detection
+      (window as any).prerenderReady = true;
+      (window as any).prerenderStatusCode = 404;
+    }
   }, [location.pathname]);
 
   return (
     <>
       <Helmet>
         <title>Page Not Found | PresaleProperties.com</title>
-        <meta name="robots" content="noindex" />
+        <meta name="robots" content="noindex, nofollow" />
+        {/* Signal 404 status for prerender services */}
+        <meta name="prerender-status-code" content="404" />
+        {/* Prevent any canonical inheritance */}
+        <link rel="canonical" href="https://presaleproperties.com/404" />
       </Helmet>
       
       <ConversionHeader />

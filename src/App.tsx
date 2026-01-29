@@ -9,6 +9,8 @@ import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
+import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
+import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
 
@@ -106,12 +108,6 @@ const queryClient = new QueryClient({
   },
 });
 
-// Redirect component for legacy /presale/:slug routes
-function PresaleRedirect() {
-  const slug = window.location.pathname.replace('/presale/', '');
-  return <Navigate to={`/presale-projects/${slug}`} replace />;
-}
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -132,9 +128,10 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
-            <Route path="/presale-projects/:slug" element={<PresaleProjectDetail />} />
-            {/* Legacy route redirect - redirect /presale/:slug to /presale-projects/:slug */}
-            <Route path="/presale/:slug" element={<PresaleRedirect />} />
+            {/* SEO Redirect: /presale-projects/:slug -> /{neighborhood}-presale-{type}-{slug} */}
+            <Route path="/presale-projects/:slug" element={<PresaleProjectSEORedirect />} />
+            {/* Legacy route redirect - redirect /presale/:slug to SEO URL */}
+            <Route path="/presale/:slug" element={<PresaleProjectSEORedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
             
             {/* Assignment Detail - Verified agents only */}
@@ -186,7 +183,8 @@ const App = () => (
             <Route path="/resale/:segment" element={<ResaleToPropertiesRedirect />} />
             <Route path="/resale/:citySlug/:segment" element={<ResaleToPropertiesRedirect />} />
             <Route path="/resale/:citySlug/:neighborhoodSlug/:type" element={<ResaleToPropertiesRedirect />} />
-            <Route path="/presale-condos/:citySlug" element={<CityPresalePage />} />
+            {/* SEO Redirect: /presale-condos/:citySlug -> /{citySlug}-presale-condos */}
+            <Route path="/presale-condos/:citySlug" element={<CityPresaleSEORedirect />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
             <Route path="/presale-townhomes-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
