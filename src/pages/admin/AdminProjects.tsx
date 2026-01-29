@@ -46,11 +46,13 @@ import {
   Copy,
   Trash2,
   Upload,
+  Download,
   MapPinned,
   CheckCircle2,
   XCircle,
   AlertCircle
 } from "lucide-react";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 type Project = {
   id: string;
@@ -389,6 +391,77 @@ export default function AdminProjects() {
     }
   };
 
+  const exportProjectsToCSV = async () => {
+    try {
+      // Fetch full project data for export
+      const { data, error } = await supabase
+        .from("presale_projects")
+        .select("id, name, slug, city, neighborhood, project_type, status, is_published, is_featured, starting_price, completion_year")
+        .order("name");
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast({
+          title: "No Data",
+          description: "No projects to export",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Generate CSV content
+      const headers = ["Project Name", "City", "Neighborhood", "Project Type", "Status", "Published", "Featured", "Starting Price", "Completion Year", "Project URL"];
+      
+      const rows = data.map(project => {
+        const projectUrl = generateProjectUrl({
+          slug: project.slug,
+          neighborhood: project.neighborhood || project.city,
+          projectType: project.project_type as "condo" | "townhome" | "mixed" | "duplex" | "single_family",
+        });
+        const fullUrl = `${window.location.origin}${projectUrl}`;
+        
+        return [
+          `"${(project.name || "").replace(/"/g, '""')}"`,
+          `"${(project.city || "").replace(/"/g, '""')}"`,
+          `"${(project.neighborhood || "").replace(/"/g, '""')}"`,
+          `"${(project.project_type || "").replace(/"/g, '""')}"`,
+          `"${(project.status || "").replace(/"/g, '""')}"`,
+          project.is_published ? "Yes" : "No",
+          project.is_featured ? "Yes" : "No",
+          project.starting_price || "",
+          project.completion_year || "",
+          `"${fullUrl}"`
+        ].join(",");
+      });
+
+      const csvContent = [headers.join(","), ...rows].join("\n");
+      
+      // Create and download file
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `presale-projects-export-${new Date().toISOString().split("T")[0]}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Complete",
+        description: `Exported ${data.length} projects to CSV`,
+      });
+    } catch (error) {
+      console.error("Error exporting projects:", error);
+      toast({
+        title: "Export Failed",
+        description: "Failed to export projects",
+        variant: "destructive",
+      });
+    }
+  };
+
   const cities = [...new Set(projects.map(p => p.city))].sort();
 
   const filteredProjects = projects.filter(project => {
@@ -434,6 +507,10 @@ export default function AdminProjects() {
             <Button variant="outline" onClick={() => navigate("/admin/projects/import")} className="gap-2">
               <Upload className="h-4 w-4" />
               Import CSV
+            </Button>
+            <Button variant="outline" onClick={exportProjectsToCSV} className="gap-2">
+              <Download className="h-4 w-4" />
+              Export CSV
             </Button>
             <Button onClick={() => navigate("/admin/projects/new")} className="gap-2">
               <Plus className="h-4 w-4" />
