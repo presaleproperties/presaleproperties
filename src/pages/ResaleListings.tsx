@@ -2,24 +2,8 @@ import { useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, Map, LayoutGrid, Flame, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Building2, Map, Home, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { FloatingBottomNav } from "@/components/mobile/FloatingBottomNav";
@@ -31,37 +15,40 @@ import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 import { PopularSearchesGrid } from "@/components/seo/PopularSearchesGrid";
+import { UnifiedSearchFilters } from "@/components/search/UnifiedSearchFilters";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
 
 const ITEMS_PER_PAGE = 16;
 
-const CITIES = [
-  "Vancouver", 
-  "Burnaby", 
-  "Richmond", 
-  "Surrey", 
-  "Coquitlam", 
-  "Port Coquitlam",
-  "Port Moody",
-  "North Vancouver", 
-  "West Vancouver",
-  "Langley",
-  "Delta",
-  "Abbotsford",
-  "New Westminster",
-  "White Rock"
+// Filter options matching presale structure
+const CITY_OPTIONS = [
+  { value: "any", label: "All Cities" },
+  { value: "Vancouver", label: "Vancouver" },
+  { value: "Burnaby", label: "Burnaby" },
+  { value: "Richmond", label: "Richmond" },
+  { value: "Surrey", label: "Surrey" },
+  { value: "Coquitlam", label: "Coquitlam" },
+  { value: "Port Coquitlam", label: "Port Coquitlam" },
+  { value: "Port Moody", label: "Port Moody" },
+  { value: "North Vancouver", label: "North Vancouver" },
+  { value: "West Vancouver", label: "West Vancouver" },
+  { value: "Langley", label: "Langley" },
+  { value: "Delta", label: "Delta" },
+  { value: "Abbotsford", label: "Abbotsford" },
+  { value: "New Westminster", label: "New Westminster" },
+  { value: "White Rock", label: "White Rock" },
 ];
 
-const PROPERTY_TYPES = [
+const TYPE_OPTIONS = [
   { value: "any", label: "All Types" },
   { value: "Apartment/Condo", label: "Condo" },
   { value: "Townhouse", label: "Townhouse" },
   { value: "House", label: "House" },
 ];
 
-const PRICE_RANGES = [
+const PRICE_OPTIONS = [
   { value: "any", label: "Any Price" },
   { value: "0-500000", label: "Under $500K" },
   { value: "500000-750000", label: "$500K - $750K" },
@@ -79,10 +66,17 @@ const BEDS_OPTIONS = [
   { value: "4", label: "4+ Beds" },
 ];
 
+const BATHS_OPTIONS = [
+  { value: "any", label: "Any Baths" },
+  { value: "1", label: "1+ Bath" },
+  { value: "2", label: "2+ Baths" },
+  { value: "3", label: "3+ Baths" },
+];
+
 const SORT_OPTIONS = [
   { value: "newest", label: "Newest First" },
-  { value: "price-asc", label: "Price: Low to High" },
-  { value: "price-desc", label: "Price: High to Low" },
+  { value: "price-asc", label: "Price: Low → High" },
+  { value: "price-desc", label: "Price: High → Low" },
 ];
 
 type MLSListing = {
@@ -118,16 +112,14 @@ function ListingTypeToggle() {
   const navigate = useNavigate();
   
   return (
-    <div className="inline-flex items-center gap-1 p-1 bg-muted rounded-full">
+    <div className="flex items-center gap-1 p-1 bg-muted rounded-full">
       <button
         onClick={() => navigate("/presale-projects")}
-        className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all text-muted-foreground hover:text-foreground hover:bg-background/50 whitespace-nowrap"
+        className="px-4 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         Presale
       </button>
-      <button
-        className="px-3 sm:px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all bg-foreground text-background shadow-sm cursor-default whitespace-nowrap"
-      >
+      <button className="px-4 py-1.5 rounded-full text-sm font-medium bg-foreground text-background shadow-sm">
         Move-In Ready
       </button>
     </div>
@@ -140,8 +132,6 @@ export default function ResaleListings() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState(searchParams.get("q") || "");
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<"grid" | "map">("grid");
   
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
@@ -151,12 +141,13 @@ export default function ResaleListings() {
     propertyType: searchParams.get("type") || "any",
     priceRange: searchParams.get("price") || "any",
     beds: searchParams.get("beds") || "any",
+    baths: searchParams.get("baths") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  // Metro Vancouver cities - exclude Vancouver Island cities like Langford
+  // Metro Vancouver cities
   const metroVancouverCities = [
     "Vancouver", "Surrey", "Burnaby", "Richmond", "Langley",
     "Coquitlam", "Delta", "Abbotsford", "New Westminster",
@@ -165,33 +156,12 @@ export default function ResaleListings() {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
-  // Featured/Hot listings query - newest 2024+ listings (move-in ready new construction)
-  const { data: hotListings } = useQuery({
-    queryKey: ["hot-resale-listings-2024", enabledCities],
-    queryFn: async () => {
-      const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
-      
-      const { data, error } = await supabase
-        .from("mls_listings")
-        .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
-        .eq("mls_status", "Active")
-        .in("city", citiesToUse)
-        .gte("year_built", 2024)
-        .order("created_at", { ascending: false })
-        .limit(12);
-
-      if (error) throw error;
-      return data as MLSListing[];
-    },
-  });
-
   const { data, isLoading } = useQuery({
     queryKey: ["resale-listings-2024", filters, currentPage, enabledCities],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
       const buildFilters = (query: any) => {
-        // Always filter by enabled cities when no specific city is selected
         if (filters.city === "any") {
           query = query.in("city", citiesToUse);
         } else {
@@ -206,6 +176,9 @@ export default function ResaleListings() {
         }
         if (filters.beds !== "any") {
           query = query.gte("bedrooms_total", parseInt(filters.beds));
+        }
+        if (filters.baths !== "any") {
+          query = query.gte("bathrooms_total", parseInt(filters.baths));
         }
         return query;
       };
@@ -249,7 +222,7 @@ export default function ResaleListings() {
     gcTime: 5 * 60 * 1000,
   });
 
-  // Separate query for MAP - fetches ALL listings with coordinates (not paginated)
+  // Map query - all listings with coordinates
   const { data: mapListingsData } = useQuery({
     queryKey: ["resale-map-listings-2024", filters, enabledCities],
     queryFn: async () => {
@@ -263,7 +236,6 @@ export default function ResaleListings() {
         .not("latitude", "is", null)
         .not("longitude", "is", null);
 
-      // Apply same filters but NO pagination
       if (filters.city === "any") {
         query = query.in("city", citiesToUse);
       } else {
@@ -279,8 +251,10 @@ export default function ResaleListings() {
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
       }
+      if (filters.baths !== "any") {
+        query = query.gte("bathrooms_total", parseInt(filters.baths));
+      }
 
-      // No pagination - get all for map (limit to reasonable amount for performance)
       query = query.order("list_date", { ascending: false, nullsFirst: false }).limit(5000);
 
       const { data, error } = await query;
@@ -292,7 +266,6 @@ export default function ResaleListings() {
   });
 
   const mapListings = mapListingsData || [];
-
   const listings = data?.listings || [];
   const totalCount = data?.totalCount || 0;
   const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
@@ -337,7 +310,7 @@ export default function ResaleListings() {
   };
 
   const handleRefresh = useCallback(async () => {
-    await queryClient.invalidateQueries({ queryKey: ["resale-listings"] });
+    await queryClient.invalidateQueries({ queryKey: ["resale-listings-2024"] });
   }, [queryClient]);
 
   const activeFilterCount = [
@@ -345,6 +318,7 @@ export default function ResaleListings() {
     filters.propertyType !== "any",
     filters.priceRange !== "any",
     filters.beds !== "any",
+    filters.baths !== "any",
   ].filter(Boolean).length;
 
   const getAddress = (listing: MLSListing) => {
@@ -355,73 +329,14 @@ export default function ResaleListings() {
     return listing.city;
   };
 
-  const FilterControls = () => (
-    <div className="space-y-4">
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">City</label>
-        <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Cities" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="any">All Cities</SelectItem>
-            {CITIES.map((city) => (
-              <SelectItem key={city} value={city}>{city}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Property Type</label>
-        <Select value={filters.propertyType} onValueChange={(v) => updateFilter("type", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="All Types" />
-          </SelectTrigger>
-          <SelectContent>
-            {PROPERTY_TYPES.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Price Range</label>
-        <Select value={filters.priceRange} onValueChange={(v) => updateFilter("price", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any Price" />
-          </SelectTrigger>
-          <SelectContent>
-            {PRICE_RANGES.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-foreground mb-2 block">Bedrooms</label>
-        <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Any Beds" />
-          </SelectTrigger>
-          <SelectContent>
-            {BEDS_OPTIONS.map((opt) => (
-              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {activeFilterCount > 0 && (
-        <Button variant="ghost" onClick={clearAllFilters} className="w-full">
-          <X className="h-4 w-4 mr-2" />
-          Clear All Filters ({activeFilterCount})
-        </Button>
-      )}
-    </div>
-  );
+  // Filter config for UnifiedSearchFilters - matching presale structure
+  const filterConfig = [
+    { key: "city", label: "City", paramKey: "city", options: CITY_OPTIONS },
+    { key: "propertyType", label: "Type", paramKey: "type", options: TYPE_OPTIONS },
+    { key: "priceRange", label: "Price", paramKey: "price", options: PRICE_OPTIONS },
+    { key: "beds", label: "Beds", paramKey: "beds", options: BEDS_OPTIONS },
+    { key: "baths", label: "Baths", paramKey: "baths", options: BATHS_OPTIONS },
+  ];
 
   const PaginationControls = () => {
     if (totalPages <= 1) return null;
@@ -486,31 +401,27 @@ export default function ResaleListings() {
   };
 
   const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-      {[...Array(6)].map((_, i) => (
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+      {[...Array(8)].map((_, i) => (
         <div key={i} className="rounded-xl overflow-hidden border border-border">
-          <Skeleton className="aspect-[16/11] w-full" />
-          <div className="p-4 space-y-3">
-            <Skeleton className="h-5 w-3/4" />
-            <Skeleton className="h-4 w-1/2" />
-            <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="aspect-[4/3] w-full" />
+          <div className="p-3 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
           </div>
         </div>
       ))}
     </div>
   );
 
-  // Dynamic SEO - Enhanced for "new homes", "brand new", etc.
-  const canonicalUrl = `https://presaleproperties.com${location.pathname}${location.search ? '' : ''}`;
+  // SEO
+  const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
   
   const getSeoTitle = () => {
-    // Main page - optimized for Google sitelinks "Move-In Ready Homes"
     if (filters.city === "any" && filters.propertyType === "any") {
       return "Move-In Ready Homes | Brand New Condos & Townhomes in Metro Vancouver";
     }
-    
     const parts: string[] = ["NEW"];
-    
     if (filters.propertyType !== "any") {
       const typeLabel = filters.propertyType === "Apartment/Condo" ? "Condos" : 
                         filters.propertyType === "Townhouse" ? "Townhomes" : 
@@ -519,46 +430,26 @@ export default function ResaleListings() {
     } else {
       parts.push("Homes, Condos & Townhomes");
     }
-    
     parts.push("for Sale");
-    
     if (filters.city !== "any") {
       parts.push(`in ${filters.city}`);
     } else {
       parts.push("in Metro Vancouver");
     }
-    
     parts.push("| Brand New 2024-2026");
-    
     return parts.join(" ");
   };
 
   const getSeoDescription = () => {
-    // Main page - optimized for sitelinks
     if (filters.city === "any" && filters.propertyType === "any") {
       return `${totalCount.toLocaleString()}+ brand new condos, townhomes & houses for sale. Move-in ready homes built 2024-2026. Never lived in, with full warranty coverage.`;
     }
-    
     const cityText = filters.city !== "any" ? filters.city : "Vancouver, Surrey, Burnaby, Coquitlam, Langley & more";
     const typeText = filters.propertyType === "Apartment/Condo" ? "new condos" : 
                      filters.propertyType === "Townhouse" ? "new townhomes" : 
                      filters.propertyType === "House" ? "new detached homes" :
                      "brand new homes, condos, townhomes & detached houses";
-    
     return `Browse ${totalCount.toLocaleString()}+ ${typeText} for sale in ${cityText}, BC. All properties are new construction built 2024-2026. Move-in ready with photos, prices & virtual tours.`;
-  };
-  
-  const getKeywords = () => {
-    const city = filters.city !== "any" ? filters.city : "Vancouver Surrey Burnaby Coquitlam Langley Richmond";
-    const typeKeywords = filters.propertyType === "Apartment/Condo" 
-      ? "new condos, brand new condos, new condo for sale" 
-      : filters.propertyType === "Townhouse" 
-        ? "new townhomes, brand new townhomes, new townhouse for sale"
-        : filters.propertyType === "House"
-          ? "new homes, brand new homes, new detached homes, new houses for sale"
-          : "new homes, brand new homes, new condos, new townhomes, new construction homes";
-    
-    return `${typeKeywords}, ${city} new homes, ${city} new construction, move-in ready homes ${city}, 2024 built homes, 2025 new homes, brand new homes BC`;
   };
 
   const structuredData = {
@@ -568,52 +459,6 @@ export default function ResaleListings() {
     "description": getSeoDescription(),
     "url": canonicalUrl,
     "numberOfItems": totalCount,
-    "itemListElement": filteredListings?.slice(0, 10).map((listing, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "RealEstateListing",
-        "name": `New Home - ${getAddress(listing)}`,
-        "url": `https://presaleproperties.com/resale/${listing.listing_key}`,
-        "offers": {
-          "@type": "Offer",
-          "price": listing.listing_price,
-          "priceCurrency": "CAD"
-        }
-      }
-    })) || []
-  };
-  
-  // FAQ Schema for main resale page
-  const faqSchema = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      {
-        "@type": "Question",
-        "name": "Where can I find new homes for sale in Metro Vancouver?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": `PresaleProperties.com lists ${totalCount}+ brand new homes for sale across Metro Vancouver and Fraser Valley. Browse new condos, townhomes, and detached houses built 2024-2026.`
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "Are these homes move-in ready?",
-        "acceptedAnswer": {
-          "@type": "Answer",
-          "text": "Yes! All properties listed are new construction homes that are completed and move-in ready. These are not presale - they are brand new homes you can buy and move into immediately."
-        }
-      },
-      {
-        "@type": "Question",
-        "name": "What types of new construction homes are available?",
-        "acceptedAnswer": {
-          "@type": "Answer", 
-          "text": "We list new condos, new townhomes, new detached homes (houses), and new duplexes across BC. All properties are built 2024 or later."
-        }
-      }
-    ]
   };
 
   return (
@@ -621,415 +466,139 @@ export default function ResaleListings() {
       <Helmet>
         <title>{getSeoTitle()}</title>
         <meta name="description" content={getSeoDescription()} />
-        <meta name="keywords" content={getKeywords()} />
         <link rel="canonical" href={canonicalUrl} />
-        
-        <meta property="og:type" content="website" />
         <meta property="og:title" content={getSeoTitle()} />
         <meta property="og:description" content={getSeoDescription()} />
         <meta property="og:url" content={canonicalUrl} />
-        <meta property="og:site_name" content="PresaleProperties.com" />
-        
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content={getSeoTitle()} />
-        <meta name="twitter:description" content={getSeoDescription()} />
-        
-        <meta name="geo.region" content="CA-BC" />
-        <meta name="geo.placename" content={filters.city !== "any" ? filters.city : "Metro Vancouver"} />
-        
-        <script type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </script>
-        <script type="application/ld+json">
-          {JSON.stringify(faqSchema)}
-        </script>
+        <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
       </Helmet>
 
       <PullToRefresh onRefresh={handleRefresh} className="min-h-screen bg-background">
         <ConversionHeader />
         
-        <section className="bg-background border-b border-border py-3 sm:py-6 md:py-10">
-          <div className="container px-4">
-            {/* Breadcrumbs - hidden on mobile to save space */}
-            <nav aria-label="Breadcrumb" className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground mb-3 overflow-x-auto">
-              <Link to="/" className="hover:text-foreground transition-colors shrink-0">
+        {/* Clean Header Section - matching presale structure */}
+        <section className="bg-background border-b border-border">
+          <div className="container px-4 py-4 md:py-5">
+            {/* Breadcrumb */}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-sm text-muted-foreground mb-3">
+              <Link to="/" className="hover:text-foreground transition-colors">
                 <Home className="h-3.5 w-3.5" />
               </Link>
-              <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
-              <Link to="/properties" className="hover:text-foreground transition-colors shrink-0">
-                Move-In Ready
-              </Link>
+              <ChevronRightIcon className="h-3.5 w-3.5" />
+              <span className="text-foreground font-medium">Move-In Ready</span>
               {filters.city !== "any" && (
                 <>
-                  <ChevronRightIcon className="h-3.5 w-3.5 shrink-0" />
-                  <span className="text-foreground font-medium shrink-0">{filters.city}</span>
+                  <ChevronRightIcon className="h-3.5 w-3.5" />
+                  <span className="text-foreground font-medium">{filters.city}</span>
                 </>
               )}
             </nav>
 
-            {/* Mobile: Compact header with title + count inline */}
-            <div className="sm:hidden flex items-center justify-between gap-2 mb-2">
-              <h1 className="text-lg font-bold text-foreground truncate">
-                {filters.city !== "any" ? filters.city : "Move-In Ready"}
-              </h1>
-              <span className="text-xs text-muted-foreground whitespace-nowrap">{totalCount.toLocaleString()} homes</span>
-            </div>
-
-            {/* Desktop: Full header */}
-            <div className="hidden sm:flex sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="max-w-3xl">
-                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold text-foreground mb-2 sm:mb-3">
+            {/* Title & Toggle Row */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold text-foreground">
                   {filters.city !== "any" 
                     ? `Move-In Ready Homes in ${filters.city}` 
                     : "Move-In Ready New Homes"}
                 </h1>
-                <p className="text-muted-foreground mt-1 flex items-center gap-2 flex-wrap text-sm">
-                  <span className="font-medium text-foreground">{totalCount.toLocaleString()}</span>
-                  <span>active listings</span>
-                  {activeFilterCount > 0 && (
-                    <>
-                      <span className="text-border">•</span>
-                      <button 
-                        onClick={clearAllFilters}
-                        className="text-primary hover:underline"
-                      >
-                        Clear {activeFilterCount} filter{activeFilterCount > 1 ? 's' : ''}
-                      </button>
-                    </>
-                  )}
+                <p className="text-sm text-muted-foreground mt-0.5">
+                  <span className="font-semibold text-foreground">{totalCount.toLocaleString()}</span> active listings
                 </p>
               </div>
               <ListingTypeToggle />
             </div>
             
-            {/* Quick City Filter Chips - smaller on mobile */}
-            <div className="mt-2 sm:mt-4 -mx-4 px-4 overflow-x-auto scrollbar-hide">
-              <div className="flex gap-1.5 sm:gap-2 pb-1">
-                <button
-                  onClick={() => updateFilter("city", "any")}
-                  className={`flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
-                    filters.city === "any"
-                      ? "bg-foreground text-background"
-                      : "bg-muted hover:bg-muted/80 text-foreground"
-                  }`}
-                >
-                  All
-                </button>
-                {["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Langley"].map((city) => (
-                  <button
-                    key={city}
-                    onClick={() => updateFilter("city", city)}
-                    className={`flex-shrink-0 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full text-xs sm:text-sm font-medium transition-colors ${
-                      filters.city === city
-                        ? "bg-foreground text-background"
-                        : "bg-muted hover:bg-muted/80 text-foreground"
-                    }`}
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
-            </div>
+            {/* Unified Search & Filters - same as presale */}
+            <UnifiedSearchFilters
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              searchPlaceholder="Search by city, neighborhood, address..."
+              filters={filterConfig}
+              filterValues={filters}
+              onFilterChange={updateFilter}
+              sortOptions={SORT_OPTIONS}
+              sortValue={filters.sort}
+              onSortChange={(v) => updateFilter("sort", v)}
+              mapLink="/map-search?mode=resale"
+              resultCount={totalCount}
+              onClearAll={clearAllFilters}
+            />
           </div>
         </section>
 
-        {/* Hot Listings Carousel - only show when no filters active */}
-        {activeFilterCount === 0 && hotListings && hotListings.length > 0 && (
-          <ScrollReveal animation="fade-up">
-            <section className="py-6 md:py-8 bg-muted/30 border-b border-border">
-              <div className="container px-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <Flame className="h-5 w-5 text-orange-500 animate-pulse" />
-                  <h2 className="text-lg md:text-xl font-semibold text-foreground">
-                    Newest Listings
-                  </h2>
-                </div>
-                <div 
-                  className="-mx-4 px-4 overflow-x-auto scrollbar-hide scroll-smooth"
-                  style={{ scrollSnapType: 'x mandatory', scrollPaddingLeft: '16px' }}
-                >
-                  <div className="flex gap-3 md:gap-4 pb-2">
-                    {hotListings.map((listing, index) => (
-                      <div 
-                        key={listing.id} 
-                        className="flex-shrink-0 w-[280px] sm:w-[300px] md:w-[320px] animate-fade-in"
-                        style={{ 
-                          scrollSnapAlign: 'start',
-                          animationDelay: `${index * 75}ms`,
-                          animationFillMode: 'both'
-                        }}
-                      >
-                        <ResaleListingCard
-                          id={listing.id}
-                          listingKey={listing.listing_key}
-                          price={listing.listing_price}
-                          address={getAddress(listing)}
-                          city={listing.city}
-                          neighborhood={listing.neighborhood}
-                          propertyType={listing.property_type}
-                          propertySubType={listing.property_sub_type}
-                          beds={listing.bedrooms_total}
-                          baths={listing.bathrooms_total}
-                          sqft={listing.living_area}
-                          photos={Array.isArray(listing.photos) ? listing.photos : []}
-                          daysOnMarket={listing.days_on_market}
-                          status={listing.mls_status}
-                          listAgentName={listing.list_agent_name}
-                          listOfficeName={listing.list_office_name}
-                          virtualTourUrl={listing.virtual_tour_url}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+        {/* Main Grid - same layout as presale */}
+        <main className="container px-4 py-5 md:py-8">
+          {isLoading ? (
+            <LoadingSkeleton />
+          ) : filteredListings.length === 0 ? (
+            <div className="text-center py-16">
+              <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h2 className="text-xl font-semibold mb-2">No listings found</h2>
+              <p className="text-muted-foreground mb-6">Try adjusting your filters</p>
+              <Button onClick={clearAllFilters}>Clear Filters</Button>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-5">
+                {filteredListings.map((listing) => (
+                  <ResaleListingCard
+                    key={listing.id}
+                    id={listing.id}
+                    listingKey={listing.listing_key}
+                    price={listing.listing_price}
+                    address={getAddress(listing)}
+                    city={listing.city}
+                    neighborhood={listing.neighborhood}
+                    propertyType={listing.property_type}
+                    propertySubType={listing.property_sub_type}
+                    beds={listing.bedrooms_total}
+                    baths={listing.bathrooms_total}
+                    sqft={listing.living_area}
+                    photos={Array.isArray(listing.photos) ? listing.photos : []}
+                    daysOnMarket={listing.days_on_market}
+                    status={listing.mls_status}
+                    listAgentName={listing.list_agent_name}
+                    listOfficeName={listing.list_office_name}
+                    virtualTourUrl={listing.virtual_tour_url}
+                  />
+                ))}
               </div>
-            </section>
-          </ScrollReveal>
-        )}
-
-        <main className="container px-4 py-3 md:py-6">
-          {/* Search & Sort Bar - more compact on mobile */}
-          <div className="flex items-center gap-2 mb-3 md:mb-6">
-            {/* Search - hidden on mobile, shown on larger screens */}
-            <div className="relative hidden sm:flex flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search by city, neighborhood, address..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-10"
-              />
-            </div>
-            
-            {/* Mobile: Compact action bar */}
-            <div className="flex gap-2 flex-1 sm:flex-none justify-between sm:justify-end">
-              {/* Map Button */}
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="h-9 px-3"
-                onClick={() => {
-                  const cityParam = filters.city !== "any" ? `&city=${filters.city}` : '';
-                  navigate(`/map-search?mode=resale${cityParam}`);
-                }}
-              >
-                <Map className="h-4 w-4" />
-                <span className="ml-1.5 text-xs sm:text-sm">Map</span>
-              </Button>
-              
-              {/* Mobile Filters */}
-              <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="lg:hidden relative h-9 px-3">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    <span className="ml-1.5 text-xs sm:text-sm">Filters</span>
-                    {activeFilterCount > 0 && (
-                      <Badge className="absolute -top-1.5 -right-1.5 h-4 w-4 p-0 flex items-center justify-center text-[10px]">
-                        {activeFilterCount}
-                      </Badge>
-                    )}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side="left" className="w-[300px] sm:w-80">
-                  <SheetHeader>
-                    <SheetTitle>Filters</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6">
-                    <FilterControls />
-                  </div>
-                </SheetContent>
-              </Sheet>
-
-              {/* Sort */}
-              <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                <SelectTrigger className="w-[100px] sm:w-[160px] h-9 text-xs sm:text-sm">
-                  <SelectValue placeholder="Sort" />
-                </SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((opt) => (
-                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              {/* View Mode Toggle - hidden on mobile */}
-              <div className="hidden sm:flex border rounded-lg overflow-hidden">
-                <Button
-                  variant={viewMode === "grid" ? "default" : "ghost"}
-                  size="sm"
-                  className="rounded-none h-9 px-3"
-                  onClick={() => setViewMode("grid")}
-                >
-                  <LayoutGrid className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant={viewMode === "map" ? "default" : "ghost"}
-                  size="sm"
-                  className="rounded-none h-9 px-3"
-                  onClick={() => setViewMode("map")}
-                >
-                  <Map className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Active Filters Pills - only on desktop or if many filters */}
-          {activeFilterCount > 1 && (
-            <div className="hidden sm:flex flex-wrap gap-2 mb-4 md:mb-6">
-              {filters.city !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  {filters.city}
-                  <button onClick={() => updateFilter("city", "any")}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.propertyType !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  {PROPERTY_TYPES.find((t) => t.value === filters.propertyType)?.label}
-                  <button onClick={() => updateFilter("type", "any")}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.priceRange !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  {PRICE_RANGES.find((p) => p.value === filters.priceRange)?.label}
-                  <button onClick={() => updateFilter("price", "any")}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-              {filters.beds !== "any" && (
-                <Badge variant="secondary" className="gap-1 text-xs">
-                  {BEDS_OPTIONS.find((b) => b.value === filters.beds)?.label}
-                  <button onClick={() => updateFilter("beds", "any")}>
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-            </div>
+              <PaginationControls />
+            </>
           )}
-
-          <div className="flex gap-6 lg:gap-8">
-            {/* Desktop Sidebar Filters */}
-            <aside className="hidden lg:block w-60 flex-shrink-0">
-              <div className="sticky top-6 bg-card border border-border rounded-xl p-4">
-                <h3 className="font-semibold mb-4">Filter Listings</h3>
-                <FilterControls />
-              </div>
-            </aside>
-
-            {/* Main Content */}
-            <div className="flex-1 min-w-0">
-              {isLoading ? (
-                <LoadingSkeleton />
-              ) : filteredListings.length === 0 ? (
-                <div className="text-center py-16 md:py-20">
-                  <Building2 className="h-12 w-12 md:h-16 md:w-16 text-muted-foreground mx-auto mb-4" />
-                  <h2 className="text-xl md:text-2xl font-semibold mb-2">No listings found</h2>
-                  <p className="text-sm md:text-base text-muted-foreground mb-6">
-                    Try adjusting your search or filters
-                  </p>
-                  <Button onClick={clearAllFilters}>
-                    Clear Filters
-                  </Button>
-                </div>
-              ) : viewMode === "map" ? (
-                <>
-                  <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
-                    Showing {mapListings.length.toLocaleString()} listing{mapListings.length !== 1 ? "s" : ""} on map
-                  </p>
-                  <Suspense fallback={
-                    <div className="h-[500px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
-                      <div className="text-center text-muted-foreground">
-                        <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
-                        <p>Loading map...</p>
-                      </div>
-                    </div>
-                  }>
-                    <div className="relative">
-                      <div className="h-[500px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
-                        <ResaleListingsMap listings={mapListings} />
-                      </div>
-                    </div>
-                  </Suspense>
-                </>
-              ) : (
-                <>
-                  <p className="text-xs md:text-sm text-muted-foreground mb-4 md:mb-6">
-                    Showing {filteredListings.length} listing{filteredListings.length !== 1 ? "s" : ""}
-                  </p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
-                    {filteredListings.map((listing) => (
-                      <ResaleListingCard
-                        key={listing.id}
-                        id={listing.id}
-                        listingKey={listing.listing_key}
-                        price={listing.listing_price}
-                        address={getAddress(listing)}
-                        city={listing.city}
-                        neighborhood={listing.neighborhood}
-                        propertyType={listing.property_type}
-                        propertySubType={listing.property_sub_type}
-                        beds={listing.bedrooms_total}
-                        baths={listing.bathrooms_total}
-                        sqft={listing.living_area}
-                        photos={Array.isArray(listing.photos) ? listing.photos : []}
-                        daysOnMarket={listing.days_on_market}
-                        status={listing.mls_status}
-                        listAgentName={listing.list_agent_name}
-                        listOfficeName={listing.list_office_name}
-                        virtualTourUrl={listing.virtual_tour_url}
-                      />
-                    ))}
-                  </div>
-
-                  <PaginationControls />
-                </>
-              )}
-            </div>
-          </div>
         </main>
 
-        {/* Map Section */}
-        {viewMode !== "map" && (
-          <section className="py-12 bg-muted/30">
-            <div className="container px-4">
-              <div className="text-center mb-6">
-                <h2 className="text-2xl font-bold text-foreground mb-2">
-                  {filters.city !== "any" ? `${filters.city} Homes on Map` : "Explore on Map"}
-                </h2>
-                <p className="text-muted-foreground">
-                  {mapListings.length > 0 ? `${mapListings.length.toLocaleString()} listings` : "Find homes near you"}
-                </p>
-              </div>
-              <Suspense fallback={
-                <div className="h-[400px] lg:h-[500px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
-                  <div className="text-center text-muted-foreground">
-                    <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
-                    <p>Loading map...</p>
-                  </div>
-                </div>
-              }>
-                <div className="rounded-xl overflow-hidden border border-border">
-                  <div className="h-[400px] lg:h-[500px]">
-                    <ResaleListingsMap listings={mapListings} />
-                  </div>
-                </div>
-              </Suspense>
-              <div className="text-center mt-4">
-                <Link to={`/map-search?mode=resale${filters.city !== "any" ? `&city=${encodeURIComponent(filters.city)}` : ""}`}>
-                  <Button variant="outline" className="gap-2">
-                    <Map className="h-4 w-4" />
-                    Open Full Map Search
-                  </Button>
-                </Link>
-              </div>
+        {/* Map Section - same as presale */}
+        <section className="py-10 bg-muted/30 border-t border-border">
+          <div className="container px-4">
+            <div className="text-center mb-5">
+              <h2 className="text-xl font-bold text-foreground mb-1">
+                {filters.city !== "any" ? `${filters.city} on Map` : "Explore on Map"}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Find move-in ready homes near you
+              </p>
             </div>
-          </section>
-        )}
+            <Suspense fallback={
+              <div className="h-[350px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+                <Map className="h-10 w-10 text-muted-foreground animate-pulse" />
+              </div>
+            }>
+              <div className="rounded-xl overflow-hidden border border-border h-[350px]">
+                <ResaleListingsMap listings={mapListings} />
+              </div>
+            </Suspense>
+            <div className="text-center mt-4">
+              <Link to={`/map-search?mode=resale${filters.city !== "any" ? `&city=${encodeURIComponent(filters.city)}` : ""}`}>
+                <Button variant="outline" className="gap-2">
+                  <Map className="h-4 w-4" />
+                  Open Full Map Search
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </section>
 
         {/* Popular Searches Grid */}
         <PopularSearchesGrid 
