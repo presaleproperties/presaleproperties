@@ -132,7 +132,7 @@ export function HeroSection({
             style={{ animationDelay: "0.2s" }}
           >
             {/* Search Header with Tabs */}
-            <div className="flex items-center justify-between border-b border-border/20 px-4 sm:px-6 py-3 sm:py-4 bg-muted/30">
+            <div className="flex items-center justify-between border-b border-border/20 px-4 sm:px-5 py-2 sm:py-2.5 bg-muted/30">
               <div className="flex items-center gap-1.5 sm:gap-2">
                 <button 
                   onClick={() => handleTabChange("projects")} 
@@ -166,7 +166,7 @@ export function HeroSection({
 
             {/* Search Input */}
             <form onSubmit={handleSearch}>
-              <div className="relative px-4 sm:px-6 py-4 sm:py-5" ref={searchContainerRef}>
+              <div className="relative px-4 sm:px-5 py-3 sm:py-3.5" ref={searchContainerRef}>
                 <Input 
                   type="text" 
                   placeholder={activeTab === "projects" ? "Search projects, developers, neighbourhoods..." : "City, neighbourhood, address..."} 
@@ -176,7 +176,7 @@ export function HeroSection({
                     setShowSuggestions(true);
                   }} 
                   onFocus={() => setShowSuggestions(true)} 
-                  className="h-12 sm:h-14 md:h-16 text-base sm:text-lg pl-5 pr-14 border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary rounded-xl transition-all duration-300" 
+                  className="h-11 sm:h-12 md:h-14 text-base sm:text-lg pl-5 pr-14 border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary rounded-xl transition-all duration-300" 
                   autoComplete="off" 
                 />
                 <button 
