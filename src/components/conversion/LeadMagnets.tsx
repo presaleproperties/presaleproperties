@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Bell, Heart, TrendingUp, FileText, Calculator, Calendar, Phone, Building2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,84 +18,38 @@ interface LeadMagnetProps {
 
 // Tier 1: Low Commitment Lead Magnets
 export function SaveProjectButton({ projectId, projectName }: LeadMagnetProps) {
-  const [open, setOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
+  const [isSaved, setIsSaved] = useState(() => 
+    projectId ? localStorage.getItem(`saved_${projectId}`) === "true" : false
+  );
   const { toast } = useToast();
 
-  const handleSave = async () => {
-    if (!email) return;
-    setIsSubmitting(true);
-
-    try {
-      await supabase.from("newsletter_subscribers").insert({
-        email,
-        source: "save_project",
-        preferred_city: null,
-        wants_projects: true,
-        wants_assignments: false,
-      });
-
-      // Track
-      trackFormSubmit({
-        form_name: "save_project",
-        form_location: "project_detail",
-        email,
-        project_name: projectName,
-      });
-      MetaEvents.lead({ content_name: projectName, content_category: "save_project" });
-
-      localStorage.setItem(`saved_${projectId}`, "true");
-      setIsSaved(true);
-      setOpen(false);
-      toast({ title: "Project saved!", description: "We'll notify you of updates." });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleSave = () => {
+    if (isSaved || !projectId) return;
+    
+    // Save to localStorage directly - no lead form
+    localStorage.setItem(`saved_${projectId}`, "true");
+    setIsSaved(true);
+    
+    // Track the save action
+    MetaEvents.viewContent({ content_name: projectName || "Project", content_category: "save_project" });
+    
+    toast({ 
+      title: "Project saved!", 
+      description: "Find your saved projects in your browser." 
+    });
   };
 
-  // Check if already saved
-  const alreadySaved = projectId ? localStorage.getItem(`saved_${projectId}`) === "true" : isSaved;
-
   return (
-    <>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => alreadySaved ? null : setOpen(true)}
-        className={`gap-2 ${alreadySaved ? "bg-primary/10 text-primary border-primary/30" : ""}`}
-        disabled={alreadySaved}
-      >
-        <Heart className={`h-4 w-4 ${alreadySaved ? "fill-primary" : ""}`} />
-        {alreadySaved ? "Saved" : "Save Project"}
-      </Button>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <VisuallyHidden><DialogTitle>Save Project</DialogTitle></VisuallyHidden>
-          <div className="text-center p-2">
-            <Heart className="h-10 w-10 mx-auto text-primary mb-3" />
-            <h3 className="font-semibold text-lg mb-1">Save {projectName}</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Get notified of price changes and new floor plans
-            </p>
-            <Input
-              type="email"
-              placeholder="Your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mb-3"
-            />
-            <Button onClick={handleSave} disabled={isSubmitting} className="w-full">
-              {isSubmitting ? "Saving..." : "Save & Get Updates"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={handleSave}
+      className={`gap-2 ${isSaved ? "bg-primary/10 text-primary border-primary/30" : ""}`}
+      disabled={isSaved}
+    >
+      <Heart className={`h-4 w-4 ${isSaved ? "fill-primary" : ""}`} />
+      {isSaved ? "Saved" : "Save Project"}
+    </Button>
   );
 }
 
@@ -288,81 +243,35 @@ export function NeighborhoodGuideButton({ city }: LeadMagnetProps) {
   );
 }
 
-// Tier 2: Medium Commitment - ROI Analysis Request
-export function ROIAnalysisButton({ projectId, projectName }: LeadMagnetProps) {
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState({ email: "", phone: "" });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
+// Tier 2: Medium Commitment - ROI Analysis (now navigates to calculator)
+interface ROIAnalysisButtonProps extends LeadMagnetProps {
+  startingPrice?: number;
+  city?: string;
+}
 
-  const handleSubmit = async () => {
-    if (!formData.email || !formData.phone) return;
-    setIsSubmitting(true);
+export function ROIAnalysisButton({ projectId, projectName, startingPrice, city }: ROIAnalysisButtonProps) {
+  const navigate = useNavigate();
 
-    try {
-      const leadId = crypto.randomUUID();
-      await supabase.from("project_leads").insert({
-        id: leadId,
-        project_id: projectId,
-        name: "ROI Analysis Request",
-        email: formData.email,
-        phone: formData.phone,
-        message: `ROI Analysis Request for ${projectName}`,
-        lead_source: "roi_analysis",
-        visitor_id: getVisitorId(),
-      });
-
-      await supabase.functions.invoke("send-project-lead", { body: { leadId } });
-
-      trackFormSubmit({ form_name: "roi_analysis", form_location: "project_detail", email: formData.email, project_name: projectName });
-      MetaEvents.lead({ content_name: projectName, content_category: "roi_analysis" });
-
-      setOpen(false);
-      toast({ title: "Request received!", description: "Your ROI analysis will be emailed within 24 hours." });
-    } catch (error) {
-      console.error(error);
-    } finally {
-      setIsSubmitting(false);
-    }
+  const handleClick = () => {
+    // Track the action
+    MetaEvents.viewContent({ content_name: projectName || "Project", content_category: "roi_calculator" });
+    
+    // Build query params for the calculator
+    const params = new URLSearchParams();
+    if (projectName) params.set("project", projectName);
+    if (startingPrice) params.set("price", startingPrice.toString());
+    if (city) params.set("city", city);
+    
+    // Navigate to the ROI calculator
+    const queryString = params.toString();
+    navigate(`/calculator${queryString ? `?${queryString}` : ""}`);
   };
 
   return (
-    <>
-      <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2">
-        <Calculator className="h-4 w-4" />
-        Get ROI Analysis
-      </Button>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <VisuallyHidden><DialogTitle>ROI Analysis</DialogTitle></VisuallyHidden>
-          <div className="text-center p-2">
-            <Calculator className="h-10 w-10 mx-auto text-primary mb-3" />
-            <h3 className="font-semibold text-lg mb-1">Free ROI Analysis</h3>
-            <p className="text-sm text-muted-foreground mb-4">
-              Get a personalized investment analysis for {projectName}
-            </p>
-            <div className="space-y-3">
-              <Input
-                type="email"
-                placeholder="Your email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              />
-              <Input
-                type="tel"
-                placeholder="Phone number"
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              />
-              <Button onClick={handleSubmit} disabled={isSubmitting} className="w-full">
-                {isSubmitting ? "Requesting..." : "Get My ROI Analysis"}
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-    </>
+    <Button variant="outline" size="sm" onClick={handleClick} className="gap-2">
+      <Calculator className="h-4 w-4" />
+      Get ROI Analysis
+    </Button>
   );
 }
 
@@ -450,12 +359,16 @@ export function ConsultationButton({ projectName }: LeadMagnetProps) {
 }
 
 // Multi-tier lead capture bar for project pages
-export function ProjectLeadMagnetsBar({ projectId, projectName, city }: LeadMagnetProps) {
+interface ProjectLeadMagnetsBarProps extends LeadMagnetProps {
+  startingPrice?: number;
+}
+
+export function ProjectLeadMagnetsBar({ projectId, projectName, city, startingPrice }: ProjectLeadMagnetsBarProps) {
   return (
     <div className="flex flex-wrap items-center gap-2 py-3 border-y border-border">
       <span className="text-xs text-muted-foreground mr-2 hidden sm:inline">Quick actions:</span>
       <SaveProjectButton projectId={projectId} projectName={projectName} />
-      <ROIAnalysisButton projectId={projectId} projectName={projectName} />
+      <ROIAnalysisButton projectId={projectId} projectName={projectName} startingPrice={startingPrice} city={city} />
     </div>
   );
 }
