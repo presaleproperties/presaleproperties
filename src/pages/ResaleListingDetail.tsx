@@ -576,11 +576,12 @@ export default function ResaleListingDetail() {
                       size="sm"
                       className="h-9 w-9 min-h-[44px] min-w-[44px] p-0 rounded-lg"
                       onClick={async () => {
-                        const shareUrl = window.location.href;
+                        // Use the edge function URL for proper OG meta tags
+                        const ogUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?listingKey=${listingKey}`;
                         const shareData = {
                           title: pageTitle,
                           text: pageDescription,
-                          url: shareUrl,
+                          url: ogUrl,
                         };
                         if (navigator.share && navigator.canShare?.(shareData)) {
                           try {
@@ -589,7 +590,7 @@ export default function ResaleListingDetail() {
                             // User cancelled
                           }
                         } else {
-                          await navigator.clipboard.writeText(shareUrl);
+                          await navigator.clipboard.writeText(ogUrl);
                           toast.success("Link copied to clipboard!");
                         }
                       }}
@@ -656,11 +657,12 @@ export default function ResaleListingDetail() {
                   size="sm"
                   className="h-8 px-3 text-xs rounded-full gap-1.5 hover:bg-muted"
                   onClick={async () => {
-                    const shareUrl = window.location.href;
+                    // Use the edge function URL for proper OG meta tags
+                    const ogUrl = `https://thvlisplwqhtjpzpedhq.supabase.co/functions/v1/og-property-meta?listingKey=${listingKey}`;
                     const shareData = {
                       title: pageTitle,
                       text: pageDescription,
-                      url: shareUrl,
+                      url: ogUrl,
                     };
                     if (navigator.share && navigator.canShare?.(shareData)) {
                       try {
@@ -669,7 +671,7 @@ export default function ResaleListingDetail() {
                         // User cancelled
                       }
                     } else {
-                      await navigator.clipboard.writeText(shareUrl);
+                      await navigator.clipboard.writeText(ogUrl);
                       toast.success("Link copied to clipboard!");
                     }
                   }}
