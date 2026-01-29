@@ -49,7 +49,10 @@ export function ProjectMobileCTA({
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.12)] hide-on-keyboard">
+    <div 
+      className="fixed bottom-0 left-0 right-0 z-[9999] lg:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.12)] hide-on-keyboard"
+      style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+    >
       {/* Safe area padding for iPhone notch - always visible */}
       <div className="px-4 py-3 pb-[max(16px,env(safe-area-inset-bottom))]">
         {/* Action Buttons - minimum 48px height for thumb-friendly targets */}

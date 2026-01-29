@@ -34,7 +34,10 @@ export const ResaleMobileCTABar = ({
   return (
     <>
       {/* Fixed bottom CTA bar - mobile only with keyboard-aware visibility */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] hide-on-keyboard safe-area-pb">
+      <div 
+        className="fixed bottom-0 left-0 right-0 z-[9999] lg:hidden bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] hide-on-keyboard safe-area-pb"
+        style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+      >
         <div className="px-4 py-3 flex items-center gap-3">
           {/* Price display */}
           {formattedPrice && (
