@@ -15,7 +15,7 @@ import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
 import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
@@ -75,7 +75,7 @@ export function AccessPackModal({
   const [isSuccess, setIsSuccess] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
   const { toast } = useToast();
-  const isMobile = useIsMobile();
+  const isMobileOrTablet = useIsMobileOrTablet();
 
   useEffect(() => {
     const fetchWhatsapp = async () => {
@@ -541,7 +541,8 @@ export function AccessPackModal({
   );
 
   // Mobile/Tablet: Use bottom Sheet
-  if (isMobile) {
+  // Mobile/Tablet: Use bottom Sheet (< 1024px)
+  if (isMobileOrTablet) {
     return (
       <Sheet open={open} onOpenChange={onOpenChange}>
         <SheetContent 
