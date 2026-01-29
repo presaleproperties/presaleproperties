@@ -1774,7 +1774,14 @@ export default function MapSearch() {
                     <Bed className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span>{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+`}</span>
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[9999]" position="popper" sideOffset={4}>
+                  <SelectContent 
+                    className="bg-popover border-border shadow-lg" 
+                    position="popper" 
+                    side="bottom"
+                    align="start"
+                    sideOffset={4}
+                    style={{ zIndex: 9999 }}
+                  >
                     {BED_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.value === "any" ? "Any Beds" : opt.label === "Studio" ? "Studio" : `${opt.label}+ Bed`}
@@ -1792,7 +1799,14 @@ export default function MapSearch() {
                     <Bath className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                     <span>{filters.baths === "any" ? "Baths" : `${filters.baths}+`}</span>
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[9999]" position="popper" sideOffset={4}>
+                  <SelectContent 
+                    className="bg-popover border-border shadow-lg" 
+                    position="popper" 
+                    side="bottom"
+                    align="start"
+                    sideOffset={4}
+                    style={{ zIndex: 9999 }}
+                  >
                     {BATH_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         {opt.value === "any" ? "Any Baths" : `${opt.label} Bath`}
@@ -1829,7 +1843,14 @@ export default function MapSearch() {
                   <SelectTrigger className="w-[110px] h-7 text-xs border border-border bg-background hover:bg-muted px-2 gap-1 rounded-md">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-popover border-border z-[100]">
+                  <SelectContent 
+                    className="bg-popover border-border shadow-lg" 
+                    position="popper" 
+                    side="bottom"
+                    align="start"
+                    sideOffset={4}
+                    style={{ zIndex: 9999 }}
+                  >
                     {SORT_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
                   </SelectContent>
                 </Select>
