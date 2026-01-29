@@ -721,32 +721,6 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
               </RadioGroup>
             </div>
 
-            {/* Interested in */}
-            <div>
-              <Label className="text-sm font-medium text-muted-foreground mb-2 block">
-                Interested in
-              </Label>
-              <RadioGroup
-                value={profileForm.watch("homeSize")}
-                onValueChange={(v) => profileForm.setValue("homeSize", v as any)}
-                className="grid grid-cols-3 gap-2"
-              >
-                {HOME_SIZES.map((size) => (
-                  <Label
-                    key={size.value}
-                    className={`flex items-center justify-center h-11 min-h-[44px] rounded-xl border-2 cursor-pointer text-sm font-medium transition-all touch-active ${
-                      profileForm.watch("homeSize") === size.value
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:border-muted-foreground/50 active:bg-muted"
-                    }`}
-                  >
-                    <RadioGroupItem value={size.value} className="sr-only" />
-                    {size.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-
             {/* Submit Button */}
             <Button
               type="submit"
@@ -1005,56 +979,30 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </RadioGroup>
           </div>
 
-          {/* Working with agent & Home Size - side by side */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                Working with Realtor?
-              </Label>
-              <RadioGroup
-                value={form.watch("workingWithAgent")}
-                onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-                className="grid grid-cols-1 gap-1.5"
-              >
-                {AGENT_OPTIONS.map((a) => (
-                  <Label
-                    key={a.value}
-                    className={`flex items-center justify-center h-8 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
-                      form.watch("workingWithAgent") === a.value
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <RadioGroupItem value={a.value} className="sr-only" />
-                    {a.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
-            <div>
-              <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                Home Size
-              </Label>
-              <RadioGroup
-                value={form.watch("homeSize")}
-                onValueChange={(v) => form.setValue("homeSize", v as any)}
-                className="grid grid-cols-1 gap-1.5"
-              >
-                {HOME_SIZES.map((size) => (
-                  <Label
-                    key={size.value}
-                    className={`flex items-center justify-center h-8 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
-                      form.watch("homeSize") === size.value
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:border-muted-foreground/50"
-                    }`}
-                  >
-                    <RadioGroupItem value={size.value} className="sr-only" />
-                    {size.label}
-                  </Label>
-                ))}
-              </RadioGroup>
-            </div>
+          {/* Working with Realtor - full width */}
+          <div>
+            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+              Working with a Realtor?
+            </Label>
+            <RadioGroup
+              value={form.watch("workingWithAgent")}
+              onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
+              className="grid grid-cols-3 gap-2"
+            >
+              {AGENT_OPTIONS.map((a) => (
+                <Label
+                  key={a.value}
+                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
+                    form.watch("workingWithAgent") === a.value
+                      ? "border-foreground bg-foreground text-background"
+                      : "border-border hover:border-muted-foreground/50"
+                  }`}
+                >
+                  <RadioGroupItem value={a.value} className="sr-only" />
+                  {a.label}
+                </Label>
+              ))}
+            </RadioGroup>
           </div>
 
           {/* Submit Button */}
