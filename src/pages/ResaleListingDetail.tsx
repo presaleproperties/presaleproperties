@@ -23,6 +23,7 @@ import { SimilarListings } from "@/components/resale/SimilarListings";
 import { ResaleAgentCard } from "@/components/resale/ResaleAgentCard";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { ListingHistory } from "@/components/resale/ListingHistory";
+import { PropertySEOTags } from "@/components/seo/PropertySEOTags";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
@@ -1156,8 +1157,19 @@ export default function ResaleListingDetail() {
               )}
             </div>
 
+            {/* SEO Tags & Warranty Section */}
+            <PropertySEOTags
+              city={listing.city}
+              neighborhood={listing.neighborhood}
+              propertyType={listing.property_sub_type || listing.property_type}
+              bedrooms={listing.bedrooms_total}
+              yearBuilt={listing.year_built}
+              isNewConstruction={listing.year_built ? listing.year_built >= 2024 : false}
+              className="border-t pt-6"
+            />
+
             {/* Listing Details - Compact */}
-            <div className="border-t pt-4 space-y-2">
+            <div className="border-t pt-4 space-y-2 mt-6">
               <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                 <span>MLS® #{listing.listing_id}</span>
                 {listing.list_date && <span>Listed: {new Date(listing.list_date).toLocaleDateString('en-CA', {

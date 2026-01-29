@@ -22,6 +22,7 @@ import { InlineScheduler } from "@/components/booking/InlineScheduler";
 import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
 import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
 import { ProjectLocationMiniMap } from "@/components/projects/ProjectLocationMiniMap";
+import { PropertySEOTags } from "@/components/seo/PropertySEOTags";
 import { ProjectLeadMagnetsBar, SaveProjectButton, PriceAlertButton } from "@/components/conversion/LeadMagnets";
 import { ProjectMobileCTA } from "@/components/projects/ProjectMobileCTA";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
@@ -841,6 +842,18 @@ export default function PresaleProjectDetail() {
                     address={project.address}
                   />
                 )}
+
+                {/* SEO Tags & Warranty Section */}
+                <PropertySEOTags
+                  city={project.city}
+                  neighborhood={project.neighborhood}
+                  propertyType={project.project_type}
+                  developerName={project.developer_name}
+                  projectName={project.name}
+                  features={project.amenities || undefined}
+                  isNewConstruction={true}
+                  className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6"
+                />
 
                 {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
                 <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 border border-border/30">
