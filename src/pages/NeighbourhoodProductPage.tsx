@@ -458,7 +458,7 @@ export default function NeighbourhoodProductPage() {
                   // Resale listings
                   (listings as any[]).map((listing, index) => (
                     <ScrollReveal key={listing.id} delay={index * 0.05}>
-                      <Link to={`/resale/${listing.listing_key}`} className="block group">
+                      <Link to={`/properties/${listing.listing_key}`} className="block group">
                         <div className="bg-card border rounded-xl overflow-hidden hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
                           <div className="relative aspect-[4/3] bg-muted">
                             {getFirstPhoto(listing) ? (

@@ -6,6 +6,7 @@ import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.markercluster";
 import { Navigation2, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
+import { getListingUrl } from "@/lib/propertiesUrls";
 
 export interface CombinedListingsMapRef {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
@@ -200,9 +201,10 @@ function resalePopupHtml(listing: MLSListing): string {
     listing.living_area ? `${listing.living_area.toLocaleString()} sf` : null,
   ].filter(Boolean).join(' • ');
   const propType = listing.property_sub_type || listing.property_type || '';
+  const listingUrl = getListingUrl(listing.listing_key, address, listing.city);
   
   return `
-    <a href="/properties/${listing.listing_key}" class="popup-card resale">
+    <a href="${listingUrl}" class="popup-card resale">
       <div class="popup-img">
         ${photo 
           ? `<img src="${photo}" alt="${address}" />`
