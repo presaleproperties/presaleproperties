@@ -688,8 +688,8 @@ export default function PresaleProjectDetail() {
                   </button>
                 </div>
 
-                {/* Lead Magnets Bar - Save, Price Alert, ROI Analysis */}
-                <ProjectLeadMagnetsBar projectId={project.id} projectName={project.name} city={project.city} />
+                {/* Lead Magnets Bar - Save, ROI Analysis */}
+                <ProjectLeadMagnetsBar projectId={project.id} projectName={project.name} city={project.city} startingPrice={project.starting_price || undefined} />
 
 {/* Quick Facts - visible on tablet and desktop, larger text */}
                 <div className="hidden md:block space-y-2 mb-3">
