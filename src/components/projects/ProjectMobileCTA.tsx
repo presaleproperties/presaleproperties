@@ -295,18 +295,18 @@ export function ProjectMobileCTA({
         }}
       >
         <div 
-          className={`bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)] transition-all duration-300 ease-out ${
-            isExpanded ? 'rounded-t-2xl' : ''
+          className={`bg-background border-t border-border shadow-[0_-8px_30px_rgba(0,0,0,0.2)] transition-all duration-300 ease-out ${
+            isExpanded ? 'rounded-t-3xl shadow-[0_-12px_40px_rgba(0,0,0,0.25)]' : ''
           }`}
         >
           {/* Expanded Form View */}
           {isExpanded && (
             <div 
-              className="overflow-y-auto overscroll-contain"
+              className="overflow-y-auto overscroll-contain bg-background"
               style={{ maxHeight: 'calc(90vh - 80px)' }}
             >
-              {/* Header with close button */}
-              <div className="sticky top-0 bg-background/98 backdrop-blur-lg z-10 px-4 pt-3 pb-2 border-b border-border/50">
+              {/* Premium Header with close button */}
+              <div className="sticky top-0 bg-background z-10 px-4 pt-4 pb-3 border-b border-border">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center">
@@ -538,8 +538,8 @@ export function ProjectMobileCTA({
             </div>
           )}
 
-          {/* Collapsed CTA Bar */}
-          <div className="px-4 py-3 pb-[max(16px,env(safe-area-inset-bottom))]">
+          {/* Collapsed CTA Bar - Solid premium background */}
+          <div className="px-4 py-3 pb-[max(16px,env(safe-area-inset-bottom))] bg-background">
             <div className="flex items-center gap-3">
               {/* Phone Button */}
               <Button 

@@ -728,10 +728,8 @@ export default function PresaleProjectDetail() {
                   />
                 )}
 
-                {/* Tablet-only Lead Form - positioned under project info */}
-                <div className="hidden md:block lg:hidden mt-3 space-y-4">
-                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
-                </div>
+                {/* Tablet-only Lead Form - REMOVED: Now using footer CTA form */}
+                {/* Form is integrated into ProjectMobileCTA for mobile/tablet */}
               </div>
             </div>
           </div>
@@ -893,12 +891,8 @@ export default function PresaleProjectDetail() {
                 </div>
               </aside>
               
-              {/* Mobile-only Lead Form - positioned after FAQ */}
-              <div className="md:hidden space-y-4">
-                <div ref={mobileFormRef} id="contact-form-mobile" className="w-full">
-                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
-                </div>
-              </div>
+              {/* Mobile-only Lead Form - REMOVED: Now using footer CTA form */}
+              {/* Form is integrated into ProjectMobileCTA for mobile/tablet */}
             </div>
           </div>
         </section>
