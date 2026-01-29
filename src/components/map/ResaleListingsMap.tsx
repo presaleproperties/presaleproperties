@@ -164,45 +164,65 @@ export function ResaleListingsMap({
     [listings]
   );
 
+  // Debounced visibility updates for performance
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  
   const updateVisibleListings = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleListingsChange) return;
     
-    const bounds = mapInstanceRef.current.getBounds();
-    const visible = validListings
-      .filter(l => bounds.contains([l.latitude!, l.longitude!]))
-      .map(l => l.id);
+    if (updateTimeoutRef.current) clearTimeout(updateTimeoutRef.current);
     
-    onVisibleListingsChange(visible);
+    updateTimeoutRef.current = setTimeout(() => {
+      if (!mapInstanceRef.current) return;
+      const bounds = mapInstanceRef.current.getBounds();
+      const visible = validListings
+        .filter(l => bounds.contains([l.latitude!, l.longitude!]))
+        .map(l => l.id);
+      
+      onVisibleListingsChange(visible);
+    }, 200);
   }, [validListings, onVisibleListingsChange]);
 
   const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
 
+    // Performance-optimized map
     const map = L.map(mapRef.current, {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
       zoomControl: false,
       attributionControl: true,
+      preferCanvas: true, // Use canvas for better performance
+      fadeAnimation: false,
+      zoomAnimation: false, // Disable for speed
+      markerZoomAnimation: false,
+      inertia: true,
+      inertiaDeceleration: 3000,
     });
 
     L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
-      maxZoom: 19 
+      maxZoom: 19,
+      updateWhenIdle: true,
+      updateWhenZooming: false,
+      keepBuffer: 4,
     }).addTo(map);
 
-    // Optimized cluster settings - aggressive clustering to prevent overlapping pills
+    // Optimized cluster settings
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 50,
-      chunkInterval: 100,
-      maxClusterRadius: 80, // Increased for more aggressive clustering
+      chunkDelay: 5,
+      chunkInterval: 25,
+      maxClusterRadius: 70, // Larger radius for fewer clusters
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 18, // Cluster until very zoomed in
-      animate: false, // Disable animations for better performance
-      removeOutsideVisibleBounds: true, // Only render visible markers
+      disableClusteringAtZoom: 17,
+      animate: false,
+      animateAddingMarkers: false,
+      removeOutsideVisibleBounds: true,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.5, // Spread spiderfied markers more
+      spiderfyDistanceMultiplier: 1.2,
+      zoomToBoundsOnClick: false,
     });
 
     map.addLayer(clusterGroup);
@@ -212,17 +232,6 @@ export function ResaleListingsMap({
 
     map.on("moveend", updateVisibleListings);
     map.on("zoomend", updateVisibleListings);
-
-    // Request user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          const loc = L.latLng(pos.coords.latitude, pos.coords.longitude);
-          setUserLocation(loc);
-        },
-        () => {}
-      );
-    }
   }, [updateVisibleListings]);
 
   useEffect(() => {

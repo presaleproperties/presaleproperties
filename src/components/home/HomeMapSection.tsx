@@ -17,22 +17,22 @@ export function HomeMapSection() {
   const [shouldLoad, setShouldLoad] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Intersection Observer for lazy loading
+  // Optimized Intersection Observer with larger root margin
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
-            // Add a small delay before loading map to ensure smooth scroll
-            setTimeout(() => setShouldLoad(true), 100);
+            // Reduced delay for faster loading
+            setShouldLoad(true);
             observer.disconnect();
           }
         });
       },
       { 
-        rootMargin: "200px", // Start loading 200px before visible
-        threshold: 0.1 
+        rootMargin: "400px", // Preload earlier for smoother experience
+        threshold: 0.01 
       }
     );
 
@@ -43,7 +43,7 @@ export function HomeMapSection() {
     return () => observer.disconnect();
   }, []);
 
-  // Fetch projects with coordinates
+  // Optimized query with better caching
   const { data: projects, isLoading } = useQuery({
     queryKey: ["homepage-map-projects"],
     queryFn: async () => {
@@ -52,14 +52,17 @@ export function HomeMapSection() {
         .select("id, name, slug, city, neighborhood, status, project_type, starting_price, featured_image, map_lat, map_lng")
         .eq("is_published", true)
         .not("status", "eq", "sold_out")
+        .not("map_lat", "is", null)
+        .not("map_lng", "is", null)
         .order("is_featured", { ascending: false })
-        .limit(50);
+        .limit(100);
 
       if (error) throw error;
       return data;
     },
-    enabled: shouldLoad, // Only fetch when section is about to be visible
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: shouldLoad,
+    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
   });
 
   // Count projects with valid coordinates

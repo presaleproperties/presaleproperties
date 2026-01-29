@@ -26,21 +26,21 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
 
-  // Intersection Observer for lazy loading
+  // Optimized Intersection Observer with larger root margin
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             setIsVisible(true);
-            setTimeout(() => setShouldLoad(true), 100);
+            setShouldLoad(true);
             observer.disconnect();
           }
         });
       },
       { 
-        rootMargin: "200px",
-        threshold: 0.1 
+        rootMargin: "400px", // Preload earlier
+        threshold: 0.01 
       }
     );
 
@@ -60,8 +60,7 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
-  // Optimized query - fetch more listings for better map coverage
-  // 2024+ builds only (move-in ready new construction)
+  // Optimized query with better caching and filtering
   const { data: listings, isLoading } = useQuery({
     queryKey: ["resale-map-section-listings-2024", enabledCities, cityContext],
     queryFn: async () => {
@@ -77,16 +76,15 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
         .not("longitude", "is", null)
         .in("city", citiesToUse)
         .gte("year_built", 2024)
-        // Order by recency so lower-priced condos aren't dropped by the marker cap
         .order("list_date", { ascending: false, nullsFirst: false })
-        .limit(5000);
+        .limit(2000); // Reduced for better performance
 
       if (error) throw error;
       return data;
     },
     enabled: shouldLoad,
-    staleTime: 2 * 60 * 1000,
-    gcTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
   });
 
   const validListings = listings?.filter(l => l.latitude && l.longitude) || [];
