@@ -82,11 +82,15 @@ export const ResaleMobileCTABar = ({
                     <span className="hidden xs:inline">Schedule</span> Showing
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-auto max-h-[90vh] rounded-t-2xl">
-                  <SheetHeader className="pb-2">
-                    <SheetTitle className="text-left">{listingAddress}</SheetTitle>
+                <SheetContent 
+                  side="bottom" 
+                  className="h-auto max-h-[90vh] rounded-t-3xl border-t shadow-[0_-16px_50px_rgba(0,0,0,0.3)]"
+                  style={{ zIndex: 99999 }}
+                >
+                  <SheetHeader className="pb-3 border-b border-border/50">
+                    <SheetTitle className="text-left text-lg font-bold">{listingAddress}</SheetTitle>
                   </SheetHeader>
-                  <div className="overflow-y-auto max-h-[calc(90vh-80px)] -mx-6 px-6 pb-safe scroll-smooth-mobile">
+                  <div className="overflow-y-auto max-h-[calc(90vh-100px)] -mx-6 px-6 py-4 pb-safe scroll-smooth-mobile">
                     <ResaleScheduleForm
                       listingId={listingId}
                       listingAddress={listingAddress}
