@@ -176,7 +176,7 @@ export function HeroSection({
                     setShowSuggestions(true);
                   }} 
                   onFocus={() => setShowSuggestions(true)} 
-                  className="h-12 sm:h-14 md:h-16 text-base sm:text-lg pl-5 pr-14 border-border/20 bg-white text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary/40 rounded-xl transition-all duration-300 shadow-sm" 
+                  className="h-12 sm:h-14 md:h-16 text-base sm:text-lg pl-5 pr-14 border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary rounded-xl transition-all duration-300" 
                   autoComplete="off" 
                 />
                 <button 
