@@ -49,51 +49,68 @@ export function ProjectMobileCTA({
   const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
 
   return (
-    <div 
-      className="fixed bottom-0 left-0 right-0 z-[9999] lg:hidden bg-background/95 backdrop-blur-md border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.12)] hide-on-keyboard"
-      style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
-    >
-      {/* Safe area padding for iPhone notch - always visible */}
-      <div className="px-4 py-3 pb-[max(16px,env(safe-area-inset-bottom))]">
-        {/* Action Buttons - minimum 48px height for thumb-friendly targets */}
-        <div className="flex items-center gap-3">
-          {/* Phone Button - 48x48 minimum */}
-          <Button 
-            variant="outline" 
-            size="icon"
-            className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl touch-active"
-            asChild
-          >
-            <a href="tel:+16722581100" aria-label="Call agent">
-              <Phone className="h-5 w-5" />
-            </a>
-          </Button>
+    <>
+      {/* Spacer to prevent content from being hidden behind fixed bar */}
+      <div className="h-24 lg:hidden" aria-hidden="true" />
+      
+      {/* Fixed CTA bar - Portal-like rendering at viewport bottom */}
+      <div 
+        className="lg:hidden"
+        style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 9999,
+          isolation: 'isolate',
+          transform: 'translateZ(0)',
+          willChange: 'transform',
+        }}
+      >
+        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">
+          {/* Safe area padding for iPhone notch */}
+          <div className="px-4 py-3 pb-[max(16px,env(safe-area-inset-bottom))]">
+            {/* Action Buttons - minimum 48px height for thumb-friendly targets */}
+            <div className="flex items-center gap-3">
+              {/* Phone Button - 48x48 minimum */}
+              <Button 
+                variant="outline" 
+                size="icon"
+                className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl touch-active"
+                asChild
+              >
+                <a href="tel:+16722581100" aria-label="Call agent">
+                  <Phone className="h-5 w-5" />
+                </a>
+              </Button>
 
-          {/* WhatsApp Button - 48x48 minimum */}
-          {whatsappLink && (
-            <Button 
-              variant="outline" 
-              size="icon"
-              className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 touch-active"
-              asChild
-            >
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
-                <MessageCircle className="h-5 w-5" />
-              </a>
-            </Button>
-          )}
+              {/* WhatsApp Button - 48x48 minimum */}
+              {whatsappLink && (
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 touch-active"
+                  asChild
+                >
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
+                    <MessageCircle className="h-5 w-5" />
+                  </a>
+                </Button>
+              )}
 
-          {/* Primary CTA - Large, thumb-friendly, always visible */}
-          <Button 
-            size="lg"
-            className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background touch-active"
-            onClick={onRegisterClick}
-          >
-            {buttonContent.icon}
-            <span>{buttonContent.text}</span>
-          </Button>
+              {/* Primary CTA - Large, thumb-friendly, always visible */}
+              <Button 
+                size="lg"
+                className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background touch-active"
+                onClick={onRegisterClick}
+              >
+                {buttonContent.icon}
+                <span>{buttonContent.text}</span>
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
