@@ -177,10 +177,8 @@ const App = () => (
             <Route path="/properties/:citySlug/:neighborhoodSlug/homes" element={<NeighborhoodPropertyTypePage />} />
             {/* Popular Searches SEO Hub */}
             <Route path="/properties/popular-searches" element={<PopularSearchesPage />} />
-            {/* SEO-friendly listing URL: /properties/address-slug/listingKey */}
-            <Route path="/properties/:addressSlug/:listingKey" element={<ResaleListingDetail />} />
-            {/* Legacy route for old listing URLs (redirect handled in component) */}
-            <Route path="/properties/:listingKey" element={<ResaleListingDetail />} />
+            {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
+            <Route path="/properties/:slug" element={<ResaleListingDetail />} />
             
             {/* Legacy /resale/* redirects for SEO preservation */}
             <Route path="/resale" element={<Navigate to="/properties" replace />} />

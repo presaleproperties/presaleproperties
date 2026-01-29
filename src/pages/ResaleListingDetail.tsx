@@ -119,13 +119,7 @@ type MLSOffice = {
   phone: string | null;
 };
 export default function ResaleListingDetail() {
-  const {
-    listingKey,
-    addressSlug
-  } = useParams<{
-    listingKey: string;
-    addressSlug?: string;
-  }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const formRef = useRef<HTMLDivElement>(null);
@@ -133,12 +127,18 @@ export default function ResaleListingDetail() {
   const isMobileOrTablet = useIsMobileOrTablet();
   const [showMobileScheduler, setShowMobileScheduler] = useState(false);
   const { isFavorite, toggleFavorite } = useGuestFavorites();
+
+  // Extract listing key from slug - it's always the last numeric segment
+  const listingKey = slug?.match(/-(\d{6,})$/)?.[1] || 
+                     (slug?.match(/^\d+$/) ? slug : null); // Handle legacy pure numeric URLs
+
   const scrollToForm = () => {
     formRef.current?.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
   };
+
   const {
     data: listing,
     isLoading,
@@ -214,29 +214,28 @@ export default function ResaleListingDetail() {
     }
   }, [listing?.id]);
 
-  // Redirect old URLs (without address slug) to new SEO-friendly URLs
+  // Redirect old URLs (without proper address slug) to new SEO-friendly URLs
   useEffect(() => {
-    if (listing && !addressSlug) {
-      // Build address for slug
+    if (listing && slug) {
+      // Build the expected slug format
       const addr = listing.unparsed_address || 
         [listing.unit_number ? `#${listing.unit_number}` : null, listing.street_number, listing.street_name, listing.street_suffix]
           .filter(Boolean).join(" ") || listing.city;
       
-      // Import slugify inline to avoid circular dependency
-      const slug = addr.toLowerCase()
+      const slugify = (text: string) => text.toLowerCase()
         .replace(/['']/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
         .replace(/-+/g, '-');
       
-      const citySlug = listing.city.toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '');
+      const expectedSlug = `${slugify(addr)}-${slugify(listing.city)}-bc-${listing.listing_key}`;
       
-      const newPath = `/properties/${slug}-${citySlug}/${listing.listing_key}`;
-      navigate(newPath, { replace: true });
+      // If current slug doesn't match expected format (legacy URL), redirect
+      if (slug !== expectedSlug && !slug.includes('-bc-')) {
+        navigate(`/properties/${expectedSlug}`, { replace: true });
+      }
     }
-  }, [listing, addressSlug, navigate]);
+  }, [listing, slug, navigate]);
   if (isLoading) {
     return <div className="min-h-screen bg-background">
         <ConversionHeader />

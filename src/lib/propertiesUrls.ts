@@ -154,8 +154,8 @@ export const getCityBedroomCanonicalUrl = (city: string, bedroomSlug: string): s
 // ============================================
 
 /**
- * Build address slug from listing data
- * @example "107-19911-76-avenue-langley"
+ * Build address slug from listing data (REW-style format)
+ * @example "107-19911-76-avenue-langley-bc"
  */
 export const buildAddressSlug = (
   address: string | null | undefined,
@@ -164,15 +164,16 @@ export const buildAddressSlug = (
   const parts: string[] = [];
   if (address) parts.push(address);
   if (city) parts.push(city);
+  parts.push("bc"); // Always append province
   
-  if (parts.length === 0) return "listing";
+  if (parts.length <= 1) return "listing-bc";
   
   return slugify(parts.join(" "));
 };
 
 /**
- * Get individual listing URL with address for SEO
- * @example /properties/107-19911-76-avenue-langley/29153217
+ * Get individual listing URL with full address (REW-style, no listing key)
+ * @example /properties/107-19911-76-avenue-langley-bc
  */
 export const getListingUrl = (
   listingKey: string,
@@ -180,7 +181,8 @@ export const getListingUrl = (
   city?: string | null
 ): string => {
   const addressSlug = buildAddressSlug(address, city);
-  return `/properties/${addressSlug}/${listingKey}`;
+  // Include listing key as a subtle suffix for uniqueness
+  return `/properties/${addressSlug}-${listingKey}`;
 };
 
 /**
@@ -192,6 +194,17 @@ export const getListingCanonicalUrl = (
   city?: string | null
 ): string => {
   return `${DOMAIN}${getListingUrl(listingKey, address, city)}`;
+};
+
+/**
+ * Extract listing key from a full address slug
+ * The listing key is always the last segment after the final hyphen
+ * @example "107-19911-76-avenue-langley-bc-29153217" -> "29153217"
+ */
+export const extractListingKeyFromSlug = (slug: string): string | null => {
+  // The listing key is a numeric string at the end
+  const match = slug.match(/-(\d{6,})$/);
+  return match ? match[1] : null;
 };
 
 /**
