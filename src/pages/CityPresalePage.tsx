@@ -531,7 +531,8 @@ export default function CityPresalePage() {
     );
   }
 
-  const canonicalUrl = `https://presaleproperties.com/presale-condos/${citySlug}`;
+  // Use SEO-friendly canonical URL format
+  const canonicalUrl = `https://presaleproperties.com/${citySlug}-presale-condos`;
   const currentYear = new Date().getFullYear();
 
   // Use exact keyword templates from CITY_CONFIG
@@ -546,28 +547,40 @@ export default function CityPresalePage() {
     "description": cityConfig.longDescription,
     "url": canonicalUrl,
     "numberOfItems": totalCount,
-    "itemListElement": projects?.slice(0, 10).map((project, index) => ({
-      "@type": "ListItem",
-      "position": index + 1,
-      "item": {
-        "@type": "RealEstateListing",
-        "name": project.name,
-        "url": `https://presaleproperties.com/presale-projects/${project.slug}`,
-        "image": project.featured_image,
-        "address": {
-          "@type": "PostalAddress",
-          "addressLocality": project.city,
-          "addressRegion": "BC",
-          "addressCountry": "CA"
-        },
-        "offers": project.starting_price ? {
-          "@type": "Offer",
-          "priceCurrency": "CAD",
-          "price": project.starting_price,
-          "availability": project.status === "sold_out" ? "https://schema.org/SoldOut" : "https://schema.org/InStock"
-        } : undefined
-      }
-    })) || []
+    "itemListElement": projects?.slice(0, 10).map((project, index) => {
+      // Generate SEO-friendly URL for each project
+      const neighborhoodSlug = (project.neighborhood || project.city).toLowerCase()
+        .replace(/['']/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .replace(/-+/g, '-');
+      const typeSlug = project.project_type === 'townhome' ? 'townhomes' : 
+                       project.project_type === 'mixed' ? 'homes' : 'condos';
+      const projectSeoUrl = `https://presaleproperties.com/${neighborhoodSlug}-presale-${typeSlug}-${project.slug}`;
+      
+      return {
+        "@type": "ListItem",
+        "position": index + 1,
+        "item": {
+          "@type": "RealEstateListing",
+          "name": project.name,
+          "url": projectSeoUrl,
+          "image": project.featured_image,
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": project.city,
+            "addressRegion": "BC",
+            "addressCountry": "CA"
+          },
+          "offers": project.starting_price ? {
+            "@type": "Offer",
+            "priceCurrency": "CAD",
+            "price": project.starting_price,
+            "availability": project.status === "sold_out" ? "https://schema.org/SoldOut" : "https://schema.org/InStock"
+          } : undefined
+        }
+      };
+    }) || []
   };
 
   const breadcrumbSchema = {
