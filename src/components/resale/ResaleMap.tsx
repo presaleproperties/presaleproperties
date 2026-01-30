@@ -48,18 +48,19 @@ function createPricePillIcon(listing: MLSListing) {
   return L.divIcon({
     html,
     className: "resale-marker-icon",
-    iconSize: [70, 28],
-    iconAnchor: [35, 14],
+    iconSize: [76, 32],
+    iconAnchor: [38, 16],
   });
 }
 
 function createClusterIcon(cluster: L.MarkerCluster) {
   const count = cluster.getChildCount();
+  const size = count >= 100 ? 52 : count >= 10 ? 46 : 40;
   return L.divIcon({
-    html: `<div class="resale-cluster-icon">${count}</div>`,
+    html: `<div class="resale-cluster-icon" style="width:${size}px;height:${size}px;font-size:${count >= 100 ? '14' : '13'}px">${count}</div>`,
     className: "resale-cluster-marker",
-    iconSize: [40, 40],
-    iconAnchor: [20, 20],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 }
 
@@ -82,15 +83,26 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
       zoom: DEFAULT_ZOOM,
       zoomControl: false,
       attributionControl: true,
+      fadeAnimation: true,
+      zoomAnimation: true,
+      markerZoomAnimation: true,
+      inertia: true,
+      inertiaDeceleration: 2000,
+      easeLinearity: 0.25,
+      touchZoom: 'center',
     });
 
-    L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19 }).addTo(map);
+    L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 19, keepBuffer: 4 }).addTo(map);
 
     const clusterGroup = L.markerClusterGroup({
       showCoverageOnHover: false,
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
       iconCreateFunction: createClusterIcon,
+      zoomToBoundsOnClick: true,
+      animate: true,
+      disableClusteringAtZoom: 17,
+      spiderfyDistanceMultiplier: 1.5,
     });
     map.addLayer(clusterGroup);
 
@@ -182,62 +194,71 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
   return (
     <div className="relative w-full h-full" style={{ contain: 'layout style paint', willChange: 'transform' }}>
       <style>{`
-        .leaflet-container { -webkit-transform: translate3d(0,0,0); transform: translate3d(0,0,0); -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-        .leaflet-tile-container { -webkit-transform: translate3d(0,0,0); transform: translate3d(0,0,0); }
-        .leaflet-tile { -webkit-backface-visibility: hidden; backface-visibility: hidden; }
-        .leaflet-tile-loaded { opacity: 1 !important; }
-        .leaflet-fade-anim .leaflet-tile { transition: none !important; }
-        .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
+        .leaflet-container { 
+          -webkit-transform: translate3d(0,0,0); 
+          transform: translate3d(0,0,0);
+          font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
         .resale-marker-icon {
           background: transparent !important;
           border: none !important;
         }
         .resale-price-pill {
-          background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-          color: white;
-          padding: 4px 10px;
-          border-radius: 20px;
+          background: hsl(45, 89%, 52%);
+          color: hsl(222, 47%, 12%);
+          padding: 6px 12px;
+          border-radius: 16px;
           font-size: 12px;
-          font-weight: 600;
+          font-weight: 700;
           white-space: nowrap;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.12);
           display: flex;
           align-items: center;
           justify-content: center;
+          min-height: 32px;
+          cursor: pointer;
+          transition: transform 0.15s ease;
+        }
+        .resale-price-pill:hover {
+          transform: scale(1.08);
         }
         .resale-cluster-marker {
           background: transparent !important;
           border: none !important;
         }
         .resale-cluster-icon {
-          background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+          background: hsl(222, 47%, 22%);
           color: white;
-          width: 40px;
-          height: 40px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 13px;
           font-weight: 700;
-          box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+          border: 2px solid hsl(45, 89%, 52%);
+          cursor: pointer;
+          transition: transform 0.15s ease;
+        }
+        .resale-cluster-icon:hover {
+          transform: scale(1.1);
         }
         .resale-popup-container .leaflet-popup-content-wrapper {
           border-radius: 12px;
           padding: 0;
           overflow: hidden;
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
         }
         .resale-popup-container .leaflet-popup-content {
           margin: 0;
           min-width: 180px;
         }
         .resale-popup {
-          padding: 12px;
+          padding: 14px;
         }
         .resale-popup-price {
           font-size: 18px;
           font-weight: 700;
-          color: #10B981;
+          color: hsl(222, 47%, 15%);
           margin-bottom: 4px;
         }
         .resale-popup-address {
@@ -248,13 +269,13 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
         .resale-popup-details {
           font-size: 12px;
           color: #6B7280;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
         }
         .resale-popup-link {
           display: inline-block;
           font-size: 12px;
           font-weight: 600;
-          color: #10B981;
+          color: hsl(45, 89%, 45%);
           text-decoration: none;
         }
         .resale-popup-link:hover {

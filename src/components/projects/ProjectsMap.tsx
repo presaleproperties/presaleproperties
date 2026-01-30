@@ -77,47 +77,49 @@ const getStatusLabel = (status: Project["status"]) => {
   }
 };
 
-// Presale marker - simple pin with building icon (no price)
+// Presale marker - clean pin style (no excessive glow)
 const createPricePillIcon = () => {
   // Building icon for new construction
-  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
+  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
 
   return L.divIcon({
     className: "presale-pin-marker",
     html: `
       <div style="
         position: relative;
-        width: 24px;
-        height: 30px;
+        width: 32px;
+        height: 40px;
+        cursor: pointer;
       ">
-        <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M12 0C5.373 0 0 5.373 0 12c0 7.5 12 18 12 18s12-10.5 12-18c0-6.627-5.373-12-12-12z" fill="hsl(222, 47%, 25%)"/>
-          <circle cx="12" cy="11" r="7" fill="hsl(45, 89%, 55%)"/>
+        <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(222, 47%, 22%)"/>
+          <circle cx="16" cy="14" r="9" fill="hsl(45, 89%, 52%)"/>
         </svg>
         <div style="
           position: absolute;
-          top: 5px;
+          top: 6px;
           left: 50%;
           transform: translateX(-50%);
           display: flex;
           align-items: center;
           justify-content: center;
-          width: 14px;
-          height: 14px;
+          width: 18px;
+          height: 18px;
         ">
           ${buildingIcon}
         </div>
       </div>
     `,
-    iconSize: [24, 30],
-    iconAnchor: [12, 30],
-    popupAnchor: [0, -30],
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    popupAnchor: [0, -40],
   });
 };
 
-// Custom cluster icon
+// Custom cluster icon - clean, larger for touch
 const createClusterIcon = (cluster: L.MarkerCluster) => {
   const count = cluster.getChildCount();
+  const size = count >= 100 ? 52 : count >= 10 ? 46 : 40;
   return L.divIcon({
     className: "custom-cluster-icon",
     html: `
@@ -125,20 +127,22 @@ const createClusterIcon = (cluster: L.MarkerCluster) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #F5C243;
-        color: #1a1a1a;
-        width: 36px;
-        height: 36px;
+        background: hsl(222, 47%, 22%);
+        color: white;
+        width: ${size}px;
+        height: ${size}px;
         border-radius: 50%;
-        font-size: 12px;
+        font-size: ${count >= 100 ? '14' : count >= 10 ? '13' : '12'}px;
         font-weight: 700;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-        border: 2px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border: 2px solid hsl(45, 89%, 52%);
         font-family: system-ui, -apple-system, sans-serif;
+        cursor: pointer;
+        transition: transform 0.15s ease;
       ">${count}</div>
     `,
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
   });
 };
 
@@ -245,21 +249,33 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
       center: startCenter,
       zoom: startZoom,
       zoomControl: false,
+      fadeAnimation: true, // Smooth transitions
+      zoomAnimation: true, // Google Maps-like zoom
+      markerZoomAnimation: true,
+      inertia: true,
+      inertiaDeceleration: 2000,
+      easeLinearity: 0.25,
+      touchZoom: 'center',
     });
 
     L.tileLayer(TILE_URL, {
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
+      keepBuffer: 4,
     }).addTo(map);
 
-    // Create marker cluster group - aggressive clustering for cleaner map
+    // Create marker cluster group - smooth, Google Maps-style clustering
     clusterGroupRef.current = L.markerClusterGroup({
       iconCreateFunction: createClusterIcon,
-      maxClusterRadius: 80, // Increased for more aggressive clustering
+      maxClusterRadius: 50, // Tighter for precision
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 16, // Increased from 15
-      spiderfyDistanceMultiplier: 1.5, // Spread spiderfied markers more
+      disableClusteringAtZoom: 17, // Show pins at higher zoom
+      spiderfyDistanceMultiplier: 1.8, // More spread for easier tapping
+      zoomToBoundsOnClick: true, // Single click zooms smoothly
+      animate: true, // Smooth cluster animations
+      animateAddingMarkers: false,
+      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(222, 47%, 60%)', opacity: 0.5 },
     });
     map.addLayer(clusterGroupRef.current);
 
