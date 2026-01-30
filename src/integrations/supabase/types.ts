@@ -2179,6 +2179,7 @@ export type Database = {
           occupancy_estimate: string | null
           og_image: string | null
           price_range: string | null
+          pricing_sheets: string[] | null
           project_type: Database["public"]["Enums"]["project_type"]
           published_at: string | null
           rental_restrictions: string | null
@@ -2229,6 +2230,7 @@ export type Database = {
           occupancy_estimate?: string | null
           og_image?: string | null
           price_range?: string | null
+          pricing_sheets?: string[] | null
           project_type?: Database["public"]["Enums"]["project_type"]
           published_at?: string | null
           rental_restrictions?: string | null
@@ -2279,6 +2281,7 @@ export type Database = {
           occupancy_estimate?: string | null
           og_image?: string | null
           price_range?: string | null
+          pricing_sheets?: string[] | null
           project_type?: Database["public"]["Enums"]["project_type"]
           published_at?: string | null
           rental_restrictions?: string | null
