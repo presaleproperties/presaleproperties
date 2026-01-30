@@ -1,124 +1,81 @@
 
-# Plan: Document Tracking for Presale Projects
+# SEO Enhancement: Geo-Tagged Amenity Schema & Internal Linking
 
-## Summary
-Add the ability to track and manage **brochures, floor plans, and pricing sheets** for all presale projects, with visual indicators in the admin dashboard showing which documents are missing.
+## Overview
+Enhance the Location & Neighborhood section with structured data and internal links to improve local search visibility and help Google understand the property's surrounding context.
 
----
+## Changes
 
-## Changes Overview
+### 1. Add Schema.org `amenityFeature` to Presale Listings
+Add nearby amenities as structured data to the existing `RealEstateListing` schema.
 
-### 1. Database Schema Update
-Add a new `pricing_sheets` column to store pricing document URLs.
-
-**Migration SQL:**
-```sql
-ALTER TABLE presale_projects 
-ADD COLUMN IF NOT EXISTS pricing_sheets text[];
+**Schema Addition:**
+```json
+"amenityFeature": [
+  { "@type": "LocationFeatureSpecification", "name": "Near SkyTrain", "value": true },
+  { "@type": "LocationFeatureSpecification", "name": "Walk Score", "value": 92 },
+  { "@type": "LocationFeatureSpecification", "name": "Transit Score", "value": 88 }
+],
+"containedInPlace": {
+  "@type": "Place",
+  "name": "Metrotown, Burnaby",
+  "geo": { "@type": "GeoCoordinates", "latitude": 49.xx, "longitude": -122.xx }
+}
 ```
 
----
+### 2. Add Nearby Places as Schema.org References
+Create references to nearby schools and shopping centers for rich snippet eligibility.
 
-### 2. Admin Projects List (`AdminProjects.tsx`)
+**File:** `src/pages/PresaleProjectDetail.tsx`
+- Add `nearbyPlaces` array to structured data with School and LocalBusiness types
 
-**Update Project Type:**
-- Add `brochure_files`, `floorplan_files`, and `pricing_sheets` fields
+### 3. Make Amenity Names Clickable (Internal Linking)
+Convert static text to internal links pointing to map searches.
 
-**Update Query:**
-- Fetch document fields in `fetchProjects()`
+**File:** `src/components/projects/LocationDeepDive.tsx`
+- Shopping centers → `/map-search?q=Morgan+Crossing&lat=X&lng=Y`
+- Schools → `/map-search?q=Semiahmoo+Secondary&lat=X&lng=Y`
+- Transit landmarks → `/map-search?q=SkyTrain&lat=X&lng=Y`
 
-**Add Document Status Indicators:**
-Each project row will display three small badges showing document status:
-- ✓ Green check if document exists
-- ✗ Red X if missing
+### 4. Add Geo Meta Tags
+Add legacy geo-tagging meta tags for broader compatibility.
 
+**File:** `src/pages/PresaleProjectDetail.tsx`
+```html
+<meta name="geo.position" content="49.123;-122.456" />
+<meta name="ICBM" content="49.123, -122.456" />
+<meta name="geo.placename" content="South Surrey, Surrey, BC" />
 ```
-Project Name                    [Docs: 📄✓ 📋✓ 💲✗]  [Active] [Published]
-Vancouver, Downtown              Updated Jan 30
-```
-
-**Add "Documents" Filter:**
-New dropdown filter with options:
-- All Projects
-- Missing Brochure
-- Missing Floorplans  
-- Missing Pricing
-- Complete (all docs present)
-
----
-
-### 3. Admin Project Form (`AdminProjectForm.tsx`)
-
-**Add Pricing Sheets Section:**
-- New card similar to Brochure and Floorplan cards
-- Support PDF upload to storage
-- Support Google Drive link paste
-- Remove functionality
-
-**Update Form Data:**
-- Add `pricing_sheets: string[]` to FormData type
-- Initialize as empty array
-- Include in save/load logic
-
----
 
 ## Technical Details
 
-### Files Modified:
-1. **Database Migration** - Add `pricing_sheets` column
-2. `src/pages/admin/AdminProjects.tsx` - Document indicators + filter
-3. `src/pages/admin/AdminProjectForm.tsx` - Pricing sheets upload UI
+### Files to Modify:
+1. **`src/pages/PresaleProjectDetail.tsx`**
+   - Add `amenityFeature` to `structuredData`
+   - Add geo meta tags to Helmet
+   - Generate `nearbyPlaces` schema from LocationDeepDive data
 
-### New State in AdminProjects.tsx:
-```typescript
-const [docsFilter, setDocsFilter] = useState<string>("all");
-// Options: "all" | "missing_brochure" | "missing_floorplan" | "missing_pricing" | "complete"
+2. **`src/components/projects/LocationDeepDive.tsx`**
+   - Convert amenity names to `<Link>` components
+   - Export neighborhood data for schema generation
+
+3. **`src/pages/ResaleListingDetail.tsx`**
+   - Apply same geo meta tags pattern for consistency
+
+### Schema Structure:
+```text
+RealEstateListing
+├── geo (GeoCoordinates)
+├── amenityFeature[] (LocationFeatureSpecification)
+│   ├── Walk Score
+│   ├── Transit Score
+│   └── Near SkyTrain
+├── containedInPlace (Place - Neighborhood)
+└── nearbyPlaces[] (School, ShoppingCenter, TrainStation)
 ```
 
-### Updated Project Type:
-```typescript
-type Project = {
-  // ... existing fields
-  brochure_files: string[] | null;
-  floorplan_files: string[] | null;
-  pricing_sheets: string[] | null;
-};
-```
-
-### Document Status Badge Component:
-```tsx
-const DocumentStatus = ({ has }: { has: boolean }) => (
-  <span className={has ? "text-green-500" : "text-red-400"}>
-    {has ? "✓" : "✗"}
-  </span>
-);
-```
-
----
-
-## UI Preview
-
-**Project List Row:**
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ The Heights                          Docs: 📄✓ 📋✓ 💲✗              │
-│ 📍 Vancouver, Burnaby • 📅 2026     [Active] [Published]    [Edit] │
-└─────────────────────────────────────────────────────────────────────┘
-```
-
-**Filter Bar:**
-```
-[Search...] [City ▼] [Status ▼] [Published ▼] [Documents ▼]
-                                               ├─ All
-                                               ├─ Missing Brochure
-                                               ├─ Missing Floorplans
-                                               ├─ Missing Pricing
-                                               └─ Complete
-```
-
----
-
-## Implementation Order
-1. Run database migration to add `pricing_sheets` column
-2. Update `AdminProjects.tsx` with document tracking and filtering
-3. Update `AdminProjectForm.tsx` with pricing sheet upload capability
+## Expected SEO Benefits
+- Enhanced local search visibility in Google Maps and local pack
+- Rich snippets showing nearby amenities
+- Internal link equity flowing to map search pages
+- Better context signals for AI search engines
