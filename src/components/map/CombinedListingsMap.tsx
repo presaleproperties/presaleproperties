@@ -109,8 +109,7 @@ function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean =
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  // Larger touch targets for mobile: min 44px touch area
-  const size = isHighlighted ? [88, 36] : [72, 28];
+  const size = isHighlighted ? [80, 32] : [60, 22];
   
   const icon = L.divIcon({
     className: `price-marker ${isHighlighted ? 'marker-hl' : ''}`,
@@ -130,22 +129,21 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  // Larger touch target: 36px min for accessibility
-  const size = isHighlighted ? 48 : 36;
+  const size = isHighlighted ? 44 : 28;
   
   const icon = L.divIcon({
     className: `presale-pin${isHighlighted ? ' hl' : ''}`,
     html: `<div class="pin${isHighlighted ? ' hl' : ''}"></div>`,
-    iconSize: [size, size + 8],
-    iconAnchor: [size / 2, size + 8],
-    popupAnchor: [0, -(size + 8)],
+    iconSize: [size, size + 6],
+    iconAnchor: [size / 2, size + 6],
+    popupAnchor: [0, -(size + 6)],
   });
   
   if (!isHighlighted) iconCache.set(cacheKey, icon);
   return icon;
 }
 
-// Assignment marker - emerald colored pill with larger touch target
+// Assignment marker - emerald colored pill
 function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean = false): L.DivIcon {
   const priceText = formatPrice(assignment.assignment_price);
   const cacheKey = `assignment-${priceText}-${isHighlighted}`;
@@ -153,8 +151,7 @@ function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean 
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  // Larger touch targets for mobile: min 44px touch area
-  const size = isHighlighted ? [88, 36] : [76, 30];
+  const size = isHighlighted ? [80, 32] : [65, 24];
   
   const icon = L.divIcon({
     className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
@@ -359,12 +356,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   // Optimized debounced update for visible items - prevents UI lag
   const updateVisibleItemsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastBoundsRef = useRef<string>("");
-  const isUpdatingRef = useRef(false);
   
   const updateVisibleItems = useCallback(() => {
-    if (!mapInstanceRef.current || !onVisibleItemsChange || isUpdatingRef.current) return;
+    if (!mapInstanceRef.current || !onVisibleItemsChange) return;
     
-    // Debounce to prevent too many updates - shorter for responsiveness
+    // Debounce to prevent too many updates
     if (updateVisibleItemsTimeoutRef.current) {
       clearTimeout(updateVisibleItemsTimeoutRef.current);
     }
@@ -375,32 +371,36 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       const bounds = mapInstanceRef.current.getBounds();
       
       // Skip if bounds haven't changed significantly (performance optimization)
-      const boundsKey = `${bounds.getNorth().toFixed(4)},${bounds.getSouth().toFixed(4)},${bounds.getEast().toFixed(4)},${bounds.getWest().toFixed(4)}`;
+      const boundsKey = `${bounds.getNorth().toFixed(3)},${bounds.getSouth().toFixed(3)},${bounds.getEast().toFixed(3)},${bounds.getWest().toFixed(3)}`;
       if (boundsKey === lastBoundsRef.current) return;
       lastBoundsRef.current = boundsKey;
       
-      isUpdatingRef.current = true;
+      // Use requestIdleCallback for non-critical UI updates
+      const computeVisible = () => {
+        if (!mapInstanceRef.current) return;
+        
+        const visibleResale = validResaleListings
+          .filter(l => bounds.contains([l.latitude!, l.longitude!]))
+          .map(l => l.id);
+        
+        const visiblePresale = validPresaleProjects
+          .filter(p => bounds.contains([p.map_lat!, p.map_lng!]))
+          .map(p => p.id);
+        
+        const visibleAssignmentsIds = validAssignments
+          .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
+          .map(a => a.id);
+        
+        onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignmentsIds);
+      };
       
-      // Compute visible items synchronously for faster response
-      const visibleResale = validResaleListings
-        .filter(l => bounds.contains([l.latitude!, l.longitude!]))
-        .map(l => l.id);
-      
-      const visiblePresale = validPresaleProjects
-        .filter(p => bounds.contains([p.map_lat!, p.map_lng!]))
-        .map(p => p.id);
-      
-      const visibleAssignmentsIds = validAssignments
-        .filter(a => bounds.contains([a.map_lat!, a.map_lng!]))
-        .map(a => a.id);
-      
-      onVisibleItemsChange(visibleResale, visiblePresale, visibleAssignmentsIds);
-      
-      // Reset flag after a short delay to prevent rapid re-triggers
-      setTimeout(() => {
-        isUpdatingRef.current = false;
-      }, 50);
-    }, 120); // Reduced debounce for more responsive carousel sync
+      // Use requestIdleCallback if available, otherwise use setTimeout
+      if ('requestIdleCallback' in window) {
+        (window as any).requestIdleCallback(computeVisible, { timeout: 100 });
+      } else {
+        computeVisible();
+      }
+    }, 200); // 200ms debounce for smoother experience
   }, [validResaleListings, validPresaleProjects, validAssignments, onVisibleItemsChange]);
 
   const initializeMap = useCallback(() => {
@@ -411,7 +411,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       : DEFAULT_CENTER;
     const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
 
-    // Performance-optimized map initialization with touch improvements
+    // Performance-optimized map initialization
     const map = L.map(mapRef.current, {
       center: initialCenter,
       zoom: initialZoom,
@@ -422,12 +422,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       zoomAnimation: false, // Disable zoom animations for speed
       markerZoomAnimation: false, // Disable marker animations
       inertia: true, // Keep inertia for smooth panning
-      inertiaDeceleration: 2500, // Smoother deceleration for touch
-      inertiaMaxSpeed: 2500, // Cap speed for predictable behavior
+      inertiaDeceleration: 3000, // Faster deceleration
       worldCopyJump: false,
       maxBoundsViscosity: 0.8,
-      touchZoom: true, // Enable touch zoom
-      bounceAtZoomLimits: false, // Prevent bounce at limits
     });
 
     // Optimized tile layer with aggressive caching
@@ -636,8 +633,6 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           transform: translate3d(0,0,0);
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
-          touch-action: pan-x pan-y;
-          -webkit-tap-highlight-color: transparent;
         }
         .leaflet-tile-container { 
           -webkit-transform: translate3d(0,0,0); 
@@ -652,76 +647,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .leaflet-fade-anim .leaflet-tile { transition: none !important; }
         .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
         
-        /* Touch-optimized markers with minimum 44px touch targets */
-        .price-marker, .presale-pin, .assignment-marker { 
-          background: transparent !important; 
-          border: none !important;
-          cursor: pointer;
-          -webkit-tap-highlight-color: transparent;
-        }
-        .pp { 
-          background: linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,56%) 100%); 
-          color: hsl(222,47%,15%); 
-          padding: 5px 10px; 
-          border-radius: 14px; 
-          font-size: 12px; 
-          font-weight: 700; 
-          white-space: nowrap; 
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          will-change: transform;
-          min-height: 28px;
-          transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
-        }
-        .pp:active { transform: scale(0.95); }
-        .pp.hl { transform: scale(1.12); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px hsl(45,89%,50%); }
-        .pin { 
-          width: 32px; 
-          height: 40px; 
-          background: linear-gradient(180deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); 
-          border-radius: 50% 50% 50% 0; 
-          transform: rotate(-45deg); 
-          border: 2.5px solid hsl(45,89%,50%); 
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2); 
-          will-change: transform;
-          transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
-        }
-        .pin.hl { width: 40px; height: 48px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .ap { 
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
-          color: white; 
-          padding: 6px 12px; 
-          border-radius: 14px; 
-          font-size: 12px; 
-          font-weight: 700; 
-          white-space: nowrap; 
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          will-change: transform;
-          min-height: 30px;
-          transition: transform 0.15s ease-out, box-shadow 0.15s ease-out;
-        }
-        .ap:active { transform: scale(0.95); }
-        .ap.hl { transform: scale(1.12); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px #10b981; }
+        .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
+        .pp { background: linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,56%) 100%); color: hsl(222,47%,15%); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; will-change: transform; }
+        .pp.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px hsl(45,89%,50%); }
+        .pin { width: 28px; height: 34px; background: linear-gradient(180deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2.5px solid hsl(45,89%,50%); box-shadow: 0 2px 8px rgba(0,0,0,0.2); will-change: transform; }
+        .pin.hl { width: 36px; height: 42px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+        .ap { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; will-change: transform; }
+        .ap.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px #10b981; }
         .mc { background: transparent !important; border: none !important; }
-        .cl { 
-          background: linear-gradient(135deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); 
-          color: white; 
-          border-radius: 50%; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          font-weight: 700; 
-          box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 0 2.5px hsl(45,89%,50%); 
-          will-change: transform;
-        }
-        .cl.sm { width: 38px; height: 38px; font-size: 12px; }
-        .cl.md { width: 42px; height: 42px; font-size: 13px; }
-        .cl.lg { width: 46px; height: 46px; font-size: 14px; }
+        .cl { background: linear-gradient(135deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 0 2.5px hsl(45,89%,50%); will-change: transform; }
+        .cl.sm { width: 36px; height: 36px; font-size: 12px; }
+        .cl.md { width: 40px; height: 40px; font-size: 13px; }
+        .cl.lg { width: 44px; height: 44px; font-size: 14px; }
         
         /* Minimalistic popup card styles */
         .premium-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); background: white; }

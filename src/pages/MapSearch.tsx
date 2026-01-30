@@ -49,16 +49,6 @@ const CombinedListingsMap = lazy(() =>
   import("@/components/map/CombinedListingsMap").then(m => ({ default: m.CombinedListingsMap }))
 );
 
-// Stable loading component outside of render cycle to prevent ref warnings
-const LoadingMap = () => (
-  <div className="h-full w-full bg-muted flex items-center justify-center" style={{ contain: 'layout style paint' }}>
-    <div className="text-center text-muted-foreground">
-      <Map className="h-12 w-12 mx-auto mb-2 opacity-50" />
-      <p className="text-sm">Loading map...</p>
-    </div>
-  </div>
-);
-
 // Session storage key for map state persistence
 const MAP_STATE_KEY = "pp_map_state";
 
@@ -196,16 +186,16 @@ export default function MapSearch() {
   const [locationRequested, setLocationRequested] = useState(false);
   const [isListInteracting, setIsListInteracting] = useState(false); // Pause visible updates during list click
 
-  // MOBILE & TABLET: prevent iOS/Android overscroll from revealing body background (white bands)
+  // MOBILE ONLY: prevent iOS/Android overscroll from revealing body background (white bands)
   useEffect(() => {
-    if (!isMobileOrTablet) return;
+    if (!isMobile) return;
     document.documentElement.classList.add("map-overscroll-lock");
     document.body.classList.add("map-overscroll-lock");
     return () => {
       document.documentElement.classList.remove("map-overscroll-lock");
       document.body.classList.remove("map-overscroll-lock");
     };
-  }, [isMobileOrTablet]);
+  }, [isMobile]);
   
   // Check if URL has explicit location params that should override saved state
   const urlLat = searchParams.get("lat");
@@ -396,7 +386,6 @@ export default function MapSearch() {
   }, [isMobile]);
 
   // Handle carousel scroll to detect centered item and fly map to it
-  const lastScrollCenterIdRef = useRef<string | null>(null);
   const handleCarouselScroll = useCallback(() => {
     if (!carouselRef.current) return;
     
@@ -420,15 +409,11 @@ export default function MapSearch() {
       }
     });
     
-    // More lenient threshold for touch scrolling (half card width)
-    const cardWidth = closestCard?.getBoundingClientRect().width || 180;
-    if (closestCard && closestDistance < cardWidth / 2) {
+    if (closestCard && closestDistance < 80) { // Within threshold
       const itemId = closestCard.getAttribute('data-item-id');
-      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale" | "assignment";
+      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale";
       
-      // Prevent duplicate triggers
-      if (itemId && itemId !== lastScrollCenterIdRef.current) {
-        lastScrollCenterIdRef.current = itemId;
+      if (itemId && itemId !== focusedCarouselItemId) {
         setFocusedCarouselItemId(itemId);
         setFocusedCarouselItemType(itemType);
         
@@ -438,21 +423,13 @@ export default function MapSearch() {
         }
       }
     }
-  }, []);
+  }, [focusedCarouselItemId]);
 
-  // Debounced scroll handler with shorter delay for responsiveness
+  // Debounced scroll handler
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const isScrollingRef = useRef(false);
   const debouncedCarouselScroll = useCallback(() => {
     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    
-    // Mark as scrolling to prevent immediate triggers
-    isScrollingRef.current = true;
-    
-    scrollTimeoutRef.current = setTimeout(() => {
-      isScrollingRef.current = false;
-      handleCarouselScroll();
-    }, 80); // Reduced from 100ms for more responsive sync
+    scrollTimeoutRef.current = setTimeout(handleCarouselScroll, 100);
   }, [handleCarouselScroll]);
 
   // Attach scroll listener to carousel
@@ -1141,7 +1118,14 @@ export default function MapSearch() {
     return buildGridUrlFromMapFilters(searchParams, basePath);
   }, [searchParams, mapMode]);
 
-  // LoadingMap moved to stable module-level component to prevent ref warnings
+  const LoadingMap = () => (
+    <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center">
+      <div className="text-center text-muted-foreground">
+        <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
+        <p>Loading map...</p>
+      </div>
+    </div>
+  );
 
   const formatPrice = (price: number | null) => {
     if (!price) return 'TBA';
@@ -1372,8 +1356,8 @@ export default function MapSearch() {
                 {/* Compact Carousel Cards */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory pointer-events-auto map-carousel-scroll"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
+                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory pointer-events-auto"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
                 >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
