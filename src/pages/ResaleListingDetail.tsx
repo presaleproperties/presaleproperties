@@ -536,7 +536,12 @@ export default function ResaleListingDetail() {
           {/* Left Column - Images & Details */}
           <div className="lg:col-span-2 space-y-4 lg:space-y-5">
             {/* Image Gallery - REW Style */}
-            <REWPhotoGallery photos={photos} virtualTourUrl={listing.virtual_tour_url} alt={address} />
+            <REWPhotoGallery 
+              photos={photos} 
+              virtualTourUrl={listing.virtual_tour_url} 
+              alt={address}
+              onScheduleShowing={() => setShowMobileScheduler(true)}
+            />
 
             {/* Mobile & Tablet Hero Info - Unified single-column layout */}
             {isMobileOrTablet && <div className="space-y-4">
@@ -1265,18 +1270,21 @@ export default function ResaleListingDetail() {
       </main>
 
       {/* Mobile CTA Bar - Only on mobile, not tablet (form is inline on tablet) */}
-      <div 
-        className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-[9999] shadow-lg safe-area-pb hide-on-keyboard"
-        style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
-      >
-        <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 shrink-0 rounded-xl">
-          <Phone className="h-5 w-5" />
-        </Button>
-        <Button onClick={() => setShowMobileScheduler(true)} className="flex-1 h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold">
-          <Calendar className="h-4 w-4 mr-2" />
-          Schedule Showing
-        </Button>
-      </div>
+      {/* Hidden when scheduler is open to prevent duplicate buttons */}
+      {!showMobileScheduler && (
+        <div 
+          className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-[9999] shadow-lg safe-area-pb hide-on-keyboard"
+          style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+        >
+          <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 shrink-0 rounded-xl">
+            <Phone className="h-5 w-5" />
+          </Button>
+          <Button onClick={() => setShowMobileScheduler(true)} className="flex-1 h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold">
+            <Calendar className="h-4 w-4 mr-2" />
+            Schedule Showing
+          </Button>
+        </div>
+      )}
 
       {/* Mobile Scheduler Sheet */}
       <Sheet open={showMobileScheduler} onOpenChange={setShowMobileScheduler}>
