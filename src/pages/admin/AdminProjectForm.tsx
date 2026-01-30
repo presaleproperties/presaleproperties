@@ -2857,7 +2857,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                 </label>
 
                 {/* Video URL */}
-                <div className="p-3 bg-muted/30 border rounded-lg space-y-2">
+                <div className="p-3 bg-muted/30 border rounded-lg space-y-3">
                   <Label className="text-sm font-medium flex items-center gap-2">
                     <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <polygon points="5 3 19 12 5 21 5 3" />
@@ -2870,9 +2870,47 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     value={formData.video_url}
                     onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Add a YouTube or Vimeo video to showcase the project
-                  </p>
+                  {/* Video Preview */}
+                  {formData.video_url && (() => {
+                    const url = formData.video_url;
+                    let embedUrl = "";
+                    
+                    // YouTube
+                    const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+                    if (ytMatch) {
+                      embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
+                    }
+                    
+                    // Vimeo
+                    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+                    if (vimeoMatch) {
+                      embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+                    }
+                    
+                    if (embedUrl) {
+                      return (
+                        <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
+                          <iframe
+                            src={embedUrl}
+                            className="absolute inset-0 w-full h-full"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        </div>
+                      );
+                    }
+                    
+                    return (
+                      <p className="text-xs text-amber-600">
+                        ⚠️ Could not parse video URL. Supported: YouTube, Vimeo
+                      </p>
+                    );
+                  })()}
+                  {!formData.video_url && (
+                    <p className="text-xs text-muted-foreground">
+                      Add a YouTube or Vimeo video to showcase the project
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
