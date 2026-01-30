@@ -23,12 +23,7 @@ interface PropertySEOTagsProps {
   className?: string;
 }
 
-// BC Home Warranty links - Official BC Housing sources
-const WARRANTY_LINKS = {
-  bcHousing: "https://www.bchousing.org/licensing-consumer-services/new-home-warranty/warranty-coverage",
-  rescission: "https://www.bchousing.org/licensing-consumer-services/new-home-warranty/buying-new-home/rescission-period",
-  depositProtection: "https://www.bchousing.org/licensing-consumer-services/new-home-warranty/buying-new-home/deposit-protection",
-};
+// Internal blog posts for buyer protection information
 
 // Supported cities for /properties/{city} routes (have dedicated city pages)
 const SUPPORTED_PROPERTY_CITY_PAGES = [
@@ -300,39 +295,33 @@ export function PropertySEOTags({
             <div className="border-t border-primary/30 pt-3 space-y-2">
               <p className="text-sm text-muted-foreground">
                 New homes in BC are covered by warranty...{" "}
-                <a
-                  href={WARRANTY_LINKS.bcHousing}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/blog/2-5-10-warranty-new-home-bc"
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
                   Read more
                   <ExternalLink className="h-3 w-3" />
-                </a>
+                </Link>
               </p>
               <p className="text-sm text-muted-foreground">
                 7 Day Rescission Period BC...{" "}
-                <a
-                  href={WARRANTY_LINKS.rescission}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/blog/7-day-rescission-period-bc-presale"
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
                   Read more
                   <ExternalLink className="h-3 w-3" />
-                </a>
+                </Link>
               </p>
               <p className="text-sm text-muted-foreground">
                 Deposit Protection...{" "}
-                <a
-                  href={WARRANTY_LINKS.depositProtection}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/blog/presale-deposit-protection-bc"
                   className="text-primary hover:underline inline-flex items-center gap-1"
                 >
                   Read more
                   <ExternalLink className="h-3 w-3" />
-                </a>
+                </Link>
               </p>
             </div>
           </div>
