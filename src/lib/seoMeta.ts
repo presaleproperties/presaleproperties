@@ -3,6 +3,13 @@
  * 
  * Implements PART 6 — TITLE & META TEMPLATE SYSTEM
  * Dynamic, CTR-optimized title and description generation.
+ * 
+ * CTR Optimization Guidelines:
+ * - Include price in title (increases CTR by 20%+)
+ * - Use current year (signals freshness)
+ * - Include count of listings (social proof)
+ * - Power words: "VIP", "Exclusive", "New", "Just Listed"
+ * - Keep titles under 60 chars, descriptions under 160 chars
  */
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -12,8 +19,8 @@ const CURRENT_YEAR = new Date().getFullYear();
 // ============================================
 
 export const getHomepageMeta = () => ({
-  title: "Presale Condos & New Construction in Metro Vancouver | PresaleProperties",
-  description: "Vancouver's presale experts. Browse 50+ new construction condos & townhomes in Surrey, Langley, Coquitlam & Burnaby. Get VIP pricing & floor plans.",
+  title: `Vancouver Presale Condos & Townhomes ${CURRENT_YEAR} | From $299K`,
+  description: "100+ presale condos & new construction in Vancouver, Surrey, Langley, Burnaby. VIP pricing, floor plans & deposit structures. Get exclusive early access.",
   keywords: "Vancouver presale condos, Surrey presale townhomes, Langley new construction, presale investment Vancouver, new condos Surrey",
 });
 
@@ -28,18 +35,20 @@ export const getCityPageMeta = (
   projectCount?: number
 ) => {
   const priceStr = startingPrice 
-    ? `from $${Math.round(startingPrice / 1000)}K` 
+    ? `From $${Math.round(startingPrice / 1000)}K` 
     : "";
   
   const projectStr = projectCount && projectCount > 0 
     ? `${projectCount}+ ` 
     : "";
   
+  // CTR-optimized title with price and year
   const title = startingPrice
-    ? `${city} Presale ${capitalizeFirst(propertyType)} ${priceStr} | VIP Access & Floor Plans (${CURRENT_YEAR})`
-    : `${city} Presale ${capitalizeFirst(propertyType)} | VIP Pricing & Floor Plans (${CURRENT_YEAR})`;
+    ? `${city} Presale ${capitalizeFirst(propertyType)} ${priceStr} | VIP Access ${CURRENT_YEAR}`
+    : `${city} Presale ${capitalizeFirst(propertyType)} | New Construction ${CURRENT_YEAR}`;
   
-  const description = `Explore ${projectStr}presale ${propertyType} and new construction homes in ${city}. View pricing, floor plans, incentives, and exclusive VIP access.`;
+  // Description with count and call-to-action
+  const description = `Browse ${projectStr}presale ${propertyType} in ${city}, BC. Floor plans, VIP pricing & deposit incentives. Never lived in, full warranty.`;
   
   const keywords = `${city} presale ${propertyType}, ${city} new construction, ${city} pre construction homes, ${city} new condos ${CURRENT_YEAR}`;
   

@@ -11,6 +11,7 @@ import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
+import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
 
@@ -118,6 +119,7 @@ const App = () => (
         <BrowserRouter>
           <SwipeNavigationProvider>
             <ScrollToTop />
+            <GlobalSEO />
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
