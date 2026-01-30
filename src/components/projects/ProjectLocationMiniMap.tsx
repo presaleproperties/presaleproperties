@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { ExternalLink, School, Train, TreePine, ShoppingBag, Stethoscope, Loader2 } from "lucide-react";
+import { ExternalLink, School, Train, TreePine, ShoppingBag, Stethoscope, Loader2, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const TILE_URL = "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
@@ -233,10 +233,7 @@ export function ProjectLocationMiniMap({
   };
 
   const handleOpenFullMap = () => {
-    window.open(
-      `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`,
-      "_blank"
-    );
+    window.location.href = `/map-search?lat=${latitude}&lng=${longitude}&zoom=16&project=${encodeURIComponent(projectName)}`;
   };
 
   return (
@@ -249,8 +246,8 @@ export function ProjectLocationMiniMap({
           className="h-8 px-3 text-xs gap-1.5 text-primary hover:text-primary shrink-0"
           onClick={handleOpenFullMap}
         >
-          <ExternalLink className="h-3.5 w-3.5" />
-          Open in Maps
+          <Map className="h-3.5 w-3.5" />
+          View Full Map
         </Button>
       </div>
 
