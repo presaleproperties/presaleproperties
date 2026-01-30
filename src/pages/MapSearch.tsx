@@ -840,7 +840,11 @@ export default function MapSearch() {
     refetchOnWindowFocus: false,
   });
 
-  const isLoading = resaleLoading || presaleLoading || assignmentsLoading;
+  // Only show loading if we have NO data yet - use cached data immediately on back navigation
+  const hasAnyData = (resaleListings && resaleListings.length > 0) || 
+                     (presaleProjects && presaleProjects.length > 0) || 
+                     (assignments && assignments.length > 0);
+  const isLoading = !hasAnyData && (resaleLoading || presaleLoading || assignmentsLoading);
 
   const filteredResaleListings = useMemo(() => {
     if (!resaleListings) return [];

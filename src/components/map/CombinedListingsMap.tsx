@@ -414,6 +414,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       ? [savedMapState.center.lat, savedMapState.center.lng]
       : DEFAULT_CENTER;
     const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
+    
+    // When restoring from saved state, skip animations for instant display
+    const isRestoringState = !!savedMapState;
 
     // Smooth, Google Maps-like map initialization
     const map = L.map(mapRef.current, {
@@ -421,46 +424,62 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
-      preferCanvas: true, // Use canvas renderer for better performance
-      fadeAnimation: true, // Enable for smooth transitions
-      zoomAnimation: true, // Enable for smooth zoom like Google Maps
-      markerZoomAnimation: true, // Smooth marker scaling
-      zoomAnimationThreshold: 4, // Animate for small zoom changes
-      inertia: true, // Smooth panning momentum
-      inertiaDeceleration: 2000, // Natural feeling deceleration
-      easeLinearity: 0.25, // Smooth easing curve
+      preferCanvas: true,
+      // Disable animations on restore for instant view, enable for normal use
+      fadeAnimation: !isRestoringState,
+      zoomAnimation: !isRestoringState,
+      markerZoomAnimation: !isRestoringState,
+      zoomAnimationThreshold: 4,
+      inertia: true,
+      inertiaDeceleration: 2000,
+      easeLinearity: 0.25,
       worldCopyJump: false,
       maxBoundsViscosity: 0.8,
-      touchZoom: 'center', // Pinch zoom centered
-      bounceAtZoomLimits: false, // Prevent jarring bounce
+      touchZoom: 'center',
+      bounceAtZoomLimits: false,
     });
+    
+    // Re-enable animations after initial render for smooth interactions
+    if (isRestoringState) {
+      requestAnimationFrame(() => {
+        map.options.fadeAnimation = true;
+        map.options.zoomAnimation = true;
+        map.options.markerZoomAnimation = true;
+      });
+    }
 
-    // Optimized tile layer with smooth transitions
-    L.tileLayer(TILE_URL, { 
+    // Optimized tile layer with faster loading
+    const tileLayer = L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
-      updateWhenIdle: false, // Update while moving for smoother feel
-      updateWhenZooming: true, // Update during zoom
-      keepBuffer: 6, // Larger buffer for seamless panning
+      updateWhenIdle: false,
+      updateWhenZooming: true,
+      keepBuffer: 8, // Larger buffer for seamless panning
       crossOrigin: true,
-    }).addTo(map);
+    });
+    
+    // Preload tiles for the current view immediately
+    tileLayer.addTo(map);
+    
+    // Skip animations for markers when restoring state
+    const skipMarkerAnimation = isRestoringState;
 
-    // Smooth cluster settings - Google Maps style
+    // Optimized cluster settings for fast rendering
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 10,
-      chunkInterval: 50,
-      maxClusterRadius: 50, // Tighter clustering for better precision
+      chunkDelay: 5, // Faster chunking
+      chunkInterval: 25, // Faster interval
+      maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 17, // Show individual pins at higher zoom
-      animate: true, // Smooth cluster animations
-      animateAddingMarkers: false, // Don't animate on data change
+      disableClusteringAtZoom: 17,
+      animate: !skipMarkerAnimation, // Skip animation on restore
+      animateAddingMarkers: false,
       removeOutsideVisibleBounds: true,
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.5, // More spread for easier tapping
-      zoomToBoundsOnClick: true, // Single click zooms into cluster
+      spiderfyDistanceMultiplier: 1.5,
+      zoomToBoundsOnClick: true,
       spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(222, 47%, 60%)', opacity: 0.5 },
     });
 
@@ -663,15 +682,16 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   }, [initialUserLocation]);
 
   return (
-    <div className="relative w-full h-full" style={{ contain: 'layout style paint', willChange: 'transform' }}>
+    <div className="relative w-full h-full bg-muted" style={{ contain: 'layout style paint', willChange: 'transform' }}>
       <style>{`
-        /* GPU acceleration */
+        /* GPU acceleration and prevent flash */
         .leaflet-container { 
           -webkit-transform: translate3d(0,0,0); 
           transform: translate3d(0,0,0);
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
           font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+          background: hsl(var(--muted)) !important;
         }
         .leaflet-tile-container { 
           -webkit-transform: translate3d(0,0,0); 
@@ -680,6 +700,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .leaflet-tile { 
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
+          transition: opacity 0.15s ease-out;
         }
         .leaflet-tile-loaded { opacity: 1 !important; }
         
