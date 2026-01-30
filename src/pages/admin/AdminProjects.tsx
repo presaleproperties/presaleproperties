@@ -65,6 +65,9 @@ type Project = {
   is_featured: boolean;
   is_published: boolean;
   updated_at: string;
+  brochure_files: string[] | null;
+  floorplan_files: string[] | null;
+  pricing_sheets: string[] | null;
 };
 
 type ProjectForGeocoding = {
@@ -92,6 +95,7 @@ export default function AdminProjects() {
   const [cityFilter, setCityFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [publishedFilter, setPublishedFilter] = useState<string>("all");
+  const [docsFilter, setDocsFilter] = useState<string>("all");
   const [deleteProject, setDeleteProject] = useState<Project | null>(null);
   const [deleting, setDeleting] = useState(false);
   const { toast } = useToast();
@@ -113,7 +117,7 @@ export default function AdminProjects() {
     try {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, updated_at")
+        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, updated_at, brochure_files, floorplan_files, pricing_sheets")
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
@@ -464,6 +468,9 @@ export default function AdminProjects() {
 
   const cities = [...new Set(projects.map(p => p.city))].sort();
 
+  // Helper functions for document status
+  const hasDoc = (files: string[] | null) => files && files.length > 0;
+  
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       project.neighborhood.toLowerCase().includes(searchQuery.toLowerCase());
@@ -471,7 +478,22 @@ export default function AdminProjects() {
     const matchesStatus = statusFilter === "all" || project.status === statusFilter;
     const matchesPublished = publishedFilter === "all" || 
       (publishedFilter === "published" ? project.is_published : !project.is_published);
-    return matchesSearch && matchesCity && matchesStatus && matchesPublished;
+    
+    // Document filter logic
+    let matchesDocs = true;
+    if (docsFilter === "missing_brochure") {
+      matchesDocs = !hasDoc(project.brochure_files);
+    } else if (docsFilter === "missing_floorplan") {
+      matchesDocs = !hasDoc(project.floorplan_files);
+    } else if (docsFilter === "missing_pricing") {
+      matchesDocs = !hasDoc(project.pricing_sheets);
+    } else if (docsFilter === "complete") {
+      matchesDocs = hasDoc(project.brochure_files) && hasDoc(project.floorplan_files) && hasDoc(project.pricing_sheets);
+    } else if (docsFilter === "incomplete") {
+      matchesDocs = !hasDoc(project.brochure_files) || !hasDoc(project.floorplan_files) || !hasDoc(project.pricing_sheets);
+    }
+    
+    return matchesSearch && matchesCity && matchesStatus && matchesPublished && matchesDocs;
   });
 
   const getStatusColor = (status: string) => {
@@ -562,6 +584,19 @@ export default function AdminProjects() {
               <SelectItem value="draft">Draft</SelectItem>
             </SelectContent>
           </Select>
+          <Select value={docsFilter} onValueChange={setDocsFilter}>
+            <SelectTrigger className="w-full sm:w-[180px]">
+              <SelectValue placeholder="Documents" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Documents</SelectItem>
+              <SelectItem value="missing_brochure">Missing Brochure</SelectItem>
+              <SelectItem value="missing_floorplan">Missing Floorplans</SelectItem>
+              <SelectItem value="missing_pricing">Missing Pricing</SelectItem>
+              <SelectItem value="incomplete">Any Missing</SelectItem>
+              <SelectItem value="complete">All Complete</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Projects List */}
@@ -619,6 +654,18 @@ export default function AdminProjects() {
                         )}
                         <span className="text-xs">
                           Updated {new Date(project.updated_at).toLocaleDateString()}
+                        </span>
+                        {/* Document Status Indicators */}
+                        <span className="flex items-center gap-1.5 text-xs border-l pl-4 ml-2">
+                          <span title="Brochure" className={hasDoc(project.brochure_files) ? "text-green-600" : "text-red-400"}>
+                            📄{hasDoc(project.brochure_files) ? "✓" : "✗"}
+                          </span>
+                          <span title="Floorplans" className={hasDoc(project.floorplan_files) ? "text-green-600" : "text-red-400"}>
+                            📋{hasDoc(project.floorplan_files) ? "✓" : "✗"}
+                          </span>
+                          <span title="Pricing" className={hasDoc(project.pricing_sheets) ? "text-green-600" : "text-red-400"}>
+                            💲{hasDoc(project.pricing_sheets) ? "✓" : "✗"}
+                          </span>
                         </span>
                       </div>
                     </div>

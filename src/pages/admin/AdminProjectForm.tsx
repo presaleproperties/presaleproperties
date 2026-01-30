@@ -83,6 +83,7 @@ type ProjectFormData = {
   gallery_images: string[];
   brochure_files: string[];
   floorplan_files: string[];
+  pricing_sheets: string[];
   seo_title: string;
   seo_description: string;
   is_indexed: boolean;
@@ -125,6 +126,7 @@ const defaultFormData: ProjectFormData = {
   gallery_images: [],
   brochure_files: [],
   floorplan_files: [],
+  pricing_sheets: [],
   seo_title: "",
   seo_description: "",
   is_indexed: true,
@@ -438,6 +440,7 @@ export default function AdminProjectForm() {
         gallery_images: data.gallery_images || [],
         brochure_files: data.brochure_files || [],
         floorplan_files: data.floorplan_files || [],
+        pricing_sheets: data.pricing_sheets || [],
         seo_title: data.seo_title || "",
         seo_description: data.seo_description || "",
         is_indexed: data.is_indexed ?? true,
@@ -1195,6 +1198,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
         gallery_images: formData.gallery_images.length > 0 ? formData.gallery_images : null,
         brochure_files: formData.brochure_files.length > 0 ? formData.brochure_files : null,
         floorplan_files: formData.floorplan_files.length > 0 ? formData.floorplan_files : null,
+        pricing_sheets: formData.pricing_sheets.length > 0 ? formData.pricing_sheets : null,
         seo_title: formData.seo_title || null,
         seo_description: formData.seo_description || null,
         is_indexed: formData.is_indexed,
@@ -1567,6 +1571,55 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
     setFormData(prev => ({
       ...prev,
       floorplan_files: [],
+    }));
+  };
+
+  const handlePricingSheetUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    try {
+      const file = files[0];
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `pricing-sheets/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from("listing-files")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: urlData } = supabase.storage
+        .from("listing-files")
+        .getPublicUrl(filePath);
+
+      setFormData(prev => ({
+        ...prev,
+        pricing_sheets: [urlData.publicUrl],
+      }));
+
+      toast({
+        title: "Upload Complete",
+        description: "Pricing sheet uploaded successfully",
+      });
+    } catch (error) {
+      console.error("Error uploading pricing sheet:", error);
+      toast({
+        title: "Upload Failed",
+        description: "Failed to upload pricing sheet",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const removePricingSheet = () => {
+    setFormData(prev => ({
+      ...prev,
+      pricing_sheets: [],
     }));
   };
 
@@ -2943,11 +2996,121 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                 )}
               </CardContent>
             </Card>
+
+            {/* Pricing Sheet PDF */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Pricing Sheet PDF
+                </CardTitle>
+                <CardDescription>
+                  Upload a PDF pricing sheet or paste a Google Drive link for agents to access
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {formData.pricing_sheets.length > 0 ? (
+                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-8 w-8 text-primary" />
+                      <div>
+                        <p className="font-medium text-sm">
+                          {formData.pricing_sheets[0].includes('drive.google.com') ? 'Google Drive link added' : 'Pricing sheet uploaded'}
+                        </p>
+                        <a 
+                          href={formData.pricing_sheets[0]} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-xs text-primary hover:underline"
+                        >
+                          {formData.pricing_sheets[0].includes('drive.google.com') ? 'Open in Google Drive' : 'View PDF'}
+                        </a>
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="sm"
+                      onClick={removePricingSheet}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {/* PDF Upload Option */}
+                    <label className="flex flex-col items-center justify-center border-2 border-dashed rounded-lg p-6 cursor-pointer hover:border-primary transition-colors">
+                      <Upload className="h-8 w-8 text-muted-foreground mb-2" />
+                      <span className="text-sm text-muted-foreground">Click to upload pricing sheet PDF</span>
+                      <input
+                        type="file"
+                        accept=".pdf"
+                        className="hidden"
+                        onChange={handlePricingSheetUpload}
+                        disabled={uploading}
+                      />
+                    </label>
+
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t" />
+                      </div>
+                      <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">Or</span>
+                      </div>
+                    </div>
+
+                    {/* Google Drive Link Option */}
+                    <div className="space-y-2">
+                      <Label className="text-sm flex items-center gap-2">
+                        <FolderOpen className="h-4 w-4" />
+                        Google Drive Link
+                      </Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="url"
+                          placeholder="Paste public Google Drive link..."
+                          id="pricing-drive-link"
+                          className="flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => {
+                            const input = document.getElementById('pricing-drive-link') as HTMLInputElement;
+                            const url = input?.value?.trim();
+                            if (url && (url.includes('drive.google.com') || url.includes('docs.google.com'))) {
+                              setFormData(prev => ({
+                                ...prev,
+                                pricing_sheets: [url],
+                              }));
+                              toast({
+                                title: "Link Added",
+                                description: "Google Drive link saved successfully",
+                              });
+                            } else {
+                              toast({
+                                title: "Invalid Link",
+                                description: "Please enter a valid Google Drive link",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          Add Link
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Make sure the link is set to "Anyone with the link can view"
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
         </div>
       </form>
-
-      {/* Image Preview Modal */}
       <Dialog open={showImagePreviewModal} onOpenChange={setShowImagePreviewModal}>
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
           <DialogHeader>
