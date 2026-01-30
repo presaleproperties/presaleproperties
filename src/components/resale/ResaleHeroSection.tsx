@@ -1,50 +1,13 @@
-import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SearchSuggestions } from "@/components/home/SearchSuggestions";
+import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 
 const TOP_CITIES = ["Vancouver", "Surrey", "Burnaby", "Coquitlam", "Langley"];
 
 export function ResaleHeroSection() {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowSuggestions(false);
-    if (searchQuery.trim()) {
-      navigate(`/resale?q=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate("/resale");
-    }
-  };
-
-  const handleSuggestionSelect = (value: string, type: string) => {
-    setSearchQuery(value);
-    setShowSuggestions(false);
-    if (type === "city") {
-      navigate(`/properties/${value.toLowerCase()}`);
-    } else {
-      navigate(`/properties?q=${encodeURIComponent(value)}`);
-    }
-  };
 
   const handleCityClick = (city: string) => {
     navigate(`/properties/${city.toLowerCase()}`);
@@ -102,36 +65,15 @@ export function ResaleHeroSection() {
               </Link>
             </div>
 
-            {/* Search Input */}
-            <form onSubmit={handleSearch}>
-              <div className="relative px-2.5 sm:px-4 py-2.5 sm:py-3" ref={searchContainerRef}>
-                <Input
-                  type="text"
-                  placeholder="City, Neighbourhood, Address..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="h-11 sm:h-12 md:h-14 text-[15px] sm:text-base pl-3.5 pr-11 border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
-                  autoComplete="off"
-                />
-                <button 
-                  type="submit"
-                  className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground active:scale-95 transition-all rounded-full"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-                <SearchSuggestions
-                  query={searchQuery}
-                  onSelect={handleSuggestionSelect}
-                  isVisible={showSuggestions}
-                  onClose={() => setShowSuggestions(false)}
-                  searchMode="resale"
-                />
-              </div>
-            </form>
+            {/* PowerSearch */}
+            <div className="px-2.5 sm:px-4 py-2.5 sm:py-3">
+              <PowerSearch
+                placeholder="Address, MLS#, city, neighbourhood..."
+                mode="resale"
+                variant="hero"
+                inputClassName="h-11 sm:h-12 md:h-14 text-[15px] sm:text-base border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
+              />
+            </div>
           </div>
 
           {/* Top Cities */}
