@@ -73,6 +73,7 @@ Deno.serve(async (req) => {
       // Main listing hubs - optimized for Google sitelinks
       { url: "/presale-projects", priority: "0.95", changefreq: "daily", lastmod: now },
       { url: "/properties", priority: "0.95", changefreq: "daily", lastmod: now },
+      { url: "/assignments", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/for-agents", priority: "0.9", changefreq: "weekly", lastmod: now },
       
       // Educational / Guide pages
@@ -83,6 +84,7 @@ Deno.serve(async (req) => {
       // Tools
       { url: "/roi-calculator", priority: "0.8", changefreq: "monthly", lastmod: now },
       { url: "/mortgage-calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
+      { url: "/calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
       
       // Company pages
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
@@ -131,12 +133,12 @@ Deno.serve(async (req) => {
     ];
 
     // ==========================================
-    // 4. PROPERTIES CITY PAGES (Clean URLs only)
+    // 4. PROPERTIES CITY PAGES (Clean URLs - /properties/{city})
     // ==========================================
     const allCities = [...primaryCities, ...secondaryCities];
     const propertiesCityPages = allCities.map(city => ({
       url: `/properties/${city}`,
-      priority: "0.85",
+      priority: primaryCities.includes(city) ? "0.9" : "0.8",
       changefreq: "daily",
       lastmod: now
     }));
