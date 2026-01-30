@@ -198,17 +198,17 @@ const Index = () => {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Helmet>
-          <title>Surrey New Condos & Presale Properties | Move-In Ready 2026</title>
-          <meta name="title" content="Surrey New Condos & Presale Properties | Move-In Ready 2026" />
-          <meta name="description" content="Browse 50+ new condos & presale properties in Surrey, Langley, Coquitlam. Move-in ready under 6 months + presale projects. VIP access, floor plans, expert guidance." />
-          <meta name="keywords" content="Surrey new condos, presale properties Surrey, move-in ready condos, new construction Surrey Langley Coquitlam, presale condos Metro Vancouver 2026" />
+          <title>Vancouver Presale Condos & Townhomes 2026 | PresaleProperties</title>
+          <meta name="title" content="Vancouver Presale Condos & Townhomes 2026 | PresaleProperties" />
+          <meta name="description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access for Surrey, Langley, Burnaby, Coquitlam. New construction experts." />
+          <meta name="keywords" content="presale condos Vancouver, presale townhomes Surrey, new construction Metro Vancouver, presale projects BC, VIP pricing 2026" />
           <link rel="canonical" href="https://presaleproperties.com/" />
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
           
           <meta property="og:type" content="website" />
           <meta property="og:url" content="https://presaleproperties.com/" />
-          <meta property="og:title" content="Surrey New Condos & Presale Properties | Move-In Ready 2026" />
-          <meta property="og:description" content="Browse 50+ new condos & presale properties in Surrey, Langley, Coquitlam. VIP access, floor plans, expert guidance." />
+          <meta property="og:title" content="Vancouver Presale Condos & Townhomes 2026" />
+          <meta property="og:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access." />
           <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
           <meta property="og:image:width" content="1200" />
           <meta property="og:image:height" content="630" />
@@ -217,12 +217,12 @@ const Index = () => {
           
           <meta name="twitter:card" content="summary_large_image" />
           <meta name="twitter:url" content="https://presaleproperties.com/" />
-          <meta name="twitter:title" content="Surrey New Condos & Presale Properties 2026" />
-          <meta name="twitter:description" content="Browse 50+ new condos & presale properties. VIP pricing, floor plans & early access." />
+          <meta name="twitter:title" content="Vancouver Presale Condos & Townhomes 2026" />
+          <meta name="twitter:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing & floor plans." />
           <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
           
           <meta name="geo.region" content="CA-BC" />
-          <meta name="geo.placename" content="Surrey" />
+          <meta name="geo.placename" content="Vancouver" />
           <meta name="author" content="PresaleProperties.com" />
           
           <script type="application/ld+json">
@@ -248,17 +248,17 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>Surrey New Condos & Presale Properties | Move-In Ready 2026</title>
-        <meta name="title" content="Surrey New Condos & Presale Properties | Move-In Ready 2026" />
-        <meta name="description" content="Browse 50+ new condos & presale properties in Surrey, Langley, Coquitlam. Move-in ready under 6 months + presale projects. VIP access, floor plans, expert guidance." />
-        <meta name="keywords" content="Surrey new condos, presale properties Surrey, move-in ready condos, new construction Surrey Langley Coquitlam, presale condos Metro Vancouver 2026" />
+        <title>Vancouver Presale Condos & Townhomes 2026 | PresaleProperties</title>
+        <meta name="title" content="Vancouver Presale Condos & Townhomes 2026 | PresaleProperties" />
+        <meta name="description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access for Surrey, Langley, Burnaby, Coquitlam. New construction experts." />
+        <meta name="keywords" content="presale condos Vancouver, presale townhomes Surrey, new construction Metro Vancouver, presale projects BC, VIP pricing 2026" />
         <link rel="canonical" href="https://presaleproperties.com/" />
         <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://presaleproperties.com/" />
-        <meta property="og:title" content="Surrey New Condos & Presale Properties | Move-In Ready 2026" />
-        <meta property="og:description" content="Browse 50+ new condos & presale properties in Surrey, Langley, Coquitlam. VIP access, floor plans, expert guidance." />
+        <meta property="og:title" content="Vancouver Presale Condos & Townhomes 2026" />
+        <meta property="og:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access." />
         <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -267,12 +267,12 @@ const Index = () => {
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:url" content="https://presaleproperties.com/" />
-        <meta name="twitter:title" content="Surrey New Condos & Presale Properties 2026" />
-        <meta name="twitter:description" content="Browse 50+ new condos & presale properties. VIP pricing, floor plans & early access." />
+        <meta name="twitter:title" content="Vancouver Presale Condos & Townhomes 2026" />
+        <meta name="twitter:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing & floor plans." />
         <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
         
         <meta name="geo.region" content="CA-BC" />
-        <meta name="geo.placename" content="Surrey" />
+        <meta name="geo.placename" content="Vancouver" />
         <meta name="author" content="PresaleProperties.com" />
         
         <script type="application/ld+json">
