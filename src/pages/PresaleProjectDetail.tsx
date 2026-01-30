@@ -65,6 +65,7 @@ type Project = {
   gallery_images: string[] | null;
   floorplan_files: string[] | null;
   brochure_files: string[] | null;
+  pricing_sheets: string[] | null;
   seo_title: string | null;
   seo_description: string | null;
   is_featured: boolean;
@@ -886,7 +887,7 @@ export default function PresaleProjectDetail() {
                   </div>
                   
                   {/* Lead Form - Primary conversion point */}
-                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} />
+                  <ProjectLeadForm projectId={project.id} projectName={project.name} status={project.status} brochureUrl={project.brochure_files?.[0] || null} floorplanUrl={project.floorplan_files?.[0] || null} pricingUrl={project.pricing_sheets?.[0] || null} />
                   
                   {/* Quick Actions Below Lead Form */}
                   <div className="flex gap-2">
