@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { MessageCircle, Phone, Menu, X, Building2, FileStack, BookOpen, Users, ChevronRight, ChevronDown, MapPin, Calculator, Home, Map, TrendingUp } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Sparkles } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,12 +17,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { AccessPackModal } from "./AccessPackModal";
-import { supabase } from "@/integrations/supabase/client";
-import { trackCTAClick } from "@/hooks/useLoftyTracking";
 import { useScrollHeader } from "@/hooks/useScrollHeader";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+
 // City links for condos (primary navigation)
 const CONDO_CITY_LINKS = [
   { slug: "surrey", name: "Surrey" },
@@ -66,69 +64,24 @@ interface ConversionHeaderProps {
 
 export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, stickyOnMobile = false }: ConversionHeaderProps) {
   const [open, setOpen] = useState(false);
-  const [citiesOpen, setCitiesOpen] = useState(false);
-  const [resaleCitiesOpen, setResaleCitiesOpen] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
+  const [presaleOpen, setPresaleOpen] = useState(false);
+  const [resaleOpen, setResaleOpen] = useState(false);
   const location = useLocation();
   
   // Scroll-based header visibility for mobile/tablet
   const { isVisible } = useScrollHeader({ threshold: 100, sensitivity: 8 });
   const isMobileOrTablet = useIsMobileOrTablet();
 
-  useEffect(() => {
-    const fetchWhatsapp = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "whatsapp_number")
-        .maybeSingle();
-      if (data?.value) setWhatsappNumber(data.value as string);
-    };
-    fetchWhatsapp();
-  }, []);
-
   const isActive = (path: string) => location.pathname === path;
-
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'm interested in learning about presale projects. Can you help me?")}`;
-
-  const openChatNow = () => {
-    setOpen(false);
-    trackCTAClick({
-      cta_type: "whatsapp_click",
-      cta_label: "Chat Now",
-      cta_location: "header",
-    });
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "click_chat_now", {
-        page_path: window.location.pathname,
-        source: "header",
-      });
-    }
-    window.open(whatsappLink, "_blank");
-  };
-
-  const openCallBack = () => {
-    setModalOpen(true);
-    setOpen(false);
-    trackCTAClick({
-      cta_type: "callback_request",
-      cta_label: "Request a Call Back",
-      cta_location: "header",
-    });
-    if (typeof window !== "undefined" && (window as any).gtag) {
-      (window as any).gtag("event", "click_request_callback", {
-        page_path: window.location.pathname,
-        source: "header",
-      });
-    }
-  };
+  const isMapPage = location.pathname === "/map-search";
 
   return (
     <>
       <header 
         className={cn(
-          "w-full border-b border-border bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/80 shadow-sm z-50 shrink-0",
+          "w-full bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 z-50 shrink-0",
+          // Premium border with subtle gold tint
+          "border-b border-border/60",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
           // Mobile/tablet: fixed positioning for edge-to-edge scrolling
@@ -140,60 +93,66 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
           !hideOnMobile && !alwaysVisible && !stickyOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
       >
-        {/* Desktop: standard height with oversized logo */}
         <div className="flex h-14 md:h-16 items-center justify-between px-4 lg:container">
+          {/* Logo */}
           <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-6">
+          {/* Desktop Navigation - Premium styled */}
+          <nav className="hidden lg:flex items-center gap-1">
             <NavigationMenu>
-              <NavigationMenuList>
+              <NavigationMenuList className="gap-0">
+                {/* Presale Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
+                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/10 bg-transparent data-[state=open]:bg-accent/10 rounded-lg transition-colors">
+                    <Building2 className="h-4 w-4 mr-2 text-primary" />
                     Presale
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[500px] p-4 bg-background">
-                      <div className="mb-3">
-                        <Link 
-                          to="/presale-projects" 
-                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                        >
-                          <Building2 className="h-4 w-4 text-primary" />
-                          <div>
-                            <div className="text-sm font-medium">All Projects</div>
-                            <p className="text-xs text-muted-foreground">Browse all presale developments</p>
-                          </div>
-                        </Link>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 border-t pt-3">
+                    <div className="w-[520px] p-5 bg-background rounded-xl shadow-lg border border-border/50">
+                      {/* Header Link */}
+                      <Link 
+                        to="/presale-projects" 
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/80 transition-colors group mb-4"
+                      >
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <Building2 className="h-5 w-5 text-primary" />
+                        </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">PRESALE CONDOS</p>
-                          <div className="space-y-0.5">
+                          <div className="text-sm font-semibold text-foreground">All Presale Projects</div>
+                          <p className="text-xs text-muted-foreground">Browse all new developments</p>
+                        </div>
+                      </Link>
+                      
+                      <div className="h-px bg-border/60 mb-4" />
+                      
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">Presale Condos</p>
+                          <div className="space-y-1">
                             {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
                                   to={`/${city.slug}-presale-condos`}
-                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
                                 >
-                                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name} Condos
+                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">PRESALE TOWNHOMES</p>
-                          <div className="space-y-0.5">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">Presale Townhomes</p>
+                          <div className="space-y-1">
                             {TOWNHOME_CITY_LINKS.map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
                                   to={`/${city.slug}-presale-townhomes`}
-                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
                                 >
-                                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name} Townhomes
+                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
@@ -204,65 +163,61 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
+                {/* Move-In Ready Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="text-sm font-medium text-muted-foreground hover:text-foreground bg-transparent">
+                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/10 bg-transparent data-[state=open]:bg-accent/10 rounded-lg transition-colors">
+                    <Home className="h-4 w-4 mr-2 text-primary" />
                     Move-In Ready
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <div className="w-[500px] p-4 bg-background">
-                      <div className="mb-3">
-                        <Link 
-                          to="/resale" 
-                          className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors"
-                        >
-                          <Home className="h-4 w-4 text-primary" />
-                          <div>
-                            <div className="text-sm font-medium">All Listings</div>
-                            <p className="text-xs text-muted-foreground">Browse all new construction homes</p>
-                          </div>
-                        </Link>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 border-t pt-3">
+                    <div className="w-[520px] p-5 bg-background rounded-xl shadow-lg border border-border/50">
+                      {/* Header Link */}
+                      <Link 
+                        to="/resale" 
+                        className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/80 transition-colors group mb-4"
+                      >
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                          <Home className="h-5 w-5 text-primary" />
+                        </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">NEW CONDOS</p>
-                          <div className="space-y-0.5">
+                          <div className="text-sm font-semibold text-foreground">All Move-In Ready</div>
+                          <p className="text-xs text-muted-foreground">New construction homes available now</p>
+                        </div>
+                      </Link>
+                      
+                      <div className="h-px bg-border/60 mb-4" />
+                      
+                      <div className="grid grid-cols-2 gap-6">
+                        <div>
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">New Condos</p>
+                          <div className="space-y-1">
                             {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
                               <NavigationMenuLink key={city.slug} asChild>
                                 <Link
                                   to={`/properties/${city.slug}?type=condo`}
-                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
                                 >
-                                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name} Condos
+                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
                           </div>
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-muted-foreground mb-2 px-2">NEW TOWNHOMES</p>
-                          <div className="space-y-0.5">
+                          <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground mb-3 px-1">New Townhomes</p>
+                          <div className="space-y-1">
                             {RESALE_CITY_LINKS.slice(0, 4).map((city) => (
                               <NavigationMenuLink key={`townhome-${city.slug}`} asChild>
                                 <Link
                                   to={`/properties/${city.slug}?type=townhouse`}
-                                  className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
+                                  className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-secondary/60 transition-colors text-sm text-foreground/80 hover:text-foreground"
                                 >
-                                  <MapPin className="h-3 w-3 text-muted-foreground" />
-                                  {city.name} Townhomes
+                                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                  {city.name}
                                 </Link>
                               </NavigationMenuLink>
                             ))}
-                            <div className="border-t my-2" />
-                            <NavigationMenuLink asChild>
-                              <Link
-                                to="/map-search?mode=resale"
-                                className="flex items-center gap-2 p-2 rounded-md hover:bg-muted transition-colors text-sm"
-                              >
-                                <Map className="h-3 w-3 text-muted-foreground" />
-                                Map Search
-                              </Link>
-                            </NavigationMenuLink>
                           </div>
                         </div>
                       </div>
@@ -272,148 +227,238 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               </NavigationMenuList>
             </NavigationMenu>
             
+            {/* Simple nav links */}
             <Link
               to="/blog"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className={cn(
+                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
+                isActive("/blog") 
+                  ? "text-foreground bg-secondary/60" 
+                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
+              )}
             >
+              <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
               Blog
             </Link>
             <Link
               to="/calculator"
-              className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className={cn(
+                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
+                isActive("/calculator") 
+                  ? "text-foreground bg-secondary/60" 
+                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
+              )}
             >
+              <Calculator className="h-4 w-4 mr-2 text-muted-foreground" />
               Calculator
             </Link>
           </nav>
 
-          {/* Desktop CTA */}
+          {/* Desktop CTA - Map Search with premium styling */}
           <div className="hidden lg:flex items-center gap-3">
-            {/* VIP button hidden for launch - uncomment when ready */}
-            {/* <Button size="sm" variant="outline" asChild>
-              <Link to="/vip">
-                Join VIP
+            <Button 
+              asChild 
+              size="sm" 
+              className={cn(
+                "h-10 px-5 font-semibold rounded-lg shadow-sm",
+                "bg-gradient-to-r from-primary via-primary to-primary-deep hover:from-primary-glow hover:via-primary hover:to-primary-deep",
+                "text-primary-foreground",
+                "transition-all duration-300 hover:shadow-gold hover:-translate-y-0.5",
+                isMapPage && "ring-2 ring-primary/30"
+              )}
+            >
+              <Link to="/map-search">
+                <Map className="h-4 w-4 mr-2" />
+                Explore Map
               </Link>
-            </Button> */}
-            <Button size="sm" onClick={openCallBack} className="shadow-sm">
-              <Phone className="h-4 w-4 mr-2" />
-              Request a Call Back
             </Button>
           </div>
 
-          {/* Mobile Menu - Improved touch targets */}
+          {/* Mobile Navigation */}
           <div className="flex items-center gap-1 lg:hidden">
-            {/* Mobile Home Button - 48x48 minimum */}
+            {/* Mobile Map CTA - Always visible */}
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 touch-active" 
+              className={cn(
+                "h-11 w-11 rounded-full shrink-0",
+                isMapPage 
+                  ? "bg-primary/10 text-primary" 
+                  : "text-foreground/70 hover:text-foreground hover:bg-secondary/60"
+              )}
               asChild
             >
-              <Link to="/">
-                <Home className="h-5 w-5" />
-                <span className="sr-only">Home</span>
+              <Link to="/map-search">
+                <Map className="h-5 w-5" />
+                <span className="sr-only">Map Search</span>
               </Link>
             </Button>
             
             <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-12 w-12 min-h-[48px] min-w-[48px] shrink-0 touch-active">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-11 w-11 rounded-full shrink-0 text-foreground/70 hover:text-foreground hover:bg-secondary/60"
+                >
                   <span className="sr-only">Toggle menu</span>
-                  {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                  {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                 </Button>
               </SheetTrigger>
               <SheetContent 
                 side="right" 
-                className="w-full max-w-full p-0 bg-background border-l-0 shadow-2xl sm:max-w-sm [&>button]:hidden"
+                className="w-full max-w-full p-0 bg-background border-l-0 sm:max-w-sm [&>button]:hidden"
               >
                 <div className="flex flex-col h-full">
                   {/* Header with Logo and Close Button */}
-                  <div className="flex items-center justify-between px-6 py-5">
-                    <Logo size="xl" onClick={() => setOpen(false)} />
-                    {/* Custom circular close button */}
+                  <div className="flex items-center justify-between px-5 py-4 border-b border-border/60">
+                    <Logo size="lg" onClick={() => setOpen(false)} />
                     <button 
                       onClick={() => setOpen(false)}
-                      className="w-11 h-11 rounded-full border-2 border-muted-foreground/30 flex items-center justify-center hover:border-foreground transition-colors"
+                      className="w-10 h-10 rounded-full bg-secondary/60 flex items-center justify-center hover:bg-secondary transition-colors"
                     >
                       <X className="h-5 w-5 text-foreground" />
                     </button>
                   </div>
 
-                  {/* Contact CTA Row */}
-                  <div className="flex items-center gap-3 px-6 pb-5">
-                    {/* VIP button hidden for launch - uncomment when ready */}
-                    {/* <Link to="/vip" onClick={() => setOpen(false)} className="flex-1">
-                      <Button variant="outline" className="w-full h-12 font-bold tracking-widest text-sm rounded-md uppercase">
-                        Join VIP
-                      </Button>
-                    </Link> */}
-                    <Link to="/contact" onClick={() => setOpen(false)} className="flex-1">
-                      <Button className="w-full h-12 font-bold tracking-widest text-sm rounded-md bg-foreground text-background hover:bg-foreground/90 uppercase">
-                        Contact Us
+                  {/* Premium Map CTA */}
+                  <div className="px-5 py-4">
+                    <Link to="/map-search" onClick={() => setOpen(false)}>
+                      <Button 
+                        className={cn(
+                          "w-full h-12 font-semibold rounded-xl",
+                          "bg-gradient-to-r from-primary via-primary to-primary-deep",
+                          "text-primary-foreground shadow-gold",
+                          "hover:shadow-gold-glow transition-all duration-300"
+                        )}
+                      >
+                        <Map className="h-5 w-5 mr-2" />
+                        Explore Interactive Map
+                        <Sparkles className="h-4 w-4 ml-2 opacity-70" />
                       </Button>
                     </Link>
                   </div>
 
-                  {/* Divider */}
-                  <div className="border-t border-border mx-6" />
-
-                  {/* Large Navigation Links - REW Style */}
-                  <nav aria-label="Mobile navigation" className="flex-1 pt-8 overflow-y-auto">
-                    <div className="space-y-0 px-6">
-                      <Link
-                        to="/presale-projects"
-                        onClick={() => setOpen(false)}
-                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
-                      >
-                        Presales
-                      </Link>
-
-                      <Link
-                        to="/resale"
-                        onClick={() => setOpen(false)}
-                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
-                      >
-                        Move-In Ready
-                      </Link>
-
-                      {/* Collapsible Cities Section */}
-                      <Collapsible open={citiesOpen} onOpenChange={setCitiesOpen}>
+                  {/* Navigation Links */}
+                  <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto">
+                    <div className="px-5 py-2">
+                      {/* Presale Section */}
+                      <Collapsible open={presaleOpen} onOpenChange={setPresaleOpen}>
                         <CollapsibleTrigger className="flex items-center justify-between w-full py-4 group">
-                          <span className="text-[32px] font-extrabold text-foreground group-hover:text-primary transition-colors">Cities</span>
-                          <ChevronDown className={`h-7 w-7 text-muted-foreground transition-transform duration-200 ${citiesOpen ? "rotate-180" : ""}`} />
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Building2 className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="text-lg font-semibold text-foreground">Presale</span>
+                          </div>
+                          <ChevronDown className={cn(
+                            "h-5 w-5 text-muted-foreground transition-transform duration-200",
+                            presaleOpen && "rotate-180"
+                          )} />
                         </CollapsibleTrigger>
-                        <CollapsibleContent className="pl-4 space-y-0 mt-1 mb-2">
-                          {CONDO_CITY_LINKS.map((city) => (
-                            <Link
-                              key={city.slug}
-                              to={`/${city.slug}-presale-condos`}
-                              onClick={() => setOpen(false)}
-                              className="block text-2xl font-semibold text-muted-foreground hover:text-foreground transition-colors py-3"
-                            >
-                              {city.name}
-                            </Link>
-                          ))}
+                        <CollapsibleContent className="pb-2">
+                          <Link
+                            to="/presale-projects"
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-secondary/60 transition-colors mb-2"
+                          >
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            <span className="font-medium">View All Projects</span>
+                          </Link>
+                          <div className="pl-3 space-y-1">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground py-2">By City</p>
+                            {CONDO_CITY_LINKS.slice(0, 6).map((city) => (
+                              <Link
+                                key={city.slug}
+                                to={`/${city.slug}-presale-condos`}
+                                onClick={() => setOpen(false)}
+                                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-foreground/80 hover:text-foreground hover:bg-secondary/40 transition-colors"
+                              >
+                                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                {city.name}
+                              </Link>
+                            ))}
+                          </div>
                         </CollapsibleContent>
                       </Collapsible>
 
+                      <div className="h-px bg-border/40 my-1" />
+
+                      {/* Move-In Ready Section */}
+                      <Collapsible open={resaleOpen} onOpenChange={setResaleOpen}>
+                        <CollapsibleTrigger className="flex items-center justify-between w-full py-4 group">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Home className="h-4 w-4 text-primary" />
+                            </div>
+                            <span className="text-lg font-semibold text-foreground">Move-In Ready</span>
+                          </div>
+                          <ChevronDown className={cn(
+                            "h-5 w-5 text-muted-foreground transition-transform duration-200",
+                            resaleOpen && "rotate-180"
+                          )} />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="pb-2">
+                          <Link
+                            to="/resale"
+                            onClick={() => setOpen(false)}
+                            className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-secondary/60 transition-colors mb-2"
+                          >
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            <span className="font-medium">View All Listings</span>
+                          </Link>
+                          <div className="pl-3 space-y-1">
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground py-2">By City</p>
+                            {RESALE_CITY_LINKS.slice(0, 6).map((city) => (
+                              <Link
+                                key={city.slug}
+                                to={`/properties/${city.slug}`}
+                                onClick={() => setOpen(false)}
+                                className="flex items-center gap-2 px-3 py-2.5 rounded-lg text-foreground/80 hover:text-foreground hover:bg-secondary/40 transition-colors"
+                              >
+                                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                                {city.name}
+                              </Link>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      {/* Simple Links */}
                       <Link
                         to="/blog"
                         onClick={() => setOpen(false)}
-                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
+                        className="flex items-center gap-3 py-4"
                       >
-                        Blog
+                        <div className="h-9 w-9 rounded-lg bg-secondary/60 flex items-center justify-center">
+                          <BookOpen className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Blog</span>
                       </Link>
+
+                      <div className="h-px bg-border/40 my-1" />
 
                       <Link
                         to="/calculator"
                         onClick={() => setOpen(false)}
-                        className="block text-[32px] font-extrabold text-foreground hover:text-primary transition-colors py-4"
+                        className="flex items-center gap-3 py-4"
                       >
-                        Calculator
+                        <div className="h-9 w-9 rounded-lg bg-secondary/60 flex items-center justify-center">
+                          <Calculator className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">Calculator</span>
                       </Link>
-
                     </div>
                   </nav>
+
+                  {/* Footer */}
+                  <div className="px-5 py-4 border-t border-border/60 bg-secondary/30">
+                    <p className="text-xs text-muted-foreground text-center">
+                      Vancouver's New Construction Marketplace
+                    </p>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>
@@ -425,13 +470,6 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
       {!hideOnMobile && (
         <div className="h-14 md:h-16 lg:hidden" aria-hidden="true" />
       )}
-
-      <AccessPackModal
-        open={modalOpen}
-        onOpenChange={setModalOpen}
-        variant="fit_call"
-        source="header"
-      />
     </>
   );
 }
