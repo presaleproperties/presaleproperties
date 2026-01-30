@@ -61,7 +61,9 @@ import {
   LayoutGrid,
   DollarSign,
   Check,
-  X
+  X,
+  Sparkles,
+  Search as SearchIcon
 } from "lucide-react";
 import { generateProjectUrl } from "@/lib/seoUrls";
 
@@ -120,8 +122,15 @@ export default function AdminProjects() {
   const [geocodingComplete, setGeocodingComplete] = useState(false);
   const [geocodeAllProjects, setGeocodeAllProjects] = useState(false);
 
+  // Bulk SEO generation state
+  const [seoModalOpen, setSeoModalOpen] = useState(false);
+  const [seoGenerating, setSeoGenerating] = useState(false);
+  const [seoResults, setSeoResults] = useState<{ totalProcessed: number; totalErrors: number; results: { name: string; seo_title: string; seo_description: string }[] } | null>(null);
+  const [seoMissingCount, setSeoMissingCount] = useState(0);
+
   useEffect(() => {
     fetchProjects();
+    fetchSeoMissingCount();
   }, []);
 
   const fetchProjects = async () => {
@@ -142,6 +151,54 @@ export default function AdminProjects() {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchSeoMissingCount = async () => {
+    try {
+      const { count, error } = await supabase
+        .from("presale_projects")
+        .select("*", { count: "exact", head: true })
+        .eq("is_published", true)
+        .or("seo_title.is.null,seo_title.eq.,seo_description.is.null,seo_description.eq.");
+
+      if (!error) {
+        setSeoMissingCount(count || 0);
+      }
+    } catch (error) {
+      console.error("Error fetching SEO missing count:", error);
+    }
+  };
+
+  const runBulkSeoGeneration = async (dryRun: boolean = false) => {
+    setSeoGenerating(true);
+    setSeoResults(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-project-seo", {
+        body: { batchMode: true, dryRun },
+      });
+
+      if (error) throw error;
+      
+      setSeoResults(data);
+      
+      if (!dryRun && data.totalProcessed > 0) {
+        toast({
+          title: "SEO Generation Complete",
+          description: `Updated ${data.totalProcessed} projects with SEO meta`,
+        });
+        fetchSeoMissingCount();
+      }
+    } catch (error) {
+      console.error("Error generating SEO:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate SEO meta",
+        variant: "destructive",
+      });
+    } finally {
+      setSeoGenerating(false);
     }
   };
 
@@ -533,6 +590,15 @@ export default function AdminProjects() {
             <p className="text-muted-foreground">Manage presale projects</p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => setSeoModalOpen(true)} 
+              className="gap-2"
+              disabled={seoMissingCount === 0}
+            >
+              <Sparkles className="h-4 w-4" />
+              Generate SEO {seoMissingCount > 0 && `(${seoMissingCount})`}
+            </Button>
             <Button variant="outline" onClick={() => openGeocodingModal(false)} className="gap-2">
               <MapPinned className="h-4 w-4" />
               Bulk Geocode
@@ -568,6 +634,13 @@ export default function AdminProjects() {
             <span className="font-medium text-destructive">{missingBrochureCount}</span>
             <span className="text-muted-foreground">Missing Brochure</span>
           </div>
+          {seoMissingCount > 0 && (
+            <div className="flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-amber-500" />
+              <span className="font-medium text-amber-600">{seoMissingCount}</span>
+              <span className="text-muted-foreground">Missing SEO</span>
+            </div>
+          )}
         </div>
 
         {/* Filters */}
@@ -940,6 +1013,123 @@ export default function AdminProjects() {
                     ))}
                   </div>
                 </div>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk SEO Generation Modal */}
+      <Dialog open={seoModalOpen} onOpenChange={setSeoModalOpen}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-amber-500" />
+              Bulk SEO Generation
+            </DialogTitle>
+            <DialogDescription>
+              Automatically generate SEO titles and descriptions for all projects missing them.
+              This uses smart templates based on project data (name, city, price, type).
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-hidden flex flex-col gap-4">
+            {seoMissingCount === 0 && !seoResults ? (
+              <Card>
+                <CardContent className="py-8 text-center">
+                  <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">All projects have SEO meta!</h3>
+                  <p className="text-muted-foreground">
+                    Every published project already has SEO title and description.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <>
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base">
+                      {seoResults 
+                        ? `${seoResults.totalProcessed} projects updated`
+                        : `${seoMissingCount} projects missing SEO meta`}
+                    </CardTitle>
+                    <CardDescription>
+                      Auto-generates optimized titles (≤60 chars) and descriptions (≤160 chars)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {seoGenerating && (
+                      <div className="flex items-center justify-center gap-3 py-4">
+                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Generating SEO meta...</p>
+                      </div>
+                    )}
+                    
+                    {!seoGenerating && !seoResults && (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline"
+                          onClick={() => runBulkSeoGeneration(true)} 
+                          className="flex-1 gap-2"
+                        >
+                          <Eye className="h-4 w-4" />
+                          Preview ({seoMissingCount})
+                        </Button>
+                        <Button 
+                          onClick={() => runBulkSeoGeneration(false)} 
+                          className="flex-1 gap-2"
+                        >
+                          <Sparkles className="h-4 w-4" />
+                          Generate & Save
+                        </Button>
+                      </div>
+                    )}
+
+                    {seoResults && (
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setSeoModalOpen(false);
+                            setSeoResults(null);
+                          }} 
+                          className="flex-1"
+                        >
+                          Close
+                        </Button>
+                        {seoResults.totalErrors > 0 && (
+                          <Button 
+                            onClick={() => {
+                              setSeoResults(null);
+                              runBulkSeoGeneration(false);
+                            }} 
+                            className="flex-1 gap-2"
+                          >
+                            <Loader2 className="h-4 w-4" />
+                            Retry Failed
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {seoResults && seoResults.results.length > 0 && (
+                  <div className="flex-1 overflow-y-auto border rounded-lg">
+                    <div className="divide-y">
+                      {seoResults.results.map((result, index) => (
+                        <div key={index} className="px-4 py-3 space-y-1">
+                          <div className="flex items-center gap-2">
+                            <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                            <p className="font-medium text-sm">{result.name}</p>
+                          </div>
+                          <p className="text-xs text-primary ml-6 truncate">{result.seo_title}</p>
+                          <p className="text-xs text-muted-foreground ml-6 line-clamp-2">{result.seo_description}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </>
             )}
           </div>
