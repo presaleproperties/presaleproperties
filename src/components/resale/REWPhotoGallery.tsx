@@ -13,6 +13,7 @@ interface Photo {
 interface REWPhotoGalleryProps {
   photos: Photo[];
   virtualTourUrl?: string | null;
+  videoUrl?: string | null;
   alt?: string;
   className?: string;
   /**
@@ -22,16 +23,41 @@ interface REWPhotoGalleryProps {
   previewAspectClassName?: string;
 }
 
-type GalleryTab = "photos" | "virtualTour";
+type GalleryTab = "photos" | "virtualTour" | "video";
 type ViewMode = "grid" | "single";
+
+// Helper to parse video URLs and return embed URLs
+function getVideoEmbedUrl(url: string): string | null {
+  if (!url) return null;
+  
+  // YouTube (watch, shorts, youtu.be)
+  const ytMatch = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  if (ytMatch) {
+    return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  }
+  
+  // Vimeo (supports private videos with hash: vimeo.com/123456789/abc123)
+  const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?/);
+  if (vimeoMatch) {
+    const videoId = vimeoMatch[1];
+    const hash = vimeoMatch[2];
+    return hash 
+      ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
+      : `https://player.vimeo.com/video/${videoId}`;
+  }
+  
+  return null;
+}
 
 export function REWPhotoGallery({
   photos,
   virtualTourUrl,
+  videoUrl,
   alt = "Property",
   className = "",
   previewAspectClassName = "aspect-[4/3] lg:aspect-[16/9]",
 }: REWPhotoGalleryProps) {
+  const videoEmbedUrl = videoUrl ? getVideoEmbedUrl(videoUrl) : null;
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<GalleryTab>("photos");
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -323,6 +349,19 @@ export function REWPhotoGallery({
                       VIRTUAL TOURS
                     </button>
                   )}
+                  {videoEmbedUrl && (
+                    <button
+                      onClick={() => setActiveTab("video")}
+                      className={cn(
+                        "px-5 py-2 rounded-full text-sm font-semibold transition-all",
+                        activeTab === "video"
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-50"
+                      )}
+                    >
+                      VIDEO
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
@@ -395,7 +434,7 @@ export function REWPhotoGallery({
                       ))}
                     </div>
                   </div>
-                ) : (
+                ) : activeTab === "virtualTour" ? (
                   /* Virtual Tour Tab */
                   <div className="flex flex-col items-center justify-center h-full p-8">
                     <div className="text-center max-w-md">
@@ -416,7 +455,25 @@ export function REWPhotoGallery({
                       </Button>
                     </div>
                   </div>
-                )}
+                ) : activeTab === "video" && videoEmbedUrl ? (
+                  /* Video Tab */
+                  <div className="flex flex-col items-center justify-center h-full p-4 md:p-8">
+                    <div className="w-full max-w-4xl">
+                      <div className="relative aspect-video rounded-xl overflow-hidden bg-black shadow-lg">
+                        <iframe
+                          src={videoEmbedUrl}
+                          className="absolute inset-0 w-full h-full"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowFullScreen
+                          title={`${alt} Video Tour`}
+                        />
+                      </div>
+                      <p className="text-center text-muted-foreground text-sm mt-4">
+                        Watch the video tour to explore this property
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : (
               /* Single Image View with Zoom */
