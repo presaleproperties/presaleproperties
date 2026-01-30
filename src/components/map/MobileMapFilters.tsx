@@ -318,24 +318,35 @@ export function MobileMapFilters({
 }: MobileMapFiltersProps) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="bottom" className="h-[85vh] flex flex-col rounded-t-3xl">
-        <SheetHeader className="pb-4 border-b">
-          <div className="w-12 h-1 bg-muted-foreground/30 rounded-full mx-auto mb-3" />
-          <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold">Filters</SheetTitle>
+      <SheetContent side="bottom" className="h-[85vh] flex flex-col rounded-t-3xl px-0 pb-0">
+        {/* Drag Handle */}
+        <div className="flex justify-center pt-3 pb-2">
+          <div className="w-10 h-1 rounded-full bg-border" />
+        </div>
+        
+        {/* Header */}
+        <div className="flex items-center justify-between px-5 pb-4 border-b border-border">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Filters</h2>
             {activeFilterCount > 0 && (
-              <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">
-                {activeFilterCount} active
-              </span>
+              <p className="text-sm text-muted-foreground">{activeFilterCount} active</p>
             )}
           </div>
-        </SheetHeader>
+          {activeFilterCount > 0 && (
+            <button 
+              onClick={onClearAll}
+              className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              Reset all
+            </button>
+          )}
+        </div>
 
-        <div className="flex-1 overflow-y-auto py-5 space-y-6">
+        <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
           {/* City Multi-Select Dropdown */}
-          <div>
-            <label className="flex items-center gap-2 text-sm font-semibold mb-3">
-              <MapPin className="h-4 w-4 text-primary" />
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <MapPin className="h-4 w-4 text-muted-foreground" />
               Cities
             </label>
             <CityMultiSelect
@@ -345,10 +356,12 @@ export function MobileMapFilters({
             />
           </div>
 
+          <div className="h-px bg-border/50" />
+
           {/* Price Range Slider */}
-          <div className="border-t pt-5">
-            <label className="flex items-center gap-2 text-sm font-semibold mb-4">
-              <DollarSign className="h-4 w-4 text-primary" />
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
               Price Range
             </label>
             <PriceRangeSlider
@@ -359,10 +372,12 @@ export function MobileMapFilters({
             />
           </div>
 
+          <div className="h-px bg-border/50" />
+
           {/* Year Built Range */}
-          <div className="border-t pt-5">
-            <label className="flex items-center gap-2 text-sm font-semibold mb-3">
-              <Calendar className="h-4 w-4 text-primary" />
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
               Year Built
             </label>
             <YearBuiltRange
@@ -372,24 +387,27 @@ export function MobileMapFilters({
             />
           </div>
 
+          <div className="h-px bg-border/50" />
+
           {/* Property Type */}
-          <div className="border-t pt-5">
-            <label className="flex items-center gap-2 text-sm font-semibold mb-3">
-              <Building className="h-4 w-4 text-primary" />
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Building className="h-4 w-4 text-muted-foreground" />
               Property Type
             </label>
             <div className="flex flex-wrap gap-2">
               {propertyTypes.map((opt) => {
                 const Icon = opt.icon;
+                const isSelected = selectedPropertyType === opt.value;
                 return (
                   <button
                     key={opt.value}
                     onClick={() => onPropertyTypeChange(opt.value)}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-medium transition-all",
-                      selectedPropertyType === opt.value
-                        ? "bg-primary/15 border-primary text-primary"
-                        : "border-border hover:border-foreground/30"
+                      "flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+                      isSelected
+                        ? "bg-foreground text-background shadow-sm"
+                        : "bg-secondary/60 text-foreground hover:bg-secondary"
                     )}
                   >
                     {Icon && <Icon className="h-4 w-4" />}
@@ -400,70 +418,74 @@ export function MobileMapFilters({
             </div>
           </div>
 
+          <div className="h-px bg-border/50" />
+
           {/* Bedrooms */}
-          <div className="border-t pt-5">
-            <label className="flex items-center gap-2 text-sm font-semibold mb-3">
-              <Bed className="h-4 w-4 text-primary" />
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Bed className="h-4 w-4 text-muted-foreground" />
               Bedrooms
             </label>
-            <div className="flex flex-wrap gap-2">
-              {bedOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => onBedsChange(opt.value)}
-                  className={cn(
-                    "px-4 py-2.5 rounded-xl border text-sm font-medium min-w-[52px] transition-all",
-                    selectedBeds === opt.value
-                      ? "bg-primary/15 border-primary text-primary"
-                      : "border-border hover:border-foreground/30"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <div className="grid grid-cols-5 gap-2">
+              {bedOptions.map((opt) => {
+                const isSelected = selectedBeds === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => onBedsChange(opt.value)}
+                    className={cn(
+                      "py-3 rounded-xl text-sm font-medium transition-all duration-200 text-center",
+                      isSelected
+                        ? "bg-foreground text-background shadow-sm"
+                        : "bg-secondary/60 text-foreground hover:bg-secondary"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
+          <div className="h-px bg-border/50" />
+
           {/* Bathrooms */}
-          <div className="border-t pt-5">
-            <label className="flex items-center gap-2 text-sm font-semibold mb-3">
-              <Bath className="h-4 w-4 text-primary" />
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Bath className="h-4 w-4 text-muted-foreground" />
               Bathrooms
             </label>
-            <div className="flex flex-wrap gap-2">
-              {bathOptions.map((opt) => (
-                <button
-                  key={opt.value}
-                  onClick={() => onBathsChange(opt.value)}
-                  className={cn(
-                    "px-4 py-2.5 rounded-xl border text-sm font-medium min-w-[52px] transition-all",
-                    selectedBaths === opt.value
-                      ? "bg-primary/15 border-primary text-primary"
-                      : "border-border hover:border-foreground/30"
-                  )}
-                >
-                  {opt.label}
-                </button>
-              ))}
+            <div className="grid grid-cols-5 gap-2">
+              {bathOptions.map((opt) => {
+                const isSelected = selectedBaths === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => onBathsChange(opt.value)}
+                    className={cn(
+                      "py-3 rounded-xl text-sm font-medium transition-all duration-200 text-center",
+                      isSelected
+                        ? "bg-foreground text-background shadow-sm"
+                        : "bg-secondary/60 text-foreground hover:bg-secondary"
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
-        <SheetFooter className="border-t pt-4 flex-row gap-3 pb-[env(safe-area-inset-bottom)]">
-          <Button
-            variant="outline"
-            onClick={onClearAll}
-            className="flex-1 h-12 rounded-xl"
-          >
-            Clear All
-          </Button>
+        {/* Fixed Bottom Action */}
+        <div className="px-5 py-4 border-t border-border bg-background pb-[max(env(safe-area-inset-bottom),16px)]">
           <Button
             onClick={onApply}
-            className="flex-1 h-12 rounded-xl bg-primary hover:bg-primary/90"
+            className="w-full h-12 text-base font-medium rounded-xl"
           >
             Show Results
           </Button>
-        </SheetFooter>
+        </div>
       </SheetContent>
     </Sheet>
   );
