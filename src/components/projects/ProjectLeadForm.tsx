@@ -516,7 +516,15 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
 
   // Final success state (both desktop and mobile complete)
   if (isSubmitted || mobileStep === "complete") {
-    const hasAnyDocuments = brochureUrl || floorplanUrl || pricingUrl;
+    // Helper to check if a URL is valid (not null, undefined, or empty/whitespace)
+    const hasValidUrl = (url: string | null | undefined): url is string => 
+      Boolean(url && url.trim().length > 0);
+    
+    const hasBrochure = hasValidUrl(brochureUrl);
+    const hasFloorplan = hasValidUrl(floorplanUrl);
+    const hasPricing = hasValidUrl(pricingUrl);
+    const hasAnyDocuments = hasBrochure || hasFloorplan || hasPricing;
+    
     const isGoogleDriveLink = (url: string) => url.includes('drive.google.com') || url.includes('docs.google.com');
     
     return (
@@ -536,49 +544,49 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
         </div>
         
         <div className="p-5 space-y-3">
-          {/* Document Access Section */}
+          {/* Document Access Section - Only show if at least one document exists */}
           {hasAnyDocuments && (
             <div className="space-y-2">
               <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your Documents</p>
               
-              {floorplanUrl && (
+              {hasFloorplan && (
                 <Button
                   asChild
                   size="lg"
                   className="w-full h-12 text-sm font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   <a 
-                    href={floorplanUrl} 
+                    href={floorplanUrl!} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
                     <LayoutGrid className="h-4 w-4 mr-2" />
-                    {isGoogleDriveLink(floorplanUrl) ? "View Floor Plans" : "Download Floor Plans"}
-                    {isGoogleDriveLink(floorplanUrl) && <ExternalLink className="h-3 w-3 ml-1.5" />}
+                    {isGoogleDriveLink(floorplanUrl!) ? "View Floor Plans" : "Download Floor Plans"}
+                    {isGoogleDriveLink(floorplanUrl!) && <ExternalLink className="h-3 w-3 ml-1.5" />}
                   </a>
                 </Button>
               )}
 
-              {pricingUrl && (
+              {hasPricing && (
                 <Button
                   asChild
                   size="lg"
-                  variant={floorplanUrl ? "outline" : "default"}
+                  variant={hasFloorplan ? "outline" : "default"}
                   className="w-full h-12 text-sm font-semibold rounded-xl"
                 >
                   <a 
-                    href={pricingUrl} 
+                    href={pricingUrl!} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
                     <DollarSign className="h-4 w-4 mr-2" />
-                    {isGoogleDriveLink(pricingUrl) ? "View Pricing Sheet" : "Download Pricing"}
-                    {isGoogleDriveLink(pricingUrl) && <ExternalLink className="h-3 w-3 ml-1.5" />}
+                    {isGoogleDriveLink(pricingUrl!) ? "View Pricing Sheet" : "Download Pricing"}
+                    {isGoogleDriveLink(pricingUrl!) && <ExternalLink className="h-3 w-3 ml-1.5" />}
                   </a>
                 </Button>
               )}
 
-              {brochureUrl && (
+              {hasBrochure && (
                 <Button
                   asChild
                   size="lg"
@@ -586,13 +594,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                   className="w-full h-12 text-sm font-semibold rounded-xl"
                 >
                   <a 
-                    href={brochureUrl} 
+                    href={brochureUrl!} 
                     target="_blank" 
                     rel="noopener noreferrer"
                   >
                     <FileText className="h-4 w-4 mr-2" />
-                    {isGoogleDriveLink(brochureUrl) ? "View Brochure" : "Download Brochure"}
-                    {isGoogleDriveLink(brochureUrl) && <ExternalLink className="h-3 w-3 ml-1.5" />}
+                    {isGoogleDriveLink(brochureUrl!) ? "View Brochure" : "Download Brochure"}
+                    {isGoogleDriveLink(brochureUrl!) && <ExternalLink className="h-3 w-3 ml-1.5" />}
                   </a>
                 </Button>
               )}
