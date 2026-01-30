@@ -132,10 +132,20 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
     return cleanup;
   }, [initializeMap]);
 
+  // Track data changes to avoid unnecessary marker rebuilds
+  const dataHashRef = useRef<string>("");
+  
   useEffect(() => {
     const map = mapRef.current;
     const clusterGroup = clusterGroupRef.current;
     if (!map || !clusterGroup) return;
+
+    // Skip rebuild if data hasn't changed
+    const currentHash = `${validListings.length}`;
+    if (currentHash === dataHashRef.current && clusterGroup.getLayers().length > 0) {
+      return;
+    }
+    dataHashRef.current = currentHash;
 
     clusterGroup.clearLayers();
 
