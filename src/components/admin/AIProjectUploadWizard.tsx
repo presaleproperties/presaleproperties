@@ -121,7 +121,7 @@ export function AIProjectUploadWizard() {
   const brochureFileInputRef = useRef<HTMLInputElement>(null);
   const floorplanFileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImages, setIsUploadingImages] = useState(false);
-  const [extractImagesFromPDFs, setExtractImagesFromPDFs] = useState(true);
+  const [extractImagesFromPDFs, setExtractImagesFromPDFs] = useState(false);
   
   // Address autocomplete state
   const [addressSuggestions, setAddressSuggestions] = useState<{ description: string; placeId: string }[]>([]);
