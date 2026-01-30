@@ -51,10 +51,22 @@ const CombinedListingsMap = lazy(() =>
 
 // Session storage key for map state persistence
 const MAP_STATE_KEY = "pp_map_state";
+const MAP_UI_STATE_KEY = "pp_map_ui_state";
 
 interface SavedMapState {
   center: { lat: number; lng: number };
   zoom: number;
+  timestamp: number;
+}
+
+interface SavedUIState {
+  selectedItemId: string | null;
+  selectedItemType: "resale" | "presale" | "assignment" | null;
+  focusedItemId: string | null;
+  focusedItemType: "resale" | "presale" | "assignment" | null;
+  showCarousel: boolean;
+  carouselScrollLeft: number;
+  desktopScrollTop: number;
   timestamp: number;
 }
 
@@ -164,6 +176,23 @@ type PresaleProject = {
   map_lng: number | null;
 };
 
+// Helper to restore UI state from sessionStorage
+const getRestoredUIState = (): SavedUIState | null => {
+  try {
+    const stored = sessionStorage.getItem(MAP_UI_STATE_KEY);
+    if (stored) {
+      const parsed = JSON.parse(stored) as SavedUIState;
+      // Only use if less than 30 minutes old
+      if (Date.now() - parsed.timestamp < 30 * 60 * 1000) {
+        return parsed;
+      }
+    }
+  } catch (e) {
+    // Ignore
+  }
+  return null;
+};
+
 export default function MapSearch() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
@@ -174,18 +203,54 @@ export default function MapSearch() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [desktopFiltersOpen, setDesktopFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
-  const [showCarousel, setShowCarousel] = useState(false); // Hidden by default on mobile, shows when property clicked
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
-  const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null); // For tap-to-focus-to-navigate
-  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  
+  // Refs defined early for state restoration
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const desktopListRef = useRef<HTMLDivElement>(null);
+  const hasRestoredScrollRef = useRef(false);
+  
+  // Restore UI state from sessionStorage for seamless back navigation
+  const restoredUIState = useMemo(() => getRestoredUIState(), []);
+  
+  const [showCarousel, setShowCarousel] = useState(() => restoredUIState?.showCarousel ?? false);
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(() => restoredUIState?.selectedItemId ?? null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(() => restoredUIState?.selectedItemType ?? null);
+  const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(() => restoredUIState?.focusedItemId ?? null);
+  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(() => restoredUIState?.focusedItemType ?? null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [visibleAssignmentIds, setVisibleAssignmentIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
-  const [isListInteracting, setIsListInteracting] = useState(false); // Pause visible updates during list click
-
+  const [isListInteracting, setIsListInteracting] = useState(false);
+  
+  // Save UI state to sessionStorage whenever it changes
+  const saveUIStateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  useEffect(() => {
+    // Debounce to avoid too many writes
+    if (saveUIStateTimeoutRef.current) clearTimeout(saveUIStateTimeoutRef.current);
+    saveUIStateTimeoutRef.current = setTimeout(() => {
+      const state: SavedUIState = {
+        selectedItemId,
+        selectedItemType,
+        focusedItemId: focusedCarouselItemId,
+        focusedItemType: focusedCarouselItemType,
+        showCarousel,
+        carouselScrollLeft: carouselRef.current?.scrollLeft ?? 0,
+        desktopScrollTop: desktopListRef.current?.scrollTop ?? 0,
+        timestamp: Date.now()
+      };
+      try {
+        sessionStorage.setItem(MAP_UI_STATE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // Ignore storage errors
+      }
+    }, 200);
+    
+    return () => {
+      if (saveUIStateTimeoutRef.current) clearTimeout(saveUIStateTimeoutRef.current);
+    };
+  }, [selectedItemId, selectedItemType, focusedCarouselItemId, focusedCarouselItemType, showCarousel]);
   // MOBILE ONLY: prevent iOS/Android overscroll from revealing body background (white bands)
   useEffect(() => {
     if (!isMobile) return;
@@ -313,9 +378,6 @@ export default function MapSearch() {
       );
     }
   }, [locationRequested, savedMapState]);
-  
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const desktopListRef = useRef<HTMLDivElement>(null);
 
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
@@ -956,6 +1018,41 @@ export default function MapSearch() {
 
   // Ref for programmatic map navigation
   const mapNavigationRef = useRef<CombinedListingsMapRef>(null);
+
+  // Restore scroll position and scroll to focused item on back navigation
+  useEffect(() => {
+    if (hasRestoredScrollRef.current || !restoredUIState) return;
+    
+    // Wait for data to be available
+    const dataLoaded = (resaleListings && resaleListings.length > 0) || 
+                       (presaleProjects && presaleProjects.length > 0);
+    
+    if (!dataLoaded) return;
+    
+    // Mark as restored to prevent repeated attempts
+    hasRestoredScrollRef.current = true;
+    
+    // Restore scroll positions after a short delay to allow DOM to render
+    requestAnimationFrame(() => {
+      setTimeout(() => {
+        // Scroll to focused item in carousel
+        if (focusedCarouselItemId && carouselRef.current) {
+          const cardElement = carouselRef.current.querySelector(`[data-item-id="${focusedCarouselItemId}"]`);
+          if (cardElement) {
+            cardElement.scrollIntoView({ behavior: 'instant', inline: 'center', block: 'nearest' });
+          }
+        }
+        
+        // Scroll to focused item in desktop list
+        if (focusedCarouselItemId && desktopListRef.current) {
+          const cardElement = desktopListRef.current.querySelector(`[data-item-id="${focusedCarouselItemId}"]`);
+          if (cardElement) {
+            cardElement.scrollIntoView({ behavior: 'instant', block: 'center' });
+          }
+        }
+      }, 100);
+    });
+  }, [restoredUIState, focusedCarouselItemId, resaleListings, presaleProjects]);
 
   const handleSearchSuggestionSelect = useCallback((suggestion: { type: string; value: string; city?: string; label: string; lat?: number; lng?: number }) => {
     if (suggestion.type === "city") {
