@@ -49,29 +49,40 @@ export default function AdminPayments() {
 
       if (error) throw error;
 
-      // Fetch agent profiles and listings for each payment
-      const paymentsWithDetails = await Promise.all(
-        (data || []).map(async (payment) => {
-          const [profileResult, listingResult] = await Promise.all([
-            supabase
-              .from("profiles")
-              .select("full_name, email")
-              .eq("user_id", payment.agent_id)
-              .single(),
-            supabase
-              .from("listings")
-              .select("title")
-              .eq("id", payment.listing_id)
-              .single(),
-          ]);
-          
-          return { 
-            ...payment, 
-            agent_profile: profileResult.data || undefined,
-            listing: listingResult.data || undefined
-          };
-        })
+      if (!data || data.length === 0) {
+        setPayments([]);
+        setTotalRevenue(0);
+        setLoading(false);
+        return;
+      }
+
+      // Batch fetch all related data in parallel (avoids N+1)
+      const agentIds = [...new Set(data.map(p => p.agent_id).filter(Boolean))];
+      const listingIds = [...new Set(data.map(p => p.listing_id).filter(Boolean))];
+
+      const [profilesResult, listingsResult] = await Promise.all([
+        agentIds.length > 0 
+          ? supabase.from("profiles").select("user_id, full_name, email").in("user_id", agentIds)
+          : Promise.resolve({ data: [] }),
+        listingIds.length > 0 
+          ? supabase.from("listings").select("id, title").in("id", listingIds)
+          : Promise.resolve({ data: [] })
+      ]);
+
+      // Create lookup maps
+      const profileMap = new Map(
+        (profilesResult.data || []).map(p => [p.user_id, { full_name: p.full_name, email: p.email }])
       );
+      const listingMap = new Map(
+        (listingsResult.data || []).map(l => [l.id, { title: l.title }])
+      );
+
+      // Merge data
+      const paymentsWithDetails = data.map(payment => ({
+        ...payment,
+        agent_profile: payment.agent_id ? profileMap.get(payment.agent_id) : undefined,
+        listing: payment.listing_id ? listingMap.get(payment.listing_id) : undefined
+      }));
 
       setPayments(paymentsWithDetails);
       

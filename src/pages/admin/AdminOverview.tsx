@@ -82,42 +82,50 @@ export default function AdminOverview() {
       const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
       const startOfLastMonth = startOfMonth(subDays(new Date(), 30)).toISOString();
       
+      // Use efficient count queries with filters instead of fetching all data
       const [
-        projectsRes,
+        totalProjectsRes,
+        publishedProjectsRes,
         leadsRes,
         leadsThisMonthRes,
         leadsLastMonthRes,
         bookingsRes,
         pendingBookingsRes,
-        blogsRes,
+        totalBlogsRes,
+        publishedBlogsRes,
         mlsRes,
         recentLeadsRes,
         recentBookingsRes,
         topProjectsRes,
-        assignmentsRes,
-        pendingAssignmentsRes
+        totalAssignmentsRes,
+        publishedAssignmentsRes,
+        pendingAssignmentsRes,
+        leadsByCityRes
       ] = await Promise.all([
-        supabase.from("presale_projects").select("id, is_published", { count: "exact" }),
+        // Count queries with filters (much faster than fetching all records)
+        supabase.from("presale_projects").select("*", { count: "exact", head: true }),
+        supabase.from("presale_projects").select("*", { count: "exact", head: true }).eq("is_published", true),
         supabase.from("project_leads").select("*", { count: "exact", head: true }),
         supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfCurrentMonth),
         supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfLastMonth).lt("created_at", startOfCurrentMonth),
         supabase.from("bookings").select("*", { count: "exact", head: true }),
         supabase.from("bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("blog_posts").select("id, is_published", { count: "exact" }),
+        supabase.from("blog_posts").select("*", { count: "exact", head: true }),
+        supabase.from("blog_posts").select("*", { count: "exact", head: true }).eq("is_published", true),
         supabase.from("mls_listings").select("*", { count: "exact", head: true }),
         supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, presale_projects(name)").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
         supabase.from("presale_projects").select("id, name, city, view_count").eq("is_published", true).order("view_count", { ascending: false }).limit(5),
-        supabase.from("listings").select("id, status", { count: "exact" }),
-        supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval")
+        supabase.from("listings").select("*", { count: "exact", head: true }),
+        supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "published"),
+        supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
+        // Only fetch city_interest for recent leads (last 1000) to avoid scale issues
+        supabase.from("project_leads").select("city_interest").not("city_interest", "is", null).limit(1000)
       ]);
 
-      const { data: leadsByCityData } = await supabase
-        .from("project_leads")
-        .select("city_interest");
-      
+      // Process city interests from limited recent leads
       const leadsByCity: Record<string, number> = {};
-      leadsByCityData?.forEach(lead => {
+      leadsByCityRes.data?.forEach(lead => {
         if (lead.city_interest && Array.isArray(lead.city_interest)) {
           (lead.city_interest as string[]).forEach(city => {
             leadsByCity[city] = (leadsByCity[city] || 0) + 1;
@@ -125,23 +133,19 @@ export default function AdminOverview() {
         }
       });
 
-      const publishedProjects = projectsRes.data?.filter(p => p.is_published).length || 0;
-      const publishedBlogs = blogsRes.data?.filter(b => b.is_published).length || 0;
-      const publishedAssignments = assignmentsRes.data?.filter((l: any) => l.status === 'published').length || 0;
-
       setStats({
-        totalProjects: projectsRes.count || 0,
-        publishedProjects,
+        totalProjects: totalProjectsRes.count || 0,
+        publishedProjects: publishedProjectsRes.count || 0,
         totalLeads: leadsRes.count || 0,
         leadsThisMonth: leadsThisMonthRes.count || 0,
         leadsLastMonth: leadsLastMonthRes.count || 0,
         totalBookings: bookingsRes.count || 0,
         pendingBookings: pendingBookingsRes.count || 0,
-        totalBlogPosts: blogsRes.count || 0,
-        publishedBlogs,
+        totalBlogPosts: totalBlogsRes.count || 0,
+        publishedBlogs: publishedBlogsRes.count || 0,
         mlsListings: mlsRes.count || 0,
-        totalAssignments: assignmentsRes.count || 0,
-        publishedAssignments,
+        totalAssignments: totalAssignmentsRes.count || 0,
+        publishedAssignments: publishedAssignmentsRes.count || 0,
         pendingAssignments: pendingAssignmentsRes.count || 0,
         recentLeads: recentLeadsRes.data || [],
         recentBookings: recentBookingsRes.data || [],
