@@ -321,23 +321,6 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                     </button>
                   </div>
 
-                  {/* Map CTA */}
-                  <div className="px-5 py-4">
-                    <Link to="/map-search" onClick={() => setOpen(false)}>
-                      <Button 
-                        className={cn(
-                          "w-full h-11 font-medium rounded-lg",
-                          "bg-primary hover:bg-primary/90",
-                          "text-primary-foreground",
-                          "transition-colors duration-200"
-                        )}
-                      >
-                        <Map className="h-5 w-5 mr-2" />
-                        Map Search
-                      </Button>
-                    </Link>
-                  </div>
-
                   {/* Navigation Links */}
                   <nav aria-label="Mobile navigation" className="flex-1 overflow-y-auto">
                     <div className="px-5 py-2">
@@ -452,8 +435,25 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                     </div>
                   </nav>
 
+                  {/* Map CTA - Bottom */}
+                  <div className="px-5 py-4 border-t border-border/60">
+                    <Link to="/map-search" onClick={() => setOpen(false)}>
+                      <Button 
+                        className={cn(
+                          "w-full h-11 font-medium rounded-lg",
+                          "bg-primary hover:bg-primary/90",
+                          "text-primary-foreground",
+                          "transition-colors duration-200"
+                        )}
+                      >
+                        <Map className="h-5 w-5 mr-2" />
+                        Map Search
+                      </Button>
+                    </Link>
+                  </div>
+
                   {/* Footer */}
-                  <div className="px-5 py-4 border-t border-border/60 bg-secondary/30">
+                  <div className="px-5 py-3 bg-secondary/30">
                     <p className="text-xs text-muted-foreground text-center">
                       Vancouver's New Construction Marketplace
                     </p>
