@@ -170,11 +170,12 @@
     min-height: 100dvh;
   }
 
-  /* Map page edge-to-edge on MOBILE ONLY */
-  @media (max-width: 768px) {
+  /* Map page edge-to-edge on MOBILE and TABLET */
+  @media (max-width: 1023px) {
     /* Applied dynamically on /map-search to prevent iOS bounce revealing background */
     .map-overscroll-lock {
       overscroll-behavior: none;
+      -webkit-overflow-scrolling: auto;
     }
 
     .map-page-root {
@@ -191,6 +192,20 @@
       overflow: hidden;
       overscroll-behavior: none;
       background: hsl(var(--background));
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* Touch-optimized carousel scrolling */
+    .map-carousel-scroll {
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      scroll-snap-type: x mandatory;
+      scroll-snap-stop: always;
+      overscroll-behavior-x: contain;
+    }
+
+    .map-carousel-scroll > * {
+      scroll-snap-align: center;
     }
 
     /* Safe area aware overlays */
