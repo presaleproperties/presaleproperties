@@ -20,6 +20,7 @@ import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefi
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { UnifiedSearchFilters } from "@/components/search/UnifiedSearchFilters";
+import { buildMapUrlFromGridFilters } from "@/lib/filterSync";
 import { supabase } from "@/integrations/supabase/client";
 
 // SEO FAQs for presale projects page
@@ -367,6 +368,11 @@ export default function PresaleProjects() {
     { key: "completionYear", label: "Completion", paramKey: "year", options: COMPLETION_OPTIONS },
   ];
 
+  // Build map URL with current filters for seamless transition
+  const mapUrlWithFilters = useMemo(() => {
+    return buildMapUrlFromGridFilters(searchParams, "presale");
+  }, [searchParams]);
+
   const PaginationControls = () => {
     if (totalPages <= 1) return null;
 
@@ -541,7 +547,7 @@ export default function PresaleProjects() {
               sortOptions={SORT_OPTIONS}
               sortValue={filters.sort}
               onSortChange={(v) => updateFilter("sort", v)}
-              mapLink="/map-search?mode=presale"
+              mapLink={mapUrlWithFilters}
               resultCount={totalCount}
               onClearAll={clearAllFilters}
             />
@@ -606,7 +612,7 @@ export default function PresaleProjects() {
               </div>
             </Suspense>
             <div className="text-center mt-4">
-              <Link to={`/map-search?mode=presale${filters.city !== "any" ? `&city=${filters.city}` : ''}`}>
+              <Link to={mapUrlWithFilters}>
                 <Button variant="outline" size="sm" className="gap-2">
                   <Map className="h-4 w-4" />
                   Open Full Map
