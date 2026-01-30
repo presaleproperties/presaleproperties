@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight, Expand, ExternalLink, ZoomIn, ZoomOut } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Expand, ExternalLink, ZoomIn, ZoomOut, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Photo {
@@ -21,6 +21,10 @@ interface REWPhotoGalleryProps {
    * Default: "aspect-[4/3] lg:aspect-[16/9]" (REW-style).
    */
   previewAspectClassName?: string;
+  /**
+   * Callback when user clicks "Schedule Showing" button in fullscreen gallery
+   */
+  onScheduleShowing?: () => void;
 }
 
 type GalleryTab = "photos" | "virtualTour" | "video";
@@ -56,6 +60,7 @@ export function REWPhotoGallery({
   alt = "Property",
   className = "",
   previewAspectClassName = "aspect-[4/3] lg:aspect-[16/9]",
+  onScheduleShowing,
 }: REWPhotoGalleryProps) {
   const videoEmbedUrl = videoUrl ? getVideoEmbedUrl(videoUrl) : null;
   const [isOpen, setIsOpen] = useState(false);
@@ -529,6 +534,22 @@ export function REWPhotoGallery({
                     <ChevronRight className="h-8 w-8" />
                   </Button>
                 )}
+              </div>
+            )}
+            
+            {/* Floating Schedule CTA - Mobile only */}
+            {onScheduleShowing && (
+              <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-50 safe-area-pb">
+                <Button 
+                  onClick={() => {
+                    setIsOpen(false);
+                    onScheduleShowing();
+                  }}
+                  className="w-full h-14 bg-foreground hover:bg-foreground/90 text-background font-semibold text-base rounded-xl shadow-xl"
+                >
+                  <Calendar className="h-5 w-5 mr-2" />
+                  Schedule Showing
+                </Button>
               </div>
             )}
           </div>
