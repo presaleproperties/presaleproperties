@@ -520,6 +520,10 @@ export default function AdminProjects() {
     return status.replace(/_/g, " ").replace(/\b\w/g, l => l.toUpperCase());
   };
 
+  // Stats calculations
+  const totalProjects = projects.length;
+  const missingBrochureCount = projects.filter(p => !hasDoc(p.brochure_files)).length;
+
   return (
     <AdminLayout>
       <div className="space-y-6">
@@ -549,6 +553,20 @@ export default function AdminProjects() {
               <Plus className="h-4 w-4" />
               Create Project
             </Button>
+          </div>
+        </div>
+
+        {/* Stats Bar */}
+        <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2">
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+            <span className="font-medium">{totalProjects}</span>
+            <span className="text-muted-foreground">Total Projects</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 text-destructive" />
+            <span className="font-medium text-destructive">{missingBrochureCount}</span>
+            <span className="text-muted-foreground">Missing Brochure</span>
           </div>
         </div>
 
@@ -673,7 +691,7 @@ export default function AdminProjects() {
                               <div className={cn(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
                                 hasDoc(project.brochure_files) 
-                                  ? "bg-primary/10 text-primary" 
+                                  ? "bg-green-100 text-green-600" 
                                   : "bg-destructive/10 text-destructive"
                               )}>
                                 <FileText className="h-3 w-3" />
@@ -689,7 +707,7 @@ export default function AdminProjects() {
                               <div className={cn(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
                                 hasDoc(project.floorplan_files) 
-                                  ? "bg-primary/10 text-primary" 
+                                  ? "bg-green-100 text-green-600" 
                                   : "bg-destructive/10 text-destructive"
                               )}>
                                 <LayoutGrid className="h-3 w-3" />
@@ -705,7 +723,7 @@ export default function AdminProjects() {
                               <div className={cn(
                                 "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
                                 hasDoc(project.pricing_sheets) 
-                                  ? "bg-primary/10 text-primary" 
+                                  ? "bg-green-100 text-green-600" 
                                   : "bg-destructive/10 text-destructive"
                               )}>
                                 <DollarSign className="h-3 w-3" />
