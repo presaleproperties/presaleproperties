@@ -147,14 +147,16 @@ Deno.serve(async (req) => {
     ];
 
     // ==========================================
-    // 5. ACTIVE PRESALE PROJECTS (High Value)
+    // 5. ALL PUBLISHED PRESALE PROJECTS (High Value)
     // ==========================================
+    // Include ALL published projects (active, coming_soon, selling, etc.)
+    // This ensures complete sitemap coverage
     const { data: projects } = await supabase
       .from("presale_projects")
       .select("slug, neighborhood, city, project_type, updated_at, status")
       .eq("is_published", true)
-      .eq("is_indexed", true)
-      .eq("status", "active"); // Only active projects
+      .eq("is_indexed", true);
+    // Note: Removed status filter to include all published projects
 
     const projectPages = (projects || []).map(p => {
       const neighborhoodSlug = slugify(p.neighborhood || p.city);
