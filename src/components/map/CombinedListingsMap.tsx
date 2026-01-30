@@ -109,14 +109,15 @@ function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean =
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  const size = isHighlighted ? [80, 32] : [60, 22];
+  // Larger touch targets for mobile
+  const size = isHighlighted ? [88, 36] : [72, 30];
   
   const icon = L.divIcon({
     className: `price-marker ${isHighlighted ? 'marker-hl' : ''}`,
     html: `<div class="pp${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
     iconSize: [size[0], size[1]],
     iconAnchor: [size[0] / 2, size[1]],
-    popupAnchor: [0, -size[1] - 2],
+    popupAnchor: [0, -size[1] - 4],
   });
   
   if (!isHighlighted) iconCache.set(cacheKey, icon);
@@ -129,14 +130,15 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  const size = isHighlighted ? 44 : 28;
+  // Larger pins for easier tapping
+  const size = isHighlighted ? 48 : 36;
   
   const icon = L.divIcon({
     className: `presale-pin${isHighlighted ? ' hl' : ''}`,
     html: `<div class="pin${isHighlighted ? ' hl' : ''}"></div>`,
-    iconSize: [size, size + 6],
-    iconAnchor: [size / 2, size + 6],
-    popupAnchor: [0, -(size + 6)],
+    iconSize: [size, size + 8],
+    iconAnchor: [size / 2, size + 8],
+    popupAnchor: [0, -(size + 8)],
   });
   
   if (!isHighlighted) iconCache.set(cacheKey, icon);
@@ -151,14 +153,15 @@ function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean 
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  const size = isHighlighted ? [80, 32] : [65, 24];
+  // Larger touch targets
+  const size = isHighlighted ? [88, 36] : [76, 30];
   
   const icon = L.divIcon({
     className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
     html: `<div class="ap${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
     iconSize: [size[0], size[1]],
     iconAnchor: [size[0] / 2, size[1]],
-    popupAnchor: [0, -size[1] - 2],
+    popupAnchor: [0, -size[1] - 4],
   });
   
   if (!isHighlighted) iconCache.set(cacheKey, icon);
@@ -168,7 +171,8 @@ function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean 
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
   const sizeClass = count >= 100 ? 'lg' : count >= 10 ? 'md' : 'sm';
-  const size = count >= 100 ? 44 : count >= 10 ? 40 : 36;
+  // Larger cluster icons for easier tapping
+  const size = count >= 100 ? 52 : count >= 10 ? 46 : 40;
   
   return L.divIcon({
     html: `<div class="cl ${sizeClass}">${count}</div>`,
@@ -411,48 +415,53 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       : DEFAULT_CENTER;
     const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
 
-    // Performance-optimized map initialization
+    // Smooth, Google Maps-like map initialization
     const map = L.map(mapRef.current, {
       center: initialCenter,
       zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
       preferCanvas: true, // Use canvas renderer for better performance
-      fadeAnimation: false, // Disable fade animations
-      zoomAnimation: false, // Disable zoom animations for speed
-      markerZoomAnimation: false, // Disable marker animations
-      inertia: true, // Keep inertia for smooth panning
-      inertiaDeceleration: 3000, // Faster deceleration
+      fadeAnimation: true, // Enable for smooth transitions
+      zoomAnimation: true, // Enable for smooth zoom like Google Maps
+      markerZoomAnimation: true, // Smooth marker scaling
+      zoomAnimationThreshold: 4, // Animate for small zoom changes
+      inertia: true, // Smooth panning momentum
+      inertiaDeceleration: 2000, // Natural feeling deceleration
+      easeLinearity: 0.25, // Smooth easing curve
       worldCopyJump: false,
       maxBoundsViscosity: 0.8,
+      touchZoom: 'center', // Pinch zoom centered
+      bounceAtZoomLimits: false, // Prevent jarring bounce
     });
 
-    // Optimized tile layer with aggressive caching
+    // Optimized tile layer with smooth transitions
     L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
-      updateWhenIdle: true,
-      updateWhenZooming: false,
-      keepBuffer: 4, // Increased buffer for smoother panning
-      crossOrigin: true, // Enable CORS for caching
+      updateWhenIdle: false, // Update while moving for smoother feel
+      updateWhenZooming: true, // Update during zoom
+      keepBuffer: 6, // Larger buffer for seamless panning
+      crossOrigin: true,
     }).addTo(map);
 
-    // Highly optimized cluster settings for performance
+    // Smooth cluster settings - Google Maps style
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 5, // Faster chunk processing
-      chunkInterval: 25, // Faster intervals
-      maxClusterRadius: 60, // Larger radius = fewer clusters = faster
+      chunkDelay: 10,
+      chunkInterval: 50,
+      maxClusterRadius: 50, // Tighter clustering for better precision
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
-      disableClusteringAtZoom: 16, // Disable clustering earlier
-      animate: false, // Critical: disable all animations
-      animateAddingMarkers: false,
-      removeOutsideVisibleBounds: true, // Critical: only render visible markers
+      disableClusteringAtZoom: 17, // Show individual pins at higher zoom
+      animate: true, // Smooth cluster animations
+      animateAddingMarkers: false, // Don't animate on data change
+      removeOutsideVisibleBounds: true,
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
-      spiderfyDistanceMultiplier: 1.2,
-      zoomToBoundsOnClick: false, // Disable auto-zoom for speed
+      spiderfyDistanceMultiplier: 1.5, // More spread for easier tapping
+      zoomToBoundsOnClick: true, // Single click zooms into cluster
+      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(222, 47%, 60%)', opacity: 0.5 },
     });
 
     const presaleLayer = L.layerGroup();
@@ -627,12 +636,13 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   return (
     <div className="relative w-full h-full" style={{ contain: 'layout style paint', willChange: 'transform' }}>
       <style>{`
-        /* GPU acceleration and flicker prevention */
+        /* GPU acceleration */
         .leaflet-container { 
           -webkit-transform: translate3d(0,0,0); 
           transform: translate3d(0,0,0);
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
+          font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         }
         .leaflet-tile-container { 
           -webkit-transform: translate3d(0,0,0); 
@@ -641,69 +651,171 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .leaflet-tile { 
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
-          will-change: auto;
         }
         .leaflet-tile-loaded { opacity: 1 !important; }
-        .leaflet-fade-anim .leaflet-tile { transition: none !important; }
-        .leaflet-zoom-anim .leaflet-zoom-animated { transition: none !important; }
         
+        /* Base marker reset */
         .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
-        .pp { background: linear-gradient(135deg, hsl(45,89%,50%) 0%, hsl(43,96%,56%) 100%); color: hsl(222,47%,15%); padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; will-change: transform; }
-        .pp.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px hsl(45,89%,50%); }
-        .pin { width: 28px; height: 34px; background: linear-gradient(180deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); border: 2.5px solid hsl(45,89%,50%); box-shadow: 0 2px 8px rgba(0,0,0,0.2); will-change: transform; }
-        .pin.hl { width: 36px; height: 42px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
-        .ap { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.15), 0 0 0 1.5px rgba(255,255,255,0.5); display: flex; align-items: center; justify-content: center; will-change: transform; }
-        .ap.hl { transform: scale(1.15); box-shadow: 0 4px 12px rgba(0,0,0,0.25), 0 0 0 2px #10b981; }
+        
+        /* Resale price pills - clean and subtle */
+        .pp { 
+          background: hsl(45, 89%, 52%); 
+          color: hsl(222, 47%, 12%); 
+          padding: 5px 10px; 
+          border-radius: 16px; 
+          font-size: 12px; 
+          font-weight: 700; 
+          white-space: nowrap; 
+          box-shadow: 0 2px 6px rgba(0,0,0,0.12); 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          min-height: 28px;
+          cursor: pointer;
+        }
+        .pp:hover, .pp.hl { 
+          transform: scale(1.08); 
+          box-shadow: 0 4px 12px rgba(0,0,0,0.18); 
+        }
+        
+        /* Presale pins - subtle, professional */
+        .pin { 
+          width: 32px; 
+          height: 38px; 
+          background: hsl(222, 47%, 22%); 
+          border-radius: 50% 50% 50% 0; 
+          transform: rotate(-45deg); 
+          border: 2px solid hsl(45, 89%, 52%); 
+          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          cursor: pointer;
+        }
+        .pin:hover, .pin.hl { 
+          width: 36px; 
+          height: 42px; 
+          box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
+        }
+        
+        /* Assignment pills - emerald */
+        .ap { 
+          background: #10b981; 
+          color: white; 
+          padding: 5px 12px; 
+          border-radius: 16px; 
+          font-size: 12px; 
+          font-weight: 700; 
+          white-space: nowrap; 
+          box-shadow: 0 2px 6px rgba(0,0,0,0.12); 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          transition: transform 0.15s ease;
+          min-height: 28px;
+          cursor: pointer;
+        }
+        .ap:hover, .ap.hl { 
+          transform: scale(1.08); 
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); 
+        }
+        
+        /* Cluster icons - clean Google Maps style */
         .mc { background: transparent !important; border: none !important; }
-        .cl { background: linear-gradient(135deg, hsl(222,47%,20%) 0%, hsl(222,47%,15%) 100%); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; box-shadow: 0 3px 10px rgba(0,0,0,0.2), 0 0 0 2.5px hsl(45,89%,50%); will-change: transform; }
-        .cl.sm { width: 36px; height: 36px; font-size: 12px; }
-        .cl.md { width: 40px; height: 40px; font-size: 13px; }
-        .cl.lg { width: 44px; height: 44px; font-size: 14px; }
+        .cl { 
+          background: hsl(222, 47%, 22%); 
+          color: white; 
+          border-radius: 50%; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center; 
+          font-weight: 700; 
+          box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
+          border: 2px solid hsl(45, 89%, 52%);
+          transition: transform 0.15s ease;
+          cursor: pointer;
+        }
+        .cl:hover { transform: scale(1.1); }
+        .cl.sm { width: 40px; height: 40px; font-size: 13px; }
+        .cl.md { width: 46px; height: 46px; font-size: 14px; }
+        .cl.lg { width: 52px; height: 52px; font-size: 15px; }
         
-        /* Minimalistic popup card styles */
-        .premium-popup .leaflet-popup-content-wrapper { padding: 0; border-radius: 12px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.15); background: white; }
+        /* Popup styling - clean cards */
+        .premium-popup .leaflet-popup-content-wrapper { 
+          padding: 0; 
+          border-radius: 12px; 
+          overflow: hidden; 
+          box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
+          background: white; 
+          border: 1px solid hsl(220, 13%, 91%);
+        }
         .premium-popup .leaflet-popup-content { margin: 0; width: auto !important; }
-        .premium-popup .leaflet-popup-tip { display: none; }
-        .premium-popup .leaflet-popup-close-button { top: 6px !important; right: 6px !important; width: 22px !important; height: 22px !important; background: rgba(255,255,255,0.9) !important; backdrop-filter: blur(4px); border-radius: 6px !important; box-shadow: 0 1px 4px rgba(0,0,0,0.1); display: flex !important; align-items: center !important; justify-content: center !important; font-size: 12px !important; color: #64748b !important; font-weight: 500 !important; z-index: 10; }
-        .premium-popup .leaflet-popup-close-button:hover { color: #1e293b !important; background: white !important; }
+        .premium-popup .leaflet-popup-tip { background: white; border: 1px solid hsl(220, 13%, 91%); border-top: none; border-left: none; }
+        .premium-popup .leaflet-popup-close-button { 
+          top: 8px !important; 
+          right: 8px !important; 
+          width: 24px !important; 
+          height: 24px !important; 
+          background: rgba(255,255,255,0.95) !important; 
+          backdrop-filter: blur(4px); 
+          border-radius: 50% !important; 
+          box-shadow: 0 1px 4px rgba(0,0,0,0.1); 
+          display: flex !important; 
+          align-items: center !important; 
+          justify-content: center !important; 
+          font-size: 14px !important; 
+          color: #64748b !important; 
+          font-weight: 400 !important; 
+          z-index: 10; 
+          line-height: 1;
+        }
+        .premium-popup .leaflet-popup-close-button:hover { 
+          color: #1e293b !important; 
+          background: white !important; 
+        }
         
-        /* Popup card base - matching grid styling */
-        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; border-radius: 12px; overflow: hidden; background: white; }
-        .popup-card.resale { border: 1px solid hsl(220, 13%, 90%); }
-        .popup-card.presale { border: 1px solid hsl(220, 13%, 90%); }
-        .popup-card.assignment { border: 2px solid #10b981; }
-        .popup-card.locked { display: block; width: 240px; border: 2px solid #10b981; }
+        /* Popup card layout */
+        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: inherit; border-radius: 12px; overflow: hidden; background: white; }
+        .popup-card.resale { border: none; }
+        .popup-card.presale { border: none; }
+        .popup-card.assignment { border-left: 3px solid #10b981; }
+        .popup-card.locked { display: block; width: 240px; }
         
         /* Image section */
-        .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: #f1f5f9; }
+        .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: #f8fafc; }
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: linear-gradient(135deg, hsl(220, 14%, 96%) 0%, hsl(220, 14%, 92%) 100%); }
-        .popup-placeholder.presale { background: linear-gradient(135deg, hsl(45,89%,95%) 0%, hsl(45,89%,88%) 100%); color: hsl(45,89%,40%); }
+        .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+        .popup-placeholder.presale { background: linear-gradient(135deg, hsl(45, 89%, 97%) 0%, hsl(45, 89%, 92%) 100%); color: hsl(45, 89%, 45%); }
         .popup-placeholder.assignment { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #10b981; }
         
-        /* Badge - only assignment gets green */
-        .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 8px; font-weight: 700; padding: 3px 6px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .popup-badge.resale { background: hsl(220, 14%, 96%); color: hsl(220, 25%, 20%); }
-        .popup-badge.presale { background: hsl(43, 96%, 56%); color: hsl(222, 47%, 15%); }
+        /* Badges */
+        .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
+        .popup-badge.resale { background: hsl(220, 14%, 96%); color: hsl(220, 25%, 25%); }
+        .popup-badge.presale { background: hsl(45, 89%, 52%); color: hsl(222, 47%, 12%); }
         .popup-badge.assignment { background: #10b981; color: white; }
         
-        /* Content section */
-        .popup-content { flex: 1; padding: 10px 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-        .popup-price { font-weight: 700; font-size: 16px; margin-bottom: 3px; letter-spacing: -0.3px; color: hsl(220, 25%, 8%); }
-        .popup-price.assignment { color: #10b981; }
-        .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 8%); margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .popup-specs { font-size: 11px; color: hsl(220, 10%, 40%); margin-bottom: 2px; }
-        .popup-type { font-size: 10px; color: hsl(220, 10%, 55%); }
-        .popup-status { font-size: 10px; color: hsl(220, 10%, 40%); }
-        .popup-status .status-label { font-weight: 600; color: hsl(43, 96%, 45%); }
+        /* Content */
+        .popup-content { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+        .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(220, 25%, 10%); }
+        .popup-price.assignment { color: #059669; }
+        .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 15%); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .popup-specs { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 2px; }
+        .popup-type { font-size: 11px; color: hsl(220, 10%, 55%); }
+        .popup-status { font-size: 11px; color: hsl(220, 10%, 45%); }
+        .popup-status .status-label { font-weight: 600; color: hsl(45, 89%, 42%); }
         
-        /* Locked assignment popup - only assignment stays green */
+        /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }
-        .lock-icon { width: 36px; height: 36px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin: 0 auto 10px; color: #10b981; }
-        .lock-title { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 8%); margin-bottom: 4px; }
-        .lock-desc { font-size: 11px; color: hsl(220, 10%, 40%); margin-bottom: 12px; }
-        .lock-btn { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 8px 16px; border-radius: 6px; font-size: 11px; font-weight: 600; text-decoration: none; }
-        .lock-btn:hover { opacity: 0.9; }
+        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #10b981; }
+        .lock-title { font-weight: 600; font-size: 14px; color: hsl(220, 25%, 10%); margin-bottom: 4px; }
+        .lock-desc { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 14px; }
+        .lock-btn { display: inline-block; background: #10b981; color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+        .lock-btn:hover { background: #059669; }
+        
+        /* Smooth marker cluster animations */
+        .marker-cluster-anim .leaflet-marker-icon,
+        .marker-cluster-anim .leaflet-marker-shadow {
+          transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+        }
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
       
