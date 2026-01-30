@@ -20,7 +20,7 @@ import { BookingModal } from "@/components/booking/BookingModal";
 import { InlineScheduler } from "@/components/booking/InlineScheduler";
 
 import { InvestmentAnalysis } from "@/components/projects/InvestmentAnalysis";
-import { LocationDeepDive } from "@/components/projects/LocationDeepDive";
+import { LocationDeepDive, generateAmenitySchema } from "@/components/projects/LocationDeepDive";
 import { ProjectLocationMiniMap } from "@/components/projects/ProjectLocationMiniMap";
 import { PropertySEOTags } from "@/components/seo/PropertySEOTags";
 import { ProjectLeadMagnetsBar, SaveProjectButton, PriceAlertButton } from "@/components/conversion/LeadMagnets";
@@ -444,6 +444,9 @@ export default function PresaleProjectDetail() {
     neighborhood: project.neighborhood,
     projectType: project.project_type
   });
+  // Generate amenity schema for structured data
+  const amenitySchema = generateAmenitySchema(project.neighborhood, project.amenities?.some(a => a.toLowerCase().includes('skytrain') || a.toLowerCase().includes('transit')));
+  
   const structuredData = {
     "@context": "https://schema.org",
     "@type": "RealEstateListing",
@@ -464,6 +467,18 @@ export default function PresaleProjectDetail() {
       "latitude": project.map_lat,
       "longitude": project.map_lng
     } : undefined,
+    // Enhanced geo-tagged amenity features
+    "amenityFeature": amenitySchema.amenityFeature,
+    // Neighborhood context for local SEO
+    "containedInPlace": {
+      "@type": "Place",
+      "name": `${project.neighborhood}, ${project.city}`,
+      "geo": project.map_lat && project.map_lng ? {
+        "@type": "GeoCoordinates",
+        "latitude": project.map_lat,
+        "longitude": project.map_lng
+      } : undefined
+    },
     "offers": project.starting_price ? {
       "@type": "Offer",
       "priceCurrency": "CAD",
