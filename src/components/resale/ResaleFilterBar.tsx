@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Select,
@@ -114,10 +115,12 @@ export const ResaleFilterBar = ({
   bedsOptions = DEFAULT_BEDS,
   sortOptions = DEFAULT_SORT,
 }: ResaleFilterBarProps) => {
+  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  
   const FilterControls = ({ isMobile = false }: { isMobile?: boolean }) => (
     <div className={`${isMobile ? "space-y-4" : "flex flex-wrap items-center gap-3"}`}>
       <Select value={cityFilter} onValueChange={onCityChange}>
-        <SelectTrigger className={`${isMobile ? "w-full" : "w-[140px]"} h-10`}>
+        <SelectTrigger className={`${isMobile ? "w-full h-12 rounded-xl" : "w-[140px]"} h-10`}>
           <SelectValue placeholder="City" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-border z-[100]">
@@ -130,7 +133,7 @@ export const ResaleFilterBar = ({
       </Select>
 
       <Select value={propertyTypeFilter} onValueChange={onPropertyTypeChange}>
-        <SelectTrigger className={`${isMobile ? "w-full" : "w-[140px]"} h-10`}>
+        <SelectTrigger className={`${isMobile ? "w-full h-12 rounded-xl" : "w-[140px]"} h-10`}>
           <SelectValue placeholder="Property Type" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-border z-[100]">
@@ -143,7 +146,7 @@ export const ResaleFilterBar = ({
       </Select>
 
       <Select value={priceFilter} onValueChange={onPriceChange}>
-        <SelectTrigger className={`${isMobile ? "w-full" : "w-[150px]"} h-10`}>
+        <SelectTrigger className={`${isMobile ? "w-full h-12 rounded-xl" : "w-[150px]"} h-10`}>
           <SelectValue placeholder="Price Range" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-border z-[100]">
@@ -156,7 +159,7 @@ export const ResaleFilterBar = ({
       </Select>
 
       <Select value={bedsFilter} onValueChange={onBedsChange}>
-        <SelectTrigger className={`${isMobile ? "w-full" : "w-[120px]"} h-10`}>
+        <SelectTrigger className={`${isMobile ? "w-full h-12 rounded-xl" : "w-[120px]"} h-10`}>
           <SelectValue placeholder="Beds" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-border z-[100]">
@@ -169,7 +172,7 @@ export const ResaleFilterBar = ({
       </Select>
 
       <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className={`${isMobile ? "w-full" : "w-[160px]"} h-10`}>
+        <SelectTrigger className={`${isMobile ? "w-full h-12 rounded-xl" : "w-[160px]"} h-10`}>
           <SelectValue placeholder="Sort By" />
         </SelectTrigger>
         <SelectContent className="bg-popover border-border z-[100]">
@@ -181,7 +184,7 @@ export const ResaleFilterBar = ({
         </SelectContent>
       </Select>
 
-      {activeFilterCount > 0 && (
+      {activeFilterCount > 0 && !isMobile && (
         <Button
           variant="ghost"
           size="sm"
@@ -210,7 +213,7 @@ export const ResaleFilterBar = ({
         </div>
 
         {/* Mobile filter button */}
-        <Sheet>
+        <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
@@ -225,11 +228,44 @@ export const ResaleFilterBar = ({
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-auto max-h-[80vh] rounded-t-2xl">
-            <SheetHeader className="pb-4">
-              <SheetTitle>Filters</SheetTitle>
-            </SheetHeader>
-            <FilterControls isMobile />
+          <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-3xl px-0 pb-0">
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 rounded-full bg-border" />
+            </div>
+            
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Filters</h2>
+                {activeFilterCount > 0 && (
+                  <p className="text-sm text-muted-foreground">{activeFilterCount} active</p>
+                )}
+              </div>
+              {activeFilterCount > 0 && (
+                <button 
+                  onClick={() => onClearFilters()}
+                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Reset all
+                </button>
+              )}
+            </div>
+            
+            {/* Filters Content */}
+            <div className="px-5 pb-6 space-y-4 max-h-[55vh] overflow-y-auto">
+              <FilterControls isMobile />
+            </div>
+            
+            {/* Fixed Bottom Action */}
+            <div className="px-5 py-4 border-t border-border bg-background">
+              <Button 
+                className="w-full h-12 text-base font-medium rounded-xl" 
+                onClick={() => setMobileFiltersOpen(false)}
+              >
+                Apply Filters
+              </Button>
+            </div>
           </SheetContent>
         </Sheet>
 

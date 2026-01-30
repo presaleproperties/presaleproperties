@@ -346,18 +346,42 @@ export function UnifiedSearchFilters({
               )}
             </Button>
           </SheetTrigger>
-          <SheetContent side="bottom" className="h-auto max-h-[85vh] rounded-t-2xl">
-            <SheetHeader className="pb-4 border-b border-border">
-              <SheetTitle>Filters</SheetTitle>
-            </SheetHeader>
-            <div className="py-4 space-y-4 max-h-[60vh] overflow-y-auto">
-              {filters.map((filter) => (
-                <div key={filter.key}>
-                  <label className="text-sm font-medium text-foreground mb-2 block">
+          <SheetContent 
+            side="bottom" 
+            className="h-auto max-h-[85vh] rounded-t-3xl px-0 pb-0"
+          >
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-10 h-1 rounded-full bg-border" />
+            </div>
+            
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 pb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Filters</h2>
+                {activeFilterCount > 0 && (
+                  <p className="text-sm text-muted-foreground">{activeFilterCount} active</p>
+                )}
+              </div>
+              {activeFilterCount > 0 && (
+                <button 
+                  onClick={() => onClearAll?.()}
+                  className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                >
+                  Reset all
+                </button>
+              )}
+            </div>
+            
+            {/* Filters Content */}
+            <div className="px-5 pb-6 space-y-6 max-h-[55vh] overflow-y-auto">
+              {filters.map((filter, index) => (
+                <div key={filter.key} className="space-y-3">
+                  <label className="text-sm font-medium text-foreground flex items-center gap-2">
                     {filter.label}
                   </label>
                   {filter.multiSelect ? (
-                    // Multi-select for mobile
+                    // Multi-select chips with premium styling
                     <div className="flex flex-wrap gap-2">
                       {filter.options.filter(o => o.value !== "any").map((opt) => {
                         const selectedValues = getMultiSelectValues(filterValues[filter.key]);
@@ -372,10 +396,32 @@ export function UnifiedSearchFilters({
                               onFilterChange(filter.paramKey, newValues.length > 0 ? newValues.join(",") : "any");
                             }}
                             className={cn(
-                              "px-3 py-2 rounded-lg text-sm border transition-colors",
+                              "px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
                               isSelected
-                                ? "bg-primary text-primary-foreground border-primary"
-                                : "bg-background border-border hover:border-foreground/50"
+                                ? "bg-foreground text-background shadow-sm"
+                                : "bg-secondary/60 text-foreground hover:bg-secondary"
+                            )}
+                          >
+                            {isSelected && <Check className="h-3.5 w-3.5 inline mr-1.5" />}
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    // Single select with premium grid
+                    <div className="grid grid-cols-3 gap-2">
+                      {filter.options.map((opt) => {
+                        const isSelected = (filterValues[filter.key] || "any") === opt.value;
+                        return (
+                          <button
+                            key={opt.value}
+                            onClick={() => onFilterChange(filter.paramKey, opt.value)}
+                            className={cn(
+                              "py-3 px-3 rounded-xl text-sm font-medium transition-all duration-200 text-center",
+                              isSelected
+                                ? "bg-foreground text-background shadow-sm"
+                                : "bg-secondary/60 text-foreground hover:bg-secondary"
                             )}
                           >
                             {opt.label}
@@ -383,47 +429,21 @@ export function UnifiedSearchFilters({
                         );
                       })}
                     </div>
-                  ) : (
-                    <Select 
-                      value={filterValues[filter.key] || "any"} 
-                      onValueChange={(v) => onFilterChange(filter.paramKey, v)}
-                    >
-                      <SelectTrigger className="h-11">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {filter.options.map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value}>
-                            {opt.label}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                  )}
+                  {index < filters.length - 1 && (
+                    <div className="h-px bg-border/50 mt-4" />
                   )}
                 </div>
               ))}
-              
-              {activeFilterCount > 0 && (
-                <Button 
-                  variant="outline" 
-                  onClick={() => {
-                    onClearAll?.();
-                    setMobileFiltersOpen(false);
-                  }} 
-                  className="w-full"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  Clear All Filters
-                </Button>
-              )}
             </div>
             
-            <div className="pt-4 border-t border-border">
+            {/* Fixed Bottom Action */}
+            <div className="px-5 py-4 border-t border-border bg-background">
               <Button 
-                className="w-full" 
+                className="w-full h-12 text-base font-medium rounded-xl" 
                 onClick={() => setMobileFiltersOpen(false)}
               >
-                Show {resultCount || 0} Results
+                Show {resultCount?.toLocaleString() || 0} Results
               </Button>
             </div>
           </SheetContent>
