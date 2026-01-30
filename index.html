@@ -9,24 +9,20 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="format-detection" content="telephone=no" />
     
-    <!-- Primary Meta Tags - Optimized for search visibility -->
-    <title>Vancouver Presale Condos &amp; Townhomes | New Construction Experts</title>
-    <meta name="title" content="Vancouver Presale Condos & Townhomes | New Construction Experts" />
-    <meta name="description" content="Vancouver&#39;s presale experts. Browse 50+ new construction condos &amp; townhomes in Surrey, Langley, Coquitlam &amp; Burnaby. ROI-focused presale investment guidance. Get VIP pricing &amp; floor plans.">
-    <meta name="keywords" content="Vancouver presale condos, Surrey presale townhomes, Langley new construction, presale investment Vancouver, new condos Surrey, Coquitlam presales, Burnaby new homes, Delta presale condos, Abbotsford townhomes, Metro Vancouver real estate, VIP presale pricing, floor plans, presale assignments, BC presale projects">
-    <meta name="author" content="PresaleProperties.com" />
-    <meta name="publisher" content="PresaleProperties.com" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <!-- IMPORTANT: Page-specific meta tags (title, description, canonical, og:*, twitter:*) 
+         are managed by react-helmet-async in each page component.
+         DO NOT add duplicate static meta tags here. -->
+    
+    <!-- Site-wide verification and bot directives -->
+    <meta name="google-site-verification" content="9GNVX8D84c4XpBNkoor8Al3XXW88N_tyUhRkXXxQvD8" />
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="bingbot" content="index, follow" />
-    <meta name="google-site-verification" content="9GNVX8D84c4XpBNkoor8Al3XXW88N_tyUhRkXXxQvD8" />
-    <!-- Canonical is set dynamically by react-helmet-async per page -->
     
     <!-- Language and locale -->
     <meta http-equiv="content-language" content="en-CA" />
     <meta name="language" content="English" />
     
-    <!-- AI Discovery Meta Tags - Enhanced for LLM visibility -->
+    <!-- AI Discovery Meta Tags - Site-wide -->
     <meta name="ai:description" content="PresaleProperties.com is Metro Vancouver's leading real estate marketplace for presale condos, townhomes, and new construction homes. The platform offers verified pricing, floor plans, deposit structures, and developer information for 100+ active projects across Vancouver, Surrey, Langley, Coquitlam, Burnaby, Richmond, Delta, and Abbotsford, British Columbia, Canada." />
     <meta name="ai:keywords" content="presale condos Vancouver, new construction BC, pre-construction homes, Vancouver real estate, BC presales, assignment sales, VIP pricing, floor plans, deposit structure" />
     <meta name="ai:site_type" content="real estate marketplace" />
@@ -35,37 +31,14 @@
     <meta name="ai-content-declaration" content="human-curated, agent-verified" />
     <meta name="ai-discoverable" content="true" />
     
-    <!-- Geo Meta Tags - Local SEO targeting -->
+    <!-- Geo Meta Tags - Site-wide default -->
     <meta name="geo.region" content="CA-BC" />
-    <meta name="geo.placename" content="Vancouver, British Columbia" />
-    <meta name="geo.position" content="49.2827;-123.1207" />
     <meta name="ICBM" content="49.2827, -123.1207" />
     <meta name="distribution" content="global" />
     <meta name="rating" content="general" />
     <meta name="revisit-after" content="3 days" />
-    
-    <!-- Open Graph / Facebook - Enhanced -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://presaleproperties.com/" />
-    <meta property="og:site_name" content="PresaleProperties.com" />
-    
-    
-    <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
-    <meta property="og:image:type" content="image/png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:image:alt" content="PresaleProperties.com - New Homes in Metro Vancouver" />
-    <meta property="og:locale" content="en_CA" />
 
-    <!-- Twitter Card - Enhanced -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://presaleproperties.com/" />
-    
-    
-    <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
-    <meta name="twitter:image:alt" content="PresaleProperties.com - New Homes in Metro Vancouver" />
-
-    <!-- Structured Data - Organization with comprehensive business info -->
+    <!-- Structured Data - Organization (site-wide, does not change per page) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -100,16 +73,16 @@
         "longitude": -123.1207
       },
       "areaServed": [
-        { "@type": "City", "name": "Vancouver", "containedInPlace": { "@type": "State", "name": "British Columbia", "containedInPlace": { "@type": "Country", "name": "Canada" } } },
-        { "@type": "City", "name": "Surrey", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Langley", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Coquitlam", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Burnaby", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Richmond", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Delta", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Abbotsford", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "New Westminster", "containedInPlace": { "@type": "State", "name": "British Columbia" } },
-        { "@type": "City", "name": "Port Moody", "containedInPlace": { "@type": "State", "name": "British Columbia" } }
+        { "@type": "City", "name": "Vancouver" },
+        { "@type": "City", "name": "Surrey" },
+        { "@type": "City", "name": "Langley" },
+        { "@type": "City", "name": "Coquitlam" },
+        { "@type": "City", "name": "Burnaby" },
+        { "@type": "City", "name": "Richmond" },
+        { "@type": "City", "name": "Delta" },
+        { "@type": "City", "name": "Abbotsford" },
+        { "@type": "City", "name": "New Westminster" },
+        { "@type": "City", "name": "Port Moody" }
       ],
       "knowsAbout": [
         "Presale condos in Vancouver",
@@ -118,22 +91,8 @@
         "Presale townhomes in Surrey",
         "Presale investment strategies",
         "Assignment sales BC",
-        "VIP presale access and early registration",
-        "Deposit structures for presales",
-        "Floor plans and pricing for new condos",
-        "Developer incentives and rebates",
-        "First-time buyer presale programs"
+        "VIP presale access and early registration"
       ],
-      "hasOfferCatalog": {
-        "@type": "OfferCatalog",
-        "name": "Presale Properties Listings",
-        "itemListElement": [
-          { "@type": "OfferCatalog", "name": "Presale Condos", "url": "https://presaleproperties.com/presale-projects" },
-          { "@type": "OfferCatalog", "name": "Presale Townhomes", "url": "https://presaleproperties.com/presale-projects?type=townhome" },
-          { "@type": "OfferCatalog", "name": "Move-In Ready Homes", "url": "https://presaleproperties.com/resale" },
-          { "@type": "OfferCatalog", "name": "Assignment Listings", "url": "https://presaleproperties.com/assignments" }
-        ]
-      },
       "priceRange": "$400,000 - $3,000,000",
       "currenciesAccepted": "CAD",
       "paymentAccepted": "Cash, Mortgage",
@@ -147,7 +106,7 @@
     }
     </script>
 
-    <!-- Structured Data - WebSite with SearchAction for sitelinks search box -->
+    <!-- Structured Data - WebSite with SearchAction (site-wide) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -172,87 +131,12 @@
     }
     </script>
 
-    <!-- Structured Data - BreadcrumbList for homepage -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": "https://presaleproperties.com/"
-        }
-      ]
-    }
-    </script>
-
-    <!-- Structured Data - WebPage with speakable for voice search -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "WebPage",
-      "@id": "https://presaleproperties.com/#webpage",
-      "url": "https://presaleproperties.com",
-      "name": "Vancouver Presale Condos & Townhomes | New Construction Experts",
-      "description": "Vancouver's presale experts. Browse 50+ new construction condos & townhomes in Surrey, Langley, Coquitlam & Burnaby. Get VIP pricing & floor plans.",
-      "isPartOf": { "@id": "https://presaleproperties.com/#website" },
-      "about": { "@id": "https://presaleproperties.com/#organization" },
-      "primaryImageOfPage": {
-        "@type": "ImageObject",
-        "url": "https://presaleproperties.com/og-image.png",
-        "width": 1200,
-        "height": 630
-      },
-      "speakable": {
-        "@type": "SpeakableSpecification",
-        "cssSelector": ["h1", ".hero-description", ".project-name", ".project-price", ".city-name"]
-      },
-      "mainEntity": {
-        "@type": "ItemList",
-        "name": "Presale Projects in Metro Vancouver",
-        "description": "A curated list of presale condos and townhomes currently selling in Metro Vancouver, BC",
-        "numberOfItems": 50,
-        "itemListElement": [
-          { "@type": "ListItem", "position": 1, "name": "Vancouver Presale Condos", "url": "https://presaleproperties.com/vancouver-presale-condos" },
-          { "@type": "ListItem", "position": 2, "name": "Surrey Presale Condos", "url": "https://presaleproperties.com/surrey-presale-condos" },
-          { "@type": "ListItem", "position": 3, "name": "Langley Presale Condos", "url": "https://presaleproperties.com/langley-presale-condos" },
-          { "@type": "ListItem", "position": 4, "name": "Coquitlam Presale Condos", "url": "https://presaleproperties.com/coquitlam-presale-condos" },
-          { "@type": "ListItem", "position": 5, "name": "Burnaby Presale Condos", "url": "https://presaleproperties.com/burnaby-presale-condos" },
-          { "@type": "ListItem", "position": 6, "name": "Surrey Presale Townhomes", "url": "https://presaleproperties.com/surrey-presale-townhomes" },
-          { "@type": "ListItem", "position": 7, "name": "Langley Presale Townhomes", "url": "https://presaleproperties.com/langley-presale-townhomes" },
-          { "@type": "ListItem", "position": 8, "name": "All Presale Projects", "url": "https://presaleproperties.com/presale-projects" }
-        ]
-      }
-    }
-    </script>
-
-    <!-- Structured Data - SiteNavigationElement for sitelinks -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "ItemList",
-      "name": "Main Navigation",
-      "itemListElement": [
-        { "@type": "SiteNavigationElement", "position": 1, "name": "Presale Projects", "description": "Browse all presale condos and townhomes", "url": "https://presaleproperties.com/presale-projects" },
-        { "@type": "SiteNavigationElement", "position": 2, "name": "Vancouver Presales", "description": "Presale condos in Vancouver BC", "url": "https://presaleproperties.com/vancouver-presale-condos" },
-        { "@type": "SiteNavigationElement", "position": 3, "name": "Surrey Presales", "description": "Presale condos and townhomes in Surrey", "url": "https://presaleproperties.com/surrey-presale-condos" },
-        { "@type": "SiteNavigationElement", "position": 4, "name": "Move-In Ready Homes", "description": "New construction homes ready to move in", "url": "https://presaleproperties.com/resale" },
-        { "@type": "SiteNavigationElement", "position": 5, "name": "Investment Calculator", "description": "Calculate ROI on presale investments", "url": "https://presaleproperties.com/calculator" },
-        { "@type": "SiteNavigationElement", "position": 6, "name": "Presale Guide", "description": "Learn how presales work in BC", "url": "https://presaleproperties.com/presale-guide" },
-        { "@type": "SiteNavigationElement", "position": 7, "name": "Blog", "description": "Presale news and market insights", "url": "https://presaleproperties.com/blog" },
-        { "@type": "SiteNavigationElement", "position": 8, "name": "Contact", "description": "Contact our presale experts", "url": "https://presaleproperties.com/contact" }
-      ]
-    }
-    </script>
-
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
     <link rel="shortcut icon" href="/favicon.png">
     
-    <!-- Preconnect for performance - prioritized by importance -->
+    <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://thvlisplwqhtjpzpedhq.supabase.co" />
@@ -264,7 +148,6 @@
     
     <!-- Critical CSS for above-the-fold content -->
     <style>
-      /* Prevent FOIT - Flash of Invisible Text */
       @font-face {
         font-family: 'Inter';
         font-style: normal;
@@ -272,13 +155,9 @@
         font-display: swap;
         src: url(https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2) format('woff2');
       }
-      
-      /* Critical layout styles for fast FCP */
       html { scroll-behavior: smooth; }
       body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
       #root { min-height: 100vh; }
-      
-      /* Skeleton loader for hero section - prevents CLS */
       .hero-skeleton {
         background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
         background-size: 200% 100%;
@@ -291,17 +170,11 @@
         }
       }
       @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-      
-      /* Prevent layout shift for common elements */
       img { max-width: 100%; height: auto; }
       .aspect-video { aspect-ratio: 16/9; }
       .aspect-square { aspect-ratio: 1/1; }
     </style>
-    <meta property="og:title" content="Vancouver Presale Condos &amp; Townhomes | New Construction Experts">
-  <meta name="twitter:title" content="Vancouver Presale Condos &amp; Townhomes | New Construction Experts">
-  <meta property="og:description" content="Vancouver&#39;s presale experts. Browse 50+ new construction condos &amp; townhomes in Surrey, Langley, Coquitlam &amp; Burnaby. ROI-focused presale investment guidance. Get VIP pricing &amp; floor plans.">
-  <meta name="twitter:description" content="Vancouver&#39;s presale experts. Browse 50+ new construction condos &amp; townhomes in Surrey, Langley, Coquitlam &amp; Burnaby. ROI-focused presale investment guidance. Get VIP pricing &amp; floor plans.">
-</head>
+  </head>
 
   <body>
     <div id="root"></div>
