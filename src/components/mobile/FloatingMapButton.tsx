@@ -20,15 +20,9 @@ const CITY_SLUG_MAP: Record<string, string> = {
   "white-rock": "White Rock",
 };
 
-const MAP_BUTTON_PULSE_KEY = "map_button_pulse_shown";
-
 export function FloatingMapButton() {
   const location = useLocation();
   const [isVisible, setIsVisible] = useState(true);
-  const [isPulsing, setIsPulsing] = useState(() => {
-    // Only pulse if not shown before in this session
-    return !sessionStorage.getItem(MAP_BUTTON_PULSE_KEY);
-  });
   const lastScrollY = useRef(0);
   const ticking = useRef(false);
   
@@ -123,17 +117,6 @@ export function FloatingMapButton() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  // Stop pulsing after 3 seconds and mark as shown
-  useEffect(() => {
-    if (!isPulsing) return;
-    
-    const timer = setTimeout(() => {
-      setIsPulsing(false);
-      sessionStorage.setItem(MAP_BUTTON_PULSE_KEY, "true");
-    }, 3000);
-    return () => clearTimeout(timer);
-  }, [isPulsing]);
   
   if (isMapPage || isDetailPage || isAdLandingPage || isAdminPage || isDashboardPage || isForAgentsPage) return null;
   
@@ -165,28 +148,18 @@ export function FloatingMapButton() {
         "flex items-center justify-center",
         "w-12 h-12 rounded-full",
         "bg-primary text-primary-foreground",
-        "ring-2 ring-offset-2 ring-offset-transparent",
-        "shadow-[0_4px_24px_rgba(245,194,67,0.4),0_0_0_1px_rgba(255,255,255,0.1)]",
-        "hover:shadow-[0_6px_32px_rgba(245,194,67,0.5),0_0_0_1px_rgba(255,255,255,0.15)]",
-        "hover:scale-105",
+        "shadow-lg",
+        "hover:bg-primary/90",
         "active:scale-95",
-        "transition-all duration-300",
+        "transition-all duration-200",
         "lg:right-6",
-        // Subtle glow effect on first impression
-        isPulsing 
-          ? "ring-primary/50 shadow-[0_0_16px_4px_rgba(245,194,67,0.45),0_4px_24px_rgba(0,0,0,0.3)]"
-          : "ring-primary/30 hover:ring-primary/50",
         isVisible 
           ? "translate-y-0 opacity-100" 
           : "translate-y-20 opacity-0 pointer-events-none"
       )}
       aria-label={`View ${mapContext.city || "all"} projects on map`}
     >
-      {/* Subtle pulse ring animation on first impression */}
-      {isPulsing && (
-        <span className="absolute -inset-1 rounded-full bg-blue-400/15 animate-pulse" />
-      )}
-      <Map className="h-5 w-5 relative z-10" />
+      <Map className="h-5 w-5" />
     </Link>
   );
 }

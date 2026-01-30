@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Sparkles } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -254,22 +254,22 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
             </Link>
           </nav>
 
-          {/* Desktop CTA - Map Search with premium styling */}
+          {/* Desktop CTA - Map Search */}
           <div className="hidden lg:flex items-center gap-3">
             <Button 
               asChild 
               size="sm" 
               className={cn(
-                "h-10 px-5 font-semibold rounded-lg shadow-sm",
-                "bg-gradient-to-r from-primary via-primary to-primary-deep hover:from-primary-glow hover:via-primary hover:to-primary-deep",
+                "h-9 px-4 font-medium rounded-md",
+                "bg-primary hover:bg-primary/90",
                 "text-primary-foreground",
-                "transition-all duration-300 hover:shadow-gold hover:-translate-y-0.5",
-                isMapPage && "ring-2 ring-primary/30"
+                "transition-colors duration-200",
+                isMapPage && "ring-1 ring-primary/30"
               )}
             >
               <Link to="/map-search">
                 <Map className="h-4 w-4 mr-2" />
-                Explore Map
+                Map Search
               </Link>
             </Button>
           </div>
@@ -321,20 +321,19 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                     </button>
                   </div>
 
-                  {/* Premium Map CTA */}
+                  {/* Map CTA */}
                   <div className="px-5 py-4">
                     <Link to="/map-search" onClick={() => setOpen(false)}>
                       <Button 
                         className={cn(
-                          "w-full h-12 font-semibold rounded-xl",
-                          "bg-gradient-to-r from-primary via-primary to-primary-deep",
-                          "text-primary-foreground shadow-gold",
-                          "hover:shadow-gold-glow transition-all duration-300"
+                          "w-full h-11 font-medium rounded-lg",
+                          "bg-primary hover:bg-primary/90",
+                          "text-primary-foreground",
+                          "transition-colors duration-200"
                         )}
                       >
                         <Map className="h-5 w-5 mr-2" />
-                        Explore Interactive Map
-                        <Sparkles className="h-4 w-4 ml-2 opacity-70" />
+                        Map Search
                       </Button>
                     </Link>
                   </div>
@@ -362,7 +361,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-secondary/60 transition-colors mb-2"
                           >
-                            <Sparkles className="h-4 w-4 text-primary" />
+                            <Building2 className="h-4 w-4 text-primary" />
                             <span className="font-medium">View All Projects</span>
                           </Link>
                           <div className="pl-3 space-y-1">
@@ -404,7 +403,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-secondary/60 transition-colors mb-2"
                           >
-                            <Sparkles className="h-4 w-4 text-primary" />
+                            <Home className="h-4 w-4 text-primary" />
                             <span className="font-medium">View All Listings</span>
                           </Link>
                           <div className="pl-3 space-y-1">
