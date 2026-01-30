@@ -30,8 +30,14 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 import { 
   Plus,
   Search,
@@ -50,7 +56,12 @@ import {
   MapPinned,
   CheckCircle2,
   XCircle,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  LayoutGrid,
+  DollarSign,
+  Check,
+  X
 } from "lucide-react";
 import { generateProjectUrl } from "@/lib/seoUrls";
 
@@ -656,17 +667,56 @@ export default function AdminProjects() {
                           Updated {new Date(project.updated_at).toLocaleDateString()}
                         </span>
                         {/* Document Status Indicators */}
-                        <span className="flex items-center gap-1.5 text-xs border-l pl-4 ml-2">
-                          <span title="Brochure" className={hasDoc(project.brochure_files) ? "text-green-600" : "text-red-400"}>
-                            📄{hasDoc(project.brochure_files) ? "✓" : "✗"}
-                          </span>
-                          <span title="Floorplans" className={hasDoc(project.floorplan_files) ? "text-green-600" : "text-red-400"}>
-                            📋{hasDoc(project.floorplan_files) ? "✓" : "✗"}
-                          </span>
-                          <span title="Pricing" className={hasDoc(project.pricing_sheets) ? "text-green-600" : "text-red-400"}>
-                            💲{hasDoc(project.pricing_sheets) ? "✓" : "✗"}
-                          </span>
-                        </span>
+                        <div className="flex items-center gap-1 border-l pl-3 ml-2">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className={cn(
+                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
+                                hasDoc(project.brochure_files) 
+                                  ? "bg-primary/10 text-primary" 
+                                  : "bg-destructive/10 text-destructive"
+                              )}>
+                                <FileText className="h-3 w-3" />
+                                {hasDoc(project.brochure_files) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Brochure: {hasDoc(project.brochure_files) ? "Uploaded" : "Missing"}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className={cn(
+                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
+                                hasDoc(project.floorplan_files) 
+                                  ? "bg-primary/10 text-primary" 
+                                  : "bg-destructive/10 text-destructive"
+                              )}>
+                                <LayoutGrid className="h-3 w-3" />
+                                {hasDoc(project.floorplan_files) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Floorplans: {hasDoc(project.floorplan_files) ? "Uploaded" : "Missing"}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className={cn(
+                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium transition-colors",
+                                hasDoc(project.pricing_sheets) 
+                                  ? "bg-primary/10 text-primary" 
+                                  : "bg-destructive/10 text-destructive"
+                              )}>
+                                <DollarSign className="h-3 w-3" />
+                                {hasDoc(project.pricing_sheets) ? <Check className="h-3 w-3" /> : <X className="h-3 w-3" />}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Pricing: {hasDoc(project.pricing_sheets) ? "Uploaded" : "Missing"}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
