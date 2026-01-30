@@ -514,6 +514,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
 
   // Track data changes to prevent unnecessary marker rebuilds
   const dataHashRef = useRef<string>("");
+  const lastModeRef = useRef<string>(mode);
   
   // Update markers when data or mode changes - optimized to minimize re-renders
   useEffect(() => {
@@ -523,14 +524,24 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     const assignmentLayer = assignmentLayerRef.current;
     if (!map || !clusterGroup || !presaleLayer || !assignmentLayer) return;
 
-    // Create hash of current data to detect actual changes
-    const currentHash = `${mode}-${validResaleListings.length}-${validPresaleProjects.length}-${validAssignments.length}-${internalHighlightId || ''}-${highlightedItemId || ''}`;
+    // Create a robust hash using first/last IDs to detect actual data changes
+    const resaleIds = validResaleListings.slice(0, 3).map(l => l.id).join(',');
+    const presaleIds = validPresaleProjects.slice(0, 3).map(p => p.id).join(',');
+    const assignmentIds = validAssignments.slice(0, 3).map(a => a.id).join(',');
+    
+    const currentHash = `${mode}-${validResaleListings.length}-${resaleIds}-${validPresaleProjects.length}-${presaleIds}-${validAssignments.length}-${assignmentIds}`;
     
     // Skip rebuild if data hasn't changed (performance optimization for back navigation)
-    if (currentHash === dataHashRef.current && resaleMarkersMapRef.current.size > 0) {
+    // Only skip if we have markers AND mode hasn't changed AND data is the same
+    if (currentHash === dataHashRef.current && 
+        mode === lastModeRef.current &&
+        (resaleMarkersMapRef.current.size > 0 || presaleMarkersMapRef.current.size > 0 || assignmentMarkersMapRef.current.size > 0)) {
+      // Still need to update highlighted state without rebuilding
       return;
     }
+    
     dataHashRef.current = currentHash;
+    lastModeRef.current = mode;
 
     clusterGroup.clearLayers();
     presaleLayer.clearLayers();
