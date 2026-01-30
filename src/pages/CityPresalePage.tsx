@@ -514,8 +514,19 @@ export default function CityPresalePage() {
   ].filter(Boolean).length;
 
   if (!cityConfig) {
+    // Signal 404 to prerender services
+    if (typeof window !== "undefined") {
+      (window as any).prerenderReady = true;
+      (window as any).prerenderStatusCode = 404;
+    }
+    
     return (
       <>
+        <Helmet>
+          <title>City Not Found | PresaleProperties.com</title>
+          <meta name="robots" content="noindex, nofollow" />
+          <meta name="prerender-status-code" content="404" />
+        </Helmet>
         <ConversionHeader />
         <main className="min-h-screen bg-background py-20">
           <div className="container text-center">

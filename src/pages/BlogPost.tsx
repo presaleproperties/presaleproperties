@@ -167,8 +167,19 @@ export default function BlogPost() {
   }
 
   if (!post) {
+    // Signal 404 to prerender services
+    if (typeof window !== "undefined") {
+      (window as any).prerenderReady = true;
+      (window as any).prerenderStatusCode = 404;
+    }
+    
     return (
       <>
+        <Helmet>
+          <title>Article Not Found | PresaleProperties.com</title>
+          <meta name="robots" content="noindex, nofollow" />
+          <meta name="prerender-status-code" content="404" />
+        </Helmet>
         <ConversionHeader />
         <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
           <FileText className="h-16 w-16 text-muted-foreground mb-4" />

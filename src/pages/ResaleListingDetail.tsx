@@ -256,7 +256,18 @@ export default function ResaleListingDetail() {
       </div>;
   }
   if (error || !listing) {
+    // Signal 404 to prerender services for proper SEO handling
+    if (typeof window !== "undefined") {
+      (window as any).prerenderReady = true;
+      (window as any).prerenderStatusCode = 404;
+    }
+    
     return <div className="min-h-screen bg-background">
+        <Helmet>
+          <title>Listing Not Found | PresaleProperties.com</title>
+          <meta name="robots" content="noindex, nofollow" />
+          <meta name="prerender-status-code" content="404" />
+        </Helmet>
         <ConversionHeader />
         <main className="container py-16 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">
@@ -265,7 +276,7 @@ export default function ResaleListingDetail() {
           <p className="text-muted-foreground mb-6">
             This listing may have been sold or is no longer available.
           </p>
-          <Link to="/resale">
+          <Link to="/properties">
             <Button>Browse All New Homes</Button>
           </Link>
         </main>
