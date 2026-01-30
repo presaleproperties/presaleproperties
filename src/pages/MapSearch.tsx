@@ -41,6 +41,7 @@ import { cn } from "@/lib/utils";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
+import { buildGridUrlFromMapFilters } from "@/lib/filterSync";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
 
 // Lazy load the combined map component
@@ -1111,6 +1112,12 @@ export default function MapSearch() {
     setPriceRange([MIN_PRICE, MAX_PRICE]);
   }, [clearAllFilters]);
 
+  // Build grid URL with current filters for seamless transition back to grid view
+  const gridUrlWithFilters = useMemo(() => {
+    const basePath = mapMode === "presale" ? "/presale-projects" : "/resale";
+    return buildGridUrlFromMapFilters(searchParams, basePath);
+  }, [searchParams, mapMode]);
+
   const LoadingMap = () => (
     <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center">
       <div className="text-center text-muted-foreground">
@@ -1192,7 +1199,7 @@ export default function MapSearch() {
               </button>
             }
             listButton={
-              <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
+              <Link to={gridUrlWithFilters}>
                 <button className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
                   <LayoutGrid className="h-4 w-4 text-muted-foreground/70" />
                 </button>

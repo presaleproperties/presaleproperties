@@ -16,6 +16,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 import { PopularSearchesGrid } from "@/components/seo/PopularSearchesGrid";
 import { UnifiedSearchFilters } from "@/components/search/UnifiedSearchFilters";
+import { buildMapUrlFromGridFilters } from "@/lib/filterSync";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
@@ -365,6 +366,11 @@ export default function ResaleListings() {
     { key: "baths", label: "Baths", paramKey: "baths", options: BATHS_OPTIONS },
   ];
 
+  // Build map URL with current filters for seamless transition
+  const mapUrlWithFilters = useMemo(() => {
+    return buildMapUrlFromGridFilters(searchParams, "resale");
+  }, [searchParams]);
+
   const PaginationControls = () => {
     if (totalPages <= 1) return null;
 
@@ -547,7 +553,7 @@ export default function ResaleListings() {
               sortOptions={SORT_OPTIONS}
               sortValue={filters.sort}
               onSortChange={(v) => updateFilter("sort", v)}
-              mapLink="/map-search?mode=resale"
+              mapLink={mapUrlWithFilters}
               resultCount={totalCount}
               onClearAll={clearAllFilters}
             />
@@ -617,7 +623,7 @@ export default function ResaleListings() {
               </div>
             </Suspense>
             <div className="text-center mt-4">
-              <Link to={`/map-search?mode=resale${filters.city !== "any" ? `&city=${encodeURIComponent(filters.city)}` : ""}`}>
+              <Link to={mapUrlWithFilters}>
                 <Button variant="outline" className="gap-2">
                   <Map className="h-4 w-4" />
                   Open Full Map Search
