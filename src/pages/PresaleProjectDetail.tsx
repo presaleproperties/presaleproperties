@@ -63,6 +63,7 @@ type Project = {
   }[] | null;
   featured_image: string | null;
   gallery_images: string[] | null;
+  video_url: string | null;
   floorplan_files: string[] | null;
   brochure_files: string[] | null;
   pricing_sheets: string[] | null;
@@ -631,9 +632,12 @@ export default function PresaleProjectDetail() {
             <div className="grid lg:grid-cols-5 gap-0 lg:gap-8 lg:items-start">
               {/* Gallery - Full width edge-to-edge on mobile/tablet, 3 columns on desktop */}
               <div className="lg:col-span-3 -mx-0 lg:mx-0">
-                <REWPhotoGallery photos={allImages.map(url => ({
-                  url
-                }))} alt={project.name} previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" />
+                <REWPhotoGallery 
+                  photos={allImages.map(url => ({ url }))} 
+                  videoUrl={project.video_url}
+                  alt={project.name} 
+                  previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" 
+                />
               </div>
 
               {/* Project Info - Full width on mobile/tablet with internal padding, 2 columns on desktop */}
