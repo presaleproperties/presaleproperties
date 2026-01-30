@@ -2881,10 +2881,14 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                       embedUrl = `https://www.youtube.com/embed/${ytMatch[1]}`;
                     }
                     
-                    // Vimeo
-                    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+                    // Vimeo (supports private videos with hash: vimeo.com/123456789/abc123)
+                    const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)(?:\/([a-zA-Z0-9]+))?/);
                     if (vimeoMatch) {
-                      embedUrl = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+                      const videoId = vimeoMatch[1];
+                      const hash = vimeoMatch[2];
+                      embedUrl = hash 
+                        ? `https://player.vimeo.com/video/${videoId}?h=${hash}`
+                        : `https://player.vimeo.com/video/${videoId}`;
                     }
                     
                     if (embedUrl) {
