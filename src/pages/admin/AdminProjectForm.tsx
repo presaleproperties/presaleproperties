@@ -81,6 +81,7 @@ type ProjectFormData = {
   faq: { question: string; answer: string }[];
   featured_image: string;
   gallery_images: string[];
+  video_url: string;
   brochure_files: string[];
   floorplan_files: string[];
   pricing_sheets: string[];
@@ -124,6 +125,7 @@ const defaultFormData: ProjectFormData = {
   faq: [],
   featured_image: "",
   gallery_images: [],
+  video_url: "",
   brochure_files: [],
   floorplan_files: [],
   pricing_sheets: [],
@@ -438,6 +440,7 @@ export default function AdminProjectForm() {
         faq: (Array.isArray(data.faq) ? data.faq : []) as { question: string; answer: string }[],
         featured_image: data.featured_image || "",
         gallery_images: data.gallery_images || [],
+        video_url: data.video_url || "",
         brochure_files: data.brochure_files || [],
         floorplan_files: data.floorplan_files || [],
         pricing_sheets: data.pricing_sheets || [],
@@ -1196,6 +1199,7 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
         faq: formData.faq.length > 0 ? formData.faq : [],
         featured_image: formData.featured_image || null,
         gallery_images: formData.gallery_images.length > 0 ? formData.gallery_images : null,
+        video_url: formData.video_url || null,
         brochure_files: formData.brochure_files.length > 0 ? formData.brochure_files : null,
         floorplan_files: formData.floorplan_files.length > 0 ? formData.floorplan_files : null,
         pricing_sheets: formData.pricing_sheets.length > 0 ? formData.pricing_sheets : null,
@@ -2851,6 +2855,25 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
                     disabled={uploading}
                   />
                 </label>
+
+                {/* Video URL */}
+                <div className="p-3 bg-muted/30 border rounded-lg space-y-2">
+                  <Label className="text-sm font-medium flex items-center gap-2">
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    Video Link (YouTube / Vimeo)
+                  </Label>
+                  <Input
+                    type="url"
+                    placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                    value={formData.video_url}
+                    onChange={(e) => setFormData(prev => ({ ...prev, video_url: e.target.value }))}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Add a YouTube or Vimeo video to showcase the project
+                  </p>
+                </div>
               </CardContent>
             </Card>
 

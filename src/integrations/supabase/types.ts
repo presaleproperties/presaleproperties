@@ -2192,6 +2192,7 @@ export type Database = {
           strata_fees: string | null
           unit_mix: string | null
           updated_at: string
+          video_url: string | null
           view_count: number
         }
         Insert: {
@@ -2243,6 +2244,7 @@ export type Database = {
           strata_fees?: string | null
           unit_mix?: string | null
           updated_at?: string
+          video_url?: string | null
           view_count?: number
         }
         Update: {
@@ -2294,6 +2296,7 @@ export type Database = {
           strata_fees?: string | null
           unit_mix?: string | null
           updated_at?: string
+          video_url?: string | null
           view_count?: number
         }
         Relationships: [
