@@ -471,6 +471,13 @@ export default function ResaleListingDetail() {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content={pageTitle} />
         <meta name="twitter:description" content={pageDescription} />
+        
+        {/* Geo targeting for local SEO */}
+        <meta name="geo.region" content="CA-BC" />
+        <meta name="geo.placename" content={`${listing.neighborhood || listing.city}, ${listing.city}, BC`} />
+        {listing.latitude && listing.longitude && <meta name="geo.position" content={`${listing.latitude};${listing.longitude}`} />}
+        {listing.latitude && listing.longitude && <meta name="ICBM" content={`${listing.latitude}, ${listing.longitude}`} />}
+        
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbData)}</script>
       </Helmet>

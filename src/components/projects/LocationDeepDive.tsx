@@ -1,5 +1,14 @@
-import { MapPin, Train, School, ShoppingBag, Clock, Car, Footprints } from "lucide-react";
+import { MapPin, Train, School, ShoppingBag, Clock, Car, Footprints, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
+
+// Generate map search URL for internal linking
+const generateMapSearchUrl = (name: string, lat?: number | null, lng?: number | null) => {
+  const encodedName = encodeURIComponent(name);
+  if (lat && lng) {
+    return `/map-search?q=${encodedName}&lat=${lat}&lng=${lng}&zoom=15`;
+  }
+  return `/map-search?q=${encodedName}`;
+};
 
 interface LocationDeepDiveProps {
   projectName: string;
@@ -11,8 +20,8 @@ interface LocationDeepDiveProps {
   nearSkytrain?: boolean;
 }
 
-// Neighborhood data with walkability and transit info
-const NEIGHBORHOOD_DATA: Record<string, {
+// Neighborhood data with walkability and transit info - exported for schema generation
+export const NEIGHBORHOOD_DATA: Record<string, {
   walkScore: number;
   transitScore: number;
   landmarks: { name: string; distance: string; type: "transit" | "shopping" | "nature" | "highway" }[];
@@ -107,8 +116,8 @@ const NEIGHBORHOOD_DATA: Record<string, {
   },
 };
 
-// Default data for neighborhoods without specific data
-const DEFAULT_DATA = {
+// Default data for neighborhoods without specific data - exported for schema generation
+export const DEFAULT_NEIGHBORHOOD_DATA = {
   walkScore: 55,
   transitScore: 40,
   landmarks: [
@@ -125,6 +134,33 @@ const DEFAULT_DATA = {
   ],
 };
 
+// Helper to get neighborhood data for a specific neighborhood
+export const getNeighborhoodData = (neighborhood: string) => {
+  return NEIGHBORHOOD_DATA[neighborhood] || DEFAULT_NEIGHBORHOOD_DATA;
+};
+
+// Generate amenity schema for structured data
+export const generateAmenitySchema = (neighborhood: string, nearSkytrain?: boolean) => {
+  const data = getNeighborhoodData(neighborhood);
+  return {
+    amenityFeature: [
+      { "@type": "LocationFeatureSpecification", "name": "Walk Score", "value": data.walkScore },
+      { "@type": "LocationFeatureSpecification", "name": "Transit Score", "value": data.transitScore },
+      ...(nearSkytrain ? [{ "@type": "LocationFeatureSpecification", "name": "Near SkyTrain", "value": true }] : [])
+    ],
+    nearbySchools: data.schools.map(school => ({
+      "@type": "School",
+      "name": school.name,
+      "distance": school.distance
+    })),
+    nearbyShopping: data.shopping.map(shop => ({
+      "@type": "LocalBusiness",
+      "name": shop.name,
+      "distance": shop.distance
+    }))
+  };
+};
+
 export function LocationDeepDive({
   projectName,
   city,
@@ -134,7 +170,7 @@ export function LocationDeepDive({
   mapLng,
   nearSkytrain,
 }: LocationDeepDiveProps) {
-  const data = NEIGHBORHOOD_DATA[neighborhood] || DEFAULT_DATA;
+  const data = getNeighborhoodData(neighborhood);
   
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600 dark:text-green-400";
@@ -202,7 +238,12 @@ export function LocationDeepDive({
         <ul className="space-y-2">
           {data.landmarks.map((landmark, i) => (
             <li key={i} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{landmark.name}</span>
+              <Link 
+                to={generateMapSearchUrl(landmark.name, mapLat, mapLng)}
+                className="text-muted-foreground hover:text-primary hover:underline transition-colors"
+              >
+                {landmark.name}
+              </Link>
               <span className="flex items-center gap-1.5 font-medium text-foreground">
                 <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                 {landmark.distance}
@@ -222,7 +263,12 @@ export function LocationDeepDive({
           {data.schools.map((school, i) => (
             <li key={i} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">{school.name}</span>
+                <Link 
+                  to={generateMapSearchUrl(school.name, mapLat, mapLng)}
+                  className="text-muted-foreground hover:text-primary hover:underline transition-colors"
+                >
+                  {school.name}
+                </Link>
                 <span className="text-xs bg-primary/10 text-primary px-1.5 py-0.5 rounded font-medium">
                   {school.rating}/10
                 </span>
@@ -242,7 +288,12 @@ export function LocationDeepDive({
         <ul className="space-y-2">
           {data.shopping.map((shop, i) => (
             <li key={i} className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{shop.name}</span>
+              <Link 
+                to={generateMapSearchUrl(shop.name, mapLat, mapLng)}
+                className="text-muted-foreground hover:text-primary hover:underline transition-colors"
+              >
+                {shop.name}
+              </Link>
               <span className="text-muted-foreground text-xs">{shop.distance}</span>
             </li>
           ))}
