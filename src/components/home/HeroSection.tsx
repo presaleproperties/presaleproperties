@@ -1,9 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Search, MapPin } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SearchSuggestions } from "./SearchSuggestions";
+import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
 const resaleCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
@@ -18,10 +17,8 @@ export function HeroSection({
 }: HeroSectionProps) {
   const [internalTab, setInternalTab] = useState<SearchTab>("projects");
   const activeTab = controlledTab ?? internalTab;
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  
   const handleTabChange = (tab: SearchTab) => {
     if (onTabChange) {
       onTabChange(tab);
@@ -30,46 +27,6 @@ export function HeroSection({
     }
   };
 
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
-    if (searchQuery.trim()) {
-      navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate(basePath);
-    }
-  };
-  const handleSuggestionSelect = (value: string, type: string, slug?: string) => {
-    setShowSuggestions(false);
-
-    // Navigate directly to listing page for MLS listing type
-    if (type === "listing" && slug) {
-      navigate(`/properties/${slug}`);
-      return;
-    }
-
-    // Navigate directly to presale project page
-    if ((type === "presale" || type === "project") && slug) {
-      navigate(`/presale-projects/${slug}`);
-      return;
-    }
-
-    // For cities and neighborhoods, go to search results
-    setSearchQuery(value);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/properties";
-    navigate(`${basePath}?q=${encodeURIComponent(value)}`);
-  };
   const handleCityClick = (city: string) => {
     const citySlug = city.toLowerCase().replace(/\s+/g, '-');
     if (activeTab === "projects") {
@@ -164,36 +121,15 @@ export function HeroSection({
               </Link>
             </div>
 
-            {/* Search Input */}
-            <form onSubmit={handleSearch}>
-              <div className="relative px-4 sm:px-5 py-3 sm:py-3.5" ref={searchContainerRef}>
-                <Input 
-                  type="text" 
-                  placeholder={activeTab === "projects" ? "Search projects, developers, neighbourhoods..." : "City, neighbourhood, address..."} 
-                  value={searchQuery} 
-                  onChange={e => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                  }} 
-                  onFocus={() => setShowSuggestions(true)} 
-                  className="h-11 sm:h-12 md:h-14 text-base sm:text-lg pl-5 pr-14 border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary rounded-xl transition-all duration-300" 
-                  autoComplete="off" 
-                />
-                <button 
-                  type="submit" 
-                  className="absolute right-6 sm:right-8 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 active:scale-95 transition-all rounded-full"
-                >
-                  <Search className="h-5 w-5" />
-                </button>
-                <SearchSuggestions 
-                  query={searchQuery} 
-                  onSelect={handleSuggestionSelect} 
-                  isVisible={showSuggestions} 
-                  onClose={() => setShowSuggestions(false)} 
-                  searchMode={activeTab} 
-                />
-              </div>
-            </form>
+            {/* PowerSearch - Unified Search */}
+            <div className="px-4 sm:px-5 py-3 sm:py-3.5">
+              <PowerSearch 
+                placeholder={activeTab === "projects" ? "Search projects, address, neighbourhood..." : "Address, MLS#, city, neighbourhood..."}
+                mode={activeTab === "projects" ? "presale" : "resale"}
+                variant="hero"
+                inputClassName="h-11 sm:h-12 md:h-14 text-base sm:text-lg border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary rounded-xl"
+              />
+            </div>
           </div>
 
           {/* Explore Map CTA - More prominent */}

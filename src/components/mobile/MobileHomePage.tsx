@@ -1,8 +1,7 @@
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Search, MapPin, Navigation, Map, Building2 } from "lucide-react";
-import { SuggestionType } from "@/components/home/SearchSuggestions";
+import { MapPin, Navigation, Map, Building2 } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -14,8 +13,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { Footer } from "@/components/layout/Footer";
-import { Input } from "@/components/ui/input";
-import { SearchSuggestions } from "@/components/home/SearchSuggestions";
+import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 import { SearchTab } from "@/components/home/HeroSection";
 
@@ -46,86 +44,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   };
   
   const [selectedCity, setSelectedCity] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSuggestions, setShowSuggestions] = useState(false);
-  const [showLocationOption, setShowLocationOption] = useState(false);
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  const searchContainerRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-
-  // Close suggestions when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
-        setShowSuggestions(false);
-        setShowLocationOption(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setShowSuggestions(false);
-    setShowLocationOption(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
-    if (searchQuery.trim()) {
-      navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
-    } else {
-      navigate(basePath);
-    }
-  };
-
-  const handleSearchFocus = () => {
-    setIsSearchFocused(true);
-    if (!searchQuery.trim()) {
-      setShowLocationOption(true);
-      setShowSuggestions(false);
-    } else {
-      setShowSuggestions(true);
-      setShowLocationOption(false);
-    }
-  };
-
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    if (value.trim()) {
-      setShowSuggestions(true);
-      setShowLocationOption(false);
-    } else {
-      setShowSuggestions(false);
-      setShowLocationOption(true);
-    }
-  };
-
-  const handleUseLocation = () => {
-    setShowLocationOption(false);
-    // Navigate to map page - it will auto-locate the user
-    navigate("/map-search");
-  };
-
-  const handleSuggestionSelect = (value: string, type: SuggestionType, slug?: string) => {
-    setSearchQuery(value);
-    setShowSuggestions(false);
-    setShowLocationOption(false);
-
-    if (activeTab === "projects") {
-      // Navigate directly to project detail if a presale project is selected
-      if (type === "presale" && slug) {
-        navigate(`/presale-projects/${encodeURIComponent(slug)}`);
-        return;
-      }
-      // For other types (city, neighborhood, developer), search the directory
-      navigate(`/presale-projects?q=${encodeURIComponent(value)}`);
-    } else {
-      // Resale mode - navigate to resale search
-      navigate(`/resale?q=${encodeURIComponent(value)}`);
-    }
-  };
 
   const handleCityClick = (slug: string) => {
     if (activeTab === "projects") {
@@ -194,57 +114,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </h1>
           
           {/* Search Container */}
-          <div 
-            ref={searchContainerRef}
-            className="w-full max-w-md relative"
-          >
-            {/* Search Input - Brand styled */}
-            <form onSubmit={handleSearch} className="relative">
-              <Input
-                type="text"
-                placeholder={activeTab === "projects" 
-                  ? "Search projects, developers..." 
-                  : "City, neighbourhood, address..."
-                }
-                value={searchQuery}
-                onChange={handleSearchChange}
-                onFocus={handleSearchFocus}
-                onBlur={() => setIsSearchFocused(false)}
-                className="h-14 text-base pl-4 pr-14 rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-muted-foreground"
-                autoComplete="off"
-              />
-              <button 
-                type="submit"
-                className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 flex items-center justify-center rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-md"
-              >
-                <Search className="h-5 w-5" />
-              </button>
-            </form>
-            
-            {/* Location Dropdown - Shows when search is focused and empty */}
-            {showLocationOption && (
-              <div className="absolute left-0 right-0 mt-2 bg-card rounded-xl shadow-xl border border-border/50 overflow-hidden z-50">
-                <button
-                  onClick={handleUseLocation}
-                  className="w-full flex items-center gap-3 px-4 py-4 hover:bg-muted/50 transition-colors text-left"
-                >
-                  <div className="w-10 h-10 rounded-full bg-primary/15 flex items-center justify-center">
-                    <Navigation className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <span className="font-medium text-foreground">Use my location</span>
-                    <p className="text-sm text-muted-foreground">Find homes near you</p>
-                  </div>
-                </button>
-              </div>
-            )}
-            
-            <SearchSuggestions
-              query={searchQuery}
-              onSelect={handleSuggestionSelect}
-              isVisible={showSuggestions}
-              onClose={() => setShowSuggestions(false)}
-              searchMode={activeTab}
+          <div className="w-full max-w-md">
+            <PowerSearch
+              placeholder={activeTab === "projects" 
+                ? "Search projects, address, neighbourhood..." 
+                : "Address, MLS#, city, neighbourhood..."
+              }
+              mode={activeTab === "projects" ? "presale" : "resale"}
+              variant="hero"
+              inputClassName="h-14 text-base rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
             />
           </div>
 
