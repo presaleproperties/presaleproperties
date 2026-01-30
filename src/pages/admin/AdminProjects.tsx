@@ -81,6 +81,8 @@ type Project = {
   brochure_files: string[] | null;
   floorplan_files: string[] | null;
   pricing_sheets: string[] | null;
+  seo_title: string | null;
+  seo_description: string | null;
 };
 
 type ProjectForGeocoding = {
@@ -137,7 +139,7 @@ export default function AdminProjects() {
     try {
       const { data, error } = await supabase
         .from("presale_projects")
-        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, updated_at, brochure_files, floorplan_files, pricing_sheets")
+        .select("id, name, slug, city, neighborhood, status, completion_year, is_featured, is_published, updated_at, brochure_files, floorplan_files, pricing_sheets, seo_title, seo_description")
         .order("updated_at", { ascending: false });
 
       if (error) throw error;
@@ -538,6 +540,7 @@ export default function AdminProjects() {
 
   // Helper functions for document status
   const hasDoc = (files: string[] | null) => files && files.length > 0;
+  const hasSeo = (project: Project) => project.seo_title && project.seo_title.trim() !== '' && project.seo_description && project.seo_description.trim() !== '';
   
   const filteredProjects = projects.filter(project => {
     const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -555,6 +558,8 @@ export default function AdminProjects() {
       matchesDocs = !hasDoc(project.floorplan_files);
     } else if (docsFilter === "missing_pricing") {
       matchesDocs = !hasDoc(project.pricing_sheets);
+    } else if (docsFilter === "missing_seo") {
+      matchesDocs = !hasSeo(project);
     } else if (docsFilter === "complete") {
       matchesDocs = hasDoc(project.brochure_files) && hasDoc(project.floorplan_files) && hasDoc(project.pricing_sheets);
     } else if (docsFilter === "incomplete") {
@@ -622,24 +627,48 @@ export default function AdminProjects() {
           </div>
         </div>
 
-        {/* Stats Bar */}
-        <div className="flex items-center gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <Building2 className="h-4 w-4 text-muted-foreground" />
+        {/* Stats Bar - Clickable Filters */}
+        <div className="flex items-center gap-4 text-sm flex-wrap">
+          <button 
+            onClick={() => setDocsFilter("all")}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
+              docsFilter === "all" 
+                ? "bg-primary/10 text-primary" 
+                : "hover:bg-muted"
+            )}
+          >
+            <Building2 className="h-4 w-4" />
             <span className="font-medium">{totalProjects}</span>
-            <span className="text-muted-foreground">Total Projects</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <FileText className="h-4 w-4 text-destructive" />
-            <span className="font-medium text-destructive">{missingBrochureCount}</span>
-            <span className="text-muted-foreground">Missing Brochure</span>
-          </div>
+            <span className="text-muted-foreground">Total</span>
+          </button>
+          <button 
+            onClick={() => setDocsFilter(docsFilter === "missing_brochure" ? "all" : "missing_brochure")}
+            className={cn(
+              "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
+              docsFilter === "missing_brochure" 
+                ? "bg-destructive/20 text-destructive ring-1 ring-destructive/30" 
+                : "hover:bg-destructive/10 text-destructive/80 hover:text-destructive"
+            )}
+          >
+            <FileText className="h-4 w-4" />
+            <span className="font-medium">{missingBrochureCount}</span>
+            <span>Missing Brochure</span>
+          </button>
           {seoMissingCount > 0 && (
-            <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-amber-500" />
-              <span className="font-medium text-amber-600">{seoMissingCount}</span>
-              <span className="text-muted-foreground">Missing SEO</span>
-            </div>
+            <button 
+              onClick={() => setDocsFilter(docsFilter === "missing_seo" ? "all" : "missing_seo")}
+              className={cn(
+                "flex items-center gap-2 px-3 py-1.5 rounded-full transition-colors",
+                docsFilter === "missing_seo" 
+                  ? "bg-amber-100 text-amber-700 ring-1 ring-amber-300" 
+                  : "hover:bg-amber-50 text-amber-600 hover:text-amber-700"
+              )}
+            >
+              <Sparkles className="h-4 w-4" />
+              <span className="font-medium">{seoMissingCount}</span>
+              <span>Missing SEO</span>
+            </button>
           )}
         </div>
 
@@ -695,6 +724,7 @@ export default function AdminProjects() {
               <SelectItem value="missing_brochure">Missing Brochure</SelectItem>
               <SelectItem value="missing_floorplan">Missing Floorplans</SelectItem>
               <SelectItem value="missing_pricing">Missing Pricing</SelectItem>
+              <SelectItem value="missing_seo">Missing SEO</SelectItem>
               <SelectItem value="incomplete">Any Missing</SelectItem>
               <SelectItem value="complete">All Complete</SelectItem>
             </SelectContent>
