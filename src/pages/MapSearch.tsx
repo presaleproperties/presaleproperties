@@ -1424,12 +1424,17 @@ export default function MapSearch() {
             {/* Positioned above safe area with enough clearance for tablets */}
             {!showCarousel && visibleItems.length > 0 && (
               <div 
-                className="absolute left-1/2 -translate-x-1/2 z-[1001] lg:hidden"
+                className="absolute left-1/2 -translate-x-1/2 z-[1001] lg:hidden pointer-events-auto"
                 style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
               >
                 <button
                   onClick={() => setShowCarousel(true)}
-                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform"
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowCarousel(true);
+                  }}
+                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform touch-manipulation"
                   aria-label="Show properties"
                 >
                   <span className="text-sm font-semibold text-foreground">{propertiesInViewCount} Properties</span>
