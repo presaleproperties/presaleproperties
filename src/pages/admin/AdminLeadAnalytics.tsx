@@ -63,6 +63,10 @@ export default function AdminLeadAnalytics() {
   const { data: projectLeads, isLoading } = useQuery({
     queryKey: ["admin-lead-analytics"],
     queryFn: async () => {
+      // Fetch last 90 days of leads for analytics (scalable limit)
+      const ninetyDaysAgo = new Date();
+      ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+      
       const { data, error } = await supabase
         .from("project_leads")
         .select(`
@@ -80,7 +84,9 @@ export default function AdminLeadAnalytics() {
           )
         `)
         .neq("name", "Newsletter Signup")
-        .order("created_at", { ascending: false });
+        .gte("created_at", ninetyDaysAgo.toISOString())
+        .order("created_at", { ascending: false })
+        .limit(5000);
 
       if (error) throw error;
       return data as ProjectLead[];

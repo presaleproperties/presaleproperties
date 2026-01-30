@@ -57,6 +57,7 @@ export default function AdminAgents() {
 
   const fetchAgents = async () => {
     try {
+      // Fetch all agent profiles
       const { data: agentProfiles, error } = await supabase
         .from("agent_profiles")
         .select("*")
@@ -64,18 +65,29 @@ export default function AdminAgents() {
 
       if (error) throw error;
 
-      // Fetch profiles for each agent
-      const agentsWithProfiles = await Promise.all(
-        (agentProfiles || []).map(async (agent) => {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("full_name, email, phone")
-            .eq("user_id", agent.user_id)
-            .single();
-          
-          return { ...agent, profile: profile || undefined };
-        })
+      if (!agentProfiles || agentProfiles.length === 0) {
+        setAgents([]);
+        setLoading(false);
+        return;
+      }
+
+      // Batch fetch all profiles in a single query (avoids N+1)
+      const userIds = agentProfiles.map(a => a.user_id);
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, full_name, email, phone")
+        .in("user_id", userIds);
+
+      // Create a map for quick lookup
+      const profileMap = new Map(
+        (profiles || []).map(p => [p.user_id, { full_name: p.full_name, email: p.email, phone: p.phone }])
       );
+
+      // Merge profiles with agents
+      const agentsWithProfiles = agentProfiles.map(agent => ({
+        ...agent,
+        profile: profileMap.get(agent.user_id)
+      }));
 
       setAgents(agentsWithProfiles);
     } catch (error) {
