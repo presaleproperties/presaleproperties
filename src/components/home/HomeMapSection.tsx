@@ -61,8 +61,9 @@ export function HomeMapSection() {
       return data;
     },
     enabled: shouldLoad,
-    staleTime: 10 * 60 * 1000, // Cache for 10 minutes
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - prevents refetch on back navigation
     gcTime: 30 * 60 * 1000, // Keep in cache for 30 minutes
+    refetchOnWindowFocus: false, // Don't refetch when returning to page
   });
 
   // Count projects with valid coordinates

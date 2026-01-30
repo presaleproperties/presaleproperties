@@ -512,13 +512,25 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     };
   }, [initializeMap]);
 
-  // Update markers when data or mode changes
+  // Track data changes to prevent unnecessary marker rebuilds
+  const dataHashRef = useRef<string>("");
+  
+  // Update markers when data or mode changes - optimized to minimize re-renders
   useEffect(() => {
     const map = mapInstanceRef.current;
     const clusterGroup = markerClusterRef.current;
     const presaleLayer = presaleLayerRef.current;
     const assignmentLayer = assignmentLayerRef.current;
     if (!map || !clusterGroup || !presaleLayer || !assignmentLayer) return;
+
+    // Create hash of current data to detect actual changes
+    const currentHash = `${mode}-${validResaleListings.length}-${validPresaleProjects.length}-${validAssignments.length}-${internalHighlightId || ''}-${highlightedItemId || ''}`;
+    
+    // Skip rebuild if data hasn't changed (performance optimization for back navigation)
+    if (currentHash === dataHashRef.current && resaleMarkersMapRef.current.size > 0) {
+      return;
+    }
+    dataHashRef.current = currentHash;
 
     clusterGroup.clearLayers();
     presaleLayer.clearLayers();
@@ -615,14 +627,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       });
     }
 
-    // Fit bounds on initial load
-    if (allCoords.length > 0 && !hasInitializedViewRef.current) {
+    // Fit bounds on initial load - ONLY if no saved state (don't override user's position)
+    if (allCoords.length > 0 && !hasInitializedViewRef.current && !hasRestoredSavedStateRef.current) {
       const bounds = L.latLngBounds(allCoords);
       map.fitBounds(bounds, { padding: [50, 50], maxZoom: 14 });
       hasInitializedViewRef.current = true;
+    } else if (hasRestoredSavedStateRef.current) {
+      // Mark as initialized but don't fit bounds - user's saved position is already set
+      hasInitializedViewRef.current = true;
     }
 
-    updateVisibleItems();
+    // Defer visible items update to next frame for smoother rendering
+    requestAnimationFrame(() => {
+      updateVisibleItems();
+    });
   }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, internalHighlightId, highlightedItemId, isVerifiedAgent, updateVisibleItems]);
 
   // Center on user location

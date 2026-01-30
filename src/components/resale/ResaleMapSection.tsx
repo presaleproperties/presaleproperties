@@ -83,8 +83,9 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
       return data;
     },
     enabled: shouldLoad,
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes - prevents refetch on back navigation
     gcTime: 15 * 60 * 1000, // Keep in cache for 15 minutes
+    refetchOnWindowFocus: false, // Don't refetch when returning to page
   });
 
   const validListings = listings?.filter(l => l.latitude && l.longitude) || [];

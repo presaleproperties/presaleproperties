@@ -677,10 +677,9 @@ export default function MapSearch() {
       
       return results;
     },
-    staleTime: 0,
-    refetchOnMount: "always",
-    refetchOnWindowFocus: true,
-    refetchInterval: 60 * 1000,
+    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes - prevents re-fetch on back navigation
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false, // Don't refetch when returning to page
   });
 
   // Fetch presale projects
@@ -714,7 +713,9 @@ export default function MapSearch() {
       
       return results;
     },
-    staleTime: 2 * 60 * 1000,
+    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false,
   });
 
   // Fetch assignments (listings table)
@@ -772,7 +773,9 @@ export default function MapSearch() {
       if (error) throw error;
       return data || [];
     },
-    staleTime: 2 * 60 * 1000,
+    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false,
   });
 
   const isLoading = resaleLoading || presaleLoading || assignmentsLoading;
