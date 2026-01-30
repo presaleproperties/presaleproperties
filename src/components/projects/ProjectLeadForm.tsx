@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Download, MessageCircle, X, ExternalLink, Mail } from "lucide-react";
+import { Send, CheckCircle, Download, MessageCircle, X, ExternalLink, Mail, FileText, LayoutGrid, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -51,6 +51,8 @@ interface ProjectLeadFormProps {
   projectName: string;
   status: "coming_soon" | "registering" | "active" | "sold_out";
   brochureUrl?: string | null;
+  floorplanUrl?: string | null;
+  pricingUrl?: string | null;
   leadSource?: "floor_plan_request" | "general_inquiry" | "scheduler";
   onClose?: () => void;
 }
@@ -72,7 +74,7 @@ const HOME_SIZES = [
   { value: "3_bed_plus", label: "3 Bed+" },
 ];
 
-export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, leadSource = "floor_plan_request", onClose }: ProjectLeadFormProps) {
+export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, floorplanUrl, pricingUrl, leadSource = "floor_plan_request", onClose }: ProjectLeadFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [whatsappNumber, setWhatsappNumber] = useState<string>("16722581100");
@@ -514,6 +516,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
 
   // Final success state (both desktop and mobile complete)
   if (isSubmitted || mobileStep === "complete") {
+    const hasAnyDocuments = brochureUrl || floorplanUrl || pricingUrl;
+    const isGoogleDriveLink = (url: string) => url.includes('drive.google.com') || url.includes('docs.google.com');
+    
     return (
       <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
         <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
@@ -523,47 +528,85 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, l
             </div>
             <div>
               <h3 className="text-xl font-bold text-background">You're All Set!</h3>
-              <p className="text-sm text-background/70">Check your email for pricing & floor plans.</p>
+              <p className="text-sm text-background/70">
+                {hasAnyDocuments ? "Access your documents below." : "Check your email for pricing & floor plans."}
+              </p>
             </div>
           </div>
         </div>
         
         <div className="p-5 space-y-3">
-          {brochureUrl && (
-            <Button
-              asChild
-              size="lg"
-              className="w-full h-14 text-base font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              <a 
-                href={brochureUrl} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                {...(!brochureUrl.includes('drive.google.com') && !brochureUrl.includes('docs.google.com') ? { download: true } : {})}
-              >
-                {brochureUrl.includes('drive.google.com') || brochureUrl.includes('docs.google.com') ? (
-                  <>
-                    <ExternalLink className="h-5 w-5 mr-2" />
-                    View Brochure
-                  </>
-                ) : (
-                  <>
-                    <Download className="h-5 w-5 mr-2" />
-                    Download Brochure
-                  </>
-                )}
-              </a>
-            </Button>
+          {/* Document Access Section */}
+          {hasAnyDocuments && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Your Documents</p>
+              
+              {floorplanUrl && (
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full h-12 text-sm font-semibold rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground"
+                >
+                  <a 
+                    href={floorplanUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <LayoutGrid className="h-4 w-4 mr-2" />
+                    {isGoogleDriveLink(floorplanUrl) ? "View Floor Plans" : "Download Floor Plans"}
+                    {isGoogleDriveLink(floorplanUrl) && <ExternalLink className="h-3 w-3 ml-1.5" />}
+                  </a>
+                </Button>
+              )}
+
+              {pricingUrl && (
+                <Button
+                  asChild
+                  size="lg"
+                  variant={floorplanUrl ? "outline" : "default"}
+                  className="w-full h-12 text-sm font-semibold rounded-xl"
+                >
+                  <a 
+                    href={pricingUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <DollarSign className="h-4 w-4 mr-2" />
+                    {isGoogleDriveLink(pricingUrl) ? "View Pricing Sheet" : "Download Pricing"}
+                    {isGoogleDriveLink(pricingUrl) && <ExternalLink className="h-3 w-3 ml-1.5" />}
+                  </a>
+                </Button>
+              )}
+
+              {brochureUrl && (
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="w-full h-12 text-sm font-semibold rounded-xl"
+                >
+                  <a 
+                    href={brochureUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    {isGoogleDriveLink(brochureUrl) ? "View Brochure" : "Download Brochure"}
+                    {isGoogleDriveLink(brochureUrl) && <ExternalLink className="h-3 w-3 ml-1.5" />}
+                  </a>
+                </Button>
+              )}
+            </div>
           )}
           
           <Button
             asChild
             size="lg"
-            variant={brochureUrl ? "outline" : "default"}
-            className={`w-full h-14 text-base font-semibold rounded-xl ${!brochureUrl ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
+            variant={hasAnyDocuments ? "secondary" : "default"}
+            className={`w-full h-12 text-sm font-semibold rounded-xl ${!hasAnyDocuments ? "bg-green-600 hover:bg-green-700 text-white" : ""}`}
           >
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-              <MessageCircle className="h-5 w-5 mr-2" />
+              <MessageCircle className="h-4 w-4 mr-2" />
               Chat with an Agent Now
             </a>
           </Button>
