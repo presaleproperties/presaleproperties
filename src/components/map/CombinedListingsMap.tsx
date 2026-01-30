@@ -837,8 +837,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
       
-      {/* Custom Controls */}
-      <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
+      {/* Custom Controls - Top on mobile/tablet to avoid carousel, bottom on desktop */}
+      <div className="absolute top-4 lg:top-auto lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={() => mapInstanceRef.current?.zoomIn()}
