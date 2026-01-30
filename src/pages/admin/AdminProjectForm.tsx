@@ -1525,6 +1525,87 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
     }));
   };
 
+  // Extract text from PDF URL and use AI to parse project details
+  const extractDetailsFromBrochure = async () => {
+    const brochureUrl = formData.brochure_files[0];
+    if (!brochureUrl) {
+      toast({
+        title: "No Brochure",
+        description: "Please upload a brochure PDF first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Google Drive links can't be parsed directly
+    if (brochureUrl.includes('drive.google.com') || brochureUrl.includes('docs.google.com')) {
+      toast({
+        title: "Google Drive Not Supported",
+        description: "AI extraction only works with uploaded PDFs. Please upload the PDF directly instead of using a Google Drive link.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsExtractingFromPdf(true);
+    try {
+      // Fetch the PDF
+      const response = await fetch(brochureUrl);
+      if (!response.ok) throw new Error('Failed to fetch brochure PDF');
+      
+      const arrayBuffer = await response.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      
+      // Extract text from all pages
+      let fullText = '';
+      for (let pageNum = 1; pageNum <= Math.min(pdf.numPages, 20); pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items
+          .map((item: any) => item.str)
+          .join(' ');
+        fullText += `\n--- Page ${pageNum} ---\n${pageText}`;
+      }
+
+      if (fullText.trim().length < 100) {
+        toast({
+          title: "Low Text Content",
+          description: "The brochure appears to be mostly images. AI may not extract much data.",
+          variant: "destructive",
+        });
+      }
+
+      // Call the parse-project-brochure edge function
+      const { data, error } = await supabase.functions.invoke('parse-project-brochure', {
+        body: {
+          documentText: fullText,
+          documentType: 'Brochure PDF',
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.success && data?.data) {
+        handleBrochureDataExtracted(data.data);
+        toast({
+          title: "Details Extracted",
+          description: "Project information has been updated from the brochure. Please review and save.",
+        });
+      } else {
+        throw new Error(data?.error || 'Failed to extract project data');
+      }
+    } catch (error: any) {
+      console.error('Error extracting from brochure:', error);
+      toast({
+        title: "Extraction Failed",
+        description: error.message || "Could not extract details from the brochure",
+        variant: "destructive",
+      });
+    } finally {
+      setIsExtractingFromPdf(false);
+    }
+  };
+
   const handleFloorplanUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
@@ -2786,31 +2867,61 @@ Highlights: ${formData.highlights.join(', ') || 'N/A'}
               </CardHeader>
               <CardContent className="space-y-4">
                 {formData.brochure_files.length > 0 ? (
-                  <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-8 w-8 text-primary" />
-                      <div>
-                        <p className="font-medium text-sm">
-                          {formData.brochure_files[0].includes('drive.google.com') ? 'Google Drive link added' : 'Brochure uploaded'}
-                        </p>
-                        <a 
-                          href={formData.brochure_files[0]} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline"
-                        >
-                          {formData.brochure_files[0].includes('drive.google.com') ? 'Open in Google Drive' : 'View PDF'}
-                        </a>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <FileText className="h-8 w-8 text-primary" />
+                        <div>
+                          <p className="font-medium text-sm">
+                            {formData.brochure_files[0].includes('drive.google.com') ? 'Google Drive link added' : 'Brochure uploaded'}
+                          </p>
+                          <a 
+                            href={formData.brochure_files[0]} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline"
+                          >
+                            {formData.brochure_files[0].includes('drive.google.com') ? 'Open in Google Drive' : 'View PDF'}
+                          </a>
+                        </div>
                       </div>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={removeBrochure}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <Button
-                      type="button"
-                      variant="destructive"
-                      size="sm"
-                      onClick={removeBrochure}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
+                    
+                    {/* AI Extract Details Button */}
+                    {!formData.brochure_files[0].includes('drive.google.com') && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full gap-2"
+                        onClick={extractDetailsFromBrochure}
+                        disabled={isExtractingFromPdf}
+                      >
+                        {isExtractingFromPdf ? (
+                          <>
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            Extracting Details...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="h-4 w-4" />
+                            AI Extract Project Details
+                          </>
+                        )}
+                      </Button>
+                    )}
+                    {formData.brochure_files[0].includes('drive.google.com') && (
+                      <p className="text-xs text-muted-foreground text-center">
+                        💡 Upload a PDF directly to enable AI extraction
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-4">
