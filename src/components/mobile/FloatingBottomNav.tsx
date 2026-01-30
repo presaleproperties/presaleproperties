@@ -47,19 +47,19 @@ export function FloatingBottomNav() {
         )}
         style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)' }}
       >
-        {/* Enhanced gradient for better visibility */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+        {/* Subtle gradient for visibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/40 to-transparent" />
         
-        <div className="relative flex items-center justify-center px-6 py-5 pb-5 pointer-events-auto">
+        <div className="relative flex items-center justify-center px-6 py-4 pointer-events-auto">
           {/* Search Button */}
           <button
             onClick={handleSearchClick}
             className={cn(
               "flex items-center gap-2 rounded-full",
-              "px-6 py-3.5",
-              "bg-white/15 backdrop-blur-xl border border-white/25 shadow-xl",
-              "text-white font-medium text-sm",
-              "hover:bg-white/25 active:scale-95 transition-all duration-150"
+              "px-5 py-3",
+              "bg-background/90 backdrop-blur-md border border-border/50 shadow-lg",
+              "text-foreground font-medium text-sm",
+              "hover:bg-background active:scale-95 transition-all duration-200"
             )}
           >
             <Search className="h-4 w-4" />
