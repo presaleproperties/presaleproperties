@@ -1,136 +1,124 @@
 
-# Lead Form Optimization Plan
+# Plan: Document Tracking for Presale Projects
 
-## Overview
-After analyzing the codebase, I found **10 distinct lead form types**. Per your requirements, I'll exclude **Floor Plan Request**, **Download List**, and **Scheduler** from optimization. This leaves **7 form types** to evaluate for consolidation.
-
-## Current Form Inventory
-
-| Form Type | Component | Purpose | Can Consolidate? |
-|-----------|-----------|---------|------------------|
-| `city_list_*` | AccessPackModal | Download city list | ❌ Protected |
-| `floor_plan_request` | ProjectLeadForm | Floor plans | ❌ Protected |
-| `scheduler` / `resale_tour` | ResaleScheduleForm | Book showings | ❌ Protected |
-| `sticky_bar` | AccessPackModal (fit_call) | Request callback | ✅ Already unified |
-| `header_inquiry` | AccessPackModal (fit_call) | Request callback | ✅ Already unified |
-| `callback_request` | AccessPackModal (fit_call) | Request callback | ✅ Already unified |
-| `roi_calculator` | ROILeadCapture | ROI report | ⚠️ Evaluate |
-| `mortgage_calculator` | MortgageCalculatorPage | Mortgage estimate | ⚠️ Evaluate |
-| `new_homes_page` | NewHomesLeadCapture | New homes interest | ⚠️ Evaluate |
-| `resale_inquiry` | ResaleScheduleForm | Ask a question | ⚠️ Evaluate |
-| `vip_membership` | VIPMembershipForm | VIP signup | ❌ Keep (unique) |
-| `exit_intent_guide` | ExitIntentPopup | Guide download | ❌ Keep (unique) |
-
-## Recommended Consolidations
-
-### 1. Create Unified "Calculator Lead Capture" Component
-**Merge:** `roi_calculator` + `mortgage_calculator`
-
-Both forms capture similar data (name, email, phone) with calculator results. Create a shared `CalculatorLeadCapture` component.
-
-**Files to modify:**
-- `src/components/roi/ROILeadCapture.tsx` → Extract to shared component
-- `src/pages/MortgageCalculatorPage.tsx` → Use shared component
-
-**Savings:** 1 form type eliminated
+## Summary
+Add the ability to track and manage **brochures, floor plans, and pricing sheets** for all presale projects, with visual indicators in the admin dashboard showing which documents are missing.
 
 ---
 
-### 2. Consolidate "General Interest" Forms
-**Merge:** `new_homes_page` + `resale_inquiry`
+## Changes Overview
 
-Both capture general interest for non-presale properties. The `NewHomesLeadCapture` (used only on /resale) could use the existing `AccessPackModal` with a new variant.
+### 1. Database Schema Update
+Add a new `pricing_sheets` column to store pricing document URLs.
 
-**Files to modify:**
-- `src/components/resale/NewHomesLeadCapture.tsx` → Replace with `AccessPackModal`
-- `src/components/conversion/AccessPackModal.tsx` → Add "general_interest" variant
-
-**Savings:** 1 form type eliminated
-
----
-
-### 3. Standardize Callback Forms (Already Done ✅)
-**Status:** `sticky_bar`, `header_inquiry`, and `callback_request` already use the same `AccessPackModal` component with different `source` values for tracking. No changes needed.
-
----
-
-## Form Architecture After Optimization
-
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                    LEAD CAPTURE FORMS                       │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────────────────────────────────────────────┐   │
-│  │           AccessPackModal (Unified)                  │   │
-│  │  • floorplans variant → Floor plans, City lists     │   │
-│  │  • fit_call variant → Callbacks (sticky/header)     │   │
-│  │  • general_interest variant → New homes interest    │   │
-│  └─────────────────────────────────────────────────────┘   │
-│                                                             │
-│  ┌───────────────────┐  ┌────────────────────────────┐     │
-│  │  ProjectLeadForm  │  │    ResaleScheduleForm      │     │
-│  │  (Project Detail) │  │  (Tour + Ask Question)     │     │
-│  └───────────────────┘  └────────────────────────────┘     │
-│                                                             │
-│  ┌───────────────────┐  ┌────────────────────────────┐     │
-│  │ CalculatorLeadCap │  │     ExitIntentPopup        │     │
-│  │ (ROI + Mortgage)  │  │    (Guide Download)        │     │
-│  └───────────────────┘  └────────────────────────────┘     │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐ │
-│  │              VIPMembershipForm (Unique)               │ │
-│  │         (Email verification, premium flow)            │ │
-│  └───────────────────────────────────────────────────────┘ │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+**Migration SQL:**
+```sql
+ALTER TABLE presale_projects 
+ADD COLUMN IF NOT EXISTS pricing_sheets text[];
 ```
 
-## Implementation Summary
+---
 
-| Task | Components Affected | Lines Changed | Impact |
-|------|---------------------|---------------|--------|
-| Create CalculatorLeadCapture | ROILeadCapture, MortgageCalculatorPage | ~150 lines | -1 form |
-| Add general_interest variant | AccessPackModal, NewHomesLeadCapture | ~80 lines | -1 form |
-| Update edge function mapping | send-project-lead | ~10 lines | Tracking |
+### 2. Admin Projects List (`AdminProjects.tsx`)
 
-## Final Form Count
+**Update Project Type:**
+- Add `brochure_files`, `floorplan_files`, and `pricing_sheets` fields
 
-**Before:** 10 distinct form types
-**After:** 8 distinct form types
-**Reduction:** 2 forms consolidated
+**Update Query:**
+- Fetch document fields in `fetchProjects()`
 
-## Technical Changes
+**Add Document Status Indicators:**
+Each project row will display three small badges showing document status:
+- ✓ Green check if document exists
+- ✗ Red X if missing
 
-### File 1: Create shared CalculatorLeadCapture component
-**Path:** `src/components/conversion/CalculatorLeadCapture.tsx`
+```
+Project Name                    [Docs: 📄✓ 📋✓ 💲✗]  [Active] [Published]
+Vancouver, Downtown              Updated Jan 30
+```
 
-A new reusable component that accepts:
-- `calculatorType: "roi" | "mortgage"`
-- `calculatorData: object` (the results to include in lead message)
-- `onSubmitSuccess: () => void`
+**Add "Documents" Filter:**
+New dropdown filter with options:
+- All Projects
+- Missing Brochure
+- Missing Floorplans  
+- Missing Pricing
+- Complete (all docs present)
 
-### File 2: Update ROILeadCapture
-**Path:** `src/components/roi/ROILeadCapture.tsx`
+---
 
-Replace with the new shared component, passing ROI-specific data.
+### 3. Admin Project Form (`AdminProjectForm.tsx`)
 
-### File 3: Update MortgageCalculatorPage
-**Path:** `src/pages/MortgageCalculatorPage.tsx`
+**Add Pricing Sheets Section:**
+- New card similar to Brochure and Floorplan cards
+- Support PDF upload to storage
+- Support Google Drive link paste
+- Remove functionality
 
-Replace inline form with shared component, passing mortgage-specific data.
+**Update Form Data:**
+- Add `pricing_sheets: string[]` to FormData type
+- Initialize as empty array
+- Include in save/load logic
 
-### File 4: Update AccessPackModal
-**Path:** `src/components/conversion/AccessPackModal.tsx`
+---
 
-Add new `variant: "general_interest"` option with appropriate copy and tracking.
+## Technical Details
 
-### File 5: Update NewHomesLeadCapture
-**Path:** `src/components/resale/NewHomesLeadCapture.tsx`
+### Files Modified:
+1. **Database Migration** - Add `pricing_sheets` column
+2. `src/pages/admin/AdminProjects.tsx` - Document indicators + filter
+3. `src/pages/admin/AdminProjectForm.tsx` - Pricing sheets upload UI
 
-Replace entire component with `AccessPackModal` using the new variant.
+### New State in AdminProjects.tsx:
+```typescript
+const [docsFilter, setDocsFilter] = useState<string>("all");
+// Options: "all" | "missing_brochure" | "missing_floorplan" | "missing_pricing" | "complete"
+```
 
-### File 6: Update Edge Function
-**Path:** `supabase/functions/send-project-lead/index.ts`
+### Updated Project Type:
+```typescript
+type Project = {
+  // ... existing fields
+  brochure_files: string[] | null;
+  floorplan_files: string[] | null;
+  pricing_sheets: string[] | null;
+};
+```
 
-Add mapping for new `calculator_lead` and `general_interest` source types.
+### Document Status Badge Component:
+```tsx
+const DocumentStatus = ({ has }: { has: boolean }) => (
+  <span className={has ? "text-green-500" : "text-red-400"}>
+    {has ? "✓" : "✗"}
+  </span>
+);
+```
+
+---
+
+## UI Preview
+
+**Project List Row:**
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ The Heights                          Docs: 📄✓ 📋✓ 💲✗              │
+│ 📍 Vancouver, Burnaby • 📅 2026     [Active] [Published]    [Edit] │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Filter Bar:**
+```
+[Search...] [City ▼] [Status ▼] [Published ▼] [Documents ▼]
+                                               ├─ All
+                                               ├─ Missing Brochure
+                                               ├─ Missing Floorplans
+                                               ├─ Missing Pricing
+                                               └─ Complete
+```
+
+---
+
+## Implementation Order
+1. Run database migration to add `pricing_sheets` column
+2. Update `AdminProjects.tsx` with document tracking and filtering
+3. Update `AdminProjectForm.tsx` with pricing sheet upload capability
