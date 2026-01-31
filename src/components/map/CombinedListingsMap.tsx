@@ -90,6 +90,7 @@ interface CombinedListingsMapProps {
   highlightedItemId?: string | null;
   highlightedItemType?: "resale" | "presale" | "assignment" | null;
   isVerifiedAgent?: boolean;
+  panelOpen?: boolean;
 }
 
 function formatPrice(price: number): string {
@@ -302,7 +303,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   savedMapState = null,
   highlightedItemId = null,
   highlightedItemType = null,
-  isVerifiedAgent = false
+  isVerifiedAgent = false,
+  panelOpen = false
 }, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -869,8 +871,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
       
-      {/* Custom Controls */}
-      <div className="absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5">
+      {/* Custom Controls - Shifts left when panel is open on desktop */}
+      <div 
+        className="absolute bottom-24 lg:bottom-6 z-[900] flex flex-col gap-1.5 transition-all duration-300"
+        style={{ right: panelOpen ? 'calc(420px + 24px)' : '12px' }}
+      >
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={() => mapInstanceRef.current?.zoomIn()}
