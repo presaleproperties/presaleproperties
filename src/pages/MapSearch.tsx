@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { 
   SlidersHorizontal, X, Map, LayoutGrid, 
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
-  Building, HomeIcon, Warehouse, DollarSign, Search, Navigation, Lock
+  Building, HomeIcon, Warehouse, DollarSign, Search, Navigation, Lock,
+  PanelRightClose, PanelRightOpen
 } from "lucide-react";
 
 // SEO: This page is NOINDEX - dynamic map/filter URLs should not be indexed
@@ -1382,6 +1383,20 @@ export default function MapSearch() {
                 resaleCount={filteredResaleListings?.length || 0}
               />
             </div>
+            
+            {/* Desktop: Panel Toggle Button - Right edge of map */}
+            <button
+              onClick={() => setShowList(!showList)}
+              className="hidden lg:flex absolute top-1/2 -translate-y-1/2 right-3 z-[1000] items-center justify-center w-8 h-16 rounded-lg bg-background/95 backdrop-blur-sm border border-border shadow-lg hover:bg-muted transition-colors"
+              aria-label={showList ? "Hide property list" : "Show property list"}
+              title={showList ? "Hide property list" : "Show property list"}
+            >
+              {showList ? (
+                <PanelRightClose className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <PanelRightOpen className="h-4 w-4 text-muted-foreground" />
+              )}
+            </button>
 
 
             <div className="absolute inset-0">
