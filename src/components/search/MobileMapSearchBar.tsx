@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Search, X, MapPin, Building2, Home, Hash, Navigation } from "lucide-react";
+import { Search, X, MapPin, Building2, Home, Hash, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
-interface SearchSuggestion {
-  type: "city" | "neighborhood" | "project" | "listing";
+export interface SearchSuggestion {
+  type: "city" | "neighborhood" | "project" | "listing" | "assignment";
   label: string;
   sublabel?: string;
   value: string;
@@ -32,6 +32,17 @@ interface PresaleProjectForSearch {
   map_lng?: number | null;
 }
 
+interface AssignmentForSearch {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood?: string | null;
+  assignment_price: number;
+  map_lat?: number | null;
+  map_lng?: number | null;
+}
+
 interface MobileMapSearchBarProps {
   searchQuery: string;
   onSearchChange: (value: string) => void;
@@ -42,6 +53,7 @@ interface MobileMapSearchBarProps {
   neighborhoods: { neighborhood: string; city: string }[];
   projects?: PresaleProjectForSearch[];
   listings?: MLSListingForSearch[];
+  assignments?: AssignmentForSearch[];
   homeButton?: React.ReactNode;
   filterButton?: React.ReactNode;
   listButton?: React.ReactNode;
@@ -57,6 +69,7 @@ export function MobileMapSearchBar({
   neighborhoods,
   projects = [],
   listings = [],
+  assignments = [],
   homeButton,
   filterButton,
   listButton,
@@ -85,7 +98,7 @@ export function MobileMapSearchBar({
     const cleanMLSQuery = q.replace(/^r/i, "");
     
     // Match MLS listings by listing_key (R#) or address - prioritize if R# search
-    if (isMLSSearch || q.length >= 3) {
+    if (isMLSSearch || q.length >= 2) {
       listings.forEach(l => {
         const listingId = l.listing_key.toLowerCase();
         const address = [l.street_number, l.street_name, l.street_suffix].filter(Boolean).join(" ").toLowerCase();
@@ -105,6 +118,33 @@ export function MobileMapSearchBar({
             city: l.city,
             lat: l.latitude ?? undefined,
             lng: l.longitude ?? undefined,
+          });
+        }
+      });
+    }
+
+    // Match Assignments (NEW!)
+    if (q.length >= 2) {
+      assignments.forEach(a => {
+        const titleLower = a.title.toLowerCase();
+        const projectLower = a.project_name.toLowerCase();
+        const cityLower = a.city.toLowerCase();
+        const neighborhoodLower = a.neighborhood?.toLowerCase() || "";
+        
+        if (
+          titleLower.includes(q) ||
+          projectLower.includes(q) ||
+          cityLower.includes(q) ||
+          neighborhoodLower.includes(q)
+        ) {
+          results.push({
+            type: "assignment",
+            label: a.title || a.project_name,
+            sublabel: `Assignment • ${a.city}${a.assignment_price ? ` • ${formatPrice(a.assignment_price)}` : ""}`,
+            value: a.id,
+            city: a.city,
+            lat: a.map_lat ?? undefined,
+            lng: a.map_lng ?? undefined,
           });
         }
       });
@@ -172,8 +212,8 @@ export function MobileMapSearchBar({
       });
     }
     
-    return results.slice(0, 8);
-  }, [searchQuery, cities, cityCoordinates, neighborhoods, projects, listings]);
+    return results.slice(0, 10);
+  }, [searchQuery, cities, cityCoordinates, neighborhoods, projects, listings, assignments]);
 
   // Close suggestions on outside click
   useEffect(() => {
@@ -229,6 +269,8 @@ export function MobileMapSearchBar({
         return <Building2 className="h-4 w-4 text-primary" />;
       case "listing":
         return <Hash className="h-4 w-4 text-primary" />;
+      case "assignment":
+        return <FileText className="h-4 w-4 text-amber-500" />;
     }
   };
 
@@ -238,6 +280,16 @@ export function MobileMapSearchBar({
       case "neighborhood": return "Area";
       case "project": return "Presale";
       case "listing": return "MLS";
+      case "assignment": return "Assignment";
+    }
+  };
+
+  const getTypeBadgeClass = (type: SearchSuggestion["type"]) => {
+    switch (type) {
+      case "listing": return "bg-accent text-accent-foreground";
+      case "project": return "bg-primary/10 text-primary";
+      case "assignment": return "bg-amber-500/10 text-amber-600";
+      default: return "bg-muted text-muted-foreground";
     }
   };
 
@@ -300,7 +352,10 @@ export function MobileMapSearchBar({
                     <div className="text-xs text-muted-foreground truncate">{suggestion.sublabel}</div>
                   )}
                 </div>
-                <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 bg-muted/50 px-2 py-1 rounded-md font-medium shrink-0">
+                <span className={cn(
+                  "text-[10px] uppercase tracking-wider px-2 py-1 rounded-md font-medium shrink-0",
+                  getTypeBadgeClass(suggestion.type)
+                )}>
                   {getTypeLabel(suggestion.type)}
                 </span>
               </button>
