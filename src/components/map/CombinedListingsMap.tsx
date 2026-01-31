@@ -676,13 +676,21 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
   }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, internalHighlightId, highlightedItemId, isVerifiedAgent, updateVisibleItems]);
 
-  // Center on user location
+  // Center on user location - only when no saved/URL state exists
   useEffect(() => {
-    if (!mapInstanceRef.current || !initialUserLocation || hasCenteredOnUserRef.current || hasRestoredSavedStateRef.current) return;
+    if (!mapInstanceRef.current || !initialUserLocation || hasCenteredOnUserRef.current) return;
+    
+    // CRITICAL: Don't center on user if we restored saved state OR have URL params
+    // This prevents the map from jumping when navigating back
+    if (hasRestoredSavedStateRef.current || savedMapState) {
+      console.log("Skipping user location centering - saved state exists");
+      hasCenteredOnUserRef.current = true;
+      return;
+    }
     
     mapInstanceRef.current.setView([initialUserLocation.lat, initialUserLocation.lng], 13, { animate: true });
     hasCenteredOnUserRef.current = true;
-  }, [initialUserLocation]);
+  }, [initialUserLocation, savedMapState]);
 
   return (
     <div className="relative w-full h-full bg-muted" style={{ contain: 'layout style paint', willChange: 'transform' }}>

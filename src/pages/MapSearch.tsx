@@ -349,15 +349,20 @@ export default function MapSearch() {
   }, [urlMode]);
   
   // Request user location on mount - but only if we don't have any map state context
+  // IMPORTANT: Skip geolocation entirely if we have saved state or URL params to prevent map jumping
   useEffect(() => {
     if (locationRequested) return;
-    if (effectiveMapState) {
-      // Skip geolocation if we have map state (from URL or saved) - user has explicit context
+    
+    // Skip geolocation if we have ANY map state context (prevents unwanted map movement on back-nav)
+    if (effectiveMapState || savedMapState || urlDerivedMapState) {
+      console.log("Skipping geolocation - map state exists");
       setLocationRequested(true);
       return;
     }
+    
     setLocationRequested(true);
     
+    // Only request location for completely fresh visits with no context
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -372,13 +377,13 @@ export default function MapSearch() {
           // User denied permission or location unavailable - map will use default view
         },
         { 
-          enableHighAccuracy: true, 
-          timeout: 10000, 
-          maximumAge: 60000 
+          enableHighAccuracy: false, // Use coarse location for faster response
+          timeout: 5000, // Shorter timeout
+          maximumAge: 300000 // Accept cached location for 5 minutes
         }
       );
     }
-  }, [locationRequested, savedMapState]);
+  }, [locationRequested, savedMapState, effectiveMapState, urlDerivedMapState]);
 
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
@@ -431,21 +436,44 @@ export default function MapSearch() {
     }, 100);
   }, []);
 
+  // Track if we're in initial load state to prevent auto-selection
+  const isInitialLoadRef = useRef(true);
+  useEffect(() => {
+    // Clear initial load flag after a short delay to allow map to stabilize
+    const timer = setTimeout(() => {
+      isInitialLoadRef.current = false;
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
+  
   const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => {
     // Skip update if user is interacting with the list (prevents card jumping)
     if (isListInteracting) return;
+    
+    // During initial load, don't update visible items (prevents unwanted selections)
+    if (isInitialLoadRef.current) return;
+    
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
     if (assignmentIds) setVisibleAssignmentIds(assignmentIds);
   }, [isListInteracting]);
 
   // Hide carousel when user starts panning/zooming the map on mobile
+  // IMPORTANT: Only hide on actual drag/pan gestures, not just touches (prevents accidental hiding)
+  const mapDragStartedRef = useRef(false);
   const handleMapInteraction = useCallback(() => {
-    if (isMobile) {
-      setShowCarousel(false);
-      setFocusedCarouselItemId(null); // Clear focus when map is interacted with
-      setFocusedCarouselItemType(null);
-    }
+    // Mark that a drag has started - we'll only hide carousel after actual movement
+    mapDragStartedRef.current = true;
+    
+    // Use a small delay to distinguish between tap and drag
+    setTimeout(() => {
+      if (mapDragStartedRef.current && isMobile) {
+        setShowCarousel(false);
+        setFocusedCarouselItemId(null);
+        setFocusedCarouselItemType(null);
+      }
+      mapDragStartedRef.current = false;
+    }, 150);
   }, [isMobile]);
 
   // Handle carousel scroll to detect centered item and fly map to it
@@ -1468,20 +1496,39 @@ export default function MapSearch() {
 
             {/* Show Carousel Button - When hidden - Premium Apple Maps style */}
             {/* Positioned above safe area with enough clearance for tablets */}
+            {/* CRITICAL: Uses a full-width invisible barrier to prevent click-through to map */}
             {!showCarousel && visibleItems.length > 0 && (
               <div 
-                className="absolute left-1/2 -translate-x-1/2 z-[1001] lg:hidden pointer-events-auto"
-                style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
+                className="absolute left-0 right-0 z-[1001] lg:hidden flex justify-center"
+                style={{ 
+                  bottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
+                  paddingBottom: '8px',
+                  paddingTop: '8px'
+                }}
+                // Prevent ANY touch/click from reaching the map beneath
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
               >
                 <button
-                  onClick={() => setShowCarousel(true)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowCarousel(true);
+                  }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                  }}
                   onTouchEnd={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     setShowCarousel(true);
                   }}
-                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform touch-manipulation"
+                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform touch-manipulation select-none"
                   aria-label="Show properties"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
                 >
                   <span className="text-sm font-semibold text-foreground">{propertiesInViewCount} Properties</span>
                   <ChevronUp className="h-4 w-4 text-muted-foreground" />
@@ -1490,19 +1537,41 @@ export default function MapSearch() {
             )}
 
             {/* Bottom Carousel - Mobile/Tablet - Compact floating cards */}
+            {/* CRITICAL: Entire carousel container captures touch events to prevent map interaction */}
             {showCarousel && visibleItems.length > 0 && (
               <div 
-                className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden pointer-events-none"
+                className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden"
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
               >
                 {/* Compact Carousel Header */}
-                <div className="flex items-center justify-between pb-1.5 pointer-events-auto" style={{ paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}>
+                <div 
+                  className="flex items-center justify-between pb-1.5" 
+                  style={{ 
+                    paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', 
+                    paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' 
+                  }}
+                >
                   <span className="text-xs font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-3 py-1.5 rounded-lg shadow-lg border border-black/5 dark:border-white/10">
                     {propertiesInViewCount} Properties
                   </span>
                   <button
-                    onClick={() => setShowCarousel(false)}
-                    className="w-8 h-8 rounded-lg bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowCarousel(false);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowCarousel(false);
+                    }}
+                    className="w-8 h-8 rounded-lg bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors select-none"
                     aria-label="Hide properties"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
                   >
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
                   </button>
@@ -1511,7 +1580,7 @@ export default function MapSearch() {
                 {/* Compact Carousel Cards */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory pointer-events-auto"
+                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
                 >
                   {visibleItems.map((item) => {
