@@ -1356,10 +1356,10 @@ export default function MapSearch() {
           activeFilterCount={activeFilterCount}
         />
 
-        {/* Main Content - Map + Panel Layout */}
+        {/* Main Content - Map + Floating Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
-          {/* Map Section - ~60% width when list is shown (REW-style ratio) */}
-          <div className={`relative transition-all duration-300 h-full w-full ${showList ? "lg:w-[60%]" : "lg:w-full"}`}>
+          {/* Map Section - Always full width, panel floats on top */}
+          <div className="relative h-full w-full">
             {/* Unified Mode Toggle - Floating on map */}
             {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
             <div 
@@ -1384,18 +1384,15 @@ export default function MapSearch() {
               />
             </div>
             
-            {/* Desktop: Panel Toggle Button - Right edge of map */}
+            {/* Desktop: Show Panel Button - appears when panel is hidden */}
             <button
-              onClick={() => setShowList(!showList)}
-              className="hidden lg:flex absolute top-1/2 -translate-y-1/2 right-3 z-[1000] items-center justify-center w-8 h-16 rounded-lg bg-background/95 backdrop-blur-sm border border-border shadow-lg hover:bg-muted transition-colors"
-              aria-label={showList ? "Hide property list" : "Show property list"}
-              title={showList ? "Hide property list" : "Show property list"}
+              onClick={() => setShowList(true)}
+              className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 right-3 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
+                showList ? "opacity-0 pointer-events-none translate-x-2" : "opacity-100 translate-x-0"
+              }`}
+              aria-label="Show property list"
             >
-              {showList ? (
-                <PanelRightClose className="h-4 w-4 text-muted-foreground" />
-              ) : (
-                <PanelRightOpen className="h-4 w-4 text-muted-foreground" />
-              )}
+              <PanelRightOpen className="h-3.5 w-3.5 text-muted-foreground" />
             </button>
 
 
@@ -1648,12 +1645,21 @@ export default function MapSearch() {
             )}
           </div>
 
-          {/* Desktop List Panel - ~40% width for REW-style layout */}
-          <div className={`hidden lg:flex flex-col border-l border-border bg-background transition-all duration-300 ease-out ${
-            showList ? "w-[40%] min-w-[420px] opacity-100" : "w-0 opacity-0 overflow-hidden"
+          {/* Desktop Floating List Panel */}
+          <div className={`hidden lg:flex flex-col absolute top-3 bottom-3 right-3 z-[1001] w-[420px] bg-background/95 backdrop-blur-md rounded-xl border border-border/50 shadow-xl transition-all duration-300 ease-out ${
+            showList ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
           }`}>
+            {/* Collapse button - minimal pill on left edge */}
+            <button
+              onClick={() => setShowList(false)}
+              className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-l-lg shadow-md flex items-center justify-center hover:bg-muted transition-colors"
+              aria-label="Hide property list"
+            >
+              <PanelRightClose className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
+            
             {/* Top Bar - Search + Filter + Quick Filters */}
-            <div className="shrink-0 border-b border-border bg-background relative z-50">
+            <div className="shrink-0 border-b border-border/50 bg-background/50 rounded-t-xl relative z-50">
               {/* Search Bar Row */}
               <div className="flex items-center gap-2 px-3 pt-3 pb-3">
                 {/* Search Bar */}
@@ -2008,7 +2014,7 @@ export default function MapSearch() {
             </div>
 
             {/* Scrollable Grid - REW-style sizing with our branding */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4 relative z-0">
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4 relative z-0 rounded-b-xl">
               <div className="grid grid-cols-2 gap-4">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
