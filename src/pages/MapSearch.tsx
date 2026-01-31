@@ -461,22 +461,30 @@ export default function MapSearch() {
   // Hide carousel when user starts panning/zooming the map on mobile
   // IMPORTANT: Only hide on actual drag/pan gestures, not just touches (prevents accidental hiding)
   const mapDragStartedRef = useRef(false);
+  const mapDragTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const handleMapInteraction = useCallback(() => {
     // Mark that a drag has started - we'll only hide carousel after actual movement
     mapDragStartedRef.current = true;
     
-    // Use a small delay to distinguish between tap and drag
-    setTimeout(() => {
+    // Clear any existing timeout
+    if (mapDragTimeoutRef.current) {
+      clearTimeout(mapDragTimeoutRef.current);
+    }
+    
+    // Use a longer delay on mobile to better distinguish tap from drag
+    const delayMs = isMobileOrTablet ? 250 : 150;
+    mapDragTimeoutRef.current = setTimeout(() => {
       if (mapDragStartedRef.current && isMobile) {
         setShowCarousel(false);
         setFocusedCarouselItemId(null);
         setFocusedCarouselItemType(null);
       }
       mapDragStartedRef.current = false;
-    }, 150);
-  }, [isMobile]);
+    }, delayMs);
+  }, [isMobile, isMobileOrTablet]);
 
-  // Handle carousel scroll to detect centered item and fly map to it
+  // Handle carousel scroll to detect centered item and update highlight
+  // IMPORTANT: On mobile, do NOT fly map - just update highlight state to prevent jitter
   const handleCarouselScroll = useCallback(() => {
     if (!carouselRef.current) return;
     
@@ -502,26 +510,31 @@ export default function MapSearch() {
     
     if (closestCard && closestDistance < 80) { // Within threshold
       const itemId = closestCard.getAttribute('data-item-id');
-      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale";
+      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale" | "assignment";
       
       if (itemId && itemId !== focusedCarouselItemId) {
         setFocusedCarouselItemId(itemId);
         setFocusedCarouselItemType(itemType);
         
-        // Fly map to this item's pin
-        if (mapNavigationRef.current) {
+        // On mobile/tablet: Do NOT call highlightItem (which flies the map)
+        // This prevents the jittery feedback loop between carousel scroll and map movement
+        // The pin highlight will be handled via the highlightedItemId prop instead
+        // Desktop still gets the fly-to behavior
+        if (!isMobileOrTablet && mapNavigationRef.current) {
           mapNavigationRef.current.highlightItem(itemId, itemType);
         }
       }
     }
-  }, [focusedCarouselItemId]);
+  }, [focusedCarouselItemId, isMobileOrTablet]);
 
-  // Debounced scroll handler
+  // Debounced scroll handler - longer debounce on mobile to prevent jitter
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const debouncedCarouselScroll = useCallback(() => {
     if (scrollTimeoutRef.current) clearTimeout(scrollTimeoutRef.current);
-    scrollTimeoutRef.current = setTimeout(handleCarouselScroll, 100);
-  }, [handleCarouselScroll]);
+    // Longer debounce on mobile for stability
+    const debounceMs = isMobileOrTablet ? 200 : 100;
+    scrollTimeoutRef.current = setTimeout(handleCarouselScroll, debounceMs);
+  }, [handleCarouselScroll, isMobileOrTablet]);
 
   // Attach scroll listener to carousel
   useEffect(() => {
@@ -1275,7 +1288,9 @@ export default function MapSearch() {
     return buildGridUrlFromMapFilters(searchParams, basePath);
   }, [searchParams, mapMode]);
 
-  const LoadingMap = () => (
+  // Loading map element - using a constant JSX element instead of a function component
+  // to avoid the "Function components cannot be given refs" warning from Suspense
+  const loadingMapElement = (
     <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center">
       <div className="text-center text-muted-foreground">
         <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
@@ -1458,9 +1473,9 @@ export default function MapSearch() {
 
             <div className="absolute inset-0">
               <SafeMapWrapper height="h-full">
-                <Suspense fallback={<LoadingMap />}>
+                <Suspense fallback={loadingMapElement}>
                   {isLoading ? (
-                    <LoadingMap />
+                    loadingMapElement
                   ) : totalCount === 0 ? (
                     <div className="h-full w-full bg-muted flex items-center justify-center">
                       <div className="text-center text-muted-foreground p-6">
