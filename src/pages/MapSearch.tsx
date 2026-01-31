@@ -36,7 +36,6 @@ import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { MobileMapFilters } from "@/components/map/MobileMapFilters";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
-import { MobilePropertyPreview } from "@/components/map/MobilePropertyPreview";
 import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -226,13 +225,6 @@ export default function MapSearch() {
   const [locationRequested, setLocationRequested] = useState(false);
   const [isListInteracting, setIsListInteracting] = useState(false);
   
-  // Mobile/Tablet: Photo-first property preview state
-  const [previewItem, setPreviewItem] = useState<{
-    type: "resale" | "presale" | "assignment";
-    data: MLSListing | PresaleProject | Assignment;
-  } | null>(null);
-  const [previewOpen, setPreviewOpen] = useState(false);
-  
   // Save UI state to sessionStorage whenever it changes
   const saveUIStateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   useEffect(() => {
@@ -418,44 +410,23 @@ export default function MapSearch() {
     staleTime: 10 * 60 * 1000,
   });
 
-  // Refs to hold current data for use in callbacks (avoids stale closures)
-  const resaleListingsRef = useRef<MLSListing[]>([]);
-  const presaleProjectsRef = useRef<PresaleProject[]>([]);
-  const assignmentsRef = useRef<Assignment[]>([]);
-
   // handleItemSelect is called when a PIN on the map is clicked
-  // On mobile/tablet: Opens the photo-first preview directly (single tap)
-  // On desktop: Scrolls the list to show the selected card
+  // It should scroll the list to show the selected card
   const handleItemSelect = useCallback((id: string, type: "resale" | "presale" | "assignment") => {
     setSelectedItemId(id);
     setSelectedItemType(type);
-    
-    // Mobile/Tablet: Open the full-screen photo-first preview
-    if (isMobileOrTablet) {
-      // Find the item data based on type and id
-      let itemData: MLSListing | PresaleProject | Assignment | undefined;
-      
-      if (type === "resale") {
-        itemData = resaleListingsRef.current.find(l => l.id === id);
-      } else if (type === "presale") {
-        itemData = presaleProjectsRef.current.find(p => p.id === id);
-      } else if (type === "assignment") {
-        itemData = assignmentsRef.current.find(a => a.id === id);
-      }
-      
-      if (itemData) {
-        setPreviewItem({ type, data: itemData });
-        setPreviewOpen(true);
-      }
-      return;
-    }
-    
-    // Desktop: Focus and scroll to card in list
     setFocusedCarouselItemId(id);
     setFocusedCarouselItemType(type);
+    setShowCarousel(true);
     
-    // Scroll to the card in list (only when clicking from MAP, not from list)
+    // Scroll to the card in carousel/list (only when clicking from MAP, not from list)
     setTimeout(() => {
+      if (carouselRef.current) {
+        const cardElement = carouselRef.current.querySelector(`[data-item-id="${id}"]`);
+        if (cardElement) {
+          cardElement.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+      }
       if (desktopListRef.current) {
         const cardElement = desktopListRef.current.querySelector(`[data-item-id="${id}"]`);
         if (cardElement) {
@@ -463,7 +434,7 @@ export default function MapSearch() {
         }
       }
     }, 100);
-  }, [isMobileOrTablet]);
+  }, []);
 
   // Track if we're in initial load state to prevent auto-selection
   const isInitialLoadRef = useRef(true);
@@ -903,19 +874,6 @@ export default function MapSearch() {
                      (presaleProjects && presaleProjects.length > 0) || 
                      (assignments && assignments.length > 0);
   const isLoading = !hasAnyData && (resaleLoading || presaleLoading || assignmentsLoading);
-
-  // Keep refs in sync with data for handleItemSelect callback
-  useEffect(() => {
-    if (resaleListings) resaleListingsRef.current = resaleListings;
-  }, [resaleListings]);
-  
-  useEffect(() => {
-    if (presaleProjects) presaleProjectsRef.current = presaleProjects;
-  }, [presaleProjects]);
-  
-  useEffect(() => {
-    if (assignments) assignmentsRef.current = assignments;
-  }, [assignments]);
 
   const filteredResaleListings = useMemo(() => {
     if (!resaleListings) return [];
@@ -2228,17 +2186,6 @@ export default function MapSearch() {
           </div>
         </div>
       </div>
-      
-      {/* Mobile/Tablet: Photo-first Property Preview */}
-      <MobilePropertyPreview 
-        item={previewItem}
-        isOpen={previewOpen}
-        onClose={() => {
-          setPreviewOpen(false);
-          setPreviewItem(null);
-        }}
-        isVerifiedAgent={isVerifiedAgent}
-      />
     </>
   );
 }
