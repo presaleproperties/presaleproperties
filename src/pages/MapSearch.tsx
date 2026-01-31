@@ -1654,7 +1654,7 @@ export default function MapSearch() {
           </div>
 
           {/* Desktop Floating List Panel - Redesigned Premium UI */}
-          <div className={`hidden lg:flex flex-col absolute top-2 bottom-2 right-2 z-[1001] w-[420px] bg-background/90 backdrop-blur-xl rounded-2xl border border-border/30 shadow-2xl transition-all duration-300 ease-out overflow-visible ${
+          <div className={`hidden lg:flex flex-col absolute top-2 bottom-2 right-2 z-[1001] w-[440px] bg-background/90 backdrop-blur-xl rounded-2xl border border-border/30 shadow-2xl transition-all duration-300 ease-out overflow-visible ${
             showList ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
           }`}>
             {/* Collapse button - minimal pill on left edge */}
@@ -1872,8 +1872,8 @@ export default function MapSearch() {
                 </Sheet>
               </div>
               
-              {/* Compact Quick Filters - Single Row */}
-              <div className="flex items-center gap-1.5 pb-2 relative z-[100]">
+              {/* Compact Quick Filters - Equal Width Grid */}
+              <div className="grid grid-cols-5 gap-1.5 pb-2.5 relative z-[100]">
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
                   selected={selectedCities}
@@ -1881,7 +1881,7 @@ export default function MapSearch() {
                   placeholder="City"
                   icon={MapPin}
                   allLabel="City"
-                  className="flex-1 [&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between"
+                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
                 />
                 
                 <MultiSelectFilter
@@ -1895,7 +1895,7 @@ export default function MapSearch() {
                   placeholder="Type"
                   icon={Home}
                   allLabel="Type"
-                  className="flex-1 [&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between"
+                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
                 />
                 
                 <MultiSelectFilter
@@ -1905,56 +1905,65 @@ export default function MapSearch() {
                   placeholder="Price"
                   icon={DollarSign}
                   allLabel="Price"
-                  className="flex-1 [&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between"
+                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
                 />
                 
-                {/* Compact Bed/Bath */}
+                {/* Bed Filter */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
                   <SelectTrigger className={cn(
-                    "h-7 text-[11px] w-[52px] font-normal rounded-md border bg-background px-1.5 [&>svg]:h-3 [&>svg]:w-3",
+                    "h-7 text-[11px] w-full font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3 justify-between",
                     filters.beds !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="truncate">{filters.beds === "any" ? "Bed" : filters.beds === "0" ? "0" : `${filters.beds}+`}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+ Bed`}</span>
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
                     {BED_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                        {opt.value === "any" ? "Any" : opt.label}
+                        {opt.value === "any" ? "Any Beds" : opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 
+                {/* Bath Filter */}
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
                   <SelectTrigger className={cn(
-                    "h-7 text-[11px] w-[52px] font-normal rounded-md border bg-background px-1.5 [&>svg]:h-3 [&>svg]:w-3",
+                    "h-7 text-[11px] w-full font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3 justify-between",
                     filters.baths !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span className="truncate">{filters.baths === "any" ? "Bath" : `${filters.baths}+`}</span>
+                    <span className="flex items-center gap-1.5">
+                      <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
+                      <span className="truncate">{filters.baths === "any" ? "Baths" : `${filters.baths}+ Bath`}</span>
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
                     {BATH_OPTIONS.map((opt) => (
                       <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                        {opt.value === "any" ? "Any" : `${opt.label}`}
+                        {opt.value === "any" ? "Any Baths" : `${opt.label}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                
-                {activeFilterCount > 0 && (
+              </div>
+              
+              {/* Clear filters button - separate row when active */}
+              {activeFilterCount > 0 && (
+                <div className="pb-2">
                   <button 
                     onClick={() => {
                       clearAllFilters();
                       setPriceRange([MIN_PRICE, MAX_PRICE]);
                     }}
-                    className="h-7 px-1 text-muted-foreground hover:text-foreground"
+                    className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1"
                   >
                     <X className="h-3 w-3" />
+                    Clear filters
                   </button>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Compact Results Bar */}
