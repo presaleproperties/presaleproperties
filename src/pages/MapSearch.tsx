@@ -1378,7 +1378,7 @@ export default function MapSearch() {
             <div 
               className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
               style={{ 
-                left: showList ? 'calc(50% - 210px)' : '50%',
+                left: showList ? 'calc(50% - 230px)' : '50%',
                 transform: 'translateX(-50%)'
               }}
             >
@@ -1396,7 +1396,7 @@ export default function MapSearch() {
               className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
                 showList ? "opacity-0 pointer-events-none" : "opacity-100"
               }`}
-              style={{ right: showList ? 'calc(420px + 24px)' : '12px' }}
+              style={{ right: showList ? 'calc(460px + 24px)' : '12px' }}
               aria-label="Show property list"
             >
               <PanelRightOpen className="h-3.5 w-3.5 text-muted-foreground" />
@@ -1654,7 +1654,7 @@ export default function MapSearch() {
           </div>
 
           {/* Desktop Floating List Panel */}
-          <div className={`hidden lg:flex flex-col absolute top-3 bottom-3 right-3 z-[1001] w-[420px] bg-background/95 backdrop-blur-md rounded-xl border border-border/50 shadow-xl transition-all duration-300 ease-out ${
+          <div className={`hidden lg:flex flex-col absolute top-3 bottom-3 right-3 z-[1001] w-[460px] bg-background/95 backdrop-blur-md rounded-xl border border-border/50 shadow-xl transition-all duration-300 ease-out ${
             showList ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
           }`}>
             {/* Collapse button - minimal pill on left edge */}
@@ -1875,7 +1875,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-2 px-3 pb-2.5 relative z-50">
+              <div className="flex items-center gap-1.5 px-3 pb-2.5 relative z-50 overflow-x-auto scrollbar-hide">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}

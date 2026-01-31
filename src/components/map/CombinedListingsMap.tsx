@@ -874,7 +874,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       {/* Custom Controls - Shifts left when panel is open on desktop */}
       <div 
         className="absolute bottom-24 lg:bottom-6 z-[900] flex flex-col gap-1.5 transition-all duration-300"
-        style={{ right: panelOpen ? 'calc(420px + 24px)' : '12px' }}
+        style={{ right: panelOpen ? 'calc(460px + 24px)' : '12px' }}
       >
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
