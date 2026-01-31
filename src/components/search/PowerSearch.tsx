@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Search, X, MapPin, Building2, Home, Hash, TrendingUp, Loader2, ArrowRight } from "lucide-react";
+import { Search, X, MapPin, Building2, Home, Hash, FileText, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { getListingUrl } from "@/lib/propertiesUrls";
 
-export type SearchResultType = "listing" | "presale" | "city" | "neighborhood" | "address";
+export type SearchResultType = "listing" | "presale" | "assignment" | "city" | "neighborhood";
 
 export interface SearchResult {
   id: string;
@@ -17,6 +17,8 @@ export interface SearchResult {
   price?: number;
   image?: string;
   url: string;
+  lat?: number;
+  lng?: number;
   meta?: {
     beds?: number;
     baths?: number;
@@ -34,7 +36,7 @@ interface PowerSearchProps {
   onResultSelect?: (result: SearchResult) => void;
   showRecent?: boolean;
   maxResults?: number;
-  mode?: "all" | "presale" | "resale";
+  mode?: "all" | "presale" | "resale" | "assignments";
   variant?: "default" | "hero" | "compact";
 }
 
@@ -54,7 +56,7 @@ export function PowerSearch({
   autoFocus = false,
   onResultSelect,
   showRecent = true,
-  maxResults = 8,
+  maxResults = 10,
   mode = "all",
   variant = "default",
 }: PowerSearchProps) {
@@ -72,7 +74,7 @@ export function PowerSearch({
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setDebouncedQuery(query);
-    }, 200);
+    }, 150); // Faster debounce for snappier UX
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
@@ -89,50 +91,49 @@ export function PowerSearch({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Search query - unified across all sources
+  // Unified search query - uses database-level search
   const { data: results = [], isLoading } = useQuery({
-    queryKey: ["power-search", debouncedQuery, mode],
+    queryKey: ["power-search-v2", debouncedQuery, mode],
     queryFn: async (): Promise<SearchResult[]> => {
       if (!debouncedQuery || debouncedQuery.length < 2) return [];
 
-      const q = debouncedQuery.toLowerCase().trim();
+      const q = debouncedQuery.trim();
+      const qLower = q.toLowerCase();
       const searchResults: SearchResult[] = [];
       
       // Check if searching for MLS# (R followed by digits or just digits)
       const isMLSSearch = /^r?\d{5,}$/i.test(q);
-      const cleanMLSQuery = q.replace(/^r/i, "");
+      const cleanMLSQuery = q.replace(/^r/i, "").toUpperCase();
 
-      // 1. Search MLS Listings (resale properties)
+      // Run all searches in parallel for speed
+      const promises: Promise<void>[] = [];
+
+      // 1. Search MLS Listings (resale properties) - DATABASE LEVEL
       if (mode === "all" || mode === "resale") {
-        const { data: listings } = await supabase
-          .from("mls_listings")
-          .select(`
-            id, listing_key, listing_price, city, neighborhood,
-            street_number, street_name, street_suffix, unit_number,
-            bedrooms_total, bathrooms_total, living_area,
-            property_type, property_sub_type, photos
-          `)
-          .eq("mls_status", "Active")
-          .limit(500);
+        const mlsPromise = (async () => {
+          let query = supabase
+            .from("mls_listings")
+            .select(`
+              id, listing_key, listing_price, city, neighborhood,
+              street_number, street_name, street_suffix, unit_number,
+              bedrooms_total, bathrooms_total, living_area,
+              property_type, property_sub_type, photos, latitude, longitude
+            `)
+            .eq("mls_status", "Active");
 
-        listings?.forEach((l) => {
-          const listingKey = l.listing_key?.toLowerCase() || "";
-          const address = [l.street_number, l.street_name, l.street_suffix].filter(Boolean).join(" ");
-          const fullAddress = l.unit_number ? `#${l.unit_number} - ${address}` : address;
-          const addressLower = fullAddress.toLowerCase();
-          const cityLower = l.city?.toLowerCase() || "";
-          const neighborhoodLower = l.neighborhood?.toLowerCase() || "";
+          if (isMLSSearch) {
+            // Search by MLS number (listing_key contains R + number)
+            query = query.ilike("listing_key", `%${cleanMLSQuery}%`);
+          } else {
+            // Search by address, city, or neighborhood using database ILIKE
+            query = query.or(`street_name.ilike.%${q}%,city.ilike.%${q}%,neighborhood.ilike.%${q}%,street_number.ilike.%${q}%`);
+          }
 
-          // Match by MLS number
-          const matchesMLS = isMLSSearch && listingKey.includes(cleanMLSQuery);
-          // Match by address
-          const matchesAddress = !isMLSSearch && (
-            addressLower.includes(q) || 
-            cityLower.includes(q) || 
-            neighborhoodLower.includes(q)
-          );
+          const { data: listings } = await query.limit(isMLSSearch ? 20 : 15);
 
-          if (matchesMLS || matchesAddress) {
+          listings?.forEach((l) => {
+            const address = [l.street_number, l.street_name, l.street_suffix].filter(Boolean).join(" ");
+            const fullAddress = l.unit_number ? `#${l.unit_number} - ${address}` : address;
             let photo: string | undefined;
             if (l.photos && Array.isArray(l.photos) && l.photos.length > 0) {
               const firstPhoto = l.photos[0] as { MediaURL?: string };
@@ -146,8 +147,10 @@ export function PowerSearch({
               title: fullAddress || l.listing_key,
               subtitle: `${l.listing_key} • ${l.city}`,
               price: l.listing_price,
-              image: photo || undefined,
+              image: photo,
               url,
+              lat: l.latitude ?? undefined,
+              lng: l.longitude ?? undefined,
               meta: {
                 beds: l.bedrooms_total || undefined,
                 baths: l.bathrooms_total || undefined,
@@ -156,30 +159,25 @@ export function PowerSearch({
                 city: l.city,
               },
             });
-          }
-        });
+          });
+        })();
+        promises.push(mlsPromise);
       }
 
-      // 2. Search Presale Projects
+      // 2. Search Presale Projects - DATABASE LEVEL
       if (mode === "all" || mode === "presale") {
-        const { data: projects } = await supabase
-          .from("presale_projects")
-          .select(`
-            id, name, slug, city, neighborhood, 
-            starting_price, featured_image, project_type, status
-          `)
-          .eq("is_published", true);
+        const presalePromise = (async () => {
+          const { data: projects } = await supabase
+            .from("presale_projects")
+            .select(`
+              id, name, slug, city, neighborhood, 
+              starting_price, featured_image, project_type, status, map_lat, map_lng
+            `)
+            .eq("is_published", true)
+            .or(`name.ilike.%${q}%,city.ilike.%${q}%,neighborhood.ilike.%${q}%`)
+            .limit(10);
 
-        projects?.forEach((p) => {
-          const nameLower = p.name.toLowerCase();
-          const cityLower = p.city.toLowerCase();
-          const neighborhoodLower = p.neighborhood?.toLowerCase() || "";
-
-          if (
-            nameLower.includes(q) ||
-            cityLower.includes(q) ||
-            neighborhoodLower.includes(q)
-          ) {
+          projects?.forEach((p) => {
             searchResults.push({
               id: p.id,
               type: "presale",
@@ -188,47 +186,82 @@ export function PowerSearch({
               price: p.starting_price || undefined,
               image: p.featured_image || undefined,
               url: `/presale-projects/${p.slug}`,
+              lat: p.map_lat ?? undefined,
+              lng: p.map_lng ?? undefined,
               meta: {
                 propertyType: p.project_type,
                 city: p.city,
               },
             });
-          }
-        });
+          });
+        })();
+        promises.push(presalePromise);
       }
 
-      // 3. Aggregate cities and neighborhoods for quick filters
-      const cityMap = new Map<string, number>();
-      const neighborhoodMap = new Map<string, { count: number; city: string }>();
+      // 3. Search Assignments - DATABASE LEVEL (NEW!)
+      if (mode === "all" || mode === "assignments") {
+        const assignmentPromise = (async () => {
+          const { data: assignments } = await supabase
+            .from("listings")
+            .select(`
+              id, title, project_name, city, neighborhood, 
+              assignment_price, beds, baths, map_lat, map_lng, status
+            `)
+            .eq("status", "published")
+            .or(`title.ilike.%${q}%,project_name.ilike.%${q}%,city.ilike.%${q}%,neighborhood.ilike.%${q}%`)
+            .limit(10);
 
+          assignments?.forEach((a) => {
+            searchResults.push({
+              id: a.id,
+              type: "assignment",
+              title: a.title || a.project_name,
+              subtitle: `${a.neighborhood || ""} ${a.neighborhood ? "•" : ""} ${a.city}`.trim(),
+              price: a.assignment_price || undefined,
+              url: `/assignments/${a.id}`,
+              lat: a.map_lat ?? undefined,
+              lng: a.map_lng ?? undefined,
+              meta: {
+                beds: a.beds || undefined,
+                baths: a.baths || undefined,
+                city: a.city,
+              },
+            });
+          });
+        })();
+        promises.push(assignmentPromise);
+      }
+
+      // Wait for all searches to complete
+      await Promise.all(promises);
+
+      // 4. Add city suggestions for matching cities
+      const matchedCities = new Set<string>();
       searchResults.forEach((r) => {
-        if (r.meta?.city) {
-          const city = r.meta.city;
-          const cityLower = city.toLowerCase();
-          if (cityLower.includes(q)) {
-            cityMap.set(city, (cityMap.get(city) || 0) + 1);
-          }
+        if (r.meta?.city && r.meta.city.toLowerCase().includes(qLower)) {
+          matchedCities.add(r.meta.city);
         }
       });
 
-      // Add city suggestions
       const cityResults: SearchResult[] = [];
-      cityMap.forEach((count, city) => {
-        if (count >= 2 && !searchResults.some(r => r.type === "city" && r.title === city)) {
+      matchedCities.forEach((city) => {
+        // Only add if there are multiple results for this city and query closely matches city name
+        const cityCount = searchResults.filter(r => r.meta?.city === city).length;
+        if (cityCount >= 2 && city.toLowerCase().startsWith(qLower.slice(0, 3))) {
           cityResults.push({
             id: `city-${city}`,
             type: "city",
             title: city,
-            subtitle: `${count} properties`,
+            subtitle: `${cityCount} properties`,
             url: `/map-search?city=${encodeURIComponent(city)}`,
           });
         }
       });
 
-      // Sort results: exact matches first, then by price
+      // Sort results: exact matches first, then by relevance
       const sortedResults = [...searchResults].sort((a, b) => {
-        const aExact = a.title.toLowerCase().startsWith(q) ? 0 : 1;
-        const bExact = b.title.toLowerCase().startsWith(q) ? 0 : 1;
+        const aExact = a.title.toLowerCase().startsWith(qLower) ? 0 : 1;
+        const bExact = b.title.toLowerCase().startsWith(qLower) ? 0 : 1;
         if (aExact !== bExact) return aExact - bExact;
         
         // MLS listings first if MLS search
@@ -331,27 +364,40 @@ export function PowerSearch({
         return <Home className="h-4 w-4 text-primary" />;
       case "presale":
         return <Building2 className="h-4 w-4 text-primary" />;
+      case "assignment":
+        return <FileText className="h-4 w-4 text-amber-500" />;
       case "city":
         return <MapPin className="h-4 w-4 text-muted-foreground" />;
       case "neighborhood":
         return <MapPin className="h-4 w-4 text-muted-foreground" />;
-      case "address":
-        return <Hash className="h-4 w-4 text-primary" />;
     }
   };
 
   const getTypeLabel = (type: SearchResultType) => {
     switch (type) {
       case "listing":
-        return "Resale";
+        return "MLS";
       case "presale":
         return "Presale";
+      case "assignment":
+        return "Assignment";
       case "city":
         return "City";
       case "neighborhood":
         return "Area";
-      case "address":
-        return "Address";
+    }
+  };
+
+  const getTypeBadgeClass = (type: SearchResultType) => {
+    switch (type) {
+      case "listing":
+        return "bg-accent text-accent-foreground";
+      case "presale":
+        return "bg-primary/10 text-primary";
+      case "assignment":
+        return "bg-amber-500/10 text-amber-600";
+      default:
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -448,9 +494,7 @@ export function PowerSearch({
                       <p className="font-medium text-sm truncate">{result.title}</p>
                       <span className={cn(
                         "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0",
-                        result.type === "presale" ? "bg-primary/10 text-primary" :
-                        result.type === "listing" ? "bg-accent text-accent-foreground" :
-                        "bg-muted text-muted-foreground"
+                        getTypeBadgeClass(result.type)
                       )}>
                         {getTypeLabel(result.type)}
                       </span>
@@ -483,17 +527,17 @@ export function PowerSearch({
             </div>
           )}
 
-          {/* View All Results Link */}
-          {query.length >= 2 && displayResults.length > 0 && (
+          {/* View All on Map */}
+          {query.length >= 2 && results.length > 0 && (
             <button
               onClick={() => {
                 navigate(`/map-search?q=${encodeURIComponent(query)}`);
                 setIsOpen(false);
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-muted/50 hover:bg-muted transition-colors text-sm font-medium text-primary"
+              className="w-full px-4 py-3 text-sm text-primary font-medium hover:bg-muted/50 transition-colors border-t border-border flex items-center justify-center gap-2"
             >
-              View all results for "{query}"
-              <ArrowRight className="h-4 w-4" />
+              <MapPin className="h-4 w-4" />
+              View all results on map
             </button>
           )}
         </div>

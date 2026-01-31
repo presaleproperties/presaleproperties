@@ -1021,6 +1021,21 @@ export default function MapSearch() {
     }));
   }, [resaleListings]);
 
+  // Assignments for search bar autocomplete
+  const assignmentsForSearch = useMemo(() => {
+    if (!assignments) return [];
+    return assignments.map(a => ({
+      id: a.id,
+      title: a.title,
+      project_name: a.project_name,
+      city: a.city,
+      neighborhood: a.neighborhood,
+      assignment_price: a.assignment_price,
+      map_lat: a.map_lat,
+      map_lng: a.map_lng,
+    }));
+  }, [assignments]);
+
   // Ref for programmatic map navigation
   const mapNavigationRef = useRef<CombinedListingsMapRef>(null);
 
@@ -1097,6 +1112,15 @@ export default function MapSearch() {
         setSearchQuery("");
       } else {
         navigate(`/properties/${suggestion.value}`);
+      }
+    } else if (suggestion.type === "assignment") {
+      // Navigate to assignment location on map
+      if (suggestion.lat && suggestion.lng && mapNavigationRef.current) {
+        mapNavigationRef.current.flyTo(suggestion.lat, suggestion.lng, 17);
+        toast.success(`Viewing ${suggestion.label}`);
+        setSearchQuery("");
+      } else {
+        navigate(`/assignments/${suggestion.value}`);
       }
     }
   }, [navigate, updateFilter]);
@@ -1283,6 +1307,7 @@ export default function MapSearch() {
             neighborhoods={neighborhoodsData || []}
             projects={projectsForSearch}
             listings={listingsForSearch}
+            assignments={assignmentsForSearch}
             homeButton={
               <Link to="/">
                 <button className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
@@ -1680,6 +1705,7 @@ export default function MapSearch() {
                     neighborhoods={neighborhoodsData || []}
                     projects={projectsForSearch}
                     listings={listingsForSearch}
+                    assignments={assignmentsForSearch}
                     className="h-9 text-sm"
                   />
                 </div>
