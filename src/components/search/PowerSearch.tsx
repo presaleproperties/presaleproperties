@@ -451,7 +451,7 @@ export function PowerSearch({
       {/* Results Dropdown */}
       {isOpen && (displayResults.length > 0 || (query.length >= 2 && !isLoading)) && (
         <div className={cn(
-          "absolute left-0 right-0 top-full z-50 bg-background border border-t-0 border-border shadow-lg overflow-hidden",
+          "absolute left-0 right-0 top-full z-[100] bg-background border border-t-0 border-border shadow-xl overflow-hidden",
           isHero ? "rounded-b-xl" : "rounded-b-lg"
         )}>
           {/* Results List */}

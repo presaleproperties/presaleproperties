@@ -47,8 +47,9 @@ export function ResaleHeroSection() {
           </p>
 
           {/* Floating Search Card - Compact on mobile */}
+          {/* IMPORTANT: No overflow-hidden - it clips the PowerSearch dropdown */}
           <div 
-            className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in overflow-hidden"
+            className="bg-white rounded-xl sm:rounded-2xl shadow-2xl max-w-2xl mx-auto animate-fade-in"
             style={{ animationDelay: "0.2s" }}
           >
             {/* Search Header */}
