@@ -1872,98 +1872,104 @@ export default function MapSearch() {
                 </Sheet>
               </div>
               
-              {/* Compact Quick Filters - Equal Width Grid */}
-              <div className="grid grid-cols-5 gap-1.5 pb-2.5 relative z-[100]">
-                <MultiSelectFilter
-                  options={CITIES.map(city => ({ value: city, label: city }))}
-                  selected={selectedCities}
-                  onChange={(values) => updateMultiFilter("cities", values)}
-                  placeholder="City"
-                  icon={MapPin}
-                  allLabel="City"
-                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
-                />
-                
-                <MultiSelectFilter
-                  options={PROPERTY_TYPES.filter(t => t.value !== "any").map(opt => ({ 
-                    value: opt.value, 
-                    label: opt.label,
-                    icon: opt.icon || undefined
-                  }))}
-                  selected={selectedPropertyTypes}
-                  onChange={(values) => updateMultiFilter("types", values)}
-                  placeholder="Type"
-                  icon={Home}
-                  allLabel="Type"
-                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
-                />
-                
-                <MultiSelectFilter
-                  options={PRICE_RANGE_OPTIONS}
-                  selected={selectedPriceRanges}
-                  onChange={(values) => updateMultiFilter("prices", values)}
-                  placeholder="Price"
-                  icon={DollarSign}
-                  allLabel="Price"
-                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
-                />
-                
-                {/* Bed Filter */}
-                <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-                  <SelectTrigger className={cn(
-                    "h-7 text-[11px] w-full font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3 justify-between",
-                    filters.beds !== "any" && "border-primary/50 bg-primary/5"
-                  )}>
-                    <span className="flex items-center gap-1.5">
-                      <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
-                      <span className="truncate">{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+ Bed`}</span>
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
-                    {BED_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                        {opt.value === "any" ? "Any Beds" : opt.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                {/* Bath Filter */}
-                <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
-                  <SelectTrigger className={cn(
-                    "h-7 text-[11px] w-full font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3 justify-between",
-                    filters.baths !== "any" && "border-primary/50 bg-primary/5"
-                  )}>
-                    <span className="flex items-center gap-1.5">
-                      <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
-                      <span className="truncate">{filters.baths === "any" ? "Baths" : `${filters.baths}+ Bath`}</span>
-                    </span>
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
-                    {BATH_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
-                        {opt.value === "any" ? "Any Baths" : `${opt.label}`}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              {/* Clear filters button - separate row when active */}
-              {activeFilterCount > 0 && (
-                <div className="pb-2">
-                  <button 
+              {/* Compact Quick Filters - 2-row grid (prevents cramming/overlap) */}
+              <div className="grid gap-1.5 pb-2.5 relative z-[100]">
+                {/* Row 1: primary filters */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  <MultiSelectFilter
+                    options={CITIES.map(city => ({ value: city, label: city }))}
+                    selected={selectedCities}
+                    onChange={(values) => updateMultiFilter("cities", values)}
+                    placeholder="City"
+                    icon={MapPin}
+                    allLabel="City"
+                    className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
+                  />
+
+                  <MultiSelectFilter
+                    options={PROPERTY_TYPES.filter(t => t.value !== "any").map(opt => ({
+                      value: opt.value,
+                      label: opt.label,
+                      icon: opt.icon || undefined
+                    }))}
+                    selected={selectedPropertyTypes}
+                    onChange={(values) => updateMultiFilter("types", values)}
+                    placeholder="Type"
+                    icon={Home}
+                    allLabel="Type"
+                    className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
+                  />
+
+                  <MultiSelectFilter
+                    options={PRICE_RANGE_OPTIONS}
+                    selected={selectedPriceRanges}
+                    onChange={(values) => updateMultiFilter("prices", values)}
+                    placeholder="Price"
+                    icon={DollarSign}
+                    allLabel="Price"
+                    className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between [&_button]:px-2"
+                  />
+                </div>
+
+                {/* Row 2: secondary filters + clear */}
+                <div className="grid grid-cols-3 gap-1.5">
+                  <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
+                    <SelectTrigger className={cn(
+                      "h-7 text-[11px] w-full font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3 justify-between",
+                      filters.beds !== "any" && "border-primary/50 bg-primary/5"
+                    )}>
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">
+                          {filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+ Bed`}
+                        </span>
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
+                      {BED_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                          {opt.value === "any" ? "Any Beds" : opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
+                    <SelectTrigger className={cn(
+                      "h-7 text-[11px] w-full font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3 justify-between",
+                      filters.baths !== "any" && "border-primary/50 bg-primary/5"
+                    )}>
+                      <span className="flex items-center gap-1.5 min-w-0">
+                        <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
+                        <span className="truncate">
+                          {filters.baths === "any" ? "Baths" : `${filters.baths}+ Bath`}
+                        </span>
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
+                      {BATH_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                          {opt.value === "any" ? "Any Baths" : `${opt.label}`}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={() => {
                       clearAllFilters();
                       setPriceRange([MIN_PRICE, MAX_PRICE]);
                     }}
-                    className="text-[10px] text-muted-foreground hover:text-foreground flex items-center gap-1"
+                    disabled={activeFilterCount === 0}
+                    className="h-7 w-full text-[11px] px-2 justify-center"
                   >
-                    <X className="h-3 w-3" />
-                    Clear filters
-                  </button>
+                    Clear
+                  </Button>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* Compact Results Bar */}
