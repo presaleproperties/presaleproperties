@@ -323,27 +323,56 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const assignmentMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const [internalHighlightId, setInternalHighlightId] = useState<string | null>(null);
 
+  // Track if we're in a highlight operation to prevent visible items updates
+  const isHighlightingRef = useRef(false);
+  
+  // Detect mobile/tablet for smoother behavior
+  const isMobileOrTabletDevice = typeof window !== 'undefined' && window.innerWidth < 1024;
+  
   useImperativeHandle(ref, () => ({
     flyTo: (lat: number, lng: number, zoom?: number) => {
       if (mapInstanceRef.current) {
-        mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 0.8 });
+        // On mobile/tablet, use setView without animation for smoother experience
+        if (isMobileOrTabletDevice) {
+          mapInstanceRef.current.setView([lat, lng], zoom || 14, { animate: false });
+        } else {
+          mapInstanceRef.current.flyTo([lat, lng], zoom || 14, { animate: true, duration: 0.5 });
+        }
       }
     },
     highlightItem: (id: string, type: "resale" | "presale" | "assignment") => {
+      isHighlightingRef.current = true;
       setInternalHighlightId(id);
+      
       const markersMap = type === "resale" ? resaleMarkersMapRef.current : 
                          type === "presale" ? presaleMarkersMapRef.current :
                          assignmentMarkersMapRef.current;
       const marker = markersMap.get(id);
+      
       if (marker && mapInstanceRef.current) {
         const latLng = marker.getLatLng();
-        mapInstanceRef.current.flyTo(latLng, Math.max(mapInstanceRef.current.getZoom(), 14), { animate: true, duration: 0.6 });
+        const currentBounds = mapInstanceRef.current.getBounds();
+        
+        // Only pan if marker is not already visible - prevents unnecessary movement
+        if (!currentBounds.contains(latLng)) {
+          if (isMobileOrTabletDevice) {
+            // On mobile/tablet, use instant setView to prevent jitter
+            mapInstanceRef.current.setView(latLng, Math.max(mapInstanceRef.current.getZoom(), 14), { animate: false });
+          } else {
+            mapInstanceRef.current.flyTo(latLng, Math.max(mapInstanceRef.current.getZoom(), 14), { animate: true, duration: 0.4 });
+          }
+        }
       }
+      
+      // Reset flag after a short delay
+      setTimeout(() => {
+        isHighlightingRef.current = false;
+      }, 300);
     },
     clearHighlight: () => {
       setInternalHighlightId(null);
     }
-  }), []);
+  }), [isMobileOrTabletDevice]);
 
   const validResaleListings = useMemo(() => 
     resaleListings.filter(l => l.latitude && l.longitude),
@@ -367,13 +396,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const updateVisibleItems = useCallback(() => {
     if (!mapInstanceRef.current || !onVisibleItemsChange) return;
     
-    // Debounce to prevent too many updates
+    // Skip updates during highlight operations to prevent feedback loops
+    if (isHighlightingRef.current) return;
+    
+    // Debounce to prevent too many updates - longer on mobile for stability
     if (updateVisibleItemsTimeoutRef.current) {
       clearTimeout(updateVisibleItemsTimeoutRef.current);
     }
     
+    const debounceMs = isMobileOrTabletDevice ? 350 : 200;
+    
     updateVisibleItemsTimeoutRef.current = setTimeout(() => {
-      if (!mapInstanceRef.current) return;
+      if (!mapInstanceRef.current || isHighlightingRef.current) return;
       
       const bounds = mapInstanceRef.current.getBounds();
       
@@ -407,8 +441,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       } else {
         computeVisible();
       }
-    }, 200); // 200ms debounce for smoother experience
-  }, [validResaleListings, validPresaleProjects, validAssignments, onVisibleItemsChange]);
+    }, debounceMs);
+  }, [validResaleListings, validPresaleProjects, validAssignments, onVisibleItemsChange, isMobileOrTabletDevice]);
 
   const initializeMap = useCallback(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -418,23 +452,25 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       : DEFAULT_CENTER;
     const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
     
-    // When restoring from saved state, skip animations for instant display
+    // When restoring from saved state OR on mobile, minimize animations for stability
     const isRestoringState = !!savedMapState;
+    const shouldSkipAnimations = isRestoringState || isMobileOrTabletDevice;
 
-    // Smooth, Google Maps-like map initialization
+    // Smooth, Google Maps-like map initialization - reduced animations on mobile
     const map = L.map(mapRef.current, {
       center: initialCenter,
       zoom: initialZoom,
       zoomControl: false,
       attributionControl: true,
       preferCanvas: true,
-      // Disable animations on restore for instant view, enable for normal use
-      fadeAnimation: !isRestoringState,
-      zoomAnimation: !isRestoringState,
-      markerZoomAnimation: !isRestoringState,
-      zoomAnimationThreshold: 4,
+      // Disable animations on mobile/tablet to prevent jitter
+      fadeAnimation: !shouldSkipAnimations,
+      zoomAnimation: !isMobileOrTabletDevice, // Keep zoom animation on restore for desktop
+      markerZoomAnimation: !shouldSkipAnimations,
+      zoomAnimationThreshold: isMobileOrTabletDevice ? 8 : 4, // Higher threshold on mobile
       inertia: true,
-      inertiaDeceleration: 2000,
+      inertiaDeceleration: isMobileOrTabletDevice ? 3000 : 2000, // More deceleration on mobile for stability
+      inertiaMaxSpeed: isMobileOrTabletDevice ? 1500 : Infinity, // Cap speed on mobile
       easeLinearity: 0.25,
       worldCopyJump: false,
       maxBoundsViscosity: 0.8,
@@ -442,8 +478,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       bounceAtZoomLimits: false,
     });
     
-    // Re-enable animations after initial render for smooth interactions
-    if (isRestoringState) {
+    // Re-enable some animations after initial render (desktop only)
+    if (isRestoringState && !isMobileOrTabletDevice) {
       requestAnimationFrame(() => {
         map.options.fadeAnimation = true;
         map.options.zoomAnimation = true;
@@ -451,38 +487,38 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       });
     }
 
-    // Optimized tile layer with faster loading
+    // Optimized tile layer - different settings for mobile vs desktop
     const tileLayer = L.tileLayer(TILE_URL, { 
       attribution: TILE_ATTRIBUTION,
       maxZoom: 19,
-      updateWhenIdle: false,
-      updateWhenZooming: true,
-      keepBuffer: 8, // Larger buffer for seamless panning
+      updateWhenIdle: isMobileOrTabletDevice, // Only update when idle on mobile to reduce flicker
+      updateWhenZooming: !isMobileOrTabletDevice, // Don't update while zooming on mobile
+      keepBuffer: isMobileOrTabletDevice ? 4 : 8, // Smaller buffer on mobile for memory
       crossOrigin: true,
     });
     
     // Preload tiles for the current view immediately
     tileLayer.addTo(map);
     
-    // Skip animations for markers when restoring state
-    const skipMarkerAnimation = isRestoringState;
+    // Skip animations for markers when restoring state or on mobile
+    const skipMarkerAnimation = shouldSkipAnimations;
 
-    // Optimized cluster settings for fast rendering
+    // Optimized cluster settings - more conservative on mobile
     const clusterGroup = L.markerClusterGroup({
       chunkedLoading: true,
-      chunkDelay: 5, // Faster chunking
-      chunkInterval: 25, // Faster interval
+      chunkDelay: isMobileOrTabletDevice ? 10 : 5, // Slightly slower chunking on mobile
+      chunkInterval: isMobileOrTabletDevice ? 50 : 25,
       maxClusterRadius: 50,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       disableClusteringAtZoom: 17,
-      animate: !skipMarkerAnimation, // Skip animation on restore
+      animate: !skipMarkerAnimation, // Skip animation on mobile/restore
       animateAddingMarkers: false,
       removeOutsideVisibleBounds: true,
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
-      zoomToBoundsOnClick: true,
+      zoomToBoundsOnClick: !isMobileOrTabletDevice, // Don't auto-zoom on cluster click on mobile
       spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(222, 47%, 60%)', opacity: 0.5 },
     });
 
@@ -688,32 +724,58 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       return;
     }
     
-    mapInstanceRef.current.setView([initialUserLocation.lat, initialUserLocation.lng], 13, { animate: true });
+    // Use instant setView on mobile to prevent jitter
+    mapInstanceRef.current.setView(
+      [initialUserLocation.lat, initialUserLocation.lng], 
+      13, 
+      { animate: !isMobileOrTabletDevice }
+    );
     hasCenteredOnUserRef.current = true;
-  }, [initialUserLocation, savedMapState]);
+  }, [initialUserLocation, savedMapState, isMobileOrTabletDevice]);
 
   return (
     <div className="relative w-full h-full bg-muted" style={{ contain: 'layout style paint', willChange: 'transform' }}>
       <style>{`
-        /* GPU acceleration and prevent flash */
+        /* GPU acceleration and prevent flash - CRITICAL for mobile stability */
         .leaflet-container { 
           -webkit-transform: translate3d(0,0,0); 
           transform: translate3d(0,0,0);
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
+          -webkit-perspective: 1000;
+          perspective: 1000;
           font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
           background: hsl(var(--muted)) !important;
+          /* Prevent text selection during panning */
+          -webkit-user-select: none;
+          user-select: none;
         }
         .leaflet-tile-container { 
           -webkit-transform: translate3d(0,0,0); 
           transform: translate3d(0,0,0);
+          will-change: transform;
         }
         .leaflet-tile { 
           -webkit-backface-visibility: hidden;
           backface-visibility: hidden;
-          transition: opacity 0.15s ease-out;
+          /* IMPORTANT: No transition on tiles - causes flickering on mobile */
+          transition: none !important;
+          image-rendering: -webkit-optimize-contrast;
         }
-        .leaflet-tile-loaded { opacity: 1 !important; }
+        .leaflet-tile-loaded { 
+          opacity: 1 !important; 
+        }
+        /* Prevent pane flickering */
+        .leaflet-pane {
+          -webkit-transform: translate3d(0,0,0);
+          transform: translate3d(0,0,0);
+          will-change: transform;
+        }
+        /* Smooth marker layer */
+        .leaflet-marker-pane {
+          -webkit-transform: translate3d(0,0,0);
+          transform: translate3d(0,0,0);
+        }
         
         /* Base marker reset */
         .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
@@ -731,7 +793,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           display: flex; 
           align-items: center; 
           justify-content: center; 
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
+          /* Reduced transition for smoother mobile experience */
+          transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
           min-height: 28px;
           cursor: pointer;
         }
@@ -866,10 +929,23 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .lock-btn { display: inline-block; background: #f59e0b; color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
         .lock-btn:hover { background: #d97706; }
         
-        /* Smooth marker cluster animations */
-        .marker-cluster-anim .leaflet-marker-icon,
-        .marker-cluster-anim .leaflet-marker-shadow {
-          transition: transform 0.25s ease-out, opacity 0.25s ease-out;
+        /* Smooth marker cluster animations - disabled on mobile for stability */
+        @media (min-width: 1024px) {
+          .marker-cluster-anim .leaflet-marker-icon,
+          .marker-cluster-anim .leaflet-marker-shadow {
+            transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+          }
+        }
+        /* Mobile: no cluster animation transitions */
+        @media (max-width: 1023px) {
+          .marker-cluster-anim .leaflet-marker-icon,
+          .marker-cluster-anim .leaflet-marker-shadow {
+            transition: none !important;
+          }
+          /* Also reduce marker hover effects on touch devices */
+          .pp, .pin, .ap-dot, .cl {
+            transition: none !important;
+          }
         }
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
@@ -906,7 +982,12 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             if (navigator.geolocation) {
               navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                  mapInstanceRef.current?.setView([pos.coords.latitude, pos.coords.longitude], 14, { animate: true });
+                  // Use instant setView on mobile, animated on desktop
+                  mapInstanceRef.current?.setView(
+                    [pos.coords.latitude, pos.coords.longitude], 
+                    14, 
+                    { animate: !isMobileOrTabletDevice }
+                  );
                 },
                 () => toast.error("Could not get your location")
               );
