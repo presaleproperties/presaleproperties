@@ -110,7 +110,7 @@ export function MultiSelectFilter({
       </Button>
 
       {open && (
-        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-background border border-border rounded-lg shadow-lg z-[9999] overflow-hidden">
+        <div className="absolute top-full left-0 mt-1 min-w-[180px] bg-background border border-border rounded-lg shadow-lg z-[10000] overflow-hidden">
           <div className="max-h-[280px] overflow-y-auto p-1">
             {options.map((option) => {
               const isSelected = selected.includes(option.value);
