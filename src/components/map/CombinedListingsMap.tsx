@@ -864,10 +864,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
       
-      {/* Custom Controls - Shifts left when panel is open on desktop */}
+      {/* Custom Controls - Shifts left when panel is open on desktop only */}
       <div 
-        className="absolute bottom-24 lg:bottom-6 z-[900] flex flex-col gap-1.5 transition-all duration-300"
-        style={{ right: panelOpen ? 'calc(440px + 16px)' : '12px' }}
+        className={`absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5 transition-all duration-300 ${
+          panelOpen ? 'lg:right-[456px]' : 'lg:right-3'
+        }`}
       >
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
