@@ -224,6 +224,21 @@ export default function MapSearch() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   const [isListInteracting, setIsListInteracting] = useState(false);
+  // Initialize mapCenter from saved/URL state or default Vancouver center
+  const [mapCenter, setMapCenter] = useState<{ lat: number; lng: number } | null>(() => {
+    // Try to get center from saved state
+    try {
+      const stored = sessionStorage.getItem(MAP_STATE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored) as SavedMapState;
+        if (Date.now() - parsed.timestamp < 30 * 60 * 1000) {
+          return parsed.center;
+        }
+      }
+    } catch (e) {}
+    // Default to Vancouver center
+    return { lat: 49.2827, lng: -123.1207 };
+  });
   
   // Save UI state to sessionStorage whenever it changes
   const saveUIStateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -327,6 +342,9 @@ export default function MapSearch() {
   
   // Callback to save map state when it changes
   const handleMapStateChange = useCallback((center: { lat: number; lng: number }, zoom: number) => {
+    // Track center for distance-based sorting in carousel
+    setMapCenter(center);
+    
     const state: SavedMapState = {
       center,
       zoom,
@@ -927,96 +945,128 @@ export default function MapSearch() {
     );
   }, [assignments, searchQuery]);
 
-  // Visible items based on map viewport and mode
+  // Helper: calculate distance from map center (for sorting)
+  const getDistanceFromCenter = useCallback((lat: number | null, lng: number | null): number => {
+    if (!lat || !lng || !mapCenter) return Infinity;
+    const dLat = lat - mapCenter.lat;
+    const dLng = lng - mapCenter.lng;
+    return Math.sqrt(dLat * dLat + dLng * dLng);
+  }, [mapCenter]);
+
+  // Visible items based on map viewport and mode - ONLY show items actually visible on map
   const visibleResaleListings = useMemo(() => {
     if (mapMode === "presale" || mapMode === "assignments") return [];
-    if (visibleResaleIds.length === 0) return filteredResaleListings.slice(0, 30);
-    return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id)).slice(0, 30);
+    // Only show items that are actually in the map viewport - no fallback
+    if (visibleResaleIds.length === 0) return [];
+    return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id));
   }, [filteredResaleListings, visibleResaleIds, mapMode]);
 
   const visiblePresaleProjects = useMemo(() => {
     if (mapMode === "resale" || mapMode === "assignments") return [];
-    if (visiblePresaleIds.length === 0) return filteredPresaleProjects.slice(0, 30);
-    return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id)).slice(0, 30);
+    // Only show items that are actually in the map viewport - no fallback
+    if (visiblePresaleIds.length === 0) return [];
+    return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id));
   }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
 
   const visibleAssignments = useMemo(() => {
     if (mapMode === "resale" || mapMode === "presale") return [];
-    if (visibleAssignmentIds.length === 0) return filteredAssignments.slice(0, 30);
-    return filteredAssignments.filter(a => visibleAssignmentIds.includes(a.id)).slice(0, 30);
+    // Only show items that are actually in the map viewport - no fallback
+    if (visibleAssignmentIds.length === 0) return [];
+    return filteredAssignments.filter(a => visibleAssignmentIds.includes(a.id));
   }, [filteredAssignments, visibleAssignmentIds, mapMode]);
 
-  // Combined visible items for display - with focused item pinned in place and sorted
+  // Combined visible items for display - sorted by distance from map center, interleaved for variety
   const visibleItems = useMemo(() => {
-    const items: Array<{ type: "resale" | "presale" | "assignment"; data: MLSListing | PresaleProject | Assignment }> = [];
+    type ItemWithDistance = { 
+      type: "resale" | "presale" | "assignment"; 
+      data: MLSListing | PresaleProject | Assignment;
+      distance: number;
+    };
     
-    // Track if focused item is already in visible items
-    let focusedItemIncluded = false;
-    const focusedId = focusedCarouselItemId;
+    const items: ItemWithDistance[] = [];
     
-    // Add presale projects
+    // Add presale projects with distance
     visiblePresaleProjects.forEach(p => {
-      if (p.id === focusedId) focusedItemIncluded = true;
-      items.push({ type: "presale", data: p });
+      items.push({ 
+        type: "presale", 
+        data: p,
+        distance: getDistanceFromCenter(p.map_lat, p.map_lng)
+      });
     });
     
-    // Add resale listings
+    // Add resale listings with distance
     visibleResaleListings.forEach(l => {
-      if (l.id === focusedId) focusedItemIncluded = true;
-      items.push({ type: "resale", data: l });
+      items.push({ 
+        type: "resale", 
+        data: l,
+        distance: getDistanceFromCenter(l.latitude, l.longitude)
+      });
     });
     
-    // Add assignments
+    // Add assignments with distance
     visibleAssignments.forEach(a => {
-      if (a.id === focusedId) focusedItemIncluded = true;
-      items.push({ type: "assignment", data: a });
+      items.push({ 
+        type: "assignment", 
+        data: a,
+        distance: getDistanceFromCenter(a.map_lat, a.map_lng)
+      });
     });
     
-    // If focused item is not in visible items, find and add it to maintain stability
-    if (focusedId && !focusedItemIncluded) {
-      const focusedPresale = filteredPresaleProjects.find(p => p.id === focusedId);
-      if (focusedPresale) {
-        items.unshift({ type: "presale", data: focusedPresale });
-      } else {
-        const focusedResale = filteredResaleListings.find(l => l.id === focusedId);
-        if (focusedResale) {
-          items.unshift({ type: "resale", data: focusedResale });
+    // Sort by distance from center (closest first)
+    items.sort((a, b) => a.distance - b.distance);
+    
+    // Apply additional sorting if user selected price sort
+    const sortValue = filters.sort;
+    if (sortValue === "price_asc" || sortValue === "price_desc") {
+      items.sort((a, b) => {
+        const priceA = a.type === "presale" 
+          ? (a.data as PresaleProject).starting_price || 0 
+          : a.type === "resale" 
+          ? (a.data as MLSListing).listing_price || 0
+          : (a.data as Assignment).assignment_price || 0;
+        const priceB = b.type === "presale" 
+          ? (b.data as PresaleProject).starting_price || 0 
+          : b.type === "resale"
+          ? (b.data as MLSListing).listing_price || 0
+          : (b.data as Assignment).assignment_price || 0;
+        
+        return sortValue === "price_asc" ? priceA - priceB : priceB - priceA;
+      });
+    }
+    
+    // Track focused item to keep it in place
+    const focusedId = focusedCarouselItemId;
+    let finalItems = items.map(({ type, data }) => ({ type, data }));
+    
+    // If focused item is not in visible items, find and add it at the start
+    if (focusedId) {
+      const focusedIndex = finalItems.findIndex(item => 
+        (item.type === "presale" && (item.data as PresaleProject).id === focusedId) ||
+        (item.type === "resale" && (item.data as MLSListing).id === focusedId) ||
+        (item.type === "assignment" && (item.data as Assignment).id === focusedId)
+      );
+      
+      if (focusedIndex === -1) {
+        // Focused item not in view - add it from full list
+        const focusedPresale = filteredPresaleProjects.find(p => p.id === focusedId);
+        if (focusedPresale) {
+          finalItems.unshift({ type: "presale", data: focusedPresale });
         } else {
-          const focusedAssignment = filteredAssignments.find(a => a.id === focusedId);
-          if (focusedAssignment) {
-            items.unshift({ type: "assignment", data: focusedAssignment });
+          const focusedResale = filteredResaleListings.find(l => l.id === focusedId);
+          if (focusedResale) {
+            finalItems.unshift({ type: "resale", data: focusedResale });
+          } else {
+            const focusedAssignment = filteredAssignments.find(a => a.id === focusedId);
+            if (focusedAssignment) {
+              finalItems.unshift({ type: "assignment", data: focusedAssignment });
+            }
           }
         }
       }
     }
     
-    // Apply sorting based on filter
-    const sortedItems = [...items];
-    const sortValue = filters.sort;
-    
-    sortedItems.sort((a, b) => {
-      const priceA = a.type === "presale" 
-        ? (a.data as PresaleProject).starting_price || 0 
-        : a.type === "resale" 
-        ? (a.data as MLSListing).listing_price || 0
-        : (a.data as Assignment).assignment_price || 0;
-      const priceB = b.type === "presale" 
-        ? (b.data as PresaleProject).starting_price || 0 
-        : b.type === "resale"
-        ? (b.data as MLSListing).listing_price || 0
-        : (b.data as Assignment).assignment_price || 0;
-      
-      if (sortValue === "price_asc") {
-        return priceA - priceB;
-      } else if (sortValue === "price_desc") {
-        return priceB - priceA;
-      }
-      // Default: newest (already sorted by list_date from query)
-      return 0;
-    });
-    
-    return sortedItems.slice(0, 40);
-  }, [visibleResaleListings, visiblePresaleProjects, visibleAssignments, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filteredAssignments, filters.sort]);
+    return finalItems.slice(0, 40);
+  }, [visibleResaleListings, visiblePresaleProjects, visibleAssignments, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filteredAssignments, filters.sort, getDistanceFromCenter]);
 
   // Actual count of properties in view (not capped) for display
   const propertiesInViewCount = useMemo(() => {
