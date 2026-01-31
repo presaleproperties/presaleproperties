@@ -1654,7 +1654,7 @@ export default function MapSearch() {
           </div>
 
           {/* Desktop Floating List Panel */}
-          <div className={`hidden lg:flex flex-col absolute top-3 bottom-3 right-3 z-[1001] w-[460px] bg-background/95 backdrop-blur-md rounded-xl border border-border/50 shadow-xl transition-all duration-300 ease-out ${
+          <div className={`hidden lg:flex flex-col absolute top-3 bottom-3 right-3 z-[1001] w-[460px] bg-background/95 backdrop-blur-md rounded-xl border border-border/50 shadow-xl transition-all duration-300 ease-out overflow-visible ${
             showList ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
           }`}>
             {/* Collapse button - minimal pill on left edge */}
@@ -1667,7 +1667,7 @@ export default function MapSearch() {
             </button>
             
             {/* Top Bar - Search + Filter + Quick Filters */}
-            <div className="shrink-0 border-b border-border/50 bg-background/50 rounded-t-xl relative z-50">
+            <div className="shrink-0 border-b border-border/50 bg-background/50 rounded-t-xl relative z-[100] overflow-visible">
               {/* Search Bar Row */}
               <div className="flex items-center gap-2 px-3 pt-3 pb-3">
                 {/* Search Bar */}
@@ -1875,7 +1875,7 @@ export default function MapSearch() {
               </div>
               
               {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-1.5 px-3 pb-2.5 relative z-50 overflow-x-auto scrollbar-hide">
+              <div className="flex items-center gap-1.5 px-3 pb-2.5 relative z-[100] flex-wrap">
                 {/* City Multi-Select */}
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
@@ -1913,10 +1913,10 @@ export default function MapSearch() {
                 {/* Bedrooms Dropdown */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[90px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground [&>span]:flex [&>span]:flex-row [&>span]:items-center [&>span]:gap-1.5",
+                    "h-8 text-xs min-w-[70px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground [&>span]:flex [&>span]:flex-row [&>span]:items-center [&>span]:gap-1",
                     filters.beds !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <Bed className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span>{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+`}</span>
                   </SelectTrigger>
                   <SelectContent 
@@ -1938,10 +1938,10 @@ export default function MapSearch() {
                 {/* Bathrooms Dropdown */}
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[90px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground [&>span]:flex [&>span]:flex-row [&>span]:items-center [&>span]:gap-1.5",
+                    "h-8 text-xs min-w-[70px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground [&>span]:flex [&>span]:flex-row [&>span]:items-center [&>span]:gap-1",
                     filters.baths !== "any" && "border-primary/50 bg-primary/5"
                   )}>
-                    <Bath className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                    <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
                     <span>{filters.baths === "any" ? "Baths" : `${filters.baths}+`}</span>
                   </SelectTrigger>
                   <SelectContent 
