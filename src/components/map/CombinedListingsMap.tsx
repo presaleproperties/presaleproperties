@@ -610,37 +610,54 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
 
     const allCoords: L.LatLngTuple[] = [];
 
-    // Add resale listings
+    // Add resale listings - with coordinate offset for overlapping markers
     if (mode === "all" || mode === "resale") {
-      const seen = new Map<string, MLSListing>();
+      // Group listings by coordinate to apply offset for overlapping markers
+      const coordGroups = new Map<string, MLSListing[]>();
       validResaleListings.forEach(l => {
         const key = `${l.latitude?.toFixed(5)}-${l.longitude?.toFixed(5)}`;
-        if (!seen.has(key) || l.listing_price > (seen.get(key)?.listing_price || 0)) {
-          seen.set(key, l);
+        if (!coordGroups.has(key)) {
+          coordGroups.set(key, []);
         }
+        coordGroups.get(key)!.push(l);
       });
       
-      seen.forEach((listing) => {
-        const isHighlighted = internalHighlightId === listing.id || highlightedItemId === listing.id;
-        const marker = L.marker([listing.latitude!, listing.longitude!], {
-          icon: createResalePricePillIcon(listing, isHighlighted),
-        });
-
-        if (!disablePopupsOnMobile) {
-          marker.bindPopup(resalePopupHtml(listing), {
-            maxWidth: 300,
-            className: "premium-popup resale-popup",
-            closeButton: true,
+      // Process each group, applying spiral offset for overlapping markers
+      coordGroups.forEach((listings) => {
+        listings.forEach((listing, index) => {
+          let lat = listing.latitude!;
+          let lng = listing.longitude!;
+          
+          // Apply spiral offset if multiple listings at same location
+          if (listings.length > 1 && index > 0) {
+            // Spiral offset: each marker gets a small offset in a circular pattern
+            const angle = (index * 2 * Math.PI) / listings.length;
+            const radius = 0.00015 * Math.ceil(index / 6); // ~15m offset, increases with more markers
+            lat += radius * Math.sin(angle);
+            lng += radius * Math.cos(angle);
+          }
+          
+          const isHighlighted = internalHighlightId === listing.id || highlightedItemId === listing.id;
+          const marker = L.marker([lat, lng], {
+            icon: createResalePricePillIcon(listing, isHighlighted),
           });
-        }
 
-        marker.on("click", () => {
-          onListingSelect?.(listing.id, "resale");
+          if (!disablePopupsOnMobile) {
+            marker.bindPopup(resalePopupHtml(listing), {
+              maxWidth: 300,
+              className: "premium-popup resale-popup",
+              closeButton: true,
+            });
+          }
+
+          marker.on("click", () => {
+            onListingSelect?.(listing.id, "resale");
+          });
+
+          resaleMarkersMapRef.current.set(listing.id, marker);
+          clusterGroup.addLayer(marker);
+          allCoords.push([lat, lng]);
         });
-
-        resaleMarkersMapRef.current.set(listing.id, marker);
-        clusterGroup.addLayer(marker);
-        allCoords.push([listing.latitude!, listing.longitude!]);
       });
     }
 
