@@ -1533,7 +1533,7 @@ export default function MapSearch() {
                             : selectedItemId === id 
                               ? 'border-primary/50 ring-1 ring-primary/20' 
                               : isAssignment
-                              ? 'border-emerald-500/50'
+                              ? 'border-amber-500/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           {/* Compact image - shorter aspect ratio */}
@@ -1547,8 +1547,8 @@ export default function MapSearch() {
                                 </div>
                               )
                             ) : isAssignment ? (
-                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20", !isVerifiedAgent && "blur-lg")}>
-                                <Building2 className="h-6 w-6 text-emerald-500" />
+                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                                <Building2 className="h-6 w-6 text-amber-500" />
                               </div>
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
@@ -1568,7 +1568,7 @@ export default function MapSearch() {
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
                                 : isAssignment
-                                ? 'bg-emerald-600/90 text-white'
+                                ? 'bg-amber-500 text-white'
                                 : 'bg-primary/90 text-primary-foreground'
                             }`}>
                               {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'RESALE'}
@@ -1598,7 +1598,7 @@ export default function MapSearch() {
                               </div>
                             )}
                             {/* Price - smaller */}
-                            <div className={cn("font-bold text-sm", isAssignment ? "text-emerald-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            <div className={cn("font-bold text-sm", isAssignment ? "text-amber-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? formatPrice((data as PresaleProject).starting_price)
                                 : isAssignment
@@ -1962,7 +1962,7 @@ export default function MapSearch() {
                           : selectedItemId === id 
                             ? 'border-primary/50 ring-1 ring-primary/20' 
                             : isAssignment
-                            ? 'border-emerald-500/50 hover:border-emerald-500'
+                            ? 'border-amber-500/50 hover:border-amber-500'
                             : 'border-border hover:border-primary/50'
                       )}>
                         {/* Large Image - 3:2 aspect ratio matching REW */}
@@ -1976,8 +1976,8 @@ export default function MapSearch() {
                               </div>
                             )
                           ) : isAssignment ? (
-                            <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950/30 dark:to-emerald-900/20", !isVerifiedAgent && "blur-lg")}>
-                              <Building2 className="h-10 w-10 text-emerald-500" />
+                            <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                              <Building2 className="h-10 w-10 text-amber-500" />
                             </div>
                           ) : (
                             getResalePhoto(data as MLSListing) ? (
@@ -1998,7 +1998,7 @@ export default function MapSearch() {
                             isPresale 
                               ? 'bg-foreground text-background' 
                               : isAssignment
-                              ? 'bg-emerald-600 text-white'
+                              ? 'bg-amber-500 text-white'
                               : 'bg-primary text-primary-foreground'
                           }`}>
                             {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'MOVE-IN'}
@@ -2031,7 +2031,7 @@ export default function MapSearch() {
                             </div>
                           )}
                           {/* Price - Prominent */}
-                          <div className={cn("font-bold text-base leading-tight", isAssignment ? "text-emerald-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                          <div className={cn("font-bold text-base leading-tight", isAssignment ? "text-amber-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                             {isPresale
                               ? formatPrice((data as PresaleProject).starting_price)
                               : isAssignment
