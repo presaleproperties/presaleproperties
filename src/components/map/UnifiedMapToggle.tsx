@@ -67,7 +67,7 @@ export function UnifiedMapToggle({
         className={cn(
           "px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 whitespace-nowrap flex items-center gap-1.5",
           mode === "assignments"
-            ? "bg-emerald-600 text-white shadow-sm"
+            ? "bg-amber-500 text-white shadow-sm"
             : "text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10"
         )}
       >
@@ -79,7 +79,7 @@ export function UnifiedMapToggle({
             "ml-0.5 px-1.5 py-0.5 rounded-full text-[10px] font-bold",
             mode === "assignments" 
               ? "bg-white/20 text-white" 
-              : "bg-emerald-500/10 text-emerald-600"
+              : "bg-amber-500/10 text-amber-600"
           )}>
             {assignmentsCount}
           </span>

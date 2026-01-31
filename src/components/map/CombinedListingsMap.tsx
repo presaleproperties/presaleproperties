@@ -146,23 +146,22 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
   return icon;
 }
 
-// Assignment marker - emerald colored pill
+// Assignment marker - minimalistic amber dot
 function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean = false): L.DivIcon {
-  const priceText = formatPrice(assignment.assignment_price);
-  const cacheKey = `assignment-${priceText}-${isHighlighted}`;
+  const cacheKey = `assignment-dot-${isHighlighted}`;
   
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
   
-  // Larger touch targets
-  const size = isHighlighted ? [88, 36] : [76, 30];
+  // Small circular pin
+  const size = isHighlighted ? 18 : 14;
   
   const icon = L.divIcon({
     className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
-    html: `<div class="ap${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
-    iconSize: [size[0], size[1]],
-    iconAnchor: [size[0] / 2, size[1]],
-    popupAnchor: [0, -size[1] - 4],
+    html: `<div class="ap-dot${isHighlighted ? ' hl' : ''}"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2 - 4],
   });
   
   if (!isHighlighted) iconCache.set(cacheKey, icon);
@@ -749,26 +748,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
         }
         
-        /* Assignment pills - emerald */
-        .ap { 
-          background: #10b981; 
-          color: white; 
-          padding: 5px 12px; 
-          border-radius: 16px; 
-          font-size: 12px; 
-          font-weight: 700; 
-          white-space: nowrap; 
-          box-shadow: 0 2px 6px rgba(0,0,0,0.12); 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          transition: transform 0.15s ease;
-          min-height: 28px;
+        /* Assignment dots - minimalistic amber */
+        .ap-dot { 
+          width: 12px;
+          height: 12px;
+          background: #f59e0b; 
+          border: 2px solid white;
+          border-radius: 50%; 
+          box-shadow: 0 1px 4px rgba(0,0,0,0.2); 
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
         }
-        .ap:hover, .ap.hl { 
-          transform: scale(1.08); 
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); 
+        .ap-dot:hover, .ap-dot.hl { 
+          transform: scale(1.3); 
+          box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); 
         }
         
         /* Cluster icons - clean Google Maps style */
