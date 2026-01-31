@@ -1374,8 +1374,14 @@ export default function MapSearch() {
               />
             </div>
             
-            {/* Desktop: Centered at top of map */}
-            <div className="hidden lg:block absolute top-4 left-1/2 -translate-x-1/2 z-[1000]">
+            {/* Desktop: Centered at top of map - shifts left when panel is open */}
+            <div 
+              className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
+              style={{ 
+                left: showList ? 'calc(50% - 210px)' : '50%',
+                transform: 'translateX(-50%)'
+              }}
+            >
               <UnifiedMapToggle
                 mode={mapMode}
                 onModeChange={handleModeChange}
