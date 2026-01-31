@@ -1669,8 +1669,8 @@ export default function MapSearch() {
             {/* Compact Header - Search + Filter + Quick Filters */}
             <div className="shrink-0 p-2.5 pb-0 relative z-[100] overflow-visible">
               {/* Search + Filter Row */}
-              <div className="flex items-center gap-1.5 mb-2">
-                <div className="flex-1">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="flex-1 min-w-0">
                   <MapSearchBar
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
@@ -1687,7 +1687,7 @@ export default function MapSearch() {
                 {/* Compact Filter Button */}
                 <Sheet open={desktopFiltersOpen} onOpenChange={setDesktopFiltersOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="sm" className="h-8 px-2.5 shrink-0 gap-1.5">
+                    <Button variant="outline" size="sm" className="h-8 px-3 shrink-0 gap-1.5">
                       <SlidersHorizontal className="h-3.5 w-3.5" />
                       {activeFilterCount > 0 && (
                         <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-medium">
@@ -1873,7 +1873,7 @@ export default function MapSearch() {
               </div>
               
               {/* Compact Quick Filters - Single Row */}
-              <div className="flex items-center gap-1 pb-2 relative z-[100]">
+              <div className="flex items-center gap-1.5 pb-2 relative z-[100]">
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
                   selected={selectedCities}
@@ -1881,7 +1881,7 @@ export default function MapSearch() {
                   placeholder="City"
                   icon={MapPin}
                   allLabel="City"
-                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:min-w-0 [&_button]:px-2"
+                  className="flex-1 [&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between"
                 />
                 
                 <MultiSelectFilter
@@ -1895,7 +1895,7 @@ export default function MapSearch() {
                   placeholder="Type"
                   icon={Home}
                   allLabel="Type"
-                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:min-w-0 [&_button]:px-2"
+                  className="flex-1 [&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between"
                 />
                 
                 <MultiSelectFilter
@@ -1905,13 +1905,13 @@ export default function MapSearch() {
                   placeholder="Price"
                   icon={DollarSign}
                   allLabel="Price"
-                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:min-w-0 [&_button]:px-2"
+                  className="flex-1 [&_button]:h-7 [&_button]:text-[11px] [&_button]:w-full [&_button]:justify-between"
                 />
                 
                 {/* Compact Bed/Bath */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
                   <SelectTrigger className={cn(
-                    "h-7 text-[11px] w-[58px] font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3",
+                    "h-7 text-[11px] w-[52px] font-normal rounded-md border bg-background px-1.5 [&>svg]:h-3 [&>svg]:w-3",
                     filters.beds !== "any" && "border-primary/50 bg-primary/5"
                   )}>
                     <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
@@ -1928,7 +1928,7 @@ export default function MapSearch() {
                 
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
                   <SelectTrigger className={cn(
-                    "h-7 text-[11px] w-[58px] font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3",
+                    "h-7 text-[11px] w-[52px] font-normal rounded-md border bg-background px-1.5 [&>svg]:h-3 [&>svg]:w-3",
                     filters.baths !== "any" && "border-primary/50 bg-primary/5"
                   )}>
                     <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
@@ -1949,7 +1949,7 @@ export default function MapSearch() {
                       clearAllFilters();
                       setPriceRange([MIN_PRICE, MAX_PRICE]);
                     }}
-                    className="h-7 px-1.5 text-[10px] text-muted-foreground hover:text-foreground"
+                    className="h-7 px-1 text-muted-foreground hover:text-foreground"
                   >
                     <X className="h-3 w-3" />
                   </button>
