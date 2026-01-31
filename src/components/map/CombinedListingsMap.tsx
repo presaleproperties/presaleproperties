@@ -868,23 +868,29 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       
       {/* Custom Controls - Compact on mobile/tablet, positioned to avoid carousel */}
       <div 
-        className={`absolute right-2 lg:right-3 z-[900] flex flex-col gap-0.5 lg:gap-1.5 transition-all duration-300 ${
-          mobileCarouselOpen ? 'bottom-52' : 'bottom-20'
-        } lg:bottom-6 ${panelOpen ? 'lg:right-[456px]' : 'lg:right-3'}`}
+        className={`absolute right-2 lg:right-3 z-[900] flex flex-col gap-0.5 lg:gap-1.5 transition-all duration-300 lg:bottom-6 ${
+          panelOpen ? 'lg:right-[456px]' : 'lg:right-3'
+        }`}
+        style={{
+          // Keep controls above the mobile/tablet carousel (and above safe-area)
+          bottom: mobileCarouselOpen
+            ? 'calc(env(safe-area-inset-bottom, 0px) + 280px)'
+            : 'calc(env(safe-area-inset-bottom, 0px) + 72px)'
+        }}
       >
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={() => mapInstanceRef.current?.zoomIn()}
-            className="w-6 h-6 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-5 h-5 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
-            <Plus className="h-3 w-3 lg:h-4 lg:w-4" />
+            <Plus className="h-2.5 w-2.5 lg:h-4 lg:w-4" />
           </button>
           <div className="w-full h-px bg-border/50" />
           <button
             onClick={() => mapInstanceRef.current?.zoomOut()}
-            className="w-6 h-6 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-5 h-5 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
-            <Minus className="h-3 w-3 lg:h-4 lg:w-4" />
+            <Minus className="h-2.5 w-2.5 lg:h-4 lg:w-4" />
           </button>
         </div>
         <button
@@ -898,10 +904,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
               );
             }
           }}
-          className="w-6 h-6 lg:w-9 lg:h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
+          className="w-5 h-5 lg:w-9 lg:h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
           title="Find my location"
         >
-          <Navigation2 className="h-3 w-3 lg:h-4 lg:w-4 text-muted-foreground" />
+          <Navigation2 className="h-2.5 w-2.5 lg:h-4 lg:w-4 text-muted-foreground" />
         </button>
       </div>
     </div>
