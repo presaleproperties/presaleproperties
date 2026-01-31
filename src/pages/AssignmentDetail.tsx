@@ -264,7 +264,7 @@ export default function AssignmentDetail() {
               </div>
               
               {/* Assignment Badge */}
-              <Badge className="absolute top-4 left-4 bg-emerald-600 hover:bg-emerald-700">
+              <Badge className="absolute top-4 left-4 bg-amber-500 hover:bg-amber-600">
                 Assignment
               </Badge>
 

@@ -47,7 +47,7 @@ const coreFeatures = [
     title: "Post Your Assignments",
     description: "List your client's assignments to our network of verified agents. Reach serious buyers instantly.",
     highlight: "500+ Agents",
-    gradient: "from-emerald-500/20 to-teal-500/20"
+    gradient: "from-amber-500/20 to-orange-500/20"
   },
   {
     icon: Megaphone,

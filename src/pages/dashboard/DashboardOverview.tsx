@@ -151,8 +151,8 @@ export default function DashboardOverview() {
                   </Button>
                 </Link>
                 <Link to="/map-search?mode=assignments">
-                  <Button variant="outline" className="gap-2 border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/5">
-                    <Building2 className="h-4 w-4 text-emerald-600" />
+                  <Button variant="outline" className="gap-2 border-amber-500/30 hover:border-amber-500 hover:bg-amber-500/5">
+                    <Building2 className="h-4 w-4 text-amber-600" />
                     <span className="hidden sm:inline">Browse Marketplace</span>
                     <span className="sm:hidden">Marketplace</span>
                   </Button>
@@ -338,13 +338,13 @@ export default function DashboardOverview() {
                 </Link>
                 
                 <Link to="/map-search?mode=assignments" className="group">
-                  <div className="p-4 rounded-xl border border-emerald-500/30 hover:border-emerald-500 hover:bg-emerald-500/5 transition-all bg-gradient-to-br from-emerald-500/5 to-transparent">
+                  <div className="p-4 rounded-xl border border-amber-500/30 hover:border-amber-500 hover:bg-amber-500/5 transition-all bg-gradient-to-br from-amber-500/5 to-transparent">
                     <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-emerald-500/10 group-hover:bg-emerald-500/20 transition-colors">
-                        <Building2 className="h-5 w-5 text-emerald-600" />
+                      <div className="p-2 rounded-lg bg-amber-500/10 group-hover:bg-amber-500/20 transition-colors">
+                        <Building2 className="h-5 w-5 text-amber-600" />
                       </div>
                       <span className="font-medium">Assignment Marketplace</span>
-                      <Badge className="text-[10px] px-1.5 py-0 h-4 bg-emerald-500 text-white">
+                      <Badge className="text-[10px] px-1.5 py-0 h-4 bg-amber-500 text-white">
                         Live
                       </Badge>
                     </div>

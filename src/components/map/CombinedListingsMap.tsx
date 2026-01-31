@@ -822,7 +822,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: inherit; border-radius: 12px; overflow: hidden; background: white; }
         .popup-card.resale { border: none; }
         .popup-card.presale { border: none; }
-        .popup-card.assignment { border-left: 3px solid #10b981; }
+        .popup-card.assignment { border-left: 3px solid #f59e0b; }
         .popup-card.locked { display: block; width: 240px; }
         
         /* Image section */
@@ -830,18 +830,18 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
         .popup-placeholder.presale { background: linear-gradient(135deg, hsl(45, 89%, 97%) 0%, hsl(45, 89%, 92%) 100%); color: hsl(45, 89%, 45%); }
-        .popup-placeholder.assignment { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); color: #10b981; }
+        .popup-placeholder.assignment { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #f59e0b; }
         
         /* Badges */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
         .popup-badge.resale { background: hsl(220, 14%, 96%); color: hsl(220, 25%, 25%); }
         .popup-badge.presale { background: hsl(45, 89%, 52%); color: hsl(222, 47%, 12%); }
-        .popup-badge.assignment { background: #10b981; color: white; }
+        .popup-badge.assignment { background: #f59e0b; color: white; }
         
         /* Content */
         .popup-content { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
         .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(220, 25%, 10%); }
-        .popup-price.assignment { color: #059669; }
+        .popup-price.assignment { color: #d97706; }
         .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 15%); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .popup-specs { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 2px; }
         .popup-type { font-size: 11px; color: hsl(220, 10%, 55%); }
@@ -850,11 +850,11 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         
         /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }
-        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #10b981; }
+        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #fffbeb, #fef3c7); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #f59e0b; }
         .lock-title { font-weight: 600; font-size: 14px; color: hsl(220, 25%, 10%); margin-bottom: 4px; }
         .lock-desc { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 14px; }
-        .lock-btn { display: inline-block; background: #10b981; color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
-        .lock-btn:hover { background: #059669; }
+        .lock-btn { display: inline-block; background: #f59e0b; color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+        .lock-btn:hover { background: #d97706; }
         
         /* Smooth marker cluster animations */
         .marker-cluster-anim .leaflet-marker-icon,

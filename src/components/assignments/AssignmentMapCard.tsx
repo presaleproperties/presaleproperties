@@ -57,7 +57,7 @@ export function AssignmentMapCard({
     >
       <Card className={cn(
         "overflow-hidden transition-all duration-200 h-full",
-        isFocused && "ring-2 ring-emerald-500 shadow-lg",
+        isFocused && "ring-2 ring-amber-500 shadow-lg",
         className
       )}>
         <CardContent className="p-0">
@@ -80,13 +80,13 @@ export function AssignmentMapCard({
             
             {/* Savings Badge */}
             {savings > 0 && isVerifiedAgent && (
-              <Badge className="absolute top-2 left-2 bg-emerald-500 text-white text-[10px] px-2">
+              <Badge className="absolute top-2 left-2 bg-amber-500 text-white text-[10px] px-2">
                 Save {formatPrice(savings)}
               </Badge>
             )}
             
             {/* Assignment Badge */}
-            <Badge className="absolute top-2 right-2 bg-emerald-600/90 text-white text-[10px] px-2">
+            <Badge className="absolute top-2 right-2 bg-amber-500 text-white text-[10px] px-2">
               Assignment
             </Badge>
             
@@ -122,7 +122,7 @@ export function AssignmentMapCard({
             <div className="flex items-center justify-between">
               <span className={cn(
                 "font-bold text-base",
-                isVerifiedAgent ? "text-emerald-600" : "blur-sm"
+                isVerifiedAgent ? "text-amber-600" : "blur-sm"
               )}>
                 {formatPrice(assignment.assignment_price)}
               </span>
