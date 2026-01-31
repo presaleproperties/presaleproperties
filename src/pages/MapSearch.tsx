@@ -1384,12 +1384,13 @@ export default function MapSearch() {
               />
             </div>
             
-            {/* Desktop: Show Panel Button - appears when panel is hidden */}
+            {/* Desktop: Show Panel Button - appears when panel is hidden, shifts when panel opens */}
             <button
               onClick={() => setShowList(true)}
-              className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 right-3 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
-                showList ? "opacity-0 pointer-events-none translate-x-2" : "opacity-100 translate-x-0"
+              className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
+                showList ? "opacity-0 pointer-events-none" : "opacity-100"
               }`}
+              style={{ right: showList ? 'calc(420px + 24px)' : '12px' }}
               aria-label="Show property list"
             >
               <PanelRightOpen className="h-3.5 w-3.5 text-muted-foreground" />
@@ -1426,6 +1427,7 @@ export default function MapSearch() {
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
                       isVerifiedAgent={isVerifiedAgent}
+                      panelOpen={showList}
                     />
                   )}
                 </Suspense>
