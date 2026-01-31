@@ -91,6 +91,7 @@ interface CombinedListingsMapProps {
   highlightedItemType?: "resale" | "presale" | "assignment" | null;
   isVerifiedAgent?: boolean;
   panelOpen?: boolean;
+  mobileCarouselOpen?: boolean;
 }
 
 function formatPrice(price: number): string {
@@ -303,7 +304,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   highlightedItemId = null,
   highlightedItemType = null,
   isVerifiedAgent = false,
-  panelOpen = false
+  panelOpen = false,
+  mobileCarouselOpen = false
 }, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -864,25 +866,25 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       `}</style>
       <div ref={mapRef} className="w-full h-full z-0" style={{ willChange: 'transform' }} />
       
-      {/* Custom Controls - Shifts left when panel is open on desktop only */}
+      {/* Custom Controls - Responsive: smaller on mobile, moves up when carousel open */}
       <div 
-        className={`absolute bottom-24 lg:bottom-6 right-3 z-[900] flex flex-col gap-1.5 transition-all duration-300 ${
-          panelOpen ? 'lg:right-[456px]' : 'lg:right-3'
-        }`}
+        className={`absolute right-3 z-[900] flex flex-col gap-1 lg:gap-1.5 transition-all duration-300 ${
+          mobileCarouselOpen ? 'bottom-36' : 'bottom-24'
+        } lg:bottom-6 ${panelOpen ? 'lg:right-[456px]' : 'lg:right-3'}`}
       >
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
             onClick={() => mapInstanceRef.current?.zoomIn()}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-7 h-7 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
           </button>
           <div className="w-full h-px bg-border/50" />
           <button
             onClick={() => mapInstanceRef.current?.zoomOut()}
-            className="w-9 h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+            className="w-7 h-7 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
-            <Minus className="h-4 w-4" />
+            <Minus className="h-3.5 w-3.5 lg:h-4 lg:w-4" />
           </button>
         </div>
         <button
@@ -896,10 +898,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
               );
             }
           }}
-          className="w-9 h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
+          className="w-7 h-7 lg:w-9 lg:h-9 rounded-full bg-background/95 backdrop-blur-sm shadow-md border border-border/40 flex items-center justify-center hover:bg-background transition-colors"
           title="Find my location"
         >
-          <Navigation2 className="h-4 w-4 text-muted-foreground" />
+          <Navigation2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-muted-foreground" />
         </button>
       </div>
     </div>

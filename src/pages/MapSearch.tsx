@@ -1434,6 +1434,7 @@ export default function MapSearch() {
                       savedMapState={effectiveMapState}
                       isVerifiedAgent={isVerifiedAgent}
                       panelOpen={showList}
+                      mobileCarouselOpen={showCarousel}
                     />
                   )}
                 </Suspense>
