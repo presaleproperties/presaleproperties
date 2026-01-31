@@ -1378,7 +1378,7 @@ export default function MapSearch() {
             <div 
               className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
               style={{ 
-                left: showList ? 'calc(50% - 230px)' : '50%',
+                left: showList ? 'calc(50% - 210px)' : '50%',
                 transform: 'translateX(-50%)'
               }}
             >
@@ -1396,7 +1396,7 @@ export default function MapSearch() {
               className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
                 showList ? "opacity-0 pointer-events-none" : "opacity-100"
               }`}
-              style={{ right: showList ? 'calc(460px + 24px)' : '12px' }}
+              style={{ right: showList ? 'calc(420px + 16px)' : '12px' }}
               aria-label="Show property list"
             >
               <PanelRightOpen className="h-3.5 w-3.5 text-muted-foreground" />
@@ -1653,48 +1653,46 @@ export default function MapSearch() {
             )}
           </div>
 
-          {/* Desktop Floating List Panel */}
-          <div className={`hidden lg:flex flex-col absolute top-3 bottom-3 right-3 z-[1001] w-[460px] bg-background/95 backdrop-blur-md rounded-xl border border-border/50 shadow-xl transition-all duration-300 ease-out overflow-visible ${
+          {/* Desktop Floating List Panel - Redesigned Premium UI */}
+          <div className={`hidden lg:flex flex-col absolute top-2 bottom-2 right-2 z-[1001] w-[420px] bg-background/90 backdrop-blur-xl rounded-2xl border border-border/30 shadow-2xl transition-all duration-300 ease-out overflow-visible ${
             showList ? "opacity-100 translate-x-0" : "opacity-0 translate-x-full pointer-events-none"
           }`}>
             {/* Collapse button - minimal pill on left edge */}
             <button
               onClick={() => setShowList(false)}
-              className="absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-l-lg shadow-md flex items-center justify-center hover:bg-muted transition-colors"
+              className="absolute -left-2.5 top-1/2 -translate-y-1/2 w-5 h-10 bg-background/95 backdrop-blur-sm border border-border/30 rounded-l-lg shadow-lg flex items-center justify-center hover:bg-muted transition-colors"
               aria-label="Hide property list"
             >
-              <PanelRightClose className="h-3.5 w-3.5 text-muted-foreground" />
+              <PanelRightClose className="h-3 w-3 text-muted-foreground" />
             </button>
             
-            {/* Top Bar - Search + Filter + Quick Filters */}
-            <div className="shrink-0 border-b border-border/50 bg-background/50 rounded-t-xl relative z-[100] overflow-visible">
-              {/* Search Bar Row */}
-              <div className="flex items-center gap-2 px-3 pt-3 pb-3">
-                {/* Search Bar */}
+            {/* Compact Header - Search + Filter + Quick Filters */}
+            <div className="shrink-0 p-2.5 pb-0 relative z-[100] overflow-visible">
+              {/* Search + Filter Row */}
+              <div className="flex items-center gap-1.5 mb-2">
                 <div className="flex-1">
                   <MapSearchBar
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
                     onSuggestionSelect={handleSearchSuggestionSelect}
-                    placeholder="City, MLS#, Address..."
+                    placeholder="Search..."
                     cities={CITIES}
                     neighborhoods={neighborhoodsData || []}
                     projects={projectsForSearch}
                     listings={listingsForSearch}
-                    className="h-9"
+                    className="h-8 text-xs"
                   />
                 </div>
                 
-                {/* Filter Button */}
+                {/* Compact Filter Button */}
                 <Sheet open={desktopFiltersOpen} onOpenChange={setDesktopFiltersOpen}>
                   <SheetTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-2 h-9 px-3 shrink-0">
-                      <SlidersHorizontal className="h-4 w-4" />
-                      FILTER
+                    <Button variant="outline" size="sm" className="h-8 px-2.5 shrink-0 gap-1.5">
+                      <SlidersHorizontal className="h-3.5 w-3.5" />
                       {activeFilterCount > 0 && (
-                        <Badge variant="secondary" className="h-5 w-5 p-0 flex items-center justify-center text-[10px] rounded-full ml-1">
+                        <span className="h-4 w-4 rounded-full bg-primary text-primary-foreground text-[10px] flex items-center justify-center font-medium">
                           {activeFilterCount}
-                        </Badge>
+                        </span>
                       )}
                     </Button>
                   </SheetTrigger>
@@ -1858,13 +1856,13 @@ export default function MapSearch() {
                         onClick={() => {
                           clearAllFilters();
                           setPriceRange([MIN_PRICE, MAX_PRICE]);
-                        }} 
+                        }}
                         className="flex-1"
                       >
-                        CLEAR FILTERS
+                        Clear all
                       </Button>
                       <Button 
-                        onClick={() => setDesktopFiltersOpen(false)} 
+                        onClick={() => setDesktopFiltersOpen(false)}
                         className="flex-1 bg-foreground text-background hover:bg-foreground/90"
                       >
                         DONE
@@ -1874,19 +1872,18 @@ export default function MapSearch() {
                 </Sheet>
               </div>
               
-              {/* Quick Filters Row - Multi-Select for City, Home Type, Price Range + Bed/Bath */}
-              <div className="flex items-center gap-1.5 px-3 pb-2.5 relative z-[100] flex-wrap">
-                {/* City Multi-Select */}
+              {/* Compact Quick Filters - Single Row */}
+              <div className="flex items-center gap-1 pb-2 relative z-[100]">
                 <MultiSelectFilter
                   options={CITIES.map(city => ({ value: city, label: city }))}
                   selected={selectedCities}
                   onChange={(values) => updateMultiFilter("cities", values)}
-                  placeholder="Cities"
+                  placeholder="City"
                   icon={MapPin}
-                  allLabel="All Cities"
+                  allLabel="City"
+                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:min-w-0 [&_button]:px-2"
                 />
                 
-                {/* Home Type Multi-Select */}
                 <MultiSelectFilter
                   options={PROPERTY_TYPES.filter(t => t.value !== "any").map(opt => ({ 
                     value: opt.value, 
@@ -1895,135 +1892,99 @@ export default function MapSearch() {
                   }))}
                   selected={selectedPropertyTypes}
                   onChange={(values) => updateMultiFilter("types", values)}
-                  placeholder="Home Type"
+                  placeholder="Type"
                   icon={Home}
-                  allLabel="Any Type"
+                  allLabel="Type"
+                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:min-w-0 [&_button]:px-2"
                 />
                 
-                {/* Price Range Multi-Select */}
                 <MultiSelectFilter
                   options={PRICE_RANGE_OPTIONS}
                   selected={selectedPriceRanges}
                   onChange={(values) => updateMultiFilter("prices", values)}
                   placeholder="Price"
                   icon={DollarSign}
-                  allLabel="Any Price"
+                  allLabel="Price"
+                  className="[&_button]:h-7 [&_button]:text-[11px] [&_button]:min-w-0 [&_button]:px-2"
                 />
                 
-                {/* Bedrooms Dropdown */}
+                {/* Compact Bed/Bath */}
                 <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[70px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground [&>span]:flex [&>span]:flex-row [&>span]:items-center [&>span]:gap-1",
+                    "h-7 text-[11px] w-[58px] font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3",
                     filters.beds !== "any" && "border-primary/50 bg-primary/5"
                   )}>
                     <Bed className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span>{filters.beds === "any" ? "Beds" : filters.beds === "0" ? "Studio" : `${filters.beds}+`}</span>
+                    <span className="truncate">{filters.beds === "any" ? "Bed" : filters.beds === "0" ? "0" : `${filters.beds}+`}</span>
                   </SelectTrigger>
-                  <SelectContent 
-                    className="bg-popover border-border shadow-lg" 
-                    position="popper" 
-                    side="bottom"
-                    align="start"
-                    sideOffset={4}
-                    style={{ zIndex: 9999 }}
-                  >
+                  <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
                     {BED_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.value === "any" ? "Any Beds" : opt.label === "Studio" ? "Studio" : `${opt.label}+ Bed`}
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        {opt.value === "any" ? "Any" : opt.label}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 
-                {/* Bathrooms Dropdown */}
                 <Select value={filters.baths} onValueChange={(v) => updateFilter("baths", v)}>
                   <SelectTrigger className={cn(
-                    "h-8 text-xs min-w-[70px] font-normal rounded-md border bg-background hover:bg-accent hover:text-accent-foreground [&>span]:flex [&>span]:flex-row [&>span]:items-center [&>span]:gap-1",
+                    "h-7 text-[11px] w-[58px] font-normal rounded-md border bg-background px-2 [&>svg]:h-3 [&>svg]:w-3",
                     filters.baths !== "any" && "border-primary/50 bg-primary/5"
                   )}>
                     <Bath className="h-3 w-3 text-muted-foreground shrink-0" />
-                    <span>{filters.baths === "any" ? "Baths" : `${filters.baths}+`}</span>
+                    <span className="truncate">{filters.baths === "any" ? "Bath" : `${filters.baths}+`}</span>
                   </SelectTrigger>
-                  <SelectContent 
-                    className="bg-popover border-border shadow-lg" 
-                    position="popper" 
-                    side="bottom"
-                    align="start"
-                    sideOffset={4}
-                    style={{ zIndex: 9999 }}
-                  >
+                  <SelectContent className="bg-popover border-border shadow-lg" style={{ zIndex: 10000 }}>
                     {BATH_OPTIONS.map((opt) => (
-                      <SelectItem key={opt.value} value={opt.value}>
-                        {opt.value === "any" ? "Any Baths" : `${opt.label} Bath`}
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        {opt.value === "any" ? "Any" : `${opt.label}`}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
                 
-                {/* Clear Filters - only show if filters active */}
                 {activeFilterCount > 0 && (
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-8 text-xs text-muted-foreground hover:text-foreground px-2"
+                  <button 
                     onClick={() => {
                       clearAllFilters();
                       setPriceRange([MIN_PRICE, MAX_PRICE]);
                     }}
+                    className="h-7 px-1.5 text-[10px] text-muted-foreground hover:text-foreground"
                   >
-                    <X className="h-3 w-3 mr-1" />
-                    Clear
-                  </Button>
+                    <X className="h-3 w-3" />
+                  </button>
                 )}
               </div>
             </div>
 
-            {/* Results Header - Count + Sort + Map/List Toggle */}
-            <div className="px-3 py-2 border-b border-border flex items-center justify-between bg-muted/30 relative z-10">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-foreground">
-                  {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "Results"}
-                </span>
+            {/* Compact Results Bar */}
+            <div className="px-2.5 py-1.5 border-y border-border/30 flex items-center justify-between bg-muted/20 relative z-10">
+              <span className="text-xs font-medium text-foreground">
+                {propertiesInViewCount > 0 ? propertiesInViewCount : totalCount} {propertiesInViewCount > 0 ? "in view" : "results"}
+              </span>
+              <div className="flex items-center gap-1.5">
                 <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-                  <SelectTrigger className="w-[110px] h-7 text-xs border border-border bg-background hover:bg-muted px-2 gap-1 rounded-md">
+                  <SelectTrigger className="w-[90px] h-6 text-[10px] border-0 bg-transparent hover:bg-muted px-1.5 gap-1 rounded">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent 
-                    className="bg-popover border-border shadow-lg" 
-                    position="popper" 
-                    side="bottom"
-                    align="start"
-                    sideOffset={4}
-                    style={{ zIndex: 9999 }}
-                  >
-                    {SORT_OPTIONS.map((opt) => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}
+                  <SelectContent className="bg-popover border-border shadow-lg text-xs" style={{ zIndex: 10000 }}>
+                    <SelectItem value="newest">Newest</SelectItem>
+                    <SelectItem value="price_asc">Price ↑</SelectItem>
+                    <SelectItem value="price_desc">Price ↓</SelectItem>
                   </SelectContent>
                 </Select>
-              </div>
-              
-              {/* Map/List toggle buttons */}
-              <div className="flex items-center gap-1 border border-border rounded-md overflow-hidden">
-                <button
-                  onClick={() => setShowList(true)}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium transition-colors ${
-                    showList ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  <Map className="h-3.5 w-3.5" />
-                  Map
-                </button>
                 <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                    List
+                  <button className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">
+                    <LayoutGrid className="h-3 w-3" />
+                    Grid
                   </button>
                 </Link>
               </div>
             </div>
 
-            {/* Scrollable Grid - REW-style sizing with our branding */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-4 relative z-0 rounded-b-xl">
-              <div className="grid grid-cols-2 gap-4">
+            {/* Property Grid - Maximized Space */}
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-2 relative z-0 rounded-b-2xl">
+              <div className="grid grid-cols-2 gap-2">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
                   const isAssignment = item.type === "assignment";
