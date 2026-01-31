@@ -84,8 +84,9 @@ export function HeroSection({
           </p>
 
           {/* Premium Search Card */}
+          {/* IMPORTANT: No overflow-hidden here - it clips the PowerSearch dropdown */}
           <div 
-            className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto animate-fade-in overflow-hidden border border-border/10" 
+            className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto animate-fade-in border border-border/10" 
             style={{ animationDelay: "0.2s" }}
           >
             {/* Search Header with Tabs */}
