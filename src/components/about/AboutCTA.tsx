@@ -46,10 +46,10 @@ export function AboutCTA() {
             {/* Trust badges */}
             <div className="mt-12 pt-8 border-t border-background/20">
               <p className="text-sm text-background/60 mb-4">Trusted by hundreds of families across Metro Vancouver</p>
-              <div className="flex flex-wrap items-center justify-center gap-6 text-background/80">
-                <span className="text-sm">✓ 100% New Construction</span>
-                <span className="text-sm">✓ Free Buyer Representation</span>
-                <span className="text-sm">✓ Multilingual Support</span>
+              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-background/80">
+                <span className="text-xs sm:text-sm">✓ New Construction Specialists</span>
+                <span className="text-xs sm:text-sm">✓ Developer Pays Our Fee</span>
+                <span className="text-xs sm:text-sm">✓ Multilingual Support</span>
               </div>
             </div>
           </div>
