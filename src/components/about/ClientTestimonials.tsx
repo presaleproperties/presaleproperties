@@ -1,34 +1,76 @@
 import { Star, Quote, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
-const testimonials = [
+interface GoogleReview {
+  id: string;
+  reviewer_name: string;
+  reviewer_location: string | null;
+  rating: number;
+  review_text: string;
+  review_date: string | null;
+  is_featured: boolean;
+}
+
+// Fallback reviews if database is empty
+const fallbackTestimonials = [
   {
-    name: "Harpreet K.",
-    location: "Surrey, BC",
-    text: "As first-time buyers, we were nervous about the presale process. The team at Presale Properties made everything crystal clear. They negotiated $25,000 in incentives for us and walked us through every document. Couldn't have asked for better guidance!",
+    id: "fallback-1",
+    reviewer_name: "Harpreet K.",
+    reviewer_location: "Surrey, BC",
+    review_text: "As first-time buyers, we were nervous about the presale process. The team at Presale Properties made everything crystal clear. They negotiated $25,000 in incentives for us and walked us through every document. Couldn't have asked for better guidance!",
     rating: 5,
+    review_date: null,
+    is_featured: false,
   },
   {
-    name: "Jin & Sarah M.",
-    location: "Coquitlam, BC",
-    text: "We've bought 3 presales with this team now. Their knowledge of the market and relationships with developers is unmatched. They've helped us build a portfolio that generates solid passive income. Highly recommend for investors!",
+    id: "fallback-2",
+    reviewer_name: "Jin & Sarah M.",
+    reviewer_location: "Coquitlam, BC",
+    review_text: "We've bought 3 presales with this team now. Their knowledge of the market and relationships with developers is unmatched. They've helped us build a portfolio that generates solid passive income. Highly recommend for investors!",
     rating: 5,
+    review_date: null,
+    is_featured: false,
   },
   {
-    name: "Rajesh P.",
-    location: "Langley, BC",
-    text: "The multilingual support was a game-changer for my parents who were helping with the purchase. Everything was explained in Punjabi, and they felt comfortable and included throughout. Professional, patient, and truly caring team.",
+    id: "fallback-3",
+    reviewer_name: "Rajesh P.",
+    reviewer_location: "Langley, BC",
+    review_text: "The multilingual support was a game-changer for my parents who were helping with the purchase. Everything was explained in Punjabi, and they felt comfortable and included throughout. Professional, patient, and truly caring team.",
     rating: 5,
+    review_date: null,
+    is_featured: false,
   },
   {
-    name: "Amanda T.",
-    location: "Vancouver, BC",
-    text: "I initially thought I didn't need a realtor for presale — I was wrong. The contract review alone saved me from potential issues with my assignment clause. Plus, the legal credit they secured covered my lawyer fees. Free expert help is a no-brainer!",
+    id: "fallback-4",
+    reviewer_name: "Amanda T.",
+    reviewer_location: "Vancouver, BC",
+    review_text: "I initially thought I didn't need a realtor for presale — I was wrong. The contract review alone saved me from potential issues with my assignment clause. Plus, the legal credit they secured covered my lawyer fees. Free expert help is a no-brainer!",
     rating: 5,
+    review_date: null,
+    is_featured: false,
   },
 ];
 
 export function ClientTestimonials() {
+  const { data: reviews } = useQuery({
+    queryKey: ["google-reviews-public"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("google_reviews")
+        .select("*")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true })
+        .limit(4);
+      if (error) throw error;
+      return data as GoogleReview[];
+    },
+  });
+
+  // Use database reviews if available, otherwise fallback
+  const displayReviews = reviews && reviews.length > 0 ? reviews : fallbackTestimonials;
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
@@ -48,22 +90,22 @@ export function ClientTestimonials() {
         </div>
         
         <div className="grid md:grid-cols-2 gap-6 mb-10">
-          {testimonials.map((testimonial, index) => (
+          {displayReviews.map((review) => (
             <div
-              key={index}
+              key={review.id}
               className="bg-card rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow"
             >
               <Quote className="h-8 w-8 text-primary/30 mb-4" />
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                "{testimonial.text}"
+                "{review.review_text}"
               </p>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-foreground">{testimonial.name}</p>
-                  <p className="text-sm text-muted-foreground">{testimonial.location}</p>
+                  <p className="font-semibold text-foreground">{review.reviewer_name}</p>
+                  <p className="text-sm text-muted-foreground">{review.reviewer_location}</p>
                 </div>
                 <div className="flex gap-0.5">
-                  {[...Array(testimonial.rating)].map((_, i) => (
+                  {[...Array(review.rating)].map((_, i) => (
                     <Star key={i} className="h-4 w-4 fill-primary text-primary" />
                   ))}
                 </div>

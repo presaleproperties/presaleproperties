@@ -58,6 +58,7 @@ import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
 import AdminMarketData from "./pages/admin/AdminMarketData";
 import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
 import AdminTeamMembers from "./pages/admin/AdminTeamMembers";
+import AdminGoogleReviews from "./pages/admin/AdminGoogleReviews";
 import NotFound from "./pages/NotFound";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminClientSearches from "./pages/admin/AdminClientSearches";
@@ -288,6 +289,7 @@ const App = () => (
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/searches" element={<AdminProtectedRoute><AdminClientSearches /></AdminProtectedRoute>} />
             <Route path="/admin/team-members" element={<AdminProtectedRoute><AdminTeamMembers /></AdminProtectedRoute>} />
+            <Route path="/admin/google-reviews" element={<AdminProtectedRoute><AdminGoogleReviews /></AdminProtectedRoute>} />
             
             {/* Agent URL Redirects - common typos/variants */}
             <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
