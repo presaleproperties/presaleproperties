@@ -25,6 +25,7 @@ import {
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2, GripVertical, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { TeamMemberPhotoUpload } from "@/components/admin/TeamMemberPhotoUpload";
 
 interface TeamMember {
   id: string;
@@ -239,14 +240,13 @@ export default function AdminTeamMembers() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="photo_url">Photo URL</Label>
-                  <Input
-                    id="photo_url"
-                    value={formData.photo_url || ""}
-                    onChange={(e) =>
-                      setFormData({ ...formData, photo_url: e.target.value })
+                  <Label>Photo</Label>
+                  <TeamMemberPhotoUpload
+                    currentPhotoUrl={formData.photo_url || null}
+                    onPhotoChange={(url) =>
+                      setFormData({ ...formData, photo_url: url || "" })
                     }
-                    placeholder="https://..."
+                    memberName={formData.full_name || "Team Member"}
                   />
                 </div>
 
