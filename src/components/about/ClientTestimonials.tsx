@@ -117,11 +117,11 @@ export function ClientTestimonials() {
         <div className="text-center">
           <Button variant="outline" size="lg" className="gap-2" asChild>
             <a
-              href="https://www.google.com/maps/place/Presale+Properties+Group"
+              href="https://share.google/CjsNKmTbLTlarIIN1"
               target="_blank"
               rel="noopener noreferrer"
             >
-              Read 80+ 5-Star Reviews on Google
+              See All 31+ 5-Star Reviews on Google
               <ExternalLink className="h-4 w-4" />
             </a>
           </Button>
