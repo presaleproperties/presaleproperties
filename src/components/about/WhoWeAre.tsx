@@ -1,15 +1,15 @@
-import { Building2, Globe, Users, TrendingUp } from "lucide-react";
+import { Building2, Globe, Users, Award } from "lucide-react";
 
 const highlights = [
   {
     icon: Building2,
-    title: "100% New Construction",
-    description: "We focus exclusively on presale and move-in ready homes — no resale properties.",
+    title: "New Construction Specialists",
+    description: "80%+ of our business is presale and move-in ready homes — it's what we know best.",
   },
   {
-    icon: TrendingUp,
-    title: "80%+ New Construction",
-    description: "The majority of our business is new construction — condos, townhomes, and single-family homes.",
+    icon: Award,
+    title: "Proven Track Record",
+    description: "400+ new construction homes sold and $200M+ in total transactions.",
   },
   {
     icon: Globe,
@@ -32,25 +32,25 @@ export function WhoWeAre() {
             Who We Are
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
-          <p className="text-lg text-muted-foreground leading-relaxed">
-            Presale Properties Group is a team of licensed REALTORS® focused 100% on new construction homes in Metro Vancouver. 
-            With over <span className="font-semibold text-foreground">400+ new construction homes sold</span> and more than{" "}
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+            Presale Properties Group is a team of licensed REALTORS® specializing in new construction homes across Metro Vancouver. 
+            With <span className="font-semibold text-foreground">400+ new construction homes sold</span> and more than{" "}
             <span className="font-semibold text-foreground">$200 million in transactions</span>, we bring deep expertise 
             and dedication to every client we serve.
           </p>
         </div>
         
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {highlights.map((item) => (
             <div
               key={item.title}
-              className="bg-card rounded-xl p-6 border shadow-sm hover:shadow-md transition-shadow"
+              className="bg-card rounded-xl p-4 sm:p-6 border shadow-sm hover:shadow-md transition-shadow"
             >
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4">
-                <item.icon className="h-6 w-6 text-primary" />
+              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
+                <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground">{item.description}</p>
+              <h3 className="font-semibold text-foreground mb-1 sm:mb-2 text-sm sm:text-base">{item.title}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground">{item.description}</p>
             </div>
           ))}
         </div>
