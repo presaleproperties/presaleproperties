@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Calendar } from "lucide-react";
+import { PresentationDeckGenerator } from "./PresentationDeckGenerator";
 
 export function AboutHero() {
   return (
@@ -32,9 +33,13 @@ export function AboutHero() {
                   Schedule a Free Strategy Call
                 </Link>
               </Button>
-              <Button size="xl" variant="outline" asChild>
+              <PresentationDeckGenerator />
+            </div>
+            
+            <div className="mt-4 flex justify-center lg:justify-start">
+              <Button size="lg" variant="ghost" asChild>
                 <Link to="/presale-projects">
-                  Browse Projects
+                  Browse Projects →
                 </Link>
               </Button>
             </div>
