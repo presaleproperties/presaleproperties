@@ -8,8 +8,8 @@ const highlights = [
   },
   {
     icon: TrendingUp,
-    title: "80%+ Presale Business",
-    description: "The majority of our transactions are presale, making us true specialists in this space.",
+    title: "80%+ New Construction",
+    description: "The majority of our business is new construction — condos, townhomes, and single-family homes.",
   },
   {
     icon: Globe,
@@ -34,8 +34,8 @@ export function WhoWeAre() {
           <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
           <p className="text-lg text-muted-foreground leading-relaxed">
             Presale Properties Group is a team of licensed REALTORS® focused 100% on new construction homes in Metro Vancouver. 
-            With over <span className="font-semibold text-foreground">400+ presale homes sold</span> and more than{" "}
-            <span className="font-semibold text-foreground">$150 million in transactions</span>, we bring deep expertise 
+            With over <span className="font-semibold text-foreground">400+ new construction homes sold</span> and more than{" "}
+            <span className="font-semibold text-foreground">$200 million in transactions</span>, we bring deep expertise 
             and dedication to every client we serve.
           </p>
         </div>

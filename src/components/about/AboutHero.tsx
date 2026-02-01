@@ -57,7 +57,7 @@ export function AboutHero() {
                   <p className="text-xs md:text-sm text-muted-foreground">Homes Sold</p>
                 </div>
                 <div className="text-center border-x border-border">
-                  <p className="text-2xl md:text-3xl font-bold text-primary">$150M+</p>
+                  <p className="text-2xl md:text-3xl font-bold text-primary">$200M+</p>
                   <p className="text-xs md:text-sm text-muted-foreground">In Sales</p>
                 </div>
                 <div className="text-center">
