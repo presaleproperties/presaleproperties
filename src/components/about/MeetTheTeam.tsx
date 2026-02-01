@@ -1,31 +1,64 @@
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
-import { Linkedin, Mail } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Linkedin, Instagram } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 
-const teamMembers = [
-  {
-    name: "Sunny Parmar",
-    title: "Founder & Lead Advisor",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=987&auto=format&fit=crop",
-    bio: "Expert in negotiation, deal structuring, and investor strategy. Sunny has helped hundreds of clients build wealth through strategic presale investments.",
-    specialties: ["Negotiation", "Investor Strategy", "Deal Structuring"],
-  },
-  {
-    name: "Priya Sharma",
-    title: "First-Time Buyer Specialist",
-    image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=988&auto=format&fit=crop",
-    bio: "Focused on education, contract clarity, and emotional support. Priya guides first-time buyers through every step with patience and expertise.",
-    specialties: ["Buyer Education", "Contract Review", "First-Time Buyers"],
-  },
-  {
-    name: "Kevin Lee",
-    title: "Investor Relations & Leasing Expert",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?q=80&w=1170&auto=format&fit=crop",
-    bio: "Handles assignment coordination, tenant placement, and legal liaison. Kevin helps investors maximize returns from purchase to rental.",
-    specialties: ["Assignments", "Tenant Placement", "Leasing"],
-  },
-];
+interface TeamMember {
+  id: string;
+  full_name: string;
+  title: string;
+  photo_url: string | null;
+  bio: string | null;
+  linkedin_url: string | null;
+  instagram_url: string | null;
+  specializations: string[];
+}
 
 export function MeetTheTeam() {
+  const { data: teamMembers = [], isLoading } = useQuery({
+    queryKey: ["team-members"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("team_members")
+        .select("id, full_name, title, photo_url, bio, linkedin_url, instagram_url, specializations")
+        .eq("is_active", true)
+        .order("sort_order", { ascending: true });
+      if (error) throw error;
+      return data as TeamMember[];
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-16 md:py-24 bg-muted/30">
+        <div className="container px-4">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Meet the Team</h2>
+            <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
+          </div>
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="overflow-hidden">
+                <Skeleton className="aspect-[3/4] w-full" />
+                <CardContent className="p-6">
+                  <Skeleton className="h-6 w-32 mb-2" />
+                  <Skeleton className="h-4 w-24 mb-4" />
+                  <Skeleton className="h-16 w-full" />
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (teamMembers.length === 0) {
+    return null;
+  }
+
   return (
     <section className="py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
@@ -39,36 +72,76 @@ export function MeetTheTeam() {
             each focusing on what they do best.
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {teamMembers.map((member) => (
-            <Card key={member.name} className="overflow-hidden hover:shadow-lg transition-shadow">
+            <Card key={member.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
               <div className="aspect-[3/4] relative">
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover"
-                />
+                {member.photo_url ? (
+                  <img
+                    src={member.photo_url}
+                    alt={member.full_name}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                    <span className="text-7xl font-bold text-primary/30">
+                      {member.full_name.charAt(0)}
+                    </span>
+                  </div>
+                )}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4">
-                  <h3 className="text-xl font-bold text-white">{member.name}</h3>
+                  <h3 className="text-xl font-bold text-white">{member.full_name}</h3>
                   <p className="text-primary font-medium">{member.title}</p>
                 </div>
+                {/* Social Links Overlay */}
+                {(member.linkedin_url || member.instagram_url) && (
+                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    {member.linkedin_url && (
+                      <a
+                        href={member.linkedin_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/90 rounded-full hover:bg-white transition-colors shadow-md"
+                        aria-label={`${member.full_name}'s LinkedIn`}
+                      >
+                        <Linkedin className="h-4 w-4 text-[#0077B5]" />
+                      </a>
+                    )}
+                    {member.instagram_url && (
+                      <a
+                        href={member.instagram_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-2 bg-white/90 rounded-full hover:bg-white transition-colors shadow-md"
+                        aria-label={`${member.full_name}'s Instagram`}
+                      >
+                        <Instagram className="h-4 w-4 text-[#E4405F]" />
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
               <CardContent className="p-6">
-                <p className="text-muted-foreground text-sm mb-4 leading-relaxed">
-                  {member.bio}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {member.specialties.map((specialty) => (
-                    <span
-                      key={specialty}
-                      className="px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full"
-                    >
-                      {specialty}
-                    </span>
-                  ))}
-                </div>
+                {member.bio && (
+                  <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-3">
+                    {member.bio}
+                  </p>
+                )}
+                {member.specializations && member.specializations.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {member.specializations.map((spec) => (
+                      <Badge
+                        key={spec}
+                        variant="secondary"
+                        className="bg-primary/10 text-primary text-xs"
+                      >
+                        {spec}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

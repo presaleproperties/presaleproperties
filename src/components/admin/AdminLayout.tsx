@@ -65,6 +65,7 @@ const navGroups = [
       { href: "/admin/leads", label: "Leads", icon: Users2 },
       { href: "/admin/bookings", label: "Bookings", icon: CalendarDays },
       { href: "/admin/agents", label: "Agents", icon: Users2 },
+      { href: "/admin/team-members", label: "Team Members", icon: Users2 },
       { href: "/admin/developer-accounts", label: "Developer Accounts", icon: Landmark },
     ]
   },
