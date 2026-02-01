@@ -1265,6 +1265,48 @@ export type Database = {
         }
         Relationships: []
       }
+      google_reviews: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_featured: boolean | null
+          rating: number
+          review_date: string | null
+          review_text: string
+          reviewer_location: string | null
+          reviewer_name: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          rating?: number
+          review_date?: string | null
+          review_text: string
+          reviewer_location?: string | null
+          reviewer_name: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_featured?: boolean | null
+          rating?: number
+          review_date?: string | null
+          review_text?: string
+          reviewer_location?: string | null
+          reviewer_name?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       landing_page_campaigns: {
         Row: {
           created_at: string
