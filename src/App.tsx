@@ -14,6 +14,7 @@ import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORed
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
+import About from "./pages/About";
 
 import ForAgents from "./pages/ForAgents";
 import BuyersGuide from "./pages/BuyersGuide";
@@ -197,6 +198,7 @@ const App = () => (
             <Route path="/guides" element={<ContentHub />} />
             <Route path="/guides/:categorySlug" element={<BlogCategoryPage />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/about" element={<About />} />
             
             <Route path="/buyers-guide" element={<BuyersGuide />} />
             <Route path="/presale-guide" element={<PresaleGuide />} />
