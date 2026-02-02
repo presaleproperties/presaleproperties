@@ -601,9 +601,9 @@ export default function MapSearch() {
     setSelectedItemType(type);
     
     if (mapNavigationRef.current) {
-      // Fly to the location first
+      // Fly to the location first - use zoom 14 to keep more context visible
       if (lat && lng) {
-        mapNavigationRef.current.flyTo(lat, lng, 16);
+        mapNavigationRef.current.flyTo(lat, lng, 14);
       }
       // Highlight the pin with animation
       mapNavigationRef.current.highlightItem(id, type);
@@ -1550,6 +1550,8 @@ export default function MapSearch() {
                       centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
+                      highlightedItemId={selectedItemId}
+                      highlightedItemType={selectedItemType}
                       isVerifiedAgent={isVerifiedAgent}
                       panelOpen={showList}
                       mobileCarouselOpen={showCarousel}

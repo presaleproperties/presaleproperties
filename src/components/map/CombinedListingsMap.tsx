@@ -902,6 +902,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
         }
         
+        /* Assignment markers - container must be transparent */
+        .assignment-marker { background: transparent !important; border: none !important; }
+        
         /* Assignment dots - minimalistic amber */
         .ap-dot { 
           width: 12px;
