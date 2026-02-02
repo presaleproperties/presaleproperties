@@ -1334,7 +1334,7 @@ export default function MapSearch() {
 
   // Build grid URL with current filters for seamless transition back to grid view
   const gridUrlWithFilters = useMemo(() => {
-    const basePath = mapMode === "presale" ? "/presale-projects" : "/resale";
+    const basePath = mapMode === "presale" ? "/presale-projects" : "/properties";
     return buildGridUrlFromMapFilters(searchParams, basePath);
   }, [searchParams, mapMode]);
 
@@ -2057,7 +2057,7 @@ export default function MapSearch() {
                     <SelectItem value="price_desc">Price ↓</SelectItem>
                   </SelectContent>
                 </Select>
-                <Link to={mapMode === "presale" ? "/presale-projects" : "/resale"}>
+                <Link to={mapMode === "presale" ? "/presale-projects" : "/properties"}>
                   <button className="flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-muted-foreground hover:text-foreground transition-colors rounded hover:bg-muted">
                     <LayoutGrid className="h-3 w-3" />
                     Grid

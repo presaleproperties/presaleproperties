@@ -107,7 +107,7 @@ export function PopularSearchesGrid({
               </Link>
             ))}
             <Link
-              to="/resale/popular-searches"
+              to="/properties/popular-searches"
               className="px-3 py-1.5 bg-primary/10 hover:bg-primary/20 rounded-full text-sm text-primary font-medium transition-colors"
             >
               View All →

@@ -105,7 +105,7 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
           )}
         </div>
         <Link
-          to="/resale"
+          to="/properties"
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted transition-colors shrink-0"
         >
           View All

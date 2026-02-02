@@ -174,7 +174,7 @@ export function ResaleNewestCarousel() {
             </Button>
           </div>
           <Link
-            to="/resale?sort=newest"
+            to="/properties?sort=newest"
             className="flex items-center gap-1.5 text-sm font-medium text-muted-foreground bg-muted/50 hover:bg-muted px-3 py-1.5 rounded-full transition-colors shrink-0"
           >
             View All

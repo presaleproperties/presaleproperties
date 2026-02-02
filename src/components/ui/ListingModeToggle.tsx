@@ -12,7 +12,7 @@ export function ListingModeToggle({ className, size = "default" }: ListingModeTo
   const location = useLocation();
   
   // Determine which mode is active based on current route
-  const isResale = location.pathname.startsWith("/resale") || 
+  const isResale = location.pathname.startsWith("/properties") || 
                    location.pathname === "/map-search";
   const isPresale = !isResale;
 

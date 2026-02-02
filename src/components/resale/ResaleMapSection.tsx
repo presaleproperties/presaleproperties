@@ -147,7 +147,7 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
               <p className="text-sm mb-4">
                 Map data is being prepared. Use our search to browse listings.
               </p>
-              <Link to="/resale">
+              <Link to="/properties">
                 <Button variant="default" size="sm">
                   Browse All Listings
                 </Button>

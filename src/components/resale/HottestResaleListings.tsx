@@ -83,7 +83,7 @@ export function HottestResaleListings() {
             </p>
           </div>
           <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">
-            <Link to="/resale">
+            <Link to="/properties">
               View All Listings
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
@@ -138,14 +138,14 @@ export function HottestResaleListings() {
               We're adding new construction homes daily.
             </p>
             <Button asChild>
-              <Link to="/resale">Browse All Listings</Link>
+              <Link to="/properties">Browse All Listings</Link>
             </Button>
           </div>
         )}
 
         {/* Mobile CTA */}
         <div className="mt-6 sm:hidden">
-          <Link to="/resale">
+          <Link to="/properties">
             <Button variant="outline" className="w-full">
               View All Listings
             </Button>

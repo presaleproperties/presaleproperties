@@ -67,7 +67,7 @@ export function TwoWaysToBuy() {
                   <p className="text-sm text-muted-foreground leading-relaxed mb-4">
                     Just completed new construction. Move in within 30-60 days. Built within last 6 months, never lived in.
                   </p>
-                  <Link to="/resale">
+                  <Link to="/properties">
                     <Button variant="outline" size="sm" className="gap-1.5 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-emerald-600 transition-colors">
                       View Available Now
                       <ArrowRight className="h-3.5 w-3.5" />
