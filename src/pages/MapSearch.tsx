@@ -566,54 +566,18 @@ export default function MapSearch() {
     };
   }, [debouncedCarouselScroll, showCarousel]);
 
-  // Handle carousel card tap - first tap focuses, second tap navigates
+  // Handle carousel card tap - navigate directly to property detail page
   const handleCarouselCardTap = useCallback((id: string, type: "resale" | "presale" | "assignment", link: string) => {
-    if (focusedCarouselItemId === id) {
-      // Already focused - navigate to detail page
-      navigate(link);
-    } else {
-      // First tap - focus and fly to pin
-      setFocusedCarouselItemId(id);
-      setFocusedCarouselItemType(type);
-      
-      if (mapNavigationRef.current) {
-        mapNavigationRef.current.highlightItem(id, type);
-      }
-    }
-  }, [focusedCarouselItemId, navigate]);
+    // Navigate directly to property page
+    navigate(link);
+  }, [navigate]);
 
-  // Handle desktop list card click - same pattern: first click focuses & flies to pin, second click navigates
+  // Handle desktop list card click - navigate directly to property detail page
+  // The Link component handles navigation naturally; this only handles assignment agent verification
   const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale" | "assignment", link: string, lat: number | null, lng: number | null) => {
-    if (focusedCarouselItemId === id) {
-      // Already focused - navigate to detail page (let the link work naturally)
-      return;
-    }
-    
-    // First click - prevent navigation, focus and fly to pin
-    e.preventDefault();
-    
-    // Pause visible items updates to prevent card jumping
-    setIsListInteracting(true);
-    
-    setFocusedCarouselItemId(id);
-    setFocusedCarouselItemType(type);
-    setSelectedItemId(id);
-    setSelectedItemType(type);
-    
-    if (mapNavigationRef.current) {
-      // Fly to the location first - use zoom 14 to keep more context visible
-      if (lat && lng) {
-        mapNavigationRef.current.flyTo(lat, lng, 14);
-      }
-      // Highlight the pin with animation
-      mapNavigationRef.current.highlightItem(id, type);
-    }
-    
-    // Resume visible items updates after fly animation completes
-    setTimeout(() => {
-      setIsListInteracting(false);
-    }, 1000);
-  }, [focusedCarouselItemId]);
+    // Just let the Link navigate naturally - no map interaction needed
+    // Assignment verification is handled in the onClick before this is called
+  }, []);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
     setMapMode(newMode);
@@ -1742,12 +1706,6 @@ export default function MapSearch() {
                                   <Lock className="h-5 w-5 text-white mx-auto mb-0.5" />
                                   <p className="text-[9px] text-white font-medium">Agent Only</p>
                                 </div>
-                              </div>
-                            )}
-                            {/* Tap indicator for focused card */}
-                            {isFocused && !isAssignment && (
-                              <div className="absolute bottom-1.5 right-1.5 bg-foreground/90 text-background text-[8px] font-semibold px-1.5 py-0.5 rounded">
-                                TAP TO VIEW
                               </div>
                             )}
                           </div>
