@@ -141,7 +141,7 @@ export function FeaturedResaleListings() {
               Check back soon for new listings.
             </p>
             <Button asChild>
-              <Link to="/resale">Browse All Listings</Link>
+              <Link to="/properties">Browse All Listings</Link>
             </Button>
           </div>
         </div>
@@ -190,7 +190,7 @@ export function FeaturedResaleListings() {
               </Button>
             </div>
             <Button variant="outline" size="sm" asChild className="hidden sm:flex gap-1">
-              <Link to="/resale">
+              <Link to="/properties">
                 View All
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -238,7 +238,7 @@ export function FeaturedResaleListings() {
 
         {/* Mobile View All */}
         <div className="mt-4 sm:hidden">
-          <Link to="/resale">
+          <Link to="/properties">
             <Button variant="outline" className="w-full">
               View All Listings
             </Button>

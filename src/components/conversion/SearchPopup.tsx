@@ -32,7 +32,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setShowSuggestions(false);
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/properties";
     if (searchQuery.trim()) {
       navigate(`${basePath}?q=${encodeURIComponent(searchQuery)}`);
     } else {
@@ -51,7 +51,7 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
       return;
     }
 
-    const basePath = activeTab === "projects" ? "/presale-projects" : "/resale";
+    const basePath = activeTab === "projects" ? "/presale-projects" : "/properties";
     navigate(`${basePath}?q=${encodeURIComponent(value)}`);
     onOpenChange(false);
   };

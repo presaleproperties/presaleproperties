@@ -100,7 +100,7 @@ export function Footer() {
             <h4 className="text-xs sm:text-sm font-semibold">Move-In Ready</h4>
             <ul className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <li>
-                <Link to="/resale" className="hover:text-foreground transition-colors">
+                <Link to="/properties" className="hover:text-foreground transition-colors">
                   All New Homes
                 </Link>
               </li>
@@ -110,17 +110,17 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/resale?city=Vancouver" className="hover:text-foreground transition-colors">
+                <Link to="/properties/vancouver" className="hover:text-foreground transition-colors">
                   Vancouver Homes
                 </Link>
               </li>
               <li>
-                <Link to="/resale?city=Surrey" className="hover:text-foreground transition-colors">
+                <Link to="/properties/surrey" className="hover:text-foreground transition-colors">
                   Surrey Homes
                 </Link>
               </li>
               <li>
-                <Link to="/resale?city=Langley" className="hover:text-foreground transition-colors">
+                <Link to="/properties/langley" className="hover:text-foreground transition-colors">
                   Langley Homes
                 </Link>
               </li>

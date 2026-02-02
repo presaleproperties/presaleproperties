@@ -91,7 +91,7 @@ export function buildMapUrlFromGridFilters(
  */
 export function buildGridUrlFromMapFilters(
   currentSearchParams: URLSearchParams,
-  basePath: string = "/resale"
+  basePath: string = "/properties"
 ): string {
   const params = new URLSearchParams();
   

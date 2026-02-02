@@ -159,7 +159,7 @@ function PresaleToggle() {
         Presale
       </button>
       <button
-        onClick={() => navigate("/resale")}
+        onClick={() => navigate("/properties")}
         className="px-4 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         Move-In Ready

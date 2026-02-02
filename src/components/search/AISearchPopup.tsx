@@ -1037,10 +1037,10 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
                             size="sm"
                             onClick={() => {
                               onOpenChange(false);
-                              navigate(searchMode === "projects" ? "/presale-projects" : "/resale");
+                              navigate(searchMode === "projects" ? "/presale-projects" : "/properties");
                             }}
                           >
-                            Browse All {searchMode === "projects" ? "Projects" : "Resale"}
+                            Browse All {searchMode === "projects" ? "Projects" : "Listings"}
                           </Button>
                         </div>
                       )}

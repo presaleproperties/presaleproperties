@@ -173,7 +173,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                     <div className="w-[520px] p-5 bg-background rounded-xl shadow-lg border border-border/50">
                       {/* Header Link */}
                       <Link 
-                        to="/resale" 
+                        to="/properties" 
                         className="flex items-center gap-3 p-3 rounded-lg hover:bg-secondary/80 transition-colors group mb-4"
                       >
                         <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
@@ -382,7 +382,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                         </CollapsibleTrigger>
                         <CollapsibleContent className="pb-2">
                           <Link
-                            to="/resale"
+                            to="/properties"
                             onClick={() => setOpen(false)}
                             className="flex items-center gap-3 px-3 py-3 rounded-lg text-foreground hover:bg-secondary/60 transition-colors mb-2"
                           >
