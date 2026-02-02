@@ -389,15 +389,25 @@ export default function CityResalePage() {
   };
 
   if (!cityConfig) {
+    // Set 404 status for prerender/SSR
+    if (typeof window !== 'undefined') {
+      (window as any).prerenderStatusCode = 404;
+    }
+    
     return (
       <>
+        <Helmet>
+          <title>City Not Found | Presale Properties</title>
+          <meta name="robots" content="noindex, follow" />
+          <meta name="prerender-status-code" content="404" />
+        </Helmet>
         <ConversionHeader />
         <div className="min-h-screen flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-2xl font-bold mb-2">City Not Found</h1>
             <p className="text-muted-foreground mb-4">We couldn't find listings for this city.</p>
             <Button asChild>
-              <Link to="/resale">Browse All New Homes</Link>
+              <Link to="/properties">Browse All New Homes</Link>
             </Button>
           </div>
         </div>
