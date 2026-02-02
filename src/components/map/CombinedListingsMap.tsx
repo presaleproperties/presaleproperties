@@ -574,6 +574,66 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const dataHashRef = useRef<string>("");
   const lastModeRef = useRef<string>(mode);
   
+  // Track the currently highlighted marker to efficiently update icons
+  const highlightedMarkerRef = useRef<{ marker: L.Marker; id: string; type: "resale" | "presale" | "assignment" } | null>(null);
+  
+  // Separate effect to handle highlight changes WITHOUT rebuilding all markers
+  // This prevents the "blink" effect when clicking a property card
+  useEffect(() => {
+    const effectiveHighlightId = internalHighlightId || highlightedItemId;
+    
+    // Unhighlight the previous marker
+    if (highlightedMarkerRef.current && highlightedMarkerRef.current.id !== effectiveHighlightId) {
+      const { marker, id, type } = highlightedMarkerRef.current;
+      
+      // Restore non-highlighted icon
+      if (type === "resale") {
+        const listing = validResaleListings.find(l => l.id === id);
+        if (listing) marker.setIcon(createResalePricePillIcon(listing, false));
+      } else if (type === "presale") {
+        const project = validPresaleProjects.find(p => p.id === id);
+        if (project) marker.setIcon(createPresalePinIcon(project, false));
+      } else if (type === "assignment") {
+        const assignment = validAssignments.find(a => a.id === id);
+        if (assignment) marker.setIcon(createAssignmentPinIcon(assignment, false));
+      }
+      
+      highlightedMarkerRef.current = null;
+    }
+    
+    // Highlight the new marker
+    if (effectiveHighlightId) {
+      // Find the marker in one of the maps
+      let marker = resaleMarkersMapRef.current.get(effectiveHighlightId);
+      let type: "resale" | "presale" | "assignment" = "resale";
+      
+      if (!marker) {
+        marker = presaleMarkersMapRef.current.get(effectiveHighlightId);
+        type = "presale";
+      }
+      if (!marker) {
+        marker = assignmentMarkersMapRef.current.get(effectiveHighlightId);
+        type = "assignment";
+      }
+      
+      if (marker) {
+        // Apply highlighted icon
+        if (type === "resale") {
+          const listing = validResaleListings.find(l => l.id === effectiveHighlightId);
+          if (listing) marker.setIcon(createResalePricePillIcon(listing, true));
+        } else if (type === "presale") {
+          const project = validPresaleProjects.find(p => p.id === effectiveHighlightId);
+          if (project) marker.setIcon(createPresalePinIcon(project, true));
+        } else if (type === "assignment") {
+          const assignment = validAssignments.find(a => a.id === effectiveHighlightId);
+          if (assignment) marker.setIcon(createAssignmentPinIcon(assignment, true));
+        }
+        
+        highlightedMarkerRef.current = { marker, id: effectiveHighlightId, type };
+      }
+    }
+  }, [internalHighlightId, highlightedItemId, validResaleListings, validPresaleProjects, validAssignments]);
+
   // Update markers when data or mode changes - optimized to minimize re-renders
   useEffect(() => {
     const map = mapInstanceRef.current;
@@ -594,12 +654,14 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     if (currentHash === dataHashRef.current && 
         mode === lastModeRef.current &&
         (resaleMarkersMapRef.current.size > 0 || presaleMarkersMapRef.current.size > 0 || assignmentMarkersMapRef.current.size > 0)) {
-      // Still need to update highlighted state without rebuilding
       return;
     }
     
     dataHashRef.current = currentHash;
     lastModeRef.current = mode;
+    
+    // Clear the highlight ref since we're rebuilding markers
+    highlightedMarkerRef.current = null;
 
     clusterGroup.clearLayers();
     presaleLayer.clearLayers();
@@ -637,9 +699,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             lng += radius * Math.cos(angle);
           }
           
-          const isHighlighted = internalHighlightId === listing.id || highlightedItemId === listing.id;
+          // Always create with non-highlighted icon - separate useEffect handles highlighting
           const marker = L.marker([lat, lng], {
-            icon: createResalePricePillIcon(listing, isHighlighted),
+            icon: createResalePricePillIcon(listing, false),
           });
 
           if (!disablePopupsOnMobile) {
@@ -664,9 +726,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     // Add presale projects
     if (mode === "all" || mode === "presale") {
       validPresaleProjects.forEach((project) => {
-        const isHighlighted = internalHighlightId === project.id || highlightedItemId === project.id;
+        // Always create with non-highlighted icon - separate useEffect handles highlighting
         const marker = L.marker([project.map_lat!, project.map_lng!], {
-          icon: createPresalePinIcon(project, isHighlighted),
+          icon: createPresalePinIcon(project, false),
         });
 
         if (!disablePopupsOnMobile) {
@@ -690,9 +752,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     // Add assignments
     if (mode === "all" || mode === "assignments") {
       validAssignments.forEach((assignment) => {
-        const isHighlighted = internalHighlightId === assignment.id || highlightedItemId === assignment.id;
+        // Always create with non-highlighted icon - separate useEffect handles highlighting
         const marker = L.marker([assignment.map_lat!, assignment.map_lng!], {
-          icon: createAssignmentPinIcon(assignment, isHighlighted),
+          icon: createAssignmentPinIcon(assignment, false),
         });
 
         if (!disablePopupsOnMobile) {
@@ -727,7 +789,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     requestAnimationFrame(() => {
       updateVisibleItems();
     });
-  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, internalHighlightId, highlightedItemId, isVerifiedAgent, updateVisibleItems]);
+    // Note: internalHighlightId and highlightedItemId are NOT dependencies here
+    // Highlighting is handled by a separate useEffect to prevent full marker rebuilds
+  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, isVerifiedAgent, updateVisibleItems]);
 
   // Center on user location - only when no saved/URL state exists
   useEffect(() => {
