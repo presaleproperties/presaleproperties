@@ -1,9 +1,15 @@
 import { Helmet } from 'react-helmet-async';
+import { useSearchParams } from 'react-router-dom';
 import { ConversionHeader } from '@/components/conversion/ConversionHeader';
 import { Footer } from '@/components/layout/Footer';
 import { InvestmentSnapshot } from '@/components/calculators/InvestmentSnapshot';
 
+const CANONICAL_URL = "https://presaleproperties.com/calculator";
+
 export default function InvestmentSnapshotPage() {
+  const [searchParams] = useSearchParams();
+  const hasParams = searchParams.toString().length > 0;
+  
   return (
     <>
       <Helmet>
@@ -12,6 +18,10 @@ export default function InvestmentSnapshotPage() {
           name="description" 
           content="Instantly calculate your condo investment cash flow. Simple one-page tool to project monthly income, expenses, and returns for BC real estate." 
         />
+        {/* Always point to clean canonical URL */}
+        <link rel="canonical" href={CANONICAL_URL} />
+        {/* Noindex if query params are present */}
+        {hasParams && <meta name="robots" content="noindex, follow" />}
       </Helmet>
 
       <ConversionHeader />

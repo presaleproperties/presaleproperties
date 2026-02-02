@@ -25,10 +25,11 @@ const SITE_URL = "https://presaleproperties.com";
 const NOINDEX_PARAMS = [
   "lat", "lng", "zoom", "project", "sort", "view", 
   "page", "beds", "baths", "price", "type", "deposit", 
-  "year", "status", "filter", "q", "search", "mode"
+  "year", "status", "filter", "q", "search", "mode",
+  "city", "neighborhood", "developer"
 ];
 
-// Routes that should ALWAYS be noindexed
+// Routes that should ALWAYS be noindexed (regardless of params)
 const NOINDEX_ROUTES = [
   "/map-search",
   "/admin",
@@ -41,6 +42,13 @@ const NOINDEX_ROUTES = [
   "/campaign",
   "/vip-access",
   "/404",
+];
+
+// Routes that should noindex when they have query params, canonical to base
+const NOINDEX_WITH_PARAMS_ROUTES = [
+  "/calculator",
+  "/presale-projects",
+  "/properties",
 ];
 
 // City filter pages that should canonical to clean city pages
