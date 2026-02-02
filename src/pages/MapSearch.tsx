@@ -214,10 +214,11 @@ export default function MapSearch() {
   const restoredUIState = useMemo(() => getRestoredUIState(), []);
   
   const [showCarousel, setShowCarousel] = useState(() => restoredUIState?.showCarousel ?? false);
-  const [selectedItemId, setSelectedItemId] = useState<string | null>(() => restoredUIState?.selectedItemId ?? null);
-  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(() => restoredUIState?.selectedItemType ?? null);
-  const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(() => restoredUIState?.focusedItemId ?? null);
-  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(() => restoredUIState?.focusedItemType ?? null);
+  // Don't restore selected/focused item states - start fresh with no selection
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null);
+  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [visibleAssignmentIds, setVisibleAssignmentIds] = useState<string[]>([]);
