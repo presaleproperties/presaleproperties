@@ -43,6 +43,7 @@ import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
 import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import { buildGridUrlFromMapFilters } from "@/lib/filterSync";
+import { useMinYearBuilt, DEFAULT_MIN_YEAR_BUILT } from "@/hooks/useMinYearBuilt";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
 
 // Lazy load the combined map component
@@ -204,6 +205,9 @@ export default function MapSearch() {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [desktopFiltersOpen, setDesktopFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
+  
+  // Get admin-controlled minimum year built
+  const { data: adminMinYear = DEFAULT_MIN_YEAR_BUILT } = useMinYearBuilt();
   
   // Refs defined early for state restoration
   const carouselRef = useRef<HTMLDivElement>(null);

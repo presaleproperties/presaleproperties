@@ -27,6 +27,7 @@ import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { supabase } from "@/integrations/supabase/client";
+import { useYearBuiltOptions, parseYearBuiltFilter } from "@/hooks/useYearBuiltOptions";
 
 const ITEMS_PER_PAGE = 16;
 
@@ -217,6 +218,9 @@ export default function CityResalePage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  
+  // Get year built options from admin-controlled minimum
+  const { rangeOptions: yearBuiltOptions, minYear: adminMinYear } = useYearBuiltOptions();
 
   // Extract city slug from URL path: /resale/vancouver -> vancouver
   const citySlug = location.pathname.split('/').pop() || '';
@@ -226,23 +230,32 @@ export default function CityResalePage() {
     propertyType: searchParams.get("type") || "any",
     priceRange: searchParams.get("price") || "any",
     beds: searchParams.get("beds") || "any",
+    yearBuilt: searchParams.get("year") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+  
+  // Parse year built filter
+  const yearBuiltParsed = parseYearBuiltFilter(filters.yearBuilt);
+  const effectiveMinYear = yearBuiltParsed.minYear || adminMinYear;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["city-resale-listings", citySlug, filters, currentPage],
+    queryKey: ["city-resale-listings", citySlug, filters, currentPage, adminMinYear],
     queryFn: async () => {
       if (!cityConfig) return { listings: [], totalCount: 0 };
 
-      // First, get total count - always filter for 2024+ builds (move-in ready new construction)
+      // First, get total count
       let countQuery = supabase
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
-        .gte("year_built", 2024);
+        .gte("year_built", effectiveMinYear);
+      
+      if (yearBuiltParsed.maxYear) {
+        countQuery = countQuery.lte("year_built", yearBuiltParsed.maxYear);
+      }
 
       // Apply filters to count query
       if (filters.propertyType !== "any") {
@@ -258,13 +271,17 @@ export default function CityResalePage() {
 
       const { count } = await countQuery;
 
-      // Then get paginated data - always filter for 2024+ builds (move-in ready new construction)
+      // Then get paginated data
       let query = supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, list_date, year_built")
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
-        .gte("year_built", 2024);
+        .gte("year_built", effectiveMinYear);
+      
+      if (yearBuiltParsed.maxYear) {
+        query = query.lte("year_built", yearBuiltParsed.maxYear);
+      }
 
       // Apply filters
       if (filters.propertyType !== "any") {
@@ -305,7 +322,7 @@ export default function CityResalePage() {
 
   // Separate query for map listings with coordinates (applies same filters but includes lat/lng)
   const { data: mapListings } = useQuery({
-    queryKey: ["city-resale-map-listings", citySlug, filters],
+    queryKey: ["city-resale-map-listings", citySlug, filters, adminMinYear],
     queryFn: async () => {
       if (!cityConfig) return [];
 
@@ -314,9 +331,13 @@ export default function CityResalePage() {
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
-        .gte("year_built", 2024)
+        .gte("year_built", effectiveMinYear)
         .not("latitude", "is", null)
         .not("longitude", "is", null);
+      
+      if (yearBuiltParsed.maxYear) {
+        query = query.lte("year_built", yearBuiltParsed.maxYear);
+      }
 
       // Apply same filters as listing query
       if (filters.propertyType !== "any") {
@@ -378,6 +399,7 @@ export default function CityResalePage() {
     filters.propertyType !== "any",
     filters.priceRange !== "any",
     filters.beds !== "any",
+    filters.yearBuilt !== "any",
   ].filter(Boolean).length;
 
   const getAddress = (listing: MLSListing) => {
@@ -418,9 +440,9 @@ export default function CityResalePage() {
 
   const FilterControls = () => (
     <div className="space-y-4">
-      {/* Info Badge - All listings are 2025+ */}
+      {/* Info Badge showing minimum year */}
       <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 text-center">
-        <span className="text-sm font-medium text-primary">✓ Showing 2025+ New Construction Only</span>
+        <span className="text-sm font-medium text-primary">✓ Showing {adminMinYear}+ New Construction Only</span>
       </div>
 
       <div>
@@ -459,6 +481,20 @@ export default function CityResalePage() {
           </SelectTrigger>
           <SelectContent>
             {BEDS_OPTIONS.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-foreground mb-2 block">Year Built</label>
+        <Select value={filters.yearBuilt} onValueChange={(v) => updateFilter("year", v)}>
+          <SelectTrigger>
+            <SelectValue placeholder="Any Year" />
+          </SelectTrigger>
+          <SelectContent>
+            {yearBuiltOptions.map((opt) => (
               <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
             ))}
           </SelectContent>

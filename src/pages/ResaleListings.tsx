@@ -17,6 +17,7 @@ import { useEnabledCities } from "@/hooks/useEnabledCities";
 import { PopularSearchesGrid } from "@/components/seo/PopularSearchesGrid";
 import { UnifiedSearchFilters } from "@/components/search/UnifiedSearchFilters";
 import { buildMapUrlFromGridFilters } from "@/lib/filterSync";
+import { useYearBuiltOptions, parseYearBuiltFilter } from "@/hooks/useYearBuiltOptions";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
@@ -136,6 +137,9 @@ export default function ResaleListings() {
   
   // Get enabled cities from admin settings
   const { data: enabledCities } = useEnabledCities();
+  
+  // Get year built options from admin-controlled minimum
+  const { rangeOptions: yearBuiltOptions, minYear: adminMinYear } = useYearBuiltOptions();
 
   const filters = {
     city: searchParams.get("city") || "any",
@@ -143,6 +147,7 @@ export default function ResaleListings() {
     priceRange: searchParams.get("price") || "any",
     beds: searchParams.get("beds") || "any",
     baths: searchParams.get("baths") || "any",
+    yearBuilt: searchParams.get("year") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
@@ -157,8 +162,12 @@ export default function ResaleListings() {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
+  // Parse year built filter
+  const yearBuiltParsed = parseYearBuiltFilter(filters.yearBuilt);
+  const effectiveMinYear = yearBuiltParsed.minYear || adminMinYear;
+
   const { data, isLoading } = useQuery({
-    queryKey: ["resale-listings-2024", filters, currentPage, enabledCities],
+    queryKey: ["resale-listings-2024", filters, currentPage, enabledCities, adminMinYear],
     queryFn: async () => {
       const citiesToUse = enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities;
       
@@ -202,7 +211,10 @@ export default function ResaleListings() {
         .from("mls_listings")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
-        .gte("year_built", 2024);
+        .gte("year_built", effectiveMinYear);
+      if (yearBuiltParsed.maxYear) {
+        countQuery = countQuery.lte("year_built", yearBuiltParsed.maxYear);
+      }
       countQuery = buildFilters(countQuery);
       const { count } = await countQuery;
 
@@ -210,7 +222,10 @@ export default function ResaleListings() {
         .from("mls_listings")
         .select("id, listing_id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, days_on_market, list_date, list_agent_name, list_office_name, virtual_tour_url, year_built, created_at")
         .eq("mls_status", "Active")
-        .gte("year_built", 2024);
+        .gte("year_built", effectiveMinYear);
+      if (yearBuiltParsed.maxYear) {
+        query = query.lte("year_built", yearBuiltParsed.maxYear);
+      }
       query = buildFilters(query);
 
       switch (filters.sort) {
@@ -347,6 +362,7 @@ export default function ResaleListings() {
     filters.priceRange !== "any",
     filters.beds !== "any",
     filters.baths !== "any",
+    filters.yearBuilt !== "any",
   ].filter(Boolean).length;
 
   const getAddress = (listing: MLSListing) => {
@@ -364,6 +380,7 @@ export default function ResaleListings() {
     { key: "priceRange", label: "Price", paramKey: "price", options: PRICE_OPTIONS },
     { key: "beds", label: "Beds", paramKey: "beds", options: BEDS_OPTIONS },
     { key: "baths", label: "Baths", paramKey: "baths", options: BATHS_OPTIONS },
+    { key: "yearBuilt", label: "Year Built", paramKey: "year", options: yearBuiltOptions },
   ];
 
   // Build map URL with current filters for seamless transition
