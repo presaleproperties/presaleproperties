@@ -36,6 +36,7 @@ import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { MobileMapFilters } from "@/components/map/MobileMapFilters";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
+import { CityMultiSelectDropdown } from "@/components/search/CityMultiSelectDropdown";
 import { MultiSelectFilter, PRICE_RANGE_OPTIONS, priceMatchesRanges } from "@/components/search/MultiSelectFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
@@ -1908,42 +1909,15 @@ export default function MapSearch() {
                       <SheetTitle className="text-xl font-semibold">Filters</SheetTitle>
                     </SheetHeader>
                     
-                    <div className="flex-1 overflow-y-auto py-6 space-y-6">
-                      {/* City Multi-Select at top */}
+                    <div className="flex-1 overflow-y-auto py-6 space-y-5">
+                      {/* City Multi-Select Dropdown */}
                       <div>
-                        <label className="text-base font-semibold mb-3 block">City</label>
-                        <div className="flex flex-wrap gap-2">
-                          {CITIES.map((city) => {
-                            const isSelected = selectedCities.includes(city);
-                            return (
-                              <button
-                                key={city}
-                                onClick={() => {
-                                  if (isSelected) {
-                                    updateMultiFilter("cities", selectedCities.filter(c => c !== city));
-                                  } else {
-                                    updateMultiFilter("cities", [...selectedCities, city]);
-                                  }
-                                }}
-                                className={`px-3 py-2 rounded-lg border text-sm font-medium transition-all ${
-                                  isSelected
-                                    ? "bg-primary/10 border-primary text-primary"
-                                    : "border-border hover:border-foreground/30 text-foreground"
-                                }`}
-                              >
-                                {city}
-                              </button>
-                            );
-                          })}
-                        </div>
-                        {selectedCities.length > 0 && (
-                          <button 
-                            onClick={() => updateMultiFilter("cities", [])}
-                            className="text-xs text-muted-foreground mt-2 hover:text-foreground"
-                          >
-                            Clear cities
-                          </button>
-                        )}
+                        <label className="text-sm font-semibold mb-2 block">City</label>
+                        <CityMultiSelectDropdown
+                          cities={CITIES}
+                          selected={selectedCities}
+                          onChange={(cities) => updateMultiFilter("cities", cities)}
+                        />
                       </div>
 
                       {/* Price Range Section */}
