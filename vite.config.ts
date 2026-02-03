@@ -5,6 +5,35 @@ import { componentTagger } from "lovable-tagger";
 
 // Routes to prerender for SEO
 // NOTE: /map-search is EXCLUDED (noindex page)
+
+// Metro Vancouver cities for programmatic SEO
+const PROGRAMMATIC_CITIES = [
+  "vancouver", "surrey", "burnaby", "coquitlam", "langley", "richmond",
+  "delta", "abbotsford", "north-vancouver", "new-westminster", 
+  "port-moody", "port-coquitlam", "maple-ridge", "white-rock"
+];
+
+const PROPERTY_TYPES = ["condos", "townhomes"];
+const PRICE_POINTS = ["500k", "600k", "700k", "800k", "900k", "1m"];
+
+// Generate programmatic SEO routes
+const programmaticRoutes: string[] = [];
+
+// City hub pages: /presale-projects/{city}
+PROGRAMMATIC_CITIES.forEach(city => {
+  programmaticRoutes.push(`/presale-projects/${city}`);
+  
+  // City + Type pages: /presale-projects/{city}/condos
+  PROPERTY_TYPES.forEach(type => {
+    programmaticRoutes.push(`/presale-projects/${city}/${type}`);
+    
+    // City + Type + Price pages: /presale-projects/{city}/condos-under-500k
+    PRICE_POINTS.forEach(price => {
+      programmaticRoutes.push(`/presale-projects/${city}/${type}-under-${price}`);
+    });
+  });
+});
+
 const prerenderRoutes = [
   // Primary pages
   "/",
@@ -21,7 +50,7 @@ const prerenderRoutes = [
   "/for-agents",
   "/for-developers",
   
-  // Neighborhood presale pages
+  // Neighborhood presale pages (legacy - kept for SEO equity)
   "/burnaby-brentwood-presale",
   "/burnaby-metrotown-presale",
   "/surrey-cloverdale-presale",
@@ -34,7 +63,8 @@ const prerenderRoutes = [
   "/north-vancouver-lonsdale-presale",
   "/new-westminster-downtown-presale",
   "/maple-ridge-town-centre-presale",
-  // City presale pages
+  
+  // Legacy city presale pages (redirects to new structure)
   "/vancouver-presale-condos",
   "/vancouver-presale-townhomes",
   "/surrey-presale-condos",
@@ -52,7 +82,7 @@ const prerenderRoutes = [
   "/abbotsford-presale-condos",
   "/abbotsford-presale-townhomes",
   
-  // City properties pages (new construction resale)
+  // Properties city pages
   "/properties/vancouver",
   "/properties/surrey",
   "/properties/burnaby",
@@ -66,6 +96,9 @@ const prerenderRoutes = [
   "/properties/port-moody",
   "/properties/maple-ridge",
   "/properties/popular-searches",
+  
+  // NEW: Programmatic SEO pages (City × Type × Price)
+  ...programmaticRoutes,
 ];
 
 // https://vitejs.dev/config/
