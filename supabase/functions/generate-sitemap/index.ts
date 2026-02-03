@@ -96,26 +96,56 @@ Deno.serve(async (req) => {
     // NOTE: /map-search is EXCLUDED (noindex page)
 
     // ==========================================
-    // 2. CITY PRESALE PAGES (Primary Ranking)
+    // 2. PROGRAMMATIC SEO PAGES (NEW STRUCTURE)
     // ==========================================
-    // These are the ONLY city URLs that should rank
+    // City × Property Type × Price combinations for 1000+ pages
     const primaryCities = ["surrey", "vancouver", "langley", "coquitlam", "burnaby", "richmond"];
     const secondaryCities = ["delta", "abbotsford", "port-coquitlam", "port-moody", 
       "new-westminster", "north-vancouver", "white-rock", "maple-ridge"];
+    const allCities = [...primaryCities, ...secondaryCities];
+    const propertyTypes = ["condos", "townhomes"];
+    const pricePoints = ["500k", "600k", "700k", "800k", "900k", "1m"];
 
-    const cityPresalePages = [
-      ...primaryCities.flatMap(city => [
-        { url: `/${city}-presale-condos`, priority: "0.95", changefreq: "daily", lastmod: now },
-        { url: `/${city}-presale-townhomes`, priority: "0.95", changefreq: "daily", lastmod: now }
-      ]),
-      ...secondaryCities.flatMap(city => [
-        { url: `/${city}-presale-condos`, priority: "0.85", changefreq: "daily", lastmod: now },
-        { url: `/${city}-presale-townhomes`, priority: "0.85", changefreq: "daily", lastmod: now }
-      ])
-    ];
+    // City Hub Pages: /presale-projects/{city}
+    const cityHubPages = allCities.map(city => ({
+      url: `/presale-projects/${city}`,
+      priority: primaryCities.includes(city) ? "0.95" : "0.85",
+      changefreq: "daily",
+      lastmod: now
+    }));
+
+    // City + Type Pages: /presale-projects/{city}/condos
+    const cityTypePages = allCities.flatMap(city => 
+      propertyTypes.map(type => ({
+        url: `/presale-projects/${city}/${type}`,
+        priority: primaryCities.includes(city) ? "0.9" : "0.8",
+        changefreq: "daily",
+        lastmod: now
+      }))
+    );
+
+    // City + Type + Price Pages: /presale-projects/{city}/condos-under-500k
+    const cityTypePricePages = allCities.flatMap(city => 
+      propertyTypes.flatMap(type => 
+        pricePoints.map(price => ({
+          url: `/presale-projects/${city}/${type}-under-${price}`,
+          priority: primaryCities.includes(city) ? "0.85" : "0.75",
+          changefreq: "weekly",
+          lastmod: now
+        }))
+      )
+    );
 
     // ==========================================
-    // 3. NEIGHBORHOOD LANDING PAGES
+    // 3. LEGACY CITY PAGES (301 redirects - kept for crawl transition)
+    // ==========================================
+    const legacyCityPages = allCities.flatMap(city => [
+      { url: `/${city}-presale-condos`, priority: "0.5", changefreq: "monthly", lastmod: now },
+      { url: `/${city}-presale-townhomes`, priority: "0.5", changefreq: "monthly", lastmod: now }
+    ]);
+
+    // ==========================================
+    // 4. NEIGHBORHOOD LANDING PAGES
     // ==========================================
     const neighborhoodLandingPages = [
       { url: "/burnaby-brentwood-presale", priority: "0.9", changefreq: "weekly", lastmod: now },
@@ -133,9 +163,8 @@ Deno.serve(async (req) => {
     ];
 
     // ==========================================
-    // 4. PROPERTIES CITY PAGES (Clean URLs - /properties/{city})
+    // 5. PROPERTIES CITY PAGES (Clean URLs - /properties/{city})
     // ==========================================
-    const allCities = [...primaryCities, ...secondaryCities];
     const propertiesCityPages = allCities.map(city => ({
       url: `/properties/${city}`,
       priority: primaryCities.includes(city) ? "0.9" : "0.8",
@@ -212,14 +241,17 @@ Deno.serve(async (req) => {
     // ==========================================
     // BUILD CONTROLLED SITEMAP
     // ==========================================
-    // Order matters for crawl priority
+    // Order matters for crawl priority - programmatic SEO pages first
     const allPages = [
       ...staticPages,
-      ...cityPresalePages,
+      ...cityHubPages,           // NEW: /presale-projects/{city}
+      ...cityTypePages,          // NEW: /presale-projects/{city}/condos
+      ...cityTypePricePages,     // NEW: /presale-projects/{city}/condos-under-500k
       ...neighborhoodLandingPages,
       ...projectPages,
       ...propertiesCityPages,
       ...seoHubPages,
+      ...legacyCityPages,        // Legacy URLs (301 redirect targets)
       ...blogPages,
       ...developerPages,
     ];
@@ -243,12 +275,17 @@ ${urlEntries}
 
     // Log generation stats
     const totalUrls = allPages.length;
-    console.log(`✅ Sitemap generated: ${totalUrls} URLs (target: 150-300)`);
+    const programmaticTotal = cityHubPages.length + cityTypePages.length + cityTypePricePages.length;
+    console.log(`✅ Sitemap generated: ${totalUrls} URLs (target: 1000+)`);
     console.log(`  - Static pages: ${staticPages.length}`);
-    console.log(`  - City presale pages: ${cityPresalePages.length}`);
+    console.log(`  - City hub pages: ${cityHubPages.length}`);
+    console.log(`  - City + type pages: ${cityTypePages.length}`);
+    console.log(`  - City + type + price pages: ${cityTypePricePages.length}`);
+    console.log(`  - Total programmatic SEO: ${programmaticTotal}`);
     console.log(`  - Neighborhood pages: ${neighborhoodLandingPages.length}`);
     console.log(`  - Presale projects: ${projectPages.length}`);
     console.log(`  - Properties city pages: ${propertiesCityPages.length}`);
+    console.log(`  - Legacy city pages: ${legacyCityPages.length}`);
     console.log(`  - Blog posts: ${blogPages.length}`);
     console.log(`  - Developer pages: ${developerPages.length}`);
 
@@ -262,10 +299,14 @@ ${urlEntries}
           url_count: totalUrls,
           breakdown: {
             static: staticPages.length,
-            cityPresale: cityPresalePages.length,
+            cityHub: cityHubPages.length,
+            cityType: cityTypePages.length,
+            cityTypePrice: cityTypePricePages.length,
+            programmaticTotal,
             neighborhoods: neighborhoodLandingPages.length,
             projects: projectPages.length,
             propertiesCities: propertiesCityPages.length,
+            legacyCity: legacyCityPages.length,
             blog: blogPages.length,
             developers: developerPages.length,
           }
