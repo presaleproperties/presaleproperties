@@ -60,7 +60,7 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
     "Pitt Meadows", "Tsawwassen", "Ladner"
   ];
 
-  // Optimized query with better caching and filtering
+  // Optimized query with parallel fetching for better performance
   const { data: listings, isLoading } = useQuery({
     queryKey: ["resale-map-section-listings-2024", enabledCities, cityContext],
     queryFn: async () => {
@@ -68,7 +68,11 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
         ? [cityContext]
         : (enabledCities && enabledCities.length > 0 ? enabledCities : metroVancouverCities);
       
-      const { data, error } = await supabase
+      const pageSize = 1000;
+      const maxRows = 2000;
+      
+      // Fetch first page
+      const { data: firstPage, error: firstError } = await supabase
         .from("mls_listings")
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
@@ -77,10 +81,28 @@ export function ResaleMapSection({ cityContext }: ResaleMapSectionProps = {}) {
         .in("city", citiesToUse)
         .gte("year_built", 2024)
         .order("list_date", { ascending: false, nullsFirst: false })
-        .limit(2000); // Reduced for better performance
+        .limit(pageSize);
 
-      if (error) throw error;
-      return data;
+      if (firstError) throw firstError;
+      const firstChunk = firstPage || [];
+      
+      // If first page is full, fetch second page in parallel
+      if (firstChunk.length === pageSize) {
+        const { data: secondPage } = await supabase
+          .from("mls_listings")
+          .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, year_built, list_agent_name, list_office_name")
+          .eq("mls_status", "Active")
+          .not("latitude", "is", null)
+          .not("longitude", "is", null)
+          .in("city", citiesToUse)
+          .gte("year_built", 2024)
+          .order("list_date", { ascending: false, nullsFirst: false })
+          .range(pageSize, maxRows - 1);
+        
+        return [...firstChunk, ...(secondPage || [])];
+      }
+      
+      return firstChunk;
     },
     enabled: shouldLoad,
     staleTime: 5 * 60 * 1000, // Cache for 5 minutes - prevents refetch on back navigation
