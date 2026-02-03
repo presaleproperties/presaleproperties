@@ -619,6 +619,9 @@ export default function MapSearch() {
     // Year built filters
     yearBuiltMin: searchParams.get("yearMin") ? parseInt(searchParams.get("yearMin")!) : null,
     yearBuiltMax: searchParams.get("yearMax") ? parseInt(searchParams.get("yearMax")!) : null,
+    // Square footage filters
+    sqftMin: searchParams.get("sqftMin") ? parseInt(searchParams.get("sqftMin")!) : null,
+    sqftMax: searchParams.get("sqftMax") ? parseInt(searchParams.get("sqftMax")!) : null,
   };
 
   // Merged cities (combine legacy single city with multi-select)
@@ -696,7 +699,7 @@ export default function MapSearch() {
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
   // We intentionally keep this query “hot” so the count and markers update immediately.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, enabledCities],
+    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -727,6 +730,14 @@ export default function MapSearch() {
       }
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
+      }
+      
+      // Sqft filter
+      if (filters.sqftMin) {
+        query = query.gte("living_area", filters.sqftMin);
+      }
+      if (filters.sqftMax) {
+        query = query.lte("living_area", filters.sqftMax);
       }
 
       // NOTE: The backend caps max rows per request, so we page in chunks and merge.
@@ -1339,6 +1350,22 @@ export default function MapSearch() {
     setSearchParams(newParams, { replace: true });
   }, [searchParams, setSearchParams]);
 
+  // Handle sqft filter changes
+  const handleSqftChange = useCallback((minSqft: number | null, maxSqft: number | null) => {
+    const newParams = new URLSearchParams(searchParams);
+    if (minSqft) {
+      newParams.set("sqftMin", minSqft.toString());
+    } else {
+      newParams.delete("sqftMin");
+    }
+    if (maxSqft) {
+      newParams.set("sqftMax", maxSqft.toString());
+    } else {
+      newParams.delete("sqftMax");
+    }
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams]);
+
   // Handle clear all filters including year built
   const handleClearAllFilters = useCallback(() => {
     clearAllFilters();
@@ -1473,6 +1500,9 @@ export default function MapSearch() {
           yearBuiltMin={filters.yearBuiltMin}
           yearBuiltMax={filters.yearBuiltMax}
           onYearBuiltChange={handleYearBuiltChange}
+          sqftMin={filters.sqftMin}
+          sqftMax={filters.sqftMax}
+          onSqftChange={handleSqftChange}
           propertyTypes={PROPERTY_TYPES}
           selectedPropertyType={filters.propertyType || "any"}
           onPropertyTypeChange={(type) => updateFilter("type", type)}
@@ -1994,6 +2024,42 @@ export default function MapSearch() {
                               className="h-10"
                               min={adminMinYear}
                               max={new Date().getFullYear() + 2}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Square Footage Section */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">Square Footage</label>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Minimum</label>
+                            <Input
+                              type="number"
+                              placeholder="Any"
+                              value={filters.sqftMin || ""}
+                              onChange={(e) => {
+                                const val = e.target.value ? parseInt(e.target.value) : null;
+                                handleSqftChange(val, filters.sqftMax);
+                              }}
+                              className="h-10"
+                              min={0}
+                            />
+                          </div>
+                          <span className="text-muted-foreground mt-5">-</span>
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Maximum</label>
+                            <Input
+                              type="number"
+                              placeholder="Any"
+                              value={filters.sqftMax || ""}
+                              onChange={(e) => {
+                                const val = e.target.value ? parseInt(e.target.value) : null;
+                                handleSqftChange(filters.sqftMin, val);
+                              }}
+                              className="h-10"
+                              min={0}
                             />
                           </div>
                         </div>
