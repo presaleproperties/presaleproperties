@@ -1961,6 +1961,44 @@ export default function MapSearch() {
                         </div>
                       </div>
 
+                      {/* Year Built Section */}
+                      <div className="border-t pt-6">
+                        <label className="text-base font-semibold mb-4 block">Year Built</label>
+                        <div className="flex items-center gap-3">
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Minimum</label>
+                            <Input
+                              type="number"
+                              placeholder="Any"
+                              value={filters.yearBuiltMin || ""}
+                              onChange={(e) => {
+                                const val = e.target.value ? parseInt(e.target.value) : null;
+                                handleYearBuiltChange(val, filters.yearBuiltMax);
+                              }}
+                              className="h-10"
+                              min={adminMinYear}
+                              max={new Date().getFullYear() + 2}
+                            />
+                          </div>
+                          <span className="text-muted-foreground mt-5">-</span>
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Maximum</label>
+                            <Input
+                              type="number"
+                              placeholder="Any"
+                              value={filters.yearBuiltMax || ""}
+                              onChange={(e) => {
+                                const val = e.target.value ? parseInt(e.target.value) : null;
+                                handleYearBuiltChange(filters.yearBuiltMin, val);
+                              }}
+                              className="h-10"
+                              min={adminMinYear}
+                              max={new Date().getFullYear() + 2}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
                       {/* Property Type Section */}
                       <div className="border-t pt-6">
                         <label className="text-base font-semibold mb-4 block">Property Type</label>
