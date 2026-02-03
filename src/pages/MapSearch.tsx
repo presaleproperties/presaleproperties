@@ -284,9 +284,11 @@ export default function MapSearch() {
   const urlLng = searchParams.get("lng");
   const urlZoom = searchParams.get("zoom");
   const urlCity = searchParams.get("city");
+  const urlCities = searchParams.get("cities");
   
   // Determine if we have explicit navigation context from URL
-  const hasUrlLocationContext = !!(urlLat && urlLng) || !!urlCity;
+  // This includes both singular "city" and plural "cities" params
+  const hasUrlLocationContext = !!(urlLat && urlLng) || !!urlCity || !!urlCities;
   
   // Persisted map state - restored from sessionStorage ONLY if no URL context
   const [savedMapState, setSavedMapState] = useState<SavedMapState | null>(() => {
