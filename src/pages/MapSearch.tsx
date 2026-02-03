@@ -690,7 +690,7 @@ export default function MapSearch() {
   // IMPORTANT: this page is frequently used right after admins change the enabled-city scope.
   // We intentionally keep this query “hot” so the count and markers update immediately.
   const { data: resaleListings, isLoading: resaleLoading } = useQuery<MLSListing[]>({
-    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.beds, filters.baths, filters.daysOnSite, enabledCities],
+    queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, enabledCities],
     queryFn: async () => {
       let query = supabase
         .from("mls_listings")
@@ -760,6 +760,17 @@ export default function MapSearch() {
       // Client-side filtering for multi-select price ranges
       if (selectedPriceRanges.length > 0) {
         results = results.filter(l => priceMatchesRanges(l.listing_price, selectedPriceRanges));
+      } else {
+        // Legacy single-value price filter support
+        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
+        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
+        if (legacyPriceMin !== null || legacyPriceMax !== null) {
+          results = results.filter(l => {
+            if (legacyPriceMin !== null && l.listing_price < legacyPriceMin) return false;
+            if (legacyPriceMax !== null && l.listing_price > legacyPriceMax) return false;
+            return true;
+          });
+        }
       }
       
       return results;
@@ -771,7 +782,7 @@ export default function MapSearch() {
 
   // Fetch presale projects
   const { data: presaleProjects, isLoading: presaleLoading } = useQuery<PresaleProject[]>({
-    queryKey: ["unified-map-presale-multi", selectedCities, selectedPriceRanges],
+    queryKey: ["unified-map-presale-multi", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax],
     queryFn: async () => {
       let query = supabase
         .from("presale_projects")
@@ -796,6 +807,18 @@ export default function MapSearch() {
       // Client-side filtering for multi-select price ranges
       if (selectedPriceRanges.length > 0) {
         results = results.filter(p => p.starting_price && priceMatchesRanges(p.starting_price, selectedPriceRanges));
+      } else {
+        // Legacy single-value price filter support
+        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
+        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
+        if (legacyPriceMin !== null || legacyPriceMax !== null) {
+          results = results.filter(p => {
+            if (!p.starting_price) return false;
+            if (legacyPriceMin !== null && p.starting_price < legacyPriceMin) return false;
+            if (legacyPriceMax !== null && p.starting_price > legacyPriceMax) return false;
+            return true;
+          });
+        }
       }
       
       return results;
@@ -822,7 +845,7 @@ export default function MapSearch() {
   };
 
   const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
-    queryKey: ["unified-map-assignments", selectedCities, filters.beds, filters.baths],
+    queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
     queryFn: async () => {
       let query = supabase
         .from("listings")
@@ -858,7 +881,26 @@ export default function MapSearch() {
 
       const { data, error } = await query.limit(500);
       if (error) throw error;
-      return data || [];
+      
+      let results = data || [];
+      
+      // Client-side filtering for price ranges (assignments use assignment_price)
+      if (selectedPriceRanges.length > 0) {
+        results = results.filter(a => priceMatchesRanges(a.assignment_price, selectedPriceRanges));
+      } else {
+        // Legacy single-value price filter support
+        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
+        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
+        if (legacyPriceMin !== null || legacyPriceMax !== null) {
+          results = results.filter(a => {
+            if (legacyPriceMin !== null && a.assignment_price < legacyPriceMin) return false;
+            if (legacyPriceMax !== null && a.assignment_price > legacyPriceMax) return false;
+            return true;
+          });
+        }
+      }
+      
+      return results;
     },
     staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
     gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
