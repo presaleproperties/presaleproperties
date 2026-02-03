@@ -1273,8 +1273,17 @@ export default function ResaleListingDetail() {
       {/* Hidden when scheduler is open to prevent duplicate buttons */}
       {!showMobileScheduler && (
         <div 
-          className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t px-4 py-3 flex items-center gap-3 md:hidden z-[9999] shadow-lg safe-area-pb hide-on-keyboard"
-          style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+          className="fixed inset-x-0 bottom-0 bg-background/95 backdrop-blur-sm border-t flex items-center gap-3 md:hidden z-[9999] shadow-lg hide-on-keyboard"
+          style={{ 
+            isolation: 'isolate', 
+            transform: 'translate3d(0,0,0)',
+            WebkitTransform: 'translate3d(0,0,0)',
+            width: '100%',
+            paddingLeft: 'max(16px, env(safe-area-inset-left, 16px))',
+            paddingRight: 'max(16px, env(safe-area-inset-right, 16px))',
+            paddingTop: '12px',
+            paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))',
+          }}
         >
           <Button variant="outline" onClick={() => window.location.href = "tel:+16722581100"} className="h-12 w-12 shrink-0 rounded-xl">
             <Phone className="h-5 w-5" />

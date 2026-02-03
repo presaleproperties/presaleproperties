@@ -266,17 +266,17 @@ export function ProjectMobileCTA({
       
       {/* Fixed CTA bar - Portal-like rendering at viewport bottom with highest z-index */}
       <div 
-        className="lg:hidden"
+        className="lg:hidden fixed inset-x-0 bottom-0"
         style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
           zIndex: 99999,
           isolation: 'isolate',
-          transform: 'translateZ(0)',
+          transform: 'translate3d(0,0,0)',
+          WebkitTransform: 'translate3d(0,0,0)',
           willChange: 'transform',
           pointerEvents: 'auto',
+          // Fix for Chrome mobile gap issue
+          width: '100%',
+          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
         <div 
@@ -482,7 +482,14 @@ export function ProjectMobileCTA({
           )}
 
           {/* Collapsed CTA Bar - Solid premium background */}
-          <div className="px-4 py-3 pb-[max(16px,env(safe-area-inset-bottom))] bg-background">
+          <div 
+            className="py-3 bg-background"
+            style={{
+              paddingLeft: 'max(16px, env(safe-area-inset-left, 16px))',
+              paddingRight: 'max(16px, env(safe-area-inset-right, 16px))',
+              paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))',
+            }}
+          >
             <div className="flex items-center gap-3">
               {/* Phone Button */}
               <Button 
