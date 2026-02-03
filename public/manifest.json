@@ -1,0 +1,21 @@
+{
+  "name": "PresaleProperties.com",
+  "short_name": "Presale",
+  "description": "Metro Vancouver's New Construction Specialists. Browse presale condos, townhomes, and move-in ready homes with VIP pricing, floor plans, and developer incentives.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1c2120",
+  "theme_color": "#ffb600",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "lifestyle", "shopping"],
+  "lang": "en-CA",
+  "dir": "ltr"
+}
