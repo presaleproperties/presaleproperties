@@ -742,24 +742,50 @@ export default function MapSearch() {
       }
 
       // NOTE: The backend caps max rows per request, so we page in chunks and merge.
-      // Keep the total bounded for performance.
+      // PERFORMANCE: Fetch pages in PARALLEL for faster initial load
       const pageSize = 1000;
-      const maxRows = 6000;
+      const maxRows = 4000; // Reduced from 6000 for faster load
 
-      const all: MLSListing[] = [];
-      for (let offset = 0; offset < maxRows; offset += pageSize) {
-        const { data, error } = await query
-          .order("list_date", { ascending: false, nullsFirst: false })
-          .order("listing_price", { ascending: false })
-          .range(offset, offset + pageSize - 1);
-
-        if (error) throw error;
-        const chunk = (data || []) as MLSListing[];
-        all.push(...chunk);
-
-        if (chunk.length < pageSize) break;
+      // First, get the first page
+      const { data: firstPage, error: firstError } = await query
+        .order("list_date", { ascending: false, nullsFirst: false })
+        .order("listing_price", { ascending: false })
+        .range(0, pageSize - 1);
+      
+      if (firstError) throw firstError;
+      const firstChunk = (firstPage || []) as MLSListing[];
+      
+      let all: MLSListing[] = [...firstChunk];
+      
+      // If first page is full, fetch remaining pages in PARALLEL for speed
+      if (firstChunk.length === pageSize) {
+        const fetchPage = async (offset: number): Promise<MLSListing[]> => {
+          const citiesToQuery = selectedCities.length > 0 ? selectedCities : (enabledCities || []);
+          const { data, error } = await supabase
+            .from("mls_listings")
+            .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
+            .eq("mls_status", "Active")
+            .not("latitude", "is", null)
+            .not("longitude", "is", null)
+            .gte("year_built", 2024)
+            .in("city", citiesToQuery)
+            .order("list_date", { ascending: false, nullsFirst: false })
+            .order("listing_price", { ascending: false })
+            .range(offset, offset + pageSize - 1);
+          
+          if (error) return [];
+          return (data || []) as MLSListing[];
+        };
+        
+        const offsets = [];
+        for (let offset = pageSize; offset < maxRows; offset += pageSize) {
+          offsets.push(offset);
+        }
+        
+        const additionalPages = await Promise.all(offsets.map(fetchPage));
+        all = [...firstChunk, ...additionalPages.flat()];
       }
-
+      
       // De-dupe defensively
       const byId = new globalThis.Map<string, MLSListing>();
       for (const l of all) byId.set(l.id, l);
