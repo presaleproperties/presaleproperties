@@ -28,6 +28,7 @@ import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjec
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { supabase } from "@/integrations/supabase/client";
 import { useYearBuiltOptions, parseYearBuiltFilter } from "@/hooks/useYearBuiltOptions";
+import { useSqftOptions, parseSqftFilter } from "@/hooks/useSqftOptions";
 
 const ITEMS_PER_PAGE = 16;
 
@@ -221,6 +222,7 @@ export default function CityResalePage() {
   
   // Get year built options from admin-controlled minimum
   const { rangeOptions: yearBuiltOptions, minYear: adminMinYear } = useYearBuiltOptions();
+  const { options: sqftOptions } = useSqftOptions();
 
   // Extract city slug from URL path: /resale/vancouver -> vancouver
   const citySlug = location.pathname.split('/').pop() || '';
@@ -231,6 +233,7 @@ export default function CityResalePage() {
     priceRange: searchParams.get("price") || "any",
     beds: searchParams.get("beds") || "any",
     yearBuilt: searchParams.get("year") || "any",
+    sqft: searchParams.get("sqft") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
@@ -239,6 +242,7 @@ export default function CityResalePage() {
   // Parse year built filter
   const yearBuiltParsed = parseYearBuiltFilter(filters.yearBuilt);
   const effectiveMinYear = yearBuiltParsed.minYear || adminMinYear;
+  const minSqft = parseSqftFilter(filters.sqft);
 
   const { data, isLoading } = useQuery({
     queryKey: ["city-resale-listings", citySlug, filters, currentPage, adminMinYear],
@@ -268,6 +272,9 @@ export default function CityResalePage() {
       if (filters.beds !== "any") {
         countQuery = countQuery.gte("bedrooms_total", parseInt(filters.beds));
       }
+      if (minSqft) {
+        countQuery = countQuery.gte("living_area", minSqft);
+      }
 
       const { count } = await countQuery;
 
@@ -293,6 +300,9 @@ export default function CityResalePage() {
       }
       if (filters.beds !== "any") {
         query = query.gte("bedrooms_total", parseInt(filters.beds));
+      }
+      if (minSqft) {
+        query = query.gte("living_area", minSqft);
       }
 
       // Apply sorting

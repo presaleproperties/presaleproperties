@@ -18,6 +18,7 @@ import { PopularSearchesGrid } from "@/components/seo/PopularSearchesGrid";
 import { UnifiedSearchFilters } from "@/components/search/UnifiedSearchFilters";
 import { buildMapUrlFromGridFilters } from "@/lib/filterSync";
 import { useYearBuiltOptions, parseYearBuiltFilter } from "@/hooks/useYearBuiltOptions";
+import { useSqftOptions, parseSqftFilter } from "@/hooks/useSqftOptions";
 
 // Lazy load map component
 const ResaleListingsMap = lazy(() => import("@/components/map/ResaleListingsMap").then(m => ({ default: m.ResaleListingsMap })));
@@ -140,6 +141,9 @@ export default function ResaleListings() {
   
   // Get year built options from admin-controlled minimum
   const { rangeOptions: yearBuiltOptions, minYear: adminMinYear } = useYearBuiltOptions();
+  
+  // Get sqft options
+  const { options: sqftOptions } = useSqftOptions();
 
   const filters = {
     city: searchParams.get("city") || "any",
@@ -148,6 +152,7 @@ export default function ResaleListings() {
     beds: searchParams.get("beds") || "any",
     baths: searchParams.get("baths") || "any",
     yearBuilt: searchParams.get("year") || "any",
+    sqft: searchParams.get("sqft") || "any",
     sort: searchParams.get("sort") || "newest",
   };
 
@@ -165,6 +170,9 @@ export default function ResaleListings() {
   // Parse year built filter
   const yearBuiltParsed = parseYearBuiltFilter(filters.yearBuilt);
   const effectiveMinYear = yearBuiltParsed.minYear || adminMinYear;
+  
+  // Parse sqft filter
+  const minSqft = parseSqftFilter(filters.sqft);
 
   const { data, isLoading } = useQuery({
     queryKey: ["resale-listings-2024", filters, currentPage, enabledCities, adminMinYear],
@@ -203,6 +211,10 @@ export default function ResaleListings() {
         }
         if (filters.baths !== "any") {
           query = query.gte("bathrooms_total", parseInt(filters.baths));
+        }
+        // Handle sqft filter
+        if (minSqft) {
+          query = query.gte("living_area", minSqft);
         }
         return query;
       };
@@ -381,6 +393,7 @@ export default function ResaleListings() {
     { key: "beds", label: "Beds", paramKey: "beds", options: BEDS_OPTIONS },
     { key: "baths", label: "Baths", paramKey: "baths", options: BATHS_OPTIONS },
     { key: "yearBuilt", label: "Year Built", paramKey: "year", options: yearBuiltOptions },
+    { key: "sqft", label: "Sqft", paramKey: "sqft", options: sqftOptions },
   ];
 
   // Build map URL with current filters for seamless transition

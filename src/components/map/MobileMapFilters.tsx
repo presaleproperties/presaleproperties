@@ -40,6 +40,10 @@ interface MobileMapFiltersProps {
   yearBuiltMin: number | null;
   yearBuiltMax: number | null;
   onYearBuiltChange: (min: number | null, max: number | null) => void;
+  // Square Footage
+  sqftMin: number | null;
+  sqftMax: number | null;
+  onSqftChange: (min: number | null, max: number | null) => void;
   // Property Type
   propertyTypes: PropertyTypeOption[];
   selectedPropertyType: string;
@@ -290,6 +294,73 @@ function YearBuiltRange({
   );
 }
 
+// Square Footage Range Input
+function SqftRange({
+  minSqft,
+  maxSqft,
+  onChange,
+}: {
+  minSqft: number | null;
+  maxSqft: number | null;
+  onChange: (min: number | null, max: number | null) => void;
+}) {
+  const [localMin, setLocalMin] = useState(minSqft?.toString() || "");
+  const [localMax, setLocalMax] = useState(maxSqft?.toString() || "");
+
+  useEffect(() => {
+    setLocalMin(minSqft?.toString() || "");
+    setLocalMax(maxSqft?.toString() || "");
+  }, [minSqft, maxSqft]);
+
+  const handleMinBlur = () => {
+    const val = localMin ? parseInt(localMin) : null;
+    if (val && val < 0) {
+      setLocalMin("");
+      onChange(null, maxSqft);
+    } else {
+      onChange(val, maxSqft);
+    }
+  };
+
+  const handleMaxBlur = () => {
+    const val = localMax ? parseInt(localMax) : null;
+    if (val && val < 0) {
+      setLocalMax("");
+      onChange(minSqft, null);
+    } else {
+      onChange(minSqft, val);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-3">
+      <div className="flex-1">
+        <Input
+          type="number"
+          placeholder="Min sqft"
+          value={localMin}
+          onChange={(e) => setLocalMin(e.target.value)}
+          onBlur={handleMinBlur}
+          className="h-12 text-base rounded-xl text-center"
+          min={0}
+        />
+      </div>
+      <span className="text-muted-foreground font-medium">—</span>
+      <div className="flex-1">
+        <Input
+          type="number"
+          placeholder="Max sqft"
+          value={localMax}
+          onChange={(e) => setLocalMax(e.target.value)}
+          onBlur={handleMaxBlur}
+          className="h-12 text-base rounded-xl text-center"
+          min={0}
+        />
+      </div>
+    </div>
+  );
+}
+
 export function MobileMapFilters({
   open,
   onOpenChange,
@@ -303,6 +374,9 @@ export function MobileMapFilters({
   yearBuiltMin,
   yearBuiltMax,
   onYearBuiltChange,
+  sqftMin,
+  sqftMax,
+  onSqftChange,
   propertyTypes,
   selectedPropertyType,
   onPropertyTypeChange,
@@ -384,6 +458,21 @@ export function MobileMapFilters({
               minYear={yearBuiltMin}
               maxYear={yearBuiltMax}
               onChange={onYearBuiltChange}
+            />
+          </div>
+
+          <div className="h-px bg-border/50" />
+
+          {/* Square Footage */}
+          <div className="space-y-3">
+            <label className="flex items-center gap-2 text-sm font-medium text-foreground">
+              <Building className="h-4 w-4 text-muted-foreground" />
+              Square Footage
+            </label>
+            <SqftRange
+              minSqft={sqftMin}
+              maxSqft={sqftMax}
+              onChange={onSqftChange}
             />
           </div>
 
