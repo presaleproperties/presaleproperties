@@ -70,6 +70,8 @@ import CityProductPage from "./pages/CityProductPage";
 import NeighbourhoodProductPage from "./pages/NeighbourhoodProductPage";
 import NeighborhoodLandingPage from "./pages/NeighborhoodLandingPage";
 import PriceBasedPage from "./pages/PriceBasedPage";
+import PresaleCityHubPage from "./pages/PresaleCityHubPage";
+import PresaleCityTypePricePage from "./pages/PresaleCityTypePricePage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
@@ -133,8 +135,10 @@ const App = () => (
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
+            {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
+            <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />
+            <Route path="/presale-projects/:citySlug" element={<PresaleCityHubPage />} />
             {/* SEO Redirect: /presale-projects/:slug -> /{neighborhood}-presale-{type}-{slug} */}
-            <Route path="/presale-projects/:slug" element={<PresaleProjectSEORedirect />} />
             {/* Legacy route redirect - redirect /presale/:slug to SEO URL */}
             <Route path="/presale/:slug" element={<PresaleProjectSEORedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
