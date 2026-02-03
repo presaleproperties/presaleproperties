@@ -38,20 +38,25 @@ export const ResaleMobileCTABar = ({
 
       {/* Fixed bottom CTA bar - mobile only */}
       <div 
-        className="lg:hidden hide-on-keyboard"
+        className="lg:hidden hide-on-keyboard fixed inset-x-0 bottom-0"
         style={{
-          position: 'fixed',
-          bottom: 0,
-          left: 0,
-          right: 0,
           zIndex: 9999,
           isolation: 'isolate',
-          transform: 'translateZ(0)',
+          transform: 'translate3d(0,0,0)',
+          WebkitTransform: 'translate3d(0,0,0)',
           willChange: 'transform',
+          width: '100%',
         }}
       >
-        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)] safe-area-pb">
-          <div className="px-4 py-3 flex items-center gap-3">
+        <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)]">
+          <div 
+            className="py-3 flex items-center gap-3"
+            style={{
+              paddingLeft: 'max(16px, env(safe-area-inset-left, 16px))',
+              paddingRight: 'max(16px, env(safe-area-inset-right, 16px))',
+              paddingBottom: 'max(12px, env(safe-area-inset-bottom, 12px))',
+            }}
+          >
             {/* Price display */}
             {formattedPrice && (
               <div className="flex-shrink-0 min-w-0">
