@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { PresentationDeckGenerator } from "@/components/about/PresentationDeckGenerator";
 import { 
   Users, 
   Building2, 
@@ -193,7 +194,7 @@ export default function AdminOverview() {
               <h1 className="text-2xl sm:text-3xl font-bold text-white">Command Center</h1>
               <p className="text-slate-300 mt-1">Welcome back. Here's your platform overview.</p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -204,6 +205,7 @@ export default function AdminOverview() {
                 <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
+              <PresentationDeckGenerator />
               <Link to="/admin/projects/new">
                 <Button size="sm" className="bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" />
