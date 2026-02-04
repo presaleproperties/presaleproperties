@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
@@ -59,6 +60,7 @@ import AdminMarketData from "./pages/admin/AdminMarketData";
 import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
 import AdminTeamMembers from "./pages/admin/AdminTeamMembers";
 import AdminGoogleReviews from "./pages/admin/AdminGoogleReviews";
+import AdminThemeManager from "./pages/admin/AdminThemeManager";
 import NotFound from "./pages/NotFound";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminClientSearches from "./pages/admin/AdminClientSearches";
@@ -116,6 +118,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
+    <ThemeProvider>
     <AuthProvider>
       <BuyerAuthProvider>
       <TooltipProvider>
@@ -294,6 +297,7 @@ const App = () => (
             <Route path="/admin/clients/:clientId/searches" element={<AdminProtectedRoute><AdminClientSearches /></AdminProtectedRoute>} />
             <Route path="/admin/team-members" element={<AdminProtectedRoute><AdminTeamMembers /></AdminProtectedRoute>} />
             <Route path="/admin/google-reviews" element={<AdminProtectedRoute><AdminGoogleReviews /></AdminProtectedRoute>} />
+            <Route path="/admin/theme" element={<AdminProtectedRoute><AdminThemeManager /></AdminProtectedRoute>} />
             
             {/* Agent URL Redirects - common typos/variants */}
             <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
@@ -312,6 +316,7 @@ const App = () => (
       </TooltipProvider>
       </BuyerAuthProvider>
     </AuthProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

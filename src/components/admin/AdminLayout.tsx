@@ -26,6 +26,7 @@ import {
   Megaphone,
   Sparkles,
   BarChart3,
+  Palette,
   ExternalLink
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -88,6 +89,7 @@ const navGroups = [
   {
     label: "System",
     items: [
+      { href: "/admin/theme", label: "Theme Manager", icon: Palette },
       { href: "/admin/email-templates", label: "Email Templates", icon: Mail },
       { href: "/admin/email-workflows", label: "Email Workflows", icon: Workflow },
       { href: "/admin/mls-sync", label: "MLS Sync", icon: RefreshCw },
