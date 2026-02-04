@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Calendar, MapPin, Star } from "lucide-react";
-import { PresentationDeckGenerator } from "./PresentationDeckGenerator";
 import aboutHeroImage from "@/assets/about-hero-team.jpg";
-
 export function AboutHero() {
   return (
     <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
@@ -36,7 +34,6 @@ export function AboutHero() {
                   Book a Free Consultation
                 </Link>
               </Button>
-              <PresentationDeckGenerator />
             </div>
             
             <div className="mt-6 flex justify-center lg:justify-start">
