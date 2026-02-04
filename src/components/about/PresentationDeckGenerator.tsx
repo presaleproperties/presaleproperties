@@ -19,30 +19,53 @@ interface Project {
   featured_image: string | null;
 }
 
-// Brand colors (HSL to RGB conversion for PDF)
+interface TeamMember {
+  id: string;
+  full_name: string;
+  title: string;
+  photo_url: string | null;
+  bio: string | null;
+  specializations: string[];
+}
+
+// Premium brand colors
 const COLORS = {
-  primary: [255, 182, 0] as [number, number, number], // Gold #FFB600
-  dark: [28, 33, 32] as [number, number, number], // #1C2120
-  lightBg: [255, 253, 249] as [number, number, number], // #FFFDF9
-  muted: [100, 116, 139] as [number, number, number], // Muted gray
+  gold: [218, 165, 32] as [number, number, number], // Premium gold
+  goldLight: [255, 215, 100] as [number, number, number],
+  dark: [20, 20, 20] as [number, number, number],
+  charcoal: [40, 40, 40] as [number, number, number],
   white: [255, 255, 255] as [number, number, number],
+  offWhite: [250, 250, 248] as [number, number, number],
+  gray: [120, 120, 120] as [number, number, number],
+  lightGray: [200, 200, 200] as [number, number, number],
 };
 
 const formatPrice = (price: number | null): string => {
-  if (!price) return "TBD";
-  if (price >= 1000000) {
-    return `$${(price / 1000000).toFixed(1)}M`;
-  }
+  if (!price) return "Contact Us";
+  if (price >= 1000000) return `$${(price / 1000000).toFixed(1)}M`;
   return `$${(price / 1000).toFixed(0)}K`;
 };
 
-const formatCompletionDate = (year: number | null, month: number | null): string => {
+const formatCompletion = (year: number | null, month: number | null): string => {
   if (!year) return "TBD";
-  if (month) {
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    return `${monthNames[month - 1]} ${year}`;
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  return month ? `${months[month - 1]} ${year}` : String(year);
+};
+
+// Load image as base64 for PDF embedding
+const loadImageAsBase64 = async (url: string): Promise<string | null> => {
+  try {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(blob);
+    });
+  } catch {
+    return null;
   }
-  return String(year);
 };
 
 export function PresentationDeckGenerator() {
@@ -51,391 +74,382 @@ export function PresentationDeckGenerator() {
 
   const generatePDF = async () => {
     setIsGenerating(true);
-    
+
     try {
-      // Fetch 5 featured projects
-      const { data: projects, error } = await supabase
-        .from("presale_projects")
-        .select("id, name, city, neighborhood, project_type, starting_price, price_range, completion_year, completion_month, developer_name, featured_image")
-        .eq("is_published", true)
-        .eq("is_featured", true)
-        .order("created_at", { ascending: false })
-        .limit(5);
+      // Fetch team members and projects in parallel
+      const [teamResult, projectsResult] = await Promise.all([
+        supabase
+          .from("team_members")
+          .select("id, full_name, title, photo_url, bio, specializations")
+          .eq("is_active", true)
+          .order("sort_order", { ascending: true })
+          .limit(3),
+        supabase
+          .from("presale_projects")
+          .select("id, name, city, neighborhood, project_type, starting_price, price_range, completion_year, completion_month, developer_name, featured_image")
+          .eq("is_published", true)
+          .eq("is_featured", true)
+          .order("created_at", { ascending: false })
+          .limit(3),
+      ]);
 
-      if (error) throw error;
+      const teamMembers: TeamMember[] = teamResult.data || [];
+      let projects: Project[] = projectsResult.data || [];
 
-      // If not enough featured projects, get recent ones
-      let finalProjects: Project[] = projects || [];
-      if (finalProjects.length < 5) {
+      // Get more projects if needed
+      if (projects.length < 3) {
         const { data: moreProjects } = await supabase
           .from("presale_projects")
           .select("id, name, city, neighborhood, project_type, starting_price, price_range, completion_year, completion_month, developer_name, featured_image")
           .eq("is_published", true)
           .order("created_at", { ascending: false })
-          .limit(5 - finalProjects.length);
-        
-        if (moreProjects) {
-          finalProjects = [...finalProjects, ...moreProjects];
-        }
+          .limit(3 - projects.length);
+        if (moreProjects) projects = [...projects, ...moreProjects];
       }
 
-      // Create PDF
-      const pdf = new jsPDF({
-        orientation: "landscape",
-        unit: "mm",
-        format: "a4",
-      });
+      // Preload team member photos
+      const teamPhotos: (string | null)[] = await Promise.all(
+        teamMembers.map((m) => (m.photo_url ? loadImageAsBase64(m.photo_url) : Promise.resolve(null)))
+      );
 
-      const pageWidth = pdf.internal.pageSize.getWidth();
-      const pageHeight = pdf.internal.pageSize.getHeight();
+      // Create PDF (landscape A4)
+      const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const W = pdf.internal.pageSize.getWidth();
+      const H = pdf.internal.pageSize.getHeight();
 
-      // Helper function to add page header
-      const addPageHeader = (title: string) => {
-        // Gold accent bar
-        pdf.setFillColor(...COLORS.primary);
-        pdf.rect(0, 0, pageWidth, 8, "F");
-        
-        // Header text
-        pdf.setFontSize(12);
-        pdf.setTextColor(...COLORS.white);
-        pdf.text("PRESALE PROPERTIES GROUP", 15, 5.5);
-        
-        // Page title
-        pdf.setFontSize(24);
-        pdf.setTextColor(...COLORS.dark);
-        pdf.text(title, 15, 25);
-        
-        // Underline
-        pdf.setDrawColor(...COLORS.primary);
-        pdf.setLineWidth(1);
-        pdf.line(15, 28, 80, 28);
-      };
-
-      // ========== SLIDE 1: Cover ==========
-      // Background
+      // ============ SLIDE 1: COVER ============
       pdf.setFillColor(...COLORS.dark);
-      pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      
-      // Gold accent bar
-      pdf.setFillColor(...COLORS.primary);
-      pdf.rect(0, pageHeight - 15, pageWidth, 15, "F");
-      
-      // Logo/Title
-      pdf.setFontSize(42);
+      pdf.rect(0, 0, W, H, "F");
+
+      // Gold accent bar top
+      pdf.setFillColor(...COLORS.gold);
+      pdf.rect(0, 0, W, 3, "F");
+
+      // Brand name
+      pdf.setFontSize(14);
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("PRESALE PROPERTIES GROUP", 20, 25);
+
+      // Main title
+      pdf.setFontSize(52);
       pdf.setTextColor(...COLORS.white);
-      pdf.text("PRESALE PROPERTIES GROUP", pageWidth / 2, 60, { align: "center" });
-      
-      // Tagline
-      pdf.setFontSize(18);
-      pdf.setTextColor(...COLORS.primary);
-      pdf.text("Vancouver's New Construction Specialists", pageWidth / 2, 75, { align: "center" });
-      
+      pdf.text("THE GUIDE TO", 20, 70);
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("PRESALE HOMES", 20, 95);
+
       // Subtitle
       pdf.setFontSize(14);
-      pdf.setTextColor(...COLORS.white);
-      pdf.text("100% New Construction Only — No Resale", pageWidth / 2, 90, { align: "center" });
-      
-      // Stats bar
-      const statsY = 120;
-      pdf.setFontSize(28);
-      pdf.setTextColor(...COLORS.primary);
-      pdf.text("400+", pageWidth / 4, statsY, { align: "center" });
-      pdf.text("$200M+", pageWidth / 2, statsY, { align: "center" });
-      pdf.text("5+", (pageWidth / 4) * 3, statsY, { align: "center" });
-      
-      pdf.setFontSize(10);
-      pdf.setTextColor(...COLORS.white);
-      pdf.text("Homes Sold", pageWidth / 4, statsY + 8, { align: "center" });
-      pdf.text("In Sales", pageWidth / 2, statsY + 8, { align: "center" });
-      pdf.text("Years Experience", (pageWidth / 4) * 3, statsY + 8, { align: "center" });
-      
-      // Footer text
-      pdf.setFontSize(10);
-      pdf.setTextColor(...COLORS.dark);
-      pdf.text("presaleproperties.com", pageWidth / 2, pageHeight - 5, { align: "center" });
+      pdf.setTextColor(...COLORS.lightGray);
+      pdf.text("Metro Vancouver's New Construction Specialists", 20, 115);
 
-      // ========== SLIDE 2: Who We Are ==========
-      pdf.addPage();
-      pdf.setFillColor(...COLORS.lightBg);
-      pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      addPageHeader("Who We Are");
-      
-      pdf.setFontSize(12);
-      pdf.setTextColor(...COLORS.dark);
-      const whoWeAreText = [
-        "Presale Properties Group is a team of licensed REALTORS® focused 100% on new",
-        "construction homes in Metro Vancouver. With over 400+ new construction homes sold",
-        "and more than $200 million in transactions, we bring deep expertise and dedication",
-        "to every client we serve.",
+      // Stats row
+      const statsY = 155;
+      const stats = [
+        { num: "400+", label: "Homes Sold" },
+        { num: "$200M+", label: "In Transactions" },
+        { num: "100%", label: "New Construction" },
       ];
-      whoWeAreText.forEach((line, i) => {
-        pdf.text(line, 15, 45 + (i * 7));
+      stats.forEach((stat, i) => {
+        const x = 20 + i * 90;
+        pdf.setFontSize(36);
+        pdf.setTextColor(...COLORS.gold);
+        pdf.text(stat.num, x, statsY);
+        pdf.setFontSize(11);
+        pdf.setTextColor(...COLORS.lightGray);
+        pdf.text(stat.label, x, statsY + 10);
       });
-      
-      // Highlights grid
-      const highlights = [
-        { title: "100% New Construction", desc: "We focus exclusively on presale and move-in ready homes" },
-        { title: "80%+ New Construction", desc: "Condos, townhomes, and single-family homes" },
-        { title: "Multilingual Service", desc: "English, Hindi, Punjabi, Urdu, Arabic, Korean & more" },
-        { title: "Culturally Aware", desc: "Understanding the needs of first-generation homebuyers" },
+
+      // Footer
+      pdf.setFontSize(10);
+      pdf.setTextColor(...COLORS.gray);
+      pdf.text("presaleproperties.com", W - 20, H - 10, { align: "right" });
+
+      // ============ SLIDE 2: WHY PRESALE ============
+      pdf.addPage();
+      pdf.setFillColor(...COLORS.offWhite);
+      pdf.rect(0, 0, W, H, "F");
+
+      // Header
+      pdf.setFontSize(42);
+      pdf.setTextColor(...COLORS.dark);
+      pdf.text("WHY", 20, 40);
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("PRESALE?", 65, 40);
+
+      // Benefits - visual cards
+      const benefits = [
+        { title: "First Access", desc: "VIP pricing before public" },
+        { title: "Customize", desc: "Choose finishes & upgrades" },
+        { title: "Build Equity", desc: "Appreciation during construction" },
+        { title: "Low Deposits", desc: "Spread payments over time" },
       ];
-      
-      highlights.forEach((item, i) => {
-        const x = 15 + (i % 2) * 140;
-        const y = 85 + Math.floor(i / 2) * 45;
+
+      benefits.forEach((b, i) => {
+        const x = 20 + (i % 2) * 145;
+        const y = 60 + Math.floor(i / 2) * 55;
         
         // Card background
         pdf.setFillColor(...COLORS.white);
-        pdf.roundedRect(x, y, 130, 38, 3, 3, "F");
+        pdf.roundedRect(x, y, 135, 45, 4, 4, "F");
         
-        // Gold accent
-        pdf.setFillColor(...COLORS.primary);
-        pdf.rect(x, y, 4, 38, "F");
+        // Gold left border
+        pdf.setFillColor(...COLORS.gold);
+        pdf.rect(x, y, 4, 45, "F");
         
-        pdf.setFontSize(14);
+        // Number badge
+        pdf.setFillColor(...COLORS.gold);
+        pdf.circle(x + 20, y + 22, 10, "F");
+        pdf.setFontSize(16);
         pdf.setTextColor(...COLORS.dark);
-        pdf.text(item.title, x + 10, y + 12);
+        pdf.text(String(i + 1), x + 20, y + 27, { align: "center" });
         
-        pdf.setFontSize(10);
-        pdf.setTextColor(...COLORS.muted);
-        pdf.text(item.desc, x + 10, y + 24);
-      });
-
-      // ========== SLIDE 3: What We Do Differently ==========
-      pdf.addPage();
-      pdf.setFillColor(...COLORS.lightBg);
-      pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      addPageHeader("What We Do Differently");
-      
-      const differentiators = [
-        { title: "True Specialist Focus", desc: "Most agents are generalists — we are 100% new construction specialists" },
-        { title: "Full Buyer Representation", desc: "Negotiating credits, deposit structures, contract review, assignment clauses" },
-        { title: "Zero Cost to You", desc: "Commissions are paid by developers — our services are completely free to buyers" },
-        { title: "VIP Access & Pricing", desc: "Direct developer relationships mean first access and exclusive incentives" },
-        { title: "Post-Sale Support", desc: "We support you through completion, deficiencies, and beyond" },
-        { title: "Legal Credit Included", desc: "$1,500 credit toward your legal fees on every purchase" },
-      ];
-      
-      differentiators.forEach((item, i) => {
-        const x = 15 + (i % 2) * 140;
-        const y = 40 + Math.floor(i / 2) * 40;
-        
-        pdf.setFillColor(...COLORS.white);
-        pdf.roundedRect(x, y, 130, 35, 3, 3, "F");
-        
-        pdf.setFillColor(...COLORS.primary);
-        pdf.circle(x + 8, y + 10, 4, "F");
-        
+        // Text
+        pdf.setFontSize(18);
+        pdf.setTextColor(...COLORS.dark);
+        pdf.text(b.title, x + 38, y + 18);
         pdf.setFontSize(12);
-        pdf.setTextColor(...COLORS.dark);
-        pdf.text(item.title, x + 18, y + 12);
-        
-        pdf.setFontSize(9);
-        pdf.setTextColor(...COLORS.muted);
-        const lines = pdf.splitTextToSize(item.desc, 105);
-        pdf.text(lines, x + 18, y + 22);
+        pdf.setTextColor(...COLORS.gray);
+        pdf.text(b.desc, x + 38, y + 32);
       });
 
-      // ========== SLIDE 4: Meet The Team ==========
+      // Bottom tagline
+      pdf.setFontSize(12);
+      pdf.setTextColor(...COLORS.gray);
+      pdf.text("Developer pays our fee — our services are completely free to you.", 20, H - 15);
+
+      // ============ SLIDE 3: OUR PROCESS ============
       pdf.addPage();
-      pdf.setFillColor(...COLORS.lightBg);
-      pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      addPageHeader("Meet The Team");
-      
-      const team = [
-        { name: "Sunny Parmar", title: "Founder & Lead Advisor", desc: "Expert in negotiation, deal structuring, and investor strategy" },
-        { name: "Priya Sharma", title: "First-Time Buyer Specialist", desc: "Focused on education, contract clarity, and emotional support" },
-        { name: "Kevin Lee", title: "Investor Relations & Leasing", desc: "Handles assignments, tenant placement, and legal coordination" },
+      pdf.setFillColor(...COLORS.offWhite);
+      pdf.rect(0, 0, W, H, "F");
+
+      pdf.setFontSize(42);
+      pdf.setTextColor(...COLORS.dark);
+      pdf.text("THE", 20, 40);
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("PROCESS", 60, 40);
+
+      const steps = [
+        { num: "01", title: "Discovery Call", desc: "Understand your goals" },
+        { num: "02", title: "Project Matching", desc: "Curated options for you" },
+        { num: "03", title: "VIP Access", desc: "First dibs on best units" },
+        { num: "04", title: "Contract Review", desc: "Full legal protection" },
+        { num: "05", title: "Completion Support", desc: "We're there until keys" },
       ];
-      
-      team.forEach((member, i) => {
-        const x = 15 + (i * 95);
-        const y = 45;
+
+      const stepWidth = (W - 40) / 5;
+      steps.forEach((step, i) => {
+        const x = 20 + i * stepWidth;
+        const y = 70;
         
-        // Card
-        pdf.setFillColor(...COLORS.white);
-        pdf.roundedRect(x, y, 88, 100, 3, 3, "F");
-        
-        // Avatar placeholder
-        pdf.setFillColor(...COLORS.primary);
-        pdf.circle(x + 44, y + 25, 18, "F");
-        
-        pdf.setFontSize(10);
-        pdf.setTextColor(...COLORS.white);
-        pdf.text(member.name.split(" ").map(n => n[0]).join(""), x + 44, y + 28, { align: "center" });
-        
-        // Name
-        pdf.setFontSize(14);
-        pdf.setTextColor(...COLORS.dark);
-        pdf.text(member.name, x + 44, y + 55, { align: "center" });
+        // Number
+        pdf.setFontSize(32);
+        pdf.setTextColor(...COLORS.gold);
+        pdf.text(step.num, x + stepWidth / 2, y, { align: "center" });
         
         // Title
-        pdf.setFontSize(10);
-        pdf.setTextColor(...COLORS.primary);
-        pdf.text(member.title, x + 44, y + 63, { align: "center" });
-        
-        // Bio
-        pdf.setFontSize(9);
-        pdf.setTextColor(...COLORS.muted);
-        const bioLines = pdf.splitTextToSize(member.desc, 75);
-        pdf.text(bioLines, x + 44, y + 75, { align: "center" });
-      });
-
-      // ========== SLIDE 5: Client Impact ==========
-      pdf.addPage();
-      pdf.setFillColor(...COLORS.lightBg);
-      pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      addPageHeader("Client Impact & Success");
-      
-      // Stats
-      const impactStats = [
-        { stat: "$20K–$30K+", label: "Average Incentives Negotiated" },
-        { stat: "400+", label: "Presale Homes Sold" },
-        { stat: "$1,500", label: "Legal Credit for Buyers" },
-        { stat: "5+ Years", label: "Dedicated Presale Experience" },
-      ];
-      
-      impactStats.forEach((item, i) => {
-        const x = 15 + (i * 70);
-        
-        pdf.setFillColor(...COLORS.white);
-        pdf.roundedRect(x, 40, 65, 50, 3, 3, "F");
-        
-        pdf.setFontSize(18);
-        pdf.setTextColor(...COLORS.primary);
-        pdf.text(item.stat, x + 32.5, 60, { align: "center" });
-        
-        pdf.setFontSize(8);
-        pdf.setTextColor(...COLORS.muted);
-        const labelLines = pdf.splitTextToSize(item.label, 55);
-        pdf.text(labelLines, x + 32.5, 72, { align: "center" });
-      });
-      
-      // Case studies
-      pdf.setFontSize(12);
-      pdf.setTextColor(...COLORS.dark);
-      pdf.text("Success Stories", 15, 105);
-      
-      pdf.setFillColor(...COLORS.white);
-      pdf.roundedRect(15, 110, 130, 55, 3, 3, "F");
-      pdf.setFontSize(11);
-      pdf.setTextColor(...COLORS.dark);
-      pdf.text("First-Time Buyer Success", 22, 122);
-      pdf.setFontSize(9);
-      pdf.setTextColor(...COLORS.muted);
-      const ftbText = pdf.splitTextToSize("Helping buyers negotiate better terms, reduce deposits by up to 5%, and gain confidence in making one of the biggest decisions of their lives.", 115);
-      pdf.text(ftbText, 22, 132);
-      
-      pdf.setFillColor(...COLORS.white);
-      pdf.roundedRect(150, 110, 130, 55, 3, 3, "F");
-      pdf.setFontSize(11);
-      pdf.setTextColor(...COLORS.dark);
-      pdf.text("Investor Portfolio Growth", 157, 122);
-      pdf.setFontSize(9);
-      pdf.setTextColor(...COLORS.muted);
-      const invText = pdf.splitTextToSize("Helping investors scale portfolios with strategic presale purchases, tenant placement, and assignment expertise.", 115);
-      pdf.text(invText, 157, 132);
-
-      // ========== SLIDES 6-10: Featured Projects ==========
-      finalProjects.forEach((project, index) => {
-        pdf.addPage();
-        pdf.setFillColor(...COLORS.lightBg);
-        pdf.rect(0, 0, pageWidth, pageHeight, "F");
-        addPageHeader(`Featured Project ${index + 1}`);
-        
-        // Project card
-        pdf.setFillColor(...COLORS.white);
-        pdf.roundedRect(15, 35, pageWidth - 30, 120, 5, 5, "F");
-        
-        // Image placeholder
-        pdf.setFillColor(...COLORS.muted);
-        pdf.roundedRect(25, 45, 100, 70, 3, 3, "F");
-        pdf.setFontSize(10);
-        pdf.setTextColor(...COLORS.white);
-        pdf.text("Project Image", 75, 82, { align: "center" });
-        
-        // Project details
-        pdf.setFontSize(22);
-        pdf.setTextColor(...COLORS.dark);
-        pdf.text(project.name, 135, 55);
-        
         pdf.setFontSize(12);
-        pdf.setTextColor(...COLORS.primary);
-        pdf.text(`${project.city}${project.neighborhood ? ` • ${project.neighborhood}` : ""}`, 135, 65);
-        
-        // Details grid
-        const details = [
-          { label: "Property Type", value: project.project_type || "TBD" },
-          { label: "Price Range", value: project.price_range || (project.starting_price ? `From ${formatPrice(project.starting_price)}` : "Contact Us") },
-          { label: "Completion", value: formatCompletionDate(project.completion_year, project.completion_month) },
-          { label: "Developer", value: project.developer_name || "TBD" },
-        ];
-        
-        details.forEach((detail, i) => {
-          const x = 135 + (i % 2) * 75;
-          const y = 80 + Math.floor(i / 2) * 25;
-          
-          pdf.setFontSize(9);
-          pdf.setTextColor(...COLORS.muted);
-          pdf.text(detail.label, x, y);
-          
-          pdf.setFontSize(11);
-          pdf.setTextColor(...COLORS.dark);
-          pdf.text(String(detail.value), x, y + 8);
-        });
-        
-        // CTA
-        pdf.setFillColor(...COLORS.primary);
-        pdf.roundedRect(25, 125, 100, 20, 3, 3, "F");
-        pdf.setFontSize(11);
         pdf.setTextColor(...COLORS.dark);
-        pdf.text("Contact Us for VIP Access", 75, 138, { align: "center" });
+        pdf.text(step.title, x + stepWidth / 2, y + 20, { align: "center" });
+        
+        // Desc
+        pdf.setFontSize(10);
+        pdf.setTextColor(...COLORS.gray);
+        pdf.text(step.desc, x + stepWidth / 2, y + 32, { align: "center" });
+        
+        // Arrow (except last)
+        if (i < 4) {
+          pdf.setFillColor(...COLORS.gold);
+          const arrowX = x + stepWidth - 5;
+          pdf.triangle(arrowX, y + 12, arrowX + 8, y + 18, arrowX, y + 24, "F");
+        }
       });
 
-      // ========== FINAL SLIDE: Contact CTA ==========
+      // Bottom highlight box
+      pdf.setFillColor(...COLORS.gold);
+      pdf.roundedRect(20, 130, W - 40, 40, 4, 4, "F");
+      pdf.setFontSize(16);
+      pdf.setTextColor(...COLORS.dark);
+      pdf.text("$1,500 Legal Credit Included", W / 2, 150, { align: "center" });
+      pdf.setFontSize(12);
+      pdf.text("On every purchase — our way of supporting your journey", W / 2, 162, { align: "center" });
+
+      // ============ SLIDE 4: MEET THE TEAM ============
       pdf.addPage();
       pdf.setFillColor(...COLORS.dark);
-      pdf.rect(0, 0, pageWidth, pageHeight, "F");
-      
-      // Gold accent
-      pdf.setFillColor(...COLORS.primary);
-      pdf.rect(0, 0, pageWidth, 8, "F");
-      
-      // Main heading
-      pdf.setFontSize(36);
-      pdf.setTextColor(...COLORS.white);
-      pdf.text("Your Journey Starts", pageWidth / 2, 55, { align: "center" });
-      pdf.text("With the Right Team", pageWidth / 2, 70, { align: "center" });
-      
-      // Subheading
-      pdf.setFontSize(14);
-      pdf.setTextColor(...COLORS.muted);
-      pdf.text("Let us help you find your next home or investment", pageWidth / 2, 90, { align: "center" });
-      pdf.text("— fully protected, fully guided, fully free.", pageWidth / 2, 100, { align: "center" });
-      
-      // CTA button
-      pdf.setFillColor(...COLORS.primary);
-      pdf.roundedRect(pageWidth / 2 - 50, 115, 100, 18, 3, 3, "F");
-      pdf.setFontSize(12);
-      pdf.setTextColor(...COLORS.dark);
-      pdf.text("Book a Free Consultation", pageWidth / 2, 127, { align: "center" });
-      
-      // Contact info
-      pdf.setFontSize(11);
-      pdf.setTextColor(...COLORS.white);
-      pdf.text("presaleproperties.com", pageWidth / 2, 155, { align: "center" });
-      
-      // Trust badges
-      pdf.setFontSize(10);
-      pdf.setTextColor(...COLORS.muted);
-      pdf.text("✓ 100% New Construction    ✓ Free Buyer Representation    ✓ Multilingual Support", pageWidth / 2, 175, { align: "center" });
+      pdf.rect(0, 0, W, H, "F");
 
-      // Save PDF
-      pdf.save("About-Presale-Properties-Group.pdf");
-      
+      pdf.setFontSize(42);
+      pdf.setTextColor(...COLORS.white);
+      pdf.text("MEET", 20, 35);
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("THE TEAM", 85, 35);
+
+      if (teamMembers.length > 0) {
+        const cardWidth = 85;
+        const cardGap = 15;
+        const totalWidth = teamMembers.length * cardWidth + (teamMembers.length - 1) * cardGap;
+        const startX = (W - totalWidth) / 2;
+
+        teamMembers.forEach((member, i) => {
+          const x = startX + i * (cardWidth + cardGap);
+          const y = 55;
+          
+          // Card background
+          pdf.setFillColor(...COLORS.charcoal);
+          pdf.roundedRect(x, y, cardWidth, 115, 4, 4, "F");
+          
+          // Photo circle or initials
+          const photoY = y + 35;
+          if (teamPhotos[i]) {
+            try {
+              pdf.addImage(teamPhotos[i]!, "JPEG", x + 17.5, y + 10, 50, 50);
+            } catch {
+              // Fallback to initials
+              pdf.setFillColor(...COLORS.gold);
+              pdf.circle(x + cardWidth / 2, photoY, 25, "F");
+              pdf.setFontSize(20);
+              pdf.setTextColor(...COLORS.dark);
+              const initials = member.full_name.split(" ").map((n) => n[0]).join("");
+              pdf.text(initials, x + cardWidth / 2, photoY + 7, { align: "center" });
+            }
+          } else {
+            pdf.setFillColor(...COLORS.gold);
+            pdf.circle(x + cardWidth / 2, photoY, 25, "F");
+            pdf.setFontSize(20);
+            pdf.setTextColor(...COLORS.dark);
+            const initials = member.full_name.split(" ").map((n) => n[0]).join("");
+            pdf.text(initials, x + cardWidth / 2, photoY + 7, { align: "center" });
+          }
+          
+          // Name
+          pdf.setFontSize(14);
+          pdf.setTextColor(...COLORS.white);
+          pdf.text(member.full_name, x + cardWidth / 2, y + 75, { align: "center" });
+          
+          // Title
+          pdf.setFontSize(10);
+          pdf.setTextColor(...COLORS.gold);
+          const titleLines = pdf.splitTextToSize(member.title, cardWidth - 10);
+          pdf.text(titleLines, x + cardWidth / 2, y + 88, { align: "center" });
+          
+          // Specialization tag
+          if (member.specializations && member.specializations[0]) {
+            pdf.setFillColor(...COLORS.gold);
+            pdf.roundedRect(x + 10, y + 100, cardWidth - 20, 10, 2, 2, "F");
+            pdf.setFontSize(8);
+            pdf.setTextColor(...COLORS.dark);
+            const spec = member.specializations[0].length > 18 
+              ? member.specializations[0].substring(0, 16) + "..." 
+              : member.specializations[0];
+            pdf.text(spec, x + cardWidth / 2, y + 107, { align: "center" });
+          }
+        });
+      } else {
+        pdf.setFontSize(14);
+        pdf.setTextColor(...COLORS.lightGray);
+        pdf.text("Our expert team is ready to help you find your perfect presale home.", W / 2, 100, { align: "center" });
+      }
+
+      // Languages
+      pdf.setFontSize(11);
+      pdf.setTextColor(...COLORS.lightGray);
+      pdf.text("We speak: English • Hindi • Punjabi • Urdu • Arabic • Korean", W / 2, H - 15, { align: "center" });
+
+      // ============ SLIDE 5: FEATURED PROJECTS ============
+      pdf.addPage();
+      pdf.setFillColor(...COLORS.offWhite);
+      pdf.rect(0, 0, W, H, "F");
+
+      pdf.setFontSize(42);
+      pdf.setTextColor(...COLORS.dark);
+      pdf.text("FEATURED", 20, 40);
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("PROJECTS", 130, 40);
+
+      if (projects.length > 0) {
+        const projCardWidth = (W - 60) / 3;
+        projects.slice(0, 3).forEach((proj, i) => {
+          const x = 20 + i * (projCardWidth + 10);
+          const y = 55;
+          
+          // Card
+          pdf.setFillColor(...COLORS.white);
+          pdf.roundedRect(x, y, projCardWidth, 100, 4, 4, "F");
+          
+          // Image placeholder
+          pdf.setFillColor(...COLORS.lightGray);
+          pdf.roundedRect(x + 5, y + 5, projCardWidth - 10, 45, 3, 3, "F");
+          pdf.setFontSize(10);
+          pdf.setTextColor(...COLORS.gray);
+          pdf.text("Project Rendering", x + projCardWidth / 2, y + 30, { align: "center" });
+          
+          // Project name
+          pdf.setFontSize(14);
+          pdf.setTextColor(...COLORS.dark);
+          const nameLines = pdf.splitTextToSize(proj.name, projCardWidth - 15);
+          pdf.text(nameLines[0], x + 8, y + 62);
+          
+          // Location
+          pdf.setFontSize(10);
+          pdf.setTextColor(...COLORS.gold);
+          pdf.text(`${proj.city}${proj.neighborhood ? ` • ${proj.neighborhood}` : ""}`, x + 8, y + 74);
+          
+          // Details
+          pdf.setFontSize(9);
+          pdf.setTextColor(...COLORS.gray);
+          pdf.text(`${proj.project_type || "Mixed"} | ${formatCompletion(proj.completion_year, proj.completion_month)}`, x + 8, y + 85);
+          pdf.setTextColor(...COLORS.dark);
+          pdf.text(`From ${formatPrice(proj.starting_price)}`, x + 8, y + 95);
+        });
+      }
+
+      // CTA
+      pdf.setFillColor(...COLORS.gold);
+      pdf.roundedRect(W / 2 - 60, H - 30, 120, 18, 4, 4, "F");
+      pdf.setFontSize(11);
+      pdf.setTextColor(...COLORS.dark);
+      pdf.text("Request VIP Access", W / 2, H - 18, { align: "center" });
+
+      // ============ SLIDE 6: CTA / CLOSE ============
+      pdf.addPage();
+      pdf.setFillColor(...COLORS.dark);
+      pdf.rect(0, 0, W, H, "F");
+
+      // Gold accent
+      pdf.setFillColor(...COLORS.gold);
+      pdf.rect(0, 0, W, 4, "F");
+      pdf.rect(0, H - 4, W, 4, "F");
+
+      // Main message
+      pdf.setFontSize(48);
+      pdf.setTextColor(...COLORS.white);
+      pdf.text("YOUR JOURNEY STARTS", W / 2, 70, { align: "center" });
+      pdf.setTextColor(...COLORS.gold);
+      pdf.text("WITH THE RIGHT TEAM", W / 2, 95, { align: "center" });
+
+      // Subtext
+      pdf.setFontSize(14);
+      pdf.setTextColor(...COLORS.lightGray);
+      pdf.text("100% New Construction • Free Expert Guidance • Multilingual Support", W / 2, 120, { align: "center" });
+
+      // CTA button
+      pdf.setFillColor(...COLORS.gold);
+      pdf.roundedRect(W / 2 - 55, 140, 110, 22, 4, 4, "F");
+      pdf.setFontSize(13);
+      pdf.setTextColor(...COLORS.dark);
+      pdf.text("Book a Free Consultation", W / 2, 154, { align: "center" });
+
+      // Contact
+      pdf.setFontSize(12);
+      pdf.setTextColor(...COLORS.white);
+      pdf.text("presaleproperties.com", W / 2, H - 25, { align: "center" });
+
+      // Save
+      pdf.save("Presale-Properties-Guide.pdf");
+
       toast({
         title: "Presentation Downloaded!",
-        description: "Your presentation deck has been saved as a PDF.",
+        description: "Your premium presentation deck is ready.",
       });
     } catch (error) {
       console.error("Error generating PDF:", error);
