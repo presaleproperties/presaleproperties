@@ -73,12 +73,12 @@ export function MeetTheTeam() {
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
-        <div className="text-left md:text-center mb-8 sm:mb-12">
+        <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             Meet the Team
           </h2>
-          <div className="w-16 sm:w-20 h-1 bg-primary md:mx-auto mb-4 sm:mb-6 rounded-full" />
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl md:mx-auto">
+          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
             Our dedicated specialists bring together decades of combined experience in presale real estate, 
             each focusing on what they do best.
           </p>

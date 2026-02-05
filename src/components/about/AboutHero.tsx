@@ -22,7 +22,7 @@ export function AboutHero() {
       <div className="container relative px-4">
         <div className="grid lg:grid-cols-2 gap-6 lg:gap-16 items-center">
           {/* Content */}
-          <div className="text-left order-2 lg:order-1">
+          <div className="text-center lg:text-left order-2 lg:order-1">
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-primary/20 border border-primary/30 mb-4 sm:mb-6 md:mb-8">
               <span className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-primary animate-pulse" />
@@ -39,11 +39,11 @@ export function AboutHero() {
               <span className="text-background">No Extra Cost.</span>
             </h1>
             
-            <p className="text-sm sm:text-base md:text-lg text-background/70 mb-6 sm:mb-8 max-w-xl leading-relaxed">
+            <p className="text-sm sm:text-base md:text-lg text-background/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               A specialized team guiding first-time buyers and investors through condos, townhomes, duplexes, and single-family homes — from project selection to move‑in or assignment.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
               <Button 
                 size="lg" 
                 className="gap-2 shadow-xl shadow-primary/30 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto" 
@@ -68,16 +68,16 @@ export function AboutHero() {
             {/* Trust indicators */}
             <div className="mt-6 sm:mt-8 pt-5 sm:pt-6 border-t border-background/10">
               <div className="grid grid-cols-3 gap-4 sm:gap-8">
-                <div className="text-left">
+                <div className="text-center lg:text-left">
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">400+</p>
                   <p className="text-[10px] sm:text-xs md:text-sm text-background/60">Homes Sold</p>
                 </div>
-                <div className="text-left sm:text-center">
+                <div className="text-center">
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">$200M+</p>
                   <p className="text-[10px] sm:text-xs md:text-sm text-background/60">In Transactions</p>
                 </div>
-                <div className="text-left sm:text-right">
-                  <div className="flex items-center gap-1 sm:justify-end">
+                <div className="text-center lg:text-right">
+                  <div className="flex items-center gap-1 justify-center lg:justify-end">
                     <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-primary text-primary" />
                     <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">5.0</p>
                   </div>
