@@ -21,7 +21,7 @@ interface TeamMember {
 
 export function MeetTheTeam() {
   const [formOpen, setFormOpen] = useState(false);
-  const [selectedAgent, setSelectedAgent] = useState<{ id: string; name: string } | null>(null);
+  const [selectedAgent, setSelectedAgent] = useState<{ id: string; name: string; photo: string | null } | null>(null);
 
   const { data: teamMembers = [], isLoading } = useQuery({
     queryKey: ["team-members"],
@@ -65,8 +65,8 @@ export function MeetTheTeam() {
     return null;
   }
 
-  const handleWorkWithAgent = (agentId: string, agentName: string) => {
-    setSelectedAgent({ id: agentId, name: agentName });
+  const handleWorkWithAgent = (agentId: string, agentName: string, agentPhoto: string | null) => {
+    setSelectedAgent({ id: agentId, name: agentName, photo: agentPhoto });
     setFormOpen(true);
   };
 
@@ -156,7 +156,7 @@ export function MeetTheTeam() {
                 <Button
                   size="sm"
                   className="w-full gap-2 text-xs sm:text-sm"
-                  onClick={() => handleWorkWithAgent(member.id, member.full_name)}
+                  onClick={() => handleWorkWithAgent(member.id, member.full_name, member.photo_url)}
                 >
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                   <span>Work with {member.full_name.split(" ")[0]}</span>
@@ -172,6 +172,7 @@ export function MeetTheTeam() {
         onOpenChange={setFormOpen}
         selectedAgentId={selectedAgent?.id}
         selectedAgentName={selectedAgent?.name}
+        selectedAgentPhoto={selectedAgent?.photo}
       />
     </section>
   );

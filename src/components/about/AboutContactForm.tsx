@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Calendar, Send, User, Loader2 } from "lucide-react";
+import { Calendar, Send, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
@@ -61,6 +61,7 @@ interface AboutContactFormProps {
   onOpenChange: (open: boolean) => void;
   selectedAgentId?: string | null;
   selectedAgentName?: string | null;
+  selectedAgentPhoto?: string | null;
 }
 
 export function AboutContactForm({
@@ -68,6 +69,7 @@ export function AboutContactForm({
   onOpenChange,
   selectedAgentId,
   selectedAgentName,
+  selectedAgentPhoto,
 }: AboutContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -269,16 +271,20 @@ export function AboutContactForm({
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                {selectedAgentName ? (
-                  <User className="h-5 w-5 text-primary" />
-                ) : (
-                  <Calendar className="h-5 w-5 text-primary" />
-                )}
-              </div>
-              <div>
-                <DialogTitle className="text-left">{title}</DialogTitle>
+            <div className="flex items-start gap-4 mb-2">
+              {selectedAgentPhoto ? (
+                <img
+                  src={selectedAgentPhoto}
+                  alt={selectedAgentName || "Agent"}
+                  className="w-14 h-14 rounded-full object-cover flex-shrink-0 border-2 border-primary/20"
+                />
+              ) : (
+                <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                  <Calendar className="h-6 w-6 text-primary" />
+                </div>
+              )}
+              <div className="space-y-1.5">
+                <DialogTitle className="text-left text-xl">{title}</DialogTitle>
                 <DialogDescription className="text-left text-sm">
                   {description}
                 </DialogDescription>
@@ -295,16 +301,20 @@ export function AboutContactForm({
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="px-4 pb-6">
         <DrawerHeader className="text-left px-0">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              {selectedAgentName ? (
-                <User className="h-5 w-5 text-primary" />
-              ) : (
-                <Calendar className="h-5 w-5 text-primary" />
-              )}
-            </div>
-            <div>
-              <DrawerTitle>{title}</DrawerTitle>
+          <div className="flex items-start gap-4">
+            {selectedAgentPhoto ? (
+              <img
+                src={selectedAgentPhoto}
+                alt={selectedAgentName || "Agent"}
+                className="w-14 h-14 rounded-full object-cover flex-shrink-0 border-2 border-primary/20"
+              />
+            ) : (
+              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Calendar className="h-6 w-6 text-primary" />
+              </div>
+            )}
+            <div className="space-y-1.5">
+              <DrawerTitle className="text-lg">{title}</DrawerTitle>
               <DrawerDescription className="text-sm">
                 {description}
               </DrawerDescription>
