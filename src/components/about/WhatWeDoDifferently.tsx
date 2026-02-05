@@ -20,29 +20,29 @@ const benefits = [
 
 export function WhatWeDoDifferently() {
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-12 sm:py-16 md:py-24">
       <div className="container px-4">
-        <div className="max-w-3xl mx-auto text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             Why Work With Us
           </h2>
-          <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
-          <p className="text-lg sm:text-xl text-muted-foreground">
+          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground">
             Most agents occasionally do presales. <span className="text-primary font-medium">We live and breathe them.</span>
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
           {benefits.map((item) => (
             <div
               key={item.title}
-              className="bg-card rounded-xl p-6 sm:p-8 border shadow-sm hover:shadow-md hover:border-primary/30 transition-all text-center"
+              className="bg-card rounded-xl p-5 sm:p-6 md:p-8 border shadow-sm hover:shadow-md hover:border-primary/30 transition-all text-center"
             >
-              <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
-                <item.icon className="h-7 w-7 text-primary" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                <item.icon className="h-6 w-6 sm:h-7 sm:w-7 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground text-lg mb-2">{item.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+              <h3 className="font-semibold text-foreground text-base sm:text-lg mb-2">{item.title}</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">{item.description}</p>
             </div>
           ))}
         </div>
