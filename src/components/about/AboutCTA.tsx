@@ -16,7 +16,7 @@ export function AboutCTA() {
               Start Your <span className="text-primary">Presale Journey</span>
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-background/80 mb-8 max-w-2xl mx-auto">
-              Whether you're buying your <strong className="text-background">first home</strong> or your <strong className="text-background">next investment</strong>, having a <strong className="text-primary">specialist team</strong> on your side changes your outcome.
+              Whether you're buying your first home or your next investment, having a specialist team on your side changes your outcome.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

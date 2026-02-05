@@ -34,7 +34,7 @@ export function AboutHero() {
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-background/70 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              A <span className="text-background font-semibold">specialized team</span> guiding first-time buyers and investors through <span className="text-background font-semibold">condos, townhomes, duplexes, and single-family homes</span> — from project selection to move‑in or assignment.
+              A specialized team guiding first-time buyers and investors through condos, townhomes, duplexes, and single-family homes — from project selection to move‑in or assignment.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
