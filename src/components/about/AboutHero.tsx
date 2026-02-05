@@ -22,37 +22,37 @@ export function AboutHero() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-8">
               <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-              <span className="text-sm font-semibold text-primary tracking-wide uppercase">
-                Vancouver's Presale Specialists
+              <span className="text-xs sm:text-sm font-semibold text-primary tracking-wide uppercase">
+                Metro Vancouver & Fraser Valley
               </span>
             </div>
             
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-background mb-6 leading-[1.05]">
-              New Condos.{" "}
+              New Construction.{" "}
               <span className="text-primary">Expert Help.</span>{" "}
               <span className="block mt-2">No Extra Cost.</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-background/70 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              A <span className="text-background font-semibold">specialized team</span> guiding first-time buyers and investors through every step — from <span className="text-background font-semibold">project selection</span> to <span className="text-background font-semibold">move‑in or assignment</span>.
+            <p className="text-base sm:text-lg md:text-xl text-background/70 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              A <span className="text-background font-semibold">specialized team</span> guiding first-time buyers and investors through <span className="text-background font-semibold">condos, townhomes, duplexes, and single-family homes</span> — from project selection to move‑in or assignment.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <Button size="xl" className="gap-2 shadow-xl shadow-primary/30 text-base" asChild>
+              <Button size="lg" className="gap-2 shadow-xl shadow-primary/30 text-sm sm:text-base px-6 py-3 h-auto" asChild>
                 <Link to="/contact">
-                  <Calendar className="h-5 w-5" />
-                  Book a Free Consultation
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span>Book Free Consultation</span>
                 </Link>
               </Button>
               <Button 
-                size="xl" 
+                size="lg" 
                 variant="outline" 
-                className="gap-2 border-background/30 text-background hover:bg-background/10 text-base"
+                className="gap-2 border-background/30 text-background hover:bg-background/10 text-sm sm:text-base px-6 py-3 h-auto"
                 asChild
               >
                 <Link to="/presale-projects">
-                  Browse Projects
-                  <ArrowRight className="h-5 w-5" />
+                  <span>Browse Projects</span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 </Link>
               </Button>
             </div>
@@ -61,19 +61,19 @@ export function AboutHero() {
             <div className="mt-10 pt-8 border-t border-background/10">
               <div className="grid grid-cols-3 gap-4 sm:gap-8">
                 <div className="text-center lg:text-left">
-                  <p className="text-3xl sm:text-4xl font-bold text-primary">400+</p>
-                  <p className="text-sm text-background/60">Homes Sold</p>
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">400+</p>
+                  <p className="text-xs sm:text-sm text-background/60">Homes Sold</p>
                 </div>
                 <div className="text-center">
-                  <p className="text-3xl sm:text-4xl font-bold text-primary">$200M+</p>
-                  <p className="text-sm text-background/60">In Transactions</p>
+                  <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">$200M+</p>
+                  <p className="text-xs sm:text-sm text-background/60">In Transactions</p>
                 </div>
                 <div className="text-center lg:text-right">
                   <div className="flex items-center justify-center lg:justify-end gap-1.5">
-                    <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-primary text-primary" />
-                    <p className="text-3xl sm:text-4xl font-bold text-primary">5.0</p>
+                    <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-primary text-primary" />
+                    <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary">5.0</p>
                   </div>
-                  <p className="text-sm text-background/60">Google Rating</p>
+                  <p className="text-xs sm:text-sm text-background/60">Google Rating</p>
                 </div>
               </div>
             </div>

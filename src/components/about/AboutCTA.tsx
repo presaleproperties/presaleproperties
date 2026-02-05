@@ -11,34 +11,34 @@ export function AboutCTA() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
           
-          <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <div className="relative px-6 py-12 sm:px-8 sm:py-16 md:px-16 md:py-20 text-center">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               Start Your <span className="text-primary">Presale Journey</span>
             </h2>
-            <p className="text-lg md:text-xl text-background/80 mb-8 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg md:text-xl text-background/80 mb-8 max-w-2xl mx-auto">
               Whether you're buying your <strong className="text-background">first home</strong> or your <strong className="text-background">next investment</strong>, having a <strong className="text-primary">specialist team</strong> on your side changes your outcome.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                size="xl"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2"
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 text-sm sm:text-base px-5 sm:px-6 py-3 h-auto"
                 asChild
               >
                 <Link to="/contact">
-                  <Calendar className="h-5 w-5" />
-                  Book a Free Consultation
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span>Book Free Consultation</span>
                 </Link>
               </Button>
               <Button
-                size="xl"
+                size="lg"
                 variant="outline"
-                className="border-background/30 text-background hover:bg-background/10 gap-2"
+                className="border-background/30 text-background hover:bg-background/10 gap-2 text-sm sm:text-base px-5 sm:px-6 py-3 h-auto"
                 asChild
               >
                 <Link to="/presale-projects">
-                  Browse Presale Projects
-                  <ArrowRight className="h-5 w-5" />
+                  <span>Browse Projects</span>
+                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 </Link>
               </Button>
             </div>

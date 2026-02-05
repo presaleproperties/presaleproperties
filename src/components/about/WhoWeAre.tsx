@@ -1,15 +1,15 @@
-import { Building2, Globe, Users, Award } from "lucide-react";
+import { Building2, Globe, Users, MapPin } from "lucide-react";
 
 const highlights = [
   {
     icon: Building2,
     title: "New Construction Focus",
-    description: "80%+ of our business is presale and move-in ready new construction.",
+    description: "80%+ of our business is presale and move-in ready new homes.",
   },
   {
-    icon: Award,
-    title: "Proven Track Record",
-    description: "400+ sales and $200M+ in completed transactions.",
+    icon: MapPin,
+    title: "Local Expertise",
+    description: "Serving Metro Vancouver and Fraser Valley communities.",
   },
   {
     icon: Globe,
@@ -33,7 +33,7 @@ export function WhoWeAre() {
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-4">
-            Presale Properties Group is a team of <strong className="text-foreground">licensed REALTORS®</strong> focused on <strong className="text-foreground">new condos, townhomes, and presale homes</strong> across Metro Vancouver and the Fraser Valley.
+            Presale Properties Group is a team of <strong className="text-foreground">licensed REALTORS®</strong> focused on <strong className="text-foreground">new condos, townhomes, duplexes, and single-family homes</strong> across <strong className="text-foreground">Metro Vancouver and the Fraser Valley</strong>.
           </p>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
             <strong className="text-foreground">Over 80%</strong> of our business is presale and move-in-ready new construction. Our <strong className="text-foreground">multilingual team</strong> serves clients with a deep understanding of <strong className="text-foreground">first-generation and newcomer</strong> buyers.
