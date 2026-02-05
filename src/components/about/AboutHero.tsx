@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Calendar, MapPin, Star } from "lucide-react";
+import { Calendar, Star } from "lucide-react";
 import aboutHeroImage from "@/assets/about-hero-team.jpg";
+
 export function AboutHero() {
   return (
     <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
@@ -13,18 +14,13 @@ export function AboutHero() {
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
           {/* Content */}
           <div className="text-center lg:text-left order-2 lg:order-1">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary font-medium text-sm mb-6 border border-primary/20">
-              <MapPin className="h-4 w-4" />
-              Vancouver's New Construction Specialists
-            </div>
-            
             <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]">
-              Meet Your Presale{" "}
-              <span className="text-primary">Real Estate Experts</span>
+              New Condos & Presales.{" "}
+              <span className="text-primary">Expert Help. No Extra Cost.</span>
             </h1>
             
             <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              We help first-time buyers and investors navigate the presale journey with clarity, confidence, and results — at no cost to you.
+              A specialized real estate team guiding first-time buyers and investors through every step of the presale journey — from project selection to move‑in or assignment.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
@@ -39,7 +35,7 @@ export function AboutHero() {
             <div className="mt-6 flex justify-center lg:justify-start">
               <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-foreground" asChild>
                 <Link to="/presale-projects">
-                  Browse Projects →
+                  Browse Presale Projects →
                 </Link>
               </Button>
             </div>
@@ -55,7 +51,7 @@ export function AboutHero() {
               />
             </div>
             
-            {/* Stats overlay - repositioned for mobile */}
+            {/* Stats overlay */}
             <div className="absolute -bottom-4 sm:-bottom-6 left-2 right-2 sm:left-4 sm:right-4 md:left-6 md:right-6">
               <div className="bg-card/95 backdrop-blur-sm rounded-xl shadow-xl p-3 sm:p-4 md:p-5 grid grid-cols-3 gap-2 sm:gap-4 border">
                 <div className="text-center">
@@ -64,7 +60,7 @@ export function AboutHero() {
                 </div>
                 <div className="text-center border-x border-border">
                   <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">$200M+</p>
-                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">In Sales</p>
+                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">In Transactions</p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center gap-1">
