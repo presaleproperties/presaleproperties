@@ -4,12 +4,9 @@ import { Link } from "react-router-dom";
 import { Calendar, Star, ArrowRight } from "lucide-react";
 import aboutHeroImage from "@/assets/about-hero-team.jpg";
 import { AboutContactForm } from "./AboutContactForm";
-
 export function AboutHero() {
   const [formOpen, setFormOpen] = useState(false);
-
-  return (
-    <section className="relative py-12 sm:py-16 md:py-24 lg:py-32 overflow-hidden">
+  return <section className="relative py-12 sm:py-16 md:py-24 lg:py-32 overflow-hidden">
       {/* Premium multi-layer gradient background */}
       <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground/95 to-foreground/90" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
@@ -31,8 +28,7 @@ export function AboutHero() {
               </span>
             </div>
             
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-background mb-4 sm:mb-6 leading-[1.1]">
-              <span className="text-primary">Presale</span> Experts
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-background mb-4 sm:mb-6 leading-[1.1]">Presale Experts <span className="text-primary">Presale</span> Experts
             </h1>
             
             <p className="text-base sm:text-lg md:text-lg text-background/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
@@ -40,20 +36,11 @@ export function AboutHero() {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button 
-                size="lg" 
-                className="gap-2 shadow-xl shadow-primary/30 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto" 
-                onClick={() => setFormOpen(true)}
-              >
+              <Button size="lg" className="gap-2 shadow-xl shadow-primary/30 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto" onClick={() => setFormOpen(true)}>
                 <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>Book Free Consultation</span>
               </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="gap-2 border-2 border-background/40 bg-background/5 text-background hover:bg-background/10 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto"
-                asChild
-              >
+              <Button size="lg" variant="outline" className="gap-2 border-2 border-background/40 bg-background/5 text-background hover:bg-background/10 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto" asChild>
                 <Link to="/presale-projects">
                   <span>Browse Projects</span>
                   <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
@@ -89,11 +76,7 @@ export function AboutHero() {
               {/* Glow behind image */}
               <div className="absolute -inset-2 sm:-inset-4 bg-primary/20 rounded-xl sm:rounded-2xl blur-lg sm:blur-2xl" />
               <div className="relative aspect-[4/3] rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden shadow-2xl border border-background/10">
-                <img
-                  src={aboutHeroImage}
-                  alt="Presale Properties Group team in Vancouver sales center"
-                  className="w-full h-full object-cover"
-                />
+                <img src={aboutHeroImage} alt="Presale Properties Group team in Vancouver sales center" className="w-full h-full object-cover" />
                 {/* Overlay gradient */}
                 <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
               </div>
@@ -102,12 +85,6 @@ export function AboutHero() {
         </div>
       </div>
 
-      <AboutContactForm
-        open={formOpen}
-        onOpenChange={setFormOpen}
-        selectedAgentId={null}
-        selectedAgentName={null}
-      />
-    </section>
-  );
+      <AboutContactForm open={formOpen} onOpenChange={setFormOpen} selectedAgentId={null} selectedAgentName={null} />
+    </section>;
 }
