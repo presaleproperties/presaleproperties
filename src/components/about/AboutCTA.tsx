@@ -4,25 +4,25 @@ import { Calendar, ArrowRight } from "lucide-react";
 
 export function AboutCTA() {
   return (
-    <section className="py-16 md:py-24">
+    <section className="py-12 sm:py-16 md:py-24">
       <div className="container px-4">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-foreground to-foreground/90 text-background">
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl bg-gradient-to-br from-foreground to-foreground/90 text-background">
           {/* Decorative elements */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-64 sm:w-96 h-64 sm:h-96 bg-primary/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 sm:w-64 h-48 sm:h-64 bg-primary/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
           
-          <div className="relative px-6 py-12 sm:px-8 sm:py-16 md:px-16 md:py-20 text-center">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+          <div className="relative px-5 py-10 sm:px-8 sm:py-14 md:px-16 md:py-20 text-center">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-3 sm:mb-4">
               Start Your <span className="text-primary">Presale Journey</span>
             </h2>
-            <p className="text-base sm:text-lg md:text-xl text-background/80 mb-8 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg lg:text-xl text-background/80 mb-6 sm:mb-8 max-w-2xl mx-auto">
               Whether you're buying your first home or your next investment, having a specialist team on your side changes your outcome.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <Button
                 size="lg"
-                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 text-sm sm:text-base px-5 sm:px-6 py-3 h-auto"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto"
                 asChild
               >
                 <Link to="/contact">
@@ -33,7 +33,7 @@ export function AboutCTA() {
               <Button
                 size="lg"
                 variant="outline"
-                className="border-background/30 text-background hover:bg-background/10 gap-2 text-sm sm:text-base px-5 sm:px-6 py-3 h-auto"
+                className="border-2 border-background/40 bg-background/5 text-background hover:bg-background/10 gap-2 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto"
                 asChild
               >
                 <Link to="/presale-projects">

@@ -72,41 +72,41 @@ export function ClientTestimonials() {
   const displayReviews = reviews && reviews.length > 0 ? reviews : fallbackTestimonials;
 
   return (
-    <section className="py-16 md:py-24 bg-muted/30">
+    <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
-        <div className="text-center mb-10 md:mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             What Our Clients Say
           </h2>
-          <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 mb-3 sm:mb-4">
+          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
+          <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-2 sm:mb-3">
             {[...Array(5)].map((_, i) => (
-              <Star key={i} className="h-5 w-5 sm:h-6 sm:w-6 fill-primary text-primary" />
+              <Star key={i} className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-primary text-primary" />
             ))}
           </div>
-          <p className="text-base sm:text-lg text-muted-foreground">
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground">
             Five-star reviews from happy homeowners and investors
           </p>
         </div>
         
-        <div className="grid sm:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-10">
+        <div className="grid sm:grid-cols-2 gap-3 sm:gap-4 md:gap-6 mb-6 sm:mb-8 md:mb-10">
           {displayReviews.map((review) => (
             <div
               key={review.id}
-              className="bg-card rounded-xl p-5 sm:p-6 border shadow-sm hover:shadow-md transition-shadow"
+              className="bg-card rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 border shadow-sm hover:shadow-md transition-shadow"
             >
-              <Quote className="h-6 w-6 sm:h-8 sm:w-8 text-primary/30 mb-3 sm:mb-4" />
-              <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 leading-relaxed line-clamp-4">
+              <Quote className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-primary/30 mb-2 sm:mb-3 md:mb-4" />
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-3 sm:mb-4 md:mb-6 leading-relaxed line-clamp-4">
                 "{review.review_text}"
               </p>
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-foreground text-sm sm:text-base">{review.reviewer_name}</p>
-                  <p className="text-xs sm:text-sm text-muted-foreground">{review.reviewer_location}</p>
+                  <p className="font-semibold text-foreground text-xs sm:text-sm md:text-base">{review.reviewer_name}</p>
+                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">{review.reviewer_location}</p>
                 </div>
                 <div className="flex gap-0.5">
                   {[...Array(review.rating)].map((_, i) => (
-                    <Star key={i} className="h-3.5 w-3.5 sm:h-4 sm:w-4 fill-primary text-primary" />
+                    <Star key={i} className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 fill-primary text-primary" />
                   ))}
                 </div>
               </div>
@@ -115,14 +115,14 @@ export function ClientTestimonials() {
         </div>
         
         <div className="text-center">
-          <Button variant="outline" size="lg" className="gap-2 text-sm sm:text-base px-4 sm:px-6" asChild>
+          <Button variant="outline" size="lg" className="gap-2 text-xs sm:text-sm md:text-base px-4 sm:px-6 py-2.5 h-auto" asChild>
             <a
               href="https://share.google/CjsNKmTbLTlarIIN1"
               target="_blank"
               rel="noopener noreferrer"
             >
               <span>See All Reviews on Google</span>
-              <ExternalLink className="h-4 w-4 flex-shrink-0" />
+              <ExternalLink className="h-3.5 w-3.5 sm:h-4 sm:w-4 flex-shrink-0" />
             </a>
           </Button>
         </div>
