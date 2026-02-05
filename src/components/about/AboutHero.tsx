@@ -31,12 +31,10 @@ export function AboutHero() {
               </span>
             </div>
             
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-background mb-4 sm:mb-6 leading-[1.1]">
-              New Construction.
-              <br />
-              <span className="text-primary">Expert Help.</span>
-              <br />
-              <span className="text-background">No Extra Cost.</span>
+            <h1 className="font-bold tracking-tight text-background mb-4 sm:mb-6 leading-[1.15]">
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">New Construction.</span>
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-primary">Expert Help.</span>
+              <span className="block text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl">No Extra Cost.</span>
             </h1>
             
             <p className="text-sm sm:text-base md:text-lg text-background/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
