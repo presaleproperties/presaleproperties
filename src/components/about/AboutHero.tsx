@@ -31,7 +31,7 @@ export function AboutHero() {
               </span>
             </div>
             
-            <h1 className="text-5xl font-bold tracking-tight text-background mb-4 sm:mb-6 leading-[1.1]">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight text-background mb-4 sm:mb-6 leading-[1.1]">
               <span className="text-primary">Presale</span> Experts
             </h1>
             
