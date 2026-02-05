@@ -13,10 +13,10 @@ export function AboutCTA() {
           
           <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Start Your Presale Journey
+              Start Your <span className="text-primary">Presale Journey</span>
             </h2>
             <p className="text-lg md:text-xl text-background/80 mb-8 max-w-2xl mx-auto">
-              Whether you're buying your first home or your next investment, having a specialist team on your side changes your outcome.
+              Whether you're buying your <strong className="text-background">first home</strong> or your <strong className="text-background">next investment</strong>, having a <strong className="text-primary">specialist team</strong> on your side changes your outcome.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -1,74 +1,97 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { Calendar, Star } from "lucide-react";
+import { Calendar, Star, ArrowRight } from "lucide-react";
 import aboutHeroImage from "@/assets/about-hero-team.jpg";
 
 export function AboutHero() {
   return (
-    <section className="relative py-16 md:py-24 lg:py-28 overflow-hidden">
-      {/* Premium gradient background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/8 via-background to-muted/30" />
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+    <section className="relative py-20 md:py-28 lg:py-32 overflow-hidden">
+      {/* Premium multi-layer gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-foreground via-foreground/95 to-foreground/90" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent" />
+      <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-primary/5 to-transparent" />
+      
+      {/* Decorative glow */}
+      <div className="absolute top-1/4 right-0 w-[500px] h-[500px] bg-primary/15 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/4" />
+      <div className="absolute bottom-0 left-1/4 w-[300px] h-[300px] bg-primary/10 rounded-full blur-[80px]" />
       
       <div className="container relative px-4">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Content */}
           <div className="text-center lg:text-left order-2 lg:order-1">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight text-foreground mb-6 leading-[1.1]">
-              New Condos & Presales.{" "}
-              <span className="text-primary">Expert Help. No Extra Cost.</span>
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/20 border border-primary/30 mb-8">
+              <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+              <span className="text-sm font-semibold text-primary tracking-wide uppercase">
+                Vancouver's Presale Specialists
+              </span>
+            </div>
+            
+            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-background mb-6 leading-[1.05]">
+              New Condos.{" "}
+              <span className="text-primary">Expert Help.</span>{" "}
+              <span className="block mt-2">No Extra Cost.</span>
             </h1>
             
-            <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              A specialized real estate team guiding first-time buyers and investors through every step of the presale journey — from project selection to move‑in or assignment.
+            <p className="text-lg sm:text-xl text-background/70 mb-10 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+              A <span className="text-background font-semibold">specialized team</span> guiding first-time buyers and investors through every step — from <span className="text-background font-semibold">project selection</span> to <span className="text-background font-semibold">move‑in or assignment</span>.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
-              <Button size="xl" className="gap-2 shadow-lg shadow-primary/25" asChild>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <Button size="xl" className="gap-2 shadow-xl shadow-primary/30 text-base" asChild>
                 <Link to="/contact">
                   <Calendar className="h-5 w-5" />
                   Book a Free Consultation
                 </Link>
               </Button>
-            </div>
-            
-            <div className="mt-6 flex justify-center lg:justify-start">
-              <Button size="lg" variant="ghost" className="text-muted-foreground hover:text-foreground" asChild>
+              <Button 
+                size="xl" 
+                variant="outline" 
+                className="gap-2 border-background/30 text-background hover:bg-background/10 text-base"
+                asChild
+              >
                 <Link to="/presale-projects">
-                  Browse Presale Projects →
+                  Browse Projects
+                  <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
+            </div>
+            
+            {/* Trust indicators */}
+            <div className="mt-10 pt-8 border-t border-background/10">
+              <div className="grid grid-cols-3 gap-4 sm:gap-8">
+                <div className="text-center lg:text-left">
+                  <p className="text-3xl sm:text-4xl font-bold text-primary">400+</p>
+                  <p className="text-sm text-background/60">Homes Sold</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-3xl sm:text-4xl font-bold text-primary">$200M+</p>
+                  <p className="text-sm text-background/60">In Transactions</p>
+                </div>
+                <div className="text-center lg:text-right">
+                  <div className="flex items-center justify-center lg:justify-end gap-1.5">
+                    <Star className="h-5 w-5 sm:h-6 sm:w-6 fill-primary text-primary" />
+                    <p className="text-3xl sm:text-4xl font-bold text-primary">5.0</p>
+                  </div>
+                  <p className="text-sm text-background/60">Google Rating</p>
+                </div>
+              </div>
             </div>
           </div>
           
           {/* Image */}
           <div className="relative order-1 lg:order-2">
-            <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-border/50">
-              <img
-                src={aboutHeroImage}
-                alt="Presale Properties Group team in Vancouver sales center"
-                className="w-full h-full object-cover"
-              />
-            </div>
-            
-            {/* Stats overlay */}
-            <div className="absolute -bottom-4 sm:-bottom-6 left-2 right-2 sm:left-4 sm:right-4 md:left-6 md:right-6">
-              <div className="bg-card/95 backdrop-blur-sm rounded-xl shadow-xl p-3 sm:p-4 md:p-5 grid grid-cols-3 gap-2 sm:gap-4 border">
-                <div className="text-center">
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">400+</p>
-                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Homes Sold</p>
-                </div>
-                <div className="text-center border-x border-border">
-                  <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">$200M+</p>
-                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">In Transactions</p>
-                </div>
-                <div className="text-center">
-                  <div className="flex items-center justify-center gap-1">
-                    <Star className="h-4 w-4 sm:h-5 sm:w-5 fill-primary text-primary" />
-                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-primary">5.0</p>
-                  </div>
-                  <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground">Google Rating</p>
-                </div>
+            <div className="relative">
+              {/* Glow behind image */}
+              <div className="absolute -inset-4 bg-primary/20 rounded-3xl blur-2xl" />
+              <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-background/10">
+                <img
+                  src={aboutHeroImage}
+                  alt="Presale Properties Group team in Vancouver sales center"
+                  className="w-full h-full object-cover"
+                />
+                {/* Overlay gradient */}
+                <div className="absolute inset-0 bg-gradient-to-t from-foreground/40 via-transparent to-transparent" />
               </div>
             </div>
           </div>
