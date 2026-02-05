@@ -29,12 +29,12 @@ export function ClientImpact() {
   return (
     <section className="py-12 sm:py-16 md:py-24">
       <div className="container px-4">
-        <div className="text-center mb-8 sm:mb-12">
+        <div className="text-left md:text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             Results & Reviews
           </h2>
-          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="w-16 sm:w-20 h-1 bg-primary md:mx-auto mb-4 sm:mb-6 rounded-full" />
+          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl md:mx-auto">
             Clients highlight clear communication, no pressure, and honest advice — especially for their first purchase or investment.
           </p>
         </div>
@@ -44,9 +44,9 @@ export function ClientImpact() {
           {impactStats.map((item) => (
             <div
               key={item.label}
-              className="bg-card rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border shadow-sm text-center"
+              className="bg-card rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border shadow-sm text-left sm:text-center"
             >
-              <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-2 sm:mb-3 md:mb-4">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-full bg-primary/10 flex items-center justify-center sm:mx-auto mb-2 sm:mb-3 md:mb-4">
                 <item.icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
               </div>
               <p className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-primary mb-0.5 sm:mb-1">{item.stat}</p>
@@ -57,11 +57,11 @@ export function ClientImpact() {
 
         {/* Calculator Resource */}
         <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border">
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
             <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
               <Calculator className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary" />
             </div>
-            <div className="flex-1 text-center sm:text-left">
+            <div className="flex-1 text-left">
               <h3 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-1 sm:mb-2">
                 Free Investment Calculator
               </h3>
