@@ -16,18 +16,24 @@ const aboutPageSchema = {
   "@context": "https://schema.org",
   "@type": "AboutPage",
   "name": "About Presale Properties Group",
-  "description": "A specialized real estate team guiding first-time buyers and investors through every step of the presale journey — from project selection to move-in or assignment.",
+  "description": "A specialized real estate team guiding first-time buyers and investors through new condos, townhomes, duplexes, and single-family homes across Metro Vancouver and Fraser Valley.",
   "url": "https://presaleproperties.com/about",
   "mainEntity": {
     "@type": "RealEstateAgent",
     "name": "Presale Properties Group",
-    "description": "Metro Vancouver's leading presale real estate team specializing in new condos, townhomes, and presale homes.",
-    "areaServed": {
-      "@type": "Place",
-      "name": "Metro Vancouver and Fraser Valley, British Columbia"
-    },
+    "description": "Metro Vancouver and Fraser Valley's leading new construction real estate team specializing in condos, townhomes, duplexes, and single-family homes.",
+    "areaServed": [
+      {
+        "@type": "Place",
+        "name": "Metro Vancouver, British Columbia"
+      },
+      {
+        "@type": "Place",
+        "name": "Fraser Valley, British Columbia"
+      }
+    ],
     "knowsLanguage": ["English", "Hindi", "Punjabi", "Urdu", "Arabic", "Korean"],
-    "slogan": "New Condos & Presales. Expert Help. No Extra Cost."
+    "slogan": "New Construction. Expert Help. No Extra Cost."
   }
 };
 
@@ -35,24 +41,24 @@ export default function About() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Helmet>
-        <title>About Us | Presale Properties Group - New Condos & Presales. Expert Help. No Extra Cost.</title>
-        <meta name="title" content="About Us | Presale Properties Group - New Condos & Presales. Expert Help. No Extra Cost." />
+        <title>About Us | Presale Properties Group - New Construction Experts</title>
+        <meta name="title" content="About Us | Presale Properties Group - New Construction Experts" />
         <meta 
           name="description" 
-          content="A specialized real estate team guiding first-time buyers and investors through every step of the presale journey. 400+ homes sold. Free expert guidance." 
+          content="Specialized real estate team for new condos, townhomes, duplexes & single-family homes in Metro Vancouver & Fraser Valley. 400+ homes sold. Free expert guidance." 
         />
         <link rel="canonical" href="https://presaleproperties.com/about" />
         <meta name="robots" content="index, follow" />
         
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://presaleproperties.com/about" />
-        <meta property="og:title" content="About Presale Properties Group - New Condos & Presales. Expert Help. No Extra Cost." />
-        <meta property="og:description" content="A specialized real estate team guiding first-time buyers and investors through presales. 400+ homes sold. Free expert guidance." />
+        <meta property="og:title" content="About Presale Properties Group - New Construction Experts" />
+        <meta property="og:description" content="Specialized team for new condos, townhomes, duplexes & single-family homes. 400+ homes sold. Free expert guidance." />
         <meta property="og:image" content="https://presaleproperties.com/og-about.png" />
         
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="About Presale Properties Group" />
-        <meta name="twitter:description" content="New Condos & Presales. Expert Help. No Extra Cost. 400+ homes sold." />
+        <meta name="twitter:description" content="New Construction. Expert Help. No Extra Cost. 400+ homes sold." />
         
         <script type="application/ld+json">
           {JSON.stringify(aboutPageSchema)}

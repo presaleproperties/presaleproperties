@@ -1,4 +1,4 @@
-import { Home, BadgeDollarSign, Star, MessageSquare } from "lucide-react";
+import { Home, BadgeDollarSign, Star, TrendingUp } from "lucide-react";
 
 const impactStats = [
   {
@@ -13,11 +13,11 @@ const impactStats = [
   },
   {
     icon: Star,
-    stat: "31+",
-    label: "5-Star Reviews",
+    stat: "5.0",
+    label: "Google Rating",
   },
   {
-    icon: MessageSquare,
+    icon: TrendingUp,
     stat: "5-Figure",
     label: "Incentives Negotiated",
   },

@@ -85,7 +85,7 @@ export function ClientTestimonials() {
             ))}
           </div>
           <p className="text-base sm:text-lg text-muted-foreground">
-            <span className="font-semibold text-foreground">31+ five-star reviews</span> from happy homeowners and investors
+            <strong className="text-foreground">Five-star reviews</strong> from happy homeowners and investors
           </p>
         </div>
         
@@ -115,14 +115,14 @@ export function ClientTestimonials() {
         </div>
         
         <div className="text-center">
-          <Button variant="outline" size="lg" className="gap-2" asChild>
+          <Button variant="outline" size="lg" className="gap-2 text-sm sm:text-base px-4 sm:px-6" asChild>
             <a
               href="https://share.google/CjsNKmTbLTlarIIN1"
               target="_blank"
               rel="noopener noreferrer"
             >
-              See All 31+ Reviews on Google
-              <ExternalLink className="h-4 w-4" />
+              <span>See All Reviews on Google</span>
+              <ExternalLink className="h-4 w-4 flex-shrink-0" />
             </a>
           </Button>
         </div>
