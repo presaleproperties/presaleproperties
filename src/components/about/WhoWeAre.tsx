@@ -27,11 +27,11 @@ export function WhoWeAre() {
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
-        <div className="max-w-3xl md:mx-auto text-left md:text-center mb-8 sm:mb-12">
+        <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             Who We Are
           </h2>
-          <div className="w-16 sm:w-20 h-1 bg-primary md:mx-auto mb-4 sm:mb-6 rounded-full" />
+          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed mb-3 sm:mb-4">
             Presale Properties Group is a team of licensed REALTORS® focused on new condos, townhomes, duplexes, and single-family homes across Metro Vancouver and the Fraser Valley.
           </p>
@@ -44,7 +44,7 @@ export function WhoWeAre() {
           {highlights.map((item) => (
             <div
               key={item.title}
-              className="bg-card rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border shadow-sm hover:shadow-md transition-shadow text-left"
+              className="bg-card rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border shadow-sm hover:shadow-md transition-shadow"
             >
               <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-2 sm:mb-3 md:mb-4">
                 <item.icon className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 text-primary" />
