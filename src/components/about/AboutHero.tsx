@@ -39,7 +39,7 @@ export function AboutHero() {
               <span className="text-background">No Extra Cost.</span>
             </h1>
             
-            <p className="text-sm sm:text-base md:text-lg text-background/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
+            <p className="text-base sm:text-lg md:text-lg text-background/70 mb-6 sm:mb-8 max-w-xl mx-auto lg:mx-0 leading-relaxed">
               A specialized team guiding first-time buyers and investors through condos, townhomes, duplexes, and single-family homes — from project selection to move‑in or assignment.
             </p>
             
