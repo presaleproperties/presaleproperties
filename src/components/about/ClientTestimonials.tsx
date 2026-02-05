@@ -85,7 +85,7 @@ export function ClientTestimonials() {
             ))}
           </div>
           <p className="text-base sm:text-lg text-muted-foreground">
-            <strong className="text-foreground">Five-star reviews</strong> from happy homeowners and investors
+            Five-star reviews from happy homeowners and investors
           </p>
         </div>
         

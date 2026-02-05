@@ -1,19 +1,19 @@
 import { Check, Home, TrendingUp } from "lucide-react";
 
 const firstTimeBuyerPoints = [
-  { text: "Explain presale vs resale", highlight: "in simple, practical terms" },
-  { text: "Shortlist projects", highlight: "that match your budget, lifestyle, and timing" },
-  { text: "Negotiate", highlight: "deposit structures, credits, and incentives" },
-  { text: "Review contracts and disclosures", highlight: "so you know exactly what you're signing" },
-  { text: "Support through", highlight: "financing, completion, walkthroughs, and deficiencies" },
+  "Explain presale vs resale in simple, practical terms",
+  "Shortlist projects that match your budget, lifestyle, and timing",
+  "Negotiate deposit structures, credits, and incentives where possible",
+  "Review contracts and disclosures so you know exactly what you're signing",
+  "Support you through financing, completion, walkthroughs, and deficiencies",
 ];
 
 const investorPoints = [
-  { text: "Identify projects with", highlight: "strong rental demand and reputable builders" },
-  { text: "Run numbers", highlight: "on rents, costs, and projected values" },
-  { text: "Secure", highlight: "assignment rights and investor-friendly terms" },
-  { text: "Connect you with", highlight: "leasing and property management support" },
-  { text: "Plan purchases around", highlight: "cash flow and completion timelines" },
+  "Identify projects with strong rental demand and reputable builders",
+  "Run numbers on rents, costs, and projected values",
+  "Secure assignment rights and investor-friendly terms",
+  "Connect you with leasing and property management support",
+  "Plan future purchases around cash flow and completion timelines",
 ];
 
 export function ForBuyersSection() {
@@ -30,7 +30,7 @@ export function ForBuyersSection() {
               For First-Time Buyers
             </h3>
             <p className="text-muted-foreground mb-6">
-              We turn a <strong className="text-foreground">confusing presale process</strong> into a <strong className="text-foreground">clear, guided plan</strong>.
+              We turn a confusing presale process into a clear, guided plan.
             </p>
             <ul className="space-y-3">
               {firstTimeBuyerPoints.map((point, index) => (
@@ -38,9 +38,7 @@ export function ForBuyersSection() {
                   <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="h-3 w-3 text-primary" />
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {point.text} <strong className="text-foreground">{point.highlight}</strong>
-                  </span>
+                  <span className="text-sm text-muted-foreground">{point}</span>
                 </li>
               ))}
             </ul>
@@ -55,7 +53,7 @@ export function ForBuyersSection() {
               For Investors
             </h3>
             <p className="text-muted-foreground mb-6">
-              We help you use presales to grow a <strong className="text-foreground">stronger, safer portfolio</strong>.
+              We help you use presales to grow a stronger, safer portfolio.
             </p>
             <ul className="space-y-3">
               {investorPoints.map((point, index) => (
@@ -63,9 +61,7 @@ export function ForBuyersSection() {
                   <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <Check className="h-3 w-3 text-primary" />
                   </div>
-                  <span className="text-sm text-muted-foreground">
-                    {point.text} <strong className="text-foreground">{point.highlight}</strong>
-                  </span>
+                  <span className="text-sm text-muted-foreground">{point}</span>
                 </li>
               ))}
             </ul>
