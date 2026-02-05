@@ -3,23 +3,23 @@ import { Building2, Globe, Users, Award } from "lucide-react";
 const highlights = [
   {
     icon: Building2,
-    title: "New Construction Specialists",
-    description: "80%+ of our business is presale and move-in ready homes — it's what we know best.",
+    title: "New Construction Focus",
+    description: "80%+ of our business is presale and move-in ready new construction homes.",
   },
   {
     icon: Award,
     title: "Proven Track Record",
-    description: "400+ new construction homes sold and $200M+ in total transactions.",
+    description: "400+ new construction sales and over $200 million in transactions.",
   },
   {
     icon: Globe,
     title: "Multilingual Service",
-    description: "We serve diverse communities in English, Hindi, Punjabi, Urdu, Arabic, Korean, and more.",
+    description: "We serve clients in English, Hindi, Punjabi, Urdu, Arabic, Korean, and more.",
   },
   {
     icon: Users,
-    title: "Culturally Aware",
-    description: "We understand the unique needs and concerns of first-generation homebuyers.",
+    title: "First-Gen Expertise",
+    description: "Deep understanding of first-generation and newcomer buyer needs.",
   },
 ];
 
@@ -32,11 +32,13 @@ export function WhoWeAre() {
             Who We Are
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-4">
+            Presale Properties Group is a team of licensed REALTORS® focused on new condos, townhomes, and presale homes across Metro Vancouver and the Fraser Valley. We've completed{" "}
+            <span className="font-semibold text-foreground">400+ new construction sales</span> and over{" "}
+            <span className="font-semibold text-foreground">$200 million in transactions</span>.
+          </p>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-            Presale Properties Group is a team of licensed REALTORS® specializing in new construction homes across Metro Vancouver. 
-            With <span className="font-semibold text-foreground">400+ new construction homes sold</span> and more than{" "}
-            <span className="font-semibold text-foreground">$200 million in transactions</span>, we bring deep expertise 
-            and dedication to every client we serve.
+            Over 80% of our business is presale and move-in-ready new construction. Our multilingual team serves clients in English, Hindi, Punjabi, Urdu, Arabic, Korean, and more, with a deep understanding of first-generation and newcomer buyers.
           </p>
         </div>
         

@@ -13,10 +13,10 @@ export function AboutCTA() {
           
           <div className="relative px-8 py-16 md:px-16 md:py-20 text-center">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              Your Journey Starts With the Right Team
+              Start Your Presale Journey
             </h2>
             <p className="text-lg md:text-xl text-background/80 mb-8 max-w-2xl mx-auto">
-              Let us help you find your next home or investment — fully protected, fully guided, fully free.
+              Whether you're buying your first home or your next investment, having a specialist team on your side changes your outcome.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -37,20 +37,10 @@ export function AboutCTA() {
                 asChild
               >
                 <Link to="/presale-projects">
-                  Browse Projects
+                  Browse Presale Projects
                   <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
-            </div>
-            
-            {/* Trust badges */}
-            <div className="mt-12 pt-8 border-t border-background/20">
-              <p className="text-sm text-background/60 mb-4">Trusted by hundreds of families across Metro Vancouver</p>
-              <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-background/80">
-                <span className="text-xs sm:text-sm">✓ New Construction Specialists</span>
-                <span className="text-xs sm:text-sm">✓ Developer Pays Our Fee</span>
-                <span className="text-xs sm:text-sm">✓ Multilingual Support</span>
-              </div>
             </div>
           </div>
         </div>
