@@ -9,12 +9,12 @@ const impactStats = [
   {
     icon: BadgeDollarSign,
     stat: "$200M+",
-    label: "In Presale Transactions",
+    label: "In Transactions",
   },
   {
     icon: Star,
     stat: "31+",
-    label: "Five-Star Google Reviews",
+    label: "5-Star Reviews",
   },
   {
     icon: MessageSquare,
@@ -33,7 +33,7 @@ export function ClientImpact() {
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Clients highlight clear communication, no pressure, and honest advice — especially for their first purchase or first investment.
+            Clients highlight <strong className="text-foreground">clear communication</strong>, <strong className="text-foreground">no pressure</strong>, and <strong className="text-foreground">honest advice</strong> — especially for their first purchase or investment.
           </p>
         </div>
         
@@ -47,8 +47,8 @@ export function ClientImpact() {
               <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3 sm:mb-4">
                 <item.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
               </div>
-              <p className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">{item.stat}</p>
-              <p className="text-xs sm:text-sm text-muted-foreground">{item.label}</p>
+              <p className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary mb-1">{item.stat}</p>
+              <p className="text-xs sm:text-sm text-muted-foreground font-medium">{item.label}</p>
             </div>
           ))}
         </div>

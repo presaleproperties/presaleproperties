@@ -27,8 +27,9 @@ export function WhatWeDoDifferently() {
             Why Work With Us
           </h2>
           <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
-          <p className="text-lg sm:text-xl text-muted-foreground font-medium">
-            Most agents occasionally do presales. <span className="text-foreground">We live and breathe them.</span>
+          <p className="text-lg sm:text-xl text-muted-foreground">
+            Most agents <strong className="text-foreground">occasionally</strong> do presales.{" "}
+            <strong className="text-primary">We live and breathe them.</strong>
           </p>
         </div>
         
@@ -41,7 +42,7 @@ export function WhatWeDoDifferently() {
               <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <item.icon className="h-7 w-7 text-primary" />
               </div>
-              <h3 className="font-semibold text-foreground text-lg mb-2">{item.title}</h3>
+              <h3 className="font-bold text-foreground text-lg mb-2">{item.title}</h3>
               <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
             </div>
           ))}
