@@ -1,6 +1,4 @@
-import { Home, BadgeDollarSign, Star, TrendingUp, Calculator, ArrowRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Home, BadgeDollarSign, Star, TrendingUp } from "lucide-react";
 
 const impactStats = [
   {
@@ -53,29 +51,6 @@ export function ClientImpact() {
               <p className="text-[10px] sm:text-xs md:text-sm text-muted-foreground font-medium">{item.label}</p>
             </div>
           ))}
-        </div>
-
-        {/* Calculator Resource */}
-        <div className="bg-gradient-to-br from-muted/50 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 border">
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-              <Calculator className="h-6 w-6 sm:h-7 sm:w-7 md:h-8 md:w-8 text-primary" />
-            </div>
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-base sm:text-lg md:text-xl font-semibold text-foreground mb-1 sm:mb-2">
-                Free Investment Calculator
-              </h3>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">
-                Run the numbers on any property with our BC-specific calculator — includes GST, PTT, closing costs, and rental ROI projections.
-              </p>
-            </div>
-            <Button size="lg" className="gap-2 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto" asChild>
-              <Link to="/calculators">
-                <span>Try Calculator</span>
-                <ArrowRight className="h-4 w-4 flex-shrink-0" />
-              </Link>
-            </Button>
-          </div>
         </div>
       </div>
     </section>
