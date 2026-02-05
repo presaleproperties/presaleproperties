@@ -74,12 +74,12 @@ export function ClientTestimonials() {
   return (
     <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
       <div className="container px-4">
-        <div className="text-center mb-8 sm:mb-10 md:mb-12">
+        <div className="text-left md:text-center mb-8 sm:mb-10 md:mb-12">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
             What Our Clients Say
           </h2>
-          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
-          <div className="flex items-center justify-center gap-1 sm:gap-1.5 mb-2 sm:mb-3">
+          <div className="w-16 sm:w-20 h-1 bg-primary md:mx-auto mb-4 sm:mb-6 rounded-full" />
+          <div className="flex items-center gap-1 sm:gap-1.5 mb-2 sm:mb-3 md:justify-center">
             {[...Array(5)].map((_, i) => (
               <Star key={i} className="h-4 w-4 sm:h-5 sm:w-5 md:h-6 md:w-6 fill-primary text-primary" />
             ))}
@@ -93,7 +93,7 @@ export function ClientTestimonials() {
           {displayReviews.map((review) => (
             <div
               key={review.id}
-              className="bg-card rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 border shadow-sm hover:shadow-md transition-shadow"
+              className="bg-card rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 border shadow-sm hover:shadow-md transition-shadow text-left"
             >
               <Quote className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 text-primary/30 mb-2 sm:mb-3 md:mb-4" />
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground mb-3 sm:mb-4 md:mb-6 leading-relaxed line-clamp-4">
@@ -114,7 +114,7 @@ export function ClientTestimonials() {
           ))}
         </div>
         
-        <div className="text-center">
+        <div className="text-left md:text-center">
           <Button variant="outline" size="lg" className="gap-2 text-xs sm:text-sm md:text-base px-4 sm:px-6 py-2.5 h-auto" asChild>
             <a
               href="https://share.google/CjsNKmTbLTlarIIN1"
