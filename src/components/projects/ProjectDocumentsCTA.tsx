@@ -12,6 +12,12 @@ interface ProjectDocumentsCTAProps {
   pricingUrl?: string | null;
 }
 
+const DOCUMENTS = [
+  { label: "Floor Plans", icon: LayoutGrid },
+  { label: "Brochure", icon: FileText },
+  { label: "Pricing Sheet", icon: DollarSign },
+];
+
 export function ProjectDocumentsCTA({
   projectId,
   projectName,
@@ -22,93 +28,64 @@ export function ProjectDocumentsCTA({
 }: ProjectDocumentsCTAProps) {
   const [modalOpen, setModalOpen] = useState(false);
 
-  // Determine what documents are available
-  const hasAnyDocs = brochureUrl || floorplanUrl || pricingUrl;
-
-  const documents = [
-    { label: "Floor Plans", icon: LayoutGrid, available: !!floorplanUrl },
-    { label: "Brochure", icon: FileText, available: !!brochureUrl },
-    { label: "Pricing Sheet", icon: DollarSign, available: !!pricingUrl },
-  ].filter((d) => d.available);
-
-  // If no documents at all, show a generic CTA
-  if (!hasAnyDocs) {
-    return (
-      <>
-        <section className="bg-foreground text-background rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8">
-          <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-            <div className="flex-1 text-center sm:text-left">
-              <h3 className="text-lg sm:text-xl font-bold mb-1.5">
-                Interested in {projectName}?
-              </h3>
-              <p className="text-background/70 text-sm sm:text-base">
-                Get pricing details, floor plans, and VIP access to this project.
-              </p>
-            </div>
-            <Button
-              size="lg"
-              className="w-full sm:w-auto h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold shrink-0"
-              onClick={() => setModalOpen(true)}
-            >
-              Get VIP Access
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        </section>
-
-        <FloorPlanModal
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-          projectId={projectId}
-          projectName={projectName}
-          status={status}
-          brochureUrl={brochureUrl}
-        />
-      </>
-    );
-  }
-
   return (
     <>
-      <section className="bg-foreground text-background rounded-xl sm:rounded-2xl overflow-hidden">
-        {/* Header */}
-        <div className="p-5 sm:p-6 md:p-8">
-          <div className="flex flex-col gap-4">
-            <div>
-              <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-2 block">
-                Exclusive Documents
-              </span>
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1.5">
-                Get {projectName} Floor Plans & Pricing
-              </h3>
-              <p className="text-background/70 text-sm sm:text-base max-w-lg">
-                Access detailed floor plans, brochures, and pricing information. Submit your details to unlock all project documents.
-              </p>
-            </div>
+      <section className="relative rounded-xl sm:rounded-2xl border border-border/60 overflow-hidden">
+        {/* Subtle background pattern */}
+        <div className="absolute inset-0 bg-gradient-to-br from-muted/30 via-transparent to-muted/20 pointer-events-none" />
 
-            {/* Document pills */}
-            <div className="flex flex-wrap gap-2">
-              {documents.map(({ label, icon: Icon }) => (
-                <div
-                  key={label}
-                  className="inline-flex items-center gap-1.5 bg-background/10 border border-background/20 rounded-full px-3 py-1.5 text-sm"
-                >
-                  <Icon className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-background/90">{label}</span>
-                  <Lock className="h-3 w-3 text-background/40" />
+        <div className="relative p-5 sm:p-6 md:p-8">
+          {/* Header */}
+          <div className="mb-5 sm:mb-6">
+            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary mb-2 block">
+              Project Documents
+            </span>
+            <h3 className="text-base sm:text-lg md:text-xl font-bold text-foreground">
+              Unlock {projectName} Details
+            </h3>
+          </div>
+
+          {/* Document cards - blurred/locked look */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-5 sm:mb-6">
+            {DOCUMENTS.map(({ label, icon: Icon }) => (
+              <div
+                key={label}
+                className="relative group bg-muted/40 border border-border/50 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center transition-colors hover:bg-muted/60"
+              >
+                {/* Lock overlay */}
+                <div className="absolute inset-0 bg-background/5 backdrop-blur-[1px] rounded-lg sm:rounded-xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Lock className="h-5 w-5 text-muted-foreground/70" />
                 </div>
-              ))}
-            </div>
 
-            {/* CTA Button */}
+                <div className="flex flex-col items-center gap-1.5 sm:gap-2">
+                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium text-foreground leading-tight">
+                    {label}
+                  </span>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Lock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                    <span className="text-[10px] sm:text-xs">Locked</span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Button
               size="lg"
-              className="w-full sm:w-auto h-12 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold"
+              className="flex-1 h-11 sm:h-12 font-semibold"
               onClick={() => setModalOpen(true)}
             >
-              Unlock Floor Plans & Pricing
+              Get Floor Plans & Pricing
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
+            <p className="text-[10px] sm:text-xs text-muted-foreground text-center sm:text-left max-w-[200px] mx-auto sm:mx-0">
+              Documents sent instantly to your email after signup.
+            </p>
           </div>
         </div>
       </section>
