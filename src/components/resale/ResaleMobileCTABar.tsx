@@ -46,8 +46,6 @@ export const ResaleMobileCTABar = ({
           WebkitTransform: 'translate3d(0,0,0)',
           willChange: 'transform',
           width: '100%',
-          contentVisibility: 'auto',
-          containIntrinsicSize: '0 auto',
         }}
       >
         <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_30px_rgba(0,0,0,0.15)]">
