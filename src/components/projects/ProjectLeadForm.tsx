@@ -803,7 +803,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 <span className="text-primary">✓</span> No spam
               </span>
               <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                <span className="text-primary">✓</span> Same-day response
+                <span className="text-primary">✓</span> Instant access
               </span>
             </div>
           </form>
@@ -891,7 +891,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 <span className="text-primary">✓</span> No spam
               </span>
               <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                <span className="text-primary">✓</span> Same-day response
+                <span className="text-primary">✓</span> Instant access
               </span>
             </div>
           </form>
@@ -1094,7 +1094,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 <span className="text-primary">✓</span> No spam
               </span>
               <span className="inline-flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                <span className="text-primary">✓</span> Same-day response
+                <span className="text-primary">✓</span> Instant access
               </span>
             </div>
             <p className="text-[8px] leading-relaxed text-muted-foreground/70">
