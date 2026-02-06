@@ -1,8 +1,8 @@
-import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Calendar } from "lucide-react";
+import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -16,12 +16,10 @@ import { MetaEvents } from "@/components/tracking/MetaPixel";
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
 const formSchema = z.object({
-  firstName: z.string().trim().min(1, "First name is required").max(50),
-  lastName: z.string().trim().min(1, "Last name is required").max(50),
+  fullName: z.string().trim().min(1, "Full name is required").max(100),
   email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
-  persona: z.enum(["first_time", "investor"]),
-  workingWithAgent: z.enum(["yes", "no", "i_am_realtor"]),
+  isRealtor: z.boolean().default(false),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -33,19 +31,6 @@ interface ProjectMobileCTAProps {
   startingPrice?: number | null;
   onRegisterClick: () => void;
 }
-
-const PERSONAS = [
-  { value: "first_time", label: "First-time Buyer" },
-  { value: "investor", label: "Investor" },
-];
-
-const AGENT_OPTIONS = [
-  { value: "no", label: "No" },
-  { value: "yes", label: "Yes" },
-  { value: "i_am_realtor", label: "I am a Realtor" },
-];
-
-// Removed TIMELINES and PROPERTY_TYPES - no longer needed
 
 export function ProjectMobileCTA({ 
   projectName,
@@ -63,12 +48,10 @@ export function ProjectMobileCTA({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      firstName: "",
-      lastName: "",
+      fullName: "",
       email: "",
       phone: "",
-      persona: "first_time",
-      workingWithAgent: "no",
+      isRealtor: false,
     },
   });
 
@@ -79,7 +62,6 @@ export function ProjectMobileCTA({
         .select("value")
         .eq("key", "whatsapp_number")
         .maybeSingle();
-      
       if (data?.value) {
         setWhatsappNumber(String(data.value).replace(/"/g, ""));
       }
@@ -89,7 +71,6 @@ export function ProjectMobileCTA({
 
   useEffect(() => {
     if (isExpanded) {
-      // Track form start
       MetaEvents.formStart({
         content_name: projectName || "Access Pack",
         content_category: "floorplans",
@@ -117,25 +98,14 @@ export function ProjectMobileCTA({
       const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
       const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
       
-      const messageData = [
-        `First Name: ${data.firstName}`,
-        `Last Name: ${data.lastName}`,
-        `Persona: ${PERSONAS.find(p => p.value === data.persona)?.label}`,
-        `Working with Agent: ${AGENT_OPTIONS.find(a => a.value === data.workingWithAgent)?.label}`,
-        `Source: mobile_footer`,
-      ].filter(Boolean).join(" | ");
+      const actualPersona = data.isRealtor ? "realtor" : "buyer";
+      const messageData = data.isRealtor ? "I'm a Realtor | Source: mobile_footer" : "Source: mobile_footer";
 
-      const nextDripAt = new Date().toISOString();
-      const dripSequence = data.persona === "investor" ? "investor" : "buyer";
-      const actualPersona = data.workingWithAgent === "i_am_realtor" ? "realtor" : data.persona;
-      const fullName = `${data.firstName} ${data.lastName}`.trim();
-      
       const visitorId = getVisitorId();
       const sessionId = getSessionId();
       const intentScore = getIntentScore();
       const cityInterest = getCityInterests();
       const projectInterest = getTopViewedProjects().map(p => p.project_id);
-      
       const leadId = crypto.randomUUID();
       
       const { error } = await supabase
@@ -143,15 +113,16 @@ export function ProjectMobileCTA({
         .insert({
           id: leadId,
           project_id: projectId || null,
-          name: fullName,
+          name: data.fullName,
           email: data.email,
           phone: data.phone,
           message: messageData,
           persona: actualPersona,
-          drip_sequence: dripSequence,
+          drip_sequence: "buyer",
           last_drip_sent: 0,
-          next_drip_at: nextDripAt,
+          next_drip_at: new Date().toISOString(),
           lead_source: "floor_plan_request",
+          agent_status: data.isRealtor ? "i_am_realtor" : "no",
           utm_source: utmSource,
           utm_medium: utmMedium,
           utm_campaign: utmCampaign,
@@ -168,47 +139,39 @@ export function ProjectMobileCTA({
 
       if (error) throw error;
 
-      // Trigger edge function for Zapier webhook
-      supabase.functions
-        .invoke("send-project-lead", { body: { leadId } })
-        .catch(console.error);
+      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
 
-      // Track behavioral form submission
       trackFormSubmit({
         form_name: "mobile_footer_form",
         form_location: "mobile_cta_footer",
-        first_name: data.firstName,
-        last_name: data.lastName,
+        first_name: data.fullName,
+        last_name: "",
         email: data.email,
         phone: data.phone,
         user_type: actualPersona,
         project_name: projectName,
       });
 
-      // Track Meta Pixel Lead event
       MetaEvents.lead({
         content_name: projectName || "Access Pack",
         content_category: actualPersona,
       });
 
-      // Send server-side Lead event to Meta Conversions API
-      supabase.functions
-        .invoke("meta-conversions-api", {
-          body: {
-            event_name: "Lead",
-            email: data.email,
-            phone: data.phone,
-            first_name: data.firstName,
-            last_name: data.lastName,
-            event_source_url: window.location.href,
-            content_name: projectName || "Access Pack",
-            content_category: actualPersona,
-            client_user_agent: navigator.userAgent,
-            fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
-            fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
-          },
-        })
-        .catch((err) => console.error("Meta CAPI error:", err));
+      supabase.functions.invoke("meta-conversions-api", {
+        body: {
+          event_name: "Lead",
+          email: data.email,
+          phone: data.phone,
+          first_name: data.fullName,
+          last_name: "",
+          event_source_url: window.location.href,
+          content_name: projectName || "Access Pack",
+          content_category: actualPersona,
+          client_user_agent: navigator.userAgent,
+          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
+          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
+        },
+      }).catch(console.error);
 
       localStorage.setItem("presale_persona", actualPersona);
 
@@ -218,7 +181,6 @@ export function ProjectMobileCTA({
             page_path: window.location.pathname,
             project_name: projectName || "general",
             persona: actualPersona,
-            working_with_agent: data.workingWithAgent,
           });
         }
         if ((window as any).fbq) {
@@ -251,20 +213,12 @@ export function ProjectMobileCTA({
   const successWhatsappMessage = encodeURIComponent(`Hi! I just requested the ${projectName} package. Can you help me shortlist the best options in my budget?`);
   const successWhatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${successWhatsappMessage}` : null;
 
-  const handleGetPricingClick = () => {
-    setIsExpanded(true);
-  };
-
-  const handleClose = () => {
-    setIsExpanded(false);
-  };
-
   return (
     <>
-      {/* Spacer to prevent content from being hidden behind fixed bar */}
+      {/* Spacer */}
       <div className="h-24 lg:hidden" aria-hidden="true" />
       
-      {/* Fixed CTA bar - Portal-like rendering at viewport bottom with highest z-index */}
+      {/* Fixed CTA bar */}
       <div 
         className="lg:hidden fixed inset-x-0 bottom-0"
         style={{
@@ -274,7 +228,6 @@ export function ProjectMobileCTA({
           WebkitTransform: 'translate3d(0,0,0)',
           willChange: 'transform',
           pointerEvents: 'auto',
-          // Fix for Chrome mobile gap issue
           width: '100%',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
@@ -292,9 +245,8 @@ export function ProjectMobileCTA({
               className="overflow-y-auto overscroll-contain bg-background rounded-t-3xl"
               style={{ maxHeight: 'calc(85vh - 70px)' }}
             >
-              {/* Premium Header with close button */}
+              {/* Header */}
               <div className="sticky top-0 bg-background z-10 rounded-t-3xl overflow-hidden">
-                {/* Premium accent line */}
                 <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
                 <div className="px-5 pt-4 pb-3 border-b border-border/50">
                   <div className="flex items-center justify-between">
@@ -311,7 +263,7 @@ export function ProjectMobileCTA({
                       variant="ghost"
                       size="icon"
                       className="h-9 w-9 rounded-full hover:bg-muted"
-                      onClick={handleClose}
+                      onClick={() => setIsExpanded(false)}
                     >
                       <X className="h-5 w-5" />
                     </Button>
@@ -322,42 +274,28 @@ export function ProjectMobileCTA({
               {!isSuccess ? (
                 <div className="p-5 pb-8">
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Contact Info */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label htmlFor="firstName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
-                          First Name <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="firstName"
-                          placeholder="John"
-                          autoComplete="given-name"
-                          autoCapitalize="words"
-                          {...form.register("firstName")}
-                          className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="lastName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
-                          Last Name <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                          id="lastName"
-                          placeholder="Smith"
-                          autoComplete="family-name"
-                          autoCapitalize="words"
-                          {...form.register("lastName")}
-                          className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
-                        />
-                      </div>
+                    {/* Full Name */}
+                    <div>
+                      <Label htmlFor="mobile-fullName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
+                        Full Name <span className="text-destructive">*</span>
+                      </Label>
+                      <Input
+                        id="mobile-fullName"
+                        placeholder="John Smith"
+                        autoComplete="name"
+                        autoCapitalize="words"
+                        {...form.register("fullName")}
+                        className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+                      />
                     </div>
 
+                    {/* Email */}
                     <div>
-                      <Label htmlFor="email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
+                      <Label htmlFor="mobile-email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                         Email <span className="text-destructive">*</span>
                       </Label>
                       <Input
-                        id="email"
+                        id="mobile-email"
                         type="email"
                         inputMode="email"
                         placeholder="john@email.com"
@@ -368,12 +306,13 @@ export function ProjectMobileCTA({
                       />
                     </div>
 
+                    {/* Phone */}
                     <div>
-                      <Label htmlFor="phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
+                      <Label htmlFor="mobile-phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                         Phone <span className="text-destructive">*</span>
                       </Label>
                       <Input
-                        id="phone"
+                        id="mobile-phone"
                         type="tel"
                         inputMode="tel"
                         placeholder="604-555-0123"
@@ -383,52 +322,17 @@ export function ProjectMobileCTA({
                       />
                     </div>
 
-                    {/* I am a... */}
-                    <div>
-                      <Label className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">I am a...</Label>
-                      <RadioGroup
-                        value={form.watch("persona")}
-                        onValueChange={(v) => form.setValue("persona", v as any)}
-                        className="grid grid-cols-2 gap-2 mt-2"
-                      >
-                        {PERSONAS.map((p) => (
-                          <Label
-                            key={p.value}
-                            className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
-                              form.watch("persona") === p.value
-                                ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                                : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
-                            }`}
-                          >
-                            <RadioGroupItem value={p.value} className="sr-only" />
-                            {p.label}
-                          </Label>
-                        ))}
-                      </RadioGroup>
-                    </div>
-
-                    {/* Working with agent */}
-                    <div>
-                      <Label className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Working with a Realtor?</Label>
-                      <RadioGroup
-                        value={form.watch("workingWithAgent")}
-                        onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
-                        className="grid grid-cols-3 gap-2 mt-2"
-                      >
-                        {AGENT_OPTIONS.map((a) => (
-                          <Label
-                            key={a.value}
-                            className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-xs font-medium transition-all ${
-                              form.watch("workingWithAgent") === a.value
-                                ? "border-primary bg-primary text-primary-foreground shadow-sm"
-                                : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
-                            }`}
-                          >
-                            <RadioGroupItem value={a.value} className="sr-only" />
-                            {a.label}
-                          </Label>
-                        ))}
-                      </RadioGroup>
+                    {/* I'm a Realtor checkbox */}
+                    <div className="flex items-center gap-2.5 py-1">
+                      <Checkbox
+                        id="mobile-isRealtor"
+                        checked={form.watch("isRealtor")}
+                        onCheckedChange={(checked) => form.setValue("isRealtor", checked === true)}
+                        className="h-5 w-5 rounded-md border-2 border-border/60 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                      />
+                      <Label htmlFor="mobile-isRealtor" className="text-sm font-medium text-foreground/80 cursor-pointer select-none">
+                        I'm a Realtor
+                      </Label>
                     </div>
 
                     <Button 
@@ -477,7 +381,7 @@ export function ProjectMobileCTA({
                       </a>
                     </Button>
                   )}
-                  <Button variant="outline" className="w-full h-12 rounded-xl" onClick={handleClose}>
+                  <Button variant="outline" className="w-full h-12 rounded-xl" onClick={() => setIsExpanded(false)}>
                     Close
                   </Button>
                 </div>
@@ -485,7 +389,7 @@ export function ProjectMobileCTA({
             </div>
           )}
 
-          {/* Collapsed CTA Bar - Solid premium background */}
+          {/* Collapsed CTA Bar */}
           <div 
             className="py-3 bg-background"
             style={{
@@ -495,37 +399,24 @@ export function ProjectMobileCTA({
             }}
           >
             <div className="flex items-center gap-3">
-              {/* Phone Button */}
-              <Button 
-                variant="outline" 
-                size="icon"
-                className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl touch-active"
-                asChild
-              >
+              <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl touch-active" asChild>
                 <a href="tel:+16722581100" aria-label="Call agent">
                   <Phone className="h-5 w-5" />
                 </a>
               </Button>
 
-              {/* WhatsApp Button */}
               {whatsappLink && (
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 touch-active"
-                  asChild
-                >
+                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 touch-active" asChild>
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
                     <MessageCircle className="h-5 w-5" />
                   </a>
                 </Button>
               )}
 
-              {/* Primary CTA */}
               <Button 
                 size="lg"
                 className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background touch-active"
-                onClick={isExpanded ? handleClose : handleGetPricingClick}
+                onClick={isExpanded ? () => setIsExpanded(false) : () => setIsExpanded(true)}
               >
                 {isExpanded ? (
                   <>
