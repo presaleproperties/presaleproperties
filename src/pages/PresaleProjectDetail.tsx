@@ -818,6 +818,7 @@ export default function PresaleProjectDetail() {
                   brochureUrl={project.brochure_files?.[0] || null}
                   floorplanUrl={project.floorplan_files?.[0] || null}
                   pricingUrl={project.pricing_sheets?.[0] || null}
+                  unitMix={project.unit_mix}
                 />
 
                 {/* Amenities */}
