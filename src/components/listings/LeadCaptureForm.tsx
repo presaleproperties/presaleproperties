@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Download, CheckCircle, Clock, Sparkles } from "lucide-react";
+import { Download, CheckCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -103,20 +103,20 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   if (isSubmitted) {
     return (
       <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
-        <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
-        <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4">
-          <div className="flex items-center gap-2">
-            <div className="inline-flex items-center justify-center w-10 h-10 bg-primary/20 rounded-full">
+        <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
+        <div className="bg-foreground px-5 py-5">
+          <div className="flex items-center gap-3">
+            <div className="inline-flex items-center justify-center w-11 h-11 bg-primary/15 rounded-xl">
               <CheckCircle className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-background tracking-tight">Request Sent!</h3>
-              <p className="text-sm text-background/55">The agent will contact you shortly.</p>
+              <h3 className="text-lg font-bold text-background">Request Sent!</h3>
+              <p className="text-xs text-background/45 font-medium">The agent will contact you shortly.</p>
             </div>
           </div>
         </div>
         <div className="p-5">
-          <Button variant="outline" onClick={() => setIsSubmitted(false)} className="w-full">
+          <Button variant="outline" onClick={() => setIsSubmitted(false)} className="w-full rounded-lg">
             Send Another Request
           </Button>
         </div>
@@ -126,88 +126,93 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
 
   return (
     <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
-      <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+      <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.08),_transparent_70%)]"></div>
-        <div className="flex items-center gap-2 mb-2.5 relative">
-          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary-foreground bg-primary px-3 py-1 rounded-full shadow-sm">
+      <div className="bg-foreground px-5 py-5 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.06),_transparent_60%)]" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wide text-primary bg-primary/15 px-2.5 py-1 rounded-md mb-2.5">
             <Sparkles className="h-3 w-3" />
             {isRestricted ? "Exclusive Assignment" : "High Interest"}
           </span>
+          <h3 className="text-xl font-bold text-background leading-snug">
+            {isRestricted ? "Get Full Details" : "Interested in this assignment?"}
+          </h3>
+          <p className="text-xs text-background/45 mt-1.5 font-medium">
+            {isRestricted
+              ? "Submit your info to receive full assignment details."
+              : "Submit your info and the agent will reach out shortly."}
+          </p>
         </div>
-        <h3 className="text-xl font-bold text-background tracking-tight relative">
-          {isRestricted ? "Get Full Details" : "Interested in this assignment?"}
-        </h3>
-        <p className="text-sm text-background/55 mt-1.5 relative">
-          {isRestricted
-            ? "Submit your info to receive full assignment details."
-            : "Submit your info and the agent will reach out within 24 hours."}
-        </p>
       </div>
 
       {/* Form */}
       <div className="p-5">
         <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="name" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Full Name *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
             <Input
               id="name"
               placeholder="John Smith"
               autoComplete="name"
               {...register("name")}
-              className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.name ? "border-destructive" : ""}`}
+              className={`h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all ${errors.name ? "border-destructive" : ""}`}
             />
             {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Email *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="email" className="text-xs font-semibold text-foreground/80">Email</Label>
             <Input
               id="email"
               type="email"
               placeholder="your@email.com"
               autoComplete="email"
               {...register("email")}
-              className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.email ? "border-destructive" : ""}`}
+              className={`h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all ${errors.email ? "border-destructive" : ""}`}
             />
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Phone *</Label>
+          <div className="space-y-1.5">
+            <Label htmlFor="phone" className="text-xs font-semibold text-foreground/80">Phone</Label>
             <Input
               id="phone"
               type="tel"
               placeholder="(604) 555-0123"
               autoComplete="tel"
               {...register("phone")}
-              className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.phone ? "border-destructive" : ""}`}
+              className={`h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all ${errors.phone ? "border-destructive" : ""}`}
             />
             {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
           </div>
 
           {/* I'm a Realtor checkbox */}
-          <div className="flex items-center gap-2.5 py-1">
+          <div className="flex items-center gap-3 pt-0.5">
             <Checkbox
               id="listing-isRealtor"
               checked={watch("isRealtor")}
               onCheckedChange={(checked) => setValue("isRealtor", checked === true)}
-              className="h-5 w-5 rounded-md border-2 border-border/60 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
             />
-            <Label htmlFor="listing-isRealtor" className="text-sm font-medium text-foreground/80 cursor-pointer select-none">
+            <Label htmlFor="listing-isRealtor" className="text-sm text-foreground/70 cursor-pointer select-none">
               I'm a Realtor
             </Label>
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-bold rounded-xl shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all"
+            className="w-full h-12 sm:h-11 text-sm font-semibold rounded-lg shadow-gold hover:shadow-gold-glow transition-all"
             size="lg"
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Sending..." : (
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                Sending...
+              </span>
+            ) : (
               <>
                 <Download className="h-4 w-4 mr-2" />
                 Download Info
@@ -215,12 +220,9 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             )}
           </Button>
 
-          <div className="flex items-center justify-center gap-3">
-            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-              <Clock className="h-3 w-3 text-primary" />
-              Under 24 hours
-            </span>
-          </div>
+          <p className="text-center text-[10px] text-muted-foreground/60">
+            <span className="text-primary/70">✓</span> Instant access · No spam
+          </p>
         </form>
       </div>
     </div>

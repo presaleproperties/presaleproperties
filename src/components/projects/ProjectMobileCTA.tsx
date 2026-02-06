@@ -247,22 +247,17 @@ export function ProjectMobileCTA({
             >
               {/* Header */}
               <div className="sticky top-0 bg-background z-10 rounded-t-3xl overflow-hidden">
-                <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
-                <div className="px-5 pt-4 pb-3 border-b border-border/50">
+                <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
+                <div className="px-5 pt-5 pb-4 border-b border-border/40">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-                        <Download className="h-5 w-5 text-primary" />
-                      </div>
-                      <div>
-                        <h3 className="font-bold text-base tracking-tight">Get Pricing & Floor Plans</h3>
-                        <p className="text-xs text-muted-foreground">{projectName}</p>
-                      </div>
+                    <div>
+                      <h3 className="font-bold text-lg tracking-tight">Get Pricing & Floor Plans</h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">{projectName}</p>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-9 w-9 rounded-full hover:bg-muted"
+                      className="h-9 w-9 rounded-full hover:bg-muted -mr-1"
                       onClick={() => setIsExpanded(false)}
                     >
                       <X className="h-5 w-5" />
@@ -275,9 +270,9 @@ export function ProjectMobileCTA({
                 <div className="p-5 pb-8">
                   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                     {/* Full Name */}
-                    <div>
-                      <Label htmlFor="mobile-fullName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
-                        Full Name <span className="text-destructive">*</span>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="mobile-fullName" className="text-xs font-semibold text-foreground/80">
+                        Full Name
                       </Label>
                       <Input
                         id="mobile-fullName"
@@ -285,14 +280,14 @@ export function ProjectMobileCTA({
                         autoComplete="name"
                         autoCapitalize="words"
                         {...form.register("fullName")}
-                        className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                       />
                     </div>
 
                     {/* Email */}
-                    <div>
-                      <Label htmlFor="mobile-email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
-                        Email <span className="text-destructive">*</span>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="mobile-email" className="text-xs font-semibold text-foreground/80">
+                        Email
                       </Label>
                       <Input
                         id="mobile-email"
@@ -302,42 +297,42 @@ export function ProjectMobileCTA({
                         autoComplete="email"
                         autoCapitalize="none"
                         {...form.register("email")}
-                        className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                       />
                     </div>
 
                     {/* Phone */}
-                    <div>
-                      <Label htmlFor="mobile-phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
-                        Phone <span className="text-destructive">*</span>
+                    <div className="space-y-1.5">
+                      <Label htmlFor="mobile-phone" className="text-xs font-semibold text-foreground/80">
+                        Phone
                       </Label>
                       <Input
                         id="mobile-phone"
                         type="tel"
                         inputMode="tel"
-                        placeholder="604-555-0123"
+                        placeholder="(604) 555-0123"
                         autoComplete="tel"
                         {...form.register("phone")}
-                        className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                       />
                     </div>
 
                     {/* I'm a Realtor checkbox */}
-                    <div className="flex items-center gap-2.5 py-1">
+                    <div className="flex items-center gap-3 pt-0.5">
                       <Checkbox
                         id="mobile-isRealtor"
                         checked={form.watch("isRealtor")}
                         onCheckedChange={(checked) => form.setValue("isRealtor", checked === true)}
-                        className="h-5 w-5 rounded-md border-2 border-border/60 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                        className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
                       />
-                      <Label htmlFor="mobile-isRealtor" className="text-sm font-medium text-foreground/80 cursor-pointer select-none">
+                      <Label htmlFor="mobile-isRealtor" className="text-sm text-foreground/70 cursor-pointer select-none">
                         I'm a Realtor
                       </Label>
                     </div>
 
                     <Button 
                       type="submit" 
-                      className="w-full h-14 font-bold text-base rounded-xl shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all mt-3" 
+                      className="w-full h-13 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all mt-2" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
@@ -353,35 +348,30 @@ export function ProjectMobileCTA({
                       )}
                     </Button>
 
-                    {/* Trust indicators */}
-                    <div className="flex items-center justify-center gap-3 pt-1">
-                      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                        <span className="text-primary">✓</span> No spam
-                      </span>
-                      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
-                        <span className="text-primary">✓</span> Instant access
-                      </span>
-                    </div>
+                    {/* Trust line */}
+                    <p className="text-center text-[10px] text-muted-foreground/60 pt-1">
+                      <span className="text-primary/70">✓</span> Instant access · No spam
+                    </p>
                   </form>
                 </div>
               ) : (
                 <div className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-16 h-16 bg-green-500/10 rounded-2xl mb-4">
-                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-4">
+                    <CheckCircle className="h-7 w-7 text-primary" />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Request Sent!</h3>
+                  <h3 className="text-xl font-bold mb-1.5">Request Sent!</h3>
                   <p className="text-sm text-muted-foreground mb-5">
                     Check your email for floor plans and pricing details.
                   </p>
                   {successWhatsappLink && (
-                    <Button asChild className="w-full h-12 bg-green-600 hover:bg-green-700 rounded-xl mb-3">
+                    <Button asChild variant="outline" className="w-full h-12 rounded-lg mb-3 font-semibold">
                       <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
                         <MessageCircle className="h-4 w-4 mr-2" />
                         Chat on WhatsApp
                       </a>
                     </Button>
                   )}
-                  <Button variant="outline" className="w-full h-12 rounded-xl" onClick={() => setIsExpanded(false)}>
+                  <Button variant="ghost" className="w-full h-11 rounded-lg text-muted-foreground" onClick={() => setIsExpanded(false)}>
                     Close
                   </Button>
                 </div>
@@ -406,7 +396,7 @@ export function ProjectMobileCTA({
               </Button>
 
               {whatsappLink && (
-                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700 touch-active" asChild>
+                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-primary border-border hover:bg-accent touch-active" asChild>
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
                     <MessageCircle className="h-5 w-5" />
                   </a>

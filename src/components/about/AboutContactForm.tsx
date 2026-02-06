@@ -153,10 +153,14 @@ export function AboutContactForm({
           control={form.control}
           name="name"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Full Name</FormLabel>
+            <FormItem className="space-y-1.5">
+              <FormLabel className="text-xs font-semibold text-foreground/80">Full Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input
+                  placeholder="Your name"
+                  {...field}
+                  className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -168,10 +172,15 @@ export function AboutContactForm({
             control={form.control}
             name="email"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-xs font-semibold text-foreground/80">Email</FormLabel>
                 <FormControl>
-                  <Input type="email" placeholder="you@example.com" {...field} />
+                  <Input
+                    type="email"
+                    placeholder="you@example.com"
+                    {...field}
+                    className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -182,10 +191,15 @@ export function AboutContactForm({
             control={form.control}
             name="phone"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone</FormLabel>
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-xs font-semibold text-foreground/80">Phone</FormLabel>
                 <FormControl>
-                  <Input type="tel" placeholder="(604) 555-0123" {...field} />
+                  <Input
+                    type="tel"
+                    placeholder="(604) 555-0123"
+                    {...field}
+                    className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -198,11 +212,11 @@ export function AboutContactForm({
             control={form.control}
             name="agent_id"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Preferred Agent (Optional)</FormLabel>
+              <FormItem className="space-y-1.5">
+                <FormLabel className="text-xs font-semibold text-foreground/80">Preferred Agent (Optional)</FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)]">
                       <SelectValue placeholder="Any available agent" />
                     </SelectTrigger>
                   </FormControl>
@@ -225,12 +239,12 @@ export function AboutContactForm({
           control={form.control}
           name="message"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Message (Optional)</FormLabel>
+            <FormItem className="space-y-1.5">
+              <FormLabel className="text-xs font-semibold text-foreground/80">Message (Optional)</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Tell us about what you're looking for..."
-                  className="resize-none"
+                  className="resize-none rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                   rows={3}
                   {...field}
                 />
@@ -243,7 +257,7 @@ export function AboutContactForm({
         <Button
           type="submit"
           size="lg"
-          className="w-full gap-2"
+          className="w-full h-12 sm:h-11 gap-2 rounded-lg font-semibold shadow-gold hover:shadow-gold-glow transition-all"
           disabled={isSubmitting}
         >
           {isSubmitting ? (
@@ -259,8 +273,8 @@ export function AboutContactForm({
           )}
         </Button>
 
-        <p className="text-xs text-muted-foreground text-center">
-          Free consultation • No obligation • Response within 24 hours
+        <p className="text-[10px] text-muted-foreground/60 text-center">
+          <span className="text-primary/70">✓</span> Free consultation · No obligation · Response within 24 hours
         </p>
       </form>
     </Form>

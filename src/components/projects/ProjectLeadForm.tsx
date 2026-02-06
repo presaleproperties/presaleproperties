@@ -234,15 +234,15 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
 
     return (
       <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
-        <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
-        <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4">
+        <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
+        <div className="bg-foreground px-5 py-5">
           <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-full">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/15 rounded-xl">
               <CheckCircle className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-background tracking-tight">You're All Set!</h3>
-              <p className="text-sm text-background/55">
+              <h3 className="text-xl font-bold text-background">You're All Set!</h3>
+              <p className="text-xs text-background/45 font-medium">
                 {hasAnyDocuments ? "Access your documents below." : "Check your email for pricing & floor plans."}
               </p>
             </div>
@@ -333,34 +333,34 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
       )}
 
       {/* Premium accent line */}
-      <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+      <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
 
       {/* Header */}
-      <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-4 sm:px-5 py-3 sm:py-4 pr-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.08),_transparent_70%)]"></div>
-        {brochureUrl && (
-          <div className="flex items-center gap-2 flex-wrap mb-1.5 relative">
-            <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full shadow-sm">
-              <Download className="h-2.5 w-2.5" />
-              Brochure Ready
+      <div className="bg-foreground px-5 sm:px-6 py-4 sm:py-5 pr-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.06),_transparent_60%)]" />
+        <div className="relative">
+          {brochureUrl && (
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-medium tracking-wide text-primary bg-primary/15 px-2.5 py-1 rounded-md mb-2.5">
+              <Download className="h-3 w-3" />
+              Brochure Available
             </span>
-          </div>
-        )}
-        <h3 className="text-base lg:text-lg font-bold text-background leading-tight tracking-tight relative">
-          {content.title}
-        </h3>
-        <p className="text-[10px] sm:text-xs text-background/55 mt-1 relative tracking-wide">
-          Get instant access — no obligation
-        </p>
+          )}
+          <h3 className="text-lg lg:text-xl font-bold text-background leading-snug">
+            {content.title}
+          </h3>
+          <p className="text-xs text-background/45 mt-1 font-medium">
+            Instant access · No obligation
+          </p>
+        </div>
       </div>
 
       {/* Form */}
-      <div className="p-4 sm:p-5 bg-card">
-        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-3 sm:space-y-4">
+      <div className="p-5 sm:p-6">
+        <form onSubmit={form.handleSubmit(onSubmit, onInvalid)} onFocus={handleFormInteraction} className="space-y-4">
           {/* Full Name */}
-          <div>
-            <Label htmlFor="lead-fullName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
-              Full Name <span className="text-destructive">*</span>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-fullName" className="text-xs font-semibold text-foreground/80">
+              Full Name
             </Label>
             <Input
               id="lead-fullName"
@@ -369,17 +369,17 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
               autoCapitalize="words"
               enterKeyHint="next"
               {...form.register("fullName")}
-              className="h-11 sm:h-10 text-[16px] sm:text-sm rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+              className="h-12 sm:h-11 text-[16px] sm:text-sm rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
             />
             {form.formState.errors.fullName && (
-              <p className="text-xs text-destructive mt-1">{form.formState.errors.fullName.message}</p>
+              <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>
             )}
           </div>
 
           {/* Email */}
-          <div>
-            <Label htmlFor="lead-email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
-              Email <span className="text-destructive">*</span>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-email" className="text-xs font-semibold text-foreground/80">
+              Email
             </Label>
             <Input
               id="lead-email"
@@ -390,42 +390,42 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
               autoCapitalize="none"
               enterKeyHint="next"
               {...form.register("email")}
-              className="h-11 sm:h-10 text-[16px] sm:text-sm rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+              className="h-12 sm:h-11 text-[16px] sm:text-sm rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
             />
             {form.formState.errors.email && (
-              <p className="text-xs text-destructive mt-1">{form.formState.errors.email.message}</p>
+              <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>
             )}
           </div>
 
           {/* Phone */}
-          <div>
-            <Label htmlFor="lead-phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
-              Phone <span className="text-destructive">*</span>
+          <div className="space-y-1.5">
+            <Label htmlFor="lead-phone" className="text-xs font-semibold text-foreground/80">
+              Phone
             </Label>
             <Input
               id="lead-phone"
               type="tel"
               inputMode="tel"
-              placeholder="604-555-0123"
+              placeholder="(604) 555-0123"
               autoComplete="tel"
               enterKeyHint="done"
               {...form.register("phone")}
-              className="h-11 sm:h-10 text-[16px] sm:text-sm rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
+              className="h-12 sm:h-11 text-[16px] sm:text-sm rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
             />
             {form.formState.errors.phone && (
-              <p className="text-xs text-destructive mt-1">{form.formState.errors.phone.message}</p>
+              <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>
             )}
           </div>
 
           {/* I'm a Realtor checkbox */}
-          <div className="flex items-center gap-2.5 py-1">
+          <div className="flex items-center gap-3 pt-0.5">
             <Checkbox
               id="lead-isRealtor"
               checked={form.watch("isRealtor")}
               onCheckedChange={(checked) => form.setValue("isRealtor", checked === true)}
-              className="h-5 w-5 rounded-md border-2 border-border/60 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+              className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
             />
-            <Label htmlFor="lead-isRealtor" className="text-sm font-medium text-foreground/80 cursor-pointer select-none">
+            <Label htmlFor="lead-isRealtor" className="text-sm text-foreground/70 cursor-pointer select-none">
               I'm a Realtor
             </Label>
           </div>
@@ -433,7 +433,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-12 sm:h-11 text-base sm:text-sm font-bold rounded-xl gap-2 shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all bg-primary hover:bg-primary/90"
+            className="w-full h-12 sm:h-11 text-sm font-semibold rounded-lg gap-2 shadow-gold hover:shadow-gold-glow transition-all"
             size="lg"
             disabled={isSubmitting}
           >
@@ -450,21 +450,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
             )}
           </Button>
 
-          {/* Trust indicators */}
-          <div className="text-center space-y-1">
-            <div className="flex items-center justify-center gap-3">
-              <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                <span className="text-primary">✓</span> No spam
-              </span>
-              <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
-                <span className="text-primary">✓</span> Instant access
-              </span>
-            </div>
-            <p className="text-[8px] leading-relaxed text-muted-foreground/70">
-              By submitting, you agree to our{" "}
-              <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
-            </p>
-          </div>
+          {/* Trust line */}
+          <p className="text-center text-[10px] text-muted-foreground/60">
+            <span className="text-primary/70">✓</span> Instant access · No spam · <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
+          </p>
         </form>
       </div>
     </div>
