@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Mail } from "lucide-react";
+import { Phone, MessageCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,8 +101,8 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
                 onClick={onContactClick} 
                 className="flex-1 h-12 rounded-xl font-semibold gap-2"
               >
-                <Mail className="h-4 w-4" />
-                <span>Inquire Now</span>
+                <Download className="h-4 w-4" />
+                <span>Download Info</span>
               </Button>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Download, Send, X, ChevronDown, CheckCircle, Calendar } from "lucide-react";
+import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -439,8 +439,8 @@ export function ProjectMobileCTA({
                         </span>
                       ) : (
                         <>
-                          <Send className="h-4 w-4 mr-2" />
-                          Submit Request
+                          <Download className="h-4 w-4 mr-2" />
+                          Download Info
                         </>
                       )}
                     </Button>
@@ -531,7 +531,7 @@ export function ProjectMobileCTA({
                 ) : (
                   <>
                     <Download className="h-4 w-4" />
-                    <span>Get Pricing</span>
+                    <span>Download Info</span>
                   </>
                 )}
               </Button>
