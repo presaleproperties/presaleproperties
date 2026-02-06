@@ -5,19 +5,18 @@ import { z } from "zod";
 import { Download, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
-// Accepts: (604) 555-0123, 604-555-0123, 6045550123, +1 604 555 0123, etc.
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
 const leadSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
-  email: z.string().trim().email("Please enter a valid email").max(255, "Email must be less than 255 characters"),
+  name: z.string().trim().min(1, "Name is required").max(100),
+  email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone number is required").regex(phoneRegex, "Please enter a valid phone number"),
-  message: z.string().trim().max(1000, "Message must be less than 1000 characters").optional().or(z.literal("")),
+  isRealtor: z.boolean().default(false),
 });
 
 type LeadFormData = z.infer<typeof leadSchema>;
@@ -39,8 +38,13 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<LeadFormData>({
     resolver: zodResolver(leadSchema),
+    defaultValues: {
+      isRealtor: false,
+    },
   });
 
   const onInvalid = () => {
@@ -55,6 +59,8 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
     setIsSubmitting(true);
 
     try {
+      const message = data.isRealtor ? "I'm a Realtor" : null;
+
       const { data: leadData, error } = await supabase
         .from("leads")
         .insert({
@@ -63,19 +69,16 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           name: data.name,
           email: data.email,
           phone: data.phone,
-          message: data.message || null,
+          message: message,
         })
         .select("id")
         .maybeSingle();
 
       if (error) throw error;
 
-      // Try to send email notification (non-blocking)
       if (leadData?.id) {
         supabase.functions
-          .invoke("send-lead-notification", {
-            body: { leadId: leadData.id },
-          })
+          .invoke("send-lead-notification", { body: { leadId: leadData.id } })
           .catch((err) => console.log("Email notification skipped:", err));
       }
 
@@ -100,7 +103,6 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   if (isSubmitted) {
     return (
       <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
-        {/* Premium accent line */}
         <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
         <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4">
           <div className="flex items-center gap-2">
@@ -114,11 +116,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
         </div>
         <div className="p-5">
-          <Button
-            variant="outline"
-            onClick={() => setIsSubmitted(false)}
-            className="w-full"
-          >
+          <Button variant="outline" onClick={() => setIsSubmitted(false)} className="w-full">
             Send Another Request
           </Button>
         </div>
@@ -128,10 +126,9 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
 
   return (
     <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
-      {/* Premium accent line */}
       <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
 
-      {/* Header - Neutral dark gradient for welcoming feel */}
+      {/* Header */}
       <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.08),_transparent_70%)]"></div>
         <div className="flex items-center gap-2 mb-2.5 relative">
@@ -144,10 +141,9 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           {isRestricted ? "Get Full Details" : "Interested in this assignment?"}
         </h3>
         <p className="text-sm text-background/55 mt-1.5 relative">
-          {isRestricted 
-            ? "Some details are restricted. Submit your info to receive full assignment details."
-            : "Submit your info and the agent will reach out within 24 hours."
-          }
+          {isRestricted
+            ? "Submit your info to receive full assignment details."
+            : "Submit your info and the agent will reach out within 24 hours."}
         </p>
       </div>
 
@@ -158,14 +154,12 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             <Label htmlFor="name" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Full Name *</Label>
             <Input
               id="name"
-              placeholder="Your full name"
+              placeholder="John Smith"
               autoComplete="name"
               {...register("name")}
               className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.name ? "border-destructive" : ""}`}
             />
-            {errors.name && (
-              <p className="text-xs text-destructive">{errors.name.message}</p>
-            )}
+            {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -178,9 +172,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               {...register("email")}
               className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.email ? "border-destructive" : ""}`}
             />
-            {errors.email && (
-              <p className="text-xs text-destructive">{errors.email.message}</p>
-            )}
+            {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
 
           <div className="space-y-2">
@@ -193,23 +185,20 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               {...register("phone")}
               className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.phone ? "border-destructive" : ""}`}
             />
-            {errors.phone && (
-              <p className="text-xs text-destructive">{errors.phone.message}</p>
-            )}
+            {errors.phone && <p className="text-xs text-destructive">{errors.phone.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="message" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Message (optional)</Label>
-            <Textarea
-              id="message"
-              placeholder={isRestricted 
-                ? "I'm interested in learning more about this restricted assignment..."
-                : "I'm interested in learning more about this assignment..."
-              }
-              rows={3}
-              {...register("message")}
-              className={`rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.message ? "border-destructive" : ""}`}
+          {/* I'm a Realtor checkbox */}
+          <div className="flex items-center gap-2.5 py-1">
+            <Checkbox
+              id="listing-isRealtor"
+              checked={watch("isRealtor")}
+              onCheckedChange={(checked) => setValue("isRealtor", checked === true)}
+              className="h-5 w-5 rounded-md border-2 border-border/60 data-[state=checked]:bg-primary data-[state=checked]:border-primary"
             />
+            <Label htmlFor="listing-isRealtor" className="text-sm font-medium text-foreground/80 cursor-pointer select-none">
+              I'm a Realtor
+            </Label>
           </div>
 
           <Button
@@ -218,9 +207,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             size="lg"
             disabled={isSubmitting}
           >
-            {isSubmitting ? (
-              "Sending..."
-            ) : (
+            {isSubmitting ? "Sending..." : (
               <>
                 <Download className="h-4 w-4 mr-2" />
                 Download Info
