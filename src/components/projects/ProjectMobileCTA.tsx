@@ -293,25 +293,29 @@ export function ProjectMobileCTA({
               style={{ maxHeight: 'calc(85vh - 70px)' }}
             >
               {/* Premium Header with close button */}
-              <div className="sticky top-0 bg-background z-10 px-5 pt-5 pb-4 border-b border-border/50 rounded-t-3xl">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
-                      <Download className="h-5 w-5 text-primary" />
+              <div className="sticky top-0 bg-background z-10 rounded-t-3xl overflow-hidden">
+                {/* Premium accent line */}
+                <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+                <div className="px-5 pt-4 pb-3 border-b border-border/50">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
+                        <Download className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-base tracking-tight">Get Pricing & Floor Plans</h3>
+                        <p className="text-xs text-muted-foreground">{projectName}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-base">Get Pricing & Floor Plans</h3>
-                      <p className="text-xs text-muted-foreground">{projectName}</p>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-full hover:bg-muted"
+                      onClick={handleClose}
+                    >
+                      <X className="h-5 w-5" />
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-9 w-9 rounded-full hover:bg-muted"
-                    onClick={handleClose}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
                 </div>
               </div>
 
@@ -321,7 +325,7 @@ export function ProjectMobileCTA({
                     {/* Contact Info */}
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <Label htmlFor="firstName" className="text-xs font-medium text-muted-foreground">
+                        <Label htmlFor="firstName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                           First Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -330,11 +334,11 @@ export function ProjectMobileCTA({
                           autoComplete="given-name"
                           autoCapitalize="words"
                           {...form.register("firstName")}
-                          className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="lastName" className="text-xs font-medium text-muted-foreground">
+                        <Label htmlFor="lastName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                           Last Name <span className="text-destructive">*</span>
                         </Label>
                         <Input
@@ -343,13 +347,13 @@ export function ProjectMobileCTA({
                           autoComplete="family-name"
                           autoCapitalize="words"
                           {...form.register("lastName")}
-                          className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                          className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
+                      <Label htmlFor="email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                         Email <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -360,12 +364,12 @@ export function ProjectMobileCTA({
                         autoComplete="email"
                         autoCapitalize="none"
                         {...form.register("email")}
-                        className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
                       />
                     </div>
 
                     <div>
-                      <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">
+                      <Label htmlFor="phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">
                         Phone <span className="text-destructive">*</span>
                       </Label>
                       <Input
@@ -375,13 +379,13 @@ export function ProjectMobileCTA({
                         placeholder="604-555-0123"
                         autoComplete="tel"
                         {...form.register("phone")}
-                        className="h-12 mt-1.5 text-[16px] rounded-xl border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                        className="h-12 mt-1.5 text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
                       />
                     </div>
 
                     {/* I am a... */}
                     <div>
-                      <Label className="text-xs font-medium text-muted-foreground">I am a...</Label>
+                      <Label className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">I am a...</Label>
                       <RadioGroup
                         value={form.watch("persona")}
                         onValueChange={(v) => form.setValue("persona", v as any)}
@@ -392,8 +396,8 @@ export function ProjectMobileCTA({
                             key={p.value}
                             className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                               form.watch("persona") === p.value
-                                ? "border-foreground bg-foreground text-background"
-                                : "border-border hover:border-muted-foreground/50"
+                                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
                             }`}
                           >
                             <RadioGroupItem value={p.value} className="sr-only" />
@@ -405,7 +409,7 @@ export function ProjectMobileCTA({
 
                     {/* Working with agent */}
                     <div>
-                      <Label className="text-xs font-medium text-muted-foreground">Working with a Realtor?</Label>
+                      <Label className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Working with a Realtor?</Label>
                       <RadioGroup
                         value={form.watch("workingWithAgent")}
                         onValueChange={(v) => form.setValue("workingWithAgent", v as any)}
@@ -416,8 +420,8 @@ export function ProjectMobileCTA({
                             key={a.value}
                             className={`flex items-center justify-center h-11 rounded-xl border-2 cursor-pointer text-xs font-medium transition-all ${
                               form.watch("workingWithAgent") === a.value
-                                ? "border-foreground bg-foreground text-background"
-                                : "border-border hover:border-muted-foreground/50"
+                                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                                : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
                             }`}
                           >
                             <RadioGroupItem value={a.value} className="sr-only" />
@@ -429,12 +433,12 @@ export function ProjectMobileCTA({
 
                     <Button 
                       type="submit" 
-                      className="w-full h-14 font-bold text-base rounded-xl shadow-lg hover:shadow-xl transition-all mt-3" 
+                      className="w-full h-14 font-bold text-base rounded-xl shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all mt-3" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
                           Sending...
                         </span>
                       ) : (
@@ -446,12 +450,12 @@ export function ProjectMobileCTA({
                     </Button>
 
                     {/* Trust indicators */}
-                    <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
-                      <span className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span> No spam
+                    <div className="flex items-center justify-center gap-3 pt-1">
+                      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                        <span className="text-primary">✓</span> No spam
                       </span>
-                      <span className="flex items-center gap-1">
-                        <span className="text-green-600">✓</span> Same-day response
+                      <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                        <span className="text-primary">✓</span> Same-day response
                       </span>
                     </div>
                   </form>
