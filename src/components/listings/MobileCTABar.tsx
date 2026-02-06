@@ -50,8 +50,10 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
           right: 0,
           zIndex: 9999,
           isolation: 'isolate',
-          transform: 'translateZ(0)',
+          transform: 'translate3d(0,0,0)',
           willChange: 'transform',
+          contentVisibility: 'auto',
+          containIntrinsicSize: '0 auto',
         }}
       >
         <div className="bg-background/98 backdrop-blur-lg border-t border-border shadow-[0_-4px_20px_rgba(0,0,0,0.15)]">

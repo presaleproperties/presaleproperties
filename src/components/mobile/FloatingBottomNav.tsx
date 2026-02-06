@@ -1,8 +1,12 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { useLocation } from "react-router-dom";
 import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { AISearchPopup } from "@/components/search/AISearchPopup";
+
+// Lazy load the heavy search popup - only loaded when user taps search
+const AISearchPopup = lazy(() => 
+  import("@/components/search/AISearchPopup").then(m => ({ default: m.AISearchPopup }))
+);
 
 export function FloatingBottomNav() {
   const location = useLocation();
@@ -51,7 +55,7 @@ export function FloatingBottomNav() {
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/40 to-transparent" />
         
         <div className="relative flex items-center justify-center px-6 py-4 pointer-events-auto">
-          {/* Search Button */}
+          {/* Search Button - icon and text are inline, zero-delay render */}
           <button
             onClick={handleSearchClick}
             className={cn(
@@ -68,7 +72,12 @@ export function FloatingBottomNav() {
         </div>
       </div>
 
-      <AISearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
+      {/* Only mount the heavy popup when it's been opened at least once */}
+      {searchOpen && (
+        <Suspense fallback={null}>
+          <AISearchPopup open={searchOpen} onOpenChange={setSearchOpen} />
+        </Suspense>
+      )}
     </>
   );
 }

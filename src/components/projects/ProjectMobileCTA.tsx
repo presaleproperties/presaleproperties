@@ -274,9 +274,10 @@ export function ProjectMobileCTA({
           WebkitTransform: 'translate3d(0,0,0)',
           willChange: 'transform',
           pointerEvents: 'auto',
-          // Fix for Chrome mobile gap issue
           width: '100%',
           paddingBottom: 'env(safe-area-inset-bottom, 0px)',
+          contentVisibility: 'auto',
+          containIntrinsicSize: '0 auto',
         }}
       >
         <div 
