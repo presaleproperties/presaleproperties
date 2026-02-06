@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Download } from "lucide-react";
+import { MessageCircle, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -67,30 +67,16 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
 
             {/* Action Buttons */}
             <div className="flex items-center gap-2">
-              {/* Phone Button */}
-              {phoneNumber && (
-                <Button 
-                  size="icon" 
-                  variant="outline" 
-                  className="shrink-0 h-12 w-12 rounded-xl"
-                  asChild
-                >
-                  <a href={`tel:${phoneNumber}`} aria-label="Call agent">
-                    <Phone className="h-5 w-5" />
-                  </a>
-                </Button>
-              )}
-
               {/* WhatsApp Button */}
               {whatsappLink && (
                 <Button 
-                  size="icon" 
                   variant="outline" 
-                  className="shrink-0 h-12 w-12 rounded-xl text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700"
+                  className="shrink-0 h-12 rounded-xl text-[#25D366] border-[#25D366]/30 hover:bg-[#25D366]/10 hover:text-[#128C7E] font-semibold gap-2 px-5"
                   asChild
                 >
                   <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
                     <MessageCircle className="h-5 w-5" />
+                    <span>WhatsApp</span>
                   </a>
                 </Button>
               )}
