@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Download, MessageCircle, X, ExternalLink, Mail, FileText, LayoutGrid, DollarSign } from "lucide-react";
+import { CheckCircle, Download, MessageCircle, X, ExternalLink, FileText, LayoutGrid, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -628,22 +628,22 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
       case "coming_soon":
         return {
           title: "Get Early Access to Floor Plans & Pricing",
-          buttonText: "Get Early Access",
+          buttonText: "Download Info",
         };
       case "registering":
         return {
           title: "Register for VIP Access",
-          buttonText: "Register Now",
+          buttonText: "Download Info",
         };
       case "active":
         return {
           title: "Get Floor Plans & Pricing",
-          buttonText: "Get Instant Access",
+          buttonText: "Download Info",
         };
       default:
         return {
           title: "Get Notified of Similar Projects",
-          buttonText: "Notify Me",
+          buttonText: "Download Info",
         };
     }
   };
@@ -786,8 +786,9 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 </span>
               ) : (
                 <>
-                  <Send className="h-4 w-4" />
-                  Get Floor Plans & Pricing
+                  <Download className="h-4 w-4" />
+                  Download Info
+                
                 </>
               )}
             </Button>
@@ -873,8 +874,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
               className="w-full h-14 min-h-[56px] text-lg font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
               size="lg"
             >
-              <Mail className="h-5 w-5" />
-              Continue
+              <Download className="h-5 w-5" />
+              Download Info
             </Button>
 
             {/* Trust indicators */}
@@ -1070,7 +1071,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
               </span>
             ) : (
               <>
-                <Send className="h-4 w-4" />
+                <Download className="h-4 w-4" />
                 {content.buttonText}
               </>
             )}
