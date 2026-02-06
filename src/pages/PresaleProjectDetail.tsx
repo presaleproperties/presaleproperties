@@ -13,6 +13,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Separator } from "@/components/ui/separator";
 import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { ProjectLeadForm } from "@/components/projects/ProjectLeadForm";
+import { ProjectDocumentsCTA } from "@/components/projects/ProjectDocumentsCTA";
 import { ProjectHighlights } from "@/components/projects/ProjectHighlights";
 import { CityProjectsCarousel } from "@/components/home/CityProjectsCarousel";
 import { NeighborhoodProjectsCarousel } from "@/components/home/NeighborhoodProjectsCarousel";
@@ -808,6 +809,16 @@ export default function PresaleProjectDetail() {
                         </div>
                       </div>}
                   </div>}
+
+                {/* Documents CTA - Lead capture for floor plans & brochures */}
+                <ProjectDocumentsCTA
+                  projectId={project.id}
+                  projectName={project.name}
+                  status={project.status}
+                  brochureUrl={project.brochure_files?.[0] || null}
+                  floorplanUrl={project.floorplan_files?.[0] || null}
+                  pricingUrl={project.pricing_sheets?.[0] || null}
+                />
 
                 {/* Amenities */}
                 {project.amenities && project.amenities.length > 0 && <div className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-6">
