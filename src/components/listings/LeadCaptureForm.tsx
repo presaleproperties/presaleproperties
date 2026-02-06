@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Send, CheckCircle, Clock, Sparkles } from "lucide-react";
+import { Download, CheckCircle, Clock, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -217,8 +217,8 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               "Sending..."
             ) : (
               <>
-                <Send className="h-4 w-4 mr-2" />
-                {isRestricted ? "Request Full Details" : "Send Request"}
+                <Download className="h-4 w-4 mr-2" />
+                Download Info
               </>
             )}
           </Button>
