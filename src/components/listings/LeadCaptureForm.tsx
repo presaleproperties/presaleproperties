@@ -99,16 +99,17 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
 
   if (isSubmitted) {
     return (
-      <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
-        {/* Header - Neutral dark gradient */}
-        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
+      <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
+        {/* Premium accent line */}
+        <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+        <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4">
           <div className="flex items-center gap-2">
-            <div className="inline-flex items-center justify-center w-10 h-10 bg-green-500/20 rounded-full">
-              <CheckCircle className="h-5 w-5 text-green-400" />
+            <div className="inline-flex items-center justify-center w-10 h-10 bg-primary/20 rounded-full">
+              <CheckCircle className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h3 className="text-lg font-bold text-background">Request Sent!</h3>
-              <p className="text-sm text-background/70">The agent will contact you shortly.</p>
+              <h3 className="text-lg font-bold text-background tracking-tight">Request Sent!</h3>
+              <p className="text-sm text-background/55">The agent will contact you shortly.</p>
             </div>
           </div>
         </div>
@@ -126,19 +127,23 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
   }
 
   return (
-    <div className="bg-card border border-border rounded-xl overflow-hidden shadow-lg">
+    <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
+      {/* Premium accent line */}
+      <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+
       {/* Header - Neutral dark gradient for welcoming feel */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/20 px-2 py-0.5 rounded-full">
+      <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.08),_transparent_70%)]"></div>
+        <div className="flex items-center gap-2 mb-2.5 relative">
+          <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary-foreground bg-primary px-3 py-1 rounded-full shadow-sm">
             <Sparkles className="h-3 w-3" />
             {isRestricted ? "Exclusive Assignment" : "High Interest"}
           </span>
         </div>
-        <h3 className="text-xl font-bold text-background">
+        <h3 className="text-xl font-bold text-background tracking-tight relative">
           {isRestricted ? "Get Full Details" : "Interested in this assignment?"}
         </h3>
-        <p className="text-sm text-background/70 mt-1">
+        <p className="text-sm text-background/55 mt-1.5 relative">
           {isRestricted 
             ? "Some details are restricted. Submit your info to receive full assignment details."
             : "Submit your info and the agent will reach out within 24 hours."
@@ -150,13 +155,13 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
       <div className="p-5">
         <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">Full Name *</Label>
+            <Label htmlFor="name" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Full Name *</Label>
             <Input
               id="name"
               placeholder="Your full name"
               autoComplete="name"
               {...register("name")}
-              className={`h-11 ${errors.name ? "border-destructive" : ""}`}
+              className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.name ? "border-destructive" : ""}`}
             />
             {errors.name && (
               <p className="text-xs text-destructive">{errors.name.message}</p>
@@ -164,14 +169,14 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="email" className="text-sm font-medium">Email *</Label>
+            <Label htmlFor="email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Email *</Label>
             <Input
               id="email"
               type="email"
               placeholder="your@email.com"
               autoComplete="email"
               {...register("email")}
-              className={`h-11 ${errors.email ? "border-destructive" : ""}`}
+              className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.email ? "border-destructive" : ""}`}
             />
             {errors.email && (
               <p className="text-xs text-destructive">{errors.email.message}</p>
@@ -179,14 +184,14 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone" className="text-sm font-medium">Phone *</Label>
+            <Label htmlFor="phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Phone *</Label>
             <Input
               id="phone"
               type="tel"
               placeholder="(604) 555-0123"
               autoComplete="tel"
               {...register("phone")}
-              className={`h-11 ${errors.phone ? "border-destructive" : ""}`}
+              className={`h-11 rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.phone ? "border-destructive" : ""}`}
             />
             {errors.phone && (
               <p className="text-xs text-destructive">{errors.phone.message}</p>
@@ -194,7 +199,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="message" className="text-sm font-medium">Message (optional)</Label>
+            <Label htmlFor="message" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider">Message (optional)</Label>
             <Textarea
               id="message"
               placeholder={isRestricted 
@@ -203,13 +208,13 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
               }
               rows={3}
               {...register("message")}
-              className={errors.message ? "border-destructive" : ""}
+              className={`rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all ${errors.message ? "border-destructive" : ""}`}
             />
           </div>
 
           <Button
             type="submit"
-            className="w-full h-12 text-base font-semibold"
+            className="w-full h-12 text-base font-bold rounded-xl shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all"
             size="lg"
             disabled={isSubmitting}
           >
@@ -223,9 +228,11 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
             )}
           </Button>
 
-          <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <Clock className="h-3 w-3" />
-            <span>Typical response time: under 24 hours</span>
+          <div className="flex items-center justify-center gap-3">
+            <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+              <Clock className="h-3 w-3 text-primary" />
+              Under 24 hours
+            </span>
           </div>
         </form>
       </div>

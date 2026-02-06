@@ -528,15 +528,16 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
     const isGoogleDriveLink = (url: string) => url.includes('drive.google.com') || url.includes('docs.google.com');
     
     return (
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl">
-        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4">
+      <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium">
+        <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+        <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4">
           <div className="flex items-center gap-3">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-green-500/20 rounded-full">
-              <CheckCircle className="h-6 w-6 text-green-400" />
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-primary/20 rounded-full">
+              <CheckCircle className="h-6 w-6 text-primary" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-background">You're All Set!</h3>
-              <p className="text-sm text-background/70">
+              <h3 className="text-xl font-bold text-background tracking-tight">You're All Set!</h3>
+              <p className="text-sm text-background/55">
                 {hasAnyDocuments ? "Access your documents below." : "Check your email for pricing & floor plans."}
               </p>
             </div>
@@ -655,30 +656,33 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
   // ========================================
   if (isMobile && mobileStep === 2) {
     return (
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-xl relative">
+      <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium relative">
         {/* Close button */}
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 z-10 p-1 text-muted-foreground hover:text-foreground transition-colors"
+            className="absolute right-3 top-3 z-10 p-1.5 rounded-full bg-background/10 text-background/70 hover:text-background hover:bg-background/20 transition-all"
             aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         )}
 
+        {/* Premium accent line */}
+        <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+
         {/* Progress Banner */}
-        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-4 pr-12">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-background bg-primary/90 px-2.5 py-1 rounded-full">
+        <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-4 pr-12">
+          <div className="flex items-center gap-2 mb-2.5">
+            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-foreground bg-primary px-3 py-1 rounded-full shadow-sm">
               Step 2 of 2
             </span>
           </div>
-          <h3 className="text-lg font-bold text-background leading-snug">
+          <h3 className="text-lg font-bold text-background leading-snug tracking-tight">
             Almost there!
           </h3>
-          <p className="text-xs text-background/70 mt-1">
-            Complete your profile to receive floor plans at <span className="font-medium">{submittedEmail}</span>
+          <p className="text-xs text-background/60 mt-1.5 leading-relaxed">
+            Complete your profile to receive floor plans at <span className="font-semibold text-background/80">{submittedEmail}</span>
           </p>
         </div>
 
@@ -691,7 +695,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
           <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-4">
             {/* First Name Only */}
             <div>
-              <Label htmlFor="profile-firstName" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="profile-firstName" className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
                 First Name
               </Label>
               <Input
@@ -700,13 +704,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 autoComplete="given-name"
                 autoCapitalize="words"
                 {...profileForm.register("firstName")}
-                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-12 min-h-[48px] text-[16px] rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
             </div>
 
             {/* Phone */}
             <div>
-              <Label htmlFor="profile-phone" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="profile-phone" className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
                 Phone
               </Label>
               <Input
@@ -716,13 +720,13 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 placeholder="604-555-0123"
                 autoComplete="tel"
                 {...profileForm.register("phone")}
-                className="h-12 min-h-[48px] text-[16px] rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-12 min-h-[48px] text-[16px] rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
             </div>
 
             {/* I am a... */}
             <div>
-              <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+              <Label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-2 block">
                 I am a...
               </Label>
               <RadioGroup
@@ -735,8 +739,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                     key={p.value}
                     className={`flex items-center justify-center h-12 min-h-[48px] rounded-xl border-2 cursor-pointer text-base font-medium transition-all touch-active ${
                       profileForm.watch("persona") === p.value
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:border-muted-foreground/50 active:bg-muted"
+                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                        : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40 active:bg-muted"
                     }`}
                   >
                     <RadioGroupItem value={p.value} className="sr-only" />
@@ -748,7 +752,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
 
             {/* Working with a Realtor? */}
             <div>
-              <Label className="text-sm font-medium text-muted-foreground mb-2 block">
+              <Label className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-2 block">
                 Working with a Realtor?
               </Label>
               <RadioGroup
@@ -761,8 +765,8 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                     key={a.value}
                     className={`flex items-center justify-center h-11 min-h-[44px] rounded-xl border-2 cursor-pointer text-sm font-medium transition-all text-center px-2 touch-active ${
                       profileForm.watch("workingWithAgent") === a.value
-                        ? "border-foreground bg-foreground text-background"
-                        : "border-border hover:border-muted-foreground/50 active:bg-muted"
+                        ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                        : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40 active:bg-muted"
                     }`}
                   >
                     <RadioGroupItem value={a.value} className="sr-only" />
@@ -775,7 +779,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
             {/* Submit Button */}
             <Button
               type="submit"
-              className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
+              className="w-full h-14 min-h-[56px] text-base font-bold rounded-xl gap-2 shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all touch-active bg-primary hover:bg-primary/90"
               size="lg"
               disabled={isSubmitting}
             >
@@ -794,12 +798,12 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
             </Button>
 
             {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-4 text-[10px] text-muted-foreground pt-1">
-              <span className="flex items-center gap-1">
-                <span className="text-green-500">✓</span> No spam
+            <div className="flex items-center justify-center gap-3 pt-1">
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                <span className="text-primary">✓</span> No spam
               </span>
-              <span className="flex items-center gap-1">
-                <span className="text-green-500">✓</span> Same-day response
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                <span className="text-primary">✓</span> Same-day response
               </span>
             </div>
           </form>
@@ -813,35 +817,38 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
   // ========================================
   if (isMobile && mobileStep === 1) {
     return (
-      <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative">
+      <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium transition-shadow duration-300 relative">
         {/* Close button */}
         {onClose && (
           <button
             onClick={onClose}
-            className="absolute right-3 top-3 z-10 p-1 text-white/70 hover:text-white transition-colors"
+            className="absolute right-3 top-3 z-10 p-1.5 rounded-full bg-background/10 text-background/70 hover:text-background hover:bg-background/20 transition-all"
             aria-label="Close"
           >
-            <X className="h-5 w-5" />
+            <X className="h-4 w-4" />
           </button>
         )}
         
+        {/* Premium accent line */}
+        <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+
         {/* Header */}
-        <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-5 py-5 pr-12 relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+        <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-5 py-5 pr-12 relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.08),_transparent_70%)]"></div>
           
           {brochureUrl && (
-            <div className="flex items-center gap-2 flex-wrap mb-2 relative">
-              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-white bg-green-500/90 px-2.5 py-1 rounded-full shadow-sm">
+            <div className="flex items-center gap-2 flex-wrap mb-2.5 relative">
+              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold text-primary-foreground bg-primary px-3 py-1 rounded-full shadow-sm">
                 <Download className="h-3 w-3" />
                 Brochure Ready
               </span>
             </div>
           )}
           
-          <h3 className="text-lg font-bold text-background leading-snug relative">
+          <h3 className="text-lg font-bold text-background leading-snug tracking-tight relative">
             {content.title}
           </h3>
-          <p className="text-xs text-background/70 mt-1 relative">
+          <p className="text-xs text-background/55 mt-1.5 relative tracking-wide">
             Get instant access — no obligation
           </p>
         </div>
@@ -850,7 +857,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
         <div className="p-5 bg-card">
           <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} onFocus={handleFormInteraction} className="space-y-4">
             <div>
-              <Label htmlFor="mobile-email" className="text-sm font-medium text-muted-foreground mb-1.5 block">
+              <Label htmlFor="mobile-email" className="text-xs font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
                 Email
               </Label>
               <Input
@@ -862,7 +869,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 autoCapitalize="none"
                 enterKeyHint="send"
                 {...emailForm.register("email")}
-                className="h-14 min-h-[56px] text-[16px] rounded-lg border-2 border-border focus:border-primary focus:ring-2 focus:ring-primary/20"
+                className="h-14 min-h-[56px] text-[16px] rounded-xl bg-muted/30 border-2 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
               {emailForm.formState.errors.email && (
                 <p className="text-sm text-destructive mt-1">{emailForm.formState.errors.email.message}</p>
@@ -871,7 +878,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
 
             <Button
               type="submit"
-              className="w-full h-14 min-h-[56px] text-lg font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all touch-active bg-primary hover:bg-primary/90"
+              className="w-full h-14 min-h-[56px] text-lg font-bold rounded-xl gap-2 shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all touch-active bg-primary hover:bg-primary/90"
               size="lg"
             >
               <Download className="h-5 w-5" />
@@ -879,12 +886,12 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
             </Button>
 
             {/* Trust indicators */}
-            <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground pt-1">
-              <span className="flex items-center gap-1">
-                <span className="text-green-500">✓</span> No spam
+            <div className="flex items-center justify-center gap-3 pt-1">
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                <span className="text-primary">✓</span> No spam
               </span>
-              <span className="flex items-center gap-1">
-                <span className="text-green-500">✓</span> Same-day response
+              <span className="inline-flex items-center gap-1 text-[10px] text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-full">
+                <span className="text-primary">✓</span> Same-day response
               </span>
             </div>
           </form>
@@ -897,36 +904,39 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
   // DESKTOP: Compact Full Form (no scroll)
   // ========================================
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-elevated hover:shadow-premium transition-shadow duration-300 relative">
+    <div className="bg-card border border-border/40 rounded-2xl overflow-hidden shadow-premium transition-shadow duration-300 relative">
       {/* Close button */}
       {onClose && (
         <button
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 p-1 text-white/70 hover:text-white transition-colors"
+          className="absolute right-3 top-3 z-10 p-1.5 rounded-full bg-background/10 text-background/70 hover:text-background hover:bg-background/20 transition-all"
           aria-label="Close"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
       )}
       
+      {/* Premium accent line */}
+      <div className="h-1 bg-gradient-to-r from-primary via-primary/80 to-primary/40" />
+
       {/* Header - Compact premium gradient */}
-      <div className="bg-gradient-to-br from-foreground via-foreground to-foreground/85 px-4 py-3 pr-12 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
+      <div className="bg-gradient-to-br from-foreground via-foreground/97 to-foreground/90 px-4 py-3 pr-12 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.08),_transparent_70%)]"></div>
         
         {/* Brochure Ready indicator */}
         {brochureUrl && (
-          <div className="flex items-center gap-2 flex-wrap mb-1 relative">
-            <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-white bg-green-500/90 px-2 py-0.5 rounded-full">
+          <div className="flex items-center gap-2 flex-wrap mb-1.5 relative">
+            <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-primary-foreground bg-primary px-2.5 py-0.5 rounded-full shadow-sm">
               <Download className="h-2.5 w-2.5" />
               Brochure Ready
             </span>
           </div>
         )}
         
-        <h3 className="text-base lg:text-lg font-bold text-background leading-tight relative">
+        <h3 className="text-base lg:text-lg font-bold text-background leading-tight tracking-tight relative">
           {content.title}
         </h3>
-        <p className="text-[10px] text-background/70 mt-0.5 relative">
+        <p className="text-[10px] text-background/55 mt-1 relative tracking-wide">
           Get instant access — no obligation
         </p>
       </div>
@@ -937,7 +947,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
           {/* First Name & Last Name - side by side */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="lead-firstName" className="text-xs font-medium text-muted-foreground mb-1 block">
+              <Label htmlFor="lead-firstName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
                 First Name
               </Label>
               <Input
@@ -948,11 +958,11 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("firstName")}
-                className="h-10 text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-10 text-sm rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
             </div>
             <div>
-              <Label htmlFor="lead-lastName" className="text-xs font-medium text-muted-foreground mb-1 block">
+              <Label htmlFor="lead-lastName" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
                 Last Name
               </Label>
               <Input
@@ -963,7 +973,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 autoCapitalize="words"
                 enterKeyHint="next"
                 {...form.register("lastName")}
-                className="h-10 text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-10 text-sm rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
             </div>
           </div>
@@ -971,7 +981,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
           {/* Email & Phone - side by side on desktop */}
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <Label htmlFor="lead-email" className="text-xs font-medium text-muted-foreground mb-1 block">
+              <Label htmlFor="lead-email" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
                 Email
               </Label>
               <Input
@@ -984,11 +994,11 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 autoCapitalize="none"
                 enterKeyHint="next"
                 {...form.register("email")}
-                className="h-10 text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-10 text-sm rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
             </div>
             <div>
-              <Label htmlFor="lead-phone" className="text-xs font-medium text-muted-foreground mb-1 block">
+              <Label htmlFor="lead-phone" className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1 block">
                 Phone
               </Label>
               <Input
@@ -1000,14 +1010,14 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
                 autoComplete="tel"
                 enterKeyHint="done"
                 {...form.register("phone")}
-                className="h-10 text-sm rounded-lg border-border focus:ring-2 focus:ring-primary/20"
+                className="h-10 text-sm rounded-xl bg-muted/30 border-border/50 hover:border-border focus:border-primary/50 focus:bg-background focus:ring-2 focus:ring-primary/15 transition-all"
               />
             </div>
           </div>
 
           {/* I am a... - Compact buttons */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            <Label className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
               I am a...
             </Label>
             <RadioGroup
@@ -1018,10 +1028,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
               {PERSONAS.map((p) => (
                 <Label
                   key={p.value}
-                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-sm font-medium transition-all ${
+                  className={`flex items-center justify-center h-9 rounded-xl border-2 cursor-pointer text-sm font-medium transition-all ${
                     form.watch("persona") === p.value
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
                   }`}
                 >
                   <RadioGroupItem value={p.value} className="sr-only" />
@@ -1033,7 +1043,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
 
           {/* Working with Realtor - full width */}
           <div>
-            <Label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            <Label className="text-[10px] font-semibold text-foreground/70 uppercase tracking-wider mb-1.5 block">
               Working with a Realtor?
             </Label>
             <RadioGroup
@@ -1044,10 +1054,10 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
               {AGENT_OPTIONS.map((a) => (
                 <Label
                   key={a.value}
-                  className={`flex items-center justify-center h-9 rounded-lg border-2 cursor-pointer text-xs font-medium transition-all ${
+                  className={`flex items-center justify-center h-9 rounded-xl border-2 cursor-pointer text-xs font-medium transition-all ${
                     form.watch("workingWithAgent") === a.value
-                      ? "border-foreground bg-foreground text-background"
-                      : "border-border hover:border-muted-foreground/50"
+                      ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                      : "border-border/50 bg-muted/20 hover:border-primary/30 hover:bg-muted/40"
                   }`}
                 >
                   <RadioGroupItem value={a.value} className="sr-only" />
@@ -1060,7 +1070,7 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
           {/* Submit Button */}
           <Button
             type="submit"
-            className="w-full h-11 text-sm font-bold rounded-xl gap-2 shadow-lg hover:shadow-xl transition-all bg-primary hover:bg-primary/90"
+            className="w-full h-11 text-sm font-bold rounded-xl gap-2 shadow-[0_4px_14px_hsl(var(--primary)/0.4)] hover:shadow-[0_6px_20px_hsl(var(--primary)/0.5)] transition-all bg-primary hover:bg-primary/90"
             size="lg"
             disabled={isSubmitting}
           >
@@ -1078,11 +1088,20 @@ export function ProjectLeadForm({ projectId, projectName, status, brochureUrl, f
           </Button>
 
           {/* Trust indicators & Disclaimer combined */}
-          <p className="text-[9px] leading-relaxed text-muted-foreground text-center">
-            <span className="text-green-500">✓</span> No spam • <span className="text-green-500">✓</span> Same-day response<br/>
-            By submitting, you agree to our{" "}
-            <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
-          </p>
+          <div className="text-center space-y-1">
+            <div className="flex items-center justify-center gap-3">
+              <span className="inline-flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                <span className="text-primary">✓</span> No spam
+              </span>
+              <span className="inline-flex items-center gap-1 text-[9px] text-muted-foreground bg-muted/50 px-2 py-0.5 rounded-full">
+                <span className="text-primary">✓</span> Same-day response
+              </span>
+            </div>
+            <p className="text-[8px] leading-relaxed text-muted-foreground/70">
+              By submitting, you agree to our{" "}
+              <a href="/privacy" className="underline hover:text-foreground">Privacy Policy</a>.
+            </p>
+          </div>
         </form>
       </div>
     </div>
