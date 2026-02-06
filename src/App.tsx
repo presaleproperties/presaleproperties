@@ -76,7 +76,7 @@ import PresaleCityHubPage from "./pages/PresaleCityHubPage";
 import PresaleCityTypePricePage from "./pages/PresaleCityTypePricePage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
-import { FloatingMapButton } from "@/components/mobile/FloatingMapButton";
+
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
@@ -132,7 +132,7 @@ const App = () => (
             <LoftyPageTracker />
             <BehaviorTracker />
             <MetaPixel />
-            <FloatingMapButton />
+            
             {/* <ExitIntentPopup /> - Temporarily hidden */}
           <Routes>
             {/* Public Routes */}
