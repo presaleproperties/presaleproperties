@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle } from "lucide-react";
+import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, ArrowRight, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,21 +8,23 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { useToast } from "@/hooks/use-toast";
-import { getVisitorId, getSessionId, trackFormStart, trackFormSubmit } from "@/lib/tracking";
-import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
+import { usePresaleLeadCapture } from "@/hooks/usePresaleLeadCapture";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
-const formSchema = z.object({
-  fullName: z.string().trim().min(1, "Full name is required").max(100),
+const emailSchema = z.object({
   email: z.string().trim().email("Please enter a valid email").max(255),
+});
+
+const detailsSchema = z.object({
+  fullName: z.string().trim().min(1, "Full name is required").max(100),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
   isRealtor: z.boolean().default(false),
 });
 
-type FormData = z.infer<typeof formSchema>;
+type EmailFormData = z.infer<typeof emailSchema>;
+type DetailsFormData = z.infer<typeof detailsSchema>;
 
 interface ProjectMobileCTAProps {
   projectName: string;
@@ -41,18 +43,30 @@ export function ProjectMobileCTA({
 }: ProjectMobileCTAProps) {
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
-  const { toast } = useToast();
 
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      phone: "",
-      isRealtor: false,
-    },
+  const {
+    step,
+    isSubmitting,
+    capturedEmail,
+    handleFormInteraction,
+    submitEmail,
+    submitDetails,
+    reset,
+  } = usePresaleLeadCapture({
+    projectId,
+    projectName,
+    leadSource: "floor_plan_request",
+    formLocation: "mobile_cta_footer",
+  });
+
+  const emailForm = useForm<EmailFormData>({
+    resolver: zodResolver(emailSchema),
+    defaultValues: { email: "" },
+  });
+
+  const detailsForm = useForm<DetailsFormData>({
+    resolver: zodResolver(detailsSchema),
+    defaultValues: { fullName: "", phone: "", isRealtor: false },
   });
 
   useEffect(() => {
@@ -75,137 +89,25 @@ export function ProjectMobileCTA({
         content_name: projectName || "Access Pack",
         content_category: "floorplans",
       });
-      trackFormStart({
-        form_name: "mobile_footer_form",
-        form_location: "mobile_cta_footer",
-      });
     }
     if (!isExpanded) {
-      setIsSuccess(false);
-      form.reset();
+      reset();
+      emailForm.reset();
+      detailsForm.reset();
     }
   }, [isExpanded]);
 
-  const onSubmit = async (data: FormData) => {
-    setIsSubmitting(true);
+  const onEmailSubmit = async (data: EmailFormData) => {
+    await submitEmail(data.email);
+  };
 
-    try {
-      const utmSource = sessionStorage.getItem("utm_source") || null;
-      const utmMedium = sessionStorage.getItem("utm_medium") || null;
-      const utmCampaign = sessionStorage.getItem("utm_campaign") || null;
-      const utmContent = sessionStorage.getItem("utm_content") || null;
-      const utmTerm = sessionStorage.getItem("utm_term") || null;
-      const referrer = sessionStorage.getItem("referrer") || document.referrer || null;
-      const landingPage = sessionStorage.getItem("landing_page") || window.location.href;
-      
-      const actualPersona = data.isRealtor ? "realtor" : "buyer";
-      const messageData = data.isRealtor ? "I'm a Realtor | Source: mobile_footer" : "Source: mobile_footer";
+  const onDetailsSubmit = async (data: DetailsFormData) => {
+    await submitDetails(data);
 
-      const visitorId = getVisitorId();
-      const sessionId = getSessionId();
-      const intentScore = getIntentScore();
-      const cityInterest = getCityInterests();
-      const projectInterest = getTopViewedProjects().map(p => p.project_id);
-      const leadId = crypto.randomUUID();
-      
-      const { error } = await supabase
-        .from("project_leads")
-        .insert({
-          id: leadId,
-          project_id: projectId || null,
-          name: data.fullName,
-          email: data.email,
-          phone: data.phone,
-          message: messageData,
-          persona: actualPersona,
-          drip_sequence: "buyer",
-          last_drip_sent: 0,
-          next_drip_at: new Date().toISOString(),
-          lead_source: "floor_plan_request",
-          agent_status: data.isRealtor ? "i_am_realtor" : "no",
-          utm_source: utmSource,
-          utm_medium: utmMedium,
-          utm_campaign: utmCampaign,
-          utm_content: utmContent,
-          utm_term: utmTerm,
-          referrer: referrer,
-          landing_page: landingPage,
-          visitor_id: visitorId,
-          session_id: sessionId,
-          intent_score: intentScore,
-          city_interest: cityInterest,
-          project_interest: projectInterest,
-        });
-
-      if (error) throw error;
-
-      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
-
-      trackFormSubmit({
-        form_name: "mobile_footer_form",
-        form_location: "mobile_cta_footer",
-        first_name: data.fullName,
-        last_name: "",
-        email: data.email,
-        phone: data.phone,
-        user_type: actualPersona,
-        project_name: projectName,
-      });
-
-      MetaEvents.lead({
-        content_name: projectName || "Access Pack",
-        content_category: actualPersona,
-      });
-
-      supabase.functions.invoke("meta-conversions-api", {
-        body: {
-          event_name: "Lead",
-          email: data.email,
-          phone: data.phone,
-          first_name: data.fullName,
-          last_name: "",
-          event_source_url: window.location.href,
-          content_name: projectName || "Access Pack",
-          content_category: actualPersona,
-          client_user_agent: navigator.userAgent,
-          fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1],
-          fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1],
-        },
-      }).catch(console.error);
-
-      localStorage.setItem("presale_persona", actualPersona);
-
-      if (typeof window !== "undefined") {
-        if ((window as any).gtag) {
-          (window as any).gtag("event", "submit_access_pack", {
-            page_path: window.location.pathname,
-            project_name: projectName || "general",
-            persona: actualPersona,
-          });
-        }
-        if ((window as any).fbq) {
-          (window as any).fbq("track", "Lead", {
-            content_name: projectName || "Access Pack",
-            content_category: actualPersona,
-          });
-        }
-      }
-
-      setIsSuccess(true);
-      toast({
-        title: "Request submitted!",
-        description: "We'll be in touch shortly.",
-      });
-    } catch (error: any) {
-      console.error("Error:", error);
-      toast({
-        title: "Something went wrong",
-        description: "Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
+    MetaEvents.lead({
+      content_name: projectName || "Access Pack",
+      content_category: data.isRealtor ? "realtor" : "buyer",
+    });
   };
 
   const whatsappMessage = encodeURIComponent(`Hi! I'm interested in ${projectName}. Can you send me more information?`);
@@ -251,8 +153,19 @@ export function ProjectMobileCTA({
                 <div className="px-5 pt-5 pb-4 border-b border-border/40">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-bold text-lg tracking-tight">Get Pricing & Floor Plans</h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{projectName}</p>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-lg tracking-tight">
+                          {step === "email" ? "Get Pricing & Floor Plans" : step === "details" ? "Complete Your Request" : "Request Sent!"}
+                        </h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground">{projectName}</p>
+                        {step === "details" && (
+                          <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                            Step 2 of 2
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <Button
                       variant="ghost"
@@ -266,10 +179,63 @@ export function ProjectMobileCTA({
                 </div>
               </div>
 
-              {!isSuccess ? (
+              {step === "email" ? (
+                /* STEP 1: Email only */
                 <div className="p-5 pb-8">
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    {/* Full Name */}
+                  <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} onFocus={handleFormInteraction} className="space-y-4">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="mobile-email" className="text-xs font-semibold text-foreground/80">
+                        Email Address
+                      </Label>
+                      <Input
+                        id="mobile-email"
+                        type="email"
+                        inputMode="email"
+                        placeholder="john@email.com"
+                        autoComplete="email"
+                        autoCapitalize="none"
+                        enterKeyHint="go"
+                        {...emailForm.register("email")}
+                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
+                      />
+                      {emailForm.formState.errors.email && (
+                        <p className="text-xs text-destructive">{emailForm.formState.errors.email.message}</p>
+                      )}
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full h-13 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all mt-2 gap-2" 
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? (
+                        <span className="flex items-center gap-2">
+                          <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                          Saving...
+                        </span>
+                      ) : (
+                        <>
+                          Get Access
+                          <ArrowRight className="h-4 w-4" />
+                        </>
+                      )}
+                    </Button>
+
+                    <p className="text-center text-[10px] text-muted-foreground/60 pt-1">
+                      <span className="text-primary/70">✓</span> Instant access · No spam
+                    </p>
+                  </form>
+                </div>
+              ) : step === "details" ? (
+                /* STEP 2: Name, Phone, Realtor */
+                <div className="p-5 pb-8">
+                  <form onSubmit={detailsForm.handleSubmit(onDetailsSubmit)} className="space-y-4">
+                    {/* Email confirmation */}
+                    <div className="flex items-center gap-2 px-3 py-2.5 bg-primary/5 border border-primary/15 rounded-lg">
+                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
+                      <span className="text-xs text-foreground/70 truncate">{capturedEmail}</span>
+                    </div>
+
                     <div className="space-y-1.5">
                       <Label htmlFor="mobile-fullName" className="text-xs font-semibold text-foreground/80">
                         Full Name
@@ -279,29 +245,15 @@ export function ProjectMobileCTA({
                         placeholder="John Smith"
                         autoComplete="name"
                         autoCapitalize="words"
-                        {...form.register("fullName")}
+                        autoFocus
+                        {...detailsForm.register("fullName")}
                         className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                       />
+                      {detailsForm.formState.errors.fullName && (
+                        <p className="text-xs text-destructive">{detailsForm.formState.errors.fullName.message}</p>
+                      )}
                     </div>
 
-                    {/* Email */}
-                    <div className="space-y-1.5">
-                      <Label htmlFor="mobile-email" className="text-xs font-semibold text-foreground/80">
-                        Email
-                      </Label>
-                      <Input
-                        id="mobile-email"
-                        type="email"
-                        inputMode="email"
-                        placeholder="john@email.com"
-                        autoComplete="email"
-                        autoCapitalize="none"
-                        {...form.register("email")}
-                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
-                      />
-                    </div>
-
-                    {/* Phone */}
                     <div className="space-y-1.5">
                       <Label htmlFor="mobile-phone" className="text-xs font-semibold text-foreground/80">
                         Phone
@@ -312,17 +264,19 @@ export function ProjectMobileCTA({
                         inputMode="tel"
                         placeholder="(604) 555-0123"
                         autoComplete="tel"
-                        {...form.register("phone")}
+                        {...detailsForm.register("phone")}
                         className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
                       />
+                      {detailsForm.formState.errors.phone && (
+                        <p className="text-xs text-destructive">{detailsForm.formState.errors.phone.message}</p>
+                      )}
                     </div>
 
-                    {/* I'm a Realtor checkbox */}
                     <div className="flex items-center gap-3 pt-0.5">
                       <Checkbox
                         id="mobile-isRealtor"
-                        checked={form.watch("isRealtor")}
-                        onCheckedChange={(checked) => form.setValue("isRealtor", checked === true)}
+                        checked={detailsForm.watch("isRealtor")}
+                        onCheckedChange={(checked) => detailsForm.setValue("isRealtor", checked === true)}
                         className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
                       />
                       <Label htmlFor="mobile-isRealtor" className="text-sm text-foreground/70 cursor-pointer select-none">
@@ -332,29 +286,29 @@ export function ProjectMobileCTA({
 
                     <Button 
                       type="submit" 
-                      className="w-full h-13 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all mt-2" 
+                      className="w-full h-13 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all mt-2 gap-2" 
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                          Sending...
+                          Submitting...
                         </span>
                       ) : (
                         <>
-                          <Download className="h-4 w-4 mr-2" />
+                          <Download className="h-4 w-4" />
                           Download Info
                         </>
                       )}
                     </Button>
 
-                    {/* Trust line */}
                     <p className="text-center text-[10px] text-muted-foreground/60 pt-1">
                       <span className="text-primary/70">✓</span> Instant access · No spam
                     </p>
                   </form>
                 </div>
               ) : (
+                /* SUCCESS STATE */
                 <div className="p-6 text-center">
                   <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-4">
                     <CheckCircle className="h-7 w-7 text-primary" />
