@@ -2,12 +2,14 @@ import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { AboutHero } from "@/components/about/AboutHero";
-import { WhoWeAre } from "@/components/about/WhoWeAre";
-import { WhatWeDoDifferently } from "@/components/about/WhatWeDoDifferently";
-import { ForBuyersSection } from "@/components/about/ForBuyersSection";
+import { WhoItsFor } from "@/components/about/WhoItsFor";
+import { WhyItMatters } from "@/components/about/WhyItMatters";
+import { WhyTrustUs } from "@/components/about/WhyTrustUs";
+import { OurServices } from "@/components/about/OurServices";
 import { MeetTheTeam } from "@/components/about/MeetTheTeam";
 import { ClientImpact } from "@/components/about/ClientImpact";
 import { ClientTestimonials } from "@/components/about/ClientTestimonials";
+import { AboutFAQ } from "@/components/about/AboutFAQ";
 import { AboutCTA } from "@/components/about/AboutCTA";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
@@ -68,24 +70,30 @@ export default function About() {
       <ConversionHeader />
       
       <main className="flex-1">
+        {/* 1. What do you do? */}
         <AboutHero />
         
+        {/* 2. Who is it for? */}
         <ScrollReveal animation="fade-up">
-          <WhoWeAre />
+          <WhoItsFor />
         </ScrollReveal>
         
+        {/* 3. What does it matter? */}
         <ScrollReveal animation="fade-up" delay={50}>
-          <WhatWeDoDifferently />
+          <WhyItMatters />
         </ScrollReveal>
         
+        {/* 4. Why should I trust you? */}
         <ScrollReveal animation="fade-up" delay={50}>
-          <ForBuyersSection />
+          <WhyTrustUs />
         </ScrollReveal>
         
+        {/* 5. What are your services? */}
         <ScrollReveal animation="fade-up" delay={50}>
-          <MeetTheTeam />
+          <OurServices />
         </ScrollReveal>
         
+        {/* 6. Show me proof */}
         <ScrollReveal animation="fade-up" delay={50}>
           <ClientImpact />
         </ScrollReveal>
@@ -94,6 +102,17 @@ export default function About() {
           <ClientTestimonials />
         </ScrollReveal>
         
+        {/* Meet the Team */}
+        <ScrollReveal animation="fade-up" delay={50}>
+          <MeetTheTeam />
+        </ScrollReveal>
+        
+        {/* FAQ */}
+        <ScrollReveal animation="fade-up" delay={50}>
+          <AboutFAQ />
+        </ScrollReveal>
+        
+        {/* 7. Tell me what to do next */}
         <ScrollReveal animation="fade-up" delay={50}>
           <AboutCTA />
         </ScrollReveal>
