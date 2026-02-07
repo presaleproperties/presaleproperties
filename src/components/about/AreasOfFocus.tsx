@@ -3,9 +3,9 @@ import { slugify } from "@/lib/seoUrls";
 import skylineImage from "@/assets/vancouver-skyline-evening.jpg";
 
 const METRO_VANCOUVER_CITIES = [
-  "Vancouver", "Burnaby", "Surrey", "Richmond", "Coquitlam",
+  "Vancouver", "Burnaby", "Surrey", "Coquitlam",
   "Langley", "Delta", "New Westminster",
-  "Port Coquitlam", "Port Moody", "Maple Ridge", "Pitt Meadows",
+  "Port Moody", "Maple Ridge", "Abbotsford",
 ];
 
 export function AreasOfFocus() {
