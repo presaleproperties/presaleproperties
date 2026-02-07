@@ -1,12 +1,17 @@
 import { Link } from "react-router-dom";
 import { slugify } from "@/lib/seoUrls";
-import { useEnabledCities } from "@/hooks/useEnabledCities";
 import skylineImage from "@/assets/vancouver-skyline-evening.jpg";
 
-export function AreasOfFocus() {
-  const { data: cities } = useEnabledCities();
+const METRO_VANCOUVER_CITIES = [
+  "Vancouver", "Burnaby", "Surrey", "Richmond", "Coquitlam",
+  "Langley", "Delta", "New Westminster", "North Vancouver",
+  "West Vancouver", "Port Coquitlam", "Port Moody", "Maple Ridge",
+  "White Rock", "Pitt Meadows",
+];
 
-  const displayCities = cities ?? [];
+export function AreasOfFocus() {
+
+  const displayCities = METRO_VANCOUVER_CITIES;
 
   return (
     <section className="relative py-20 md:py-28 overflow-hidden">
