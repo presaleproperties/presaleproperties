@@ -118,7 +118,7 @@ export function HeroSection({
                 className="flex items-center gap-2 text-sm text-foreground/80 hover:text-primary transition-colors font-medium group"
               >
                 <MapPin className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline">Open Map</span>
+                <span>Open Map</span>
               </Link>
             </div>
 
