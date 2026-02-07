@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { Calendar, ArrowRight } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { AboutContactForm } from "./AboutContactForm";
 
 export function AboutCTA() {
@@ -23,7 +22,7 @@ export function AboutCTA() {
               Whether you're buying your first home or your next investment, having a specialist team on your side changes your outcome.
             </p>
             
-            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
+            <div className="flex justify-center">
               <Button
                 size="lg"
                 className="bg-primary text-primary-foreground hover:bg-primary/90 gap-2 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto"
@@ -31,17 +30,6 @@ export function AboutCTA() {
               >
                 <Calendar className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
                 <span>Book Free Consultation</span>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                className="border-2 border-background/40 bg-background/5 text-background hover:bg-background/10 gap-2 text-sm sm:text-base px-5 sm:px-6 py-2.5 sm:py-3 h-auto w-full sm:w-auto"
-                asChild
-              >
-                <Link to="/presale-projects">
-                  <span>Browse Projects</span>
-                  <ArrowRight className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
-                </Link>
               </Button>
             </div>
           </div>
