@@ -4,9 +4,8 @@ import skylineImage from "@/assets/vancouver-skyline-evening.jpg";
 
 const METRO_VANCOUVER_CITIES = [
   "Vancouver", "Burnaby", "Surrey", "Richmond", "Coquitlam",
-  "Langley", "Delta", "New Westminster", "North Vancouver",
-  "West Vancouver", "Port Coquitlam", "Port Moody", "Maple Ridge",
-  "White Rock", "Pitt Meadows",
+  "Langley", "Delta", "New Westminster",
+  "Port Coquitlam", "Port Moody", "Maple Ridge", "Pitt Meadows",
 ];
 
 export function AreasOfFocus() {
