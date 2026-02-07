@@ -9,6 +9,7 @@ import { MeetTheTeam } from "@/components/about/MeetTheTeam";
 import { ClientImpact } from "@/components/about/ClientImpact";
 import { ClientTestimonials } from "@/components/about/ClientTestimonials";
 import { AboutCTA } from "@/components/about/AboutCTA";
+import { AreasOfFocus } from "@/components/about/AreasOfFocus";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 
 // About page structured data
@@ -92,6 +93,10 @@ export default function About() {
         
         <ScrollReveal animation="fade-up" delay={50}>
           <ClientTestimonials />
+        </ScrollReveal>
+
+        <ScrollReveal animation="fade-up" delay={50}>
+          <AreasOfFocus />
         </ScrollReveal>
         
         <ScrollReveal animation="fade-up" delay={50}>
