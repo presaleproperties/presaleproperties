@@ -70,25 +70,30 @@ export default function About() {
       <ConversionHeader />
       
       <main className="flex-1">
-        {/* Hero — answers "What do you do?" */}
+        {/* 1. What do you do? */}
         <AboutHero />
         
+        {/* 2. Who is it for? */}
         <ScrollReveal animation="fade-up">
           <WhoItsFor />
         </ScrollReveal>
         
+        {/* 3. What does it matter? */}
         <ScrollReveal animation="fade-up" delay={50}>
           <WhyItMatters />
         </ScrollReveal>
         
+        {/* 4. Why should I trust you? */}
         <ScrollReveal animation="fade-up" delay={50}>
           <WhyTrustUs />
         </ScrollReveal>
         
+        {/* 5. What are your services? */}
         <ScrollReveal animation="fade-up" delay={50}>
           <OurServices />
         </ScrollReveal>
         
+        {/* 6. Show me proof */}
         <ScrollReveal animation="fade-up" delay={50}>
           <ClientImpact />
         </ScrollReveal>
