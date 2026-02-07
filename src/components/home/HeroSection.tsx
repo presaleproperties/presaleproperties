@@ -36,7 +36,7 @@ export function HeroSection({
     }
   };
   return (
-    <section className="relative min-h-[680px] sm:min-h-[700px] md:min-h-[760px] lg:min-h-[800px] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[600px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[800px] flex items-center justify-center overflow-hidden">
       {/* Background Image - High Quality */}
       <img 
         src={heroImage} 
@@ -118,7 +118,7 @@ export function HeroSection({
                 className="flex items-center gap-2 text-sm text-foreground/80 hover:text-primary transition-colors font-medium group"
               >
                 <MapPin className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                <span className="text-xs sm:text-sm">Open Map</span>
+                <span className="hidden sm:inline">Open Map</span>
               </Link>
             </div>
 
