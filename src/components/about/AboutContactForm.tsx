@@ -214,14 +214,14 @@ export function AboutContactForm({
             render={({ field }) => (
               <FormItem className="space-y-1.5">
                 <FormLabel className="text-xs font-semibold text-foreground/80">Preferred Agent (Optional)</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select onValueChange={(val) => field.onChange(val === "any" ? "" : val)} value={field.value || "any"}>
                   <FormControl>
                     <SelectTrigger className="h-12 sm:h-11 rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)]">
                       <SelectValue placeholder="Any available agent" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="">Any available agent</SelectItem>
+                    <SelectItem value="any">Any available agent</SelectItem>
                     {teamMembers.map((member) => (
                       <SelectItem key={member.id} value={member.id}>
                         {member.full_name} — {member.title}
