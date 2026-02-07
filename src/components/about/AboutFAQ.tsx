@@ -42,10 +42,10 @@ export function AboutFAQ() {
           <div className="max-w-3xl mx-auto">
             <div className="text-center mb-8 sm:mb-12">
               <p className="text-xs sm:text-sm font-semibold text-primary tracking-widest uppercase mb-2 sm:mb-3">
-                Common Questions
+                Good to Know
               </p>
               <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-                Frequently Asked Questions
+                Questions We Hear Most
               </h2>
               <div className="w-16 sm:w-20 h-1 bg-primary mx-auto rounded-full" />
             </div>

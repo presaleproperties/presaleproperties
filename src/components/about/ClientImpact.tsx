@@ -29,10 +29,10 @@ export function ClientImpact() {
       <div className="container px-4">
         <div className="text-center mb-8 sm:mb-12">
           <p className="text-xs sm:text-sm font-semibold text-primary tracking-widest uppercase mb-2 sm:mb-3">
-            Show Me Proof
+            Our Track Record
           </p>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-            Results That Speak for Themselves
+            Numbers Don't Lie
           </h2>
           <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">

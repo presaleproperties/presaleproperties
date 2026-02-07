@@ -29,10 +29,10 @@ export function WhoItsFor() {
       <div className="container px-4">
         <div className="max-w-3xl mx-auto text-center mb-8 sm:mb-12">
           <p className="text-xs sm:text-sm font-semibold text-primary tracking-widest uppercase mb-2 sm:mb-3">
-            Who It's For
+            Your Situation
           </p>
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-            Built for Buyers Like You
+            We Work With Buyers Like You
           </h2>
           <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
           <p className="text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
