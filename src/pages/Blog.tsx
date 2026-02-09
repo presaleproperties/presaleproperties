@@ -129,37 +129,37 @@ export default function Blog() {
       <main className="min-h-screen bg-background">
         {/* Breadcrumb */}
         <div className="border-b bg-muted/30">
-          <div className="container py-3">
+          <div className="container py-2 md:py-3">
             <Breadcrumbs items={[{ label: "Blog" }]} />
           </div>
         </div>
 
-        {/* Hero Section - Refined */}
-        <section className="relative overflow-hidden py-14 md:py-20">
+        {/* Hero Section - Mobile optimized with safe text sizing */}
+        <section className="relative overflow-hidden py-10 md:py-16 lg:py-20">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
           <div className="container relative">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-5">
-                <BookOpen className="h-4 w-4" />
+            <div className="max-w-3xl mx-auto text-center px-2">
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4 md:mb-5">
+                <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 Insights & Guides
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
-                Your Presale
-                <span className="block bg-gradient-to-r from-primary to-primary-deep bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 tracking-tight leading-tight">
+                Your Presale{" "}
+                <span className="bg-gradient-to-r from-primary to-primary-deep bg-clip-text text-transparent">
                   Knowledge Hub
                 </span>
               </h1>
-              <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
                 Market updates, buying guides, and expert strategies for navigating Metro Vancouver's presale market
               </p>
             </div>
           </div>
         </section>
 
-        {/* Search & Category Bar */}
-        <section aria-label="Article filters" className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b py-4">
+        {/* Search & Category Bar - properly spaced for mobile fixed header */}
+        <section aria-label="Article filters" className="sticky top-14 md:top-16 z-40 bg-background/95 backdrop-blur-md border-b py-3 md:py-4">
           <div className="container">
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               {/* Search */}
               <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -167,7 +167,7 @@ export default function Blog() {
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-10 rounded-full border-border/60 bg-muted/40 focus:bg-card"
+                  className="pl-10 pr-10 h-10 rounded-full border-border/60 bg-muted/40 focus:bg-card text-sm"
                 />
                 {searchQuery && (
                   <button
@@ -179,23 +179,23 @@ export default function Blog() {
                 )}
               </div>
 
-              {/* Category chips */}
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+              {/* Category chips - horizontally scrollable on mobile */}
+              <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none">
                 <button
                   onClick={() => setActiveCategory(null)}
-                  className={`inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+                  className={`inline-flex items-center whitespace-nowrap px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border shrink-0 ${
                     !activeCategory
                       ? "bg-primary text-primary-foreground border-primary shadow-sm"
                       : "bg-card text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground"
                   }`}
                 >
-                  All Articles
+                  All
                 </button>
                 {categories.map(cat => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-                    className={`inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+                    className={`inline-flex items-center whitespace-nowrap px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border shrink-0 ${
                       activeCategory === cat
                         ? "bg-primary text-primary-foreground border-primary shadow-sm"
                         : "bg-card text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground"
@@ -210,20 +210,20 @@ export default function Blog() {
         </section>
 
         {/* Content */}
-        <section aria-label="Blog articles" className="py-10 md:py-14">
+        <section aria-label="Blog articles" className="py-8 md:py-12 lg:py-14">
           <div className="container">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-24 gap-3">
+              <div className="flex flex-col items-center justify-center py-20 md:py-24 gap-3">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-sm text-muted-foreground">Loading articles...</p>
               </div>
             ) : filteredPosts.length === 0 ? (
-              <div className="text-center py-24">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
-                  <FileText className="h-8 w-8 text-muted-foreground" />
+              <div className="text-center py-16 md:py-24">
+                <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-muted mb-4">
+                  <FileText className="h-7 w-7 md:h-8 md:w-8 text-muted-foreground" />
                 </div>
-                <h2 className="text-2xl font-semibold mb-2">No articles found</h2>
-                <p className="text-muted-foreground mb-6">
+                <h2 className="text-xl md:text-2xl font-semibold mb-2">No articles found</h2>
+                <p className="text-sm md:text-base text-muted-foreground mb-6">
                   Try adjusting your search or category filter
                 </p>
                 <Button
@@ -238,14 +238,14 @@ export default function Blog() {
                 </Button>
               </div>
             ) : isSearching || activeCategory ? (
-              /* Search/filter results - flat grid */
+              /* Search/filter results - responsive grid */
               <div>
-                <p className="text-sm text-muted-foreground mb-6">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-4 md:mb-6">
                   Showing {filteredPosts.length} {filteredPosts.length === 1 ? "article" : "articles"}
                   {activeCategory && <> in <strong>{activeCategory}</strong></>}
                   {searchQuery && <> matching "<strong>{searchQuery}</strong>"</>}
                 </p>
-                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                   {filteredPosts.map((post) => (
                     <BlogPostCard key={post.id} post={post} formatDate={formatDate} />
                   ))}
@@ -253,7 +253,7 @@ export default function Blog() {
               </div>
             ) : (
               /* Default view: Featured carousel + category carousels */
-              <div className="space-y-14">
+              <div className="space-y-10 md:space-y-14">
                 {/* Featured Carousel */}
                 {featuredPosts.length > 0 && (
                   <BlogFeaturedCarousel posts={featuredPosts} formatDate={formatDate} />
