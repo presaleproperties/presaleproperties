@@ -48,6 +48,8 @@ import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminLeadAnalytics from "./pages/admin/AdminLeadAnalytics";
+// AdminAIAnalytics, AdminSchedulerSettings, AdminDeveloperProfiles, AdminEmailWorkflows,
+// AdminMarketData, AdminTeamMembers routes kept but removed from sidebar nav
 import AdminAIAnalytics from "./pages/admin/AdminAIAnalytics";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
