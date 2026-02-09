@@ -43,7 +43,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-campaign-email]
-verify_jwt = true
+verify_jwt = false
 
 [functions.send-drip-email]
 verify_jwt = false
@@ -136,4 +136,43 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.og-property-meta]
+verify_jwt = false
+
+[functions.send-test-email]
+verify_jwt = false
+
+[functions.process-email-queue]
+verify_jwt = false
+
+[functions.trigger-workflow]
+verify_jwt = false
+
+[functions.sync-lead-to-lofty]
+verify_jwt = false
+
+[functions.send-property-email]
+verify_jwt = false
+
+[functions.send-social-notification]
+verify_jwt = false
+
+[functions.sync-mls-data]
+verify_jwt = false
+
+[functions.sync-mls-agents]
+verify_jwt = false
+
+[functions.geocode-mls-listings]
+verify_jwt = false
+
+[functions.analyze-brochure-images]
+verify_jwt = false
+
+[functions.format-description]
+verify_jwt = false
+
+[functions.generate-project-seo]
+verify_jwt = false
+
+[functions.parse-snapstats-pdf]
 verify_jwt = false
