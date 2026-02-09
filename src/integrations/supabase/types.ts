@@ -541,6 +541,7 @@ export type Database = {
           project_name: string | null
           property_type: string | null
           referrer: string | null
+          session_id: string | null
           utm_campaign: string | null
           utm_medium: string | null
           utm_source: string | null
@@ -562,6 +563,7 @@ export type Database = {
           project_name?: string | null
           property_type?: string | null
           referrer?: string | null
+          session_id?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
@@ -583,6 +585,7 @@ export type Database = {
           project_name?: string | null
           property_type?: string | null
           referrer?: string | null
+          session_id?: string | null
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
