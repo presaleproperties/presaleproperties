@@ -15,11 +15,12 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  Home,
   MapPin,
   Eye,
   FileStack,
-  RefreshCw
+  RefreshCw,
+  Sparkles,
+  TrendingUp,
 } from "lucide-react";
 import { format, subDays, startOfMonth } from "date-fns";
 
@@ -57,6 +58,38 @@ interface DashboardStats {
     view_count: number;
   }>;
 }
+
+// Stat card color configs
+const statCardConfigs = [
+  { 
+    label: "Leads", 
+    icon: Users,
+    iconBg: "bg-emerald-100",
+    iconColor: "text-emerald-600",
+    accentBorder: "border-l-emerald-500",
+  },
+  { 
+    label: "Projects", 
+    icon: Building2,
+    iconBg: "bg-blue-100",
+    iconColor: "text-blue-600",
+    accentBorder: "border-l-blue-500",
+  },
+  { 
+    label: "Assignments", 
+    icon: FileStack,
+    iconBg: "bg-violet-100",
+    iconColor: "text-violet-600",
+    accentBorder: "border-l-violet-500",
+  },
+  { 
+    label: "Bookings", 
+    icon: Calendar,
+    iconBg: "bg-amber-100",
+    iconColor: "text-amber-600",
+    accentBorder: "border-l-amber-500",
+  },
+];
 
 export default function AdminOverview() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -138,14 +171,38 @@ export default function AdminOverview() {
     return (
       <AdminLayout>
         <div className="space-y-6">
-          <Skeleton className="h-6 w-48" />
+          <Skeleton className="h-8 w-48" />
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-24" />)}
+            {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-28" />)}
           </div>
         </div>
       </AdminLayout>
     );
   }
+
+  const statValues = [
+    {
+      value: stats?.totalLeads || 0,
+      sub: (
+        <span className={`inline-flex items-center gap-0.5 text-xs font-medium ${leadGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+          {leadGrowth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+          {Math.abs(leadGrowth)}% vs last month
+        </span>
+      ),
+    },
+    {
+      value: stats?.publishedProjects || 0,
+      sub: <span className="text-xs text-muted-foreground">{stats?.totalProjects} total</span>,
+    },
+    {
+      value: stats?.publishedAssignments || 0,
+      sub: <span className="text-xs text-muted-foreground">{stats?.totalAssignments} total</span>,
+    },
+    {
+      value: stats?.totalBookings || 0,
+      sub: <span className="text-xs text-muted-foreground">{stats?.pendingBookings} pending</span>,
+    },
+  ];
 
   return (
     <AdminLayout>
@@ -153,7 +210,10 @@ export default function AdminOverview() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-foreground">Overview</h1>
+            <div className="flex items-center gap-2 mb-1">
+              <Sparkles className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-bold text-foreground">Overview</h1>
+            </div>
             <p className="text-sm text-muted-foreground">
               {format(new Date(), "EEEE, MMMM d")}
             </p>
@@ -163,9 +223,9 @@ export default function AdminOverview() {
             size="sm" 
             onClick={handleRefresh} 
             disabled={refreshing}
-            className="h-8 text-xs"
+            className="h-9 text-xs gap-1.5"
           >
-            <RefreshCw className={`h-3.5 w-3.5 mr-1.5 ${refreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`h-3.5 w-3.5 ${refreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
         </div>
@@ -175,7 +235,7 @@ export default function AdminOverview() {
           <div className="flex flex-wrap gap-2">
             {stats.pendingBookings > 0 && (
               <Link to="/admin/bookings">
-                <Badge variant="outline" className="gap-1.5 py-1.5 px-3 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 cursor-pointer">
+                <Badge variant="outline" className="gap-1.5 py-1.5 px-3 bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 cursor-pointer transition-colors">
                   <Clock className="h-3 w-3" />
                   {stats.pendingBookings} pending booking{stats.pendingBookings !== 1 ? 's' : ''}
                 </Badge>
@@ -183,7 +243,7 @@ export default function AdminOverview() {
             )}
             {stats.pendingAssignments > 0 && (
               <Link to="/admin/listings?tab=pending">
-                <Badge variant="outline" className="gap-1.5 py-1.5 px-3 bg-sky-50 text-sky-700 border-sky-200 hover:bg-sky-100 cursor-pointer">
+                <Badge variant="outline" className="gap-1.5 py-1.5 px-3 bg-violet-50 text-violet-700 border-violet-200 hover:bg-violet-100 cursor-pointer transition-colors">
                   <FileStack className="h-3 w-3" />
                   {stats.pendingAssignments} pending assignment{stats.pendingAssignments !== 1 ? 's' : ''}
                 </Badge>
@@ -192,62 +252,55 @@ export default function AdminOverview() {
           </div>
         )}
 
-        {/* Stats */}
-        <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Leads"
-            value={stats?.totalLeads || 0}
-            sub={
-              <span className={`inline-flex items-center gap-0.5 text-xs ${leadGrowth >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
-                {leadGrowth >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                {Math.abs(leadGrowth)}% vs last month
-              </span>
-            }
-            icon={Users}
-          />
-          <StatCard
-            label="Projects"
-            value={stats?.publishedProjects || 0}
-            sub={<span className="text-xs text-muted-foreground">{stats?.totalProjects} total</span>}
-            icon={Building2}
-          />
-          <StatCard
-            label="Assignments"
-            value={stats?.publishedAssignments || 0}
-            sub={<span className="text-xs text-muted-foreground">{stats?.totalAssignments} total</span>}
-            icon={FileStack}
-          />
-          <StatCard
-            label="Bookings"
-            value={stats?.totalBookings || 0}
-            sub={<span className="text-xs text-muted-foreground">{stats?.pendingBookings} pending</span>}
-            icon={Calendar}
-          />
+        {/* Stats - color differentiated */}
+        <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+          {statCardConfigs.map((config, i) => {
+            const Icon = config.icon;
+            return (
+              <Card key={config.label} className={`border-l-4 ${config.accentBorder} overflow-hidden`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <div className={`rounded-xl ${config.iconBg} p-2.5`}>
+                      <Icon className={`h-5 w-5 ${config.iconColor}`} />
+                    </div>
+                  </div>
+                  <p className="text-2xl font-bold tracking-tight text-foreground">{statValues[i].value.toLocaleString()}</p>
+                  <p className="text-xs font-medium text-muted-foreground mt-0.5 mb-1">{config.label}</p>
+                  <div>{statValues[i].sub}</div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
         {/* Activity */}
         <div className="grid gap-4 lg:grid-cols-2">
           {/* Recent Leads */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
-              <CardTitle className="text-sm font-medium">Recent Leads</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-emerald-100 p-1.5">
+                  <Users className="h-3.5 w-3.5 text-emerald-600" />
+                </div>
+                <CardTitle className="text-sm font-semibold">Recent Leads</CardTitle>
+              </div>
               <Link to="/admin/leads">
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground">
+                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
                   View all <ArrowRight className="ml-1 h-3 w-3" />
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent className="px-4 pb-4 pt-0">
+            <CardContent className="px-5 pb-4 pt-0">
               {stats?.recentLeads.length === 0 ? (
                 <EmptyPlaceholder icon={Users} message="No leads yet" />
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {stats?.recentLeads.map(lead => {
                     const projectName = lead.presale_projects?.name || lead.landing_page || null;
                     return (
-                      <div key={lead.id} className="flex items-center justify-between py-2 px-2 -mx-2 rounded-md hover:bg-muted/40 transition-colors">
+                      <div key={lead.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground shrink-0">
+                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center text-xs font-bold text-emerald-700 shrink-0">
                             {lead.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="min-w-0">
@@ -270,24 +323,34 @@ export default function AdminOverview() {
 
           {/* Recent Bookings */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between py-3 px-4">
-              <CardTitle className="text-sm font-medium">Recent Bookings</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between py-4 px-5">
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-amber-100 p-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-amber-600" />
+                </div>
+                <CardTitle className="text-sm font-semibold">Recent Bookings</CardTitle>
+              </div>
               <Link to="/admin/bookings">
-                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground">
+                <Button variant="ghost" size="sm" className="h-7 text-xs text-muted-foreground hover:text-foreground">
                   View all <ArrowRight className="ml-1 h-3 w-3" />
                 </Button>
               </Link>
             </CardHeader>
-            <CardContent className="px-4 pb-4 pt-0">
+            <CardContent className="px-5 pb-4 pt-0">
               {stats?.recentBookings.length === 0 ? (
                 <EmptyPlaceholder icon={Calendar} message="No bookings yet" />
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {stats?.recentBookings.map(booking => (
-                    <div key={booking.id} className="flex items-center justify-between py-2 px-2 -mx-2 rounded-md hover:bg-muted/40 transition-colors">
-                      <div className="min-w-0">
-                        <p className="text-sm font-medium truncate">{booking.name}</p>
-                        <p className="text-xs text-muted-foreground truncate">{booking.project_name}</p>
+                    <div key={booking.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="h-9 w-9 rounded-full bg-gradient-to-br from-amber-100 to-amber-50 flex items-center justify-center text-xs font-bold text-amber-700 shrink-0">
+                          {booking.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-medium truncate">{booking.name}</p>
+                          <p className="text-xs text-muted-foreground truncate">{booking.project_name}</p>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2 ml-3 shrink-0">
                         <Badge 
@@ -315,25 +378,27 @@ export default function AdminOverview() {
         {/* Top Projects */}
         {stats?.topProjects && stats.topProjects.length > 0 && (
           <Card>
-            <CardHeader className="py-3 px-4">
-              <CardTitle className="text-sm font-medium flex items-center gap-1.5">
-                <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-                Top Projects
-              </CardTitle>
+            <CardHeader className="py-4 px-5">
+              <div className="flex items-center gap-2">
+                <div className="rounded-lg bg-blue-100 p-1.5">
+                  <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
+                </div>
+                <CardTitle className="text-sm font-semibold">Top Projects</CardTitle>
+              </div>
             </CardHeader>
-            <CardContent className="px-4 pb-4 pt-0">
-              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-5">
+            <CardContent className="px-5 pb-5 pt-0">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {stats.topProjects.map((project, index) => (
                   <Link key={project.id} to={`/admin/projects/${project.id}/edit`}>
-                    <div className="p-3 rounded-lg border border-border/60 hover:border-border hover:bg-muted/30 transition-colors cursor-pointer group">
-                      <div className="flex items-baseline justify-between mb-1">
-                        <span className="text-[10px] font-mono text-muted-foreground">#{index + 1}</span>
+                    <div className="p-3.5 rounded-xl border border-border/60 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-200 cursor-pointer group">
+                      <div className="flex items-baseline justify-between mb-1.5">
+                        <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">#{index + 1}</span>
                         <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
                           <Eye className="h-2.5 w-2.5" />
                           {project.view_count.toLocaleString()}
                         </span>
                       </div>
-                      <h4 className="text-xs font-medium truncate group-hover:text-foreground transition-colors">
+                      <h4 className="text-xs font-semibold truncate group-hover:text-blue-700 transition-colors">
                         {project.name}
                       </h4>
                       <p className="text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
@@ -349,28 +414,6 @@ export default function AdminOverview() {
         )}
       </div>
     </AdminLayout>
-  );
-}
-
-function StatCard({ 
-  label, value, sub, icon: Icon 
-}: { 
-  label: string; 
-  value: number; 
-  sub: React.ReactNode; 
-  icon: React.ComponentType<{ className?: string }>;
-}) {
-  return (
-    <Card className="border-border/60">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs font-medium text-muted-foreground">{label}</p>
-          <Icon className="h-4 w-4 text-muted-foreground/50" />
-        </div>
-        <p className="text-2xl font-semibold tracking-tight">{value.toLocaleString()}</p>
-        <div className="mt-1">{sub}</div>
-      </CardContent>
-    </Card>
   );
 }
 

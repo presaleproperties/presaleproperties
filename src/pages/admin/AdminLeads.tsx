@@ -343,10 +343,10 @@ export default function AdminLeads() {
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-4">
-          <Card>
+          <Card className="border-l-4 border-l-blue-500">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="rounded-lg bg-primary/10 p-2.5">
-                <Building2 className="h-5 w-5 text-primary" />
+              <div className="rounded-xl bg-blue-100 p-2.5">
+                <Building2 className="h-5 w-5 text-blue-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{projectLeads?.length || 0}</p>
@@ -354,10 +354,10 @@ export default function AdminLeads() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-l-4 border-l-violet-500">
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="rounded-lg bg-primary/10 p-2.5">
-                <Home className="h-5 w-5 text-primary" />
+              <div className="rounded-xl bg-violet-100 p-2.5">
+                <Home className="h-5 w-5 text-violet-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{listingLeads?.length || 0}</p>
