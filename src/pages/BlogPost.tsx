@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import DOMPurify from "dompurify";
+import { marked } from "marked";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Card, CardContent } from "@/components/ui/card";
@@ -20,42 +21,11 @@ import {
   Tag
 } from "lucide-react";
 
-// Simple markdown to HTML parser
-function parseMarkdown(text: string): string {
-  return text
-    // Headers
-    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
-    .replace(/^# (.+)$/gm, '<h1>$1</h1>')
-    // Bold
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    // Italic
-    .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    // Numbered lists
-    .replace(/^\d+\.\s+(.+)$/gm, '<li>$1</li>')
-    // Bullet lists
-    .replace(/^[-*]\s+(.+)$/gm, '<li>$1</li>')
-    // Wrap consecutive li elements in ul/ol
-    .replace(/(<li>.*<\/li>\n?)+/g, (match) => `<ul>${match}</ul>`)
-    // Links
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" class="text-primary underline">$1</a>')
-    // Paragraphs (double newlines)
-    .replace(/\n\n/g, '</p><p>')
-    // Single newlines within paragraphs
-    .replace(/\n/g, '<br/>')
-    // Wrap in paragraph
-    .replace(/^(.+)$/s, '<p>$1</p>')
-    // Clean up empty paragraphs
-    .replace(/<p><\/p>/g, '')
-    .replace(/<p><br\/>/g, '<p>')
-    .replace(/<br\/><\/p>/g, '</p>')
-    // Fix headers that got wrapped in paragraphs
-    .replace(/<p>(<h[1-3]>)/g, '$1')
-    .replace(/(<\/h[1-3]>)<\/p>/g, '$1')
-    // Fix lists that got wrapped in paragraphs
-    .replace(/<p>(<ul>)/g, '$1')
-    .replace(/(<\/ul>)<\/p>/g, '$1');
-}
+// Configure marked for proper rendering
+marked.setOptions({
+  gfm: true,
+  breaks: false,
+});
 
 // Calculate reading time based on word count (average 200 wpm)
 function getReadingTime(content: string): number {
@@ -143,7 +113,7 @@ export default function BlogPost() {
     
     // Check if content is already HTML
     const isHtml = /<[a-z][\s\S]*>/i.test(post.content);
-    const rawHtml = isHtml ? post.content : parseMarkdown(post.content);
+    const rawHtml = isHtml ? post.content : marked.parse(post.content) as string;
     
     // Sanitize HTML to prevent XSS attacks
     return DOMPurify.sanitize(rawHtml, {
@@ -284,7 +254,7 @@ export default function BlogPost() {
 
           {/* Content */}
           <div className="container max-w-4xl py-8">
-          <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:ml-6 prose-ol:ml-6 prose-li:mb-2 prose-strong:font-semibold">
+          <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:ml-6 prose-ol:ml-6 prose-li:mb-2 prose-strong:font-semibold prose-table:w-full prose-table:border-collapse prose-th:border prose-th:border-border prose-th:bg-muted prose-th:px-4 prose-th:py-2 prose-th:text-left prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-hr:my-8">
               {parsedContent ? (
                 <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
               ) : (
