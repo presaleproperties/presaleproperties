@@ -273,16 +273,16 @@ export default function MapSearch() {
       if (saveUIStateTimeoutRef.current) clearTimeout(saveUIStateTimeoutRef.current);
     };
   }, [selectedItemId, selectedItemType, focusedCarouselItemId, focusedCarouselItemType, showCarousel]);
-  // MOBILE ONLY: prevent iOS/Android overscroll from revealing body background (white bands)
+  // MOBILE + TABLET: prevent iOS/Android overscroll from revealing body background (white bands)
   useEffect(() => {
-    if (!isMobile) return;
+    if (!isMobileOrTablet) return;
     document.documentElement.classList.add("map-overscroll-lock");
     document.body.classList.add("map-overscroll-lock");
     return () => {
       document.documentElement.classList.remove("map-overscroll-lock");
       document.body.classList.remove("map-overscroll-lock");
     };
-  }, [isMobile]);
+  }, [isMobileOrTablet]);
   
   // Check if URL has explicit location params that should override saved state
   const urlLat = searchParams.get("lat");

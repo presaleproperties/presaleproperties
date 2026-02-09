@@ -170,8 +170,8 @@
     min-height: 100dvh;
   }
 
-  /* Map page edge-to-edge on MOBILE ONLY */
-  @media (max-width: 768px) {
+  /* Map page edge-to-edge on MOBILE + TABLET (below lg breakpoint) */
+  @media (max-width: 1023px) {
     /* Applied dynamically on /map-search to prevent iOS bounce revealing background */
     .map-overscroll-lock {
       overscroll-behavior: none;
@@ -184,7 +184,7 @@
       right: 0;
       bottom: 0;
       width: 100vw;
-      /* Robust iOS viewport filling (prevents bottom white band with dynamic toolbars) */
+      /* Robust iOS/tablet viewport filling (prevents bottom white band with dynamic toolbars) */
       height: 100vh;
       height: 100dvh;
       min-height: -webkit-fill-available;
