@@ -42,19 +42,18 @@ function generateSEOMeta(project: ProjectData): { seo_title: string; seo_descrip
     : "Homes";
   
   // Build SEO title (max 60 chars)
-  let seo_title = "";
-  if (priceStr) {
-    seo_title = `${name} Presale ${typeLabel} in ${city} ${priceStr} | Floor Plans`;
-  } else {
-    seo_title = `${name} Presale ${typeLabel} in ${city} | Pricing & Floor Plans`;
-  }
+  // Format: {Project Name} {Neighborhood/City} — Download Floor Plans & Pricing
+  let seo_title = `${name} ${location} — Download Floor Plans & Pricing`;
   
-  // Trim if too long
+  // Trim if too long - progressively shorten
   if (seo_title.length > 60) {
-    seo_title = `${name} ${typeLabel} ${priceStr} | ${city} Presale`;
+    seo_title = `${name} ${neighborhood || city} — Floor Plans & Pricing`;
   }
   if (seo_title.length > 60) {
-    seo_title = `${name} Presale ${typeLabel} | ${city} (${currentYear})`;
+    seo_title = `${name} — Download Floor Plans & Pricing`;
+  }
+  if (seo_title.length > 60) {
+    seo_title = `${name} — Floor Plans & Pricing`;
   }
   
   // Build SEO description (max 160 chars)
