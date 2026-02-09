@@ -319,10 +319,10 @@ export default function AdminBookings() {
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4">
-          <Card>
+          <Card className="border-l-4 border-l-amber-500">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-lg bg-amber-100 p-2.5">
-                <CalendarClock className="h-5 w-5 text-amber-700" />
+              <div className="rounded-xl bg-amber-100 p-2.5">
+                <CalendarClock className="h-5 w-5 text-amber-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{pendingCount}</p>
@@ -330,10 +330,10 @@ export default function AdminBookings() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-l-4 border-l-emerald-500">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-lg bg-emerald-100 p-2.5">
-                <CalendarCheck className="h-5 w-5 text-emerald-700" />
+              <div className="rounded-xl bg-emerald-100 p-2.5">
+                <CalendarCheck className="h-5 w-5 text-emerald-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{confirmedCount}</p>
@@ -341,10 +341,10 @@ export default function AdminBookings() {
               </div>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="border-l-4 border-l-sky-500">
             <CardContent className="flex items-center gap-3 p-4">
-              <div className="rounded-lg bg-sky-100 p-2.5">
-                <Calendar className="h-5 w-5 text-sky-700" />
+              <div className="rounded-xl bg-sky-100 p-2.5">
+                <Calendar className="h-5 w-5 text-sky-600" />
               </div>
               <div>
                 <p className="text-2xl font-bold">{todayCount}</p>
