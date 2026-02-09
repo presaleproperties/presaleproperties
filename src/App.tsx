@@ -166,6 +166,8 @@ const App = () => (
             <Route path="/properties/port-coquitlam" element={<CityResalePage />} />
             <Route path="/properties/port-moody" element={<CityResalePage />} />
             <Route path="/properties/white-rock" element={<CityResalePage />} />
+            <Route path="/properties/north-vancouver" element={<CityResalePage />} />
+            <Route path="/properties/maple-ridge" element={<CityResalePage />} />
             {/* Property type and price range routes - MUST be before :listingKey */}
             <Route path="/properties/:citySlug/condos" element={<ResalePropertyTypePage />} />
             <Route path="/properties/:citySlug/townhouses" element={<ResalePropertyTypePage />} />

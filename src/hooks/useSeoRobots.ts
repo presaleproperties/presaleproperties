@@ -51,34 +51,40 @@ const NOINDEX_WITH_PARAMS_ROUTES = [
   "/properties",
 ];
 
-// City filter pages that should canonical to clean city pages
+// City filter pages that should canonical to clean city pages (NEW URL structure)
 const CITY_CANONICAL_MAP: Record<string, string> = {
-  vancouver: "/vancouver-presale-condos",
-  surrey: "/surrey-presale-condos",
-  burnaby: "/burnaby-presale-condos",
-  coquitlam: "/coquitlam-presale-condos",
-  langley: "/langley-presale-condos",
-  richmond: "/richmond-presale-condos",
-  delta: "/delta-presale-condos",
-  abbotsford: "/abbotsford-presale-condos",
-  "north-vancouver": "/north-vancouver-presale-condos",
-  "new-westminster": "/new-westminster-presale-condos",
-  "port-coquitlam": "/port-coquitlam-presale-condos",
-  "port-moody": "/port-moody-presale-condos",
-  "maple-ridge": "/maple-ridge-presale-condos",
-  "white-rock": "/white-rock-presale-condos",
+  vancouver: "/presale-projects/vancouver/condos",
+  surrey: "/presale-projects/surrey/condos",
+  burnaby: "/presale-projects/burnaby/condos",
+  coquitlam: "/presale-projects/coquitlam/condos",
+  langley: "/presale-projects/langley/condos",
+  richmond: "/presale-projects/richmond/condos",
+  delta: "/presale-projects/delta/condos",
+  abbotsford: "/presale-projects/abbotsford/condos",
+  "north-vancouver": "/presale-projects/north-vancouver/condos",
+  "new-westminster": "/presale-projects/new-westminster/condos",
+  "port-coquitlam": "/presale-projects/port-coquitlam/condos",
+  "port-moody": "/presale-projects/port-moody/condos",
+  "maple-ridge": "/presale-projects/maple-ridge/condos",
+  "white-rock": "/presale-projects/white-rock/condos",
 };
 
-// City townhome pages canonical map
+// City townhome pages canonical map (NEW URL structure)
 const CITY_TOWNHOME_CANONICAL_MAP: Record<string, string> = {
-  vancouver: "/vancouver-presale-townhomes",
-  surrey: "/surrey-presale-townhomes",
-  burnaby: "/burnaby-presale-townhomes",
-  coquitlam: "/coquitlam-presale-townhomes",
-  langley: "/langley-presale-townhomes",
-  richmond: "/richmond-presale-townhomes",
-  delta: "/delta-presale-townhomes",
-  abbotsford: "/abbotsford-presale-townhomes",
+  vancouver: "/presale-projects/vancouver/townhomes",
+  surrey: "/presale-projects/surrey/townhomes",
+  burnaby: "/presale-projects/burnaby/townhomes",
+  coquitlam: "/presale-projects/coquitlam/townhomes",
+  langley: "/presale-projects/langley/townhomes",
+  richmond: "/presale-projects/richmond/townhomes",
+  delta: "/presale-projects/delta/townhomes",
+  abbotsford: "/presale-projects/abbotsford/townhomes",
+  "north-vancouver": "/presale-projects/north-vancouver/townhomes",
+  "new-westminster": "/presale-projects/new-westminster/townhomes",
+  "port-coquitlam": "/presale-projects/port-coquitlam/townhomes",
+  "port-moody": "/presale-projects/port-moody/townhomes",
+  "maple-ridge": "/presale-projects/maple-ridge/townhomes",
+  "white-rock": "/presale-projects/white-rock/townhomes",
 };
 
 export interface SeoRobotsResult {
