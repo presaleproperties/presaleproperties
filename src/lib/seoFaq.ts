@@ -170,7 +170,7 @@ export function generateFAQSchema(faqs: FAQItem[]): object {
 
 /**
  * Generate optimized SEO title for project pages
- * Pattern: [Project Name] [Location] - Presale [Type] from $[Price] | [Feature]
+ * Pattern: {Project Name} {Neighborhood/City} — Download Floor Plans & Pricing
  * Target: Under 60 characters
  */
 export function generateSEOTitle(data: {
@@ -182,35 +182,12 @@ export function generateSEOTitle(data: {
   developerName: string | null;
   unitMix: string | null;
 }): string {
-  const typeLabel = data.projectType === "condo" ? "Condos" : 
-                    data.projectType === "townhome" ? "Townhomes" : 
-                    data.projectType === "mixed" ? "Homes" :
-                    data.projectType === "duplex" ? "Duplexes" : "Homes";
+  const location = data.neighborhood || data.city;
 
-  // Format price compactly
-  const priceCompact = data.startingPrice 
-    ? data.startingPrice >= 1000000 
-      ? `$${(data.startingPrice / 1000000).toFixed(1)}M`.replace(".0M", "M")
-      : `$${(data.startingPrice / 1000).toFixed(0)}K`
-    : null;
-
-  // Use neighborhood if short, otherwise city
-  const location = data.neighborhood.length <= 15 ? data.neighborhood : data.city;
-
-  // Build title - aim for under 60 chars
-  // Format: "Project Location - Presale Type from $Price"
-  let title = `${data.name} ${location} - Presale ${typeLabel}`;
-  
-  if (priceCompact && (title + ` from ${priceCompact}`).length <= 60) {
-    title += ` from ${priceCompact}`;
-  }
-
-  // If still under 60, add a feature
-  if (title.length <= 50) {
-    if (data.developerName && (title + ` | ${data.developerName}`).length <= 60) {
-      title += ` | ${data.developerName}`;
-    }
-  }
+  let title = `${data.name} ${location} — Download Floor Plans & Pricing`;
+  if (title.length > 60) title = `${data.name} ${location} — Floor Plans & Pricing`;
+  if (title.length > 60) title = `${data.name} — Download Floor Plans & Pricing`;
+  if (title.length > 60) title = `${data.name} — Floor Plans & Pricing`;
 
   return title;
 }

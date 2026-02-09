@@ -110,11 +110,15 @@ PROJECT DETAILS:
 ${description}
 
 RULES:
-1. SEO Title: Max 60 characters. Include project name, property type, and location. Format: "{Project Name} | {Type} in {Neighborhood}, {City}"
-2. Meta Description: Max 155 characters. Include key selling points, location, and a call-to-action. Be compelling.
-3. Include year 2026 if completion date is mentioned
-4. Use high-intent keywords: "presale", "new construction", city name
-5. Make it click-worthy but accurate
+1. SEO Title: MUST follow this exact format: "{Project Name} {Neighborhood or City} — Download Floor Plans & Pricing"
+   - Use neighborhood if available, otherwise use city
+   - Max 60 characters. If too long, shorten to "{Project Name} {Location} — Floor Plans & Pricing"
+   - If still too long, drop location: "{Project Name} — Download Floor Plans & Pricing"
+   - Use em dash (—) not pipe (|) or hyphen (-)
+   - Do NOT include year, price, or property type in the title
+2. Meta Description: Max 155 characters. Include key selling points, location, starting price, and a call-to-action. Be compelling.
+3. Use high-intent keywords in description: "presale", "new construction", city name
+4. Make description click-worthy but accurate
 
 Respond in this exact JSON format:
 {"seoTitle": "...", "seoDescription": "..."}`;

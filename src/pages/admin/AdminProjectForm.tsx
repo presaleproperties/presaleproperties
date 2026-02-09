@@ -508,13 +508,16 @@ export default function AdminProjectForm() {
 
   const generateSeoTitle = (data: Partial<ProjectFormData>) => {
     const name = data.name || "";
-    const typeLabel = getProjectTypeLabel(data.project_type || "condo");
-    const price = data.starting_price ? `Starting from $${parseInt(data.starting_price).toLocaleString()}` : "";
+    const location = data.neighborhood || data.city || "";
     
-    if (name && price) {
-      return `${name} - ${typeLabel} ${price}`;
+    if (name && location) {
+      let title = `${name} ${location} — Download Floor Plans & Pricing`;
+      if (title.length > 60) title = `${name} ${location} — Floor Plans & Pricing`;
+      if (title.length > 60) title = `${name} — Download Floor Plans & Pricing`;
+      if (title.length > 60) title = `${name} — Floor Plans & Pricing`;
+      return title;
     } else if (name) {
-      return `${name} - ${typeLabel}`;
+      return `${name} — Download Floor Plans & Pricing`;
     }
     return "";
   };
