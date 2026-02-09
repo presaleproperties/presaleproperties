@@ -79,9 +79,8 @@ export function PresentationDeckGenerator() {
       // Fetch team members and projects in parallel
       const [teamResult, projectsResult] = await Promise.all([
         supabase
-          .from("team_members")
+          .from("team_members_public" as any)
           .select("id, full_name, title, photo_url, bio, specializations")
-          .eq("is_active", true)
           .order("sort_order", { ascending: true })
           .limit(3),
         supabase
@@ -93,7 +92,7 @@ export function PresentationDeckGenerator() {
           .limit(3),
       ]);
 
-      const teamMembers: TeamMember[] = teamResult.data || [];
+      const teamMembers: TeamMember[] = (teamResult.data as unknown as TeamMember[]) || [];
       let projects: Project[] = projectsResult.data || [];
 
       // Get more projects if needed

@@ -27,12 +27,11 @@ export function MeetTheTeam() {
     queryKey: ["team-members"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("team_members")
+        .from("team_members_public" as any)
         .select("id, full_name, title, photo_url, bio, linkedin_url, instagram_url, specializations")
-        .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (error) throw error;
-      return data as TeamMember[];
+      return (data as unknown as TeamMember[]) || [];
     },
   });
 

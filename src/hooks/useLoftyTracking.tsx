@@ -74,99 +74,50 @@ const getSessionId = (): string => {
   return sessionId;
 };
 
-// Get cached webhook URL to avoid repeated DB calls
-let cachedWebhookUrl: string | null = null;
-let webhookUrlFetched = false;
-
-const getWebhookUrl = async (): Promise<string | null> => {
-  if (webhookUrlFetched) return cachedWebhookUrl;
-  
-  const { data: settingData } = await supabase
-    .from("app_settings")
-    .select("value")
-    .eq("key", "lofty_tracking_webhook")
-    .maybeSingle();
-
-  cachedWebhookUrl = settingData?.value as string | null;
-  webhookUrlFetched = true;
-  return cachedWebhookUrl;
-};
-
-// Track page view to Lofty via Zapier webhook
+// Track page view via the server-side edge function (webhook URL never exposed to client)
 const sendToLofty = async (data: TrackingData) => {
   try {
-    const webhookUrl = await getWebhookUrl();
-    
-    if (!webhookUrl) {
-      console.log("Lofty tracking webhook not configured");
-      return;
-    }
-
     const payload = {
-      event_type: "page_view",
-      timestamp: new Date().toISOString(),
+      activity_type: "page_view",
       visitor_id: getVisitorId(),
       session_id: getSessionId(),
-      user_agent: navigator.userAgent,
-      screen_width: window.innerWidth,
-      screen_height: window.innerHeight,
-      ...data,
+      page_url: data.page_url,
+      page_title: data.page_title,
+      referrer: data.referrer,
+      device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
+      // Include project/listing-specific data
+      ...("project_id" in data ? { project_id: data.project_id, project_name: data.project_name, city: data.project_city } : {}),
+      ...("listing_id" in data ? { listing_key: data.listing_id, project_name: data.listing_title, city: data.listing_city, price: data.listing_price } : {}),
     };
 
-    console.log("Sending Lofty tracking event:", payload);
-
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      mode: "no-cors",
-      body: JSON.stringify(payload),
+    // Route through the edge function - webhook forwarding happens server-side
+    await supabase.functions.invoke("track-client-activity", {
+      body: payload,
     });
-
-    console.log("Lofty tracking event sent successfully");
   } catch (error) {
-    console.error("Error sending Lofty tracking event:", error);
+    console.error("Error sending tracking event:", error);
   }
 };
 
-// Track CTA clicks to Lofty
+// Track CTA clicks via edge function
 const trackCTAClick = async (data: CTAClickData) => {
   try {
-    const webhookUrl = await getWebhookUrl();
-    
-    if (!webhookUrl) {
-      console.log("Lofty tracking webhook not configured");
-      return;
-    }
-
-    // Get UTM parameters from session storage
-    const utmSource = sessionStorage.getItem("utm_source") || undefined;
-    const utmMedium = sessionStorage.getItem("utm_medium") || undefined;
-    const utmCampaign = sessionStorage.getItem("utm_campaign") || undefined;
-
     const payload = {
-      event_type: "cta_click",
-      timestamp: new Date().toISOString(),
+      activity_type: "contact_form",
       visitor_id: getVisitorId(),
       session_id: getSessionId(),
       page_url: window.location.href,
-      page_path: window.location.pathname,
-      utm_source: utmSource,
-      utm_medium: utmMedium,
-      utm_campaign: utmCampaign,
-      ...data,
+      page_title: document.title,
+      project_id: data.project_id,
+      project_name: data.project_name,
+      utm_source: sessionStorage.getItem("utm_source") || undefined,
+      utm_medium: sessionStorage.getItem("utm_medium") || undefined,
+      utm_campaign: sessionStorage.getItem("utm_campaign") || undefined,
+      device_type: window.innerWidth < 768 ? "mobile" : window.innerWidth < 1024 ? "tablet" : "desktop",
     };
 
-    console.log("Sending Lofty CTA click event:", payload);
-
-    await fetch(webhookUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      mode: "no-cors",
-      body: JSON.stringify(payload),
+    await supabase.functions.invoke("track-client-activity", {
+      body: payload,
     });
   } catch (error) {
     console.error("Error sending CTA click event:", error);

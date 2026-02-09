@@ -3030,6 +3030,75 @@ export type Database = {
       }
     }
     Views: {
+      mls_agents_public: {
+        Row: {
+          agent_key: string | null
+          agent_mls_id: string | null
+          created_at: string | null
+          first_name: string | null
+          full_name: string | null
+          id: string | null
+          last_name: string | null
+          office_key: string | null
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agent_key?: string | null
+          agent_mls_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          office_key?: string | null
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agent_key?: string | null
+          agent_mls_id?: string | null
+          created_at?: string | null
+          first_name?: string | null
+          full_name?: string | null
+          id?: string | null
+          last_name?: string | null
+          office_key?: string | null
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mls_offices_public: {
+        Row: {
+          city: string | null
+          created_at: string | null
+          id: string | null
+          office_key: string | null
+          office_mls_id: string | null
+          office_name: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string | null
+          id?: string | null
+          office_key?: string | null
+          office_mls_id?: string | null
+          office_name?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string | null
+          id?: string | null
+          office_key?: string | null
+          office_mls_id?: string | null
+          office_name?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       public_agent_profiles: {
         Row: {
           avatar_url: string | null
@@ -3043,6 +3112,51 @@ export type Database = {
             | Database["public"]["Enums"]["agent_verification_status"]
             | null
           verified_at: string | null
+        }
+        Relationships: []
+      }
+      team_members_public: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          full_name: string | null
+          id: string | null
+          instagram_url: string | null
+          is_active: boolean | null
+          linkedin_url: string | null
+          photo_url: string | null
+          sort_order: number | null
+          specializations: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          is_active?: boolean | null
+          linkedin_url?: string | null
+          photo_url?: string | null
+          sort_order?: number | null
+          specializations?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string | null
+          instagram_url?: string | null
+          is_active?: boolean | null
+          linkedin_url?: string | null
+          photo_url?: string | null
+          sort_order?: number | null
+          specializations?: string[] | null
+          title?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
