@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { 
   Users, 
   Building2, 
@@ -12,13 +13,15 @@ import {
   Mail,
   Phone,
   Eye,
-  BarChart3
+  BarChart3,
+  Inbox
 } from "lucide-react";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { LeadDetailsModal } from "@/components/admin/LeadDetailsModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
@@ -27,14 +30,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -73,6 +68,168 @@ interface ListingLead {
   } | null;
 }
 
+const getLeadSourceLabel = (source: string | null): string => {
+  if (!source) return "Floor Plans";
+  if (source.startsWith("city_list_")) {
+    const city = source.replace("city_list_", "").replace(/_/g, " ");
+    return `City: ${city.charAt(0).toUpperCase() + city.slice(1)}`;
+  }
+  const sourceMap: Record<string, string> = {
+    floor_plan_request: "Floor Plans",
+    scheduler: "Tour Request",
+    general_inquiry: "General",
+    callback_request: "Callback",
+    sticky_bar: "Sticky Bar",
+    header_inquiry: "Header",
+    vip_membership: "VIP",
+    newsletter: "Newsletter",
+    roi_calculator: "ROI Calc",
+    mortgage_calculator: "Mortgage Calc",
+  };
+  return sourceMap[source] || source.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+};
+
+const getPersonaLabel = (persona: string | null) => {
+  if (persona === "first_time") return "First-time";
+  if (persona === "investor") return "Investor";
+  if (persona === "realtor") return "Realtor";
+  return persona || "—";
+};
+
+const getHomeSizeLabel = (size: string | null) => {
+  if (size === "1_bed") return "1 Bed";
+  if (size === "2_bed") return "2 Bed";
+  if (size === "3_bed_plus") return "3 Bed+";
+  return size || "—";
+};
+
+const getAgentLabel = (status: string | null) => {
+  if (status === "i_am_realtor") return "Is Agent";
+  if (status === "yes") return "Has Agent";
+  return "No Agent";
+};
+
+function LeadCard({ lead, type, onView }: { lead: ProjectLead | ListingLead; type: "project" | "listing"; onView: () => void }) {
+  const isProject = type === "project";
+  const pLead = lead as ProjectLead;
+  const lLead = lead as ListingLead;
+
+  return (
+    <Card className="group hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between gap-4">
+          {/* Left: Contact + Property */}
+          <div className="flex-1 min-w-0 space-y-2">
+            {/* Name + Date */}
+            <div className="flex items-center gap-3 flex-wrap">
+              <h3 className="font-semibold text-foreground truncate">{lead.name}</h3>
+              <span className="text-xs text-muted-foreground whitespace-nowrap">
+                {format(new Date(lead.created_at), "MMM d, yyyy · h:mm a")}
+              </span>
+            </div>
+
+            {/* Contact row */}
+            <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+              <span className="flex items-center gap-1.5 truncate">
+                <Mail className="h-3.5 w-3.5 shrink-0" />
+                {lead.email}
+              </span>
+              {lead.phone && (
+                <span className="flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 shrink-0" />
+                  {lead.phone}
+                </span>
+              )}
+            </div>
+
+            {/* Property + Badges */}
+            <div className="flex items-center gap-2 flex-wrap pt-1">
+              {isProject && pLead.presale_projects ? (
+                <Badge variant="outline" className="gap-1 font-normal">
+                  <Building2 className="h-3 w-3" />
+                  {pLead.presale_projects.name} · {pLead.presale_projects.city}
+                </Badge>
+              ) : !isProject && lLead.listings ? (
+                <Badge variant="outline" className="gap-1 font-normal">
+                  <Home className="h-3 w-3" />
+                  {lLead.listings.title}
+                </Badge>
+              ) : null}
+
+              {isProject && (
+                <>
+                  <Badge variant="secondary" className="text-xs">
+                    {getLeadSourceLabel(pLead.lead_source)}
+                  </Badge>
+                  {pLead.persona && (
+                    <Badge variant={pLead.persona === "investor" ? "default" : "secondary"} className="text-xs">
+                      {getPersonaLabel(pLead.persona)}
+                    </Badge>
+                  )}
+                  {pLead.home_size && (
+                    <Badge variant="outline" className="text-xs">
+                      {getHomeSizeLabel(pLead.home_size)}
+                    </Badge>
+                  )}
+                  <Badge 
+                    variant={pLead.agent_status === "i_am_realtor" ? "default" : "outline"} 
+                    className="text-xs"
+                  >
+                    {getAgentLabel(pLead.agent_status)}
+                  </Badge>
+                </>
+              )}
+
+              {!isProject && lLead.message && (
+                <span className="text-xs text-muted-foreground truncate max-w-[200px]" title={lLead.message}>
+                  "{lLead.message}"
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-1 shrink-0 opacity-70 group-hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onView}>
+              <Eye className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+              <a href={`mailto:${lead.email}`}>
+                <Mail className="h-4 w-4" />
+              </a>
+            </Button>
+            {isProject && pLead.presale_projects && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <a href={`/presale-projects/${pLead.presale_projects.slug}`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            )}
+            {!isProject && lLead.listings && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
+                <a href={`/assignments/${lLead.listing_id}`} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink className="h-4 w-4" />
+                </a>
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 text-center">
+      <div className="rounded-full bg-muted p-4 mb-4">
+        <Inbox className="h-8 w-8 text-muted-foreground" />
+      </div>
+      <p className="text-muted-foreground">{message}</p>
+    </div>
+  );
+}
+
 export default function AdminLeads() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("project");
@@ -80,78 +237,47 @@ export default function AdminLeads() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sourceFilter, setSourceFilter] = useState<string>("all");
 
-  // Fetch project leads (exclude newsletter signups)
   const { data: projectLeads, isLoading: projectLoading } = useQuery({
     queryKey: ["admin-project-leads"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("project_leads")
         .select(`
-          id,
-          name,
-          email,
-          phone,
-          message,
-          persona,
-          home_size,
-          agent_status,
-          lead_source,
-          landing_page,
-          created_at,
-          project_id,
-          presale_projects (
-            name,
-            slug,
-            city
-          )
+          id, name, email, phone, message, persona, home_size, agent_status,
+          lead_source, landing_page, created_at, project_id,
+          presale_projects (name, slug, city)
         `)
         .neq("name", "Newsletter Signup")
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       return data as ProjectLead[];
     },
   });
 
-  // Fetch listing leads
   const { data: listingLeads, isLoading: listingLoading } = useQuery({
     queryKey: ["admin-listing-leads"],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("leads")
         .select(`
-          id,
-          name,
-          email,
-          phone,
-          message,
-          created_at,
-          listing_id,
-          listings (
-            title,
-            project_name,
-            city
-          )
+          id, name, email, phone, message, created_at, listing_id,
+          listings (title, project_name, city)
         `)
         .order("created_at", { ascending: false });
-
       if (error) throw error;
       return data as ListingLead[];
     },
   });
 
-  // Filter leads based on search and source
   const filteredProjectLeads = projectLeads?.filter((lead) => {
     const matchesSearch =
       lead.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lead.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       lead.presale_projects?.name.toLowerCase().includes(searchQuery.toLowerCase());
-    
     const matchesSource =
       sourceFilter === "all" ||
       (sourceFilter === "floor_plan_request" && (lead.lead_source === "floor_plan_request" || !lead.lead_source)) ||
       lead.lead_source === sourceFilter;
-    
     return matchesSearch && matchesSource;
   });
 
@@ -162,21 +288,16 @@ export default function AdminLeads() {
       lead.listings?.project_name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Export to CSV
   const exportToCSV = (type: "project" | "listing") => {
     const leads = type === "project" ? filteredProjectLeads : filteredListingLeads;
     if (!leads || leads.length === 0) return;
 
     let csvContent = "data:text/csv;charset=utf-8,";
-    
     if (type === "project") {
       csvContent += "Name,Email,Phone,Persona,Home Size,Agent Status,Project,City,Submitted At\n";
       leads.forEach((lead: any) => {
         const project = lead.presale_projects;
-        const personaLabel = lead.persona === "first_time" ? "First-time Buyer" : lead.persona === "investor" ? "Investor" : lead.persona === "realtor" ? "Realtor" : lead.persona || "";
-        const homeSizeLabel = lead.home_size === "1_bed" ? "1 Bed" : lead.home_size === "2_bed" ? "2 Bed" : lead.home_size === "3_bed_plus" ? "3 Bed+" : lead.home_size || "";
-        const agentStatusLabel = lead.agent_status === "i_am_realtor" ? "Is Agent" : lead.agent_status === "yes" ? "Has Agent" : "No Agent";
-        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${personaLabel}","${homeSizeLabel}","${agentStatusLabel}","${project?.name || ""}","${project?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
+        csvContent += `"${lead.name}","${lead.email}","${lead.phone || ""}","${getPersonaLabel(lead.persona)}","${getHomeSizeLabel(lead.home_size)}","${getAgentLabel(lead.agent_status)}","${project?.name || ""}","${project?.city || ""}","${format(new Date(lead.created_at), "yyyy-MM-dd HH:mm")}"\n`;
       });
     } else {
       csvContent += "Name,Email,Phone,Message,Listing,Project,City,Submitted At\n";
@@ -199,69 +320,71 @@ export default function AdminLeads() {
 
   return (
     <AdminLayout>
+      <Helmet>
+        <title>Leads | Admin</title>
+      </Helmet>
+
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground">Leads</h1>
-            <p className="text-muted-foreground">
-              Manage all leads from project and listing forms
+            <h1 className="text-2xl font-bold text-foreground">Leads</h1>
+            <p className="text-sm text-muted-foreground">
+              {totalLeads} total leads from all sources
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Button variant="outline" asChild>
-              <Link to="/admin/leads/analytics">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Analytics
-              </Link>
-            </Button>
-            <Badge variant="secondary" className="text-sm py-1 px-3">
-              <Users className="h-4 w-4 mr-1.5" />
-              {totalLeads} Total Leads
-            </Badge>
-          </div>
+          <Button variant="outline" size="sm" asChild>
+            <Link to="/admin/leads/analytics">
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Analytics
+            </Link>
+          </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="bg-card border rounded-lg p-4 flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Building2 className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{projectLeads?.length || 0}</p>
-              <p className="text-sm text-muted-foreground">Project Leads</p>
-            </div>
-          </div>
-          <div className="bg-card border rounded-lg p-4 flex items-center gap-4">
-            <div className="p-3 bg-primary/10 rounded-lg">
-              <Home className="h-6 w-6 text-primary" />
-            </div>
-            <div>
-              <p className="text-2xl font-bold">{listingLeads?.length || 0}</p>
-              <p className="text-sm text-muted-foreground">Listing Leads</p>
-            </div>
-          </div>
+        {/* Stats */}
+        <div className="grid grid-cols-2 gap-4">
+          <Card>
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="rounded-lg bg-primary/10 p-2.5">
+                <Building2 className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{projectLeads?.length || 0}</p>
+                <p className="text-xs text-muted-foreground">Project Leads</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-4 p-4">
+              <div className="rounded-lg bg-primary/10 p-2.5">
+                <Home className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{listingLeads?.length || 0}</p>
+                <p className="text-xs text-muted-foreground">Listing Leads</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs + Filters */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
             <TabsList>
-              <TabsTrigger value="project" className="gap-2">
-                <Building2 className="h-4 w-4" />
-                Project Leads
+              <TabsTrigger value="project" className="gap-1.5">
+                <Building2 className="h-3.5 w-3.5" />
+                Projects
               </TabsTrigger>
-              <TabsTrigger value="listing" className="gap-2">
-                <Home className="h-4 w-4" />
-                Listing Leads
+              <TabsTrigger value="listing" className="gap-1.5">
+                <Home className="h-3.5 w-3.5" />
+                Listings
               </TabsTrigger>
             </TabsList>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-1 sm:justify-end">
               {activeTab === "project" && (
                 <Select value={sourceFilter} onValueChange={setSourceFilter}>
-                  <SelectTrigger className="w-[140px]">
+                  <SelectTrigger className="w-[130px] h-9 text-sm">
                     <SelectValue placeholder="All Sources" />
                   </SelectTrigger>
                   <SelectContent>
@@ -272,305 +395,83 @@ export default function AdminLeads() {
                   </SelectContent>
                 </Select>
               )}
-              <div className="relative flex-1 sm:w-64">
+              <div className="relative flex-1 sm:max-w-[240px]">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search leads..."
+                  placeholder="Search..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 h-9"
                 />
               </div>
               <Button
                 variant="outline"
                 size="sm"
+                className="h-9"
                 onClick={() => exportToCSV(activeTab as "project" | "listing")}
               >
-                <Download className="h-4 w-4 mr-2" />
-                Export
+                <Download className="h-4 w-4 sm:mr-1.5" />
+                <span className="hidden sm:inline">Export</span>
               </Button>
             </div>
           </div>
 
-          {/* Project Leads Tab */}
-          <TabsContent value="project">
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Project</TableHead>
-                    <TableHead className="hidden lg:table-cell">Source</TableHead>
-                    <TableHead className="hidden xl:table-cell">Landing Page</TableHead>
-                    <TableHead className="hidden lg:table-cell">Persona</TableHead>
-                    <TableHead className="hidden md:table-cell">Home Size</TableHead>
-                    <TableHead className="hidden md:table-cell">Agent</TableHead>
-                    <TableHead className="hidden sm:table-cell">Submitted</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {projectLoading ? (
-                    [...Array(5)].map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell><Skeleton className="h-10 w-40" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                        <TableCell className="hidden lg:table-cell"><Skeleton className="h-6 w-20" /></TableCell>
-                        <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-16" /></TableCell>
-                        <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-16" /></TableCell>
-                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-6 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
-                      </TableRow>
-                    ))
-                  ) : filteredProjectLeads?.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                        No project leads found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredProjectLeads?.map((lead) => {
-                      const personaLabel = lead.persona === "first_time" ? "First-time" : lead.persona === "investor" ? "Investor" : lead.persona === "realtor" ? "Realtor" : lead.persona || "—";
-                      const homeSizeLabel = lead.home_size === "1_bed" ? "1 Bed" : lead.home_size === "2_bed" ? "2 Bed" : lead.home_size === "3_bed_plus" ? "3 Bed+" : lead.home_size || "—";
-                      const agentStatusLabel = lead.agent_status === "i_am_realtor" ? "Is Agent" : lead.agent_status === "yes" ? "Has Agent" : "No Agent";
-                      
-                      // Format lead source for display
-                      const getLeadSourceLabel = (source: string | null): string => {
-                        if (!source) return "Floor Plans";
-                        if (source.startsWith("city_list_")) {
-                          const city = source.replace("city_list_", "").replace(/_/g, " ");
-                          return `City: ${city.charAt(0).toUpperCase() + city.slice(1)}`;
-                        }
-                        const sourceMap: Record<string, string> = {
-                          "floor_plan_request": "Floor Plans",
-                          "scheduler": "Tour Request",
-                          "general_inquiry": "General",
-                          "callback_request": "Callback",
-                          "sticky_bar": "Sticky Bar",
-                          "header_inquiry": "Header",
-                          "vip_membership": "VIP",
-                          "newsletter": "Newsletter",
-                          "roi_calculator": "ROI Calc",
-                          "mortgage_calculator": "Mortgage Calc",
-                        };
-                        return sourceMap[source] || source.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
-                      };
-                      const leadSourceLabel = getLeadSourceLabel(lead.lead_source);
-                      
-                      // Format landing page for display (show just the path)
-                      const getLandingPageLabel = (url: string | null): string => {
-                        if (!url) return "—";
-                        try {
-                          const path = url.startsWith("http") ? new URL(url).pathname : url;
-                          if (path === "/" || path === "") return "Homepage";
-                          return path.length > 25 ? path.slice(0, 25) + "…" : path;
-                        } catch {
-                          return url.length > 25 ? url.slice(0, 25) + "…" : url;
-                        }
-                      };
-                      
-                      return (
-                        <TableRow key={lead.id}>
-                          <TableCell>
-                            <div>
-                              <p className="font-medium">{lead.name}</p>
-                              <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                                <span className="flex items-center gap-1">
-                                  <Mail className="h-3 w-3" />
-                                  {lead.email}
-                                </span>
-                                {lead.phone && (
-                                  <span className="flex items-center gap-1">
-                                    <Phone className="h-3 w-3" />
-                                    {lead.phone}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {lead.presale_projects ? (
-                              <div>
-                                <p className="font-medium">{lead.presale_projects.name}</p>
-                                <p className="text-sm text-muted-foreground">{lead.presale_projects.city}</p>
-                              </div>
-                            ) : (
-                              <span className="text-muted-foreground">—</span>
-                            )}
-                          </TableCell>
-                          <TableCell className="hidden lg:table-cell">
-                            <Badge variant={leadSourceLabel === "Tour Request" ? "default" : lead.lead_source?.startsWith("city_list_") ? "default" : "secondary"}>
-                              {leadSourceLabel}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden xl:table-cell">
-                            <span className="text-sm text-muted-foreground" title={lead.landing_page || undefined}>
-                              {getLandingPageLabel(lead.landing_page)}
-                            </span>
-                          </TableCell>
-                          <TableCell className="hidden lg:table-cell">
-                            <Badge variant={lead.persona === "investor" ? "default" : "secondary"}>
-                              {personaLabel}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <Badge variant="outline">{homeSizeLabel}</Badge>
-                          </TableCell>
-                          <TableCell className="hidden md:table-cell">
-                            <Badge variant={agentStatusLabel === "Is Agent" ? "default" : agentStatusLabel === "Has Agent" ? "secondary" : "outline"}>
-                              {agentStatusLabel}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="hidden sm:table-cell text-muted-foreground">
-                            {format(new Date(lead.created_at), "MMM d, yyyy")}
-                            <br />
-                            <span className="text-xs">{format(new Date(lead.created_at), "h:mm a")}</span>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1">
-                              <Button 
-                                variant="ghost" 
-                                size="icon"
-                                onClick={() => {
-                                  setSelectedLead(lead);
-                                  setModalOpen(true);
-                                }}
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                              <Button variant="ghost" size="icon" asChild>
-                                <a href={`mailto:${lead.email}`}>
-                                  <Mail className="h-4 w-4" />
-                                </a>
-                              </Button>
-                              {lead.presale_projects && (
-                                <Button variant="ghost" size="icon" asChild>
-                                  <a 
-                                    href={`/presale-projects/${lead.presale_projects.slug}`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                  >
-                                    <ExternalLink className="h-4 w-4" />
-                                  </a>
-                                </Button>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+          {/* Project Leads */}
+          <TabsContent value="project" className="space-y-2">
+            {projectLoading ? (
+              [...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <Skeleton className="h-5 w-40" />
+                      <Skeleton className="h-4 w-64" />
+                      <div className="flex gap-2">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-5 w-20" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : filteredProjectLeads?.length === 0 ? (
+              <EmptyState message="No project leads found" />
+            ) : (
+              filteredProjectLeads?.map((lead) => (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  type="project"
+                  onView={() => { setSelectedLead(lead); setModalOpen(true); }}
+                />
+              ))
+            )}
           </TabsContent>
 
-          {/* Listing Leads Tab */}
-          <TabsContent value="listing">
-            <div className="border rounded-lg overflow-hidden">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Listing</TableHead>
-                    <TableHead className="hidden md:table-cell">Message</TableHead>
-                    <TableHead className="hidden sm:table-cell">Submitted</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {listingLoading ? (
-                    [...Array(5)].map((_, i) => (
-                      <TableRow key={i}>
-                        <TableCell><Skeleton className="h-10 w-40" /></TableCell>
-                        <TableCell><Skeleton className="h-6 w-32" /></TableCell>
-                        <TableCell className="hidden md:table-cell"><Skeleton className="h-6 w-40" /></TableCell>
-                        <TableCell className="hidden sm:table-cell"><Skeleton className="h-6 w-24" /></TableCell>
-                        <TableCell><Skeleton className="h-8 w-20 ml-auto" /></TableCell>
-                      </TableRow>
-                    ))
-                  ) : filteredListingLeads?.length === 0 ? (
-                    <TableRow>
-                      <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                        No listing leads found
-                      </TableCell>
-                    </TableRow>
-                  ) : (
-                    filteredListingLeads?.map((lead) => (
-                      <TableRow key={lead.id}>
-                        <TableCell>
-                          <div>
-                            <p className="font-medium">{lead.name}</p>
-                            <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                              <span className="flex items-center gap-1">
-                                <Mail className="h-3 w-3" />
-                                {lead.email}
-                              </span>
-                              {lead.phone && (
-                                <span className="flex items-center gap-1">
-                                  <Phone className="h-3 w-3" />
-                                  {lead.phone}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          {lead.listings ? (
-                            <div>
-                              <p className="font-medium line-clamp-1">{lead.listings.title}</p>
-                              <p className="text-sm text-muted-foreground">{lead.listings.project_name}</p>
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">—</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell">
-                          <p className="text-sm text-muted-foreground line-clamp-2 max-w-xs">
-                            {lead.message || "—"}
-                          </p>
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">
-                          {format(new Date(lead.created_at), "MMM d, yyyy")}
-                          <br />
-                          <span className="text-xs">{format(new Date(lead.created_at), "h:mm a")}</span>
-                        </TableCell>
-                        <TableCell className="text-right">
-                          <div className="flex items-center justify-end gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => {
-                                setSelectedLead(lead);
-                                setModalOpen(true);
-                              }}
-                            >
-                              <Eye className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" asChild>
-                              <a href={`mailto:${lead.email}`}>
-                                <Mail className="h-4 w-4" />
-                              </a>
-                            </Button>
-                            {lead.listings && (
-                              <Button variant="ghost" size="icon" asChild>
-                                <a 
-                                  href={`/assignments/${lead.listing_id}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                >
-                                  <ExternalLink className="h-4 w-4" />
-                                </a>
-                              </Button>
-                            )}
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
-                </TableBody>
-              </Table>
-            </div>
+          {/* Listing Leads */}
+          <TabsContent value="listing" className="space-y-2">
+            {listingLoading ? (
+              [...Array(4)].map((_, i) => (
+                <Card key={i}>
+                  <CardContent className="p-4">
+                    <div className="space-y-3">
+                      <Skeleton className="h-5 w-40" />
+                      <Skeleton className="h-4 w-64" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : filteredListingLeads?.length === 0 ? (
+              <EmptyState message="No listing leads found" />
+            ) : (
+              filteredListingLeads?.map((lead) => (
+                <LeadCard
+                  key={lead.id}
+                  lead={lead}
+                  type="listing"
+                  onView={() => { setSelectedLead(lead); setModalOpen(true); }}
+                />
+              ))
+            )}
           </TabsContent>
         </Tabs>
 
