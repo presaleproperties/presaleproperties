@@ -104,7 +104,7 @@ import VIPMembership from "./pages/VIPMembership";
 import BuyerAuth from "./pages/BuyerAuth";
 import BuyerLogin from "./pages/BuyerLogin";
 import BuyerDashboard from "./pages/buyer/BuyerDashboard";
-import AdminBuyers from "./pages/admin/AdminBuyers";
+
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 
 const queryClient = new QueryClient({
@@ -290,7 +290,7 @@ const App = () => (
             <Route path="/admin/market-dashboard" element={<AdminProtectedRoute><AdminMarketDashboard /></AdminProtectedRoute>} />
             <Route path="/admin/ai-analytics" element={<AdminProtectedRoute><AdminAIAnalytics /></AdminProtectedRoute>} />
             <Route path="/admin/settings" element={<AdminProtectedRoute><AdminSettings /></AdminProtectedRoute>} />
-            <Route path="/admin/buyers" element={<AdminProtectedRoute><AdminBuyers /></AdminProtectedRoute>} />
+            
             <Route path="/admin/clients" element={<AdminProtectedRoute><AdminClients /></AdminProtectedRoute>} />
             <Route path="/admin/clients/new" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
             <Route path="/admin/clients/:clientId/edit" element={<AdminProtectedRoute><AdminClientForm /></AdminProtectedRoute>} />
