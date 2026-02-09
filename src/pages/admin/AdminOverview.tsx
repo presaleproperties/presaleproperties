@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
-import { PresentationDeckGenerator } from "@/components/about/PresentationDeckGenerator";
+
 import { 
   Users, 
   Building2, 
@@ -205,7 +205,7 @@ export default function AdminOverview() {
                 <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
                 Refresh
               </Button>
-              <PresentationDeckGenerator />
+              
               <Link to="/admin/projects/new">
                 <Button size="sm" className="bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" />
