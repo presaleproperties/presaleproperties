@@ -66,16 +66,24 @@ export const getProjectPageMeta = (
   startingPrice?: number,
   projectType: "condo" | "townhome" | "mixed" = "condo"
 ) => {
-  const location = neighborhood ? `${neighborhood}, ${city}` : city;
-  const priceStr = startingPrice 
-    ? ` from $${Math.round(startingPrice / 1000)}K` 
-    : "";
+  const location = neighborhood || city;
   
-  const typeLabel = projectType === "townhome" ? "Townhomes" : "Condos";
+  // Title format: {Project} {Neighborhood/City} — Download Floor Plans & Pricing
+  let title = `${projectName} ${location} — Download Floor Plans & Pricing`;
   
-  const title = `${projectName} Presale ${typeLabel} in ${city}${priceStr} | Pricing & Floor Plans`;
+  // Progressive shortening if over 60 chars
+  if (title.length > 60) {
+    title = `${projectName} ${location} — Floor Plans & Pricing`;
+  }
+  if (title.length > 60) {
+    title = `${projectName} — Download Floor Plans & Pricing`;
+  }
+  if (title.length > 60) {
+    title = `${projectName} — Floor Plans & Pricing`;
+  }
   
-  const description = `Discover ${projectName}, a new presale ${projectType} project in ${location}. See prices, deposit structure, floor plans, and availability. VIP access available.`;
+  const fullLocation = neighborhood ? `${neighborhood}, ${city}` : city;
+  const description = `Discover ${projectName}, a new presale ${projectType} project in ${fullLocation}. See prices, deposit structure, floor plans, and availability. VIP access available.`;
   
   const keywords = `${projectName}, ${projectName} presale, ${projectName} ${city}, ${city} presale ${projectType}, ${neighborhood || city} new construction`;
   
