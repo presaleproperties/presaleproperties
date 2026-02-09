@@ -1,0 +1,1 @@
+ALTER TABLE public.client_activity ADD COLUMN IF NOT EXISTS session_id text;
