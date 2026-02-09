@@ -164,28 +164,30 @@ export default function ResaleListingDetail() {
       if (!listing?.list_agent_key) return null;
       
       // Fetch agent
-      const { data: agent } = await supabase
-        .from("mls_agents")
-        .select("agent_key, full_name, email, phone, office_key")
+      const { data: agentRaw } = await supabase
+        .from("mls_agents_public" as any)
+        .select("agent_key, full_name, phone, office_key")
         .eq("agent_key", listing.list_agent_key)
         .maybeSingle();
       
+      const agent = agentRaw as unknown as { agent_key: string; full_name: string | null; phone: string | null; office_key: string | null } | null;
       if (!agent) return null;
 
       // Fetch office if agent has office_key
       let officeName = listing.list_office_name;
       if (agent.office_key && !officeName) {
-        const { data: office } = await supabase
-          .from("mls_offices")
+        const { data: officeRaw } = await supabase
+          .from("mls_offices_public" as any)
           .select("office_name")
           .eq("office_key", agent.office_key)
           .maybeSingle();
+        const office = officeRaw as unknown as { office_name: string | null } | null;
         officeName = office?.office_name || null;
       }
 
       return {
         full_name: agent.full_name || listing.list_agent_name,
-        email: agent.email || listing.list_agent_email,
+        email: listing.list_agent_email,
         phone: agent.phone || listing.list_agent_phone,
         office_name: officeName,
       };

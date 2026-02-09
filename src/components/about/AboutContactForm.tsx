@@ -78,12 +78,11 @@ export function AboutContactForm({
     queryKey: ["team-members-select"],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("team_members")
+        .from("team_members_public" as any)
         .select("id, full_name, title")
-        .eq("is_active", true)
         .order("sort_order", { ascending: true });
       if (error) throw error;
-      return data as TeamMember[];
+      return (data as unknown as TeamMember[]) || [];
     },
   });
 

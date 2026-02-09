@@ -205,11 +205,38 @@ const handler = async (req: Request): Promise<Response> => {
 
     if (activityError) {
       console.error("Error inserting activity:", activityError);
-      // Don't expose internal errors
       return new Response(JSON.stringify({ error: "Failed to track activity" }), {
         status: 500,
         headers: { "Content-Type": "application/json", ...corsHeaders },
       });
+    }
+
+    // Forward to Lofty/Zapier webhook (server-side, never exposed to client)
+    try {
+      const { data: webhookSetting } = await supabase
+        .from("app_settings")
+        .select("value")
+        .eq("key", "lofty_tracking_webhook")
+        .maybeSingle();
+
+      const webhookUrl = webhookSetting?.value as string | null;
+      if (webhookUrl) {
+        // Fire-and-forget: don't block the response on webhook delivery
+        fetch(webhookUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            event_type: activity_type,
+            timestamp: new Date().toISOString(),
+            ...sanitizedPayload,
+          }),
+        }).catch((err) => {
+          console.error("Error forwarding to Lofty webhook:", err);
+        });
+      }
+    } catch (webhookErr) {
+      console.error("Error fetching webhook URL:", webhookErr);
+      // Don't fail the main request due to webhook issues
     }
 
     return new Response(JSON.stringify({ success: true }), {
