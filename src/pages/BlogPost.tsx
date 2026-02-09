@@ -211,30 +211,30 @@ export default function BlogPost() {
 
         {/* Hero */}
         <article>
-          <header className="py-8 md:py-12 border-b">
-            <div className="container max-w-4xl">
-              <div className="flex items-center gap-3 flex-wrap mb-4">
+          <header className="py-6 md:py-10 lg:py-12 border-b">
+            <div className="container max-w-4xl px-4 md:px-6">
+              <div className="flex items-center gap-2 md:gap-3 flex-wrap mb-3 md:mb-4">
                 {post.category && (
-                  <Badge variant="secondary">{post.category}</Badge>
+                  <Badge variant="secondary" className="text-xs">{post.category}</Badge>
                 )}
                 {post.publish_date && (
-                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
+                  <span className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
                     {formatDate(post.publish_date)}
                   </span>
                 )}
                 {post.content && (
-                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
+                  <span className="flex items-center gap-1 text-xs sm:text-sm text-muted-foreground">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
                     {getReadingTime(post.content)} min read
                   </span>
                 )}
               </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 leading-tight">
                 {post.title}
               </h1>
               {post.excerpt && (
-                <p className="text-xl text-muted-foreground">
+                <p className="text-base sm:text-lg md:text-xl text-muted-foreground leading-relaxed">
                   {post.excerpt}
                 </p>
               )}
@@ -243,18 +243,18 @@ export default function BlogPost() {
 
           {/* Featured Image */}
           {post.featured_image && (
-            <div className="container max-w-4xl py-8">
+            <div className="container max-w-4xl px-4 md:px-6 py-5 md:py-8">
               <img
                 src={post.featured_image}
                 alt={post.title}
-                className="w-full aspect-[16/9] object-cover rounded-xl"
+                className="w-full aspect-[16/9] object-cover rounded-lg md:rounded-xl"
               />
             </div>
           )}
 
           {/* Content */}
-          <div className="container max-w-4xl py-8">
-          <div className="prose prose-lg max-w-none prose-headings:font-bold prose-h2:text-2xl prose-h2:mt-8 prose-h2:mb-4 prose-h3:text-xl prose-h3:mt-6 prose-h3:mb-3 prose-p:mb-4 prose-ul:ml-6 prose-ol:ml-6 prose-li:mb-2 prose-strong:font-semibold prose-table:w-full prose-table:border-collapse prose-th:border prose-th:border-border prose-th:bg-muted prose-th:px-4 prose-th:py-2 prose-th:text-left prose-td:border prose-td:border-border prose-td:px-4 prose-td:py-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-4 prose-blockquote:italic prose-hr:my-8">
+          <div className="container max-w-4xl px-4 md:px-6 py-6 md:py-8">
+          <div className="prose prose-sm sm:prose-base md:prose-lg max-w-none prose-headings:font-bold prose-h2:text-xl sm:prose-h2:text-2xl prose-h2:mt-6 md:prose-h2:mt-8 prose-h2:mb-3 md:prose-h2:mb-4 prose-h3:text-lg sm:prose-h3:text-xl prose-h3:mt-5 md:prose-h3:mt-6 prose-h3:mb-2 md:prose-h3:mb-3 prose-p:mb-3 md:prose-p:mb-4 prose-ul:ml-4 md:prose-ul:ml-6 prose-ol:ml-4 md:prose-ol:ml-6 prose-li:mb-1.5 md:prose-li:mb-2 prose-strong:font-semibold prose-table:w-full prose-table:border-collapse prose-table:text-xs sm:prose-table:text-sm md:prose-table:text-base prose-th:border prose-th:border-border prose-th:bg-muted prose-th:px-2 sm:prose-th:px-3 md:prose-th:px-4 prose-th:py-1.5 sm:prose-th:py-2 prose-th:text-left prose-td:border prose-td:border-border prose-td:px-2 sm:prose-td:px-3 md:prose-td:px-4 prose-td:py-1.5 sm:prose-td:py-2 prose-blockquote:border-l-4 prose-blockquote:border-primary prose-blockquote:pl-3 md:prose-blockquote:pl-4 prose-blockquote:italic prose-hr:my-6 md:prose-hr:my-8 prose-img:rounded-lg overflow-x-auto">
               {parsedContent ? (
                 <div dangerouslySetInnerHTML={{ __html: parsedContent }} />
               ) : (
@@ -264,11 +264,11 @@ export default function BlogPost() {
 
             {/* Tags */}
             {post.tags && post.tags.length > 0 && (
-              <div className="mt-12 pt-8 border-t">
+              <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Tag className="h-4 w-4 text-muted-foreground" />
+                  <Tag className="h-3.5 w-3.5 md:h-4 md:w-4 text-muted-foreground" />
                   {post.tags.map((tag, i) => (
-                    <Badge key={i} variant="outline">
+                    <Badge key={i} variant="outline" className="text-xs">
                       {tag}
                     </Badge>
                   ))}
@@ -277,23 +277,23 @@ export default function BlogPost() {
             )}
 
             {/* Internal Links CTA */}
-            <div className="mt-12 p-6 bg-primary/5 rounded-xl border border-primary/10">
-              <h3 className="font-semibold text-lg mb-3">Ready to Start Your Presale Journey?</h3>
-              <p className="text-muted-foreground mb-4">
+            <div className="mt-8 md:mt-12 p-4 md:p-6 bg-primary/5 rounded-xl border border-primary/10">
+              <h3 className="font-semibold text-base md:text-lg mb-2 md:mb-3">Ready to Start Your Presale Journey?</h3>
+              <p className="text-sm md:text-base text-muted-foreground mb-3 md:mb-4">
                 Browse the latest presale condos and townhomes across Metro Vancouver.
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-2 md:gap-3">
                 <Link to="/presale-projects">
-                  <Button size="sm">Browse All Projects</Button>
+                  <Button size="sm" className="text-xs md:text-sm">Browse All Projects</Button>
                 </Link>
                 <Link to="/surrey-presale-condos">
-                  <Button size="sm" variant="outline">Surrey Presales</Button>
+                  <Button size="sm" variant="outline" className="text-xs md:text-sm">Surrey Presales</Button>
                 </Link>
                 <Link to="/langley-presale-condos">
-                  <Button size="sm" variant="outline">Langley Presales</Button>
+                  <Button size="sm" variant="outline" className="text-xs md:text-sm">Langley Presales</Button>
                 </Link>
                 <Link to="/presale-guide">
-                  <Button size="sm" variant="outline">Buyer's Guide</Button>
+                  <Button size="sm" variant="outline" className="text-xs md:text-sm">Buyer's Guide</Button>
                 </Link>
               </div>
             </div>
