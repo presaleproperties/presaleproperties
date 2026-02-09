@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
       { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
       { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
       
-      // Tools
+      // Tools (base URLs only — noindex only applies when query params present)
       { url: "/roi-calculator", priority: "0.8", changefreq: "monthly", lastmod: now },
       { url: "/mortgage-calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
       { url: "/calculator", priority: "0.75", changefreq: "monthly", lastmod: now },
