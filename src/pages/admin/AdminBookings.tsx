@@ -1,18 +1,11 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -29,7 +22,6 @@ import { format, parseISO } from "date-fns";
 import { 
   Calendar, 
   Clock, 
-  User, 
   Phone, 
   Mail, 
   Search, 
@@ -37,7 +29,11 @@ import {
   X, 
   Loader2,
   Building2,
-  Filter
+  Inbox,
+  User,
+  CalendarCheck,
+  CalendarClock,
+  CalendarX
 } from "lucide-react";
 
 type BookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
@@ -57,6 +53,158 @@ interface Booking {
   timeline: string;
   notes: string | null;
   created_at: string;
+}
+
+const formatBuyerType = (type: string) => {
+  const labels: Record<string, string> = {
+    first_time: "First-time Buyer",
+    investor: "Investor",
+    upgrader: "Upgrading",
+    other: "Other",
+  };
+  return labels[type] || type;
+};
+
+const formatTimeline = (timeline: string) => {
+  const labels: Record<string, string> = {
+    "0_3_months": "0–3 months",
+    "3_6_months": "3–6 months",
+    "6_12_months": "6–12 months",
+    "12_plus_months": "12+ months",
+  };
+  return labels[timeline] || timeline;
+};
+
+const statusConfig: Record<BookingStatus, { label: string; className: string }> = {
+  pending: { label: "Pending", className: "bg-amber-100 text-amber-800 border-amber-200" },
+  confirmed: { label: "Confirmed", className: "bg-emerald-100 text-emerald-800 border-emerald-200" },
+  completed: { label: "Completed", className: "bg-sky-100 text-sky-800 border-sky-200" },
+  cancelled: { label: "Cancelled", className: "bg-muted text-muted-foreground" },
+};
+
+function BookingCard({ 
+  booking, 
+  onConfirm, 
+  onCancel, 
+  onComplete,
+  processing 
+}: { 
+  booking: Booking; 
+  onConfirm: () => void; 
+  onCancel: () => void; 
+  onComplete: () => void;
+  processing: boolean;
+}) {
+  const config = statusConfig[booking.status];
+  const isPast = new Date(booking.appointment_date) < new Date(new Date().toDateString());
+
+  return (
+    <Card className="group hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          {/* Left section */}
+          <div className="flex gap-4 flex-1 min-w-0">
+            {/* Date block */}
+            <div className={`flex flex-col items-center justify-center rounded-lg border px-3 py-2 min-w-[64px] text-center shrink-0 ${isPast && booking.status !== "completed" ? "bg-muted/50" : "bg-card"}`}>
+              <span className="text-xs font-medium text-muted-foreground uppercase">
+                {format(parseISO(booking.appointment_date), "MMM")}
+              </span>
+              <span className="text-xl font-bold text-foreground leading-tight">
+                {format(parseISO(booking.appointment_date), "d")}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {format(parseISO(`2000-01-01T${booking.appointment_time}`), "h:mm a")}
+              </span>
+            </div>
+
+            {/* Details */}
+            <div className="space-y-2 min-w-0">
+              {/* Name + Status */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="font-semibold text-foreground">{booking.name}</h3>
+                <Badge variant="outline" className={config.className}>
+                  {config.label}
+                </Badge>
+                <Badge variant="outline" className="text-xs font-normal">
+                  {booking.appointment_type === "preview" ? "Preview" : "Showing"}
+                </Badge>
+              </div>
+
+              {/* Contact */}
+              <div className="flex items-center gap-4 text-sm text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-1.5">
+                  <Mail className="h-3.5 w-3.5 shrink-0" />
+                  {booking.email}
+                </span>
+                <span className="flex items-center gap-1.5">
+                  <Phone className="h-3.5 w-3.5 shrink-0" />
+                  {booking.phone}
+                </span>
+              </div>
+
+              {/* Project + Profile */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="outline" className="gap-1 font-normal">
+                  <Building2 className="h-3 w-3" />
+                  {booking.project_name}
+                  {booking.project_city && ` · ${booking.project_city}`}
+                </Badge>
+                <span className="text-xs text-muted-foreground">
+                  {formatBuyerType(booking.buyer_type)} · {formatTimeline(booking.timeline)}
+                </span>
+              </div>
+
+              {/* Notes */}
+              {booking.notes && (
+                <p className="text-xs text-muted-foreground italic truncate max-w-md" title={booking.notes}>
+                  "{booking.notes}"
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Right: Actions */}
+          <div className="flex items-center gap-2 shrink-0 sm:pt-1">
+            {booking.status === "pending" && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 border-emerald-200"
+                  onClick={onConfirm}
+                  disabled={processing}
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Confirm</span>
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1.5 text-destructive hover:bg-destructive/10"
+                  onClick={onCancel}
+                  disabled={processing}
+                >
+                  <X className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Decline</span>
+                </Button>
+              </>
+            )}
+            {booking.status === "confirmed" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8"
+                onClick={onComplete}
+                disabled={processing}
+              >
+                Mark Done
+              </Button>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function AdminBookings() {
@@ -80,15 +228,11 @@ export default function AdminBookings() {
         .select("*")
         .order("appointment_date", { ascending: true })
         .order("appointment_time", { ascending: true });
-
       if (error) throw error;
       setBookings(data || []);
     } catch (error) {
       console.error("Error fetching bookings:", error);
-      toast({
-        title: "Error loading bookings",
-        variant: "destructive",
-      });
+      toast({ title: "Error loading bookings", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -98,21 +242,12 @@ export default function AdminBookings() {
     setProcessing(true);
     try {
       const updateData: Record<string, any> = { status: newStatus };
-      
-      if (newStatus === "confirmed") {
-        updateData.confirmed_at = new Date().toISOString();
-      } else if (newStatus === "cancelled") {
-        updateData.cancelled_at = new Date().toISOString();
-      }
+      if (newStatus === "confirmed") updateData.confirmed_at = new Date().toISOString();
+      else if (newStatus === "cancelled") updateData.cancelled_at = new Date().toISOString();
 
-      const { error } = await supabase
-        .from("bookings")
-        .update(updateData)
-        .eq("id", booking.id);
-
+      const { error } = await supabase.from("bookings").update(updateData).eq("id", booking.id);
       if (error) throw error;
 
-      // Send confirmation/cancellation email
       if (newStatus === "confirmed" || newStatus === "cancelled") {
         await supabase.functions.invoke("send-booking-status-update", {
           body: {
@@ -130,14 +265,10 @@ export default function AdminBookings() {
         title: `Booking ${newStatus}`,
         description: `${booking.name}'s appointment has been ${newStatus}.`,
       });
-
       fetchBookings();
     } catch (error) {
       console.error("Error updating booking:", error);
-      toast({
-        title: "Error updating booking",
-        variant: "destructive",
-      });
+      toast({ title: "Error updating booking", variant: "destructive" });
     } finally {
       setProcessing(false);
       setSelectedBooking(null);
@@ -145,51 +276,17 @@ export default function AdminBookings() {
     }
   };
 
-  const getStatusBadge = (status: BookingStatus) => {
-    switch (status) {
-      case "pending":
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">Pending</Badge>;
-      case "confirmed":
-        return <Badge className="bg-green-500">Confirmed</Badge>;
-      case "cancelled":
-        return <Badge variant="secondary">Cancelled</Badge>;
-      case "completed":
-        return <Badge className="bg-blue-500">Completed</Badge>;
-    }
-  };
-
-  const formatBuyerType = (type: string) => {
-    const labels: Record<string, string> = {
-      first_time: "First-time",
-      investor: "Investor",
-      upgrader: "Upgrading",
-      other: "Other",
-    };
-    return labels[type] || type;
-  };
-
-  const formatTimeline = (timeline: string) => {
-    const labels: Record<string, string> = {
-      "0_3_months": "0-3 mo",
-      "3_6_months": "3-6 mo",
-      "6_12_months": "6-12 mo",
-      "12_plus_months": "12+ mo",
-    };
-    return labels[timeline] || timeline;
-  };
-
   const filteredBookings = bookings.filter((booking) => {
     const matchesSearch = 
       booking.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       booking.project_name.toLowerCase().includes(searchQuery.toLowerCase());
-    
     const matchesStatus = statusFilter === "all" || booking.status === statusFilter;
-    
     return matchesSearch && matchesStatus;
   });
 
   const pendingCount = bookings.filter(b => b.status === "pending").length;
+  const confirmedCount = bookings.filter(b => b.status === "confirmed").length;
   const todayCount = bookings.filter(b => 
     b.appointment_date === format(new Date(), "yyyy-MM-dd") && 
     (b.status === "confirmed" || b.status === "pending")
@@ -207,182 +304,99 @@ export default function AdminBookings() {
 
   return (
     <AdminLayout>
+      <Helmet>
+        <title>Bookings | Admin</title>
+      </Helmet>
+
       <div className="space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold">Bookings</h1>
-          <p className="text-muted-foreground">Manage appointment requests</p>
+          <h1 className="text-2xl font-bold text-foreground">Bookings</h1>
+          <p className="text-sm text-muted-foreground">
+            {bookings.length} total appointments
+          </p>
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-3 gap-4">
           <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-yellow-600">{pendingCount}</div>
-              <p className="text-sm text-muted-foreground">Pending Approval</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-blue-600">{todayCount}</div>
-              <p className="text-sm text-muted-foreground">Today's Appointments</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold text-green-600">
-                {bookings.filter(b => b.status === "confirmed").length}
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-lg bg-amber-100 p-2.5">
+                <CalendarClock className="h-5 w-5 text-amber-700" />
               </div>
-              <p className="text-sm text-muted-foreground">Confirmed</p>
+              <div>
+                <p className="text-2xl font-bold">{pendingCount}</p>
+                <p className="text-xs text-muted-foreground">Pending</p>
+              </div>
             </CardContent>
           </Card>
           <Card>
-            <CardContent className="pt-6">
-              <div className="text-2xl font-bold">{bookings.length}</div>
-              <p className="text-sm text-muted-foreground">Total Bookings</p>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-lg bg-emerald-100 p-2.5">
+                <CalendarCheck className="h-5 w-5 text-emerald-700" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{confirmedCount}</p>
+                <p className="text-xs text-muted-foreground">Confirmed</p>
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="flex items-center gap-3 p-4">
+              <div className="rounded-lg bg-sky-100 p-2.5">
+                <Calendar className="h-5 w-5 text-sky-700" />
+              </div>
+              <div>
+                <p className="text-2xl font-bold">{todayCount}</p>
+                <p className="text-xs text-muted-foreground">Today</p>
+              </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-1 sm:max-w-[280px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name, email, or project..."
+              placeholder="Search name, email, or project..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-9 h-9"
             />
           </div>
           <Tabs value={statusFilter} onValueChange={(v) => setStatusFilter(v as BookingStatus | "all")}>
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="pending">Pending</TabsTrigger>
-              <TabsTrigger value="confirmed">Confirmed</TabsTrigger>
-              <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsList className="h-9">
+              <TabsTrigger value="all" className="text-xs px-3">All</TabsTrigger>
+              <TabsTrigger value="pending" className="text-xs px-3">Pending</TabsTrigger>
+              <TabsTrigger value="confirmed" className="text-xs px-3">Confirmed</TabsTrigger>
+              <TabsTrigger value="completed" className="text-xs px-3">Completed</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
 
-        {/* Bookings Table */}
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Date & Time</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Project</TableHead>
-                  <TableHead>Contact</TableHead>
-                  <TableHead>Profile</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredBookings.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                      No bookings found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filteredBookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <div>
-                            <div className="font-medium text-sm">
-                              {format(parseISO(booking.appointment_date), "MMM d, yyyy")}
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              {format(parseISO(`2000-01-01T${booking.appointment_time}`), "h:mm a")}
-                            </div>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="text-xs">
-                          {booking.appointment_type === "preview" ? "Preview" : "Showing"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground shrink-0" />
-                          <div className="truncate max-w-[150px]">
-                            <div className="font-medium text-sm truncate">{booking.project_name}</div>
-                            {booking.project_city && (
-                              <div className="text-xs text-muted-foreground">{booking.project_city}</div>
-                            )}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium text-sm">{booking.name}</div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
-                            {booking.email}
-                          </div>
-                          <div className="text-xs text-muted-foreground flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
-                            {booking.phone}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div>{formatBuyerType(booking.buyer_type)}</div>
-                          <div className="text-xs text-muted-foreground">{formatTimeline(booking.timeline)}</div>
-                        </div>
-                      </TableCell>
-                      <TableCell>{getStatusBadge(booking.status)}</TableCell>
-                      <TableCell className="text-right">
-                        {booking.status === "pending" && (
-                          <div className="flex justify-end gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-green-600 hover:text-green-700 hover:bg-green-50"
-                              onClick={() => {
-                                setSelectedBooking(booking);
-                                setActionType("confirm");
-                              }}
-                            >
-                              <Check className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              className="h-8 text-red-600 hover:text-red-700 hover:bg-red-50"
-                              onClick={() => {
-                                setSelectedBooking(booking);
-                                setActionType("cancel");
-                              }}
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        )}
-                        {booking.status === "confirmed" && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStatusChange(booking, "completed")}
-                          >
-                            Mark Complete
-                          </Button>
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        {/* Booking Cards */}
+        <div className="space-y-2">
+          {filteredBookings.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <div className="rounded-full bg-muted p-4 mb-4">
+                <Inbox className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground">No bookings found</p>
+            </div>
+          ) : (
+            filteredBookings.map((booking) => (
+              <BookingCard
+                key={booking.id}
+                booking={booking}
+                processing={processing}
+                onConfirm={() => { setSelectedBooking(booking); setActionType("confirm"); }}
+                onCancel={() => { setSelectedBooking(booking); setActionType("cancel"); }}
+                onComplete={() => handleStatusChange(booking, "completed")}
+              />
+            ))
+          )}
+        </div>
       </div>
 
       {/* Confirmation Dialog */}
@@ -398,15 +412,14 @@ export default function AdminBookings() {
             <AlertDialogDescription>
               {actionType === "confirm" 
                 ? `This will confirm ${selectedBooking?.name}'s appointment and send them a confirmation email.`
-                : `This will cancel ${selectedBooking?.name}'s appointment and notify them via email.`
-              }
+                : `This will cancel ${selectedBooking?.name}'s appointment and notify them via email.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel disabled={processing}>Cancel</AlertDialogCancel>
             <AlertDialogAction
               disabled={processing}
-              className={actionType === "cancel" ? "bg-red-600 hover:bg-red-700" : ""}
+              className={actionType === "cancel" ? "bg-destructive hover:bg-destructive/90" : ""}
               onClick={() => {
                 if (selectedBooking && actionType) {
                   handleStatusChange(selectedBooking, actionType === "confirm" ? "confirmed" : "cancelled");
