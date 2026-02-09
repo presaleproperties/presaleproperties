@@ -73,13 +73,13 @@ Deno.serve(async (req) => {
       // Main listing hubs - optimized for Google sitelinks
       { url: "/presale-projects", priority: "0.95", changefreq: "daily", lastmod: now },
       { url: "/properties", priority: "0.95", changefreq: "daily", lastmod: now },
-      { url: "/assignments", priority: "0.9", changefreq: "daily", lastmod: now },
       { url: "/for-agents", priority: "0.9", changefreq: "weekly", lastmod: now },
       
       // Educational / Guide pages
       { url: "/buyers-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/presale-guide", priority: "0.85", changefreq: "monthly", lastmod: now },
       { url: "/blog", priority: "0.8", changefreq: "weekly", lastmod: now },
+      { url: "/guides", priority: "0.8", changefreq: "weekly", lastmod: now },
       
       // Tools
       { url: "/roi-calculator", priority: "0.8", changefreq: "monthly", lastmod: now },
@@ -90,7 +90,6 @@ Deno.serve(async (req) => {
       { url: "/about", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/contact", priority: "0.6", changefreq: "monthly", lastmod: now },
       { url: "/developers", priority: "0.7", changefreq: "weekly", lastmod: now },
-      { url: "/for-developers", priority: "0.65", changefreq: "monthly", lastmod: now },
     ];
     
     // NOTE: /map-search is EXCLUDED (noindex page)
@@ -137,12 +136,12 @@ Deno.serve(async (req) => {
     );
 
     // ==========================================
-    // 3. LEGACY CITY PAGES (301 redirects - kept for crawl transition)
+    // 3. LEGACY CITY PAGES — REMOVED from sitemap
     // ==========================================
-    const legacyCityPages = allCities.flatMap(city => [
-      { url: `/${city}-presale-condos`, priority: "0.5", changefreq: "monthly", lastmod: now },
-      { url: `/${city}-presale-townhomes`, priority: "0.5", changefreq: "monthly", lastmod: now }
-    ]);
+    // Legacy /{city}-presale-condos and /{city}-presale-townhomes
+    // are 301 redirects to /presale-projects/{city}/condos|townhomes.
+    // Google says: "Don't include redirecting URLs in your sitemap."
+    // These redirects are handled in React Router and still crawlable via internal links.
 
     // ==========================================
     // 4. NEIGHBORHOOD LANDING PAGES
@@ -244,14 +243,14 @@ Deno.serve(async (req) => {
     // Order matters for crawl priority - programmatic SEO pages first
     const allPages = [
       ...staticPages,
-      ...cityHubPages,           // NEW: /presale-projects/{city}
-      ...cityTypePages,          // NEW: /presale-projects/{city}/condos
-      ...cityTypePricePages,     // NEW: /presale-projects/{city}/condos-under-500k
+      ...cityHubPages,           // /presale-projects/{city}
+      ...cityTypePages,          // /presale-projects/{city}/condos
+      ...cityTypePricePages,     // /presale-projects/{city}/condos-under-500k
       ...neighborhoodLandingPages,
       ...projectPages,
       ...propertiesCityPages,
       ...seoHubPages,
-      ...legacyCityPages,        // Legacy URLs (301 redirect targets)
+      // NOTE: Legacy /{city}-presale-condos URLs REMOVED — they are 301 redirects
       ...blogPages,
       ...developerPages,
     ];
@@ -285,7 +284,6 @@ ${urlEntries}
     console.log(`  - Neighborhood pages: ${neighborhoodLandingPages.length}`);
     console.log(`  - Presale projects: ${projectPages.length}`);
     console.log(`  - Properties city pages: ${propertiesCityPages.length}`);
-    console.log(`  - Legacy city pages: ${legacyCityPages.length}`);
     console.log(`  - Blog posts: ${blogPages.length}`);
     console.log(`  - Developer pages: ${developerPages.length}`);
 
@@ -306,7 +304,6 @@ ${urlEntries}
             neighborhoods: neighborhoodLandingPages.length,
             projects: projectPages.length,
             propertiesCities: propertiesCityPages.length,
-            legacyCity: legacyCityPages.length,
             blog: blogPages.length,
             developers: developerPages.length,
           }
