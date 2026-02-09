@@ -3,26 +3,20 @@ import { Link } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
+import { BlogFeaturedCarousel } from "@/components/blog/BlogFeaturedCarousel";
+import { BlogCategoryCarousel } from "@/components/blog/BlogCategoryCarousel";
+import { BlogPostCard } from "@/components/blog/BlogPostCard";
 import { supabase } from "@/integrations/supabase/client";
 import { 
   Search,
   FileText,
-  Calendar,
-  Star,
   Loader2,
-  ArrowRight
+  BookOpen,
+  X,
 } from "lucide-react";
 
 type BlogPost = {
@@ -40,7 +34,7 @@ export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
     fetchPosts();
@@ -66,15 +60,25 @@ export default function Blog() {
 
   const categories = [...new Set(posts.map(p => p.category).filter(Boolean) as string[])].sort();
 
+  const isSearching = searchQuery.length > 0;
+
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (post.excerpt?.toLowerCase().includes(searchQuery.toLowerCase()));
-    const matchesCategory = categoryFilter === "all" || post.category === categoryFilter;
+    const matchesCategory = !activeCategory || post.category === activeCategory;
     return matchesSearch && matchesCategory;
   });
 
-  const featuredPosts = filteredPosts.filter(p => p.is_featured);
-  const regularPosts = filteredPosts.filter(p => !p.is_featured);
+  const featuredPosts = posts.filter(p => p.is_featured);
+  const regularPosts = posts.filter(p => !p.is_featured);
+
+  // Group regular posts by category
+  const postsByCategory: Record<string, BlogPost[]> = {};
+  regularPosts.forEach(post => {
+    const cat = post.category || "Uncategorized";
+    if (!postsByCategory[cat]) postsByCategory[cat] = [];
+    postsByCategory[cat].push(post);
+  });
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString("en-US", {
@@ -84,7 +88,6 @@ export default function Blog() {
     });
   };
 
-  // Generate CollectionPage schema for SEO
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -131,185 +134,152 @@ export default function Blog() {
           </div>
         </div>
 
-        {/* Hero Section */}
-        <section className="bg-gradient-to-br from-primary/10 via-background to-background py-12 md:py-16">
-          <div className="container">
+        {/* Hero Section - Refined */}
+        <section className="relative overflow-hidden py-14 md:py-20">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
+          <div className="container relative">
             <div className="max-w-3xl mx-auto text-center">
-              <h1 className="text-3xl md:text-5xl font-bold mb-4">
-                Blog & Insights
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-5">
+                <BookOpen className="h-4 w-4" />
+                Insights & Guides
+              </div>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4 tracking-tight">
+                Your Presale
+                <span className="block bg-gradient-to-r from-primary to-primary-deep bg-clip-text text-transparent">
+                  Knowledge Hub
+                </span>
               </h1>
-              <p className="text-lg text-muted-foreground">
-                Market updates, buying guides, and expert tips for navigating the presale market
+              <p className="text-lg text-muted-foreground max-w-xl mx-auto">
+                Market updates, buying guides, and expert strategies for navigating Metro Vancouver's presale market
               </p>
             </div>
           </div>
         </section>
 
-        {/* Filters */}
-        <section aria-label="Article filters" className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b py-4">
+        {/* Search & Category Bar */}
+        <section aria-label="Article filters" className="sticky top-16 z-40 bg-background/95 backdrop-blur-md border-b py-4">
           <div className="container">
-            <div className="flex flex-col sm:flex-row gap-4">
-              <div className="relative flex-1">
+            <div className="flex flex-col gap-4">
+              {/* Search */}
+              <div className="relative max-w-md">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   placeholder="Search articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
+                  className="pl-10 pr-10 rounded-full border-border/60 bg-muted/40 focus:bg-card"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
-              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
-                <SelectTrigger className="w-full sm:w-[200px]">
-                  <SelectValue placeholder="All Categories" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Categories</SelectItem>
-                  {categories.map(cat => (
-                    <SelectItem key={cat} value={cat}>{cat}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+
+              {/* Category chips */}
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+                <button
+                  onClick={() => setActiveCategory(null)}
+                  className={`inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+                    !activeCategory
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                      : "bg-card text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground"
+                  }`}
+                >
+                  All Articles
+                </button>
+                {categories.map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                    className={`inline-flex items-center whitespace-nowrap px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 border ${
+                      activeCategory === cat
+                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                        : "bg-card text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
         {/* Content */}
-        <section aria-label="Blog articles" className="py-8 md:py-12">
+        <section aria-label="Blog articles" className="py-10 md:py-14">
           <div className="container">
             {loading ? (
-              <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center justify-center py-24 gap-3">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <p className="text-sm text-muted-foreground">Loading articles...</p>
               </div>
             ) : filteredPosts.length === 0 ? (
-              <div className="text-center py-20">
-                <FileText className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <div className="text-center py-24">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-muted mb-4">
+                  <FileText className="h-8 w-8 text-muted-foreground" />
+                </div>
                 <h2 className="text-2xl font-semibold mb-2">No articles found</h2>
                 <p className="text-muted-foreground mb-6">
-                  Try adjusting your search or filters
+                  Try adjusting your search or category filter
                 </p>
-                <Button onClick={() => {
-                  setSearchQuery("");
-                  setCategoryFilter("all");
-                }}>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setSearchQuery("");
+                    setActiveCategory(null);
+                  }}
+                  className="rounded-full"
+                >
                   Clear Filters
                 </Button>
               </div>
+            ) : isSearching || activeCategory ? (
+              /* Search/filter results - flat grid */
+              <div>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Showing {filteredPosts.length} {filteredPosts.length === 1 ? "article" : "articles"}
+                  {activeCategory && <> in <strong>{activeCategory}</strong></>}
+                  {searchQuery && <> matching "<strong>{searchQuery}</strong>"</>}
+                </p>
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredPosts.map((post) => (
+                    <BlogPostCard key={post.id} post={post} formatDate={formatDate} />
+                  ))}
+                </div>
+              </div>
             ) : (
-              <div className="space-y-12">
-                {/* Featured Posts */}
+              /* Default view: Featured carousel + category carousels */
+              <div className="space-y-14">
+                {/* Featured Carousel */}
                 {featuredPosts.length > 0 && (
-                  <div>
-                    <h2 className="text-2xl font-bold mb-6">Featured Articles</h2>
-                    <div className="grid md:grid-cols-2 gap-6" role="feed" aria-label="Featured articles">
-                      {featuredPosts.map((post) => (
-                        <article key={post.id}>
-                          <Link to={`/blog/${post.slug}`}>
-                          <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
-                            <div className="relative aspect-[16/9] overflow-hidden">
-                              {post.featured_image ? (
-                                <img
-                                  src={post.featured_image}
-                                  alt={post.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-muted flex items-center justify-center">
-                                  <FileText className="h-12 w-12 text-muted-foreground" />
-                                </div>
-                              )}
-                              <div className="absolute top-3 left-3">
-                                <Badge className="bg-yellow-500 hover:bg-yellow-600">
-                                  <Star className="h-3 w-3 mr-1 fill-current" />
-                                  Featured
-                                </Badge>
-                              </div>
-                            </div>
-                            <CardContent className="p-5">
-                              {post.category && (
-                                <Badge variant="secondary" className="mb-3">
-                                  {post.category}
-                                </Badge>
-                              )}
-                              <h3 className="font-semibold text-xl mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                {post.title}
-                              </h3>
-                              {post.excerpt && (
-                                <p className="text-muted-foreground line-clamp-2 mb-4">
-                                  {post.excerpt}
-                                </p>
-                              )}
-                              <div className="flex items-center justify-between">
-                                {post.publish_date && (
-                                  <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                                    <Calendar className="h-4 w-4" />
-                                    {formatDate(post.publish_date)}
-                                  </span>
-                                )}
-                                <ArrowRight className="h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                              </div>
-                            </CardContent>
-                          </Card>
-                          </Link>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
+                  <BlogFeaturedCarousel posts={featuredPosts} formatDate={formatDate} />
                 )}
 
-                {/* Regular Posts */}
-                {regularPosts.length > 0 && (
-                  <div>
-                    {featuredPosts.length > 0 && (
-                      <h2 className="text-2xl font-bold mb-6">Latest Articles</h2>
-                    )}
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" role="feed" aria-label="Latest articles">
-                      {regularPosts.map((post) => (
-                        <article key={post.id}>
-                          <Link to={`/blog/${post.slug}`}>
-                          <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 h-full">
-                            <div className="relative aspect-[16/10] overflow-hidden">
-                              {post.featured_image ? (
-                                <img
-                                  src={post.featured_image}
-                                  alt={post.title}
-                                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-muted flex items-center justify-center">
-                                  <FileText className="h-10 w-10 text-muted-foreground" />
-                                </div>
-                              )}
-                            </div>
-                            <CardContent className="p-4">
-                              {post.category && (
-                                <Badge variant="secondary" className="mb-2 text-xs">
-                                  {post.category}
-                                </Badge>
-                              )}
-                              <h3 className="font-semibold mb-2 group-hover:text-primary transition-colors line-clamp-2">
-                                {post.title}
-                              </h3>
-                              {post.excerpt && (
-                                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                                  {post.excerpt}
-                                </p>
-                              )}
-                              <div className="flex items-center justify-between">
-                                {post.publish_date && (
-                                  <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                    <Calendar className="h-3 w-3" />
-                                    {formatDate(post.publish_date)}
-                                  </span>
-                                )}
-                                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                              </div>
-                            </CardContent>
-                          </Card>
-                          </Link>
-                        </article>
-                      ))}
-                    </div>
-                  </div>
+                {/* Category Carousels */}
+                {categories.map(category => {
+                  const catPosts = postsByCategory[category];
+                  if (!catPosts || catPosts.length === 0) return null;
+                  return (
+                    <BlogCategoryCarousel
+                      key={category}
+                      category={category}
+                      posts={catPosts}
+                      formatDate={formatDate}
+                    />
+                  );
+                })}
+
+                {/* Uncategorized posts */}
+                {postsByCategory["Uncategorized"]?.length > 0 && (
+                  <BlogCategoryCarousel
+                    category="More Articles"
+                    posts={postsByCategory["Uncategorized"]}
+                    formatDate={formatDate}
+                  />
                 )}
               </div>
             )}
