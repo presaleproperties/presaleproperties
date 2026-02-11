@@ -23,6 +23,7 @@ import {
   Megaphone,
   Palette,
   ExternalLink,
+  ClipboardList,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -51,6 +52,7 @@ const iconColors: Record<string, string> = {
   "MLS Sync": "text-sky-600",
   Branding: "text-fuchsia-500",
   Payments: "text-emerald-500",
+  "Action Items": "text-orange-600",
 };
 
 const navSections = [
@@ -89,6 +91,12 @@ const navSections = [
     items: [
       { href: "/admin/leads/analytics", label: "Lead Insights", icon: TrendingUp },
       { href: "/admin/market-dashboard", label: "Market Data", icon: TrendingUp },
+    ]
+  },
+  {
+    label: "Ops",
+    items: [
+      { href: "/admin/tasks", label: "Action Items", icon: ClipboardList },
     ]
   },
   {

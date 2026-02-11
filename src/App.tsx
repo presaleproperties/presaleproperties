@@ -63,6 +63,7 @@ import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
 import AdminTeamMembers from "./pages/admin/AdminTeamMembers";
 import AdminGoogleReviews from "./pages/admin/AdminGoogleReviews";
 import AdminThemeManager from "./pages/admin/AdminThemeManager";
+import AdminTasks from "./pages/admin/AdminTasks";
 import NotFound from "./pages/NotFound";
 import AdminClients from "./pages/admin/AdminClients";
 import AdminClientSearches from "./pages/admin/AdminClientSearches";
@@ -302,6 +303,7 @@ const App = () => (
             <Route path="/admin/team-members" element={<AdminProtectedRoute><AdminTeamMembers /></AdminProtectedRoute>} />
             <Route path="/admin/google-reviews" element={<AdminProtectedRoute><AdminGoogleReviews /></AdminProtectedRoute>} />
             <Route path="/admin/theme" element={<AdminProtectedRoute><AdminThemeManager /></AdminProtectedRoute>} />
+            <Route path="/admin/tasks" element={<AdminProtectedRoute><AdminTasks /></AdminProtectedRoute>} />
             
             {/* Agent URL Redirects - common typos/variants */}
             <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
