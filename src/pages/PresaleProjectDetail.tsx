@@ -628,6 +628,23 @@ export default function PresaleProjectDetail() {
         <script type="application/ld+json">
           {JSON.stringify(faqSchema)}
         </script>
+        {/* Speakable Schema for AI voice assistants */}
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebPage",
+            "name": seoTitle,
+            "speakable": {
+              "@type": "SpeakableSpecification",
+              "cssSelector": [
+                "article [itemprop='description']",
+                ".project-overview",
+                ".faq-section"
+              ]
+            },
+            "url": canonicalUrl
+          })}
+        </script>
       </Helmet>
 
       <ConversionHeader hideOnMobile />

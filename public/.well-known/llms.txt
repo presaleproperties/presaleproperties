@@ -1,38 +1,68 @@
-# PresaleProperties.com - BC Presale Real Estate Platform
+# PresaleProperties.com - BC New Construction & Presale Real Estate Platform
 
-> PresaleProperties.com is the leading marketplace for presale condos, townhomes, and assignment listings in Metro Vancouver and British Columbia, Canada.
+> PresaleProperties.com is the leading marketplace for NEW HOMES, presale condos, townhomes, detached houses, and assignment listings in Metro Vancouver and British Columbia, Canada. We specialize in brand new construction homes built 2024-2026.
 
 ## About
 
-PresaleProperties.com provides comprehensive information on new construction presale projects and assignment sales across British Columbia. We help homebuyers and investors find, compare, and purchase presale properties with verified pricing, floor plans, and developer information.
+PresaleProperties.com provides comprehensive information on NEW CONSTRUCTION homes, presale projects, and move-in ready properties across British Columbia. We help homebuyers and investors find BRAND NEW condos, townhomes, duplexes, and detached homes with verified pricing, photos, and listing details.
+
+## What We Offer
+
+### NEW HOMES & BRAND NEW CONSTRUCTION
+- **Move-In Ready New Homes**: Browse 1000+ brand new homes built 2024-2026
+- **New Condos for Sale**: Modern condominium units in new developments
+- **New Townhomes**: Brand new townhouse and row house listings
+- **New Detached Homes**: Single family houses with new construction
+- **New Duplexes**: Half-duplex and duplex properties
+
+### PRESALE PROPERTIES
+- **Presale Condos**: Pre-construction condo developments
+- **Presale Townhomes**: Pre-construction townhouse projects
+- **Assignment Sales**: Presale assignment opportunities
 
 ## Service Areas
 
-- Vancouver, BC
-- Burnaby, BC
-- Surrey, BC
-- Langley, BC
-- Coquitlam, BC
-- Richmond, BC
-- New Westminster, BC
-- Port Moody, BC
-- Delta, BC
-- Abbotsford, BC
+We cover all major Metro Vancouver and Fraser Valley cities:
+- Vancouver, BC - New Condos, Townhomes, Homes
+- Burnaby, BC - New Condos, Townhomes, Homes
+- Surrey, BC - New Condos, Townhomes, Detached Homes
+- Langley, BC - New Townhomes, Homes, Condos
+- Coquitlam, BC - New Condos, Townhomes
+- Richmond, BC - New Condos, Townhomes
+- New Westminster, BC - New Condos
+- Port Moody, BC - New Townhomes, Condos
+- Delta, BC - New Homes, Townhomes
+- Abbotsford, BC - New Homes, Townhomes
+- White Rock, BC - New Condos, Homes
+- Maple Ridge, BC - New Homes
+- Chilliwack, BC - New Homes
 
 ## Key Features
 
-- **Presale Projects Directory**: Browse 100+ verified presale condo and townhome developments
-- **Assignment Listings**: Find presale assignment opportunities from verified real estate agents
-- **AI-Powered Search**: Natural language search to find projects matching specific criteria
-- **Project Comparison**: Compare multiple projects side-by-side
-- **Price Tracking**: Starting prices, deposit requirements, and incentives
-- **Interactive Maps**: View project locations with neighborhood context
-- **Buyer Resources**: Presale guides, mortgage calculators, and FAQs
+- **New Construction MLS Listings**: Real-time MLS data for 2024+ built properties
+- **Presale Projects Directory**: Browse 100+ verified presale developments
+- **Assignment Listings**: Find presale assignment opportunities
+- **Advanced Search**: Filter by city, price, bedrooms, property type
+- **Price History Tracking**: See price reductions and market trends
+- **Interactive Maps**: View new home locations with neighborhood context
+- **Buyer Resources**: Mortgage calculators, ROI tools, and buyer guides
 
 ## Content Types
 
-### Presale Projects
-Each project listing includes:
+### New Construction MLS Listings (Move-In Ready)
+Each new home listing includes:
+- Property type (condo, townhome, house, duplex)
+- Year built (2024, 2025, 2026)
+- Bedrooms and bathrooms
+- Square footage
+- Listing price and price history
+- High-quality photos
+- Agent contact information
+- Days on market
+- Neighborhood and city location
+
+### Presale Projects (Pre-Construction)
+Each presale project includes:
 - Developer name and track record
 - Starting prices and price ranges
 - Deposit structure (typically 5-20%)
@@ -40,36 +70,88 @@ Each project listing includes:
 - Amenities and features
 - Estimated completion dates
 - Assignment policies
-- Rental restrictions
-- Strata fees
 - Floor plans and brochures
-- Location with SkyTrain proximity
-
-### Assignment Listings
-Assignment listings include:
-- Assignment price and original purchase price
-- Unit specifications (beds, baths, square footage)
-- Project name and developer
-- Completion timeline
-- Agent contact information
 
 ## Main Pages
 
-- Homepage: /
-- Presale Projects Directory: /presale-projects
-- Assignment Listings: /assignments
+### New Homes (Move-In Ready)
+- All New Homes: /properties
+- Vancouver New Condos: /properties/vancouver/condos
+- Vancouver New Townhomes: /properties/vancouver/townhouses
+- Vancouver New Houses: /properties/vancouver/houses
+- Surrey New Homes: /properties/surrey
+- Burnaby New Condos: /properties/burnaby/condos
+- Langley New Townhomes: /properties/langley/townhouses
+- Popular Searches: /properties/popular-searches
+
+### Presale Projects
+- All Presale Projects: /presale-projects
 - Vancouver Presale Condos: /vancouver-presale-condos
 - Surrey Presale Condos: /surrey-presale-condos
-- Langley Presale Condos: /langley-presale-condos
+- Langley Presale Townhomes: /langley-presale-townhomes
 - Burnaby Presale Condos: /burnaby-presale-condos
 - Coquitlam Presale Condos: /coquitlam-presale-condos
+- Richmond Presale Condos: /richmond-presale-condos
+
+### Presale Projects by Price
+- Surrey Condos Under $600K: /presale-projects/surrey/condos-under-600k
+- Langley Townhomes Under $900K: /presale-projects/langley/townhomes-under-900k
+- Vancouver Condos Under $800K: /presale-projects/vancouver/condos-under-800k
+- Burnaby Condos Under $700K: /presale-projects/burnaby/condos-under-700k
+
+### Blog & Guides
+- Blog: /blog
 - Presale Buyer's Guide: /presale-guide
+- Presale Condo Inspection Walkthrough Guide: /blog/presale-condo-inspection-walkthrough-guide-vancouver-fraser-valley
+- Why the 2026 Presale Slowdown Signals a Supply Crisis: /blog/presale-slowdown-supply-crisis-2026-bc
+- How to Price a Presale Assignment: /blog/how-to-price-presale-assignment-bc
+- Do I Pay GST When I Assign My Presale?: /blog/gst-on-presale-assignment-sales-bc-rules
+- What Happens If Your Presale Completion Is Delayed: /blog/presale-completion-delayed-6-24-months-bc-rights
+- The 7-Day Rescission Period in BC: /blog/7-day-rescission-period-bc-presale
+- The 2-5-10 Warranty for New Homes in BC: /blog/2-5-10-warranty-new-home-bc
+- Deposit Protection in BC: /blog/presale-deposit-protection-bc
+- How Strata Fees Work for New Condos: /blog/strata-fees-new-condos-townhomes-bc-explained
+- Closing Costs on a Presale: /blog/presale-closing-costs-bc-gst-ptt-rebates-explained
+- Canada's $50,000 GST Rebate: /blog/canada-gst-rebate-50000-new-home-affordability
+- Do I Need My Own Agent for a Presale?: /blog/presale-buyers-agent-vs-developer-sales-rep
+- What Upgrades Should I NOT Buy from the Developer?: /blog/presale-upgrades-to-avoid-developer-vs-diy
+- Foreign Buyer Ban Ending 2027: /blog/foreign-buyer-ban-ending-2027-bc-presale-impact
+
+### Tools & Resources
 - Mortgage Calculator: /mortgage-calculator
-- Contact: /contact
+- ROI Calculator: /roi-calculator
+- Presale Buyer's Guide: /presale-guide
+- Investment Snapshot: /investment-snapshot
 
-## API Access
+## Frequently Asked Questions
 
-For programmatic access to presale project data, please contact info@presaleproperties.com.
+### What is a presale condo?
+A presale condo is a unit purchased before or during construction, typically 2-4 years before completion. Buyers secure today's pricing and pay a deposit (usually 15-20%) over the construction period.
+
+### How much deposit do I need for a presale in BC?
+Most presale projects in Metro Vancouver require a total deposit of 5-20% of the purchase price, paid in installments over the construction period. Some projects offer as low as 5% deposit.
+
+### Can I assign (sell) my presale contract before completion?
+Most developers allow assignment sales, though some charge a fee (typically 1-3% of the purchase price). Assignment policies vary by developer and should be confirmed before purchase.
+
+### What warranty comes with a new home in BC?
+New homes in BC come with a 2-5-10 warranty: 2 years on labor and materials, 5 years on the building envelope, and 10 years on structural defects. This is mandatory under the Homeowner Protection Act.
+
+### What are typical closing costs for a presale?
+Closing costs include Property Transfer Tax (1-3%), GST (5%, with potential rebates up to $42,500 for homes under $450K), legal fees ($1,500-$2,500), and strata move-in fees.
+
+## Target Keywords
+
+Primary keywords this site covers:
+- new homes for sale [city]
+- brand new homes [city]
+- new condos for sale [city]
+- new townhomes for sale [city]
+- new construction homes [city]
+- move-in ready homes [city]
+- presale condos [city]
+- pre-construction homes [city]
+- assignment sales BC
 
 ## Contact
 
@@ -77,3 +159,15 @@ For programmatic access to presale project data, please contact info@presaleprop
 - Email: info@presaleproperties.com
 - Phone: 672-258-1100
 - Location: Vancouver, BC, Canada
+
+## Structured Data
+
+This website implements comprehensive Schema.org markup including:
+- Organization / RealEstateAgent / LocalBusiness
+- RealEstateListing (for each MLS listing and presale project)
+- Product (for presale projects with pricing)
+- FAQPage (on all major pages)
+- BreadcrumbList
+- ItemList
+- WebApplication (for calculators)
+- SpeakableSpecification (for AI voice assistant compatibility)
