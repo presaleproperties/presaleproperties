@@ -113,6 +113,20 @@ export function EnhancedSEO({
           {JSON.stringify(data)}
         </script>
       ))}
+      
+      {/* Speakable Schema for AI voice assistants */}
+      <script type="application/ld+json">
+        {JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebPage",
+          "name": optimizedTitle,
+          "speakable": {
+            "@type": "SpeakableSpecification",
+            "cssSelector": ["article", "main h1", "main p", ".faq-section"]
+          },
+          "url": canonicalUrl
+        })}
+      </script>
     </Helmet>
   );
 }
