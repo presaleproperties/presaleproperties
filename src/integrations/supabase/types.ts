@@ -3148,10 +3148,8 @@ export type Database = {
         Row: {
           avatar_url: string | null
           brokerage_name: string | null
-          email: string | null
           full_name: string | null
           id: string | null
-          phone: string | null
           user_id: string | null
           verification_status:
             | Database["public"]["Enums"]["agent_verification_status"]
