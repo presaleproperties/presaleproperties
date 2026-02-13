@@ -52,10 +52,11 @@ interface DashboardStats {
     status: string;
   }>;
   topProjects: Array<{
-    id: string;
-    name: string;
-    city: string;
-    view_count: number;
+    project_id: string;
+    project_name: string;
+    project_city: string;
+    total_views: number;
+    unique_visitors: number;
   }>;
 }
 
@@ -129,7 +130,7 @@ export default function AdminOverview() {
         supabase.from("bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
         supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, presale_projects(name)").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
-        supabase.from("presale_projects").select("id, name, city, view_count").eq("is_published", true).order("view_count", { ascending: false }).limit(5),
+        supabase.rpc("get_top_viewed_projects", { days_back: 90, result_limit: 5 }),
         supabase.from("listings").select("*", { count: "exact", head: true }),
         supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "published"),
         supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
@@ -384,26 +385,33 @@ export default function AdminOverview() {
                   <TrendingUp className="h-3.5 w-3.5 text-blue-600" />
                 </div>
                 <CardTitle className="text-sm font-semibold">Top Projects</CardTitle>
+                <span className="text-[10px] text-muted-foreground ml-auto">Last 90 days</span>
               </div>
             </CardHeader>
             <CardContent className="px-5 pb-5 pt-0">
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
                 {stats.topProjects.map((project, index) => (
-                  <Link key={project.id} to={`/admin/projects/${project.id}/edit`}>
+                  <Link key={project.project_id} to={`/admin/projects/${project.project_id}/edit`}>
                     <div className="p-3.5 rounded-xl border border-border/60 hover:border-blue-200 hover:bg-blue-50/30 transition-all duration-200 cursor-pointer group">
                       <div className="flex items-baseline justify-between mb-1.5">
                         <span className="text-[10px] font-bold text-blue-500 bg-blue-50 px-1.5 py-0.5 rounded">#{index + 1}</span>
-                        <span className="text-[11px] text-muted-foreground flex items-center gap-0.5">
-                          <Eye className="h-2.5 w-2.5" />
-                          {project.view_count.toLocaleString()}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[11px] text-muted-foreground flex items-center gap-0.5" title="Total views">
+                            <Eye className="h-2.5 w-2.5" />
+                            {project.total_views.toLocaleString()}
+                          </span>
+                          <span className="text-[11px] text-muted-foreground flex items-center gap-0.5" title="Unique visitors">
+                            <Users className="h-2.5 w-2.5" />
+                            {project.unique_visitors.toLocaleString()}
+                          </span>
+                        </div>
                       </div>
                       <h4 className="text-xs font-semibold truncate group-hover:text-blue-700 transition-colors">
-                        {project.name}
+                        {project.project_name}
                       </h4>
                       <p className="text-[10px] text-muted-foreground flex items-center gap-0.5 mt-0.5">
                         <MapPin className="h-2.5 w-2.5" />
-                        {project.city}
+                        {project.project_city}
                       </p>
                     </div>
                   </Link>

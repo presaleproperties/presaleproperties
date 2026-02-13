@@ -3211,6 +3211,16 @@ export type Database = {
       }
     }
     Functions: {
+      get_top_viewed_projects: {
+        Args: { days_back?: number; result_limit?: number }
+        Returns: {
+          project_city: string
+          project_id: string
+          project_name: string
+          total_views: number
+          unique_visitors: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
