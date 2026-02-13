@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { EngagementFunnel } from "@/components/admin/dashboard/EngagementFunnel";
 import { TopProjectsTable } from "@/components/admin/dashboard/TopProjectsTable";
 import { TopListingsTable } from "@/components/admin/dashboard/TopListingsTable";
+import { TopMlsListingsTable } from "@/components/admin/dashboard/TopMlsListingsTable";
 
 import { 
   Users, 
@@ -72,6 +73,19 @@ interface DashboardStats {
     view_count: number;
     lead_count: number;
   }>;
+  topMlsListings: Array<{
+    listing_id: string;
+    listing_key: string;
+    property_address: string;
+    city: string;
+    bedrooms_total: number | null;
+    bathrooms_total: number | null;
+    listing_price: number;
+    total_views: number;
+    unique_viewers: number;
+    cta_clicks: number;
+    form_starts: number;
+  }>;
   funnel: {
     total_page_views: number;
     total_property_views: number;
@@ -112,6 +126,7 @@ export default function AdminOverview() {
         totalAssignmentsRes, publishedAssignmentsRes, pendingAssignmentsRes,
         funnelRes,
         topListingsRes,
+        topMlsListingsRes,
       ] = await Promise.all([
         supabase.from("presale_projects").select("*", { count: "exact", head: true }),
         supabase.from("presale_projects").select("*", { count: "exact", head: true }).eq("is_published", true),
@@ -128,6 +143,7 @@ export default function AdminOverview() {
         supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
         supabase.rpc("get_engagement_funnel", { days_back: 90 }),
         supabase.from("listings").select("id, title, project_name, city, assignment_price, status").eq("status", "published").order("created_at", { ascending: false }).limit(5),
+        supabase.rpc("get_top_mls_listings_with_engagement", { days_back: 90, result_limit: 5 }),
       ]);
 
       // Build top listings with lead counts
@@ -154,6 +170,7 @@ export default function AdminOverview() {
         recentBookings: recentBookingsRes.data || [],
         topProjects: topProjectsRes.data || [],
         topListings: listingsData,
+        topMlsListings: topMlsListingsRes.data || [],
         funnel: Array.isArray(funnelData) ? funnelData[0] || null : funnelData,
       });
     } catch (error) {
@@ -367,6 +384,9 @@ export default function AdminOverview() {
 
         {/* Top Listings */}
         <TopListingsTable listings={stats?.topListings ?? []} />
+
+        {/* Top Move-In Ready (MLS) */}
+        <TopMlsListingsTable listings={stats?.topMlsListings ?? []} />
       </div>
     </AdminLayout>
   );

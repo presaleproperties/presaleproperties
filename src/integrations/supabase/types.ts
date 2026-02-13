@@ -3224,6 +3224,22 @@ export type Database = {
           unique_property_viewers: number
         }[]
       }
+      get_top_mls_listings_with_engagement: {
+        Args: { days_back?: number; result_limit?: number }
+        Returns: {
+          bathrooms_total: number
+          bedrooms_total: number
+          city: string
+          cta_clicks: number
+          form_starts: number
+          listing_id: string
+          listing_key: string
+          listing_price: number
+          property_address: string
+          total_views: number
+          unique_viewers: number
+        }[]
+      }
       get_top_projects_with_engagement: {
         Args: { days_back?: number; result_limit?: number }
         Returns: {
