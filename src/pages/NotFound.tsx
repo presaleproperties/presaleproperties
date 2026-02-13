@@ -40,7 +40,7 @@ const NotFound = () => {
         {/* Signal 404 status for prerender services */}
         <meta name="prerender-status-code" content="404" />
         {/* Prevent any canonical inheritance */}
-        <link rel="canonical" href="https://presaleproperties.com/404" />
+        {/* No canonical - 404 pages should not be indexed */}
       </Helmet>
       
       <ConversionHeader />

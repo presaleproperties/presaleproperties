@@ -3,6 +3,7 @@ import { useParams, Navigate, useLocation, useSearchParams } from "react-router-
 import { supabase } from "@/integrations/supabase/client";
 import { generateProjectUrl, slugify, getProjectTypeSlug } from "@/lib/seoUrls";
 import { Loader2 } from "lucide-react";
+import NotFound from "@/pages/NotFound";
 
 /**
  * SEO Redirect Component for Presale Projects
@@ -84,8 +85,8 @@ export function PresaleProjectSEORedirect() {
   }
 
   if (notFound) {
-    // Return to 404 page - the NotFound component should set proper 404 status
-    return <Navigate to="/404" replace />;
+    // Render 404 inline to preserve the original URL for debugging
+    return <NotFound />;
   }
 
   if (redirectUrl) {
