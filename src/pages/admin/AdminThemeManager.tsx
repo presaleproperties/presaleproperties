@@ -21,8 +21,10 @@ import {
   AlertCircle,
   CheckCircle,
   Info,
-  CircleDot
+  CircleDot,
+  Image
 } from "lucide-react";
+import { FaviconManager } from "@/components/admin/FaviconManager";
 import { toast } from "sonner";
 
 const FONT_OPTIONS = [
@@ -134,7 +136,7 @@ export default function AdminThemeManager() {
         </div>
 
         <Tabs defaultValue="colors" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
+          <TabsList className="grid w-full grid-cols-4 lg:w-[520px]">
             <TabsTrigger value="colors" className="gap-2">
               <Palette className="h-4 w-4" />
               Colors
@@ -142,6 +144,10 @@ export default function AdminThemeManager() {
             <TabsTrigger value="typography" className="gap-2">
               <Type className="h-4 w-4" />
               Typography
+            </TabsTrigger>
+            <TabsTrigger value="favicons" className="gap-2">
+              <Image className="h-4 w-4" />
+              Favicons
             </TabsTrigger>
             <TabsTrigger value="preview" className="gap-2">
               <Eye className="h-4 w-4" />
@@ -422,6 +428,11 @@ export default function AdminThemeManager() {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Favicons Tab */}
+          <TabsContent value="favicons" className="space-y-6">
+            <FaviconManager />
           </TabsContent>
 
           {/* Preview Tab */}
