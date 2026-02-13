@@ -7,7 +7,7 @@ const corsHeaders = {
 
 const SITE_URL = "https://presaleproperties.com";
 
-// Expected city pages that MUST be in sitemap
+// Expected city pages that MUST be in sitemap (NEW URL structure)
 const PRIMARY_CITIES = ["surrey", "vancouver", "langley", "coquitlam", "burnaby", "richmond"];
 const SECONDARY_CITIES = ["delta", "abbotsford", "port-coquitlam", "port-moody", 
   "new-westminster", "north-vancouver", "white-rock", "maple-ridge"];
@@ -31,8 +31,10 @@ interface NonIndexedAnalysis {
 
 interface CityPageStatus {
   city: string;
+  hubUrl: string;
   condosUrl: string;
   townhomesUrl: string;
+  hubInSitemap: boolean;
   condosInSitemap: boolean;
   townhomesInSitemap: boolean;
   isPrimary: boolean;
@@ -73,16 +75,22 @@ Deno.serve(async (req) => {
     console.log("🔍 Starting SEO Health Check...");
 
     // ==========================================
-    // 1. FETCH AND ANALYZE SITEMAP
+    // 1. FETCH AND ANALYZE SITEMAP (from edge function directly)
     // ==========================================
-    console.log("📋 Fetching sitemap...");
+    console.log("📋 Fetching sitemap from edge function...");
     
     let sitemapUrls: string[] = [];
     let sitemapUrlCount = 0;
     let sitemapBreakdown = {};
 
     try {
-      const sitemapResponse = await fetch(`${SITE_URL}/sitemap.xml`);
+      // Fetch from the edge function directly (the static file is now a sitemap index)
+      const sitemapResponse = await fetch(`${supabaseUrl}/functions/v1/generate-sitemap`, {
+        headers: {
+          "Authorization": `Bearer ${supabaseKey}`,
+        }
+      });
+      
       if (sitemapResponse.ok) {
         const sitemapXml = await sitemapResponse.text();
         
@@ -91,25 +99,35 @@ Deno.serve(async (req) => {
         sitemapUrls = urlMatches.map(match => match.replace(/<\/?loc>/g, ""));
         sitemapUrlCount = sitemapUrls.length;
         
-        // Categorize URLs
-        const staticPages = sitemapUrls.filter(u => 
-          !u.includes("-presale-") && !u.includes("/blog/") && 
-          !u.includes("/developers/") && !u.includes("/properties/")
+        // Categorize URLs using NEW URL structure
+        const programmaticPages = sitemapUrls.filter(u => 
+          u.match(/\/presale-projects\/[a-z-]+\/(condos|townhomes)/)
         );
-        const cityPages = sitemapUrls.filter(u => 
-          u.match(/\/[a-z-]+-presale-(condos|townhomes)$/)
+        const cityHubPages = sitemapUrls.filter(u => 
+          u.match(/\/presale-projects\/[a-z-]+$/)
         );
         const projectPages = sitemapUrls.filter(u => 
           u.match(/\/[a-z-]+-presale-(condos|townhomes|homes|duplexes)-[a-z0-9-]+$/)
         );
         const blogPages = sitemapUrls.filter(u => u.includes("/blog/"));
-        const developerPages = sitemapUrls.filter(u => u.includes("/developers/"));
-        const propertiesPages = sitemapUrls.filter(u => u.includes("/properties/"));
+        const developerPages = sitemapUrls.filter(u => u.match(/\/developers\/[a-z]/));
+        const propertiesPages = sitemapUrls.filter(u => u.match(/\/properties\/[a-z]/));
+        const neighborhoodPages = sitemapUrls.filter(u => 
+          u.match(/\/[a-z-]+-presale$/)
+        );
+        const staticPages = sitemapUrls.filter(u => 
+          !programmaticPages.includes(u) && !cityHubPages.includes(u) &&
+          !projectPages.includes(u) && !blogPages.includes(u) && 
+          !developerPages.includes(u) && !propertiesPages.includes(u) &&
+          !neighborhoodPages.includes(u)
+        );
         
         sitemapBreakdown = {
           total: sitemapUrlCount,
           static: staticPages.length,
-          cityPresale: cityPages.length,
+          cityHubs: cityHubPages.length,
+          programmatic: programmaticPages.length,
+          neighborhoods: neighborhoodPages.length,
           projects: projectPages.length,
           blog: blogPages.length,
           developers: developerPages.length,
@@ -117,21 +135,15 @@ Deno.serve(async (req) => {
         };
 
         console.log(`✅ Sitemap fetched: ${sitemapUrlCount} URLs`);
+        console.log(`  Breakdown:`, JSON.stringify(sitemapBreakdown));
 
         // Check for sitemap size issues
         if (sitemapUrlCount < 100) {
           issues.push({
             type: "sitemap_too_small",
-            severity: "warning",
-            message: `Sitemap has only ${sitemapUrlCount} URLs (expected 150-300)`,
-            details: "Low URL count may indicate missing pages or generation issues",
-          });
-        } else if (sitemapUrlCount > 500) {
-          issues.push({
-            type: "sitemap_too_large",
-            severity: "warning",
-            message: `Sitemap has ${sitemapUrlCount} URLs (target: 150-300)`,
-            details: "Large sitemap may dilute crawl budget",
+            severity: "error",
+            message: `Sitemap has only ${sitemapUrlCount} URLs (expected 1000+)`,
+            details: "Low URL count means programmatic pages or project pages are missing",
           });
         }
 
@@ -141,7 +153,7 @@ Deno.serve(async (req) => {
             type: "no_project_pages",
             severity: "error",
             message: "No presale project pages found in sitemap",
-            details: "Check project status filtering in generate-sitemap function",
+            details: "Check is_published and is_indexed flags in presale_projects table",
           });
         }
 
@@ -150,7 +162,6 @@ Deno.serve(async (req) => {
           type: "sitemap_fetch_failed",
           severity: "error",
           message: `Failed to fetch sitemap: HTTP ${sitemapResponse.status}`,
-          url: `${SITE_URL}/sitemap.xml`,
         });
       }
     } catch (sitemapError) {
@@ -158,27 +169,30 @@ Deno.serve(async (req) => {
         type: "sitemap_error",
         severity: "error",
         message: `Sitemap fetch error: ${sitemapError instanceof Error ? sitemapError.message : "Unknown"}`,
-        url: `${SITE_URL}/sitemap.xml`,
       });
     }
 
     // ==========================================
-    // 2. CHECK CITY PAGES IN SITEMAP
+    // 2. CHECK CITY PAGES IN SITEMAP (NEW URL structure)
     // ==========================================
-    console.log("🏙️ Checking city pages...");
+    console.log("🏙️ Checking city pages (new URL structure)...");
     
     const cityPagesStatus: CityPageStatus[] = [];
     const allCities = [...PRIMARY_CITIES, ...SECONDARY_CITIES];
 
     for (const city of allCities) {
-      const condosUrl = `${SITE_URL}/${city}-presale-condos`;
-      const townhomesUrl = `${SITE_URL}/${city}-presale-townhomes`;
+      // NEW canonical URL structure
+      const hubUrl = `${SITE_URL}/presale-projects/${city}`;
+      const condosUrl = `${SITE_URL}/presale-projects/${city}/condos`;
+      const townhomesUrl = `${SITE_URL}/presale-projects/${city}/townhomes`;
       const isPrimary = PRIMARY_CITIES.includes(city);
 
       const status: CityPageStatus = {
         city,
+        hubUrl,
         condosUrl,
         townhomesUrl,
+        hubInSitemap: sitemapUrls.includes(hubUrl),
         condosInSitemap: sitemapUrls.includes(condosUrl),
         townhomesInSitemap: sitemapUrls.includes(townhomesUrl),
         isPrimary,
@@ -187,33 +201,42 @@ Deno.serve(async (req) => {
       cityPagesStatus.push(status);
 
       // Report missing city pages
+      if (!status.hubInSitemap) {
+        issues.push({
+          type: "city_hub_missing",
+          severity: isPrimary ? "error" : "warning",
+          message: `${city} hub page missing from sitemap`,
+          url: hubUrl,
+        });
+      }
       if (!status.condosInSitemap) {
         issues.push({
-          type: "city_page_missing",
+          type: "city_condos_missing",
           severity: isPrimary ? "error" : "warning",
-          message: `${city.charAt(0).toUpperCase() + city.slice(1)} presale condos page missing from sitemap`,
+          message: `${city} condos page missing from sitemap`,
           url: condosUrl,
         });
       }
       if (!status.townhomesInSitemap) {
         issues.push({
-          type: "city_page_missing",
+          type: "city_townhomes_missing",
           severity: isPrimary ? "error" : "warning",
-          message: `${city.charAt(0).toUpperCase() + city.slice(1)} presale townhomes page missing from sitemap`,
+          message: `${city} townhomes page missing from sitemap`,
           url: townhomesUrl,
         });
       }
     }
 
-    const citiesInSitemap = cityPagesStatus.filter(c => c.condosInSitemap && c.townhomesInSitemap).length;
-    console.log(`✅ City pages checked: ${citiesInSitemap}/${allCities.length} complete`);
+    const citiesFullyIndexed = cityPagesStatus.filter(c => 
+      c.hubInSitemap && c.condosInSitemap && c.townhomesInSitemap
+    ).length;
+    console.log(`✅ City pages checked: ${citiesFullyIndexed}/${allCities.length} fully indexed`);
 
     // ==========================================
     // 3. CHECK FOR NOINDEX PAGES IN SITEMAP
     // ==========================================
-    console.log("🚫 Checking for noindex pages in sitemap...");
+    console.log("🚫 Checking for noindex/redirect pages in sitemap...");
     
-    // Pages that should NOT be in sitemap
     const noindexPatterns = [
       /\/map-search/,
       /\?city=/,
@@ -227,7 +250,11 @@ Deno.serve(async (req) => {
       /\?page=/,
     ];
 
+    // Also check for legacy redirect URLs that shouldn't be in sitemap
+    const legacyRedirectPattern = /\/[a-z-]+-presale-(condos|townhomes)$/;
+
     for (const url of sitemapUrls) {
+      // Check noindex patterns
       for (const pattern of noindexPatterns) {
         if (pattern.test(url)) {
           issues.push({
@@ -238,6 +265,21 @@ Deno.serve(async (req) => {
             details: "Filter/parameter URLs should not be in sitemap",
           });
           break;
+        }
+      }
+      
+      // Check for legacy redirect URLs (should NOT be in sitemap)
+      if (legacyRedirectPattern.test(url)) {
+        const path = url.replace(SITE_URL, "");
+        // Exclude neighborhood landing pages which are valid
+        if (!path.match(/-(brentwood|metrotown|cloverdale|willoughby|city-centre|burquitlam|mount-pleasant|brighouse|lonsdale|downtown|town-centre)-presale$/)) {
+          warnings.push({
+            type: "redirect_in_sitemap",
+            severity: "warning",
+            message: `Legacy redirect URL in sitemap: ${url}`,
+            url,
+            details: "301 redirect URLs should not be in sitemap per Google guidelines",
+          });
         }
       }
     }
@@ -260,12 +302,10 @@ Deno.serve(async (req) => {
         message: `Failed to query projects: ${projectsError.message}`,
       });
     } else {
-      const activeProjects = projects?.filter(p => p.status === "active") || [];
-      const indexableProjectCount = activeProjects.length;
+      const indexableProjects = projects || [];
       
       // Check if all indexable projects are in sitemap
-      const projectsNotInSitemap = activeProjects.filter(p => {
-        // Try to find the project in sitemap URLs
+      const projectsNotInSitemap = indexableProjects.filter(p => {
         return !sitemapUrls.some(url => url.includes(p.slug));
       });
 
@@ -273,16 +313,17 @@ Deno.serve(async (req) => {
         issues.push({
           type: "projects_missing_from_sitemap",
           severity: "warning",
-          message: `${projectsNotInSitemap.length} active projects not found in sitemap`,
+          message: `${projectsNotInSitemap.length} published projects not found in sitemap`,
           details: projectsNotInSitemap.slice(0, 5).map(p => p.name).join(", "),
+          count: projectsNotInSitemap.length,
         });
       }
 
-      console.log(`✅ Database check: ${indexableProjectCount} active projects, ${projectsNotInSitemap.length} missing from sitemap`);
+      console.log(`✅ Database check: ${indexableProjects.length} indexable projects, ${projectsNotInSitemap.length} missing from sitemap`);
     }
 
     // ==========================================
-    // 5. CHECK app_settings FOR SITEMAP METADATA
+    // 5. CHECK SITEMAP GENERATION METADATA
     // ==========================================
     console.log("⚙️ Checking sitemap generation metadata...");
     
@@ -318,20 +359,6 @@ Deno.serve(async (req) => {
       redirectChains: { count: 0, examples: [] },
       blockedByRobots: { count: 0, examples: [] },
     };
-
-    // Check for duplicate content patterns (similar URL structures)
-    const urlPatterns = new Map<string, string[]>();
-    for (const url of sitemapUrls) {
-      // Group by base pattern (without slug)
-      const match = url.match(/^(.*-presale-(?:condos|townhomes|homes|duplexes))-/);
-      if (match) {
-        const pattern = match[1];
-        if (!urlPatterns.has(pattern)) {
-          urlPatterns.set(pattern, []);
-        }
-        urlPatterns.get(pattern)!.push(url);
-      }
-    }
 
     // Check for potential thin content (blog posts without substantial content)
     const { data: blogPosts } = await supabase
@@ -393,29 +420,6 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Check for potential duplicate title patterns
-    const { data: projectTitles } = await supabase
-      .from("presale_projects")
-      .select("name, city, neighborhood")
-      .eq("is_published", true);
-
-    const titlePatterns = new Map<string, number>();
-    if (projectTitles) {
-      for (const p of projectTitles) {
-        const pattern = `${p.city}-${p.neighborhood}`.toLowerCase();
-        titlePatterns.set(pattern, (titlePatterns.get(pattern) || 0) + 1);
-      }
-      
-      for (const [pattern, count] of titlePatterns) {
-        if (count > 3) {
-          nonIndexedAnalysis.duplicateCanonical.count += count;
-          if (nonIndexedAnalysis.duplicateCanonical.examples.length < 3) {
-            nonIndexedAnalysis.duplicateCanonical.examples.push(`${pattern}: ${count} projects`);
-          }
-        }
-      }
-    }
-
     // ==========================================
     // 7. GENERATE SUMMARY
     // ==========================================
@@ -424,7 +428,7 @@ Deno.serve(async (req) => {
     
     let summary = "";
     if (errorCount === 0 && warningCount === 0) {
-      summary = `✅ SEO Health Check passed! Sitemap contains ${sitemapUrlCount} URLs. All ${citiesInSitemap} city pages indexed.`;
+      summary = `✅ SEO Health Check passed! Sitemap contains ${sitemapUrlCount} URLs. All ${citiesFullyIndexed} city pages indexed.`;
     } else if (errorCount === 0) {
       summary = `⚠️ SEO Health Check completed with ${warningCount} warnings. Sitemap: ${sitemapUrlCount} URLs.`;
     } else {
@@ -459,8 +463,8 @@ Deno.serve(async (req) => {
       sitemapBreakdown,
       issueCount: errorCount,
       warningCount,
-      cityPagesIndexed: citiesInSitemap,
-      totalCityPages: allCities.length * 2,
+      cityPagesIndexed: citiesFullyIndexed,
+      totalCityPages: allCities.length * 3, // hub + condos + townhomes
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
