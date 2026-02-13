@@ -265,7 +265,7 @@ export default function AdminOverview() {
                       <Icon className={`h-5 w-5 ${config.iconColor}`} />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold tracking-tight text-foreground">{statValues[i].value.toLocaleString()}</p>
+                  <p className="text-2xl font-bold tracking-tight text-foreground">{(statValues[i]?.value ?? 0).toLocaleString()}</p>
                   <p className="text-xs font-medium text-muted-foreground mt-0.5 mb-1">{config.label}</p>
                   <div>{statValues[i].sub}</div>
                 </CardContent>
