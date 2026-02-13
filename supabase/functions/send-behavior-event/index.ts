@@ -6,6 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Extract client IP from request headers
+function getClientIP(req: Request): string | null {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("cf-connecting-ip")
+    || req.headers.get("x-real-ip")
+    || null;
+}
+
 type BehaviorEventPayload = Record<string, unknown> & {
   event_id?: string;
   event_name?: string;
@@ -31,6 +39,7 @@ serve(async (req: Request): Promise<Response> => {
   }
 
   try {
+    const clientIP = getClientIP(req);
     const payload: BehaviorEventPayload = await req.json();
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -73,6 +82,11 @@ serve(async (req: Request): Promise<Response> => {
         device_type: payload.device_type,
       };
 
+      // Add IP address to activity record
+      if (clientIP) {
+        activityData.ip_address = clientIP;
+      }
+
       // Link to client if known
       if (existingClient) {
         isKnownLead = true;
@@ -94,6 +108,11 @@ serve(async (req: Request): Promise<Response> => {
         const updates: Record<string, unknown> = {
           last_seen_at: new Date().toISOString(),
         };
+
+        // Update last known IP
+        if (clientIP) {
+          updates.last_ip = clientIP;
+        }
 
         if (payload.event_name === "property_view") {
           updates.total_property_views = (existingClient.total_property_views || 0) + 1;
@@ -166,6 +185,7 @@ serve(async (req: Request): Promise<Response> => {
         
         const enrichedPayload = {
           ...payload,
+          ip_address: clientIP,
           is_known_lead: isKnownLead,
           leadId: leadDetails?.email || payload.visitor_id || null,
           leadName: fullName || null,
