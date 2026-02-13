@@ -6,6 +6,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Extract client IP from request headers
+function getClientIP(req: Request): string | null {
+  return req.headers.get("x-forwarded-for")?.split(",")[0]?.trim()
+    || req.headers.get("cf-connecting-ip")
+    || req.headers.get("x-real-ip")
+    || null;
+}
+
 // Valid activity types
 const VALID_ACTIVITY_TYPES = [
   "page_view",
@@ -96,6 +104,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const clientIP = getClientIP(req);
     let payload: ActivityPayload;
     try {
       payload = await req.json();
@@ -170,6 +179,11 @@ const handler = async (req: Request): Promise<Response> => {
       }
     }
 
+    // Add IP address to activity record
+    if (clientIP) {
+      activityData.ip_address = clientIP;
+    }
+
     // If we found a client, link the activity
     if (existingClient) {
       activityData.client_id = existingClient.id;
@@ -178,6 +192,11 @@ const handler = async (req: Request): Promise<Response> => {
       const updates: Record<string, unknown> = {
         last_seen_at: new Date().toISOString(),
       };
+
+      // Update last known IP
+      if (clientIP) {
+        updates.last_ip = clientIP;
+      }
 
       if (activity_type === "property_view") {
         updates.total_property_views = (existingClient.total_property_views || 0) + 1;

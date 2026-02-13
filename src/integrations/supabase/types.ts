@@ -575,6 +575,7 @@ export type Database = {
           device_type: string | null
           duration_seconds: number | null
           id: string
+          ip_address: string | null
           listing_key: string | null
           page_title: string | null
           page_url: string | null
@@ -597,6 +598,7 @@ export type Database = {
           device_type?: string | null
           duration_seconds?: number | null
           id?: string
+          ip_address?: string | null
           listing_key?: string | null
           page_title?: string | null
           page_url?: string | null
@@ -619,6 +621,7 @@ export type Database = {
           device_type?: string | null
           duration_seconds?: number | null
           id?: string
+          ip_address?: string | null
           listing_key?: string | null
           page_title?: string | null
           page_url?: string | null
@@ -659,6 +662,7 @@ export type Database = {
           last_alert_sent_at: string | null
           last_drip_sent: number | null
           last_email_opened_at: string | null
+          last_ip: string | null
           last_name: string | null
           last_seen_at: string | null
           next_drip_at: string | null
@@ -693,6 +697,7 @@ export type Database = {
           last_alert_sent_at?: string | null
           last_drip_sent?: number | null
           last_email_opened_at?: string | null
+          last_ip?: string | null
           last_name?: string | null
           last_seen_at?: string | null
           next_drip_at?: string | null
@@ -727,6 +732,7 @@ export type Database = {
           last_alert_sent_at?: string | null
           last_drip_sent?: number | null
           last_email_opened_at?: string | null
+          last_ip?: string | null
           last_name?: string | null
           last_seen_at?: string | null
           next_drip_at?: string | null
