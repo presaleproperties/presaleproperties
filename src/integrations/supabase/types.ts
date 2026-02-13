@@ -3211,6 +3211,33 @@ export type Database = {
       }
     }
     Functions: {
+      get_engagement_funnel: {
+        Args: { days_back?: number }
+        Returns: {
+          total_cta_clicks: number
+          total_floorplan_views: number
+          total_form_starts: number
+          total_form_submits: number
+          total_page_views: number
+          total_property_views: number
+          unique_page_viewers: number
+          unique_property_viewers: number
+        }[]
+      }
+      get_top_projects_with_engagement: {
+        Args: { days_back?: number; result_limit?: number }
+        Returns: {
+          cta_clicks: number
+          floorplan_views: number
+          form_starts: number
+          form_submits: number
+          project_city: string
+          project_id: string
+          project_name: string
+          total_views: number
+          unique_visitors: number
+        }[]
+      }
       get_top_viewed_projects: {
         Args: { days_back?: number; result_limit?: number }
         Returns: {
