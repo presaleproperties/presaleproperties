@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en-CA">
+  <head>
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="/@vite/client"></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f1419" media="(prefers-color-scheme: dark)" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <!-- IMPORTANT: Page-specific meta tags (title, description, canonical, og:*, twitter:*) 
+         are managed by react-helmet-async in each page component.
+         DO NOT add duplicate static meta tags here. -->
+    
+    <!-- Site-wide verification and bot directives -->
+    <meta name="google-site-verification" content="9GNVX8D84c4XpBNkoor8Al3XXW88N_tyUhRkXXxQvD8" />
+    <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="bingbot" content="index, follow" />
+    
+    <!-- Language and locale -->
+    <meta http-equiv="content-language" content="en-CA" />
+    <meta name="language" content="English" />
+    
+    <!-- AI Discovery Meta Tags - Site-wide -->
+    <meta name="ai:description" content="PresaleProperties.com is Metro Vancouver's leading real estate marketplace for presale condos, townhomes, and new construction homes. The platform offers verified pricing, floor plans, deposit structures, and developer information for 100+ active projects across Vancouver, Surrey, Langley, Coquitlam, Burnaby, Richmond, Delta, and Abbotsford, British Columbia, Canada." />
+    <meta name="ai:keywords" content="presale condos Vancouver, new construction BC, pre-construction homes, Vancouver real estate, BC presales, assignment sales, VIP pricing, floor plans, deposit structure" />
+    <meta name="ai:site_type" content="real estate marketplace" />
+    <meta name="ai:service_area" content="Metro Vancouver, Fraser Valley, British Columbia, Canada" />
+    <meta name="ai:primary_service" content="presale condo and townhome listings with VIP pricing, floor plans, and developer information" />
+    <meta name="ai-content-declaration" content="human-curated, agent-verified" />
+    <meta name="ai-discoverable" content="true" />
+    
+    <!-- Geo Meta Tags - Site-wide default -->
+    <meta name="geo.region" content="CA-BC" />
+    <meta name="ICBM" content="49.2827, -123.1207" />
+    <meta name="distribution" content="global" />
+    <meta name="rating" content="general" />
+    <meta name="revisit-after" content="3 days" />
+
+    <!-- Structured Data - Organization (site-wide, does not change per page) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": ["RealEstateAgent", "LocalBusiness", "Organization"],
+      "@id": "https://presaleproperties.com/#organization",
+      "name": "PresaleProperties.com",
+      "alternateName": ["Presale Properties", "PresaleProperties"],
+      "legalName": "Presale Properties",
+      "url": "https://presaleproperties.com",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://presaleproperties.com/logo.svg",
+        "width": 512,
+        "height": 512
+      },
+      "image": "https://presaleproperties.com/og-image.png",
+      "description": "Metro Vancouver's leading marketplace for presale condos, townhomes, and new construction homes. Browse 100+ verified projects with VIP pricing, floor plans, deposit structures, and developer information.",
+      "slogan": "Find Your New Home in Metro Vancouver",
+      "telephone": "+1-672-258-1100",
+      "email": "info@presaleproperties.com",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "666 Burrard St, Suite 500",
+        "addressLocality": "Vancouver",
+        "addressRegion": "BC",
+        "postalCode": "V6C 3P6",
+        "addressCountry": "CA"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 49.2827,
+        "longitude": -123.1207
+      },
+      "areaServed": [
+        { "@type": "City", "name": "Vancouver" },
+        { "@type": "City", "name": "Surrey" },
+        { "@type": "City", "name": "Langley" },
+        { "@type": "City", "name": "Coquitlam" },
+        { "@type": "City", "name": "Burnaby" },
+        { "@type": "City", "name": "Richmond" },
+        { "@type": "City", "name": "Delta" },
+        { "@type": "City", "name": "Abbotsford" },
+        { "@type": "City", "name": "New Westminster" },
+        { "@type": "City", "name": "Port Moody" }
+      ],
+      "knowsAbout": [
+        "Presale condos in Vancouver",
+        "New construction homes in Metro Vancouver", 
+        "Pre-construction real estate British Columbia",
+        "Presale townhomes in Surrey",
+        "Presale investment strategies",
+        "Assignment sales BC",
+        "VIP presale access and early registration"
+      ],
+      "priceRange": "$400,000 - $3,000,000",
+      "currenciesAccepted": "CAD",
+      "paymentAccepted": "Cash, Mortgage",
+      "openingHoursSpecification": {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+        "opens": "09:00",
+        "closes": "21:00"
+      },
+      "sameAs": [
+        "https://www.instagram.com/presaleproperties",
+        "https://www.facebook.com/presaleproperties",
+        "https://www.youtube.com/@presaleproperties"
+      ]
+    }
+    </script>
+
+    <!-- Structured Data - WebSite with SearchAction (site-wide) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://presaleproperties.com/#website",
+      "name": "PresaleProperties.com",
+      "alternateName": "Presale Properties",
+      "url": "https://presaleproperties.com",
+      "description": "Browse presale condos and townhomes in Metro Vancouver. Find VIP pricing, floor plans, and developer incentives for new construction projects in BC.",
+      "publisher": { "@id": "https://presaleproperties.com/#organization" },
+      "inLanguage": "en-CA",
+      "potentialAction": [
+        {
+          "@type": "SearchAction",
+          "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "https://presaleproperties.com/presale-projects?q={search_term_string}"
+          },
+          "query-input": "required name=search_term_string"
+        }
+      ]
+    }
+    </script>
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://thvlisplwqhtjpzpedhq.supabase.co" />
+    <link rel="dns-prefetch" href="https://thvlisplwqhtjpzpedhq.supabase.co" />
+    <link rel="dns-prefetch" href="https://unpkg.com" />
+    
+    <!-- Preload critical fonts for faster LCP -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2" as="font" type="font/woff2" crossorigin />
+    
+    <!-- Critical CSS for above-the-fold content -->
+    <style>
+      @font-face {
+        font-family: 'Inter';
+        font-style: normal;
+        font-weight: 400 700;
+        font-display: swap;
+        src: url(https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hjp-Ek-_EeA.woff2) format('woff2');
+      }
+      html { scroll-behavior: smooth; }
+      body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; }
+      #root { min-height: 100vh; }
+      .hero-skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.5s infinite;
+      }
+      @media (prefers-color-scheme: dark) {
+        .hero-skeleton {
+          background: linear-gradient(90deg, #1f2937 25%, #374151 50%, #1f2937 75%);
+          background-size: 200% 100%;
+        }
+      }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+      img { max-width: 100%; height: auto; }
+      .aspect-video { aspect-ratio: 16/9; }
+      .aspect-square { aspect-ratio: 1/1; }
+    </style>
+    
+  
+  <!-- Page-specific meta tags (description, og:*, twitter:*) are set dynamically by react-helmet-async per page -->
+  <!-- Default OG fallbacks for pages that don't set their own -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="PresaleProperties.com">
+  <meta property="og:image" content="https://presaleproperties.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="672">
+  <meta name="twitter:image" content="https://presaleproperties.com/og-image.png">
+  
+  
+  <!-- Default description fallback - overridden by react-helmet-async per page -->
+  <meta name="description" content="Browse 100+ presale condos, townhomes &amp; new construction homes in Metro Vancouver. VIP pricing, floor plans, deposit structures &amp; developer incentives.">
+  
+  
+  <meta property="og:title" content="Presale Properties">
+  <meta name="twitter:title" content="Presale Properties">
+  <meta property="og:description" content="Find new homes for sale in Vancouver, BC including condos, townhomes and single family homes. View floor plans, sort by completion date &amp; more.">
+  <meta name="twitter:description" content="Find new homes for sale in Vancouver, BC including condos, townhomes and single family homes. View floor plans, sort by completion date &amp; more.">
+</head>
+
+  <body>
+    <div id="root"></div><script src="https://cdn.gpteng.co/lovable.js" type="module"></script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
