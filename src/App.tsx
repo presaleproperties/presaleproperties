@@ -13,6 +13,7 @@ import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPrope
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
+import { FaviconLoader } from "@/components/FaviconLoader";
 import Index from "./pages/Index";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
@@ -131,6 +132,7 @@ const App = () => (
           <SwipeNavigationProvider>
             <ScrollToTop />
             <GlobalSEO />
+            <FaviconLoader />
             <UtmTracker />
             <LoftyPageTracker />
             <BehaviorTracker />
