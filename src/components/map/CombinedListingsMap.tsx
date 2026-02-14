@@ -7,6 +7,7 @@ import "leaflet.markercluster";
 import { Navigation2, Plus, Minus } from "lucide-react";
 import { toast } from "sonner";
 import { getListingUrl } from "@/lib/propertiesUrls";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 export interface CombinedListingsMapRef {
   flyTo: (lat: number, lng: number, zoom?: number) => void;
@@ -234,8 +235,14 @@ function presalePopupHtml(project: PresaleProject): string {
                       project.status === "registering" ? "Registering" : 
                       project.status === "coming_soon" ? "Coming Soon" : project.status;
   
+  const projectUrl = generateProjectUrl({
+    slug: project.slug,
+    neighborhood: project.neighborhood || project.city,
+    projectType: project.project_type as any,
+  });
+
   return `
-    <a href="/presale-projects/${project.slug}" class="popup-card presale">
+    <a href="${projectUrl}" class="popup-card presale">
       <div class="popup-img">
         ${photo 
           ? `<img src="${photo}" alt="${project.name}" />`

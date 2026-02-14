@@ -4,6 +4,7 @@ import { Sparkles, X, Search, Loader2, MapPin, Building2, DollarSign, Calendar, 
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import { useToast } from "@/hooks/use-toast";
 import { AICompareModal } from "./AICompareModal";
 
@@ -556,7 +557,12 @@ export function AISearchPopup({ open, onOpenChange }: AISearchPopupProps) {
       });
     }
     onOpenChange(false);
-    navigate(`/presale-projects/${project.slug}`);
+    const projectUrl = generateProjectUrl({
+      slug: project.slug,
+      neighborhood: project.neighborhood || project.city,
+      projectType: project.project_type as any,
+    });
+    navigate(projectUrl);
   };
 
   const handleListingClick = (listing: Listing) => {
