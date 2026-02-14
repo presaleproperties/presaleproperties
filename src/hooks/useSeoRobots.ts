@@ -42,6 +42,13 @@ const NOINDEX_ROUTES = [
   "/campaign",
   "/vip-access",
   "/404",
+  "/resale",
+  "/blogs",
+  "/market-report",
+  "/guide",
+  "/privacy",
+  "/deposit",
+  "/investment-presale-properties",
 ];
 
 // Routes that should noindex when they have query params, canonical to base
