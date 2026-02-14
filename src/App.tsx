@@ -12,6 +12,7 @@ import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
 import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPropertiesRedirect";
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
+import { BlogsRedirect } from "@/components/redirects/BlogsRedirect";
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import { FaviconLoader } from "@/components/FaviconLoader";
 import Index from "./pages/Index";
@@ -312,6 +313,33 @@ const App = () => (
             <Route path="/agents" element={<Navigate to="/for-agents" replace />} />
             <Route path="/agent-portal" element={<Navigate to="/dashboard" replace />} />
             <Route path="/agent-dashboard" element={<Navigate to="/dashboard" replace />} />
+            
+            {/* Legacy /blogs/* → /blog/* redirect (Google crawled plural form) */}
+            <Route path="/blogs/:slug" element={<BlogsRedirect />} />
+            <Route path="/blogs" element={<Navigate to="/blog" replace />} />
+            
+            {/* Legacy route redirects for soft 404 fixes */}
+            <Route path="/guide" element={<Navigate to="/buyers-guide" replace />} />
+            <Route path="/privacy" element={<Navigate to="/about" replace />} />
+            <Route path="/market-report/:city" element={<NotFound />} />
+            <Route path="/market-report" element={<NotFound />} />
+            <Route path="/deposit/:slug" element={<NotFound />} />
+            <Route path="/langley/presales" element={<Navigate to="/presale-projects/langley" replace />} />
+            <Route path="/investment-presale-properties" element={<Navigate to="/presale-projects" replace />} />
+            
+            {/* Legacy /presale-condos-{city} format (no slash separator) */}
+            <Route path="/presale-condos-vancouver" element={<Navigate to="/vancouver-presale-condos" replace />} />
+            <Route path="/presale-condos-surrey" element={<Navigate to="/surrey-presale-condos" replace />} />
+            <Route path="/presale-condos-burnaby" element={<Navigate to="/burnaby-presale-condos" replace />} />
+            <Route path="/presale-condos-coquitlam" element={<Navigate to="/coquitlam-presale-condos" replace />} />
+            <Route path="/presale-condos-langley" element={<Navigate to="/langley-presale-condos" replace />} />
+            <Route path="/presale-condos-richmond" element={<Navigate to="/richmond-presale-condos" replace />} />
+            <Route path="/presale-condos-delta" element={<Navigate to="/delta-presale-condos" replace />} />
+            
+            {/* Legacy presale-properties format */}
+            <Route path="/surrey-presale-properties" element={<Navigate to="/surrey-presale-condos" replace />} />
+            <Route path="/burnaby-presale-properties" element={<Navigate to="/burnaby-presale-condos" replace />} />
+            <Route path="/abbotsford-presale-properties" element={<Navigate to="/abbotsford-presale-condos" replace />} />
             
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
