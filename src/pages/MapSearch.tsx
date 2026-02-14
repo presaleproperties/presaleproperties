@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback, lazy, Suspense, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link, useNavigate } from "react-router-dom";
+import { generateProjectUrl } from "@/lib/seoUrls";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { 
@@ -1244,7 +1245,12 @@ export default function MapSearch() {
         toast.success(`Viewing ${suggestion.label}`);
         setSearchQuery("");
       } else {
-        navigate(`/presale-projects/${suggestion.value}`);
+        const proj = presaleProjects?.find(p => p.slug === suggestion.value);
+        if (proj) {
+          navigate(generateProjectUrl({ slug: proj.slug, neighborhood: proj.neighborhood || proj.city, projectType: proj.project_type as any }));
+        } else {
+          navigate(`/presale-projects/${suggestion.value}`);
+        }
       }
     } else if (suggestion.type === "listing") {
       // Navigate to listing location on map
@@ -1730,7 +1736,7 @@ export default function MapSearch() {
                       ? (data as Assignment).id
                       : (data as MLSListing).id;
                     const link = item.type === "presale" 
-                      ? `/presale-projects/${(data as PresaleProject).slug}` 
+                      ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
                       : item.type === "assignment"
                       ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                       : `/resale/${(data as MLSListing).listing_key}`;
@@ -2192,7 +2198,7 @@ export default function MapSearch() {
                     ? (data as Assignment).id
                     : (data as MLSListing).id;
                   const link = item.type === "presale" 
-                    ? `/presale-projects/${(data as PresaleProject).slug}` 
+                    ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
                     : item.type === "assignment"
                     ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                     : `/resale/${(data as MLSListing).listing_key}`;
