@@ -7,6 +7,7 @@ import "leaflet.markercluster";
 import { Button } from "@/components/ui/button";
 import { Building2, Loader2, MapPin, Navigation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 // City center coordinates for fallback positioning
 const CITY_CENTERS: Record<string, [number, number]> = {
@@ -174,8 +175,15 @@ function popupHtml(project: Project) {
     ? `<div style="font-weight:700;font-size:15px;color:#1e3a5f;margin-top:2px;">From ${formatPrice(project.starting_price)}</div>`
     : `<div style="font-size:13px;color:#888;margin-top:2px;">Price TBD</div>`;
 
+  // Generate SEO-friendly URL
+  const projectUrl = generateProjectUrl({
+    slug: project.slug,
+    neighborhood: project.neighborhood || project.city,
+    projectType: project.project_type,
+  });
+
   return `
-    <a href="/presale-projects/${project.slug}" style="display:block;text-decoration:none;color:inherit;padding:12px;max-width:220px;font-family:system-ui,-apple-system,sans-serif;position:relative;">
+    <a href="${projectUrl}" style="display:block;text-decoration:none;color:inherit;padding:12px;max-width:220px;font-family:system-ui,-apple-system,sans-serif;position:relative;">
       ${img}
       <div style="padding-top:${project.featured_image ? '10px' : '20px'};">
         <div style="font-weight:600;font-size:14px;line-height:1.3;color:#1a1a1a;margin-bottom:4px;">${project.name}</div>
