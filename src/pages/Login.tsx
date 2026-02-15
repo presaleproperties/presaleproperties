@@ -86,7 +86,7 @@ export default function Login() {
     }
     
     // Check if agent
-    const { data: agentProfile } = await supabase
+    const { data: agentProfile } = await (supabase as any)
       .from("agent_profiles")
       .select("verification_status")
       .eq("user_id", user.id)

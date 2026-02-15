@@ -21,7 +21,7 @@ export function useVerifiedAgent() {
 
     const checkVerification = async () => {
       try {
-        const { data, error } = await supabase
+        const { data, error } = await (supabase as any)
           .from("agent_profiles")
           .select("verification_status")
           .eq("user_id", user.id)

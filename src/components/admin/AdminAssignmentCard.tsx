@@ -2,7 +2,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Tables } from "@/integrations/supabase/types";
 import { AssignmentActionsDropdown } from "./AssignmentActionsDropdown";
 import { format, differenceInDays, isPast } from "date-fns";
 import {
@@ -19,13 +18,45 @@ import {
   Clock,
 } from "lucide-react";
 
-type Listing = Tables<"listings"> & {
+interface Listing {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  beds: number;
+  baths: number;
+  interior_sqft: number | null;
+  exterior_sqft: number | null;
+  assignment_price: number;
+  original_price: number | null;
+  deposit_paid: number | null;
+  status: string;
+  is_featured: boolean | null;
+  visibility_mode: string | null;
+  expires_at: string | null;
+  published_at: string | null;
+  unit_type: string;
+  construction_status: string;
+  completion_month: number | null;
+  completion_year: number | null;
+  has_parking: boolean | null;
+  parking_count: number | null;
+  has_storage: boolean | null;
+  floor_level: string | null;
+  exposure: string | null;
+  description: string | null;
+  address: string | null;
+  map_lat: number | null;
+  map_lng: number | null;
+  agent_id: string | null;
   agent_profile?: {
     full_name: string | null;
     email: string;
     phone?: string | null;
   };
-};
+  [key: string]: any;
+}
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Draft", variant: "secondary" },

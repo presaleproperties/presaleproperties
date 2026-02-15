@@ -6,11 +6,13 @@ import { ListingCard } from "@/components/listings/ListingCard";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 
+const db = supabase as any;
+
 export function FeaturedListings() {
   const { data: listings, isLoading } = useQuery({
     queryKey: ["featured-listings"],
     queryFn: async () => {
-      const { data: listingsData, error } = await supabase
+      const { data: listingsData, error } = await db
         .from("listings")
         .select(`
           *,
@@ -23,18 +25,17 @@ export function FeaturedListings() {
 
       if (error) throw error;
       
-      // Fetch agent profiles
-      const agentIds = [...new Set(listingsData?.map(l => l.agent_id) || [])];
+      const agentIds = [...new Set((listingsData as any[])?.map((l: any) => l.agent_id) || [])];
       
       const [profilesResult, agentProfilesResult] = await Promise.all([
-        supabase.from("profiles").select("user_id, full_name, avatar_url").in("user_id", agentIds),
-        supabase.from("agent_profiles").select("user_id, brokerage_name").in("user_id", agentIds)
+        db.from("profiles").select("user_id, full_name, avatar_url").in("user_id", agentIds),
+        db.from("agent_profiles").select("user_id, brokerage_name").in("user_id", agentIds)
       ]);
       
-      const profilesMap = new Map(profilesResult.data?.map(p => [p.user_id, p]) || []);
-      const agentProfilesMap = new Map(agentProfilesResult.data?.map(a => [a.user_id, a]) || []);
+      const profilesMap = new Map((profilesResult.data as any[])?.map((p: any) => [p.user_id, p]) || []);
+      const agentProfilesMap = new Map((agentProfilesResult.data as any[])?.map((a: any) => [a.user_id, a]) || []);
       
-      return listingsData?.map(listing => ({
+      return (listingsData as any[])?.map((listing: any) => ({
         ...listing,
         agentProfile: profilesMap.get(listing.agent_id),
         agentInfo: agentProfilesMap.get(listing.agent_id),

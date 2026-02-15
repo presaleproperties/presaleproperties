@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Tables } from "@/integrations/supabase/types";
 import { 
   Receipt, 
   ExternalLink, 
@@ -15,9 +14,17 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 
-type Payment = Tables<"payments"> & {
+interface Payment {
+  id: string;
+  amount: number;
+  status: string;
+  created_at: string;
+  receipt_url: string | null;
+  listing_id: string | null;
+  agent_id: string | null;
   listing?: { title: string; project_name: string } | null;
-};
+  [key: string]: any;
+}
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   completed: { label: "Paid", variant: "default" },
@@ -42,7 +49,7 @@ export default function DashboardBilling() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("payments")
         .select(`
           *,

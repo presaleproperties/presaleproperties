@@ -41,7 +41,7 @@ export function MobileAssignmentsCarousel({ title, subtitle, featured = false, s
   const { data: listings, isLoading } = useQuery({
     queryKey: ["mobile-assignments", featured, selectedCity],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("listings")
         .select(`
           id,

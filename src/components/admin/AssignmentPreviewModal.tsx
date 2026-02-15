@@ -10,7 +10,6 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
-import { Tables } from "@/integrations/supabase/types";
 import {
   MapPin,
   Bed,
@@ -34,13 +33,42 @@ import {
   Compass
 } from "lucide-react";
 
-type Listing = Tables<"listings"> & {
+interface Listing {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  beds: number;
+  baths: number;
+  interior_sqft: number | null;
+  exterior_sqft: number | null;
+  assignment_price: number;
+  original_price: number | null;
+  deposit_paid: number | null;
+  status: string;
+  is_featured: boolean | null;
+  visibility_mode: string | null;
+  unit_type: string;
+  construction_status: string;
+  completion_month: number | null;
+  completion_year: number | null;
+  has_parking: boolean | null;
+  parking_count: number | null;
+  has_storage: boolean | null;
+  floor_level: string | null;
+  exposure: string | null;
+  description: string | null;
+  address: string | null;
+  map_lat: number | null;
+  map_lng: number | null;
   agent_profile?: {
     full_name: string | null;
     email: string;
     phone?: string | null;
   };
-};
+  [key: string]: any;
+}
 
 interface AssignmentPreviewModalProps {
   listing: Listing | null;
@@ -76,18 +104,18 @@ export function AssignmentPreviewModal({
     try {
       const [photosRes, filesRes] = await Promise.all([
         supabase
-          .from("listing_photos")
+          .from("listing_photos" as any)
           .select("url")
           .eq("listing_id", listing.id)
           .order("sort_order"),
         supabase
-          .from("listing_files")
+          .from("listing_files" as any)
           .select("url, file_name, file_type")
           .eq("listing_id", listing.id),
       ]);
 
-      setPhotos(photosRes.data?.map(p => p.url) || []);
-      setFiles(filesRes.data || []);
+      setPhotos((photosRes.data as any[])?.map((p: any) => p.url) || []);
+      setFiles((filesRes.data as any[]) || []);
     } catch (error) {
       console.error("Error fetching photos/files:", error);
     } finally {

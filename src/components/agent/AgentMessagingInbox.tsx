@@ -23,6 +23,8 @@ import {
 import { format, formatDistanceToNow } from "date-fns";
 import { toast } from "sonner";
 
+const db = supabase as any;
+
 interface Inquiry {
   id: string;
   listing_id: string;
@@ -62,7 +64,7 @@ export function AgentMessagingInbox() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data: inquiries, error } = await supabase
+      const { data: inquiries, error } = await db
         .from("assignment_inquiries")
         .select("*")
         .eq("to_agent_id", user.id)
@@ -72,22 +74,20 @@ export function AgentMessagingInbox() {
 
       // Fetch related data
       const enrichedInquiries = await Promise.all(
-        (inquiries || []).map(async (inquiry) => {
-          // Get listing info
-          const { data: listing } = await supabase
+        ((inquiries as any[]) || []).map(async (inquiry: any) => {
+          const { data: listing } = await db
             .from("listings")
             .select("title, project_name, assignment_price")
             .eq("id", inquiry.listing_id)
             .single();
 
-          // Get from agent info
-          const { data: fromProfile } = await supabase
+          const { data: fromProfile } = await db
             .from("profiles")
             .select("full_name, email")
             .eq("user_id", inquiry.from_agent_id)
             .single();
 
-          const { data: fromAgent } = await supabase
+          const { data: fromAgent } = await db
             .from("agent_profiles")
             .select("brokerage_name")
             .eq("user_id", inquiry.from_agent_id)
@@ -101,7 +101,7 @@ export function AgentMessagingInbox() {
         })
       );
 
-      return enrichedInquiries;
+      return enrichedInquiries as Inquiry[];
     },
     enabled: !!user?.id
   });
@@ -112,7 +112,7 @@ export function AgentMessagingInbox() {
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data: inquiries, error } = await supabase
+      const { data: inquiries, error } = await db
         .from("assignment_inquiries")
         .select("*")
         .eq("from_agent_id", user.id)
@@ -120,24 +120,21 @@ export function AgentMessagingInbox() {
 
       if (error) throw error;
 
-      // Fetch related data
       const enrichedInquiries = await Promise.all(
-        (inquiries || []).map(async (inquiry) => {
-          // Get listing info
-          const { data: listing } = await supabase
+        ((inquiries as any[]) || []).map(async (inquiry: any) => {
+          const { data: listing } = await db
             .from("listings")
             .select("title, project_name, assignment_price")
             .eq("id", inquiry.listing_id)
             .single();
 
-          // Get to agent info
-          const { data: toProfile } = await supabase
+          const { data: toProfile } = await db
             .from("profiles")
             .select("full_name, email")
             .eq("user_id", inquiry.to_agent_id)
             .single();
 
-          const { data: toAgent } = await supabase
+          const { data: toAgent } = await db
             .from("agent_profiles")
             .select("brokerage_name")
             .eq("user_id", inquiry.to_agent_id)
@@ -151,7 +148,7 @@ export function AgentMessagingInbox() {
         })
       );
 
-      return enrichedInquiries;
+      return enrichedInquiries as Inquiry[];
     },
     enabled: !!user?.id
   });
@@ -159,7 +156,7 @@ export function AgentMessagingInbox() {
   // Update inquiry status mutation
   const updateStatus = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const { error } = await supabase
+      const { error } = await db
         .from("assignment_inquiries")
         .update({ status, updated_at: new Date().toISOString() })
         .eq("id", id);
@@ -341,7 +338,6 @@ export function AgentMessagingInbox() {
           
           {selectedInquiry && (
             <div className="space-y-4">
-              {/* Listing Info */}
               {selectedInquiry.listing && (
                 <Card className="bg-muted/50">
                   <CardContent className="p-4">
@@ -357,7 +353,6 @@ export function AgentMessagingInbox() {
                 </Card>
               )}
 
-              {/* Agent Info */}
               <div className="flex items-center gap-3 p-3 bg-muted/30 rounded-lg">
                 <Avatar>
                   <AvatarFallback className="bg-primary/10 text-primary">
@@ -377,7 +372,6 @@ export function AgentMessagingInbox() {
                 </div>
               </div>
 
-              {/* Message */}
               <div>
                 <h4 className="text-sm font-medium mb-2">Message</h4>
                 <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
@@ -385,13 +379,11 @@ export function AgentMessagingInbox() {
                 </p>
               </div>
 
-              {/* Meta */}
               <div className="flex items-center justify-between text-sm text-muted-foreground">
                 <span>Sent {format(new Date(selectedInquiry.created_at), "MMM d, yyyy 'at' h:mm a")}</span>
                 {getStatusBadge(selectedInquiry.status)}
               </div>
 
-              {/* Actions for received inquiries */}
               {selectedInquiry.to_agent_id === user?.id && selectedInquiry.status === "pending" && (
                 <div className="flex gap-3 pt-4 border-t">
                   <Button 
@@ -409,7 +401,6 @@ export function AgentMessagingInbox() {
                     className="flex-1"
                     onClick={() => {
                       updateStatus.mutate({ id: selectedInquiry.id, status: "responded" });
-                      // Open email client with agent's email
                       if (selectedInquiry.from_agent?.email) {
                         window.location.href = `mailto:${selectedInquiry.from_agent.email}?subject=RE: ${selectedInquiry.listing?.project_name || 'Assignment Inquiry'}`;
                       }

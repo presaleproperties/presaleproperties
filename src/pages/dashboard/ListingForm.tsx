@@ -224,7 +224,7 @@ export default function ListingForm() {
   const fetchListing = async (listingId: string) => {
     setLoading(true);
     try {
-      const { data: listing, error } = await supabase
+      const { data: listing, error } = await (supabase as any)
         .from("listings")
         .select("*")
         .eq("id", listingId)
@@ -282,7 +282,7 @@ export default function ListingForm() {
       }
 
       // Fetch photos
-      const { data: photoData } = await supabase
+      const { data: photoData } = await (supabase as any)
         .from("listing_photos")
         .select("id, url")
         .eq("listing_id", listingId)
@@ -293,7 +293,7 @@ export default function ListingForm() {
       }
 
       // Fetch floorplans
-      const { data: fileData } = await supabase
+      const { data: fileData } = await (supabase as any)
         .from("listing_files")
         .select("id, url, file_name")
         .eq("listing_id", listingId)
@@ -761,14 +761,14 @@ export default function ListingForm() {
       let listingId = id;
 
       if (isEditing && id) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("listings")
           .update(listingData)
           .eq("id", id);
         
         if (error) throw error;
       } else {
-        const { data: newListing, error } = await supabase
+        const { data: newListing, error } = await (supabase as any)
           .from("listings")
           .insert({ ...listingData, status: "draft" })
           .select("id")
@@ -781,7 +781,7 @@ export default function ListingForm() {
       // Save new photos
       const newPhotos = photos.filter(p => p.isNew);
       if (newPhotos.length > 0 && listingId) {
-        await supabase.from("listing_photos").insert(
+        await (supabase as any).from("listing_photos").insert(
           newPhotos.map((photo, idx) => ({
             listing_id: listingId,
             url: photo.url,
@@ -793,7 +793,7 @@ export default function ListingForm() {
       // Save new floorplans
       const newFloorplans = floorplans.filter(f => f.isNew);
       if (newFloorplans.length > 0 && listingId) {
-        await supabase.from("listing_files").insert(
+        await (supabase as any).from("listing_files").insert(
           newFloorplans.map(fp => ({
             listing_id: listingId,
             url: fp.url,

@@ -75,7 +75,7 @@ export default function AssignmentDetail() {
     queryFn: async () => {
       if (!id) throw new Error("No assignment ID");
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("listings")
         .select(`
           *,
@@ -100,7 +100,7 @@ export default function AssignmentDetail() {
     queryFn: async () => {
       if (!assignment?.agent_id) return null;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("agent_profiles")
         .select("user_id, brokerage_name")
         .eq("user_id", assignment.agent_id)
@@ -118,7 +118,7 @@ export default function AssignmentDetail() {
     queryFn: async () => {
       if (!agentProfile?.user_id) return null;
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("profiles")
         .select("full_name, email, phone")
         .eq("user_id", agentProfile.user_id)
