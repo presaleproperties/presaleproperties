@@ -53,6 +53,7 @@ const iconColors: Record<string, string> = {
   Branding: "text-fuchsia-500",
   Payments: "text-emerald-500",
   "Action Items": "text-orange-600",
+  System: "text-slate-600",
 };
 
 const navSections = [
@@ -94,9 +95,10 @@ const navSections = [
     ]
   },
   {
-    label: "Ops",
+  label: "Ops",
     items: [
       { href: "/admin/tasks", label: "Action Items", icon: ClipboardList },
+      { href: "/admin/system", label: "System", icon: Shield },
     ]
   },
   {
