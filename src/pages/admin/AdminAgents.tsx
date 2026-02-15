@@ -58,7 +58,7 @@ export default function AdminAgents() {
   const fetchAgents = async () => {
     try {
       // Fetch all agent profiles
-      const { data: agentProfiles, error } = await supabase
+      const { data: agentProfiles, error } = await (supabase as any)
         .from("agent_profiles")
         .select("*")
         .order("created_at", { ascending: false });
@@ -115,7 +115,7 @@ export default function AdminAgents() {
     try {
       const newStatus = actionType === "verify" ? "verified" : "rejected";
       
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("agent_profiles")
         .update({
           verification_status: newStatus,

@@ -34,8 +34,8 @@ interface Listing {
   id: string;
   title: string;
   status: string;
-  published_at: string | null;
-  is_featured: boolean | null;
+  published_at?: string | null;
+  is_featured?: boolean | null;
   [key: string]: any;
 }
 

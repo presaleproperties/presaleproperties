@@ -50,7 +50,7 @@ export default function DashboardLeads() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("leads")
         .select(`
           id,

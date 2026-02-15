@@ -892,7 +892,7 @@ export default function MapSearch() {
   const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
     queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from("listings")
         .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, map_lat, map_lng, status")
         .eq("status", "published")

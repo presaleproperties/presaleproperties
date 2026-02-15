@@ -257,7 +257,7 @@ export default function AdminLeads() {
   const { data: listingLeads, isLoading: listingLoading } = useQuery({
     queryKey: ["admin-listing-leads"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("leads")
         .select(`
           id, name, email, phone, message, created_at, listing_id,
