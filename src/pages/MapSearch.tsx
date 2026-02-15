@@ -910,6 +910,27 @@ export default function MapSearch() {
   const filteredAssignments: never[] = [];
 
 
+  // Compute visible projects/listings from IDs
+  const visiblePresaleProjectsList = useMemo(() => {
+    if (!visiblePresaleIds.length) return filteredPresaleProjects;
+    const idSet = new Set(visiblePresaleIds);
+    return filteredPresaleProjects.filter(p => idSet.has(p.id));
+  }, [filteredPresaleProjects, visiblePresaleIds]);
+
+  const visibleResaleListingsList = useMemo(() => {
+    if (!visibleResaleIds.length) return filteredResaleListings;
+    const idSet = new Set(visibleResaleIds);
+    return filteredResaleListings.filter(l => idSet.has(l.id));
+  }, [filteredResaleListings, visibleResaleIds]);
+
+  // Distance helper for sorting by proximity to map center
+  const getDistanceFromCenter = useCallback((lat: number | null, lng: number | null) => {
+    if (!mapCenter || lat == null || lng == null) return Infinity;
+    const dlat = lat - mapCenter.lat;
+    const dlng = lng - mapCenter.lng;
+    return dlat * dlat + dlng * dlng;
+  }, [mapCenter]);
+
   // Combined visible items for display
   const visibleItems = useMemo(() => {
     type ItemWithDistance = { 
@@ -920,11 +941,11 @@ export default function MapSearch() {
     
     const items: ItemWithDistance[] = [];
     
-    visiblePresaleProjects.forEach(p => {
+    visiblePresaleProjectsList.forEach(p => {
       items.push({ type: "presale", data: p, distance: getDistanceFromCenter(p.map_lat, p.map_lng) });
     });
     
-    visibleResaleListings.forEach(l => {
+    visibleResaleListingsList.forEach(l => {
       items.push({ type: "resale", data: l, distance: getDistanceFromCenter(l.latitude, l.longitude) });
     });
     
@@ -966,7 +987,7 @@ export default function MapSearch() {
     }
     
     return finalItems.slice(0, 40);
-  }, [visibleResaleListings, visiblePresaleProjects, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filters.sort, getDistanceFromCenter]);
+  }, [visibleResaleListingsList, visiblePresaleProjectsList, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filters.sort, getDistanceFromCenter]);
 
   const propertiesInViewCount = useMemo(() => {
     const resaleCount = mapMode === "presale" ? 0 : visibleResaleIds.length;
@@ -1551,19 +1572,14 @@ export default function MapSearch() {
                   className="flex gap-2 overflow-x-auto snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
                 >
-                  {visibleItems.map((item) => {
+                {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
-                    const isAssignment = item.type === "assignment";
                     const data = item.data;
-                    const id = item.type === "presale" 
+                    const id = isPresale 
                       ? (data as PresaleProject).id 
-                      : item.type === "assignment"
-                      ? (data as Assignment).id
                       : (data as MLSListing).id;
-                    const link = item.type === "presale" 
+                    const link = isPresale 
                       ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
-                      : item.type === "assignment"
-                      ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                       : `/resale/${(data as MLSListing).listing_key}`;
                     const isFocused = focusedCarouselItemId === id;
                     
@@ -1573,30 +1589,15 @@ export default function MapSearch() {
                         data-item-id={id}
                         data-item-type={item.type}
                         onClick={() => {
-                          // For non-verified users viewing assignments, show toast instead of navigating
-                          if (isAssignment && !isVerifiedAgent) {
-                            toast.info("Verify as an agent to view assignment details", {
-                              action: {
-                                label: "Become Agent",
-                                onClick: () => navigate("/for-agents")
-                              }
-                            });
-                            return;
-                          }
                           handleCarouselCardTap(id, item.type, link);
                         }}
-                        className={cn(
-                          "snap-start shrink-0 w-[180px] sm:w-[200px]",
-                          isAssignment && !isVerifiedAgent ? "cursor-default" : "cursor-pointer"
-                        )}
+                        className="snap-start shrink-0 w-[180px] sm:w-[200px] cursor-pointer"
                       >
                         <div className={`bg-background/95 backdrop-blur-xl rounded-xl shadow-lg border overflow-hidden transition-all duration-200 ${
                           isFocused 
                             ? 'border-primary ring-2 ring-primary/30 scale-[1.02]' 
                             : selectedItemId === id 
                               ? 'border-primary/50 ring-1 ring-primary/20' 
-                              : isAssignment
-                              ? 'border-amber-500/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           {/* Compact image - shorter aspect ratio */}
@@ -1609,10 +1610,6 @@ export default function MapSearch() {
                                   <Building2 className="h-6 w-6 text-muted-foreground" />
                                 </div>
                               )
-                            ) : isAssignment ? (
-                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
-                                <Building2 className="h-6 w-6 text-amber-500" />
-                              </div>
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
                                 <img 
@@ -1630,56 +1627,33 @@ export default function MapSearch() {
                             <Badge className={`absolute top-1.5 left-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-md ${
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
-                                : isAssignment
-                                ? 'bg-amber-500 text-white'
                                 : 'bg-primary/90 text-primary-foreground'
                             }`}>
-                              {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'RESALE'}
+                              {isPresale ? 'PRESALE' : 'RESALE'}
                             </Badge>
-                            {/* Lock overlay for non-verified agents viewing assignments */}
-                            {isAssignment && !isVerifiedAgent && (
-                              <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
-                                <div className="text-center">
-                                  <Lock className="h-5 w-5 text-white mx-auto mb-0.5" />
-                                  <p className="text-[9px] text-white font-medium">Agent Only</p>
-                                </div>
-                              </div>
-                            )}
                           </div>
                           {/* Compact content area */}
-                          <div className={cn("p-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
-                            {/* Blur overlay for assignment content when not verified */}
-                            {isAssignment && !isVerifiedAgent && (
-                              <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
-                                <p className="text-[10px] text-muted-foreground text-center px-1">Agent access</p>
-                              </div>
-                            )}
+                          <div className="p-2 space-y-0.5">
                             {/* Price - smaller */}
-                            <div className={cn("font-bold text-sm", isAssignment ? "text-amber-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            <div className="font-bold text-sm text-foreground">
                               {isPresale 
                                 ? formatPrice((data as PresaleProject).starting_price)
-                                : isAssignment
-                                ? formatPrice((data as Assignment).assignment_price)
                                 : formatPrice((data as MLSListing).listing_price)
                               }
                             </div>
                             
                             {/* Name/Address - smaller */}
-                            <h4 className={cn("font-medium text-foreground text-xs line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            <h4 className="font-medium text-foreground text-xs line-clamp-1">
                               {isPresale 
                                 ? (data as PresaleProject).name 
-                                : isAssignment
-                                ? (data as Assignment).project_name
                                 : getResaleAddress(data as MLSListing)}
                             </h4>
                             
                             {/* Compact specs row - combined location & specs */}
-                            <div className={cn("flex items-center gap-2 text-[10px] text-muted-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
                               <span className="truncate max-w-[60px]">
                                 {isPresale 
                                   ? (data as PresaleProject).city
-                                  : isAssignment
-                                  ? (data as Assignment).city
                                   : (data as MLSListing).city
                                 }
                               </span>
@@ -1688,11 +1662,11 @@ export default function MapSearch() {
                                   <span className="text-border">•</span>
                                   <span className="flex items-center gap-0.5">
                                     <Bed className="h-2.5 w-2.5" /> 
-                                    {isAssignment ? (data as Assignment).beds : (data as MLSListing).bedrooms_total}
+                                    {(data as MLSListing).bedrooms_total}
                                   </span>
                                   <span className="flex items-center gap-0.5">
                                     <Bath className="h-2.5 w-2.5" /> 
-                                    {isAssignment ? (data as Assignment).baths : (data as MLSListing).bathrooms_total}
+                                    {(data as MLSListing).bathrooms_total}
                                   </span>
                                 </>
                               )}
@@ -2013,29 +1987,20 @@ export default function MapSearch() {
             {/* Property Grid - Maximized Space */}
             <div ref={desktopListRef} className="flex-1 overflow-y-auto p-2 relative z-0 rounded-b-2xl">
               <div className="grid grid-cols-2 gap-2">
-                {visibleItems.map((item) => {
+              {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
-                  const isAssignment = item.type === "assignment";
                   const data = item.data;
-                  const id = item.type === "presale" 
+                  const id = isPresale 
                     ? (data as PresaleProject).id 
-                    : item.type === "assignment"
-                    ? (data as Assignment).id
                     : (data as MLSListing).id;
-                  const link = item.type === "presale" 
+                  const link = isPresale 
                     ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
-                    : item.type === "assignment"
-                    ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                     : `/resale/${(data as MLSListing).listing_key}`;
-                  const lat = item.type === "presale" 
+                  const lat = isPresale 
                     ? (data as PresaleProject).map_lat 
-                    : item.type === "assignment"
-                    ? (data as Assignment).map_lat
                     : (data as MLSListing).latitude;
-                  const lng = item.type === "presale" 
+                  const lng = isPresale 
                     ? (data as PresaleProject).map_lng 
-                    : item.type === "assignment"
-                    ? (data as Assignment).map_lng
                     : (data as MLSListing).longitude;
                   const isFocused = focusedCarouselItemId === id;
                   
@@ -2045,9 +2010,6 @@ export default function MapSearch() {
                       to={link}
                       data-item-id={id}
                       onClick={(e) => {
-                        // For non-verified users viewing assignments, prevent navigation and show toast
-                        if (isAssignment && !isVerifiedAgent) {
-                          e.preventDefault();
                           toast.info("Verify as an agent to view assignment details", {
                             action: {
                               label: "Become Agent",

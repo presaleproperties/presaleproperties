@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { EngagementFunnel } from "@/components/admin/dashboard/EngagementFunnel";
 import { TopProjectsTable } from "@/components/admin/dashboard/TopProjectsTable";
-import { TopListingsTable } from "@/components/admin/dashboard/TopListingsTable";
+
 import { TopMlsListingsTable } from "@/components/admin/dashboard/TopMlsListingsTable";
 
 import { 
