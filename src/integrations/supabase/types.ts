@@ -1120,6 +1120,36 @@ export type Database = {
         }
         Relationships: []
       }
+      error_directions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          directions: string
+          error_id: string
+          error_source: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          directions: string
+          error_id: string
+          error_source: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          directions?: string
+          error_id?: string
+          error_source?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       geocoding_logs: {
         Row: {
           api_calls_made: number | null
