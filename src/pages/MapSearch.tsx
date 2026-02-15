@@ -43,7 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
-import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
+// useVerifiedAgent removed - no longer needed
 import { buildGridUrlFromMapFilters } from "@/lib/filterSync";
 import { useMinYearBuilt, DEFAULT_MIN_YEAR_BUILT } from "@/hooks/useMinYearBuilt";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
@@ -65,9 +65,9 @@ interface SavedMapState {
 
 interface SavedUIState {
   selectedItemId: string | null;
-  selectedItemType: "resale" | "presale" | "assignment" | null;
+  selectedItemType: "resale" | "presale" | null;
   focusedItemId: string | null;
-  focusedItemType: "resale" | "presale" | "assignment" | null;
+  focusedItemType: "resale" | "presale" | null;
   showCarousel: boolean;
   carouselScrollLeft: number;
   desktopScrollTop: number;
@@ -142,7 +142,7 @@ const SORT_OPTIONS = [
 const MIN_PRICE = 0;
 const MAX_PRICE = 5000000;
 const PRICE_STEP = 50000;
-type MapMode = "all" | "presale" | "resale" | "assignments";
+type MapMode = "all" | "presale" | "resale";
 
 type MLSListing = {
   id: string;
@@ -200,7 +200,8 @@ const getRestoredUIState = (): SavedUIState | null => {
 export default function MapSearch() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
-  const { isVerified: isVerifiedAgent } = useVerifiedAgent();
+  // useVerifiedAgent removed
+  const isVerifiedAgent = false;
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -222,12 +223,11 @@ export default function MapSearch() {
   const [showCarousel, setShowCarousel] = useState(() => restoredUIState?.showCarousel ?? false);
   // Don't restore selected/focused item states - start fresh with no selection
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
   const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null);
-  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
-  const [visibleAssignmentIds, setVisibleAssignmentIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   const [isListInteracting, setIsListInteracting] = useState(false);
@@ -439,7 +439,7 @@ export default function MapSearch() {
 
   // handleItemSelect is called when a PIN on the map is clicked
   // It should scroll the list to show the selected card
-  const handleItemSelect = useCallback((id: string, type: "resale" | "presale" | "assignment") => {
+  const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
     setSelectedItemId(id);
     setSelectedItemType(type);
     setFocusedCarouselItemId(id);
@@ -473,7 +473,7 @@ export default function MapSearch() {
     return () => clearTimeout(timer);
   }, []);
   
-  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => {
+  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[]) => {
     // Skip update if user is interacting with the list (prevents card jumping)
     if (isListInteracting) return;
     
@@ -482,7 +482,6 @@ export default function MapSearch() {
     
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
-    if (assignmentIds) setVisibleAssignmentIds(assignmentIds);
   }, [isListInteracting]);
 
   // Hide carousel when user starts panning/zooming the map on mobile
@@ -537,8 +536,7 @@ export default function MapSearch() {
     
     if (closestCard && closestDistance < 80) { // Within threshold
       const itemId = closestCard.getAttribute('data-item-id');
-      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale" | "assignment";
-      
+      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale";
       if (itemId && itemId !== focusedCarouselItemId) {
         setFocusedCarouselItemId(itemId);
         setFocusedCarouselItemType(itemType);
@@ -576,16 +574,15 @@ export default function MapSearch() {
   }, [debouncedCarouselScroll, showCarousel]);
 
   // Handle carousel card tap - navigate directly to property detail page
-  const handleCarouselCardTap = useCallback((id: string, type: "resale" | "presale" | "assignment", link: string) => {
+  const handleCarouselCardTap = useCallback((id: string, type: "resale" | "presale", link: string) => {
     // Navigate directly to property page
     navigate(link);
   }, [navigate]);
 
   // Handle desktop list card click - navigate directly to property detail page
   // The Link component handles navigation naturally; this only handles assignment agent verification
-  const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale" | "assignment", link: string, lat: number | null, lng: number | null) => {
-    // Just let the Link navigate naturally - no map interaction needed
-    // Assignment verification is handled in the onClick before this is called
+  const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale", link: string, lat: number | null, lng: number | null) => {
+    // Just let the Link navigate naturally
   }, []);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
@@ -873,84 +870,10 @@ export default function MapSearch() {
     refetchOnWindowFocus: false,
   });
 
-  // Fetch assignments (listings table)
-  type Assignment = {
-    id: string;
-    title: string;
-    project_name: string;
-    city: string;
-    neighborhood: string | null;
-    assignment_price: number;
-    beds: number;
-    baths: number;
-    interior_sqft: number | null;
-    map_lat: number | null;
-    map_lng: number | null;
-    status: string;
-  };
+  // Assignments removed - table dropped
 
-  const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
-    queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
-    queryFn: async () => {
-      let query = supabase
-        .from("listings")
-        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, map_lat, map_lng, status")
-        .eq("status", "published")
-        .not("map_lat", "is", null)
-        .not("map_lng", "is", null);
-
-      // City filter
-      if (selectedCities.length > 0) {
-        query = query.in("city", selectedCities);
-      }
-
-      // Beds filter
-      if (filters.beds && filters.beds !== "any") {
-        const bedsNum = parseInt(filters.beds);
-        if (bedsNum === 5) {
-          query = query.gte("beds", 5);
-        } else {
-          query = query.eq("beds", bedsNum);
-        }
-      }
-
-      // Baths filter
-      if (filters.baths && filters.baths !== "any") {
-        const bathsNum = parseInt(filters.baths);
-        if (bathsNum === 4) {
-          query = query.gte("baths", 4);
-        } else {
-          query = query.gte("baths", bathsNum);
-        }
-      }
-
-      const { data, error } = await query.limit(500);
-      if (error) throw error;
-      
-      let results = data || [];
-      
-      // Client-side filtering for price ranges (assignments use assignment_price)
-      if (selectedPriceRanges.length > 0) {
-        results = results.filter(a => priceMatchesRanges(a.assignment_price, selectedPriceRanges));
-      } else {
-        // Legacy single-value price filter support
-        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
-        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
-        if (legacyPriceMin !== null || legacyPriceMax !== null) {
-          results = results.filter(a => {
-            if (legacyPriceMin !== null && a.assignment_price < legacyPriceMin) return false;
-            if (legacyPriceMax !== null && a.assignment_price > legacyPriceMax) return false;
-            return true;
-          });
-        }
-      }
-      
-      return results;
-    },
-    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
-    refetchOnWindowFocus: false,
-  });
+  const assignments: never[] = [];
+  const assignmentsLoading = false;
 
   // Only show loading if we have NO data yet - use cached data immediately on back navigation
   const hasAnyData = (resaleListings && resaleListings.length > 0) || 
@@ -984,122 +907,52 @@ export default function MapSearch() {
     );
   }, [presaleProjects, searchQuery]);
 
-  const filteredAssignments = useMemo(() => {
-    if (!assignments) return [];
-    if (!searchQuery.trim()) return assignments;
-    
-    const q = searchQuery.toLowerCase();
-    return assignments.filter(
-      (a) =>
-        a.project_name.toLowerCase().includes(q) ||
-        a.city.toLowerCase().includes(q) ||
-        (a.neighborhood?.toLowerCase() || "").includes(q)
-    );
-  }, [assignments, searchQuery]);
+  const filteredAssignments: never[] = [];
 
-  // Helper: calculate distance from map center (for sorting)
-  const getDistanceFromCenter = useCallback((lat: number | null, lng: number | null): number => {
-    if (!lat || !lng || !mapCenter) return Infinity;
-    const dLat = lat - mapCenter.lat;
-    const dLng = lng - mapCenter.lng;
-    return Math.sqrt(dLat * dLat + dLng * dLng);
-  }, [mapCenter]);
 
-  // Visible items based on map viewport and mode - ONLY show items actually visible on map
-  const visibleResaleListings = useMemo(() => {
-    if (mapMode === "presale" || mapMode === "assignments") return [];
-    // Only show items that are actually in the map viewport - no fallback
-    if (visibleResaleIds.length === 0) return [];
-    return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id));
-  }, [filteredResaleListings, visibleResaleIds, mapMode]);
-
-  const visiblePresaleProjects = useMemo(() => {
-    if (mapMode === "resale" || mapMode === "assignments") return [];
-    // Only show items that are actually in the map viewport - no fallback
-    if (visiblePresaleIds.length === 0) return [];
-    return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id));
-  }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
-
-  const visibleAssignments = useMemo(() => {
-    if (mapMode === "resale" || mapMode === "presale") return [];
-    // Only show items that are actually in the map viewport - no fallback
-    if (visibleAssignmentIds.length === 0) return [];
-    return filteredAssignments.filter(a => visibleAssignmentIds.includes(a.id));
-  }, [filteredAssignments, visibleAssignmentIds, mapMode]);
-
-  // Combined visible items for display - sorted by distance from map center, interleaved for variety
+  // Combined visible items for display
   const visibleItems = useMemo(() => {
     type ItemWithDistance = { 
-      type: "resale" | "presale" | "assignment"; 
-      data: MLSListing | PresaleProject | Assignment;
+      type: "resale" | "presale"; 
+      data: MLSListing | PresaleProject;
       distance: number;
     };
     
     const items: ItemWithDistance[] = [];
     
-    // Add presale projects with distance
     visiblePresaleProjects.forEach(p => {
-      items.push({ 
-        type: "presale", 
-        data: p,
-        distance: getDistanceFromCenter(p.map_lat, p.map_lng)
-      });
+      items.push({ type: "presale", data: p, distance: getDistanceFromCenter(p.map_lat, p.map_lng) });
     });
     
-    // Add resale listings with distance
     visibleResaleListings.forEach(l => {
-      items.push({ 
-        type: "resale", 
-        data: l,
-        distance: getDistanceFromCenter(l.latitude, l.longitude)
-      });
+      items.push({ type: "resale", data: l, distance: getDistanceFromCenter(l.latitude, l.longitude) });
     });
     
-    // Add assignments with distance
-    visibleAssignments.forEach(a => {
-      items.push({ 
-        type: "assignment", 
-        data: a,
-        distance: getDistanceFromCenter(a.map_lat, a.map_lng)
-      });
-    });
-    
-    // Sort by distance from center (closest first)
     items.sort((a, b) => a.distance - b.distance);
     
-    // Apply additional sorting if user selected price sort
     const sortValue = filters.sort;
     if (sortValue === "price_asc" || sortValue === "price_desc") {
       items.sort((a, b) => {
         const priceA = a.type === "presale" 
           ? (a.data as PresaleProject).starting_price || 0 
-          : a.type === "resale" 
-          ? (a.data as MLSListing).listing_price || 0
-          : (a.data as Assignment).assignment_price || 0;
+          : (a.data as MLSListing).listing_price || 0;
         const priceB = b.type === "presale" 
           ? (b.data as PresaleProject).starting_price || 0 
-          : b.type === "resale"
-          ? (b.data as MLSListing).listing_price || 0
-          : (b.data as Assignment).assignment_price || 0;
-        
+          : (b.data as MLSListing).listing_price || 0;
         return sortValue === "price_asc" ? priceA - priceB : priceB - priceA;
       });
     }
     
-    // Track focused item to keep it in place
     const focusedId = focusedCarouselItemId;
     let finalItems = items.map(({ type, data }) => ({ type, data }));
     
-    // If focused item is not in visible items, find and add it at the start
     if (focusedId) {
       const focusedIndex = finalItems.findIndex(item => 
         (item.type === "presale" && (item.data as PresaleProject).id === focusedId) ||
-        (item.type === "resale" && (item.data as MLSListing).id === focusedId) ||
-        (item.type === "assignment" && (item.data as Assignment).id === focusedId)
+        (item.type === "resale" && (item.data as MLSListing).id === focusedId)
       );
       
       if (focusedIndex === -1) {
-        // Focused item not in view - add it from full list
         const focusedPresale = filteredPresaleProjects.find(p => p.id === focusedId);
         if (focusedPresale) {
           finalItems.unshift({ type: "presale", data: focusedPresale });
@@ -1107,26 +960,19 @@ export default function MapSearch() {
           const focusedResale = filteredResaleListings.find(l => l.id === focusedId);
           if (focusedResale) {
             finalItems.unshift({ type: "resale", data: focusedResale });
-          } else {
-            const focusedAssignment = filteredAssignments.find(a => a.id === focusedId);
-            if (focusedAssignment) {
-              finalItems.unshift({ type: "assignment", data: focusedAssignment });
-            }
           }
         }
       }
     }
     
     return finalItems.slice(0, 40);
-  }, [visibleResaleListings, visiblePresaleProjects, visibleAssignments, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filteredAssignments, filters.sort, getDistanceFromCenter]);
+  }, [visibleResaleListings, visiblePresaleProjects, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filters.sort, getDistanceFromCenter]);
 
-  // Actual count of properties in view (not capped) for display
   const propertiesInViewCount = useMemo(() => {
-    const resaleCount = (mapMode === "presale" || mapMode === "assignments") ? 0 : visibleResaleIds.length;
-    const presaleCount = (mapMode === "resale" || mapMode === "assignments") ? 0 : visiblePresaleIds.length;
-    const assignmentCount = (mapMode === "resale" || mapMode === "presale") ? 0 : visibleAssignmentIds.length;
-    return resaleCount + presaleCount + assignmentCount;
-  }, [visibleResaleIds, visiblePresaleIds, visibleAssignmentIds, mapMode]);
+    const resaleCount = mapMode === "presale" ? 0 : visibleResaleIds.length;
+    const presaleCount = mapMode === "resale" ? 0 : visiblePresaleIds.length;
+    return resaleCount + presaleCount;
+  }, [visibleResaleIds, visiblePresaleIds, mapMode]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -1164,20 +1010,7 @@ export default function MapSearch() {
     }));
   }, [resaleListings]);
 
-  // Assignments for search bar autocomplete
-  const assignmentsForSearch = useMemo(() => {
-    if (!assignments) return [];
-    return assignments.map(a => ({
-      id: a.id,
-      title: a.title,
-      project_name: a.project_name,
-      city: a.city,
-      neighborhood: a.neighborhood,
-      assignment_price: a.assignment_price,
-      map_lat: a.map_lat,
-      map_lng: a.map_lng,
-    }));
-  }, [assignments]);
+
 
   // Ref for programmatic map navigation
   const mapNavigationRef = useRef<CombinedListingsMapRef>(null);
@@ -1260,15 +1093,6 @@ export default function MapSearch() {
         setSearchQuery("");
       } else {
         navigate(`/properties/${suggestion.value}`);
-      }
-    } else if (suggestion.type === "assignment") {
-      // Navigate to assignment location on map
-      if (suggestion.lat && suggestion.lng && mapNavigationRef.current) {
-        mapNavigationRef.current.flyTo(suggestion.lat, suggestion.lng, 17);
-        toast.success(`Viewing ${suggestion.label}`);
-        setSearchQuery("");
-      } else {
-        navigate(`/assignments/${suggestion.value}`);
       }
     }
   }, [navigate, updateFilter]);
@@ -1473,7 +1297,8 @@ export default function MapSearch() {
             neighborhoods={neighborhoodsData || []}
             projects={projectsForSearch}
             listings={listingsForSearch}
-            assignments={assignmentsForSearch}
+
+
             homeButton={
               <Link to="/">
                 <button className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
@@ -1911,7 +1736,7 @@ export default function MapSearch() {
                     neighborhoods={neighborhoodsData || []}
                     projects={projectsForSearch}
                     listings={listingsForSearch}
-                    assignments={assignmentsForSearch}
+                    
                     className="h-9 text-sm"
                   />
                 </div>

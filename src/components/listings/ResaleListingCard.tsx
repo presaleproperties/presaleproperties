@@ -26,6 +26,7 @@ interface ResaleListingCardProps {
   streetNumber?: string | null;
   streetName?: string | null;
   yearBuilt?: number | null;
+  listDate?: string | null;
 }
 
 function formatPrice(price: number) {
