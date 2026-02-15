@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { getListingUrl } from "@/lib/propertiesUrls";
 
-export type SearchResultType = "listing" | "presale" | "assignment" | "city" | "neighborhood";
+export type SearchResultType = "listing" | "presale" | "city" | "neighborhood";
 
 export interface SearchResult {
   id: string;
@@ -36,7 +36,7 @@ interface PowerSearchProps {
   onResultSelect?: (result: SearchResult) => void;
   showRecent?: boolean;
   maxResults?: number;
-  mode?: "all" | "presale" | "resale" | "assignments";
+  mode?: "all" | "presale" | "resale";
   variant?: "default" | "hero" | "compact";
 }
 
@@ -198,39 +198,6 @@ export function PowerSearch({
         promises.push(presalePromise);
       }
 
-      // 3. Search Assignments - DATABASE LEVEL (NEW!)
-      if (mode === "all" || mode === "assignments") {
-        const assignmentPromise = (async () => {
-          const { data: assignments } = await supabase
-            .from("listings")
-            .select(`
-              id, title, project_name, city, neighborhood, 
-              assignment_price, beds, baths, map_lat, map_lng, status
-            `)
-            .eq("status", "published")
-            .or(`title.ilike.%${q}%,project_name.ilike.%${q}%,city.ilike.%${q}%,neighborhood.ilike.%${q}%`)
-            .limit(10);
-
-          assignments?.forEach((a) => {
-            searchResults.push({
-              id: a.id,
-              type: "assignment",
-              title: a.title || a.project_name,
-              subtitle: `${a.neighborhood || ""} ${a.neighborhood ? "•" : ""} ${a.city}`.trim(),
-              price: a.assignment_price || undefined,
-              url: `/assignments/${a.id}`,
-              lat: a.map_lat ?? undefined,
-              lng: a.map_lng ?? undefined,
-              meta: {
-                beds: a.beds || undefined,
-                baths: a.baths || undefined,
-                city: a.city,
-              },
-            });
-          });
-        })();
-        promises.push(assignmentPromise);
-      }
 
       // Wait for all searches to complete
       await Promise.all(promises);
@@ -364,8 +331,6 @@ export function PowerSearch({
         return <Home className="h-4 w-4 text-primary" />;
       case "presale":
         return <Building2 className="h-4 w-4 text-primary" />;
-      case "assignment":
-        return <FileText className="h-4 w-4 text-amber-500" />;
       case "city":
         return <MapPin className="h-4 w-4 text-muted-foreground" />;
       case "neighborhood":
@@ -379,8 +344,6 @@ export function PowerSearch({
         return "MLS";
       case "presale":
         return "Presale";
-      case "assignment":
-        return "Assignment";
       case "city":
         return "City";
       case "neighborhood":
@@ -394,8 +357,6 @@ export function PowerSearch({
         return "bg-accent text-accent-foreground";
       case "presale":
         return "bg-primary/10 text-primary";
-      case "assignment":
-        return "bg-amber-500/10 text-amber-600";
       default:
         return "bg-muted text-muted-foreground";
     }
