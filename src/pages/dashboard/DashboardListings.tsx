@@ -8,7 +8,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { Tables } from "@/integrations/supabase/types";
 import { 
   Plus, 
   Building2, 
@@ -31,7 +30,21 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-type Listing = Tables<"listings">;
+interface Listing {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  beds: number;
+  baths: number;
+  assignment_price: number;
+  status: string;
+  agent_id: string | null;
+  expires_at: string | null;
+  rejection_reason: string | null;
+  [key: string]: any;
+}
 
 const statusLabels: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
   draft: { label: "Draft", variant: "secondary" },
@@ -61,7 +74,7 @@ export default function DashboardListings() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("listings")
         .select("*")
         .eq("agent_id", user.id)
@@ -83,7 +96,7 @@ export default function DashboardListings() {
     try {
       // For now, skip payment and go directly to pending_approval
       // When payment is implemented, this would first go to pending_payment
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("listings")
         .update({ status: "pending_approval" })
         .eq("id", listing.id);
@@ -112,7 +125,7 @@ export default function DashboardListings() {
     setActionLoading(listing.id);
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("listings")
         .update({ status: "paused" })
         .eq("id", listing.id);
@@ -141,7 +154,7 @@ export default function DashboardListings() {
     setActionLoading(listing.id);
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("listings")
         .update({ status: "published" })
         .eq("id", listing.id);
@@ -175,7 +188,7 @@ export default function DashboardListings() {
       const newExpiresAt = new Date();
       newExpiresAt.setFullYear(newExpiresAt.getFullYear() + 1);
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("listings")
         .update({ 
           status: "published",

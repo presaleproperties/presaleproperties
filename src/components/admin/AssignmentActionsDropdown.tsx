@@ -30,9 +30,14 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
-import { Tables } from "@/integrations/supabase/types";
-
-type Listing = Tables<"listings">;
+interface Listing {
+  id: string;
+  title: string;
+  status: string;
+  published_at: string | null;
+  is_featured: boolean | null;
+  [key: string]: any;
+}
 
 interface AssignmentActionsDropdownProps {
   listing: Listing;
@@ -58,16 +63,16 @@ export function AssignmentActionsDropdown({
   const handleStatusChange = async (newStatus: "draft" | "paused" | "expired" | "published") => {
     setProcessing(true);
     try {
-      const updates: Partial<Listing> = { status: newStatus };
+      const updates: Record<string, any> = { status: newStatus };
       
       if (newStatus === "published") {
         updates.published_at = new Date().toISOString();
       }
 
-      const { error } = await supabase
-        .from("listings")
+      const { error } = await (supabase
+        .from("listings" as any)
         .update(updates)
-        .eq("id", listing.id);
+        .eq("id", listing.id) as any);
 
       if (error) throw error;
 
@@ -93,13 +98,13 @@ export function AssignmentActionsDropdown({
     setProcessing(true);
     try {
       // Delete related records first
-      await supabase.from("listing_photos").delete().eq("listing_id", listing.id);
-      await supabase.from("listing_files").delete().eq("listing_id", listing.id);
+      await (supabase.from("listing_photos" as any).delete().eq("listing_id", listing.id) as any);
+      await (supabase.from("listing_files" as any).delete().eq("listing_id", listing.id) as any);
       
-      const { error } = await supabase
-        .from("listings")
+      const { error } = await (supabase
+        .from("listings" as any)
         .delete()
-        .eq("id", listing.id);
+        .eq("id", listing.id) as any);
 
       if (error) throw error;
 

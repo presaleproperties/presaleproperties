@@ -42,7 +42,7 @@ export function SendInquiryButton({
       if (!user?.id) throw new Error("Not authenticated");
       if (!message.trim()) throw new Error("Please enter a message");
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("assignment_inquiries")
         .insert({
           listing_id: listingId,

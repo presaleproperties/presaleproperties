@@ -17,9 +17,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Tables } from "@/integrations/supabase/types";
-import { AssignmentPreviewModal } from "@/components/admin/AssignmentPreviewModal";
-import { AdminAssignmentCard } from "@/components/admin/AdminAssignmentCard";
 import { 
   CheckCircle, 
   Building2,
@@ -31,13 +28,28 @@ import {
   FileX,
 } from "lucide-react";
 
-type Listing = Tables<"listings"> & {
+interface Listing {
+  id: string;
+  title: string;
+  project_name: string;
+  city: string;
+  neighborhood: string | null;
+  beds: number;
+  baths: number;
+  assignment_price: number;
+  status: string;
+  is_featured: boolean | null;
+  agent_id: string | null;
+  expires_at: string | null;
+  rejection_reason: string | null;
+  created_at: string;
   agent_profile?: {
     full_name: string | null;
     email: string;
     phone?: string | null;
   };
-};
+  [key: string]: any;
+}
 
 export default function AdminListings() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -63,7 +75,7 @@ export default function AdminListings() {
 
   const fetchListings = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("listings")
         .select("*")
         .order("created_at", { ascending: false });
@@ -73,7 +85,7 @@ export default function AdminListings() {
       // Fetch agent profiles for each listing
       const listingsWithAgents = await Promise.all(
         (data || []).map(async (listing) => {
-          const { data: profile } = await supabase
+          const { data: profile } = await (supabase as any)
             .from("profiles")
             .select("full_name, email, phone")
             .eq("user_id", listing.agent_id)
@@ -127,7 +139,7 @@ export default function AdminListings() {
         updates.rejection_reason = notes || null;
       }
       
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("listings")
         .update(updates)
         .eq("id", selectedListing.id);
@@ -157,7 +169,7 @@ export default function AdminListings() {
   const toggleFeatured = async (listing: Listing) => {
     setUpdatingFeatured(listing.id);
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("listings")
         .update({ is_featured: !listing.is_featured })
         .eq("id", listing.id);

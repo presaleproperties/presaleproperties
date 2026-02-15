@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Tables } from "@/integrations/supabase/types";
 import { 
   DollarSign,
   Loader2,
@@ -20,15 +19,18 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 
-type Payment = Tables<"payments"> & {
-  agent_profile?: {
-    full_name: string | null;
-    email: string;
-  };
-  listing?: {
-    title: string;
-  };
-};
+interface Payment {
+  id: string;
+  amount: number;
+  status: string;
+  created_at: string;
+  receipt_url: string | null;
+  listing_id: string | null;
+  agent_id: string | null;
+  agent_profile?: { full_name: string | null; email: string };
+  listing?: { title: string };
+  [key: string]: any;
+}
 
 export default function AdminPayments() {
   const [payments, setPayments] = useState<Payment[]>([]);
@@ -42,7 +44,7 @@ export default function AdminPayments() {
 
   const fetchPayments = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("payments")
         .select("*")
         .order("created_at", { ascending: false });
@@ -62,10 +64,10 @@ export default function AdminPayments() {
 
       const [profilesResult, listingsResult] = await Promise.all([
         agentIds.length > 0 
-          ? supabase.from("profiles").select("user_id, full_name, email").in("user_id", agentIds)
+          ? (supabase as any).from("profiles").select("user_id, full_name, email").in("user_id", agentIds)
           : Promise.resolve({ data: [] }),
         listingIds.length > 0 
-          ? supabase.from("listings").select("id, title").in("id", listingIds)
+          ? (supabase as any).from("listings").select("id, title").in("id", listingIds)
           : Promise.resolve({ data: [] })
       ]);
 

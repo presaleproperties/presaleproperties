@@ -61,7 +61,7 @@ export function LeadCaptureForm({ listingId, agentId, listingTitle, isRestricted
     try {
       const message = data.isRealtor ? "I'm a Realtor" : null;
 
-      const { data: leadData, error } = await supabase
+      const { data: leadData, error } = await (supabase as any)
         .from("leads")
         .insert({
           listing_id: listingId,

@@ -201,7 +201,7 @@ export function PowerSearch({
       // 3. Search Assignments - DATABASE LEVEL (NEW!)
       if (mode === "all" || mode === "assignments") {
         const assignmentPromise = (async () => {
-          const { data: assignments } = await supabase
+          const { data: assignments } = await (supabase as any)
             .from("listings")
             .select(`
               id, title, project_name, city, neighborhood, 
@@ -211,7 +211,7 @@ export function PowerSearch({
             .or(`title.ilike.%${q}%,project_name.ilike.%${q}%,city.ilike.%${q}%,neighborhood.ilike.%${q}%`)
             .limit(10);
 
-          assignments?.forEach((a) => {
+          (assignments as any[])?.forEach((a: any) => {
             searchResults.push({
               id: a.id,
               type: "assignment",

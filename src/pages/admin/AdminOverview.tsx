@@ -138,11 +138,11 @@ export default function AdminOverview() {
         supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, presale_projects(name)").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
         supabase.rpc("get_top_projects_with_engagement", { days_back: 90, result_limit: 10 }),
-        supabase.from("listings").select("*", { count: "exact", head: true }),
-        supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "published"),
-        supabase.from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
+        (supabase as any).from("listings").select("*", { count: "exact", head: true }),
+        (supabase as any).from("listings").select("*", { count: "exact", head: true }).eq("status", "published"),
+        (supabase as any).from("listings").select("*", { count: "exact", head: true }).eq("status", "pending_approval"),
         supabase.rpc("get_engagement_funnel", { days_back: 90 }),
-        supabase.from("listings").select("id, title, project_name, city, assignment_price, status").eq("status", "published").order("created_at", { ascending: false }).limit(5),
+        (supabase as any).from("listings").select("id, title, project_name, city, assignment_price, status").eq("status", "published").order("created_at", { ascending: false }).limit(5),
         supabase.rpc("get_top_mls_listings_with_engagement", { days_back: 90, result_limit: 5 }),
       ]);
 

@@ -100,14 +100,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (data.user) {
       // Update profile with phone
       if (metadata.phone) {
-        await supabase
+        await (supabase as any)
           .from("profiles")
           .update({ phone: metadata.phone })
           .eq("user_id", data.user.id);
       }
 
       // Create agent profile
-      const { error: agentError } = await supabase
+      const { error: agentError } = await (supabase as any)
         .from("agent_profiles")
         .insert({
           user_id: data.user.id,

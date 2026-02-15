@@ -31,7 +31,7 @@ export function useAgentSubscription() {
     if (!user) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("agent_subscriptions")
         .select("*")
         .eq("user_id", user.id)
