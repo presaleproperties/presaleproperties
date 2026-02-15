@@ -1,5 +1,5 @@
 import { useNavigate, Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
@@ -75,6 +75,14 @@ export function ResaleHeroSection() {
                 inputClassName="h-11 sm:h-12 md:h-14 text-[15px] sm:text-base border-border bg-background text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50 rounded-lg sm:rounded-xl"
               />
             </div>
+          </div>
+
+          {/* Trust Line */}
+          <div className="animate-fade-in" style={{ animationDelay: "0.25s" }}>
+            <p className="text-white/70 text-sm font-medium flex items-center justify-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Expert guidance at no extra cost
+            </p>
           </div>
 
           {/* Top Cities */}

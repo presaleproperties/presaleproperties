@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen } from "lucide-react";
+import { Menu, X, Building2, ChevronDown, MapPin, Calculator, Home, Map, BookOpen, Users } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -252,6 +252,18 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               <Calculator className="h-4 w-4 mr-2 text-muted-foreground" />
               Calculator
             </Link>
+            <Link
+              to="/about"
+              className={cn(
+                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
+                isActive("/about") 
+                  ? "text-foreground bg-secondary/60" 
+                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
+              )}
+            >
+              <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+              About
+            </Link>
           </nav>
 
           {/* Desktop CTA - Map Search */}
@@ -431,6 +443,19 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                           <Calculator className="h-4 w-4 text-muted-foreground" />
                         </div>
                         <span className="text-lg font-semibold text-foreground">Calculator</span>
+                      </Link>
+
+                      <div className="h-px bg-border/40 my-1" />
+
+                      <Link
+                        to="/about"
+                        onClick={() => setOpen(false)}
+                        className="flex items-center gap-3 py-4"
+                      >
+                        <div className="h-9 w-9 rounded-lg bg-secondary/60 flex items-center justify-center">
+                          <Users className="h-4 w-4 text-muted-foreground" />
+                        </div>
+                        <span className="text-lg font-semibold text-foreground">About</span>
                       </Link>
                     </div>
                   </nav>

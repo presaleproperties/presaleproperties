@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MapPin } from "lucide-react";
+import { MapPin, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
@@ -133,12 +133,16 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Explore Map CTA - More prominent */}
+          {/* Trust line + Explore Map CTA */}
           <div 
-            className="animate-fade-in pt-2" 
+            className="animate-fade-in pt-2 space-y-4" 
             style={{ animationDelay: "0.25s" }}
           >
-            <Link 
+            <p className="text-white/70 text-sm font-medium flex items-center justify-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Expert guidance at no extra cost
+            </p>
+            <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white font-medium text-sm sm:text-base hover:bg-white/25 hover:border-white/50 hover:scale-105 active:scale-100 transition-all duration-300 shadow-lg"
             >
