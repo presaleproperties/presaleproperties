@@ -56,84 +56,6 @@ export type Database = {
         }
         Relationships: []
       }
-      agent_profiles: {
-        Row: {
-          brokerage_address: string | null
-          brokerage_name: string
-          created_at: string
-          id: string
-          license_number: string
-          updated_at: string
-          user_id: string
-          verification_notes: string | null
-          verification_status: Database["public"]["Enums"]["agent_verification_status"]
-          verified_at: string | null
-        }
-        Insert: {
-          brokerage_address?: string | null
-          brokerage_name: string
-          created_at?: string
-          id?: string
-          license_number: string
-          updated_at?: string
-          user_id: string
-          verification_notes?: string | null
-          verification_status?: Database["public"]["Enums"]["agent_verification_status"]
-          verified_at?: string | null
-        }
-        Update: {
-          brokerage_address?: string | null
-          brokerage_name?: string
-          created_at?: string
-          id?: string
-          license_number?: string
-          updated_at?: string
-          user_id?: string
-          verification_notes?: string | null
-          verification_status?: Database["public"]["Enums"]["agent_verification_status"]
-          verified_at?: string | null
-        }
-        Relationships: []
-      }
-      agent_subscriptions: {
-        Row: {
-          created_at: string
-          current_period_end: string | null
-          current_period_start: string | null
-          id: string
-          status: string
-          stripe_customer_id: string | null
-          stripe_subscription_id: string | null
-          tier: Database["public"]["Enums"]["agent_subscription_tier"]
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: Database["public"]["Enums"]["agent_subscription_tier"]
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          current_period_end?: string | null
-          current_period_start?: string | null
-          id?: string
-          status?: string
-          stripe_customer_id?: string | null
-          stripe_subscription_id?: string | null
-          tier?: Database["public"]["Enums"]["agent_subscription_tier"]
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       app_settings: {
         Row: {
           id: string
@@ -154,47 +76,6 @@ export type Database = {
           value?: Json
         }
         Relationships: []
-      }
-      assignment_inquiries: {
-        Row: {
-          created_at: string
-          from_agent_id: string
-          id: string
-          listing_id: string
-          message: string
-          status: string
-          to_agent_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          from_agent_id: string
-          id?: string
-          listing_id: string
-          message: string
-          status?: string
-          to_agent_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          from_agent_id?: string
-          id?: string
-          listing_id?: string
-          message?: string
-          status?: string
-          to_agent_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assignment_inquiries_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       blog_posts: {
         Row: {
@@ -1239,35 +1120,6 @@ export type Database = {
         }
         Relationships: []
       }
-      expiration_notifications: {
-        Row: {
-          id: string
-          listing_id: string
-          notification_type: string
-          sent_at: string
-        }
-        Insert: {
-          id?: string
-          listing_id: string
-          notification_type: string
-          sent_at?: string
-        }
-        Update: {
-          id?: string
-          listing_id?: string
-          notification_type?: string
-          sent_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "expiration_notifications_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       geocoding_logs: {
         Row: {
           api_calls_made: number | null
@@ -1437,243 +1289,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      leads: {
-        Row: {
-          agent_id: string
-          created_at: string
-          email: string
-          id: string
-          listing_id: string
-          message: string | null
-          name: string
-          phone: string | null
-        }
-        Insert: {
-          agent_id: string
-          created_at?: string
-          email: string
-          id?: string
-          listing_id: string
-          message?: string | null
-          name: string
-          phone?: string | null
-        }
-        Update: {
-          agent_id?: string
-          created_at?: string
-          email?: string
-          id?: string
-          listing_id?: string
-          message?: string | null
-          name?: string
-          phone?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "leads_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      listing_files: {
-        Row: {
-          created_at: string
-          file_name: string | null
-          file_type: string
-          id: string
-          listing_id: string
-          url: string
-        }
-        Insert: {
-          created_at?: string
-          file_name?: string | null
-          file_type?: string
-          id?: string
-          listing_id: string
-          url: string
-        }
-        Update: {
-          created_at?: string
-          file_name?: string | null
-          file_type?: string
-          id?: string
-          listing_id?: string
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "listing_files_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      listing_photos: {
-        Row: {
-          created_at: string
-          id: string
-          listing_id: string
-          sort_order: number | null
-          url: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          listing_id: string
-          sort_order?: number | null
-          url: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          listing_id?: string
-          sort_order?: number | null
-          url?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "listing_photos_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      listings: {
-        Row: {
-          address: string | null
-          agent_id: string
-          amenities: string[] | null
-          assignment_fee: number | null
-          assignment_price: number
-          baths: number
-          beds: number
-          city: string
-          closing_date: string | null
-          completion_month: number | null
-          completion_year: number | null
-          construction_status: Database["public"]["Enums"]["construction_status"]
-          created_at: string
-          deposit_paid: number | null
-          description: string | null
-          developer_name: string | null
-          expires_at: string | null
-          exposure: string | null
-          exterior_sqft: number | null
-          floor_level: number | null
-          has_parking: boolean | null
-          has_storage: boolean | null
-          id: string
-          interior_sqft: number | null
-          is_featured: boolean | null
-          map_lat: number | null
-          map_lng: number | null
-          neighborhood: string | null
-          occupancy_date: string | null
-          original_price: number | null
-          parking_count: number | null
-          project_name: string
-          property_type: Database["public"]["Enums"]["property_type"]
-          published_at: string | null
-          rejection_reason: string | null
-          status: Database["public"]["Enums"]["listing_status"]
-          title: string
-          unit_type: Database["public"]["Enums"]["unit_type"]
-          updated_at: string
-          visibility_mode: Database["public"]["Enums"]["visibility_mode"]
-        }
-        Insert: {
-          address?: string | null
-          agent_id: string
-          amenities?: string[] | null
-          assignment_fee?: number | null
-          assignment_price: number
-          baths?: number
-          beds?: number
-          city: string
-          closing_date?: string | null
-          completion_month?: number | null
-          completion_year?: number | null
-          construction_status?: Database["public"]["Enums"]["construction_status"]
-          created_at?: string
-          deposit_paid?: number | null
-          description?: string | null
-          developer_name?: string | null
-          expires_at?: string | null
-          exposure?: string | null
-          exterior_sqft?: number | null
-          floor_level?: number | null
-          has_parking?: boolean | null
-          has_storage?: boolean | null
-          id?: string
-          interior_sqft?: number | null
-          is_featured?: boolean | null
-          map_lat?: number | null
-          map_lng?: number | null
-          neighborhood?: string | null
-          occupancy_date?: string | null
-          original_price?: number | null
-          parking_count?: number | null
-          project_name: string
-          property_type?: Database["public"]["Enums"]["property_type"]
-          published_at?: string | null
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["listing_status"]
-          title: string
-          unit_type?: Database["public"]["Enums"]["unit_type"]
-          updated_at?: string
-          visibility_mode?: Database["public"]["Enums"]["visibility_mode"]
-        }
-        Update: {
-          address?: string | null
-          agent_id?: string
-          amenities?: string[] | null
-          assignment_fee?: number | null
-          assignment_price?: number
-          baths?: number
-          beds?: number
-          city?: string
-          closing_date?: string | null
-          completion_month?: number | null
-          completion_year?: number | null
-          construction_status?: Database["public"]["Enums"]["construction_status"]
-          created_at?: string
-          deposit_paid?: number | null
-          description?: string | null
-          developer_name?: string | null
-          expires_at?: string | null
-          exposure?: string | null
-          exterior_sqft?: number | null
-          floor_level?: number | null
-          has_parking?: boolean | null
-          has_storage?: boolean | null
-          id?: string
-          interior_sqft?: number | null
-          is_featured?: boolean | null
-          map_lat?: number | null
-          map_lng?: number | null
-          neighborhood?: string | null
-          occupancy_date?: string | null
-          original_price?: number | null
-          parking_count?: number | null
-          project_name?: string
-          property_type?: Database["public"]["Enums"]["property_type"]
-          published_at?: string | null
-          rejection_reason?: string | null
-          status?: Database["public"]["Enums"]["listing_status"]
-          title?: string
-          unit_type?: Database["public"]["Enums"]["unit_type"]
-          updated_at?: string
-          visibility_mode?: Database["public"]["Enums"]["visibility_mode"]
-        }
-        Relationships: []
       }
       market_data: {
         Row: {
@@ -2197,50 +1812,6 @@ export type Database = {
         }
         Relationships: []
       }
-      payments: {
-        Row: {
-          agent_id: string
-          amount: number
-          created_at: string
-          currency: string | null
-          id: string
-          listing_id: string
-          receipt_url: string | null
-          status: string
-          stripe_payment_id: string | null
-        }
-        Insert: {
-          agent_id: string
-          amount: number
-          created_at?: string
-          currency?: string | null
-          id?: string
-          listing_id: string
-          receipt_url?: string | null
-          status?: string
-          stripe_payment_id?: string | null
-        }
-        Update: {
-          agent_id?: string
-          amount?: number
-          created_at?: string
-          currency?: string | null
-          id?: string
-          listing_id?: string
-          receipt_url?: string | null
-          status?: string
-          stripe_payment_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "payments_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       presale_projects: {
         Row: {
           address: string | null
@@ -2656,35 +2227,6 @@ export type Database = {
           },
         ]
       }
-      saved_assignments: {
-        Row: {
-          created_at: string
-          id: string
-          listing_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          listing_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          listing_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "saved_assignments_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       saved_listings: {
         Row: {
           created_at: string
@@ -2704,15 +2246,7 @@ export type Database = {
           listing_id?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "saved_listings_listing_id_fkey"
-            columns: ["listing_id"]
-            isOneToOne: false
-            referencedRelation: "listings"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       saved_projects: {
         Row: {
@@ -3150,20 +2684,6 @@ export type Database = {
         }
         Relationships: []
       }
-      public_agent_profiles: {
-        Row: {
-          avatar_url: string | null
-          brokerage_name: string | null
-          full_name: string | null
-          id: string | null
-          user_id: string | null
-          verification_status:
-            | Database["public"]["Enums"]["agent_verification_status"]
-            | null
-          verified_at: string | null
-        }
-        Relationships: []
-      }
       team_members_public: {
         Row: {
           bio: string | null
@@ -3278,8 +2798,6 @@ export type Database = {
       update_listing_agent_names: { Args: never; Returns: undefined }
     }
     Enums: {
-      agent_subscription_tier: "none" | "core" | "pro" | "elite"
-      agent_verification_status: "unverified" | "verified" | "rejected"
       app_role: "admin" | "moderator" | "user" | "developer"
       appointment_type: "preview" | "showing"
       booking_status: "pending" | "confirmed" | "cancelled" | "completed"
@@ -3289,30 +2807,8 @@ export type Database = {
         | "6_12_months"
         | "12_plus_months"
       buyer_type: "first_time" | "investor" | "upgrader" | "other"
-      construction_status:
-        | "pre_construction"
-        | "under_construction"
-        | "completed"
-      listing_status:
-        | "draft"
-        | "pending_payment"
-        | "pending_approval"
-        | "published"
-        | "rejected"
-        | "expired"
-        | "paused"
       project_status: "coming_soon" | "registering" | "active" | "sold_out"
       project_type: "condo" | "townhome" | "mixed" | "duplex" | "single_family"
-      property_type: "condo" | "townhouse" | "other"
-      unit_type:
-        | "studio"
-        | "1bed"
-        | "1bed_den"
-        | "2bed"
-        | "2bed_den"
-        | "3bed"
-        | "penthouse"
-      visibility_mode: "public" | "restricted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3440,8 +2936,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      agent_subscription_tier: ["none", "core", "pro", "elite"],
-      agent_verification_status: ["unverified", "verified", "rejected"],
       app_role: ["admin", "moderator", "user", "developer"],
       appointment_type: ["preview", "showing"],
       booking_status: ["pending", "confirmed", "cancelled", "completed"],
@@ -3452,33 +2946,8 @@ export const Constants = {
         "12_plus_months",
       ],
       buyer_type: ["first_time", "investor", "upgrader", "other"],
-      construction_status: [
-        "pre_construction",
-        "under_construction",
-        "completed",
-      ],
-      listing_status: [
-        "draft",
-        "pending_payment",
-        "pending_approval",
-        "published",
-        "rejected",
-        "expired",
-        "paused",
-      ],
       project_status: ["coming_soon", "registering", "active", "sold_out"],
       project_type: ["condo", "townhome", "mixed", "duplex", "single_family"],
-      property_type: ["condo", "townhouse", "other"],
-      unit_type: [
-        "studio",
-        "1bed",
-        "1bed_den",
-        "2bed",
-        "2bed_den",
-        "3bed",
-        "penthouse",
-      ],
-      visibility_mode: ["public", "restricted"],
     },
   },
 } as const
