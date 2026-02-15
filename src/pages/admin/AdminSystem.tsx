@@ -6,9 +6,12 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import { Search, Server, Users, AlertTriangle, Cog, RefreshCw, Loader2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Search, Server, Users, AlertTriangle, Cog, RefreshCw, Loader2, MessageSquarePlus, Send, X, FileText } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/sonner";
 
 // ── System Overview ──────────────────────────────────────────────
 function SystemOverview() {
@@ -194,10 +197,14 @@ function UserLookup() {
 
 // ── Recent Errors ────────────────────────────────────────────────
 function RecentErrors() {
+  const [selectedError, setSelectedError] = useState<{ id: string; source: string; message: string } | null>(null);
+  const [directions, setDirections] = useState("");
+  const [viewingError, setViewingError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
   const { data: errors, isLoading, refetch } = useQuery({
     queryKey: ["admin-recent-errors"],
     queryFn: async () => {
-      // Check email jobs with errors
       const { data: emailErrors } = await supabase
         .from("email_jobs")
         .select("id, to_email, template_id, error_message, created_at")
@@ -205,7 +212,6 @@ function RecentErrors() {
         .order("created_at", { ascending: false })
         .limit(10);
 
-      // Check email logs with errors
       const { data: emailLogErrors } = await supabase
         .from("email_logs")
         .select("id, email_to, subject, error_message, sent_at")
@@ -213,7 +219,6 @@ function RecentErrors() {
         .order("sent_at", { ascending: false })
         .limit(10);
 
-      // Check MLS sync errors
       const { data: syncErrors } = await supabase
         .from("mls_sync_logs")
         .select("id, sync_type, error_message, started_at, status")
@@ -224,75 +229,166 @@ function RecentErrors() {
       const combined: { id: string; source: string; message: string; detail: string; time: string }[] = [];
 
       (emailErrors ?? []).forEach((e) =>
-        combined.push({
-          id: e.id,
-          source: "Email Job",
-          message: e.error_message || "Unknown error",
-          detail: e.to_email,
-          time: e.created_at,
-        })
+        combined.push({ id: e.id, source: "Email Job", message: e.error_message || "Unknown error", detail: e.to_email, time: e.created_at })
       );
-
       (emailLogErrors ?? []).forEach((e) =>
-        combined.push({
-          id: e.id,
-          source: "Email Log",
-          message: e.error_message || "Unknown error",
-          detail: `${e.email_to} — ${e.subject}`,
-          time: e.sent_at,
-        })
+        combined.push({ id: e.id, source: "Email Log", message: e.error_message || "Unknown error", detail: `${e.email_to} — ${e.subject}`, time: e.sent_at })
       );
-
       (syncErrors ?? []).forEach((e) =>
-        combined.push({
-          id: e.id,
-          source: "MLS Sync",
-          message: e.error_message || "Sync failed",
-          detail: e.sync_type,
-          time: e.started_at,
-        })
+        combined.push({ id: e.id, source: "MLS Sync", message: e.error_message || "Sync failed", detail: e.sync_type, time: e.started_at })
       );
 
       return combined.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 15);
     },
   });
 
+  const { data: savedDirections } = useQuery({
+    queryKey: ["admin-error-directions"],
+    queryFn: async () => {
+      const { data } = await (supabase as any)
+        .from("error_directions")
+        .select("*")
+        .order("created_at", { ascending: false });
+      return (data ?? []) as { id: string; error_id: string; error_source: string; directions: string; created_at: string }[];
+    },
+  });
+
+  const directionsMap = new Map<string, { directions: string; created_at: string }>();
+  (savedDirections ?? []).forEach((d) => {
+    if (!directionsMap.has(d.error_id)) {
+      directionsMap.set(d.error_id, { directions: d.directions, created_at: d.created_at });
+    }
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async ({ errorId, errorSource, text }: { errorId: string; errorSource: string; text: string }) => {
+      const { error } = await (supabase as any)
+        .from("error_directions")
+        .insert({ error_id: errorId, error_source: errorSource, directions: text });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Directions saved");
+      setSelectedError(null);
+      setDirections("");
+      queryClient.invalidateQueries({ queryKey: ["admin-error-directions"] });
+    },
+    onError: () => toast.error("Failed to save directions"),
+  });
+
   return (
-    <Card>
-      <CardHeader className="pb-3 flex-row items-center justify-between">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <AlertTriangle className="h-4 w-4 text-destructive" />
-          Recent Errors
-        </CardTitle>
-        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => refetch()}>
-          <RefreshCw className="h-3.5 w-3.5" />
-        </Button>
-      </CardHeader>
-      <CardContent>
-        {isLoading ? (
-          <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
-        ) : !errors || errors.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-center py-6">🎉 No recent errors found</p>
-        ) : (
-          <div className="space-y-2 max-h-[360px] overflow-y-auto">
-            {errors.map((err) => (
-              <div key={err.id} className="rounded-lg border border-destructive/20 bg-destructive/5 p-3">
-                <div className="flex items-center justify-between mb-1">
-                  <Badge variant="outline" className="text-[10px] border-destructive/30 text-destructive">
-                    {err.source}
-                  </Badge>
-                  <span className="text-[10px] text-muted-foreground">
-                    {formatDistanceToNow(new Date(err.time), { addSuffix: true })}
-                  </span>
-                </div>
-                <p className="text-xs font-medium text-foreground line-clamp-2">{err.message}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{err.detail}</p>
+    <>
+      <Card>
+        <CardHeader className="pb-3 flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <AlertTriangle className="h-4 w-4 text-destructive" />
+            Recent Errors
+          </CardTitle>
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => refetch()}>
+            <RefreshCw className="h-3.5 w-3.5" />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-muted-foreground" /></div>
+          ) : !errors || errors.length === 0 ? (
+            <p className="text-sm text-muted-foreground text-center py-6">🎉 No recent errors found</p>
+          ) : (
+            <div className="space-y-2 max-h-[360px] overflow-y-auto">
+              {errors.map((err) => {
+                const existing = directionsMap.get(err.id);
+                return (
+                  <div key={err.id} className="rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <Badge variant="outline" className="text-[10px] border-destructive/30 text-destructive">
+                        {err.source}
+                      </Badge>
+                      <span className="text-[10px] text-muted-foreground">
+                        {formatDistanceToNow(new Date(err.time), { addSuffix: true })}
+                      </span>
+                    </div>
+                    <p className="text-xs font-medium text-foreground line-clamp-2">{err.message}</p>
+                    <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{err.detail}</p>
+                    <div className="flex items-center gap-1.5 mt-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-6 text-[10px] px-2"
+                        onClick={() => { setSelectedError(err); setDirections(""); }}
+                      >
+                        <MessageSquarePlus className="h-3 w-3 mr-1" />
+                        Add Directions
+                      </Button>
+                      {existing && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 text-[10px] px-2 text-primary"
+                          onClick={() => setViewingError(viewingError === err.id ? null : err.id)}
+                        >
+                          <FileText className="h-3 w-3 mr-1" />
+                          View Directions
+                        </Button>
+                      )}
+                    </div>
+                    {viewingError === err.id && existing && (
+                      <div className="mt-2 rounded border bg-background p-2">
+                        <p className="text-xs whitespace-pre-wrap">{existing.directions}</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          Saved {formatDistanceToNow(new Date(existing.created_at), { addSuffix: true })}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Dialog open={!!selectedError} onOpenChange={(open) => { if (!open) setSelectedError(null); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="text-sm">Fix Directions</DialogTitle>
+          </DialogHeader>
+          {selectedError && (
+            <div className="space-y-3">
+              <div className="rounded-lg border bg-muted/30 p-3">
+                <Badge variant="outline" className="text-[10px] border-destructive/30 text-destructive mb-1">
+                  {selectedError.source}
+                </Badge>
+                <p className="text-xs font-medium mt-1">{selectedError.message}</p>
               </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              <Textarea
+                placeholder="Write directions to fix this error..."
+                value={directions}
+                onChange={(e) => setDirections(e.target.value)}
+                rows={4}
+                className="text-sm"
+              />
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="ghost" size="sm" onClick={() => setSelectedError(null)}>
+              <X className="h-3.5 w-3.5 mr-1" /> Cancel
+            </Button>
+            <Button
+              size="sm"
+              disabled={!directions.trim() || saveMutation.isPending}
+              onClick={() => {
+                if (selectedError) {
+                  saveMutation.mutate({ errorId: selectedError.id, errorSource: selectedError.source, text: directions.trim() });
+                }
+              }}
+            >
+              {saveMutation.isPending ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Send className="h-3.5 w-3.5 mr-1" />}
+              Save Directions
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
