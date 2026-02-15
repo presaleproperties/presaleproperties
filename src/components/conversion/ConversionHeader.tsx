@@ -238,7 +238,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               )}
             >
               <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
-              Blog
+              Guides
             </Link>
             <Link
               to="/calculator"
@@ -429,7 +429,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
                         <div className="h-9 w-9 rounded-lg bg-secondary/60 flex items-center justify-center">
                           <BookOpen className="h-4 w-4 text-muted-foreground" />
                         </div>
-                        <span className="text-lg font-semibold text-foreground">Blog</span>
+                        <span className="text-lg font-semibold text-foreground">Guides</span>
                       </Link>
 
                       <div className="h-px bg-border/40 my-1" />
