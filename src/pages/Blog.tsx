@@ -4,7 +4,6 @@ import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Breadcrumbs } from "@/components/seo/Breadcrumbs";
 import { BlogFeaturedCarousel } from "@/components/blog/BlogFeaturedCarousel";
@@ -15,8 +14,8 @@ import {
   Search,
   FileText,
   Loader2,
-  BookOpen,
   X,
+  Sparkles,
 } from "lucide-react";
 
 type BlogPost = {
@@ -72,7 +71,6 @@ export default function Blog() {
   const featuredPosts = posts.filter(p => p.is_featured);
   const regularPosts = posts.filter(p => !p.is_featured);
 
-  // Group regular posts by category
   const postsByCategory: Record<string, BlogPost[]> = {};
   regularPosts.forEach(post => {
     const cat = post.category || "Uncategorized";
@@ -128,77 +126,80 @@ export default function Blog() {
       
       <main className="min-h-screen bg-background">
         {/* Breadcrumb */}
-        <div className="border-b bg-muted/30">
+        <div className="border-b border-border/40">
           <div className="container py-2 md:py-3">
             <Breadcrumbs items={[{ label: "Blog" }]} />
           </div>
         </div>
 
-        {/* Hero Section - Mobile optimized with safe text sizing */}
-        <section className="relative overflow-hidden py-10 md:py-16 lg:py-20">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-background" />
+        {/* Premium Hero Section */}
+        <section className="relative overflow-hidden py-14 md:py-20 lg:py-28">
+          {/* Layered background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-muted/60 via-background to-background" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-primary/5 rounded-full blur-3xl" />
+          
           <div className="container relative">
             <div className="max-w-3xl mx-auto text-center px-2">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs sm:text-sm font-medium mb-4 md:mb-5">
-                <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                Insights & Guides
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs sm:text-sm font-semibold mb-6 md:mb-8 shadow-xs">
+                <Sparkles className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                Expert Insights & Buyer Guides
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-3 md:mb-4 tracking-tight leading-tight">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-4 md:mb-6 tracking-tightest leading-[1.1]">
                 Your Presale{" "}
-                <span className="bg-gradient-to-r from-primary to-primary-deep bg-clip-text text-transparent">
+                <span className="text-gradient-gold">
                   Knowledge Hub
                 </span>
               </h1>
-              <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-xl mx-auto leading-relaxed">
-                Market updates, buying guides, and expert strategies for navigating Metro Vancouver's presale market
+              <p className="text-base sm:text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed font-medium">
+                Market updates, buying guides, and expert strategies for navigating Metro Vancouver's presale landscape
               </p>
             </div>
           </div>
         </section>
 
-        {/* Search & Category Bar - properly spaced for mobile fixed header */}
-        <section aria-label="Article filters" className="sticky top-14 md:top-16 z-40 bg-background/95 backdrop-blur-md border-b py-3 md:py-4">
+        {/* Search & Category Bar */}
+        <section aria-label="Article filters" className="sticky top-14 md:top-16 z-40 bg-background/80 backdrop-blur-xl border-b border-border/40 py-3 md:py-4">
           <div className="container">
             <div className="flex flex-col gap-3">
               {/* Search */}
-              <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <div className="relative max-w-lg">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search articles..."
+                  placeholder="Search guides & articles..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10 pr-10 h-10 rounded-full border-border/60 bg-muted/40 focus:bg-card text-sm"
+                  className="pl-11 pr-10 h-11 rounded-full border-border/50 bg-card shadow-xs focus:shadow-card focus:border-primary/30 text-sm transition-all duration-200"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery("")}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                   >
                     <X className="h-4 w-4" />
                   </button>
                 )}
               </div>
 
-              {/* Category chips - horizontally scrollable on mobile */}
+              {/* Category chips */}
               <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0 scrollbar-none">
                 <button
                   onClick={() => setActiveCategory(null)}
-                  className={`inline-flex items-center whitespace-nowrap px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border shrink-0 ${
+                  className={`inline-flex items-center whitespace-nowrap px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 border shrink-0 ${
                     !activeCategory
-                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                      : "bg-card text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground"
+                      ? "bg-foreground text-background border-foreground shadow-sm"
+                      : "bg-card text-muted-foreground border-border/50 hover:border-foreground/20 hover:text-foreground shadow-xs"
                   }`}
                 >
-                  All
+                  All Guides
                 </button>
                 {categories.map(cat => (
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-                    className={`inline-flex items-center whitespace-nowrap px-3 md:px-4 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 border shrink-0 ${
+                    className={`inline-flex items-center whitespace-nowrap px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all duration-200 border shrink-0 ${
                       activeCategory === cat
-                        ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                        : "bg-card text-muted-foreground border-border/60 hover:border-primary/40 hover:text-foreground"
+                        ? "bg-foreground text-background border-foreground shadow-sm"
+                        : "bg-card text-muted-foreground border-border/50 hover:border-foreground/20 hover:text-foreground shadow-xs"
                     }`}
                   >
                     {cat}
@@ -210,21 +211,24 @@ export default function Blog() {
         </section>
 
         {/* Content */}
-        <section aria-label="Blog articles" className="py-8 md:py-12 lg:py-14">
+        <section aria-label="Blog articles" className="py-10 md:py-14 lg:py-18">
           <div className="container">
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-20 md:py-24 gap-3">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                <p className="text-sm text-muted-foreground">Loading articles...</p>
+              <div className="flex flex-col items-center justify-center py-24 md:py-32 gap-4">
+                <div className="relative">
+                  <div className="h-12 w-12 rounded-full border-2 border-muted" />
+                  <Loader2 className="h-12 w-12 animate-spin text-primary absolute inset-0" />
+                </div>
+                <p className="text-sm text-muted-foreground font-medium">Loading articles...</p>
               </div>
             ) : filteredPosts.length === 0 ? (
-              <div className="text-center py-16 md:py-24">
-                <div className="inline-flex items-center justify-center w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-muted mb-4">
-                  <FileText className="h-7 w-7 md:h-8 md:w-8 text-muted-foreground" />
+              <div className="text-center py-20 md:py-28">
+                <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-muted/60 mb-5 border border-border/40">
+                  <FileText className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground/40" />
                 </div>
-                <h2 className="text-xl md:text-2xl font-semibold mb-2">No articles found</h2>
-                <p className="text-sm md:text-base text-muted-foreground mb-6">
-                  Try adjusting your search or category filter
+                <h2 className="text-2xl md:text-3xl font-bold mb-3 tracking-tight">No articles found</h2>
+                <p className="text-sm md:text-base text-muted-foreground mb-8 max-w-md mx-auto">
+                  Try adjusting your search or category filter to discover more content
                 </p>
                 <Button
                   variant="outline"
@@ -232,34 +236,30 @@ export default function Blog() {
                     setSearchQuery("");
                     setActiveCategory(null);
                   }}
-                  className="rounded-full"
+                  className="rounded-full px-6 font-semibold"
                 >
                   Clear Filters
                 </Button>
               </div>
             ) : isSearching || activeCategory ? (
-              /* Search/filter results - responsive grid */
               <div>
-                <p className="text-xs sm:text-sm text-muted-foreground mb-4 md:mb-6">
+                <p className="text-xs sm:text-sm text-muted-foreground mb-5 md:mb-8 font-medium">
                   Showing {filteredPosts.length} {filteredPosts.length === 1 ? "article" : "articles"}
-                  {activeCategory && <> in <strong>{activeCategory}</strong></>}
-                  {searchQuery && <> matching "<strong>{searchQuery}</strong>"</>}
+                  {activeCategory && <> in <strong className="text-foreground">{activeCategory}</strong></>}
+                  {searchQuery && <> matching "<strong className="text-foreground">{searchQuery}</strong>"</>}
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-7">
                   {filteredPosts.map((post) => (
                     <BlogPostCard key={post.id} post={post} formatDate={formatDate} />
                   ))}
                 </div>
               </div>
             ) : (
-              /* Default view: Featured carousel + category carousels */
-              <div className="space-y-10 md:space-y-14">
-                {/* Featured Carousel */}
+              <div className="space-y-14 md:space-y-20">
                 {featuredPosts.length > 0 && (
                   <BlogFeaturedCarousel posts={featuredPosts} formatDate={formatDate} />
                 )}
 
-                {/* Category Carousels */}
                 {categories.map(category => {
                   const catPosts = postsByCategory[category];
                   if (!catPosts || catPosts.length === 0) return null;
@@ -273,7 +273,6 @@ export default function Blog() {
                   );
                 })}
 
-                {/* Uncategorized posts */}
                 {postsByCategory["Uncategorized"]?.length > 0 && (
                   <BlogCategoryCarousel
                     category="More Articles"
