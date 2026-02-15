@@ -12,7 +12,7 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
 import { toast } from "sonner";
 import { useGuestFavorites } from "@/hooks/useGuestFavorites";
-import { MortgageCalculator } from "@/components/calculators/MortgageCalculator";
+import { MortgageCalculator } from "@/components/listings/MortgageCalculator";
 import { REWPhotoGallery } from "@/components/resale/REWPhotoGallery";
 import { ResaleScheduleForm } from "@/components/resale/ResaleScheduleForm";
 import { RelatedCityListings } from "@/components/resale/RelatedCityListings";

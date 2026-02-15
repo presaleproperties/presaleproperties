@@ -189,7 +189,7 @@ export default function NeighborhoodPropertyTypePage() {
                 sqft={listing.living_area}
                 photos={listing.photos as any[]}
                 daysOnMarket={listing.days_on_market}
-                listDate={listing.list_date || undefined}
+                listDate={listing.list_date}
                 status={listing.mls_status}
                 listAgentName={listing.list_agent_name}
                 listOfficeName={listing.list_office_name}

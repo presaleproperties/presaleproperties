@@ -43,7 +43,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { useEnabledCities } from "@/hooks/useEnabledCities";
-// useVerifiedAgent removed - no longer needed
+import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 import { buildGridUrlFromMapFilters } from "@/lib/filterSync";
 import { useMinYearBuilt, DEFAULT_MIN_YEAR_BUILT } from "@/hooks/useMinYearBuilt";
 import type { CombinedListingsMapRef } from "@/components/map/CombinedListingsMap";
@@ -65,9 +65,9 @@ interface SavedMapState {
 
 interface SavedUIState {
   selectedItemId: string | null;
-  selectedItemType: "resale" | "presale" | null;
+  selectedItemType: "resale" | "presale" | "assignment" | null;
   focusedItemId: string | null;
-  focusedItemType: "resale" | "presale" | null;
+  focusedItemType: "resale" | "presale" | "assignment" | null;
   showCarousel: boolean;
   carouselScrollLeft: number;
   desktopScrollTop: number;
@@ -142,7 +142,7 @@ const SORT_OPTIONS = [
 const MIN_PRICE = 0;
 const MAX_PRICE = 5000000;
 const PRICE_STEP = 50000;
-type MapMode = "all" | "presale" | "resale";
+type MapMode = "all" | "presale" | "resale" | "assignments";
 
 type MLSListing = {
   id: string;
@@ -200,8 +200,7 @@ const getRestoredUIState = (): SavedUIState | null => {
 export default function MapSearch() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
-  // useVerifiedAgent removed
-  const isVerifiedAgent = false;
+  const { isVerified: isVerifiedAgent } = useVerifiedAgent();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
@@ -223,11 +222,12 @@ export default function MapSearch() {
   const [showCarousel, setShowCarousel] = useState(() => restoredUIState?.showCarousel ?? false);
   // Don't restore selected/focused item states - start fresh with no selection
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
-  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | null>(null);
+  const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null);
-  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | null>(null);
+  const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
+  const [visibleAssignmentIds, setVisibleAssignmentIds] = useState<string[]>([]);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationRequested, setLocationRequested] = useState(false);
   const [isListInteracting, setIsListInteracting] = useState(false);
@@ -439,7 +439,7 @@ export default function MapSearch() {
 
   // handleItemSelect is called when a PIN on the map is clicked
   // It should scroll the list to show the selected card
-  const handleItemSelect = useCallback((id: string, type: "resale" | "presale") => {
+  const handleItemSelect = useCallback((id: string, type: "resale" | "presale" | "assignment") => {
     setSelectedItemId(id);
     setSelectedItemType(type);
     setFocusedCarouselItemId(id);
@@ -473,7 +473,7 @@ export default function MapSearch() {
     return () => clearTimeout(timer);
   }, []);
   
-  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[]) => {
+  const handleVisibleItemsChange = useCallback((resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => {
     // Skip update if user is interacting with the list (prevents card jumping)
     if (isListInteracting) return;
     
@@ -482,6 +482,7 @@ export default function MapSearch() {
     
     setVisibleResaleIds(resaleIds);
     setVisiblePresaleIds(presaleIds);
+    if (assignmentIds) setVisibleAssignmentIds(assignmentIds);
   }, [isListInteracting]);
 
   // Hide carousel when user starts panning/zooming the map on mobile
@@ -536,7 +537,8 @@ export default function MapSearch() {
     
     if (closestCard && closestDistance < 80) { // Within threshold
       const itemId = closestCard.getAttribute('data-item-id');
-      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale";
+      const itemType = closestCard.getAttribute('data-item-type') as "resale" | "presale" | "assignment";
+      
       if (itemId && itemId !== focusedCarouselItemId) {
         setFocusedCarouselItemId(itemId);
         setFocusedCarouselItemType(itemType);
@@ -574,15 +576,16 @@ export default function MapSearch() {
   }, [debouncedCarouselScroll, showCarousel]);
 
   // Handle carousel card tap - navigate directly to property detail page
-  const handleCarouselCardTap = useCallback((id: string, type: "resale" | "presale", link: string) => {
+  const handleCarouselCardTap = useCallback((id: string, type: "resale" | "presale" | "assignment", link: string) => {
     // Navigate directly to property page
     navigate(link);
   }, [navigate]);
 
   // Handle desktop list card click - navigate directly to property detail page
   // The Link component handles navigation naturally; this only handles assignment agent verification
-  const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale", link: string, lat: number | null, lng: number | null) => {
-    // Just let the Link navigate naturally
+  const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale" | "assignment", link: string, lat: number | null, lng: number | null) => {
+    // Just let the Link navigate naturally - no map interaction needed
+    // Assignment verification is handled in the onClick before this is called
   }, []);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
@@ -870,10 +873,84 @@ export default function MapSearch() {
     refetchOnWindowFocus: false,
   });
 
-  // Assignments removed - table dropped
+  // Fetch assignments (listings table)
+  type Assignment = {
+    id: string;
+    title: string;
+    project_name: string;
+    city: string;
+    neighborhood: string | null;
+    assignment_price: number;
+    beds: number;
+    baths: number;
+    interior_sqft: number | null;
+    map_lat: number | null;
+    map_lng: number | null;
+    status: string;
+  };
 
-  const assignments: never[] = [];
-  const assignmentsLoading = false;
+  const { data: assignments, isLoading: assignmentsLoading } = useQuery<Assignment[]>({
+    queryKey: ["unified-map-assignments", selectedCities, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths],
+    queryFn: async () => {
+      let query = supabase
+        .from("listings")
+        .select("id, title, project_name, city, neighborhood, assignment_price, beds, baths, interior_sqft, map_lat, map_lng, status")
+        .eq("status", "published")
+        .not("map_lat", "is", null)
+        .not("map_lng", "is", null);
+
+      // City filter
+      if (selectedCities.length > 0) {
+        query = query.in("city", selectedCities);
+      }
+
+      // Beds filter
+      if (filters.beds && filters.beds !== "any") {
+        const bedsNum = parseInt(filters.beds);
+        if (bedsNum === 5) {
+          query = query.gte("beds", 5);
+        } else {
+          query = query.eq("beds", bedsNum);
+        }
+      }
+
+      // Baths filter
+      if (filters.baths && filters.baths !== "any") {
+        const bathsNum = parseInt(filters.baths);
+        if (bathsNum === 4) {
+          query = query.gte("baths", 4);
+        } else {
+          query = query.gte("baths", bathsNum);
+        }
+      }
+
+      const { data, error } = await query.limit(500);
+      if (error) throw error;
+      
+      let results = data || [];
+      
+      // Client-side filtering for price ranges (assignments use assignment_price)
+      if (selectedPriceRanges.length > 0) {
+        results = results.filter(a => priceMatchesRanges(a.assignment_price, selectedPriceRanges));
+      } else {
+        // Legacy single-value price filter support
+        const legacyPriceMin = filters.priceMin ? parseInt(filters.priceMin) : null;
+        const legacyPriceMax = filters.priceMax ? parseInt(filters.priceMax) : null;
+        if (legacyPriceMin !== null || legacyPriceMax !== null) {
+          results = results.filter(a => {
+            if (legacyPriceMin !== null && a.assignment_price < legacyPriceMin) return false;
+            if (legacyPriceMax !== null && a.assignment_price > legacyPriceMax) return false;
+            return true;
+          });
+        }
+      }
+      
+      return results;
+    },
+    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
+    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    refetchOnWindowFocus: false,
+  });
 
   // Only show loading if we have NO data yet - use cached data immediately on back navigation
   const hasAnyData = (resaleListings && resaleListings.length > 0) || 
@@ -907,73 +984,122 @@ export default function MapSearch() {
     );
   }, [presaleProjects, searchQuery]);
 
-  const filteredAssignments: never[] = [];
+  const filteredAssignments = useMemo(() => {
+    if (!assignments) return [];
+    if (!searchQuery.trim()) return assignments;
+    
+    const q = searchQuery.toLowerCase();
+    return assignments.filter(
+      (a) =>
+        a.project_name.toLowerCase().includes(q) ||
+        a.city.toLowerCase().includes(q) ||
+        (a.neighborhood?.toLowerCase() || "").includes(q)
+    );
+  }, [assignments, searchQuery]);
 
-
-  // Compute visible projects/listings from IDs
-  const visiblePresaleProjectsList = useMemo(() => {
-    if (!visiblePresaleIds.length) return filteredPresaleProjects;
-    const idSet = new Set(visiblePresaleIds);
-    return filteredPresaleProjects.filter(p => idSet.has(p.id));
-  }, [filteredPresaleProjects, visiblePresaleIds]);
-
-  const visibleResaleListingsList = useMemo(() => {
-    if (!visibleResaleIds.length) return filteredResaleListings;
-    const idSet = new Set(visibleResaleIds);
-    return filteredResaleListings.filter(l => idSet.has(l.id));
-  }, [filteredResaleListings, visibleResaleIds]);
-
-  // Distance helper for sorting by proximity to map center
-  const getDistanceFromCenter = useCallback((lat: number | null, lng: number | null) => {
-    if (!mapCenter || lat == null || lng == null) return Infinity;
-    const dlat = lat - mapCenter.lat;
-    const dlng = lng - mapCenter.lng;
-    return dlat * dlat + dlng * dlng;
+  // Helper: calculate distance from map center (for sorting)
+  const getDistanceFromCenter = useCallback((lat: number | null, lng: number | null): number => {
+    if (!lat || !lng || !mapCenter) return Infinity;
+    const dLat = lat - mapCenter.lat;
+    const dLng = lng - mapCenter.lng;
+    return Math.sqrt(dLat * dLat + dLng * dLng);
   }, [mapCenter]);
 
-  // Combined visible items for display
+  // Visible items based on map viewport and mode - ONLY show items actually visible on map
+  const visibleResaleListings = useMemo(() => {
+    if (mapMode === "presale" || mapMode === "assignments") return [];
+    // Only show items that are actually in the map viewport - no fallback
+    if (visibleResaleIds.length === 0) return [];
+    return filteredResaleListings.filter(l => visibleResaleIds.includes(l.id));
+  }, [filteredResaleListings, visibleResaleIds, mapMode]);
+
+  const visiblePresaleProjects = useMemo(() => {
+    if (mapMode === "resale" || mapMode === "assignments") return [];
+    // Only show items that are actually in the map viewport - no fallback
+    if (visiblePresaleIds.length === 0) return [];
+    return filteredPresaleProjects.filter(p => visiblePresaleIds.includes(p.id));
+  }, [filteredPresaleProjects, visiblePresaleIds, mapMode]);
+
+  const visibleAssignments = useMemo(() => {
+    if (mapMode === "resale" || mapMode === "presale") return [];
+    // Only show items that are actually in the map viewport - no fallback
+    if (visibleAssignmentIds.length === 0) return [];
+    return filteredAssignments.filter(a => visibleAssignmentIds.includes(a.id));
+  }, [filteredAssignments, visibleAssignmentIds, mapMode]);
+
+  // Combined visible items for display - sorted by distance from map center, interleaved for variety
   const visibleItems = useMemo(() => {
     type ItemWithDistance = { 
-      type: "resale" | "presale"; 
-      data: MLSListing | PresaleProject;
+      type: "resale" | "presale" | "assignment"; 
+      data: MLSListing | PresaleProject | Assignment;
       distance: number;
     };
     
     const items: ItemWithDistance[] = [];
     
-    visiblePresaleProjectsList.forEach(p => {
-      items.push({ type: "presale", data: p, distance: getDistanceFromCenter(p.map_lat, p.map_lng) });
+    // Add presale projects with distance
+    visiblePresaleProjects.forEach(p => {
+      items.push({ 
+        type: "presale", 
+        data: p,
+        distance: getDistanceFromCenter(p.map_lat, p.map_lng)
+      });
     });
     
-    visibleResaleListingsList.forEach(l => {
-      items.push({ type: "resale", data: l, distance: getDistanceFromCenter(l.latitude, l.longitude) });
+    // Add resale listings with distance
+    visibleResaleListings.forEach(l => {
+      items.push({ 
+        type: "resale", 
+        data: l,
+        distance: getDistanceFromCenter(l.latitude, l.longitude)
+      });
     });
     
+    // Add assignments with distance
+    visibleAssignments.forEach(a => {
+      items.push({ 
+        type: "assignment", 
+        data: a,
+        distance: getDistanceFromCenter(a.map_lat, a.map_lng)
+      });
+    });
+    
+    // Sort by distance from center (closest first)
     items.sort((a, b) => a.distance - b.distance);
     
+    // Apply additional sorting if user selected price sort
     const sortValue = filters.sort;
     if (sortValue === "price_asc" || sortValue === "price_desc") {
       items.sort((a, b) => {
         const priceA = a.type === "presale" 
           ? (a.data as PresaleProject).starting_price || 0 
-          : (a.data as MLSListing).listing_price || 0;
+          : a.type === "resale" 
+          ? (a.data as MLSListing).listing_price || 0
+          : (a.data as Assignment).assignment_price || 0;
         const priceB = b.type === "presale" 
           ? (b.data as PresaleProject).starting_price || 0 
-          : (b.data as MLSListing).listing_price || 0;
+          : b.type === "resale"
+          ? (b.data as MLSListing).listing_price || 0
+          : (b.data as Assignment).assignment_price || 0;
+        
         return sortValue === "price_asc" ? priceA - priceB : priceB - priceA;
       });
     }
     
+    // Track focused item to keep it in place
     const focusedId = focusedCarouselItemId;
     let finalItems = items.map(({ type, data }) => ({ type, data }));
     
+    // If focused item is not in visible items, find and add it at the start
     if (focusedId) {
       const focusedIndex = finalItems.findIndex(item => 
         (item.type === "presale" && (item.data as PresaleProject).id === focusedId) ||
-        (item.type === "resale" && (item.data as MLSListing).id === focusedId)
+        (item.type === "resale" && (item.data as MLSListing).id === focusedId) ||
+        (item.type === "assignment" && (item.data as Assignment).id === focusedId)
       );
       
       if (focusedIndex === -1) {
+        // Focused item not in view - add it from full list
         const focusedPresale = filteredPresaleProjects.find(p => p.id === focusedId);
         if (focusedPresale) {
           finalItems.unshift({ type: "presale", data: focusedPresale });
@@ -981,19 +1107,26 @@ export default function MapSearch() {
           const focusedResale = filteredResaleListings.find(l => l.id === focusedId);
           if (focusedResale) {
             finalItems.unshift({ type: "resale", data: focusedResale });
+          } else {
+            const focusedAssignment = filteredAssignments.find(a => a.id === focusedId);
+            if (focusedAssignment) {
+              finalItems.unshift({ type: "assignment", data: focusedAssignment });
+            }
           }
         }
       }
     }
     
     return finalItems.slice(0, 40);
-  }, [visibleResaleListingsList, visiblePresaleProjectsList, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filters.sort, getDistanceFromCenter]);
+  }, [visibleResaleListings, visiblePresaleProjects, visibleAssignments, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filteredAssignments, filters.sort, getDistanceFromCenter]);
 
+  // Actual count of properties in view (not capped) for display
   const propertiesInViewCount = useMemo(() => {
-    const resaleCount = mapMode === "presale" ? 0 : visibleResaleIds.length;
-    const presaleCount = mapMode === "resale" ? 0 : visiblePresaleIds.length;
-    return resaleCount + presaleCount;
-  }, [visibleResaleIds, visiblePresaleIds, mapMode]);
+    const resaleCount = (mapMode === "presale" || mapMode === "assignments") ? 0 : visibleResaleIds.length;
+    const presaleCount = (mapMode === "resale" || mapMode === "assignments") ? 0 : visiblePresaleIds.length;
+    const assignmentCount = (mapMode === "resale" || mapMode === "presale") ? 0 : visibleAssignmentIds.length;
+    return resaleCount + presaleCount + assignmentCount;
+  }, [visibleResaleIds, visiblePresaleIds, visibleAssignmentIds, mapMode]);
 
   const updateFilter = (key: string, value: string) => {
     const newParams = new URLSearchParams(searchParams);
@@ -1031,7 +1164,20 @@ export default function MapSearch() {
     }));
   }, [resaleListings]);
 
-
+  // Assignments for search bar autocomplete
+  const assignmentsForSearch = useMemo(() => {
+    if (!assignments) return [];
+    return assignments.map(a => ({
+      id: a.id,
+      title: a.title,
+      project_name: a.project_name,
+      city: a.city,
+      neighborhood: a.neighborhood,
+      assignment_price: a.assignment_price,
+      map_lat: a.map_lat,
+      map_lng: a.map_lng,
+    }));
+  }, [assignments]);
 
   // Ref for programmatic map navigation
   const mapNavigationRef = useRef<CombinedListingsMapRef>(null);
@@ -1114,6 +1260,15 @@ export default function MapSearch() {
         setSearchQuery("");
       } else {
         navigate(`/properties/${suggestion.value}`);
+      }
+    } else if (suggestion.type === "assignment") {
+      // Navigate to assignment location on map
+      if (suggestion.lat && suggestion.lng && mapNavigationRef.current) {
+        mapNavigationRef.current.flyTo(suggestion.lat, suggestion.lng, 17);
+        toast.success(`Viewing ${suggestion.label}`);
+        setSearchQuery("");
+      } else {
+        navigate(`/assignments/${suggestion.value}`);
       }
     }
   }, [navigate, updateFilter]);
@@ -1318,8 +1473,7 @@ export default function MapSearch() {
             neighborhoods={neighborhoodsData || []}
             projects={projectsForSearch}
             listings={listingsForSearch}
-
-
+            assignments={assignmentsForSearch}
             homeButton={
               <Link to="/">
                 <button className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
@@ -1572,14 +1726,19 @@ export default function MapSearch() {
                   className="flex gap-2 overflow-x-auto snap-x snap-mandatory"
                   style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
                 >
-                {visibleItems.map((item) => {
+                  {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
+                    const isAssignment = item.type === "assignment";
                     const data = item.data;
-                    const id = isPresale 
+                    const id = item.type === "presale" 
                       ? (data as PresaleProject).id 
+                      : item.type === "assignment"
+                      ? (data as Assignment).id
                       : (data as MLSListing).id;
-                    const link = isPresale 
+                    const link = item.type === "presale" 
                       ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
+                      : item.type === "assignment"
+                      ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                       : `/resale/${(data as MLSListing).listing_key}`;
                     const isFocused = focusedCarouselItemId === id;
                     
@@ -1589,15 +1748,30 @@ export default function MapSearch() {
                         data-item-id={id}
                         data-item-type={item.type}
                         onClick={() => {
+                          // For non-verified users viewing assignments, show toast instead of navigating
+                          if (isAssignment && !isVerifiedAgent) {
+                            toast.info("Verify as an agent to view assignment details", {
+                              action: {
+                                label: "Become Agent",
+                                onClick: () => navigate("/for-agents")
+                              }
+                            });
+                            return;
+                          }
                           handleCarouselCardTap(id, item.type, link);
                         }}
-                        className="snap-start shrink-0 w-[180px] sm:w-[200px] cursor-pointer"
+                        className={cn(
+                          "snap-start shrink-0 w-[180px] sm:w-[200px]",
+                          isAssignment && !isVerifiedAgent ? "cursor-default" : "cursor-pointer"
+                        )}
                       >
                         <div className={`bg-background/95 backdrop-blur-xl rounded-xl shadow-lg border overflow-hidden transition-all duration-200 ${
                           isFocused 
                             ? 'border-primary ring-2 ring-primary/30 scale-[1.02]' 
                             : selectedItemId === id 
                               ? 'border-primary/50 ring-1 ring-primary/20' 
+                              : isAssignment
+                              ? 'border-amber-500/50'
                               : 'border-border/30 active:border-primary/50'
                         }`}>
                           {/* Compact image - shorter aspect ratio */}
@@ -1610,6 +1784,10 @@ export default function MapSearch() {
                                   <Building2 className="h-6 w-6 text-muted-foreground" />
                                 </div>
                               )
+                            ) : isAssignment ? (
+                              <div className={cn("w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-950/30 dark:to-amber-900/20", !isVerifiedAgent && "blur-lg")}>
+                                <Building2 className="h-6 w-6 text-amber-500" />
+                              </div>
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
                                 <img 
@@ -1627,33 +1805,56 @@ export default function MapSearch() {
                             <Badge className={`absolute top-1.5 left-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-md ${
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
+                                : isAssignment
+                                ? 'bg-amber-500 text-white'
                                 : 'bg-primary/90 text-primary-foreground'
                             }`}>
-                              {isPresale ? 'PRESALE' : 'RESALE'}
+                              {isPresale ? 'PRESALE' : isAssignment ? 'ASSIGNMENT' : 'RESALE'}
                             </Badge>
+                            {/* Lock overlay for non-verified agents viewing assignments */}
+                            {isAssignment && !isVerifiedAgent && (
+                              <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
+                                <div className="text-center">
+                                  <Lock className="h-5 w-5 text-white mx-auto mb-0.5" />
+                                  <p className="text-[9px] text-white font-medium">Agent Only</p>
+                                </div>
+                              </div>
+                            )}
                           </div>
                           {/* Compact content area */}
-                          <div className="p-2 space-y-0.5">
+                          <div className={cn("p-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                            {/* Blur overlay for assignment content when not verified */}
+                            {isAssignment && !isVerifiedAgent && (
+                              <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
+                                <p className="text-[10px] text-muted-foreground text-center px-1">Agent access</p>
+                              </div>
+                            )}
                             {/* Price - smaller */}
-                            <div className="font-bold text-sm text-foreground">
+                            <div className={cn("font-bold text-sm", isAssignment ? "text-amber-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? formatPrice((data as PresaleProject).starting_price)
+                                : isAssignment
+                                ? formatPrice((data as Assignment).assignment_price)
                                 : formatPrice((data as MLSListing).listing_price)
                               }
                             </div>
                             
                             {/* Name/Address - smaller */}
-                            <h4 className="font-medium text-foreground text-xs line-clamp-1">
+                            <h4 className={cn("font-medium text-foreground text-xs line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? (data as PresaleProject).name 
+                                : isAssignment
+                                ? (data as Assignment).project_name
                                 : getResaleAddress(data as MLSListing)}
                             </h4>
                             
                             {/* Compact specs row - combined location & specs */}
-                            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                            <div className={cn("flex items-center gap-2 text-[10px] text-muted-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               <span className="truncate max-w-[60px]">
                                 {isPresale 
                                   ? (data as PresaleProject).city
+                                  : isAssignment
+                                  ? (data as Assignment).city
                                   : (data as MLSListing).city
                                 }
                               </span>
@@ -1662,11 +1863,11 @@ export default function MapSearch() {
                                   <span className="text-border">•</span>
                                   <span className="flex items-center gap-0.5">
                                     <Bed className="h-2.5 w-2.5" /> 
-                                    {(data as MLSListing).bedrooms_total}
+                                    {isAssignment ? (data as Assignment).beds : (data as MLSListing).bedrooms_total}
                                   </span>
                                   <span className="flex items-center gap-0.5">
                                     <Bath className="h-2.5 w-2.5" /> 
-                                    {(data as MLSListing).bathrooms_total}
+                                    {isAssignment ? (data as Assignment).baths : (data as MLSListing).bathrooms_total}
                                   </span>
                                 </>
                               )}
@@ -1710,7 +1911,7 @@ export default function MapSearch() {
                     neighborhoods={neighborhoodsData || []}
                     projects={projectsForSearch}
                     listings={listingsForSearch}
-                    
+                    assignments={assignmentsForSearch}
                     className="h-9 text-sm"
                   />
                 </div>
@@ -1987,20 +2188,29 @@ export default function MapSearch() {
             {/* Property Grid - Maximized Space */}
             <div ref={desktopListRef} className="flex-1 overflow-y-auto p-2 relative z-0 rounded-b-2xl">
               <div className="grid grid-cols-2 gap-2">
-              {visibleItems.map((item) => {
+                {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
+                  const isAssignment = item.type === "assignment";
                   const data = item.data;
-                  const id = isPresale 
+                  const id = item.type === "presale" 
                     ? (data as PresaleProject).id 
+                    : item.type === "assignment"
+                    ? (data as Assignment).id
                     : (data as MLSListing).id;
-                  const link = isPresale 
+                  const link = item.type === "presale" 
                     ? generateProjectUrl({ slug: (data as PresaleProject).slug, neighborhood: (data as PresaleProject).neighborhood || (data as PresaleProject).city, projectType: (data as PresaleProject).project_type as any }) 
+                    : item.type === "assignment"
+                    ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                     : `/resale/${(data as MLSListing).listing_key}`;
-                  const lat = isPresale 
+                  const lat = item.type === "presale" 
                     ? (data as PresaleProject).map_lat 
+                    : item.type === "assignment"
+                    ? (data as Assignment).map_lat
                     : (data as MLSListing).latitude;
-                  const lng = isPresale 
+                  const lng = item.type === "presale" 
                     ? (data as PresaleProject).map_lng 
+                    : item.type === "assignment"
+                    ? (data as Assignment).map_lng
                     : (data as MLSListing).longitude;
                   const isFocused = focusedCarouselItemId === id;
                   
@@ -2010,6 +2220,9 @@ export default function MapSearch() {
                       to={link}
                       data-item-id={id}
                       onClick={(e) => {
+                        // For non-verified users viewing assignments, prevent navigation and show toast
+                        if (isAssignment && !isVerifiedAgent) {
+                          e.preventDefault();
                           toast.info("Verify as an agent to view assignment details", {
                             action: {
                               label: "Become Agent",

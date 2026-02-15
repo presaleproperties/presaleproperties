@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { ProtectedRoute } from "@/components/dashboard/ProtectedRoute";
 import { AdminProtectedRoute } from "@/components/admin/AdminProtectedRoute";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { SwipeNavigationProvider } from "@/components/SwipeNavigationProvider";
@@ -18,9 +19,20 @@ import Index from "./pages/Index";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 
+import ForAgents from "./pages/ForAgents";
 import BuyersGuide from "./pages/BuyersGuide";
 import PresaleGuide from "./pages/PresaleGuide";
 import MortgageCalculatorPage from "./pages/MortgageCalculatorPage";
+import Login from "./pages/Login";
+import DashboardOverview from "./pages/dashboard/DashboardOverview";
+import DashboardListings from "./pages/dashboard/DashboardListings";
+import DashboardLeads from "./pages/dashboard/DashboardLeads";
+import DashboardProfile from "./pages/dashboard/DashboardProfile";
+import DashboardBilling from "./pages/dashboard/DashboardBilling";
+
+import DashboardMessages from "./pages/dashboard/DashboardMessages";
+import DashboardProjectDocuments from "./pages/dashboard/DashboardProjectDocuments";
+import ListingForm from "./pages/dashboard/ListingForm";
 import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
 import DeveloperProjects from "./pages/developer/DeveloperProjects";
 import DeveloperTourRequests from "./pages/developer/DeveloperTourRequests";
@@ -32,9 +44,14 @@ import AdminProjectImport from "./pages/admin/AdminProjectImport";
 import AdminBlogs from "./pages/admin/AdminBlogs";
 import AdminBlogForm from "./pages/admin/AdminBlogForm";
 import AdminBlogImport from "./pages/admin/AdminBlogImport";
+import AdminAgents from "./pages/admin/AdminAgents";
+import AdminListings from "./pages/admin/AdminListings";
+import AdminPayments from "./pages/admin/AdminPayments";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminLeads from "./pages/admin/AdminLeads";
 import AdminLeadAnalytics from "./pages/admin/AdminLeadAnalytics";
+// AdminAIAnalytics, AdminSchedulerSettings, AdminDeveloperProfiles, AdminEmailWorkflows,
+// AdminMarketData, AdminTeamMembers routes kept but removed from sidebar nav
 import AdminAIAnalytics from "./pages/admin/AdminAIAnalytics";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
@@ -65,6 +82,7 @@ import PresaleCityTypePricePage from "./pages/PresaleCityTypePricePage";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 
+import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
@@ -74,6 +92,7 @@ import MapSearch from "./pages/MapSearch";
 import ResaleListings from "./pages/ResaleListings";
 import ResaleListingDetail from "./pages/ResaleListingDetail";
 import CityResalePage from "./pages/CityResalePage";
+import AssignmentDetail from "./pages/AssignmentDetail";
 import Developers from "./pages/Developers";
 import AdminDevelopers from "./pages/admin/AdminDevelopers";
 import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
@@ -120,16 +139,24 @@ const App = () => (
             <BehaviorTracker />
             <MetaPixel />
             
+            {/* <ExitIntentPopup /> - Temporarily hidden */}
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
             <Route path="/presale-projects" element={<PresaleProjects />} />
+            {/* NEW SEO URL Structure: /presale-projects/{city}/{type}/{price} */}
             <Route path="/presale-projects/:citySlug/:typePriceSlug" element={<PresaleCityTypePricePage />} />
             <Route path="/presale-projects/:citySlug" element={<PresaleCityHubPage />} />
+            {/* SEO Redirect: /presale-projects/:slug -> /{neighborhood}-presale-{type}-{slug} */}
+            {/* Legacy route redirect - redirect /presale/:slug to SEO URL */}
             <Route path="/presale/:slug" element={<PresaleProjectSEORedirect />} />
             <Route path="/map-search" element={<MapSearch />} />
             
+            {/* Assignment Detail - Verified agents only */}
+            <Route path="/assignments/:id" element={<AssignmentDetail />} />
+            
             <Route path="/properties" element={<ResaleListings />} />
+            {/* City-specific properties pages - MUST be before :listingKey route */}
             <Route path="/properties/vancouver" element={<CityResalePage />} />
             <Route path="/properties/surrey" element={<CityResalePage />} />
             <Route path="/properties/coquitlam" element={<CityResalePage />} />
@@ -145,6 +172,7 @@ const App = () => (
             <Route path="/properties/white-rock" element={<CityResalePage />} />
             <Route path="/properties/north-vancouver" element={<CityResalePage />} />
             <Route path="/properties/maple-ridge" element={<CityResalePage />} />
+            {/* Property type and price range routes - MUST be before :listingKey */}
             <Route path="/properties/:citySlug/condos" element={<ResalePropertyTypePage />} />
             <Route path="/properties/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
             <Route path="/properties/:citySlug/houses" element={<ResalePropertyTypePage />} />
@@ -155,22 +183,27 @@ const App = () => (
             <Route path="/properties/:citySlug/under-1.5m" element={<ResalePriceRangePage />} />
             <Route path="/properties/:citySlug/under-2m" element={<ResalePriceRangePage />} />
             <Route path="/properties/:citySlug/luxury" element={<ResalePriceRangePage />} />
+            {/* Bedroom count routes */}
             <Route path="/properties/:citySlug/1-bedroom" element={<ResaleBedroomPage />} />
             <Route path="/properties/:citySlug/2-bedroom" element={<ResaleBedroomPage />} />
             <Route path="/properties/:citySlug/3-bedroom" element={<ResaleBedroomPage />} />
             <Route path="/properties/:citySlug/4-bedroom" element={<ResaleBedroomPage />} />
+            {/* Neighborhood + Property Type routes */}
             <Route path="/properties/:citySlug/:neighborhoodSlug/condos" element={<NeighborhoodPropertyTypePage />} />
             <Route path="/properties/:citySlug/:neighborhoodSlug/townhomes" element={<NeighborhoodPropertyTypePage />} />
             <Route path="/properties/:citySlug/:neighborhoodSlug/homes" element={<NeighborhoodPropertyTypePage />} />
+            {/* Popular Searches SEO Hub */}
             <Route path="/properties/popular-searches" element={<PopularSearchesPage />} />
+            {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
             <Route path="/properties/:slug" element={<ResaleListingDetail />} />
             
-            {/* Legacy /resale/* redirects */}
+            {/* Legacy /resale/* redirects for SEO preservation */}
             <Route path="/resale" element={<Navigate to="/properties" replace />} />
             <Route path="/resale/popular-searches" element={<Navigate to="/properties/popular-searches" replace />} />
             <Route path="/resale/:segment" element={<ResaleToPropertiesRedirect />} />
             <Route path="/resale/:citySlug/:segment" element={<ResaleToPropertiesRedirect />} />
             <Route path="/resale/:citySlug/:neighborhoodSlug/:type" element={<ResaleToPropertiesRedirect />} />
+            {/* SEO Redirect: /presale-condos/:citySlug -> /{citySlug}-presale-condos */}
             <Route path="/presale-condos/:citySlug" element={<CityPresaleSEORedirect />} />
             
             <Route path="/presale-condos-under-:pricePoint-:citySlug" element={<PriceBasedPage />} />
@@ -178,6 +211,7 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             
+            {/* Content Hub & Category Pages */}
             <Route path="/guides" element={<ContentHub />} />
             <Route path="/guides/:categorySlug" element={<BlogCategoryPage />} />
             <Route path="/contact" element={<Contact />} />
@@ -190,6 +224,7 @@ const App = () => (
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
             
+            {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
             <Route path="/vip" element={<VIPMembership />} />
             
@@ -212,22 +247,28 @@ const App = () => (
             <Route path="/new-westminster-downtown-presale" element={<NeighborhoodLandingPage />} />
             <Route path="/maple-ridge-town-centre-presale" element={<NeighborhoodLandingPage />} />
             
-            {/* Legacy assignment/agent redirects */}
-            <Route path="/login" element={<Navigate to="/" replace />} />
-            <Route path="/for-agents" element={<Navigate to="/" replace />} />
-            <Route path="/assignments/:id" element={<Navigate to="/map-search" replace />} />
-            <Route path="/dashboard" element={<Navigate to="/" replace />} />
-            <Route path="/dashboard/*" element={<Navigate to="/" replace />} />
-            <Route path="/agent" element={<Navigate to="/" replace />} />
-            <Route path="/agents" element={<Navigate to="/" replace />} />
-            <Route path="/agent-portal" element={<Navigate to="/" replace />} />
-            <Route path="/agent-dashboard" element={<Navigate to="/" replace />} />
+            <Route path="/login" element={<Login />} />
             
             {/* Developer Portal Routes */}
             <Route path="/developer" element={<DeveloperDashboard />} />
             <Route path="/developer/projects" element={<DeveloperProjects />} />
             <Route path="/developer/tour-requests" element={<DeveloperTourRequests />} />
             <Route path="/developer/settings" element={<DeveloperSettings />} />
+            
+            {/* Agent Dashboard Routes */}
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardOverview /></ProtectedRoute>} />
+            <Route path="/dashboard/projects" element={<ProtectedRoute><DashboardProjectDocuments /></ProtectedRoute>} />
+            <Route path="/dashboard/assignments" element={<Navigate to="/map-search?mode=assignments" replace />} />
+            <Route path="/dashboard/listings" element={<ProtectedRoute><DashboardListings /></ProtectedRoute>} />
+            <Route path="/dashboard/listings/new" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
+            <Route path="/dashboard/listings/:id/edit" element={<ProtectedRoute><ListingForm /></ProtectedRoute>} />
+            <Route path="/dashboard/messages" element={<ProtectedRoute><DashboardMessages /></ProtectedRoute>} />
+            <Route path="/dashboard/leads" element={<ProtectedRoute><DashboardLeads /></ProtectedRoute>} />
+            <Route path="/dashboard/billing" element={<ProtectedRoute><DashboardBilling /></ProtectedRoute>} />
+            <Route path="/dashboard/profile" element={<ProtectedRoute><DashboardProfile /></ProtectedRoute>} />
+            
+            {/* For Agents Marketing Page */}
+            <Route path="/for-agents" element={<ForAgents />} />
             
             {/* Admin Routes */}
             <Route path="/admin/login" element={<AdminLogin />} />
@@ -236,13 +277,16 @@ const App = () => (
             <Route path="/admin/projects/new" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
             <Route path="/admin/projects/import" element={<AdminProtectedRoute><AdminProjectImport /></AdminProtectedRoute>} />
             <Route path="/admin/projects/:id/edit" element={<AdminProtectedRoute><AdminProjectForm /></AdminProtectedRoute>} />
+            <Route path="/admin/listings" element={<AdminProtectedRoute><AdminListings /></AdminProtectedRoute>} />
             <Route path="/admin/blogs" element={<AdminProtectedRoute><AdminBlogs /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/new" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/import" element={<AdminProtectedRoute><AdminBlogImport /></AdminProtectedRoute>} />
             <Route path="/admin/blogs/:id/edit" element={<AdminProtectedRoute><AdminBlogForm /></AdminProtectedRoute>} />
             <Route path="/admin/landing-pages" element={<AdminProtectedRoute><AdminLandingPages /></AdminProtectedRoute>} />
+            <Route path="/admin/agents" element={<AdminProtectedRoute><AdminAgents /></AdminProtectedRoute>} />
             <Route path="/admin/leads" element={<AdminProtectedRoute><AdminLeads /></AdminProtectedRoute>} />
             <Route path="/admin/leads/analytics" element={<AdminProtectedRoute><AdminLeadAnalytics /></AdminProtectedRoute>} />
+            <Route path="/admin/payments" element={<AdminProtectedRoute><AdminPayments /></AdminProtectedRoute>} />
             <Route path="/admin/bookings" element={<AdminProtectedRoute><AdminBookings /></AdminProtectedRoute>} />
             <Route path="/admin/scheduler-settings" element={<AdminProtectedRoute><AdminSchedulerSettings /></AdminProtectedRoute>} />
             <Route path="/admin/developers" element={<AdminProtectedRoute><AdminDevelopers /></AdminProtectedRoute>} />
@@ -264,14 +308,17 @@ const App = () => (
             <Route path="/admin/theme" element={<AdminProtectedRoute><AdminThemeManager /></AdminProtectedRoute>} />
             <Route path="/admin/tasks" element={<AdminProtectedRoute><AdminTasks /></AdminProtectedRoute>} />
             
-            {/* Legacy redirects */}
-            <Route path="/admin/listings" element={<Navigate to="/admin" replace />} />
-            <Route path="/admin/agents" element={<Navigate to="/admin" replace />} />
-            <Route path="/admin/payments" element={<Navigate to="/admin" replace />} />
+            {/* Agent URL Redirects - common typos/variants */}
+            <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
+            <Route path="/agents" element={<Navigate to="/for-agents" replace />} />
+            <Route path="/agent-portal" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/agent-dashboard" element={<Navigate to="/dashboard" replace />} />
             
+            {/* Legacy /blogs/* → /blog/* redirect (Google crawled plural form) */}
             <Route path="/blogs/:slug" element={<BlogsRedirect />} />
             <Route path="/blogs" element={<Navigate to="/blog" replace />} />
             
+            {/* Legacy route redirects for soft 404 fixes */}
             <Route path="/guide" element={<Navigate to="/buyers-guide" replace />} />
             <Route path="/privacy" element={<Navigate to="/about" replace />} />
             <Route path="/market-report/:city" element={<NotFound />} />
@@ -280,6 +327,7 @@ const App = () => (
             <Route path="/langley/presales" element={<Navigate to="/presale-projects/langley" replace />} />
             <Route path="/investment-presale-properties" element={<Navigate to="/presale-projects" replace />} />
             
+            {/* Legacy /presale-condos-{city} format (no slash separator) */}
             <Route path="/presale-condos-vancouver" element={<Navigate to="/vancouver-presale-condos" replace />} />
             <Route path="/presale-condos-surrey" element={<Navigate to="/surrey-presale-condos" replace />} />
             <Route path="/presale-condos-burnaby" element={<Navigate to="/burnaby-presale-condos" replace />} />
@@ -288,12 +336,15 @@ const App = () => (
             <Route path="/presale-condos-richmond" element={<Navigate to="/richmond-presale-condos" replace />} />
             <Route path="/presale-condos-delta" element={<Navigate to="/delta-presale-condos" replace />} />
             
+            {/* Legacy presale-properties format */}
             <Route path="/surrey-presale-properties" element={<Navigate to="/surrey-presale-condos" replace />} />
             <Route path="/burnaby-presale-properties" element={<Navigate to="/burnaby-presale-condos" replace />} />
             <Route path="/abbotsford-presale-properties" element={<Navigate to="/abbotsford-presale-condos" replace />} />
             
+            {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
             
+            {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
           </SwipeNavigationProvider>
