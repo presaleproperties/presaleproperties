@@ -69,7 +69,7 @@ export default function DashboardOverview() {
         setAgentName(firstName);
       }
 
-      const { data: listings } = await supabase
+      const { data: listings } = await (supabase as any)
         .from("listings")
         .select("status")
         .eq("agent_id", user.id);
@@ -79,7 +79,7 @@ export default function DashboardOverview() {
         l.status === "pending_approval" || l.status === "pending_payment"
       ).length || 0;
 
-      const { data: leads } = await supabase
+      const { data: leads } = await (supabase as any)
         .from("leads")
         .select("created_at")
         .eq("agent_id", user.id);
@@ -90,7 +90,7 @@ export default function DashboardOverview() {
         new Date(l.created_at) > sevenDaysAgo
       ).length || 0;
 
-      const { data: agentProfile } = await supabase
+      const { data: agentProfile } = await (supabase as any)
         .from("agent_profiles")
         .select("verification_status")
         .eq("user_id", user.id)

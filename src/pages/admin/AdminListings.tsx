@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminAssignmentCard } from "@/components/admin/AdminAssignmentCard";
+import { AssignmentPreviewModal } from "@/components/admin/AssignmentPreviewModal";
 import { useToast } from "@/hooks/use-toast";
 import { 
   CheckCircle, 

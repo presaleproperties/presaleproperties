@@ -97,7 +97,7 @@ export default function DashboardProfile() {
       }
 
       // Fetch agent profile
-      const { data: agent } = await supabase
+      const { data: agent } = await (supabase as any)
         .from("agent_profiles")
         .select("license_number, brokerage_name, brokerage_address, verification_status, verification_notes")
         .eq("user_id", user.id)
@@ -153,7 +153,7 @@ export default function DashboardProfile() {
     setSaving(true);
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("agent_profiles")
         .update({
           license_number: data.license_number,
