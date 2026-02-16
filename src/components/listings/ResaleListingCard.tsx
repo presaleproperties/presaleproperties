@@ -320,7 +320,7 @@ export function ResaleListingCard({
             {/* Right: Price */}
             <div className="text-right shrink-0 ml-0.5 sm:ml-1">
               <span 
-                className="font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap"
+                className="font-bold text-primary whitespace-nowrap"
                 style={{ fontSize: '1.5rem', lineHeight: 1.1 }}
               >
                 {formatPrice(price)}
