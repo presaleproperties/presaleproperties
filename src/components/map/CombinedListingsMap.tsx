@@ -1010,7 +1010,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-specs { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 2px; }
         .popup-type { font-size: 11px; color: hsl(220, 10%, 55%); }
         .popup-status { font-size: 11px; color: hsl(220, 10%, 45%); }
-        .popup-status .status-label { font-weight: 600; color: hsl(45, 89%, 42%); }
+        .popup-status .status-label { font-weight: 600; color: hsl(33, 50%, 42%); }
         
         /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }
