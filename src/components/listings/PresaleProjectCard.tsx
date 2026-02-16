@@ -254,7 +254,10 @@ export function PresaleProjectCard({
                   {city}
                 </span>
                 {completionYear && (
-                  <span className="text-xs">{completionYear}</span>
+                  <span className="flex items-center gap-1 text-xs">
+                    <Calendar className="h-3 w-3 shrink-0" />
+                    {completionYear}
+                  </span>
                 )}
               </div>
             </div>
