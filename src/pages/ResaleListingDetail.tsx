@@ -127,7 +127,20 @@ export default function ResaleListingDetail() {
   const isMobile = useIsMobile();
   const isMobileOrTablet = useIsMobileOrTablet();
   const [showMobileScheduler, setShowMobileScheduler] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
   const { isFavorite, toggleFavorite } = useGuestFavorites();
+
+  // Track gallery open/close to hide CTA bar
+  useEffect(() => {
+    const show = () => setGalleryOpen(false);
+    const hide = () => setGalleryOpen(true);
+    window.addEventListener("gallery-opened", hide);
+    window.addEventListener("gallery-closed", show);
+    return () => {
+      window.removeEventListener("gallery-opened", hide);
+      window.removeEventListener("gallery-closed", show);
+    };
+  }, []);
 
   // Extract listing key from slug - it's always the last numeric segment
   const listingKey = slug?.match(/-(\d{6,})$/)?.[1] || 
@@ -1275,7 +1288,7 @@ export default function ResaleListingDetail() {
       <div className="h-24 lg:hidden" aria-hidden="true" />
 
       {/* Mobile & Tablet CTA Bar */}
-      {!showMobileScheduler && (
+      {!showMobileScheduler && !galleryOpen && (
         <div 
           className="fixed inset-x-0 bottom-0 bg-background/95 backdrop-blur-sm border-t flex items-center gap-3 lg:hidden z-[9999] shadow-lg hide-on-keyboard"
           style={{ 
