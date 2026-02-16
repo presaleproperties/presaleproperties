@@ -978,6 +978,11 @@ export default function PresaleProjectDetail() {
       {/* Contextual Internal Links */}
       <ProjectContextualLinks projectName={project.name} neighborhood={project.neighborhood} city={project.city} projectType={project.project_type} startingPrice={project.starting_price} />
 
+      {/* Expert Advisory Card - Mobile/Tablet */}
+      <div className="lg:hidden px-4 py-6">
+        <ExpertAdvisoryCard />
+      </div>
+
       {/* More Projects in Same Neighborhood - edge-to-edge on mobile */}
       <section className="bg-muted/30 py-6 md:py-12">
         <div className="px-4 lg:container lg:px-4">
