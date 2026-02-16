@@ -220,7 +220,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
       {/* Main Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="sticky top-0 z-50 border-b border-border/50 bg-card/95 backdrop-blur-xl supports-[backdrop-filter]:bg-card/85 shadow-xs">
+        <header className="sticky top-0 z-50 border-b border-border/50 bg-card/95 backdrop-blur-xl supports-[backdrop-filter]:bg-card/85 shadow-xs" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
           <div className="flex h-14 items-center px-4 sm:px-6 gap-3">
             <Button
               variant="ghost"

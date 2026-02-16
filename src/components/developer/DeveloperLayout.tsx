@@ -40,7 +40,7 @@ export function DeveloperLayout({ children }: DeveloperLayoutProps) {
   return (
     <div className="min-h-screen bg-muted/30">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background border-b">
+      <header className="sticky top-0 z-50 bg-background border-b" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
         <div className="container flex items-center justify-between h-16">
           <div className="flex items-center gap-4">
             <button
