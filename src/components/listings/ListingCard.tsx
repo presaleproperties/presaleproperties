@@ -134,7 +134,7 @@ export function ListingCard({
 
   return (
     <Link to={`/assignments/${id}`}>
-      <Card className="group overflow-hidden border-border/60 bg-card shadow-card hover:shadow-premium hover:border-primary/30 hover:-translate-y-2 transition-all duration-300 ease-out rounded-2xl">
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out">
         <div 
           className="relative aspect-[4/3] overflow-hidden bg-muted"
           onTouchStart={handleTouchStart}

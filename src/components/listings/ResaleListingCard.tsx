@@ -180,7 +180,8 @@ export function ResaleListingCard({
 
   return (
     <Link to={getListingUrl(listingKey, address, city)} className="block h-full w-full">
-      <Card className="group overflow-hidden border-border/60 bg-card shadow-card hover:shadow-premium hover:border-primary/30 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col rounded-2xl">
+      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
+        {/* Aspect ratio image container - matches PresaleProjectCard for consistent sizing */}
         <div 
           className={cn(
             "relative overflow-hidden bg-muted flex-shrink-0",
@@ -319,7 +320,8 @@ export function ResaleListingCard({
             {/* Right: Price */}
             <div className="text-right shrink-0 ml-0.5 sm:ml-1">
               <span 
-                className="font-bold text-primary whitespace-nowrap text-base sm:text-lg md:text-xl"
+                className="font-bold text-primary whitespace-nowrap"
+                style={{ fontSize: '1.5rem', lineHeight: 1.1 }}
               >
                 {formatPrice(price)}
               </span>
@@ -331,7 +333,7 @@ export function ResaleListingCard({
             </div>
           </div>
 
-          {/* Listed by Agent & Brokerage */}
+          {/* Listed by Agent & Brokerage - Always show, required for compliance */}
           <div className="mt-auto pt-1 sm:pt-1.5">
             <div className="pt-1 sm:pt-1.5 border-t border-border">
               <div className="flex items-center gap-1 text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground min-w-0">
