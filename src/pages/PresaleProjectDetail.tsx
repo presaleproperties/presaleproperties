@@ -679,7 +679,11 @@ export default function PresaleProjectDetail() {
                   photos={allImages.map(url => ({ url }))} 
                   videoUrl={project.video_url}
                   alt={project.name} 
-                  previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]" 
+                  previewAspectClassName="aspect-[4/3] md:aspect-[4/3] lg:aspect-[3/2]"
+                  onGalleryCTA={() => {
+                    window.dispatchEvent(new CustomEvent("presale-gallery-cta"));
+                  }}
+                  galleryCTALabel="Download Info"
                 />
               </div>
 

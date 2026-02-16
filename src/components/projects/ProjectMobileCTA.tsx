@@ -97,6 +97,13 @@ export function ProjectMobileCTA({
     }
   }, [isExpanded]);
 
+  // Listen for gallery CTA event to expand the form
+  useEffect(() => {
+    const handleGalleryCTA = () => setIsExpanded(true);
+    window.addEventListener("presale-gallery-cta", handleGalleryCTA);
+    return () => window.removeEventListener("presale-gallery-cta", handleGalleryCTA);
+  }, []);
+
   const onEmailSubmit = async (data: EmailFormData) => {
     await submitEmail(data.email);
   };

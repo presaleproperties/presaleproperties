@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight, Expand, ExternalLink, ZoomIn, ZoomOut, Calendar } from "lucide-react";
+import { X, ChevronLeft, ChevronRight, Expand, ExternalLink, ZoomIn, ZoomOut, Calendar, Download } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface Photo {
@@ -25,6 +25,12 @@ interface REWPhotoGalleryProps {
    * Callback when user clicks "Schedule Showing" button in fullscreen gallery
    */
   onScheduleShowing?: () => void;
+  /**
+   * Callback for generic CTA button in fullscreen gallery (e.g., "Download Info" for presale)
+   */
+  onGalleryCTA?: () => void;
+  /** Label for the generic gallery CTA button */
+  galleryCTALabel?: string;
 }
 
 type GalleryTab = "photos" | "virtualTour" | "video";
@@ -61,6 +67,8 @@ export function REWPhotoGallery({
   className = "",
   previewAspectClassName = "aspect-[4/3] lg:aspect-[16/9]",
   onScheduleShowing,
+  onGalleryCTA,
+  galleryCTALabel = "Download Info",
 }: REWPhotoGalleryProps) {
   const videoEmbedUrl = videoUrl ? getVideoEmbedUrl(videoUrl) : null;
   const [isOpen, setIsOpen] = useState(false);
@@ -253,7 +261,14 @@ export function REWPhotoGallery({
           className="relative group cursor-pointer"
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
-          onTouchEnd={onTouchEnd}
+          onTouchEnd={(e) => {
+            const wasSwiping = Math.abs(swipeOffset) > 10;
+            onTouchEnd();
+            // If it was a tap (not a swipe), open gallery
+            if (!wasSwiping) {
+              openGallery(selectedIndex);
+            }
+          }}
         >
           <div
             onClick={() => openGallery(selectedIndex)}
@@ -538,18 +553,28 @@ export function REWPhotoGallery({
               </div>
             )}
             
-            {/* Floating Schedule CTA - Mobile only */}
-            {onScheduleShowing && (
-              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 pb-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
+            {/* Floating CTA - Mobile only */}
+            {(onScheduleShowing || onGalleryCTA) && (
+              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 bg-gradient-to-t from-black/90 to-transparent md:hidden z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 6px)' }}>
                 <Button 
                   onClick={() => {
                     setIsOpen(false);
-                    onScheduleShowing();
+                    if (onScheduleShowing) onScheduleShowing();
+                    else if (onGalleryCTA) onGalleryCTA();
                   }}
-                  className="w-full h-14 bg-foreground hover:bg-foreground/90 text-background font-semibold text-base rounded-xl shadow-xl"
+                  className="w-full h-12 bg-foreground hover:bg-foreground/90 text-background font-semibold text-base rounded-xl shadow-xl"
                 >
-                  <Calendar className="h-5 w-5 mr-2" />
-                  Schedule Showing
+                  {onScheduleShowing ? (
+                    <>
+                      <Calendar className="h-5 w-5 mr-2" />
+                      Schedule Showing
+                    </>
+                  ) : (
+                    <>
+                      <Download className="h-5 w-5 mr-2" />
+                      {galleryCTALabel}
+                    </>
+                  )}
                 </Button>
               </div>
             )}
