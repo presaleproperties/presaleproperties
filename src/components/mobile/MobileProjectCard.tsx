@@ -286,10 +286,7 @@ export function MobileProjectCard({
                   {city}
                 </span>
                 {completionYear && (
-                  <span className="flex items-center gap-1 text-xs">
-                    <Calendar className="h-3 w-3 shrink-0" />
-                    {completionYear}
-                  </span>
+                  <span className="text-xs">{completionYear}</span>
                 )}
               </div>
             </div>
