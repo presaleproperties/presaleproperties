@@ -998,7 +998,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         
         /* Badges */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .popup-badge.resale { background: hsl(220, 14%, 96%); color: hsl(220, 25%, 25%); }
+        .popup-badge.resale { background: #059669; color: white; }
         .popup-badge.presale { background: hsl(33, 50%, 53%); color: white; }
         .popup-badge.assignment { background: #f59e0b; color: white; }
         
