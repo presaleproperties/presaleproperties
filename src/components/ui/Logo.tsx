@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import logoSvg from "@/assets/logo.svg";
+import logoImg from "@/assets/logo-new.png";
 
 interface LogoProps {
   className?: string;
@@ -19,7 +19,7 @@ export function Logo({ className, asLink = true, onClick, size = "md" }: LogoPro
 
   const logoContent = (
     <img 
-      src={logoSvg} 
+      src={logoImg} 
       alt="Presale Properties" 
       className={cn(sizeClasses[size], "w-auto", className)} 
     />
