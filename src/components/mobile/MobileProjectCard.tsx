@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { Calendar, Building2, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Building2, Home, Warehouse, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -40,6 +40,16 @@ const formatType = (type: string) => {
     single_family: "Single Family Homes",
   };
   return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1) + "s";
+};
+
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case "condo": return Building2;
+    case "townhome": return Warehouse;
+    case "single_family": return Home;
+    case "duplex": return Home;
+    default: return Building2;
+  }
 };
 
 const getStatusLabel = (status: string) => {
@@ -265,6 +275,10 @@ export function MobileProjectCard({
                 {name}
               </h4>
               <div className="flex items-center gap-3 text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs">
+                  {(() => { const TypeIcon = getTypeIcon(projectType); return <TypeIcon className="h-3 w-3 shrink-0" />; })()}
+                  {formatType(projectType)}
+                </span>
                 <span className="flex items-center gap-1 text-xs">
                   <MapPin className="h-3 w-3 shrink-0" />
                   {city}
