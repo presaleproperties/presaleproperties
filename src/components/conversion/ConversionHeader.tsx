@@ -60,17 +60,29 @@ interface ConversionHeaderProps {
   alwaysVisible?: boolean;
   /** Use sticky instead of fixed on mobile - useful for full-height layouts like map search */
   stickyOnMobile?: boolean;
+  /** Keep header always visible on mobile/tablet but make it transparent, gaining a subtle glass bg on scroll */
+  transparentOnMobile?: boolean;
 }
 
-export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, stickyOnMobile = false }: ConversionHeaderProps) {
+export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, stickyOnMobile = false, transparentOnMobile = false }: ConversionHeaderProps) {
   const [open, setOpen] = useState(false);
   const [presaleOpen, setPresaleOpen] = useState(false);
   const [resaleOpen, setResaleOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const location = useLocation();
   
   // Scroll-based header visibility for mobile/tablet
   const { isVisible } = useScrollHeader({ threshold: 100, sensitivity: 8 });
   const isMobileOrTablet = useIsMobileOrTablet();
+
+  // Track scroll position for transparent header mode
+  useEffect(() => {
+    if (!transparentOnMobile) return;
+    const onScroll = () => setScrolled(window.scrollY > 80);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [transparentOnMobile]);
 
   const isActive = (path: string) => location.pathname === path;
   const isMapPage = location.pathname === "/map-search";
@@ -79,18 +91,24 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
     <>
       <header 
         className={cn(
-          "w-full bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 z-50 shrink-0",
-          // Premium border with subtle gold tint
-          "border-b border-border/60",
+          "w-full z-50 shrink-0 transition-all duration-300",
+          // Default background - opaque
+          !transparentOnMobile && "bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80",
+          !transparentOnMobile && "border-b border-border/60",
+          // Transparent mode on mobile/tablet
+          transparentOnMobile && isMobileOrTablet && !scrolled && "bg-transparent border-b border-transparent",
+          transparentOnMobile && isMobileOrTablet && scrolled && "bg-background/70 backdrop-blur-lg border-b border-border/30 shadow-sm",
+          // Desktop always gets normal bg regardless of transparentOnMobile
+          transparentOnMobile && "lg:bg-background/95 lg:backdrop-blur-xl lg:border-b lg:border-border/60",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
           // Mobile/tablet: fixed positioning for edge-to-edge scrolling
           stickyOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0",
-          !stickyOnMobile && !hideOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-transform max-lg:duration-300 max-lg:ease-out",
+          !stickyOnMobile && !hideOnMobile && "max-lg:fixed max-lg:top-0 max-lg:left-0 max-lg:right-0 max-lg:transition-all max-lg:duration-300 max-lg:ease-out",
           // Hide completely on mobile/tablet for property pages with custom headers
           hideOnMobile && "hidden lg:block",
-          // Scroll-based hide/show for mobile/tablet (slide up when hidden) - skip if alwaysVisible or stickyOnMobile
-          !hideOnMobile && !alwaysVisible && !stickyOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
+          // Scroll-based hide/show for mobile/tablet - skip if transparentOnMobile (always visible)
+          !hideOnMobile && !alwaysVisible && !stickyOnMobile && !transparentOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
@@ -492,7 +510,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
       </header>
 
       {/* Spacer for fixed header on mobile/tablet - prevents content from hiding under header */}
-      {!hideOnMobile && (
+      {/* Skip spacer in transparent mode so hero extends behind header */}
+      {!hideOnMobile && !transparentOnMobile && (
         <div className="h-14 md:h-16 lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} aria-hidden="true" />
       )}
     </>
