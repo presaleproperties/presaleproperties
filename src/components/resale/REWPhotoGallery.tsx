@@ -307,7 +307,8 @@ export function REWPhotoGallery({
       {/* Full Screen Gallery Modal - REW Style */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent 
-          className="max-w-[100vw] max-h-[100vh] w-[100vw] h-[100vh] p-0 bg-gray-50 border-none rounded-none [&>button]:hidden overflow-hidden"
+          className="max-w-[100vw] w-[100vw] p-0 bg-gray-50 border-none rounded-none [&>button]:hidden overflow-hidden"
+          style={{ height: '100dvh', maxHeight: '100dvh' }}
           aria-describedby={undefined}
         >
           <VisuallyHidden>
