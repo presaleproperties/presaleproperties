@@ -250,7 +250,7 @@ export function PresaleProjectCard({
               {startingPrice ? (
                 <>
                   <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap font-medium">From</span>
-                  <span className="text-[13px] sm:text-sm md:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200 whitespace-nowrap tracking-tight">
+                  <span className="text-[13px] sm:text-sm md:text-base font-bold text-primary whitespace-nowrap tracking-tight">
                     {formatPrice(startingPrice)}
                   </span>
                 </>

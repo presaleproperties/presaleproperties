@@ -21,6 +21,7 @@ import { ResaleListingMiniMap } from "@/components/resale/ResaleListingMiniMap";
 import { WalkTransitScore } from "@/components/resale/WalkTransitScore";
 import { SimilarListings } from "@/components/resale/SimilarListings";
 import { ResaleAgentCard } from "@/components/resale/ResaleAgentCard";
+import { ExpertAdvisoryCard } from "@/components/listings/ExpertAdvisoryCard";
 import { RelatedPresaleProjects } from "@/components/resale/RelatedPresaleProjects";
 import { ListingHistory } from "@/components/resale/ListingHistory";
 import { PropertySEOTags } from "@/components/seo/PropertySEOTags";
@@ -816,7 +817,7 @@ export default function ResaleListingDetail() {
               
               {/* Price with Est. Monthly */}
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-3xl md:text-4xl font-bold text-foreground">
+                <span className="text-3xl md:text-4xl font-bold text-primary">
                   {formatPrice(listing.listing_price)}
                 </span>
                 {listing.living_area && <span className="text-sm font-medium text-muted-foreground">
@@ -1041,13 +1042,25 @@ export default function ResaleListingDetail() {
                   </div>
                 </div>}
 
-              {/* Amenities Section */}
+              {/* Amenities Section - 2-column icon grid on mobile */}
               {listing.community_features && listing.community_features.length > 0 && <div className="bg-muted/30 rounded-xl p-4 md:p-5">
-                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <h3 className="text-base font-bold text-foreground mb-4 flex items-center gap-2">
                     <Users className="h-4 w-4 text-primary" />
                     Amenities
                   </h3>
-                  <div className="flex flex-wrap gap-2">
+                  {/* Mobile: 2-column icon grid */}
+                  <div className="grid grid-cols-2 gap-2.5 sm:hidden">
+                    {listing.community_features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-3 bg-background rounded-xl px-3 py-3 border border-border/50">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                          <Users className="h-4 w-4 text-primary" />
+                        </div>
+                        <span className="text-xs font-medium text-foreground leading-tight">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {/* Desktop: badge layout */}
+                  <div className="hidden sm:flex flex-wrap gap-2">
                     {listing.community_features.map((feature, idx) => <Badge key={idx} variant="secondary" className="text-xs">
                         {feature}
                       </Badge>)}
@@ -1253,6 +1266,9 @@ export default function ResaleListingDetail() {
                 taxAnnualAmount={listing.tax_annual_amount}
                 livingArea={listing.living_area}
               />
+
+              {/* Expert Advisory Card */}
+              <ExpertAdvisoryCard onContactClick={scrollToForm} />
             </div>
           </div>
         </div>

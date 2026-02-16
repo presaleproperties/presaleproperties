@@ -266,7 +266,7 @@ export function ListingCard({
 
           <div className="flex items-end justify-between pt-2 border-t border-border">
             <div>
-              <p className="text-base sm:text-lg font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+              <p className="text-base sm:text-lg font-bold text-primary">
                 {formatPrice(assignmentPrice)}
               </p>
             </div>
