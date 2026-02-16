@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Building2, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -229,33 +229,34 @@ export function PresaleProjectCard({
 
         <CardContent className="p-3 sm:p-3.5 md:p-4 min-w-0">
           <div className="flex items-start justify-between gap-2 min-w-0">
-            {/* Left: Name, Location & Type */}
-            <div className="flex-1 min-w-0 space-y-1 overflow-hidden">
-              <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate tracking-tight">
+            {/* Left: Name, Location & Year */}
+            <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
+              <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[15px] sm:text-base md:text-lg truncate tracking-tight">
                 {name}
               </h3>
-              <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
-                <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] md:text-xs truncate font-medium">
+              <div className="flex items-center gap-3 text-muted-foreground min-w-0">
+                <span className="flex items-center gap-1 text-[11px] sm:text-xs md:text-sm truncate font-medium">
+                  <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
                   {city}
                 </span>
+                <span className="flex items-center gap-1 text-[11px] sm:text-xs md:text-sm font-medium">
+                  <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                  {completionYear || "TBA"}
+                </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
-                {formatType(projectType)} • {completionYear ? `${completionYear}` : "Coming Soon"}
-              </p>
             </div>
 
             {/* Right: Price */}
             <div className="text-right shrink-0 ml-1">
               {startingPrice ? (
                 <>
-                  <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap font-medium">From</span>
-                  <span className="text-sm sm:text-base md:text-lg font-bold text-primary whitespace-nowrap tracking-tight">
+                  <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground block leading-tight whitespace-nowrap font-medium">Starting from</span>
+                  <span className="text-base sm:text-lg md:text-xl font-bold text-primary whitespace-nowrap tracking-tight">
                     {formatPrice(startingPrice)}
                   </span>
                 </>
               ) : (
-                <span className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground whitespace-nowrap font-medium">Contact</span>
+                <span className="text-[11px] sm:text-xs text-muted-foreground whitespace-nowrap font-medium">Contact</span>
               )}
             </div>
           </div>
