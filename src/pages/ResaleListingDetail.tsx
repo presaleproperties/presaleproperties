@@ -1268,7 +1268,7 @@ export default function ResaleListingDetail() {
               />
 
               {/* Expert Advisory Card */}
-              <ExpertAdvisoryCard onContactClick={scrollToForm} />
+              <ExpertAdvisoryCard />
             </div>
           </div>
         </div>
@@ -1281,6 +1281,11 @@ export default function ResaleListingDetail() {
             taxAnnualAmount={listing.tax_annual_amount}
             livingArea={listing.living_area}
           />
+        </div>
+
+        {/* Expert Advisory Card - Mobile/Tablet */}
+        <div className="lg:hidden mt-8 px-4">
+          <ExpertAdvisoryCard />
         </div>
 
         {/* Similar Listings */}
