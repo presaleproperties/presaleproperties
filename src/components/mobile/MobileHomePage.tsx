@@ -1,7 +1,7 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { MapPin, Navigation, Map, Building2 } from "lucide-react";
+import { MapPin, Navigation, Map, Building2, Search } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -16,6 +16,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 import { SearchTab } from "@/components/home/HeroSection";
+import { cn } from "@/lib/utils";
 
 const TOP_CITIES = [
   { name: "Vancouver", slug: "vancouver" },
@@ -44,8 +45,24 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   };
   
   const [selectedCity, setSelectedCity] = useState("all");
+  const [showStickySearch, setShowStickySearch] = useState(false);
+  const heroSearchRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  // Track when user scrolls past the hero search bar
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickySearch(!entry.isIntersecting);
+      },
+      { threshold: 0, rootMargin: '-56px 0px 0px 0px' }
+    );
+    if (heroSearchRef.current) {
+      observer.observe(heroSearchRef.current);
+    }
+    return () => observer.disconnect();
+  }, []);
 
   const handleCityClick = (slug: string) => {
     if (activeTab === "projects") {
@@ -86,6 +103,30 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         isRefreshing={isRefreshing} 
       />
 
+      {/* Sticky Search Bar - appears when scrolling past hero */}
+      <div 
+        className={cn(
+          "fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border/50 shadow-sm transition-all duration-300 ease-out",
+          showStickySearch ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        )}
+        style={{ 
+          top: 0,
+          paddingTop: 'env(safe-area-inset-top, 0px)',
+        }}
+      >
+        <div className="px-4 py-2.5">
+          <PowerSearch
+            placeholder={activeTab === "projects" 
+              ? "Search projects, address, neighbourhood..." 
+              : "Address, MLS#, city, neighbourhood..."
+            }
+            mode={activeTab === "projects" ? "presale" : "resale"}
+            variant="hero"
+            inputClassName="h-11 text-sm rounded-lg bg-muted/40 border border-border shadow-sm focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/60"
+          />
+        </div>
+      </div>
+
       {/* Full-Screen Hero Section - Brand Luxe Style */}
       <div 
         className="relative min-h-[75vh] flex flex-col"
@@ -114,7 +155,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </h1>
           
           {/* Search Container */}
-          <div className="w-full max-w-md">
+          <div ref={heroSearchRef} className="w-full max-w-md">
             <PowerSearch
               placeholder={activeTab === "projects" 
                 ? "Search projects, address, neighbourhood..." 
