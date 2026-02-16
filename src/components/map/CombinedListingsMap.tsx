@@ -526,7 +526,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
       zoomToBoundsOnClick: !isMobileOrTabletDevice, // Don't auto-zoom on cluster click on mobile
-      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(222, 47%, 60%)', opacity: 0.5 },
+      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(33, 50%, 60%)', opacity: 0.5 },
     });
 
     const presaleLayer = L.layerGroup();
@@ -870,8 +870,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         
         /* Resale price pills - clean and subtle */
         .pp { 
-          background: hsl(45, 89%, 52%); 
-          color: hsl(222, 47%, 12%); 
+          background: hsl(33, 50%, 53%); 
+          color: white; 
           padding: 5px 10px; 
           border-radius: 16px; 
           font-size: 12px; 
@@ -895,10 +895,10 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .pin { 
           width: 32px; 
           height: 38px; 
-          background: hsl(222, 47%, 22%); 
+          background: hsl(30, 15%, 18%); 
           border-radius: 50% 50% 50% 0; 
           transform: rotate(-45deg); 
-          border: 2px solid hsl(45, 89%, 52%); 
+          border: 2px solid hsl(33, 50%, 53%); 
           box-shadow: 0 2px 6px rgba(0,0,0,0.15);
           transition: transform 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
@@ -931,7 +931,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         /* Cluster icons - clean Google Maps style */
         .mc { background: transparent !important; border: none !important; }
         .cl { 
-          background: hsl(222, 47%, 22%); 
+          background: hsl(30, 15%, 18%); 
           color: white; 
           border-radius: 50%; 
           display: flex; 
@@ -939,7 +939,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           justify-content: center; 
           font-weight: 700; 
           box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
-          border: 2px solid hsl(45, 89%, 52%);
+          border: 2px solid hsl(33, 50%, 53%);
           transition: transform 0.15s ease;
           cursor: pointer;
         }
@@ -993,13 +993,13 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: #f8fafc; }
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
-        .popup-placeholder.presale { background: linear-gradient(135deg, hsl(45, 89%, 97%) 0%, hsl(45, 89%, 92%) 100%); color: hsl(45, 89%, 45%); }
+        .popup-placeholder.presale { background: linear-gradient(135deg, hsl(33, 50%, 97%) 0%, hsl(33, 50%, 92%) 100%); color: hsl(33, 50%, 45%); }
         .popup-placeholder.assignment { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #f59e0b; }
         
         /* Badges */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
         .popup-badge.resale { background: hsl(220, 14%, 96%); color: hsl(220, 25%, 25%); }
-        .popup-badge.presale { background: hsl(45, 89%, 52%); color: hsl(222, 47%, 12%); }
+        .popup-badge.presale { background: hsl(33, 50%, 53%); color: white; }
         .popup-badge.assignment { background: #f59e0b; color: white; }
         
         /* Content */

@@ -214,8 +214,8 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
           border: none !important;
         }
         .resale-price-pill {
-          background: hsl(45, 89%, 52%);
-          color: hsl(222, 47%, 12%);
+          background: hsl(33, 50%, 53%);
+          color: white;
           padding: 6px 12px;
           border-radius: 16px;
           font-size: 12px;
@@ -237,7 +237,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
           border: none !important;
         }
         .resale-cluster-icon {
-          background: hsl(222, 47%, 22%);
+          background: hsl(30, 15%, 18%);
           color: white;
           border-radius: 50%;
           display: flex;
@@ -245,7 +245,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
           justify-content: center;
           font-weight: 700;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          border: 2px solid hsl(45, 89%, 52%);
+          border: 2px solid hsl(33, 50%, 53%);
           cursor: pointer;
           transition: transform 0.15s ease;
         }
@@ -268,7 +268,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
         .resale-popup-price {
           font-size: 18px;
           font-weight: 700;
-          color: hsl(222, 47%, 15%);
+          color: hsl(30, 15%, 15%);
           margin-bottom: 4px;
         }
         .resale-popup-address {
