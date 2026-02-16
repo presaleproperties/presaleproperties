@@ -319,8 +319,7 @@ export function ResaleListingCard({
             {/* Right: Price */}
             <div className="text-right shrink-0 ml-0.5 sm:ml-1">
               <span 
-                className="font-bold text-primary whitespace-nowrap"
-                style={{ fontSize: '1.5rem', lineHeight: 1.1 }}
+                className="font-bold text-primary whitespace-nowrap text-base sm:text-lg md:text-xl"
               >
                 {formatPrice(price)}
               </span>
