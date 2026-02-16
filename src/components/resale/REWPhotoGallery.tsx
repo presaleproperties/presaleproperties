@@ -292,10 +292,27 @@ export function REWPhotoGallery({
               fetchPriority="high"
             />
             
-            {/* Photo counter badge - top right on mobile, bottom right on tablet/desktop */}
-            <div className="absolute top-2.5 sm:top-auto sm:bottom-3 right-2.5 sm:right-3 bg-black/50 text-white text-[10px] sm:text-xs font-medium px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-md sm:rounded-full backdrop-blur-sm">
+            {/* Photo counter badge - hidden on mobile (dots shown instead), visible on tablet/desktop */}
+            <div className="hidden sm:block absolute sm:bottom-3 right-2.5 sm:right-3 bg-black/50 text-white text-xs font-medium px-2.5 py-1 rounded-full backdrop-blur-sm">
               {selectedIndex + 1}/{photos.length}
             </div>
+
+            {/* Pill indicators - overlaid at bottom of image, mobile only */}
+            {photos.length > 1 && (
+              <div className="sm:hidden absolute bottom-2.5 left-1/2 -translate-x-1/2 flex items-center gap-[5px]">
+                {photos.slice(0, Math.min(photos.length, 7)).map((_, i) => (
+                  <span
+                    key={i}
+                    className={cn(
+                      "block rounded-full transition-all duration-300",
+                      selectedIndex === i
+                        ? "w-5 h-[5px] bg-primary"
+                        : "w-[5px] h-[5px] bg-white/50"
+                    )}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Nav arrows on preview */}
@@ -359,28 +376,7 @@ export function REWPhotoGallery({
           </div>
         )}
 
-        {/* Pill indicators - Mobile only */}
-        {photos.length > 1 && (
-          <div className="flex sm:hidden justify-center items-center gap-1.5 mt-2 pb-1">
-            {photos.slice(0, Math.min(photos.length, 7)).map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setSelectedIndex(i)}
-                className={cn(
-                  "h-2 rounded-full transition-all duration-300",
-                  selectedIndex === i
-                    ? "w-6 bg-primary"
-                    : "w-2 bg-primary/20"
-                )}
-              />
-            ))}
-            {photos.length > 7 && (
-              <span className="text-[10px] text-muted-foreground self-center ml-0.5">
-                +{photos.length - 7}
-              </span>
-            )}
-          </div>
-        )}
+
       </div>
 
       {/* Full Screen Gallery Modal - REW Style */}
