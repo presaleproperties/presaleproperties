@@ -81,7 +81,7 @@ const getStatusLabel = (status: Project["status"]) => {
 // Presale marker - clean pin style (no excessive glow)
 const createPricePillIcon = () => {
   // Building icon for new construction
-  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(222, 47%, 20%)" stroke="hsl(222, 47%, 20%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
+  const buildingIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="hsl(30, 15%, 18%)" stroke="hsl(30, 15%, 18%)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V2l12 6v14"/><path d="M6 12H2"/><path d="M6 7H2"/><path d="M6 17H2"/><path d="M18 22V8"/><path d="M10 11h.01"/><path d="M10 15h.01"/><path d="M14 11h.01"/><path d="M14 15h.01"/></svg>`;
 
   return L.divIcon({
     className: "presale-pin-marker",
@@ -93,8 +93,8 @@ const createPricePillIcon = () => {
         cursor: pointer;
       ">
         <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(222, 47%, 22%)"/>
-          <circle cx="16" cy="14" r="9" fill="hsl(45, 89%, 52%)"/>
+          <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(30, 15%, 18%)"/>
+          <circle cx="16" cy="14" r="9" fill="hsl(33, 50%, 53%)"/>
         </svg>
         <div style="
           position: absolute;
@@ -128,7 +128,7 @@ const createClusterIcon = (cluster: L.MarkerCluster) => {
         display: flex;
         align-items: center;
         justify-content: center;
-        background: hsl(222, 47%, 22%);
+        background: hsl(30, 15%, 18%);
         color: white;
         width: ${size}px;
         height: ${size}px;
@@ -136,7 +136,7 @@ const createClusterIcon = (cluster: L.MarkerCluster) => {
         font-size: ${count >= 100 ? '14' : count >= 10 ? '13' : '12'}px;
         font-weight: 700;
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        border: 2px solid hsl(45, 89%, 52%);
+        border: 2px solid hsl(33, 50%, 53%);
         font-family: system-ui, -apple-system, sans-serif;
         cursor: pointer;
         transition: transform 0.15s ease;
@@ -283,7 +283,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
       zoomToBoundsOnClick: true, // Single click zooms smoothly
       animate: true, // Smooth cluster animations
       animateAddingMarkers: false,
-      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(222, 47%, 60%)', opacity: 0.5 },
+      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(33, 50%, 60%)', opacity: 0.5 },
     });
     map.addLayer(clusterGroupRef.current);
 

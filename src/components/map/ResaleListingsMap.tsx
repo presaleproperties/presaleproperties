@@ -56,8 +56,8 @@ function createPricePillIcon(listing: MLSListing): L.DivIcon {
     className: "custom-price-marker",
     html: `
       <div style="
-        background: hsl(45, 89%, 61%);
-        color: hsl(222, 47%, 11%);
+        background: hsl(33, 50%, 53%);
+        color: white;
         padding: 4px 8px;
         border-radius: 16px;
         font-weight: 600;
@@ -84,7 +84,7 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   
   return L.divIcon({
     html: `<div style="
-      background: linear-gradient(135deg, hsl(222, 47%, 18%) 0%, hsl(222, 47%, 25%) 100%);
+      background: linear-gradient(135deg, hsl(30, 15%, 16%) 0%, hsl(30, 15%, 22%) 100%);
       color: white;
       width: ${size}px;
       height: ${size}px;
@@ -95,7 +95,7 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
       font-weight: 700;
       font-size: ${fontSize}px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-      border: 2.5px solid hsl(45, 89%, 55%);
+      border: 2.5px solid hsl(33, 50%, 53%);
       font-family: system-ui, -apple-system, sans-serif;
     ">${count}</div>`,
     className: "marker-cluster-custom",
@@ -142,7 +142,7 @@ function popupHtml(listing: MLSListing): string {
           ${listing.living_area ? `<span>${listing.living_area.toLocaleString()} sqft</span>` : ""}
         </div>
         ${attribution ? `<div style="font-size:11px;color:#94a3b8;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
-        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(43,96%,56%),hsl(38,92%,50%));color:hsl(222,47%,11%);text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.15s;">View Details</a>
+        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(33,50%,53%),hsl(33,50%,45%));color:white;text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.15s;">View Details</a>
       </div>
     </div>
   `;
