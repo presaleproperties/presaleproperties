@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Building2, Home, Warehouse, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -39,6 +39,16 @@ const formatType = (type: string) => {
     single_family: "Single Family Homes",
   };
   return typeMap[type] || type.charAt(0).toUpperCase() + type.slice(1) + "s";
+};
+
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case "condo": return Building2;
+    case "townhome": return Warehouse;
+    case "single_family": return Home;
+    case "duplex": return Home;
+    default: return Building2;
+  }
 };
 
 const getStatusLabel = (status: string) => {
@@ -240,7 +250,8 @@ export function PresaleProjectCard({
                   {city}
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
+              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate flex items-center gap-1">
+                {(() => { const TypeIcon = getTypeIcon(projectType); return <TypeIcon className="h-3 w-3 shrink-0" />; })()}
                 {formatType(projectType)} • {completionYear ? `${completionYear}` : "Coming Soon"}
               </p>
             </div>
