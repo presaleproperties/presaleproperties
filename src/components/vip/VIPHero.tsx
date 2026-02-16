@@ -23,7 +23,7 @@ export const VIPHero = () => {
         {/* Headline */}
         <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-foreground leading-[1.05] mb-6 tracking-tightest">
           Claim Your
-          <span className="text-primary block mt-2 drop-shadow-[0_0_25px_hsl(43_96%_56%/0.3)]">$1,500 Closing Credit</span>
+          <span className="text-primary block mt-2 drop-shadow-[0_0_25px_hsl(33_50%_53%/0.3)]">$1,500 Closing Credit</span>
         </h1>
 
         {/* Subheadline */}
