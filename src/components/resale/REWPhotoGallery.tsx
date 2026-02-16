@@ -540,7 +540,7 @@ export function REWPhotoGallery({
             
             {/* Floating Schedule CTA - Mobile only */}
             {onScheduleShowing && (
-              <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-50" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
+              <div className="fixed bottom-0 left-0 right-0 px-4 pt-3 pb-2 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom, 8px)' }}>
                 <Button 
                   onClick={() => {
                     setIsOpen(false);
