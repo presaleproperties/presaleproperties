@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, Building2, Home, Warehouse, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Building2, Home, Warehouse, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -237,36 +237,42 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-3.5 md:p-4 min-w-0">
+        <CardContent className="px-3 py-2.5 sm:px-4 sm:py-3 min-w-0">
           <div className="flex items-start justify-between gap-2 min-w-0">
-            {/* Left: Name, Location & Type */}
+            {/* Left: Name & Details */}
             <div className="flex-1 min-w-0 space-y-1 overflow-hidden">
-              <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate tracking-tight">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight tracking-tight">
                 {name}
               </h3>
-              <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
-                <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-                <span className="text-[10px] sm:text-[11px] md:text-xs truncate font-medium">
+              <div className="flex items-center gap-3 text-muted-foreground flex-wrap">
+                <span className="flex items-center gap-1 text-xs">
+                  {(() => { const TypeIcon = getTypeIcon(projectType); return <TypeIcon className="h-3 w-3 shrink-0" />; })()}
+                  {formatType(projectType)}
+                </span>
+                <span className="flex items-center gap-1 text-xs">
+                  <MapPin className="h-3 w-3 shrink-0" />
                   {city}
                 </span>
+                {completionYear && (
+                  <span className="flex items-center gap-1 text-xs">
+                    <Calendar className="h-3 w-3 shrink-0" />
+                    {completionYear}
+                  </span>
+                )}
               </div>
-              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate flex items-center gap-1">
-                {(() => { const TypeIcon = getTypeIcon(projectType); return <TypeIcon className="h-3 w-3 shrink-0" />; })()}
-                {formatType(projectType)} • {completionYear ? `${completionYear}` : "Coming Soon"}
-              </p>
             </div>
 
             {/* Right: Price */}
-            <div className="text-right shrink-0 ml-1">
+            <div className="text-right shrink-0">
               {startingPrice ? (
                 <>
-                  <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap font-medium">From</span>
-                  <span className="text-[13px] sm:text-sm md:text-base font-bold text-primary whitespace-nowrap tracking-tight">
+                  <span className="text-[10px] text-muted-foreground block leading-tight whitespace-nowrap font-medium">From</span>
+                  <span className="text-sm sm:text-base font-bold text-primary whitespace-nowrap tracking-tight">
                     {formatPrice(startingPrice)}
                   </span>
                 </>
               ) : (
-                <span className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground whitespace-nowrap font-medium">Contact</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">Contact</span>
               )}
             </div>
           </div>
