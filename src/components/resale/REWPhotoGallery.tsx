@@ -320,6 +320,67 @@ export function REWPhotoGallery({
             </>
           )}
         </div>
+
+        {/* Thumbnail strip - Desktop/Tablet (hidden on mobile) */}
+        {photos.length > 1 && (
+          <div className="hidden sm:flex gap-2 mt-2 px-0 lg:px-0">
+            {photos.slice(0, 5).map((photo, i) => (
+              <div
+                key={i}
+                className={cn(
+                  "relative flex-1 aspect-[4/3] rounded-lg overflow-hidden bg-muted cursor-pointer border-2 transition-all",
+                  selectedIndex === i ? "border-primary" : "border-transparent hover:border-primary/40"
+                )}
+                onClick={() => {
+                  if (i === 4 && photos.length > 5) {
+                    openGallery(0);
+                  } else {
+                    setSelectedIndex(i);
+                  }
+                }}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.alt || `${alt} - Thumbnail ${i + 1}`}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
+                {/* "+N more" overlay on last thumbnail */}
+                {i === 4 && photos.length > 5 && (
+                  <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                    <span className="text-white font-bold text-sm md:text-base">
+                      +{photos.length - 5} more
+                    </span>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Dot indicators - Mobile only */}
+        {photos.length > 1 && (
+          <div className="flex sm:hidden justify-center gap-1.5 mt-2 pb-1">
+            {photos.slice(0, Math.min(photos.length, 7)).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setSelectedIndex(i)}
+                className={cn(
+                  "rounded-full transition-all",
+                  selectedIndex === i
+                    ? "w-2 h-2 bg-primary"
+                    : "w-1.5 h-1.5 bg-muted-foreground/30"
+                )}
+              />
+            ))}
+            {photos.length > 7 && (
+              <span className="text-[10px] text-muted-foreground self-center ml-0.5">
+                +{photos.length - 7}
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Full Screen Gallery Modal - REW Style */}
