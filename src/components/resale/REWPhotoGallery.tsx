@@ -316,7 +316,7 @@ export function REWPhotoGallery({
           
           <div className="flex flex-col h-full overflow-hidden">
             {/* Header with tabs */}
-            <header className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-50">
+            <header className="flex items-center justify-between px-4 py-3 border-b bg-white sticky top-0 z-50" style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 12px))' }}>
               {/* Back button */}
               <Button
                 variant="ghost"
@@ -539,7 +539,7 @@ export function REWPhotoGallery({
             
             {/* Floating Schedule CTA - Mobile only */}
             {onScheduleShowing && (
-              <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-50 safe-area-pb">
+              <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/40 to-transparent md:hidden z-50" style={{ paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))' }}>
                 <Button 
                   onClick={() => {
                     setIsOpen(false);
