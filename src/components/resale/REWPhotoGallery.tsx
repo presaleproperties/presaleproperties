@@ -359,18 +359,18 @@ export function REWPhotoGallery({
           </div>
         )}
 
-        {/* Dot indicators - Mobile only */}
+        {/* Pill indicators - Mobile only */}
         {photos.length > 1 && (
-          <div className="flex sm:hidden justify-center gap-1.5 mt-2 pb-1">
+          <div className="flex sm:hidden justify-center items-center gap-1.5 mt-2 pb-1">
             {photos.slice(0, Math.min(photos.length, 7)).map((_, i) => (
               <button
                 key={i}
                 onClick={() => setSelectedIndex(i)}
                 className={cn(
-                  "rounded-full transition-all",
+                  "h-2 rounded-full transition-all duration-300",
                   selectedIndex === i
-                    ? "w-2 h-2 bg-primary"
-                    : "w-1.5 h-1.5 bg-muted-foreground/30"
+                    ? "w-6 bg-primary"
+                    : "w-2 bg-primary/20"
                 )}
               />
             ))}
