@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { MapPin, Navigation, Map, Building2, Search, LayoutGrid } from "lucide-react";
+import { Map } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -103,29 +103,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         isRefreshing={isRefreshing} 
       />
 
-      {/* Sticky Search Bar - appears when scrolling past hero */}
-      <div 
-        className={cn(
-          "fixed left-0 right-0 z-50 bg-background/95 backdrop-blur-lg border-b border-border/50 shadow-sm transition-all duration-300 ease-out",
-          showStickySearch ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
-        )}
-        style={{ 
-          top: 0,
-          paddingTop: 'env(safe-area-inset-top, 0px)',
-        }}
-      >
-        <div className="px-4 py-2.5">
-          <PowerSearch
-            placeholder={activeTab === "projects" 
-              ? "Search projects, address, neighbourhood..." 
-              : "Address, MLS#, city, neighbourhood..."
-            }
-            mode={activeTab === "projects" ? "presale" : "resale"}
-            variant="hero"
-            inputClassName="h-11 text-sm rounded-lg bg-muted/40 border border-border shadow-sm focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground/60"
-          />
-        </div>
-      </div>
 
       {/* Full-Screen Hero Section - Brand Luxe Style */}
       <div 
@@ -428,29 +405,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <Footer />
       </div>
 
-      {/* Floating Map / Grid Toggle */}
+      {/* Floating Map / Grid Toggle - minimal pill */}
       <div 
         className={cn(
-          "fixed left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ease-out",
+          "fixed left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ease-out lg:hidden",
           showStickySearch ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
         )}
         style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}
       >
-        <div className="flex items-center bg-foreground/90 backdrop-blur-md rounded-full shadow-lg px-1 py-1 gap-0.5">
-          <button
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold bg-background text-foreground shadow-sm"
-          >
-            <LayoutGrid className="h-4 w-4" />
-            Grid
-          </button>
-          <button
-            onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-full text-sm font-semibold text-background/80 hover:text-background transition-colors"
-          >
-            <Map className="h-4 w-4" />
-            Map
-          </button>
-        </div>
+        <button
+          onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-foreground text-background shadow-md hover:bg-foreground/90 active:scale-95 transition-all"
+        >
+          <Map className="h-3.5 w-3.5" />
+          Map
+        </button>
       </div>
 
     </div>
