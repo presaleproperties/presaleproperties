@@ -908,6 +908,11 @@ export default function PresaleProjectDetail() {
                   className="bg-muted/30 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6"
                 />
 
+                {/* Expert Advisory Card - Mobile/Tablet (above FAQ) */}
+                <div className="lg:hidden">
+                  <ExpertAdvisoryCard />
+                </div>
+
                 {/* FAQ Section - Always shown with auto-generated or custom FAQs */}
                 <section id="faq" className="bg-gradient-to-br from-muted/40 to-muted/20 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 border border-border/30">
                   <div className="flex items-center gap-2 mb-4 md:mb-6">
@@ -978,10 +983,6 @@ export default function PresaleProjectDetail() {
       {/* Contextual Internal Links */}
       <ProjectContextualLinks projectName={project.name} neighborhood={project.neighborhood} city={project.city} projectType={project.project_type} startingPrice={project.starting_price} />
 
-      {/* Expert Advisory Card - Mobile/Tablet */}
-      <div className="lg:hidden px-4 py-6">
-        <ExpertAdvisoryCard />
-      </div>
 
       {/* More Projects in Same Neighborhood - edge-to-edge on mobile */}
       <section className="bg-muted/30 py-6 md:py-12">
