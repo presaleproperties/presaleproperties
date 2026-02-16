@@ -179,7 +179,7 @@ export function MobileProjectCard({
         isLarge ? "w-[calc(100vw-72px)] max-w-[360px]" : "w-[260px] md:w-[300px]"
       )}
     >
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 active:scale-[0.98] transition-all duration-300 ease-out h-full">
+      <Card className="group overflow-hidden border-border/80 bg-card shadow-card hover:shadow-premium hover:border-primary/30 hover:-translate-y-1.5 active:scale-[0.98] transition-all duration-300 ease-out h-full">
         {/* Image with swipe support */}
         <div 
           className={cn(
@@ -204,11 +204,13 @@ export function MobileProjectCard({
                 }}
               />
               
-              {/* Status Badge - Top Left */}
+               {/* Status Badge - Top Left */}
               {statusLabel && (
-                <Badge className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-primary text-primary-foreground text-[10px] sm:text-xs font-medium shadow-sm px-1.5 py-0.5 sm:px-2 sm:py-1">
-                  {statusLabel}
-                </Badge>
+                <div className="absolute top-2 left-2 sm:top-3 sm:left-3">
+                  <Badge className="bg-primary text-primary-foreground text-[9px] sm:text-xs font-bold shadow-gold px-2.5 py-0.5 tracking-wide">
+                    {statusLabel}
+                  </Badge>
+                </div>
               )}
 
               {/* Image navigation arrows - show on hover for tablet+ */}
@@ -216,14 +218,14 @@ export function MobileProjectCard({
                 <>
                   <button
                     onClick={goToPrevImage}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/60 backdrop-blur-sm text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/80 hover:scale-110"
                     aria-label="Previous image"
                   >
                     <ChevronLeft className="h-5 w-5" />
                   </button>
                   <button
                     onClick={goToNextImage}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/60 backdrop-blur-sm text-white hidden md:flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-black/80 hover:scale-110"
                     aria-label="Next image"
                   >
                     <ChevronRight className="h-5 w-5" />
@@ -235,46 +237,46 @@ export function MobileProjectCard({
                       <span
                         key={idx}
                         className={cn(
-                          "h-1.5 w-1.5 rounded-full transition-all",
+                          "h-1.5 rounded-full transition-all duration-200",
                           idx === currentImageIndex 
-                            ? "bg-white w-3" 
-                            : "bg-white/50"
+                            ? "bg-white w-4 shadow-sm" 
+                            : "bg-white/50 w-1.5"
                         )}
                       />
                     ))}
                     {imageCount > 5 && (
-                      <span className="text-white text-xs ml-1">+{imageCount - 5}</span>
+                      <span className="text-white text-xs ml-1 font-medium">+{imageCount - 5}</span>
                     )}
                   </div>
                 </>
               )}
             </>
           ) : (
-            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <Building2 className="h-12 w-12 text-muted-foreground" />
+            <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted via-muted to-muted/80">
+              <Building2 className="h-12 w-12 text-muted-foreground/50" />
             </div>
           )}
           
-          {/* Gradient overlay on hover */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+          {/* Premium gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
 
           {/* Photo Count - Bottom Right */}
           {imageCount > 1 && (
-            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
+            <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 backdrop-blur-sm text-white text-xs font-semibold px-2 py-1 rounded-md">
               <span>{currentImageIndex + 1}/{imageCount}</span>
             </div>
           )}
         </div>
 
-        {/* Compact Info Section - Optimized padding */}
-        <CardContent className="px-4 py-3 sm:p-4">
-          <div className="flex items-start justify-between gap-3">
-            {/* Left: Name & Location */}
-            <div className="flex-1 min-w-0 space-y-1">
-              <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight">
+        {/* Info Section */}
+        <CardContent className="px-3 py-2.5 sm:px-4 sm:py-3">
+          <div className="flex items-start justify-between gap-2 min-w-0">
+            {/* Left: Name & Details */}
+            <div className="flex-1 min-w-0 space-y-1 overflow-hidden">
+              <h4 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base leading-tight tracking-tight">
                 {name}
               </h4>
-              <div className="flex items-center gap-3 text-muted-foreground">
+              <div className="flex items-center gap-3 text-muted-foreground flex-wrap">
                 <span className="flex items-center gap-1 text-xs">
                   {(() => { const TypeIcon = getTypeIcon(projectType); return <TypeIcon className="h-3 w-3 shrink-0" />; })()}
                   {formatType(projectType)}
@@ -296,13 +298,13 @@ export function MobileProjectCard({
             <div className="text-right shrink-0">
               {startingPrice ? (
                 <>
-                  <span className="text-[10px] text-muted-foreground block leading-tight">Starting from</span>
-                  <span className="text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors duration-200">
+                  <span className="text-[10px] text-muted-foreground block leading-tight font-medium">From</span>
+                  <span className="text-sm sm:text-base font-bold text-primary whitespace-nowrap tracking-tight">
                     {formatPrice(startingPrice)}
                   </span>
                 </>
               ) : (
-                <span className="text-xs text-primary font-semibold">Price TBA</span>
+                <span className="text-xs text-muted-foreground whitespace-nowrap font-medium">Contact</span>
               )}
             </div>
           </div>
