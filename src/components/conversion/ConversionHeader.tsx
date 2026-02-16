@@ -96,8 +96,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
           !transparentOnMobile && "bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80",
           !transparentOnMobile && "border-b border-border/60",
           // Transparent mode on mobile/tablet
-          transparentOnMobile && isMobileOrTablet && !scrolled && "bg-background/95 backdrop-blur-xl border-b border-border/60",
-          transparentOnMobile && isMobileOrTablet && scrolled && "bg-transparent border-b border-transparent backdrop-blur-none",
+          transparentOnMobile && isMobileOrTablet && "bg-background/95 backdrop-blur-xl border-b border-border/60",
           // Desktop always gets normal bg regardless of transparentOnMobile
           transparentOnMobile && "lg:bg-background/95 lg:backdrop-blur-xl lg:border-b lg:border-border/60",
           // Desktop: sticky positioning (normal behavior)
