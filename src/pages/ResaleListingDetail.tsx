@@ -563,7 +563,7 @@ export default function ResaleListingDetail() {
             {isMobileOrTablet && <div className="space-y-4">
                 {/* Key Badges - FIRST, right under photo */}
                 <div className="flex flex-wrap items-center gap-2">
-                  {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1 text-xs">
+                  {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-emerald-600 text-white gap-1 text-xs">
                       <Sparkles className="h-3 w-3" />
                       Move-In Ready
                     </Badge>}
@@ -786,9 +786,9 @@ export default function ResaleListingDetail() {
             <div className="hidden lg:block space-y-1.5">
               {/* Badges Row */}
               <div className="flex flex-wrap items-center gap-2">
-                {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-gradient-to-r from-primary to-amber-500 text-primary-foreground gap-1">
+                {listing.year_built && listing.year_built >= 2024 && <Badge className="bg-emerald-600 text-white gap-1">
                     <Sparkles className="h-3 w-3" />
-                    New Construction
+                    Move-In Ready
                   </Badge>}
                 <Badge variant="secondary" className="text-xs">
                   {formatPropertyType(listing.property_sub_type || listing.property_type)}
