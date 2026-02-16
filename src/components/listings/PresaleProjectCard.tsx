@@ -227,38 +227,38 @@ export function PresaleProjectCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 min-w-0">
-          {/* Price - Hero position */}
-          <div className="mb-1">
-            {startingPrice ? (
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-[10px] sm:text-xs text-muted-foreground font-medium">From</span>
-                <span className="text-lg sm:text-xl md:text-2xl font-extrabold text-primary whitespace-nowrap tracking-tight leading-none">
-                  {formatPrice(startingPrice)}
+        <CardContent className="p-3 sm:p-3.5 md:p-4 min-w-0">
+          <div className="flex items-start justify-between gap-2 min-w-0">
+            {/* Left: Name, Location & Type */}
+            <div className="flex-1 min-w-0 space-y-1 overflow-hidden">
+              <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate tracking-tight">
+                {name}
+              </h3>
+              <div className="flex items-center gap-1.5 text-muted-foreground min-w-0">
+                <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                <span className="text-[10px] sm:text-[11px] md:text-xs truncate font-medium">
+                  {city}
                 </span>
               </div>
-            ) : (
-              <span className="text-sm text-muted-foreground font-medium">Contact for Pricing</span>
-            )}
+              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
+                {formatType(projectType)} • {completionYear ? `${completionYear}` : "Coming Soon"}
+              </p>
+            </div>
+
+            {/* Right: Price */}
+            <div className="text-right shrink-0 ml-1">
+              {startingPrice ? (
+                <>
+                  <span className="text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground block leading-tight whitespace-nowrap font-medium">From</span>
+                  <span className="text-[13px] sm:text-sm md:text-base font-bold text-primary whitespace-nowrap tracking-tight">
+                    {formatPrice(startingPrice)}
+                  </span>
+                </>
+              ) : (
+                <span className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground whitespace-nowrap font-medium">Contact</span>
+              )}
+            </div>
           </div>
-
-          {/* Name */}
-          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors duration-200 text-sm sm:text-[15px] md:text-base leading-snug line-clamp-1 tracking-tight">
-            {name}
-          </h3>
-
-          {/* Location */}
-          <div className="flex items-center gap-1.5 text-muted-foreground mt-0.5">
-            <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-            <span className="text-xs sm:text-[13px] truncate font-medium">
-              {city}
-            </span>
-          </div>
-
-          {/* Type & Year */}
-          <p className="text-xs sm:text-[13px] text-muted-foreground mt-1">
-            {formatType(projectType)} • {completionYear ? `${completionYear}` : "Coming Soon"}
-          </p>
         </CardContent>
       </Card>
     </Link>
