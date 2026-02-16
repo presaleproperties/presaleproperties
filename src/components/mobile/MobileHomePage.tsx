@@ -1,6 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
+import { Map } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -389,6 +390,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <Footer />
       </div>
 
+      {/* Floating Map Button - bottom right */}
+      <button
+        onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
+        className="fixed right-4 z-40 lg:hidden h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
+        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}
+        aria-label="Map Search"
+      >
+        <Map className="h-5 w-5" />
+      </button>
 
     </div>
   );
