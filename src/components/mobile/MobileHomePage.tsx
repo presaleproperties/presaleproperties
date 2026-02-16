@@ -1,7 +1,6 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Map } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -16,7 +15,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
 import { SearchTab } from "@/components/home/HeroSection";
-import { cn } from "@/lib/utils";
+
 
 const TOP_CITIES = [
   { name: "Vancouver", slug: "vancouver" },
@@ -45,24 +44,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   };
   
   const [selectedCity, setSelectedCity] = useState("all");
-  const [showStickySearch, setShowStickySearch] = useState(false);
-  const heroSearchRef = useRef<HTMLDivElement>(null);
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Track when user scrolls past the hero search bar
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setShowStickySearch(!entry.isIntersecting);
-      },
-      { threshold: 0, rootMargin: '-56px 0px 0px 0px' }
-    );
-    if (heroSearchRef.current) {
-      observer.observe(heroSearchRef.current);
-    }
-    return () => observer.disconnect();
-  }, []);
 
   const handleCityClick = (slug: string) => {
     if (activeTab === "projects") {
@@ -132,7 +116,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </h1>
           
           {/* Search Container */}
-          <div ref={heroSearchRef} className="w-full max-w-md">
+          <div className="w-full max-w-md">
             <PowerSearch
               placeholder={activeTab === "projects" 
                 ? "Search projects, address, neighbourhood..." 
@@ -405,22 +389,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <Footer />
       </div>
 
-      {/* Floating Map / Grid Toggle - minimal pill */}
-      <div 
-        className={cn(
-          "fixed left-1/2 -translate-x-1/2 z-40 transition-all duration-300 ease-out lg:hidden",
-          showStickySearch ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0 pointer-events-none"
-        )}
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}
-      >
-        <button
-          onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-foreground text-background shadow-md hover:bg-foreground/90 active:scale-95 transition-all"
-        >
-          <Map className="h-3.5 w-3.5" />
-          Map
-        </button>
-      </div>
 
     </div>
   );
