@@ -131,7 +131,6 @@ export function ProjectMobileCTA({
           willChange: 'transform',
           pointerEvents: 'auto',
           width: '100%',
-          paddingBottom: 'env(safe-area-inset-bottom, 0px)',
         }}
       >
         <div 
