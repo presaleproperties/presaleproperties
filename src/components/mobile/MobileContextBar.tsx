@@ -61,7 +61,7 @@ export function MobileContextBar({
   return (
     <div 
       className={cn(
-        "sticky top-12 z-40 bg-background border-b border-border md:hidden",
+        "sticky z-40 bg-background border-b border-border md:hidden",
         "transition-all duration-300 ease-out",
         isVisible ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0"
       )}

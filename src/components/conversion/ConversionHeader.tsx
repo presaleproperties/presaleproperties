@@ -493,7 +493,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
       {/* Spacer for fixed header on mobile/tablet - prevents content from hiding under header */}
       {!hideOnMobile && (
-        <div className="lg:hidden" style={{ height: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)' }} aria-hidden="true" />
+        <div className="h-14 md:h-16 lg:hidden" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }} aria-hidden="true" />
       )}
     </>
   );

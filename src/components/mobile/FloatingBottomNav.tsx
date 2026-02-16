@@ -45,7 +45,7 @@ export function FloatingBottomNav() {
           "transition-all duration-300 ease-out",
           isVisible ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
         )}
-        style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)' }}
+        style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 20px)', paddingLeft: 'env(safe-area-inset-left, 0px)', paddingRight: 'env(safe-area-inset-right, 0px)' }}
       >
         {/* Subtle gradient for visibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-background/40 to-transparent" />
