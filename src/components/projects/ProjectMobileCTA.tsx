@@ -43,6 +43,7 @@ export function ProjectMobileCTA({
 }: ProjectMobileCTAProps) {
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isHidden, setIsHidden] = useState(false);
 
   const {
     step,
@@ -100,8 +101,16 @@ export function ProjectMobileCTA({
   // Listen for gallery CTA event to expand the form
   useEffect(() => {
     const handleGalleryCTA = () => setIsExpanded(true);
+    const handleGalleryOpen = () => setIsHidden(true);
+    const handleGalleryClose = () => setIsHidden(false);
     window.addEventListener("presale-gallery-cta", handleGalleryCTA);
-    return () => window.removeEventListener("presale-gallery-cta", handleGalleryCTA);
+    window.addEventListener("gallery-opened", handleGalleryOpen);
+    window.addEventListener("gallery-closed", handleGalleryClose);
+    return () => {
+      window.removeEventListener("presale-gallery-cta", handleGalleryCTA);
+      window.removeEventListener("gallery-opened", handleGalleryOpen);
+      window.removeEventListener("gallery-closed", handleGalleryClose);
+    };
   }, []);
 
   const onEmailSubmit = async (data: EmailFormData) => {
@@ -129,12 +138,10 @@ export function ProjectMobileCTA({
       
       {/* Fixed CTA bar */}
       <div 
-        className="lg:hidden fixed inset-x-0 bottom-0"
+        className={`lg:hidden fixed inset-x-0 bottom-0 transition-transform duration-200 ${isHidden ? 'translate-y-full' : 'translate-y-0'}`}
         style={{
           zIndex: 99999,
           isolation: 'isolate',
-          transform: 'translate3d(0,0,0)',
-          WebkitTransform: 'translate3d(0,0,0)',
           willChange: 'transform',
           pointerEvents: 'auto',
           width: '100%',

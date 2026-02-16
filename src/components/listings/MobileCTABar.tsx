@@ -12,6 +12,7 @@ interface MobileCTABarProps {
 
 export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }: MobileCTABarProps) {
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
+  const [isHidden, setIsHidden] = useState(false);
 
   useEffect(() => {
     const fetchWhatsappNumber = async () => {
@@ -28,6 +29,18 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
     fetchWhatsappNumber();
   }, []);
 
+  // Hide when gallery is open
+  useEffect(() => {
+    const show = () => setIsHidden(false);
+    const hide = () => setIsHidden(true);
+    window.addEventListener("gallery-opened", hide);
+    window.addEventListener("gallery-closed", show);
+    return () => {
+      window.removeEventListener("gallery-opened", hide);
+      window.removeEventListener("gallery-closed", show);
+    };
+  }, []);
+
   const whatsappMessage = encodeURIComponent(
     projectName 
       ? `Hi! I'm interested in the ${projectName} assignment listed at ${price}. Is it still available?`
@@ -42,7 +55,7 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
       
       {/* Fixed CTA bar */}
       <div 
-        className="lg:hidden"
+        className={`lg:hidden transition-transform duration-200 ${isHidden ? 'translate-y-full' : 'translate-y-0'}`}
         style={{
           position: 'fixed',
           bottom: 0,
@@ -50,7 +63,6 @@ export function MobileCTABar({ price, projectName, onContactClick, phoneNumber }
           right: 0,
           zIndex: 9999,
           isolation: 'isolate',
-          transform: 'translateZ(0)',
           willChange: 'transform',
         }}
       >

@@ -87,15 +87,18 @@ export function REWPhotoGallery({
   const initialPinchDistanceRef = useRef<number | null>(null);
   const initialScaleRef = useRef(1);
 
-  // Lock body scroll when gallery is open
+  // Lock body scroll when gallery is open & notify other components
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
+      window.dispatchEvent(new CustomEvent("gallery-opened"));
     } else {
       document.body.style.overflow = "";
+      window.dispatchEvent(new CustomEvent("gallery-closed"));
     }
     return () => {
       document.body.style.overflow = "";
+      window.dispatchEvent(new CustomEvent("gallery-closed"));
     };
   }, [isOpen]);
 
