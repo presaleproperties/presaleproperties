@@ -92,6 +92,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
           // Scroll-based hide/show for mobile/tablet (slide up when hidden) - skip if alwaysVisible or stickyOnMobile
           !hideOnMobile && !alwaysVisible && !stickyOnMobile && isMobileOrTablet && !isVisible && "max-lg:-translate-y-full"
         )}
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
         <div className="flex h-14 md:h-16 items-center justify-between px-4 lg:container">
           {/* Logo */}
@@ -492,7 +493,7 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
       {/* Spacer for fixed header on mobile/tablet - prevents content from hiding under header */}
       {!hideOnMobile && (
-        <div className="h-14 md:h-16 lg:hidden" aria-hidden="true" />
+        <div className="lg:hidden" style={{ height: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)' }} aria-hidden="true" />
       )}
     </>
   );
