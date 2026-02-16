@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, CheckCircle2 } from "lucide-react";
+import { Shield, CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AboutContactForm } from "@/components/about/AboutContactForm";
 
@@ -24,7 +24,7 @@ export function ExpertAdvisoryCard() {
         {/* Header */}
         <div className="flex items-center gap-3 mb-5">
           <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-            <Sparkles className="h-5 w-5 text-primary" />
+            <Shield className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h3 className="font-bold text-foreground text-lg">Presale Expert Advisory</h3>
@@ -54,7 +54,7 @@ export function ExpertAdvisoryCard() {
 
         {/* CTA */}
         <Button onClick={() => setFormOpen(true)} className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-base gap-2">
-          <Sparkles className="h-4 w-4" />
+          <ArrowRight className="h-4 w-4" />
           Contact Now!
         </Button>
 
