@@ -1271,11 +1271,13 @@ export default function ResaleListingDetail() {
         </article>
       </main>
 
-      {/* Mobile CTA Bar - Only on mobile, not tablet (form is inline on tablet) */}
-      {/* Hidden when scheduler is open to prevent duplicate buttons */}
+      {/* Spacer for fixed CTA bar */}
+      <div className="h-24 lg:hidden" aria-hidden="true" />
+
+      {/* Mobile & Tablet CTA Bar */}
       {!showMobileScheduler && (
         <div 
-          className="fixed inset-x-0 bottom-0 bg-background/95 backdrop-blur-sm border-t flex items-center gap-3 md:hidden z-[9999] shadow-lg hide-on-keyboard"
+          className="fixed inset-x-0 bottom-0 bg-background/95 backdrop-blur-sm border-t flex items-center gap-3 lg:hidden z-[9999] shadow-lg hide-on-keyboard"
           style={{ 
             isolation: 'isolate', 
             transform: 'translate3d(0,0,0)',
