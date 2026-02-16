@@ -134,7 +134,7 @@ export function ListingCard({
 
   return (
     <Link to={`/assignments/${id}`}>
-      <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_30px_rgb(0,0,0,0.08),0_0_0_1px_hsl(var(--primary)/0.1)] hover:border-primary/30 hover:-translate-y-1.5 transition-all duration-300 ease-out">
+      <Card className="group overflow-hidden border-border/60 bg-card shadow-card hover:shadow-premium hover:border-primary/30 hover:-translate-y-2 transition-all duration-300 ease-out rounded-2xl">
         <div 
           className="relative aspect-[4/3] overflow-hidden bg-muted"
           onTouchStart={handleTouchStart}
@@ -232,22 +232,27 @@ export function ListingCard({
           )}
         </div>
 
-        <CardContent className="p-3 sm:p-4 space-y-2 sm:space-y-3">
-          <div className="flex items-start gap-1.5 text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 sm:h-4 sm:w-4 mt-0.5 shrink-0" />
-            <span className="text-xs sm:text-sm truncate">
+        <CardContent className="p-3 sm:p-4 space-y-1.5 sm:space-y-2">
+          {/* Price - Hero position */}
+          <p className="text-xl sm:text-2xl md:text-[1.75rem] font-extrabold text-primary tracking-tight leading-none">
+            {formatPrice(assignmentPrice)}
+          </p>
+
+          <div>
+            <h3 className="font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-[15px] md:text-base tracking-tight">
+              {displayTitle}
+            </h3>
+            <p className="text-xs sm:text-[13px] text-muted-foreground line-clamp-1">{displaySubtitle}</p>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+            <span className="text-xs sm:text-[13px] truncate font-medium">
               {isRestricted ? city : (address || neighborhood || city)}
             </span>
           </div>
 
-          <div>
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-sm sm:text-base">
-              {displayTitle}
-            </h3>
-            <p className="text-xs sm:text-sm text-muted-foreground line-clamp-1">{displaySubtitle}</p>
-          </div>
-
-          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-muted-foreground">
+          <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-[13px] text-muted-foreground">
             <span className="flex items-center gap-1">
               <Bed className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               {beds}
@@ -262,17 +267,6 @@ export function ListingCard({
                 {interiorSqft} sqft
               </span>
             )}
-          </div>
-
-          <div className="flex items-end justify-between pt-2 border-t border-border">
-            <div>
-              <p className="text-base sm:text-lg font-bold text-primary">
-                {formatPrice(assignmentPrice)}
-              </p>
-            </div>
-            <span className="text-[10px] sm:text-xs font-medium text-muted-foreground uppercase tracking-wide">
-              {city}
-            </span>
           </div>
 
           {/* Agent Info */}
