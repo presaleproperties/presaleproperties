@@ -529,7 +529,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
       zoomToBoundsOnClick: !isMobileOrTabletDevice, // Don't auto-zoom on cluster click on mobile
-      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(33, 50%, 60%)', opacity: 0.5 },
+      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(43, 96%, 60%)', opacity: 0.5 },
     });
 
     const presaleLayer = L.layerGroup();
@@ -872,16 +872,16 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         /* Base marker reset */
         .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
         
-        /* Resale price pills - warm bronze branding */
+        /* Resale price pills - gold branding */
         .pp { 
-          background: hsl(33, 50%, 53%); 
+          background: hsl(43, 96%, 56%); 
           color: white; 
           padding: 5px 10px; 
           border-radius: 16px; 
           font-size: 12px; 
           font-weight: 700; 
           white-space: nowrap; 
-          box-shadow: 0 2px 6px hsla(33, 50%, 30%, 0.25); 
+          box-shadow: 0 2px 6px hsla(43, 90%, 30%, 0.25); 
           display: flex; 
           align-items: center; 
           justify-content: center; 
@@ -891,57 +891,57 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
         .pp:hover, .pp.hl { 
           transform: scale(1.08); 
-          box-shadow: 0 4px 12px hsla(33, 50%, 30%, 0.35); 
-          background: hsl(28, 52%, 42%);
+          box-shadow: 0 4px 12px hsla(43, 90%, 30%, 0.35); 
+          background: hsl(38, 95%, 42%);
         }
         
-        /* Presale pins - warm bronze branded */
+        /* Presale pins - gold branded */
         .pin { 
           width: 32px; 
           height: 38px; 
-          background: hsl(28, 52%, 42%); 
+          background: hsl(38, 95%, 42%); 
           border-radius: 50% 50% 50% 0; 
           transform: rotate(-45deg); 
-          border: 2.5px solid hsl(33, 50%, 65%); 
-          box-shadow: 0 2px 6px hsla(33, 50%, 30%, 0.2);
+          border: 2.5px solid hsl(43, 96%, 65%); 
+          box-shadow: 0 2px 6px hsla(43, 90%, 30%, 0.2);
           cursor: pointer;
         }
         .pin:hover, .pin.hl { 
-          box-shadow: 0 3px 10px hsla(33, 50%, 30%, 0.3);
-          background: hsl(33, 50%, 53%);
+          box-shadow: 0 3px 10px hsla(43, 90%, 30%, 0.3);
+          background: hsl(43, 96%, 56%);
         }
         
         /* Assignment markers - container must be transparent */
         .assignment-marker { background: transparent !important; border: none !important; }
         
-        /* Assignment dots - warm bronze tone */
+        /* Assignment dots - gold tone */
         .ap-dot { 
           width: 12px;
           height: 12px;
-          background: hsl(33, 50%, 53%); 
+          background: hsl(43, 96%, 56%); 
           border: 2px solid white;
           border-radius: 50%; 
-          box-shadow: 0 1px 4px hsla(33, 50%, 30%, 0.2); 
+          box-shadow: 0 1px 4px hsla(43, 90%, 30%, 0.2); 
           transition: transform 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
         }
         .ap-dot:hover, .ap-dot.hl { 
           transform: scale(1.3); 
-          box-shadow: 0 2px 8px hsla(33, 50%, 53%, 0.4); 
+          box-shadow: 0 2px 8px hsla(43, 96%, 56%, 0.4); 
         }
         
-        /* Cluster icons - branded bronze */
+        /* Cluster icons - branded gold */
         .mc { background: transparent !important; border: none !important; }
         .cl { 
-          background: hsl(28, 52%, 42%); 
+          background: hsl(38, 95%, 42%); 
           color: white; 
           border-radius: 50%; 
           display: flex; 
           align-items: center; 
           justify-content: center; 
           font-weight: 700; 
-          box-shadow: 0 2px 8px hsla(33, 50%, 30%, 0.2); 
-          border: 2.5px solid hsl(33, 50%, 65%);
+          box-shadow: 0 2px 8px hsla(43, 90%, 30%, 0.2); 
+          border: 2.5px solid hsl(43, 96%, 65%);
           transition: transform 0.15s ease;
           cursor: pointer;
         }
@@ -955,7 +955,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           padding: 0; 
           border-radius: 12px; 
           overflow: hidden; 
-          box-shadow: 0 8px 24px hsla(33, 30%, 20%, 0.12); 
+          box-shadow: 0 8px 24px hsla(43, 30%, 20%, 0.12); 
           background: hsl(30, 20%, 99%); 
           border: 1px solid hsl(30, 10%, 88%);
         }
@@ -969,7 +969,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           background: hsla(30, 20%, 99%, 0.95) !important; 
           backdrop-filter: blur(4px); 
           border-radius: 50% !important; 
-          box-shadow: 0 1px 4px hsla(33, 30%, 20%, 0.1); 
+          box-shadow: 0 1px 4px hsla(43, 30%, 20%, 0.1); 
           display: flex !important; 
           align-items: center !important; 
           justify-content: center !important; 
@@ -988,39 +988,39 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: inherit; border-radius: 12px; overflow: hidden; background: hsl(30, 20%, 99%); }
         .popup-card.resale { border: none; }
         .popup-card.presale { border: none; }
-        .popup-card.assignment { border-left: 3px solid hsl(33, 50%, 53%); }
+        .popup-card.assignment { border-left: 3px solid hsl(43, 96%, 56%); }
         .popup-card.locked { display: block; width: 240px; }
         
         /* Image section */
         .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: hsl(30, 10%, 96%); }
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: hsl(30, 10%, 70%); background: linear-gradient(135deg, hsl(30, 10%, 96%) 0%, hsl(30, 10%, 93%) 100%); }
-        .popup-placeholder.presale { background: linear-gradient(135deg, hsl(33, 50%, 97%) 0%, hsl(33, 50%, 92%) 100%); color: hsl(33, 50%, 45%); }
-        .popup-placeholder.assignment { background: linear-gradient(135deg, hsl(33, 40%, 96%) 0%, hsl(33, 40%, 90%) 100%); color: hsl(33, 50%, 53%); }
+        .popup-placeholder.presale { background: linear-gradient(135deg, hsl(43, 96%, 97%) 0%, hsl(43, 96%, 92%) 100%); color: hsl(43, 96%, 45%); }
+        .popup-placeholder.assignment { background: linear-gradient(135deg, hsl(43, 40%, 96%) 0%, hsl(43, 40%, 90%) 100%); color: hsl(43, 96%, 56%); }
         
         /* Badges - branded */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .popup-badge.resale { background: hsl(28, 52%, 42%); color: white; }
-        .popup-badge.presale { background: hsl(33, 50%, 53%); color: white; }
-        .popup-badge.assignment { background: hsl(33, 45%, 48%); color: white; }
+        .popup-badge.resale { background: hsl(38, 95%, 42%); color: white; }
+        .popup-badge.presale { background: hsl(43, 96%, 56%); color: white; }
+        .popup-badge.assignment { background: hsl(43, 90%, 48%); color: white; }
         
         /* Content */
         .popup-content { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-        .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(33, 50%, 53%); }
-        .popup-price.assignment { color: hsl(33, 50%, 45%); }
+        .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(43, 96%, 56%); }
+        .popup-price.assignment { color: hsl(43, 96%, 45%); }
         .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 20%, 15%); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .popup-specs { font-size: 12px; color: hsl(220, 8%, 46%); margin-bottom: 2px; }
         .popup-type { font-size: 11px; color: hsl(220, 8%, 55%); }
         .popup-status { font-size: 11px; color: hsl(220, 8%, 46%); }
-        .popup-status .status-label { font-weight: 600; color: hsl(33, 50%, 42%); }
+        .popup-status .status-label { font-weight: 600; color: hsl(43, 96%, 42%); }
         
         /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }
-        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, hsl(33, 40%, 96%), hsl(33, 40%, 90%)); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: hsl(33, 50%, 53%); }
+        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, hsl(43, 40%, 96%), hsl(43, 40%, 90%)); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: hsl(43, 96%, 56%); }
         .lock-title { font-weight: 600; font-size: 14px; color: hsl(220, 20%, 10%); margin-bottom: 4px; }
         .lock-desc { font-size: 12px; color: hsl(220, 8%, 46%); margin-bottom: 14px; }
-        .lock-btn { display: inline-block; background: hsl(33, 50%, 53%); color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
-        .lock-btn:hover { background: hsl(28, 52%, 42%); }
+        .lock-btn { display: inline-block; background: hsl(43, 96%, 56%); color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+        .lock-btn:hover { background: hsl(38, 95%, 42%); }
         
         /* Smooth marker cluster animations - disabled on mobile for stability */
         @media (min-width: 1024px) {

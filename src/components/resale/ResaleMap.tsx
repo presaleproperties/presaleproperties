@@ -214,7 +214,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
           border: none !important;
         }
         .resale-price-pill {
-          background: hsl(33, 50%, 53%);
+          background: hsl(43, 96%, 56%);
           color: white;
           padding: 6px 12px;
           border-radius: 16px;
@@ -245,7 +245,7 @@ export function ResaleMap({ listings, onListingSelect }: ResaleMapProps) {
           justify-content: center;
           font-weight: 700;
           box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-          border: 2px solid hsl(33, 50%, 53%);
+          border: 2px solid hsl(43, 96%, 56%);
           cursor: pointer;
           transition: transform 0.15s ease;
         }

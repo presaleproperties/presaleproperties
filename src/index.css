@@ -612,21 +612,21 @@
   }
   
   .cluster-small {
-    background: linear-gradient(135deg, hsl(33 50% 53%), hsl(30 48% 48%));
+    background: linear-gradient(135deg, hsl(43 96% 56%), hsl(40 90% 50%));
     width: 36px;
     height: 36px;
     font-size: 12px;
   }
   
   .cluster-medium {
-    background: linear-gradient(135deg, hsl(33 50% 48%), hsl(28 52% 42%));
+    background: linear-gradient(135deg, hsl(43 96% 50%), hsl(38 95% 42%));
     width: 44px;
     height: 44px;
     font-size: 14px;
   }
   
   .cluster-large {
-    background: linear-gradient(135deg, hsl(30 48% 42%), hsl(25 50% 38%));
+    background: linear-gradient(135deg, hsl(40 90% 42%), hsl(36 88% 38%));
     width: 52px;
     height: 52px;
     font-size: 16px;
