@@ -1,16 +1,16 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { MapPin, ShieldCheck } from "lucide-react";
+import { MapPin, ShieldCheck, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
-const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
-const resaleCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford"];
+
 export type SearchTab = "projects" | "resale";
+
 interface HeroSectionProps {
   activeTab?: SearchTab;
   onTabChange?: (tab: SearchTab) => void;
 }
+
 export function HeroSection({
   activeTab: controlledTab,
   onTabChange
@@ -18,7 +18,7 @@ export function HeroSection({
   const [internalTab, setInternalTab] = useState<SearchTab>("projects");
   const activeTab = controlledTab ?? internalTab;
   const navigate = useNavigate();
-  
+
   const handleTabChange = (tab: SearchTab) => {
     if (onTabChange) {
       onTabChange(tab);
@@ -27,149 +27,127 @@ export function HeroSection({
     }
   };
 
-  const handleCityClick = (city: string) => {
-    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-    if (activeTab === "projects") {
-      navigate(`/${citySlug}-presale-condos`);
-    } else {
-      navigate(`/properties/${citySlug}`);
-    }
-  };
   return (
-    <section className="relative min-h-[600px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[800px] flex items-center justify-center overflow-hidden">
-      {/* Background Image - High Quality */}
-      <img 
-        src={heroImage} 
-        alt="Luxury presale homes" 
-        className="absolute inset-0 w-full h-full object-cover scale-105" 
-        loading="eager" 
-        decoding="sync" 
-        fetchPriority="high" 
+    <section className="relative min-h-[600px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[800px] flex items-end overflow-hidden">
+      {/* Background Image */}
+      <img
+        src={heroImage}
+        alt="Luxury presale homes"
+        className="absolute inset-0 w-full h-full object-cover"
+        loading="eager"
+        decoding="sync"
+        fetchPriority="high"
       />
-      
-      {/* Premium Multi-Layer Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80" />
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-black/30" />
-      
-      {/* Subtle warm ambient glow */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-primary/8 via-transparent to-primary/5" />
-      
-      {/* Content */}
-      <div className="container relative z-10 py-8 sm:py-16 md:py-24 px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-6 sm:space-y-8 md:space-y-10">
-          {/* Tagline - More refined */}
-          <p className="text-primary text-xs sm:text-sm md:text-base animate-fade-in font-semibold tracking-[0.25em] uppercase">
-            Vancouver's New Construction Marketplace
-          </p>
-          
-          {/* Main Heading - Premium typography */}
-          <h1 
-            className="text-[36px] sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-white animate-fade-in leading-[1.1] drop-shadow-2xl" 
+
+      {/* Gradient Overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
+
+      {/* Content — left-aligned, bottom-weighted */}
+      <div className="container relative z-10 pb-16 sm:pb-20 md:pb-24 lg:pb-28 pt-32 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl space-y-6 sm:space-y-8">
+          {/* Category Pills */}
+          <div className="flex items-center gap-2 sm:gap-3 animate-fade-in">
+            <button
+              onClick={() => handleTabChange("projects")}
+              className={`px-5 sm:px-6 py-2.5 rounded-sm text-xs sm:text-sm font-semibold tracking-widest uppercase transition-all duration-300 border ${
+                activeTab === "projects"
+                  ? "bg-white/15 backdrop-blur-sm text-white border-white/40"
+                  : "bg-transparent text-white/70 border-white/20 hover:border-white/40 hover:text-white"
+              }`}
+            >
+              Presale
+            </button>
+            <button
+              onClick={() => handleTabChange("resale")}
+              className={`px-5 sm:px-6 py-2.5 rounded-sm text-xs sm:text-sm font-semibold tracking-widest uppercase transition-all duration-300 border ${
+                activeTab === "resale"
+                  ? "bg-white/15 backdrop-blur-sm text-white border-white/40"
+                  : "bg-transparent text-white/70 border-white/20 hover:border-white/40 hover:text-white"
+              }`}
+            >
+              Move-In Ready
+            </button>
+          </div>
+
+          {/* Heading */}
+          <h1
+            className="font-serif text-[40px] sm:text-5xl md:text-6xl lg:text-7xl text-white leading-[1.1] animate-fade-in"
             style={{ animationDelay: "0.1s" }}
           >
             Find Your{" "}
-            <span className="text-primary drop-shadow-[0_0_40px_hsl(33_50%_53%/0.6)] relative italic">
-              New
-              <span className="absolute -inset-1 bg-primary/10 blur-2xl -z-10" />
-            </span>{" "}
+            <span className="text-primary italic">New</span>
+            <br />
             Home
           </h1>
-          
-          {/* Subheadline - Cleaner */}
-          <p 
-            className="text-white/85 text-lg sm:text-xl md:text-2xl font-light animate-fade-in max-w-2xl mx-auto leading-relaxed tracking-wide" 
+
+          {/* Subheadline */}
+          <p
+            className="text-white/75 text-base sm:text-lg md:text-xl max-w-xl leading-relaxed animate-fade-in"
             style={{ animationDelay: "0.15s" }}
           >
-            Search Presale & Move-In Ready Homes
+            Search presale & move-in ready homes across Metro Vancouver.
+            Expert guidance at no extra cost.
           </p>
 
-          {/* Premium Search Card */}
-          {/* IMPORTANT: No overflow-hidden here - it clips the PowerSearch dropdown */}
-          <div 
-            className="bg-white rounded-2xl sm:rounded-3xl shadow-[0_25px_80px_-15px_rgba(0,0,0,0.4)] max-w-2xl mx-auto animate-fade-in border border-border/10" 
+          {/* CTA Buttons */}
+          <div
+            className="flex flex-col sm:flex-row items-start gap-3 sm:gap-4 animate-fade-in"
             style={{ animationDelay: "0.2s" }}
           >
-            {/* Search Header with Tabs */}
-            <div className="flex items-center justify-between border-b border-border/20 px-4 sm:px-5 py-2 sm:py-2.5 bg-muted/30">
-              <div className="flex items-center gap-1.5 sm:gap-2">
-                <button 
-                  onClick={() => handleTabChange("projects")} 
-                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                    activeTab === "projects" 
-                      ? "bg-foreground text-background shadow-lg" 
-                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  Presale
-                </button>
-                <button 
-                  onClick={() => handleTabChange("resale")} 
-                  className={`px-4 sm:px-5 py-2 sm:py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all duration-300 ${
-                    activeTab === "resale" 
-                      ? "bg-foreground text-background shadow-lg" 
-                      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                >
-                  Move-In Ready
-                </button>
-              </div>
-              <Link 
-                to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"} 
-                className="flex items-center gap-2 text-sm text-foreground/80 hover:text-primary transition-colors font-medium group"
-              >
-                <MapPin className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                <span className="hidden sm:inline">Open Map</span>
-              </Link>
-            </div>
-
-            {/* PowerSearch - Unified Search */}
-            <div className="px-4 sm:px-5 py-3 sm:py-3.5">
-              <PowerSearch 
-                placeholder={activeTab === "projects" ? "Search projects, address, neighbourhood..." : "Address, MLS#, city, neighbourhood..."}
-                mode={activeTab === "projects" ? "presale" : "resale"}
-                variant="hero"
-                inputClassName="h-11 sm:h-12 md:h-14 text-base sm:text-lg border-2 border-border bg-muted/20 text-foreground placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:border-primary rounded-xl"
-              />
-            </div>
-          </div>
-
-          {/* Trust line + Explore Map CTA */}
-          <div 
-            className="animate-fade-in pt-2 space-y-4" 
-            style={{ animationDelay: "0.25s" }}
-          >
-            <p className="text-white/70 text-sm font-medium flex items-center justify-center gap-2">
-              <ShieldCheck className="h-4 w-4 text-primary" />
-              Expert guidance at no extra cost
-            </p>
-             <Link
-              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full border border-white/40 text-white font-medium text-sm sm:text-base hover:bg-white hover:text-foreground hover:border-white transition-all duration-300 shadow-lg"
+            <Button
+              size="lg"
+              className="gap-2 text-sm sm:text-base px-6 sm:px-8 py-3 h-auto"
+              onClick={() =>
+                navigate(
+                  activeTab === "projects"
+                    ? "/presale-projects"
+                    : "/properties"
+                )
+              }
             >
-              <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
-              Explore Interactive Map
+              Browse {activeTab === "projects" ? "Projects" : "Listings"}
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+            <Link
+              to={
+                activeTab === "projects"
+                  ? "/map-search?mode=presale"
+                  : "/map-search?mode=resale"
+              }
+              className="inline-flex items-center gap-2.5 px-6 sm:px-8 py-3 border border-white/40 text-white text-sm sm:text-base font-medium hover:bg-white hover:text-foreground transition-all duration-300"
+            >
+              <MapPin className="h-4 w-4" />
+              Explore Map
             </Link>
           </div>
+        </div>
+      </div>
 
-          {/* Top Cities - Premium pills */}
-          <div className="animate-fade-in pt-4" style={{ animationDelay: "0.3s" }}>
-            <span className="text-xs sm:text-sm text-white/50 font-medium tracking-[0.2em] uppercase block mb-4">
-              Popular Cities
+      {/* Bottom trust bar */}
+      <div className="absolute bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t border-border/30 z-20">
+        <div className="container px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div className="flex items-center gap-6 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2">
+              <ShieldCheck className="h-4 w-4 text-primary" />
+              Expert guidance at no extra cost
             </span>
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 px-2">
-              {(activeTab === "projects" ? projectCities : resaleCities).map(city => (
-                <Button 
-                  key={city} 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => handleCityClick(city)} 
-                  className="rounded-full bg-white/10 backdrop-blur-md text-white border-white/20 hover:bg-white hover:text-foreground hover:border-white hover:shadow-xl hover:scale-105 active:scale-100 transition-all duration-300 text-xs sm:text-sm px-4 sm:px-5 h-9 sm:h-10 font-medium whitespace-nowrap"
-                >
-                  {city}
-                </Button>
-              ))}
-            </div>
+            <span className="hidden md:inline text-border">|</span>
+            <span className="hidden md:inline">
+              Vancouver's New Construction Marketplace
+            </span>
           </div>
+          <Link
+            to={
+              activeTab === "projects"
+                ? "/presale-projects"
+                : "/properties"
+            }
+            className="inline-flex items-center gap-2 px-6 py-2.5 bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
+          >
+            View Exclusive Properties
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </div>
     </section>
