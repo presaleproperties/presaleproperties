@@ -48,17 +48,18 @@ export function MobileMapNavDrawer({ open, onOpenChange }: MobileMapNavDrawerPro
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent 
         side="left" 
-        className="w-[280px] sm:w-[320px] p-0 border-r border-border/30 bg-background/98 backdrop-blur-2xl"
+        className="w-[280px] sm:w-[320px] p-0 border-r border-border/20"
+        style={{ backgroundColor: 'hsl(30, 20%, 99%)', color: 'hsl(30, 10%, 15%)' }}
       >
         {/* Header */}
         <div 
-          className="px-5 pb-4 border-b border-border/30"
+          className="px-5 pb-4 border-b border-border/20"
           style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 16px)' }}
         >
-          <SheetTitle className="text-lg font-bold text-foreground">
+          <SheetTitle className="text-lg font-bold" style={{ color: 'hsl(30, 10%, 15%)' }}>
             PresaleProperties
           </SheetTitle>
-          <p className="text-xs text-muted-foreground mt-0.5">Metro Vancouver Real Estate</p>
+          <p className="text-xs mt-0.5" style={{ color: 'hsl(30, 8%, 45%)' }}>Metro Vancouver Real Estate</p>
         </div>
 
         {/* Navigation Links */}
@@ -76,15 +77,16 @@ export function MobileMapNavDrawer({ open, onOpenChange }: MobileMapNavDrawerPro
                   className={cn(
                     "w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all duration-200",
                     isActive
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "text-foreground hover:bg-muted/60 active:bg-muted"
+                      ? "font-semibold"
+                      : "hover:bg-muted/60 active:bg-muted"
                   )}
+                  style={isActive 
+                    ? { backgroundColor: 'hsl(33, 50%, 53%, 0.12)', color: 'hsl(33, 50%, 43%)' }
+                    : { color: 'hsl(30, 10%, 20%)' }
+                  }
                 >
-                  <Icon className={cn(
-                    "h-5 w-5 shrink-0",
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  )} />
-                  <span className="text-sm">{item.label}</span>
+                  <Icon className="h-5 w-5 shrink-0" style={{ color: isActive ? 'hsl(33, 50%, 43%)' : 'hsl(30, 8%, 50%)' }} />
+                  <span className="text-sm font-medium">{item.label}</span>
                 </button>
               );
             })}
@@ -93,10 +95,10 @@ export function MobileMapNavDrawer({ open, onOpenChange }: MobileMapNavDrawerPro
 
         {/* Footer */}
         <div 
-          className="px-5 py-4 border-t border-border/30 mt-auto"
+          className="px-5 py-4 border-t border-border/20 mt-auto"
           style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}
         >
-          <p className="text-[10px] text-muted-foreground text-center">
+          <p className="text-[10px] text-center" style={{ color: 'hsl(30, 8%, 55%)' }}>
             © {new Date().getFullYear()} PresaleProperties.com
           </p>
         </div>
