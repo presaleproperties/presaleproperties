@@ -115,8 +115,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             Vancouver Presales{" "}
             <span className="text-primary">Made Simple</span>
           </h1>
-          <p className="text-sm sm:text-base text-white/80 font-medium text-center mb-8 max-w-sm leading-relaxed">
-            Real-time project updates, downloadable info packages, and expert guidance for new construction across Metro Vancouver.
+          <p className="text-sm text-white/80 font-medium text-center mb-8 max-w-xs leading-relaxed">
+            Project updates, info packages & expert guidance — all free.
           </p>
           
           {/* Search Container */}
