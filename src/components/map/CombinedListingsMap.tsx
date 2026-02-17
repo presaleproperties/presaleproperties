@@ -458,7 +458,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     const initialCenter: L.LatLngExpression = savedMapState 
       ? [savedMapState.center.lat, savedMapState.center.lng]
       : DEFAULT_CENTER;
-    const initialZoom = savedMapState ? savedMapState.zoom : DEFAULT_ZOOM;
+    const initialZoom = savedMapState 
+      ? (isMobileOrTabletDevice && savedMapState.zoom < 9 ? 10 : savedMapState.zoom) 
+      : DEFAULT_ZOOM;
     
     // When restoring from saved state OR on mobile, minimize animations for stability
     const isRestoringState = !!savedMapState;
