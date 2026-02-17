@@ -39,7 +39,7 @@ export function ClickableMapPreview({ lat, lng, onLocationChange }: ClickableMap
       html: `<div style="
         width: 24px;
         height: 24px;
-        background: hsl(43, 96%, 56%);
+        background: hsl(40, 65%, 55%);
         border: 3px solid white;
         border-radius: 50%;
         box-shadow: 0 2px 8px rgba(0,0,0,0.3);

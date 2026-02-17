@@ -38,7 +38,7 @@ export function ResaleHeroSection() {
           
           {/* Main Heading - SEO optimized H1 */}
           <h1 className="text-[32px] sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tightest text-white animate-fade-in leading-[1.05] drop-shadow-lg" style={{ animationDelay: "0.1s" }}>
-            Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(43_96%_56%/0.5)]">New</span> Home
+            Find Your <span className="text-primary drop-shadow-[0_0_25px_hsl(40_65%_55%/0.5)]">New</span> Home
           </h1>
           
           {/* Subheadline */}

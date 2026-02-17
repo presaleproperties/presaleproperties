@@ -94,7 +94,7 @@ const createPricePillIcon = () => {
       ">
         <svg width="32" height="40" viewBox="0 0 32 40" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M16 0C7.163 0 0 7.163 0 16c0 10 16 24 16 24s16-14 16-24c0-8.837-7.163-16-16-16z" fill="hsl(30, 15%, 18%)"/>
-          <circle cx="16" cy="14" r="9" fill="hsl(43, 96%, 56%)"/>
+          <circle cx="16" cy="14" r="9" fill="hsl(40, 65%, 55%)"/>
         </svg>
         <div style="
           position: absolute;
@@ -136,7 +136,7 @@ const createClusterIcon = (cluster: L.MarkerCluster) => {
         font-size: ${count >= 100 ? '14' : count >= 10 ? '13' : '12'}px;
         font-weight: 700;
         box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        border: 2px solid hsl(43, 96%, 56%);
+        border: 2px solid hsl(40, 65%, 55%);
         font-family: system-ui, -apple-system, sans-serif;
         cursor: pointer;
         transition: transform 0.15s ease;
@@ -283,7 +283,7 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
       zoomToBoundsOnClick: true, // Single click zooms smoothly
       animate: true, // Smooth cluster animations
       animateAddingMarkers: false,
-      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(43, 96%, 60%)', opacity: 0.5 },
+      spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(40, 65%, 60%)', opacity: 0.5 },
     });
     map.addLayer(clusterGroupRef.current);
 
@@ -307,8 +307,8 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
             if (userCircleRef.current) userCircleRef.current.remove();
             userCircleRef.current = L.circle([latitude, longitude], {
               radius: 500,
-              color: "hsl(43 96% 56%)",
-              fillColor: "hsl(43 96% 56%)",
+              color: "hsl(40 65% 55%)",
+              fillColor: "hsl(40 65% 55%)",
               fillOpacity: 0.15,
               weight: 2,
             }).addTo(map);
@@ -415,8 +415,8 @@ export function ProjectsMap({ projects, isLoading, onProjectSelect, onVisiblePro
 
         userCircleRef.current = L.circle([latitude, longitude], {
           radius: 500,
-          color: "hsl(43 96% 56%)",
-          fillColor: "hsl(43 96% 56%)",
+          color: "hsl(40 65% 55%)",
+          fillColor: "hsl(40 65% 55%)",
           fillOpacity: 0.15,
           weight: 2,
         }).addTo(map);

@@ -81,11 +81,11 @@ export function MobileMapNavDrawer({ open, onOpenChange }: MobileMapNavDrawerPro
                       : "hover:bg-muted/60 active:bg-muted"
                   )}
                   style={isActive 
-                    ? { backgroundColor: 'hsl(43, 96%, 56%, 0.12)', color: 'hsl(43, 96%, 40%)' }
+                    ? { backgroundColor: 'hsl(40, 65%, 55%, 0.12)', color: 'hsl(40, 65%, 40%)' }
                     : { color: 'hsl(30, 10%, 20%)' }
                   }
                 >
-                  <Icon className="h-5 w-5 shrink-0" style={{ color: isActive ? 'hsl(43, 96%, 40%)' : 'hsl(30, 8%, 50%)' }} />
+                  <Icon className="h-5 w-5 shrink-0" style={{ color: isActive ? 'hsl(40, 65%, 40%)' : 'hsl(30, 8%, 50%)' }} />
                   <span className="text-sm font-medium">{item.label}</span>
                 </button>
               );
