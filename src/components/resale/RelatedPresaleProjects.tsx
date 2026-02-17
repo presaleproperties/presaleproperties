@@ -123,7 +123,7 @@ export const RelatedPresaleProjects = ({
           <Skeleton className="h-8 w-64 mb-6" />
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 sm:-mx-6 sm:px-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex-shrink-0 w-[280px] sm:w-[300px]">
+              <div key={i} className="flex-shrink-0 w-[336px] sm:w-[360px]">
                 <Skeleton className="aspect-[4/3] rounded-xl mb-3" />
                 <Skeleton className="h-5 w-3/4 mb-2" />
                 <Skeleton className="h-4 w-1/2" />
@@ -172,7 +172,7 @@ export const RelatedPresaleProjects = ({
             <Link
               key={project.id}
               to={projectUrl}
-              className="flex-shrink-0 w-[calc(100vw-72px)] sm:w-[280px] lg:w-[300px] scroll-snap-start group"
+              className="flex-shrink-0 w-[calc(100vw-40px)] sm:w-[336px] lg:w-[360px] scroll-snap-start group"
             >
               <div className="bg-card border border-border rounded-xl overflow-hidden transition-all hover:shadow-lg hover:border-primary/30 h-full">
                 {/* Image */}

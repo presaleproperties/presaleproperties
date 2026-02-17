@@ -71,7 +71,7 @@ export function MobileResaleCityCarousel({ city, title }: MobileResaleCityCarous
         </div>
         <div className="flex gap-3 overflow-hidden">
           {[...Array(2)].map((_, i) => (
-            <div key={i} className="flex-shrink-0 w-[calc(100vw-72px)]">
+            <div key={i} className="flex-shrink-0 w-[calc(100vw-40px)]">
               <Skeleton className="aspect-[16/11] rounded-lg mb-2" />
               <Skeleton className="h-4 w-3/4 mb-1" />
               <Skeleton className="h-3 w-1/2" />
@@ -109,7 +109,7 @@ export function MobileResaleCityCarousel({ city, title }: MobileResaleCityCarous
         {listings.map((listing) => (
           <div
             key={listing.id}
-            className="shrink-0 w-[calc(100vw-80px)] scroll-snap-start"
+            className="shrink-0 w-[calc(100vw-48px)] scroll-snap-start"
           >
             <ResaleListingCard
               id={listing.id}

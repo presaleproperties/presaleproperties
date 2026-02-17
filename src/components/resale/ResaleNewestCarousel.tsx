@@ -195,7 +195,7 @@ export function ResaleNewestCarousel() {
         {listings.map((listing) => (
           <div
             key={listing.id}
-            className="shrink-0 w-[calc(100vw-80px)] sm:w-[260px] md:w-[280px] lg:w-[300px] scroll-snap-start"
+            className="shrink-0 w-[calc(100vw-48px)] sm:w-[312px] md:w-[336px] lg:w-[360px] scroll-snap-start"
           >
             <ResaleListingCard
               id={listing.id}

@@ -79,7 +79,7 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
         </div>
         <div className="flex gap-3 overflow-hidden">
           {[1, 2].map((i) => (
-            <div key={i} className="w-[calc(100vw-72px)] flex-shrink-0">
+            <div key={i} className="w-[calc(100vw-40px)] flex-shrink-0">
               <Skeleton className="aspect-[4/3] rounded-xl" />
               <Skeleton className="h-5 w-3/4 mt-3" />
               <Skeleton className="h-4 w-1/2 mt-2" />
@@ -118,7 +118,7 @@ export function MobileResaleCarousel({ title, subtitle, city }: MobileResaleCaro
         className="flex gap-2.5 overflow-x-auto scrollbar-hide px-4 sm:px-6 pb-2 scroll-snap-x scroll-snap-mandatory"
       >
         {listings.map((listing) => (
-          <div key={listing.id} className="shrink-0 w-[calc(100vw-80px)] scroll-snap-start">
+          <div key={listing.id} className="shrink-0 w-[calc(100vw-48px)] scroll-snap-start">
             <ResaleListingCard
               id={listing.id}
               listingKey={listing.listing_key}

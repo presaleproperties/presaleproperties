@@ -150,7 +150,7 @@ export function MobileProjectCard({
       onClick={handleCardTap}
       className={cn(
         "block shrink-0",
-        isLarge ? "w-[calc(100vw-72px)] max-w-[360px]" : "w-[260px] md:w-[300px]"
+        isLarge ? "w-[calc(100vw-40px)] max-w-[432px]" : "w-[312px] md:w-[360px]"
       )}
     >
       <div className="group overflow-hidden rounded-xl bg-card border border-border/60 shadow-sm hover:shadow-md active:scale-[0.98] transition-all duration-200 h-full">
