@@ -2335,13 +2335,13 @@ export default function MapSearch() {
                           </div>
                           {/* Specs for resale */}
                           {!isPresale && !isAssignment && (
-                            <div className="text-muted-foreground text-xs mt-0.5">
+                            <div className="text-muted-foreground text-[10px] lg:text-xs mt-0.5">
                               {(data as MLSListing).bedrooms_total || '-'} bd • {(data as MLSListing).bathrooms_total || '-'} ba{(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()} sf` : ''}
                             </div>
                           )}
                           {/* Specs for assignments */}
                           {isAssignment && (
-                            <div className={cn("text-muted-foreground text-xs mt-0.5", !isVerifiedAgent && "blur-sm")}>
+                            <div className={cn("text-muted-foreground text-[10px] lg:text-xs mt-0.5", !isVerifiedAgent && "blur-sm")}>
                               {(data as Assignment).beds} bd • {(data as Assignment).baths} ba{(data as Assignment).interior_sqft ? ` • ${(data as Assignment).interior_sqft?.toLocaleString()} sf` : ''}
                             </div>
                           )}
