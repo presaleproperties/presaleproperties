@@ -120,9 +120,8 @@ function popupHtml(listing: MLSListing): string {
   const photo = getPhoto(listing);
   const photoHtml = photo 
     ? `<img src="${photo}" alt="${getAddress(listing)}" style="width:100%;height:160px;object-fit:cover;border-radius:12px 12px 0 0;" loading="eager" fetchpriority="high" />`
-    : `<div style="width:100%;height:160px;background:linear-gradient(135deg, #f1f5f9, #e2e8f0);display:flex;align-items:center;justify-content:center;border-radius:12px 12px 0 0;"><span style="color:#94a3b8;font-weight:500;">No Image</span></div>`;
+    : `<div style="width:100%;height:160px;background:linear-gradient(135deg, hsl(30,10%,96%), hsl(30,10%,92%));display:flex;align-items:center;justify-content:center;border-radius:12px 12px 0 0;"><span style="color:hsl(30,10%,70%);font-weight:500;">No Image</span></div>`;
   
-  // Build attribution string
   const attribution = listing.list_agent_name && listing.list_office_name
     ? `${listing.list_agent_name} • ${listing.list_office_name}`
     : listing.list_agent_name || listing.list_office_name || null;
@@ -130,19 +129,19 @@ function popupHtml(listing: MLSListing): string {
   const listingUrl = getListingUrl(listing.listing_key, getAddress(listing), listing.city);
   
   return `
-    <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px rgba(0,0,0,0.2);">
+    <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px hsla(33,30%,20%,0.2);background:hsl(30,20%,99%);border:1px solid hsl(30,10%,88%);">
       ${photoHtml}
       <div style="padding:14px 16px;">
-        <div style="font-weight:800;font-size:20px;color:#1e293b;letter-spacing:-0.02em;">${formatPrice(listing.listing_price)}</div>
-        <div style="font-size:14px;color:#475569;margin-top:4px;font-weight:500;">${getAddress(listing)}</div>
-        <div style="font-size:13px;color:#64748b;margin-top:2px;">${listing.city}</div>
-        <div style="display:flex;gap:12px;margin-top:10px;font-size:13px;color:#475569;font-weight:500;">
+        <div style="font-weight:800;font-size:20px;color:hsl(33,50%,53%);letter-spacing:-0.02em;">${formatPrice(listing.listing_price)}</div>
+        <div style="font-size:14px;color:hsl(220,20%,15%);margin-top:4px;font-weight:500;">${getAddress(listing)}</div>
+        <div style="font-size:13px;color:hsl(220,8%,46%);margin-top:2px;">${listing.city}</div>
+        <div style="display:flex;gap:12px;margin-top:10px;font-size:13px;color:hsl(220,8%,46%);font-weight:500;">
           ${listing.bedrooms_total ? `<span>${listing.bedrooms_total} bed</span>` : ""}
           ${listing.bathrooms_total ? `<span>${listing.bathrooms_total} bath</span>` : ""}
           ${listing.living_area ? `<span>${listing.living_area.toLocaleString()} sqft</span>` : ""}
         </div>
-        ${attribution ? `<div style="font-size:11px;color:#94a3b8;margin-top:10px;border-top:1px solid #e2e8f0;padding-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
-        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(33,50%,53%),hsl(33,50%,45%));color:white;text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.1);transition:transform 0.15s;">View Details</a>
+        ${attribution ? `<div style="font-size:11px;color:hsl(220,8%,60%);margin-top:10px;border-top:1px solid hsl(30,10%,90%);padding-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
+        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(33,50%,53%),hsl(28,52%,42%));color:white;text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px hsla(33,50%,30%,0.2);transition:transform 0.15s;">View Details</a>
       </div>
     </div>
   `;
