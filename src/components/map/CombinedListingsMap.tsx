@@ -870,7 +870,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         /* Base marker reset */
         .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
         
-        /* Resale price pills - clean and subtle */
+        /* Resale price pills - warm bronze branding */
         .pp { 
           background: hsl(33, 50%, 53%); 
           color: white; 
@@ -879,66 +879,67 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           font-size: 12px; 
           font-weight: 700; 
           white-space: nowrap; 
-          box-shadow: 0 2px 6px rgba(0,0,0,0.12); 
+          box-shadow: 0 2px 6px hsla(33, 50%, 30%, 0.25); 
           display: flex; 
           align-items: center; 
           justify-content: center; 
-          /* Reduced transition for smoother mobile experience */
           transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
           min-height: 28px;
           cursor: pointer;
         }
         .pp:hover, .pp.hl { 
           transform: scale(1.08); 
-          box-shadow: 0 4px 12px rgba(0,0,0,0.18); 
+          box-shadow: 0 4px 12px hsla(33, 50%, 30%, 0.35); 
+          background: hsl(28, 52%, 42%);
         }
         
-        /* Presale pins - subtle, professional */
+        /* Presale pins - warm bronze branded */
         .pin { 
           width: 32px; 
           height: 38px; 
-          background: hsl(30, 15%, 18%); 
+          background: hsl(28, 52%, 42%); 
           border-radius: 50% 50% 50% 0; 
           transform: rotate(-45deg); 
-          border: 2px solid hsl(33, 50%, 53%); 
-          box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+          border: 2.5px solid hsl(33, 50%, 65%); 
+          box-shadow: 0 2px 6px hsla(33, 50%, 30%, 0.2);
           cursor: pointer;
         }
         .pin:hover, .pin.hl { 
-          box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
+          box-shadow: 0 3px 10px hsla(33, 50%, 30%, 0.3);
+          background: hsl(33, 50%, 53%);
         }
         
         /* Assignment markers - container must be transparent */
         .assignment-marker { background: transparent !important; border: none !important; }
         
-        /* Assignment dots - minimalistic amber */
+        /* Assignment dots - warm bronze tone */
         .ap-dot { 
           width: 12px;
           height: 12px;
-          background: #f59e0b; 
+          background: hsl(33, 50%, 53%); 
           border: 2px solid white;
           border-radius: 50%; 
-          box-shadow: 0 1px 4px rgba(0,0,0,0.2); 
+          box-shadow: 0 1px 4px hsla(33, 50%, 30%, 0.2); 
           transition: transform 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
         }
         .ap-dot:hover, .ap-dot.hl { 
           transform: scale(1.3); 
-          box-shadow: 0 2px 8px rgba(245, 158, 11, 0.4); 
+          box-shadow: 0 2px 8px hsla(33, 50%, 53%, 0.4); 
         }
         
-        /* Cluster icons - clean Google Maps style */
+        /* Cluster icons - branded bronze */
         .mc { background: transparent !important; border: none !important; }
         .cl { 
-          background: hsl(30, 15%, 18%); 
+          background: hsl(28, 52%, 42%); 
           color: white; 
           border-radius: 50%; 
           display: flex; 
           align-items: center; 
           justify-content: center; 
           font-weight: 700; 
-          box-shadow: 0 2px 8px rgba(0,0,0,0.15); 
-          border: 2px solid hsl(33, 50%, 53%);
+          box-shadow: 0 2px 8px hsla(33, 50%, 30%, 0.2); 
+          border: 2.5px solid hsl(33, 50%, 65%);
           transition: transform 0.15s ease;
           cursor: pointer;
         }
@@ -947,77 +948,77 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .cl.md { width: 46px; height: 46px; font-size: 14px; }
         .cl.lg { width: 52px; height: 52px; font-size: 15px; }
         
-        /* Popup styling - clean cards */
+        /* Popup styling - branded warm cards */
         .premium-popup .leaflet-popup-content-wrapper { 
           padding: 0; 
           border-radius: 12px; 
           overflow: hidden; 
-          box-shadow: 0 8px 24px rgba(0,0,0,0.12); 
-          background: white; 
-          border: 1px solid hsl(220, 13%, 91%);
+          box-shadow: 0 8px 24px hsla(33, 30%, 20%, 0.12); 
+          background: hsl(30, 20%, 99%); 
+          border: 1px solid hsl(30, 10%, 88%);
         }
         .premium-popup .leaflet-popup-content { margin: 0; width: auto !important; }
-        .premium-popup .leaflet-popup-tip { background: white; border: 1px solid hsl(220, 13%, 91%); border-top: none; border-left: none; }
+        .premium-popup .leaflet-popup-tip { background: hsl(30, 20%, 99%); border: 1px solid hsl(30, 10%, 88%); border-top: none; border-left: none; }
         .premium-popup .leaflet-popup-close-button { 
           top: 8px !important; 
           right: 8px !important; 
           width: 24px !important; 
           height: 24px !important; 
-          background: rgba(255,255,255,0.95) !important; 
+          background: hsla(30, 20%, 99%, 0.95) !important; 
           backdrop-filter: blur(4px); 
           border-radius: 50% !important; 
-          box-shadow: 0 1px 4px rgba(0,0,0,0.1); 
+          box-shadow: 0 1px 4px hsla(33, 30%, 20%, 0.1); 
           display: flex !important; 
           align-items: center !important; 
           justify-content: center !important; 
           font-size: 14px !important; 
-          color: #64748b !important; 
+          color: hsl(220, 8%, 46%) !important; 
           font-weight: 400 !important; 
           z-index: 10; 
           line-height: 1;
         }
         .premium-popup .leaflet-popup-close-button:hover { 
-          color: #1e293b !important; 
+          color: hsl(220, 20%, 10%) !important; 
           background: white !important; 
         }
         
         /* Popup card layout */
-        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: inherit; border-radius: 12px; overflow: hidden; background: white; }
+        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: inherit; border-radius: 12px; overflow: hidden; background: hsl(30, 20%, 99%); }
         .popup-card.resale { border: none; }
         .popup-card.presale { border: none; }
-        .popup-card.assignment { border-left: 3px solid #f59e0b; }
+        .popup-card.assignment { border-left: 3px solid hsl(33, 50%, 53%); }
         .popup-card.locked { display: block; width: 240px; }
         
         /* Image section */
-        .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: #f8fafc; }
+        .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: hsl(30, 10%, 96%); }
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: #94a3b8; background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); }
+        .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: hsl(30, 10%, 70%); background: linear-gradient(135deg, hsl(30, 10%, 96%) 0%, hsl(30, 10%, 93%) 100%); }
         .popup-placeholder.presale { background: linear-gradient(135deg, hsl(33, 50%, 97%) 0%, hsl(33, 50%, 92%) 100%); color: hsl(33, 50%, 45%); }
-        .popup-placeholder.assignment { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); color: #f59e0b; }
+        .popup-placeholder.assignment { background: linear-gradient(135deg, hsl(33, 40%, 96%) 0%, hsl(33, 40%, 90%) 100%); color: hsl(33, 50%, 53%); }
         
-        /* Badges */
+        /* Badges - branded */
         .popup-badge { position: absolute; top: 6px; left: 6px; font-size: 9px; font-weight: 600; padding: 3px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.3px; }
-        .popup-badge.resale { background: #059669; color: white; }
+        .popup-badge.resale { background: hsl(28, 52%, 42%); color: white; }
         .popup-badge.presale { background: hsl(33, 50%, 53%); color: white; }
-        .popup-badge.assignment { background: #f59e0b; color: white; }
+        .popup-badge.assignment { background: hsl(33, 45%, 48%); color: white; }
         
         /* Content */
         .popup-content { flex: 1; padding: 12px; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
-        .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(220, 25%, 10%); }
-        .popup-price.assignment { color: #d97706; }
-        .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 25%, 15%); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .popup-specs { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 2px; }
-        .popup-type { font-size: 11px; color: hsl(220, 10%, 55%); }
-        .popup-status { font-size: 11px; color: hsl(220, 10%, 45%); }
+        .popup-price { font-weight: 700; font-size: 17px; margin-bottom: 4px; letter-spacing: -0.3px; color: hsl(33, 50%, 53%); }
+        .popup-price.assignment { color: hsl(33, 50%, 45%); }
+        .popup-address { font-weight: 600; font-size: 13px; color: hsl(220, 20%, 15%); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .popup-specs { font-size: 12px; color: hsl(220, 8%, 46%); margin-bottom: 2px; }
+        .popup-type { font-size: 11px; color: hsl(220, 8%, 55%); }
+        .popup-status { font-size: 11px; color: hsl(220, 8%, 46%); }
         .popup-status .status-label { font-weight: 600; color: hsl(33, 50%, 42%); }
         
         /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }
-        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #fffbeb, #fef3c7); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #f59e0b; }
-        .lock-title { font-weight: 600; font-size: 14px; color: hsl(220, 25%, 10%); margin-bottom: 4px; }
-        .lock-desc { font-size: 12px; color: hsl(220, 10%, 45%); margin-bottom: 14px; }
-        .lock-btn { display: inline-block; background: #f59e0b; color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
-        .lock-btn:hover { background: #d97706; }
+        .lock-icon { width: 40px; height: 40px; background: linear-gradient(135deg, hsl(33, 40%, 96%), hsl(33, 40%, 90%)); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: hsl(33, 50%, 53%); }
+        .lock-title { font-weight: 600; font-size: 14px; color: hsl(220, 20%, 10%); margin-bottom: 4px; }
+        .lock-desc { font-size: 12px; color: hsl(220, 8%, 46%); margin-bottom: 14px; }
+        .lock-btn { display: inline-block; background: hsl(33, 50%, 53%); color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+        .lock-btn:hover { background: hsl(28, 52%, 42%); }
         
         /* Smooth marker cluster animations - disabled on mobile for stability */
         @media (min-width: 1024px) {
