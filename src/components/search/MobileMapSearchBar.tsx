@@ -300,6 +300,10 @@ export function MobileMapSearchBar({
         "flex items-center gap-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl rounded-[14px] shadow-lg shadow-black/8 border border-white/50 dark:border-white/10 px-3 py-1.5 transition-all",
         isFocused && "ring-2 ring-primary/20 border-primary/30"
       )}>
+        {/* Menu/Home Button - Far Left */}
+        {homeButton}
+        {/* Divider */}
+        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
         <Search className="h-4 w-4 text-muted-foreground/60 shrink-0" />
         <Input
           ref={inputRef}
@@ -321,16 +325,12 @@ export function MobileMapSearchBar({
         )}
         {/* Divider */}
         <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
-        {/* Filter Button */}
-        {filterButton}
-        {/* Divider */}
-        <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
         {/* List View Button */}
         {listButton}
         {/* Divider */}
         <div className="w-px h-5 bg-black/8 dark:bg-white/10" />
-        {/* Home Button - Far Right */}
-        {homeButton}
+        {/* Filter Button - Far Right */}
+        {filterButton}
       </div>
 
       {/* Suggestions Dropdown */}
