@@ -186,8 +186,8 @@ export function AssignmentsMap({
             if (userCircleRef.current) userCircleRef.current.remove();
             userCircleRef.current = L.circle([latitude, longitude], {
               radius: 500,
-              color: "hsl(33 50% 53%)",
-              fillColor: "hsl(33 50% 53%)",
+              color: "hsl(43 96% 56%)",
+              fillColor: "hsl(43 96% 56%)",
               fillOpacity: 0.15,
               weight: 2,
             }).addTo(map);
@@ -268,8 +268,8 @@ export function AssignmentsMap({
 
         userCircleRef.current = L.circle([latitude, longitude], {
           radius: 500,
-          color: "hsl(33 50% 53%)",
-          fillColor: "hsl(33 50% 53%)",
+          color: "hsl(43 96% 56%)",
+          fillColor: "hsl(43 96% 56%)",
           fillOpacity: 0.15,
           weight: 2,
         }).addTo(map);
