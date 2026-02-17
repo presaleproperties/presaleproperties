@@ -111,9 +111,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
           {/* Main Headline - Simple & Bold */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">Vancouver Presales  
-Metro Vancouver<br />
-            <span className="text-primary">Made Simple</span>
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">Metro Vancouver Presales 
+Made Simple<br />
+            <span className="text-primary">Metro Vancouver</span>
           </h1>
           
           {/* Search Container */}
