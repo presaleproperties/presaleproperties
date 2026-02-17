@@ -64,12 +64,11 @@ export function HeroSection({
           <h1
             className="text-[40px] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.08] drop-shadow-2xl"
           >
-            Find Your{" "}
+            Vancouver Presales{" "}
             <span className="text-primary drop-shadow-[0_0_40px_hsl(40_65%_55%/0.6)] relative">
-              New
+              Made Simple
               <span className="absolute -inset-1 bg-primary/10 blur-2xl -z-10" />
-            </span>{" "}
-            Home.
+            </span>
           </h1>
 
           {/* Tabs — pill-style, inline */}
