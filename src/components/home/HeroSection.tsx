@@ -72,7 +72,7 @@ export function HeroSection({
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-white/80 font-medium max-w-2xl leading-relaxed">
-            Your guide to new construction homes in Metro Vancouver.
+            Project updates, info packages & expert advice — all in one place.
           </p>
 
           {/* Tabs — pill-style, inline */}
