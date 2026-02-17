@@ -464,8 +464,11 @@ export default function MapSearch() {
   }, []);
 
   // Track if we're in initial load state to prevent auto-selection
-  const isInitialLoadRef = useRef(true);
+  // IMPORTANT: Skip this guard when restoring from back-navigation (savedMapState exists)
+  // so the grid populates immediately instead of being blank for 1 second
+  const isInitialLoadRef = useRef(!savedMapState);
   useEffect(() => {
+    if (!isInitialLoadRef.current) return; // Already cleared for back-nav
     // Clear initial load flag after a short delay to allow map to stabilize
     const timer = setTimeout(() => {
       isInitialLoadRef.current = false;
@@ -957,6 +960,45 @@ export default function MapSearch() {
                      (presaleProjects && presaleProjects.length > 0) || 
                      (assignments && assignments.length > 0);
   const isLoading = !hasAnyData && (resaleLoading || presaleLoading || assignmentsLoading);
+
+  // Pre-populate visible IDs on back navigation so the grid isn't blank
+  // This uses the saved map bounds + cached data to instantly show cards
+  const hasPrePopulatedRef = useRef(false);
+  useEffect(() => {
+    if (hasPrePopulatedRef.current) return;
+    if (!savedMapState || !hasAnyData) return;
+    
+    hasPrePopulatedRef.current = true;
+    
+    // Approximate the saved viewport bounds (rough estimate based on zoom)
+    const { center, zoom } = savedMapState;
+    const latSpan = 360 / Math.pow(2, zoom); // rough degrees visible
+    const lngSpan = latSpan * 1.5;
+    const bounds = {
+      north: center.lat + latSpan / 2,
+      south: center.lat - latSpan / 2,
+      east: center.lng + lngSpan / 2,
+      west: center.lng - lngSpan / 2,
+    };
+    
+    const inBounds = (lat: number | null, lng: number | null) => {
+      if (!lat || !lng) return false;
+      return lat >= bounds.south && lat <= bounds.north && lng >= bounds.west && lng <= bounds.east;
+    };
+    
+    if (resaleListings) {
+      const ids = resaleListings.filter(l => inBounds(l.latitude, l.longitude)).map(l => l.id);
+      if (ids.length > 0) setVisibleResaleIds(ids);
+    }
+    if (presaleProjects) {
+      const ids = presaleProjects.filter(p => inBounds(p.map_lat, p.map_lng)).map(p => p.id);
+      if (ids.length > 0) setVisiblePresaleIds(ids);
+    }
+    if (assignments) {
+      const ids = assignments.filter(a => inBounds(a.map_lat, a.map_lng)).map(a => a.id);
+      if (ids.length > 0) setVisibleAssignmentIds(ids);
+    }
+  }, [savedMapState, hasAnyData, resaleListings, presaleProjects, assignments]);
 
   const filteredResaleListings = useMemo(() => {
     if (!resaleListings) return [];

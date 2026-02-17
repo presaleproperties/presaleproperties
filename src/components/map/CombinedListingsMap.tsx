@@ -329,6 +329,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   const presaleMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const assignmentMarkersMapRef = useRef<Map<string, L.Marker>>(new Map());
   const [internalHighlightId, setInternalHighlightId] = useState<string | null>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   // Track if we're in a highlight operation to prevent visible items updates
   const isHighlightingRef = useRef(false);
@@ -540,6 +541,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     markerClusterRef.current = clusterGroup;
     presaleLayerRef.current = presaleLayer;
     assignmentLayerRef.current = assignmentLayer;
+    setMapReady(true);
 
     if (savedMapState) {
       hasInitializedViewRef.current = true;
@@ -798,7 +800,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     });
     // Note: internalHighlightId and highlightedItemId are NOT dependencies here
     // Highlighting is handled by a separate useEffect to prevent full marker rebuilds
-  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, isVerifiedAgent, updateVisibleItems]);
+  }, [validResaleListings, validPresaleProjects, validAssignments, mode, onListingSelect, disablePopupsOnMobile, isVerifiedAgent, updateVisibleItems, mapReady]);
 
   // Center on user location - only when no saved/URL state exists
   useEffect(() => {
