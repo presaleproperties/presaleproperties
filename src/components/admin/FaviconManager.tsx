@@ -36,6 +36,7 @@ export function FaviconManager() {
   const [urls, setUrls] = useState<FaviconUrls>(DEFAULT_URLS);
   const [uploading, setUploading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [previewZoom, setPreviewZoom] = useState(64);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -175,6 +176,19 @@ export function FaviconManager() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        <div className="flex items-center gap-3 p-3 rounded-lg border bg-muted/20">
+          <Label className="text-xs font-medium whitespace-nowrap">Preview Size</Label>
+          <input
+            type="range"
+            min={32}
+            max={256}
+            step={16}
+            value={previewZoom}
+            onChange={(e) => setPreviewZoom(Number(e.target.value))}
+            className="flex-1 accent-primary"
+          />
+          <span className="text-xs text-muted-foreground w-12 text-right">{previewZoom}px</span>
+        </div>
         {SLOTS.map((slot) => {
           const currentUrl = urls[slot.key];
           const isDefault = currentUrl === DEFAULT_URLS[slot.key];
@@ -183,7 +197,7 @@ export function FaviconManager() {
           return (
             <div key={slot.key} className="flex items-start gap-4 p-4 rounded-lg border bg-muted/30">
               {/* Preview */}
-              <div className="shrink-0 w-16 h-16 rounded-lg border bg-background flex items-center justify-center overflow-hidden">
+              <div className="shrink-0 rounded-lg border bg-background flex items-center justify-center overflow-hidden" style={{ width: previewZoom, height: previewZoom }}>
                 {currentUrl && !isDefault ? (
                   <img
                     src={currentUrl}
