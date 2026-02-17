@@ -182,10 +182,10 @@ export function MobileProjectCard({
               <div className="absolute bottom-2.5 left-3">
                 {startingPrice ? (
                   <div className="flex items-baseline gap-1.5">
+                    <span className="text-white/70 text-[10px] font-medium">From</span>
                     <span className="text-white font-bold text-xl tracking-tight drop-shadow-md">
                       {formatPrice(startingPrice)}
                     </span>
-                    <span className="text-white/70 text-[10px] font-medium">from</span>
                   </div>
                 ) : (
                   <span className="text-white/80 text-sm font-medium">Contact for Price</span>
