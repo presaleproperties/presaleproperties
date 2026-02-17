@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { Footer } from "@/components/layout/Footer";
@@ -193,38 +194,24 @@ const Index = () => {
     ]
   };
 
-  // Mobile & Tablet: Show discovery-style layout
+  // Mobile & Tablet: Redirect to map-first experience
   if (isMobileOrTablet) {
+    // Check if user explicitly requested home view
+    const urlParams = new URLSearchParams(window.location.search);
+    const viewParam = urlParams.get("view");
+    
+    if (viewParam !== "home") {
+      return <Navigate to="/map-search" replace />;
+    }
+    
+    // Show home content when explicitly requested via ?view=home
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <Helmet>
           <title>Vancouver Presale Condos & Townhomes 2026 | PresaleProperties</title>
-          <meta name="title" content="Vancouver Presale Condos & Townhomes 2026 | PresaleProperties" />
           <meta name="description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access for Surrey, Langley, Burnaby, Coquitlam. New construction experts." />
-          <meta name="keywords" content="presale condos Vancouver, presale townhomes Surrey, new construction Metro Vancouver, presale projects BC, VIP pricing 2026" />
           <link rel="canonical" href="https://presaleproperties.com/" />
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-          
-          <meta property="og:type" content="website" />
-          <meta property="og:url" content="https://presaleproperties.com/" />
-          <meta property="og:title" content="Vancouver Presale Condos & Townhomes 2026" />
-          <meta property="og:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing, floor plans & early access." />
-          <meta property="og:image" content="https://presaleproperties.com/og-image.png" />
-          <meta property="og:image:width" content="1200" />
-          <meta property="og:image:height" content="630" />
-          <meta property="og:site_name" content="PresaleProperties.com" />
-          <meta property="og:locale" content="en_CA" />
-          
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:url" content="https://presaleproperties.com/" />
-          <meta name="twitter:title" content="Vancouver Presale Condos & Townhomes 2026" />
-          <meta name="twitter:description" content="Browse 100+ presale condos & townhomes in Metro Vancouver. VIP pricing & floor plans." />
-          <meta name="twitter:image" content="https://presaleproperties.com/og-image.png" />
-          
-          <meta name="geo.region" content="CA-BC" />
-          <meta name="geo.placename" content="Vancouver" />
-          <meta name="author" content="PresaleProperties.com" />
-          
           <script type="application/ld+json">
             {JSON.stringify(organizationSchema)}
           </script>
@@ -235,9 +222,7 @@ const Index = () => {
             {JSON.stringify(offerCatalogSchema)}
           </script>
         </Helmet>
-
         <FAQSchema faqs={HOME_FAQS} />
-        
         <ConversionHeader transparentOnMobile />
         <MobileHomePage activeTab={activeTab} onTabChange={setActiveTab} />
       </div>

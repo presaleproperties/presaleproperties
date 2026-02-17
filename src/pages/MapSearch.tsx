@@ -5,7 +5,7 @@ import { generateProjectUrl } from "@/lib/seoUrls";
 import { Helmet } from "react-helmet-async";
 import { toast } from "sonner";
 import { 
-  SlidersHorizontal, X, Map, LayoutGrid, 
+  SlidersHorizontal, X, Map, LayoutGrid, Menu,
   MapPin, Building2, ChevronDown, ChevronUp, Home, Bed, Bath,
   Building, HomeIcon, Warehouse, DollarSign, Search, Navigation, Lock,
   PanelRightClose, PanelRightOpen
@@ -35,6 +35,7 @@ import { ConversionHeader } from "@/components/conversion/ConversionHeader";
 import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { MobileMapFilters } from "@/components/map/MobileMapFilters";
+import { MobileMapNavDrawer } from "@/components/map/MobileMapNavDrawer";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
 import { CityMultiSelectDropdown } from "@/components/search/CityMultiSelectDropdown";
@@ -205,6 +206,7 @@ export default function MapSearch() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [desktopFiltersOpen, setDesktopFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
   
@@ -1517,11 +1519,12 @@ export default function MapSearch() {
             listings={listingsForSearch}
             assignments={assignmentsForSearch}
             homeButton={
-              <Link to="/">
-                <button className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors">
-                  <Home className="h-4 w-4 text-muted-foreground/70" />
-                </button>
-              </Link>
+              <button 
+                onClick={() => setMobileNavOpen(true)}
+                className="p-1.5 rounded-lg hover:bg-muted/50 transition-colors"
+              >
+                <Menu className="h-4 w-4 text-muted-foreground/70" />
+              </button>
             }
             filterButton={
               <button 
@@ -1545,6 +1548,9 @@ export default function MapSearch() {
             }
           />
         </div>
+        
+        {/* Mobile/Tablet Navigation Drawer */}
+        <MobileMapNavDrawer open={mobileNavOpen} onOpenChange={setMobileNavOpen} />
         
         {/* Mobile/Tablet Filter Sheet */}
         <MobileMapFilters
