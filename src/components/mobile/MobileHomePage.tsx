@@ -111,21 +111,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
           {/* Main Headline - Simple & Bold */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">Vancouver Presales  
-Made Simple
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">Vancouver Presales  Made Simple
             <br />
-            <span className="text-primary"></span>
+            <span className="text-primary">Metro Vancouver</span>
           </h1>
           
           {/* Search Container */}
           <div className="w-full max-w-md">
-            <PowerSearch placeholder={activeTab === "projects" ?
-            "Search projects, address, neighbourhood..." :
-            "Address, MLS#, city, neighbourhood..."
-            }
-            mode={activeTab === "projects" ? "presale" : "resale"}
-            variant="hero"
-            inputClassName="h-14 text-base rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground" />
+            <PowerSearch
+              placeholder={activeTab === "projects" ?
+              "Search projects, address, neighbourhood..." :
+              "Address, MLS#, city, neighbourhood..."
+              }
+              mode={activeTab === "projects" ? "presale" : "resale"}
+              variant="hero"
+              inputClassName="h-14 text-base rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground" />
 
           </div>
 
