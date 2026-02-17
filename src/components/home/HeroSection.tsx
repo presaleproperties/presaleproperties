@@ -71,6 +71,10 @@ export function HeroSection({
             </span>
           </h1>
 
+          <p className="text-base sm:text-lg md:text-xl text-white/80 font-medium max-w-2xl leading-relaxed">
+            Real-time project updates, downloadable info packages, and expert guidance for new construction across Metro Vancouver.
+          </p>
+
           {/* Tabs — pill-style, inline */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
