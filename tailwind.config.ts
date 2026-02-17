@@ -15,7 +15,6 @@ export default {
     extend: {
       fontFamily: {
         sans: ["Plus Jakarta Sans", "system-ui", "sans-serif"],
-        serif: ["DM Serif Display", "Georgia", "serif"],
       },
       letterSpacing: {
         tightest: "-0.04em",

@@ -152,7 +152,7 @@ export function PresaleProjectCard({
 
   return (
     <Link to={projectUrl}>
-      <div className="group overflow-hidden rounded-xl bg-card border border-border/40 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full">
+      <div className="group overflow-hidden rounded-xl bg-card border border-border/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 h-full">
         {/* Hero Image */}
         <div
           className={cn(
@@ -243,7 +243,7 @@ export function PresaleProjectCard({
 
         {/* Info — compact and clean */}
         <div className="px-3 py-2.5 space-y-1">
-          <h3 className="font-serif text-foreground text-base leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
             {name}
           </h3>
           <div className="flex items-center gap-2 text-muted-foreground text-[11px]">

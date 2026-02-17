@@ -9,7 +9,7 @@ export function TwoWaysToBuy() {
     <section className="py-10 sm:py-14 bg-background">
       <div className="container px-4">
         <div className="text-center mb-8">
-          <h2 className="text-xl sm:text-2xl md:text-3xl text-foreground">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground">
             Two Ways to Buy New
           </h2>
           <p className="mt-2 text-sm sm:text-base text-muted-foreground max-w-2xl mx-auto">

@@ -86,7 +86,7 @@ export function NewConstructionBenefits() {
             <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-3 block">
               Why Buy Presale
             </span>
-             <h2 className="text-2xl sm:text-3xl md:text-4xl text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
               Benefits of Buying New Construction
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -131,7 +131,7 @@ export function NewConstructionBenefits() {
             <span className="text-xs font-semibold uppercase tracking-widest text-primary mb-3 block">
               Common Questions
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl text-foreground mb-4">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-4">
               FAQs About Presale Homes
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">

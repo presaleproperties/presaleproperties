@@ -93,12 +93,12 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
         className={cn(
           "w-full z-50 shrink-0 transition-all duration-300",
           // Default background - opaque
-          !transparentOnMobile && "bg-background/98 backdrop-blur-xl supports-[backdrop-filter]:bg-background/90",
-          !transparentOnMobile && "border-b border-border/40",
+          !transparentOnMobile && "bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80",
+          !transparentOnMobile && "border-b border-border/60",
           // Transparent mode on mobile/tablet
-          transparentOnMobile && isMobileOrTablet && "bg-background/98 backdrop-blur-xl border-b border-border/40",
+          transparentOnMobile && isMobileOrTablet && "bg-background/95 backdrop-blur-xl border-b border-border/60",
           // Desktop always gets normal bg regardless of transparentOnMobile
-          transparentOnMobile && "lg:bg-background/98 lg:backdrop-blur-xl lg:border-b lg:border-border/40",
+          transparentOnMobile && "lg:bg-background/95 lg:backdrop-blur-xl lg:border-b lg:border-border/60",
           // Desktop: sticky positioning (normal behavior)
           "lg:sticky lg:top-0",
           // Mobile/tablet: fixed positioning for edge-to-edge scrolling
@@ -121,7 +121,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
               <NavigationMenuList className="gap-0">
                 {/* Presale Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/70 hover:text-foreground bg-transparent data-[state=open]:text-foreground rounded-none border-b-2 border-transparent data-[state=open]:border-primary transition-all">
+                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/10 bg-transparent data-[state=open]:bg-accent/10 rounded-lg transition-colors">
+                    <Building2 className="h-4 w-4 mr-2 text-primary" />
                     Presale
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -182,7 +183,8 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
 
                 {/* Move-In Ready Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/70 hover:text-foreground bg-transparent data-[state=open]:text-foreground rounded-none border-b-2 border-transparent data-[state=open]:border-primary transition-all">
+                  <NavigationMenuTrigger className="h-10 px-4 text-sm font-medium text-foreground/80 hover:text-foreground hover:bg-accent/10 bg-transparent data-[state=open]:bg-accent/10 rounded-lg transition-colors">
+                    <Home className="h-4 w-4 mr-2 text-primary" />
                     Move-In Ready
                   </NavigationMenuTrigger>
                   <NavigationMenuContent>
@@ -247,34 +249,37 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
             <Link
               to="/blog"
               className={cn(
-                "h-10 px-4 flex items-center text-sm font-medium transition-colors border-b-2",
+                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
                 isActive("/blog") 
-                  ? "text-foreground border-primary" 
-                  : "text-foreground/70 hover:text-foreground border-transparent hover:border-primary/50"
+                  ? "text-foreground bg-secondary/60" 
+                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
               )}
             >
+              <BookOpen className="h-4 w-4 mr-2 text-muted-foreground" />
               Guides
             </Link>
             <Link
               to="/calculator"
               className={cn(
-                "h-10 px-4 flex items-center text-sm font-medium transition-colors border-b-2",
+                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
                 isActive("/calculator") 
-                  ? "text-foreground border-primary" 
-                  : "text-foreground/70 hover:text-foreground border-transparent hover:border-primary/50"
+                  ? "text-foreground bg-secondary/60" 
+                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
               )}
             >
+              <Calculator className="h-4 w-4 mr-2 text-muted-foreground" />
               Calculator
             </Link>
             <Link
               to="/about"
               className={cn(
-                "h-10 px-4 flex items-center text-sm font-medium transition-colors border-b-2",
+                "h-10 px-4 flex items-center text-sm font-medium rounded-lg transition-colors",
                 isActive("/about") 
-                  ? "text-foreground border-primary" 
-                  : "text-foreground/70 hover:text-foreground border-transparent hover:border-primary/50"
+                  ? "text-foreground bg-secondary/60" 
+                  : "text-foreground/80 hover:text-foreground hover:bg-accent/10"
               )}
             >
+              <Users className="h-4 w-4 mr-2 text-muted-foreground" />
               About
             </Link>
           </nav>
@@ -283,12 +288,13 @@ export function ConversionHeader({ hideOnMobile = false, alwaysVisible = false, 
           <div className="hidden lg:flex items-center gap-3">
             <Button 
               asChild 
-              variant="outline"
               size="sm" 
               className={cn(
-                "h-9 px-5 font-medium rounded-none border-foreground/20 text-foreground hover:bg-foreground hover:text-background",
-                "transition-all duration-200",
-                isMapPage && "bg-foreground text-background"
+                "h-9 px-4 font-medium rounded-md",
+                "bg-primary hover:bg-primary/90",
+                "text-primary-foreground",
+                "transition-colors duration-200",
+                isMapPage && "ring-1 ring-primary/30"
               )}
             >
               <Link to="/map-search">

@@ -59,7 +59,7 @@ export function RelatedContent() {
         <div className="grid lg:grid-cols-3 gap-8 md:gap-12">
           {/* Presale Cities */}
           <div>
-             <h2 className="text-xl md:text-2xl mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
               Presale Projects
             </h2>
             <div className="grid grid-cols-2 gap-3">
@@ -86,7 +86,7 @@ export function RelatedContent() {
 
           {/* Resale Cities */}
           <div>
-             <h2 className="text-xl md:text-2xl mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
               Homes for Sale
             </h2>
             <div className="grid grid-cols-2 gap-3">
@@ -113,7 +113,7 @@ export function RelatedContent() {
 
           {/* Quick Links */}
           <div>
-            <h2 className="text-xl md:text-2xl mb-4 md:mb-6">
+            <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6">
               Quick Links
             </h2>
             <div className="space-y-3">

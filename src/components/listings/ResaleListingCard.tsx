@@ -157,7 +157,7 @@ export function ResaleListingCard({
 
   // --- MOBILE LAYOUT (matches presale card style) ---
   const mobileLayout = (
-    <div className="group overflow-hidden rounded-xl bg-card border border-border/40 shadow-sm active:scale-[0.98] transition-all duration-200 h-full flex flex-col">
+    <div className="group overflow-hidden rounded-xl bg-card border border-border/60 shadow-sm active:scale-[0.98] transition-all duration-200 h-full flex flex-col">
       {/* Hero Image */}
       <div 
         className="relative bg-muted overflow-hidden aspect-[3/2]"
@@ -231,7 +231,7 @@ export function ResaleListingCard({
 
       {/* Info — compact */}
       <div className="px-3 py-2.5 space-y-1 flex-1">
-        <h4 className="font-serif text-foreground text-base leading-tight line-clamp-1">
+        <h4 className="font-semibold text-foreground text-sm leading-tight line-clamp-1">
           {address}
         </h4>
         <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
@@ -262,7 +262,7 @@ export function ResaleListingCard({
 
   // --- DESKTOP LAYOUT (original style, unchanged) ---
   const desktopLayout = (
-    <Card className="group overflow-hidden border-border/40 bg-card shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out h-full flex flex-col">
+    <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
       <div 
         className={cn(
           "relative overflow-hidden bg-muted flex-shrink-0",
@@ -358,7 +358,7 @@ export function ResaleListingCard({
 
           <CardContent className="p-2.5 sm:p-3 md:p-4 flex-1 flex flex-col min-w-0">
             <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
-              <h3 className="font-serif text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate">
                 {address}
               </h3>
               <div className="flex items-center gap-1 text-muted-foreground min-w-0">
