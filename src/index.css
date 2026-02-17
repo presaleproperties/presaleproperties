@@ -164,11 +164,11 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Editorial serif headings - global */
+  /* Bold sans-serif headings - editorial heavy weight */
   h1, h2, h3 {
-    font-family: "DM Serif Display", Georgia, serif;
-    font-weight: 400;
-    letter-spacing: -0.01em;
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
   }
 
   #root {
