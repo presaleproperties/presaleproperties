@@ -30,7 +30,7 @@ export function Footer() {
       <div className="py-8 sm:py-12 px-4 lg:container lg:px-4">
         <div className="grid gap-8 grid-cols-2 sm:grid-cols-2 md:grid-cols-6">
           <div className="space-y-4 col-span-2 sm:col-span-2 md:col-span-1">
-            <Logo size="xl" className="-my-8 sm:-my-8 md:-my-8" />
+            <Logo size="xl" className="-my-10 sm:-my-10 md:-my-10" />
             <p className="text-xs sm:text-sm text-muted-foreground">
               Metro Vancouver's #1 marketplace for presale condos, townhomes, and new construction homes with VIP pricing and floor plans.
             </p>
