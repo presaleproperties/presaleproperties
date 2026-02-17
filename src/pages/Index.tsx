@@ -194,15 +194,8 @@ const Index = () => {
     ]
   };
 
-  // Mobile & Tablet: Redirect to map-first experience
+  // Mobile & Tablet: show home content (no redirect)
   if (isMobileOrTablet) {
-    // Check if user explicitly requested home view
-    const urlParams = new URLSearchParams(window.location.search);
-    const viewParam = urlParams.get("view");
-    
-    if (viewParam !== "home") {
-      return <Navigate to="/map-search" replace />;
-    }
     
     // Show home content when explicitly requested via ?view=home
     return (
