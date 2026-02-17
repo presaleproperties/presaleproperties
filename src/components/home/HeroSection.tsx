@@ -41,7 +41,7 @@ export function HeroSection({
   };
 
   return (
-    <section className="relative min-h-[600px] sm:min-h-[640px] md:min-h-[720px] lg:min-h-[800px] flex items-end overflow-hidden">
+    <section className="relative h-[calc(100vh-72px)] min-h-[520px] max-h-[900px] flex items-end overflow-hidden">
       {/* Background Image */}
       <img
         src={heroImage}
@@ -58,7 +58,7 @@ export function HeroSection({
       <div className="absolute inset-0 bg-gradient-to-tr from-primary/8 via-transparent to-primary/5" />
 
       {/* Content — left-aligned, bottom-anchored */}
-      <div className="container relative z-10 px-4 pb-10 sm:pb-14 md:pb-16 lg:pb-20 pt-16 sm:pt-20">
+      <div className="container relative z-10 px-4 pb-8 sm:pb-10 md:pb-12 lg:pb-14">
         <div className="max-w-3xl space-y-5 sm:space-y-6 md:space-y-8">
           {/* Heading */}
           <h1
