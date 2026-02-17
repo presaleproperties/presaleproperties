@@ -952,16 +952,17 @@ export default function MapSearch() {
       
       return results;
     },
-    staleTime: 3 * 60 * 1000, // Keep data fresh for 3 minutes
-    gcTime: 10 * 60 * 1000, // Keep in cache for 10 minutes
+    staleTime: 3 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
     refetchOnWindowFocus: false,
+    retry: false, // listings table may not exist — don't block map loading
   });
 
   // Only show loading if we have NO data yet - use cached data immediately on back navigation
   const hasAnyData = (resaleListings && resaleListings.length > 0) || 
                      (presaleProjects && presaleProjects.length > 0) || 
                      (assignments && assignments.length > 0);
-  const isLoading = !hasAnyData && (resaleLoading || presaleLoading || assignmentsLoading);
+  const isLoading = !hasAnyData && (resaleLoading || presaleLoading);
 
   // Pre-populate visible IDs on back navigation so the grid isn't blank
   // This uses the saved map bounds + cached data to instantly show cards
