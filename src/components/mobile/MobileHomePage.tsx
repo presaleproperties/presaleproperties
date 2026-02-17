@@ -111,13 +111,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
           {/* Main Headline - Simple & Bold */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-3 tracking-tight">
-            Vancouver Presales{" "}
-            <span className="text-primary">Made Simple</span>
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">
+            New Homes For Sale<br />
+            <span className="text-primary">Metro Vancouver</span>
           </h1>
-          <p className="text-sm text-white/80 font-medium text-center mb-8 max-w-xs leading-relaxed">
-            Project updates, info packages & expert guidance — all free.
-          </p>
           
           {/* Search Container */}
           <div className="w-full max-w-md">
