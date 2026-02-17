@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
 
     // Build title and description
     const title = `For Sale: ${address}, ${listing.city} BC`;
-    const description = `${isNewConstruction ? 'Brand new ' : ''}${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyType.toLowerCase()} for sale in ${listing.neighborhood || listing.city}, BC. ${isNewConstruction ? `Built ${listing.year_built}. ` : ''}${formatPrice(listing.listing_price)}.${listing.living_area ? ` ${listing.living_area} sqft.` : ''}`;
+    const description = `${listing.bedrooms_total || 0} bed, ${listing.bathrooms_total || 0} bath ${propertyType.toLowerCase()} in ${listing.neighborhood || listing.city}. ${formatPrice(listing.listing_price)}.`;
 
     // Build SEO-friendly address slug for canonical URL (REW-style: address-city-bc-listingKey)
     const slugify = (text: string) => text.toLowerCase()
