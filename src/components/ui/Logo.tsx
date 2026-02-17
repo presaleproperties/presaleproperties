@@ -11,10 +11,10 @@ interface LogoProps {
 
 export function Logo({ className, asLink = true, onClick, size = "md" }: LogoProps) {
   const sizeClasses = {
-    sm: "h-8",
-    md: "h-12",
-    lg: "h-16",
-    xl: "h-28 sm:h-28 md:h-32",
+    sm: "h-10",
+    md: "h-14",
+    lg: "h-20",
+    xl: "h-32 sm:h-32 md:h-36",
   };
 
   const logoContent = (
