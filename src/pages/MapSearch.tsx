@@ -2272,7 +2272,7 @@ export default function MapSearch() {
                               <span className="text-white/70 text-[10px] font-medium block leading-none mb-0.5">
                                 {isPresale ? 'From' : isAssignment ? 'Asking' : ''}
                               </span>
-                              <span className="text-white font-bold text-lg leading-none drop-shadow-md">
+                              <span className="text-white font-bold text-xl lg:text-lg leading-none drop-shadow-md">
                                 {isPresale
                                   ? formatPrice((data as PresaleProject).starting_price)
                                   : isAssignment
