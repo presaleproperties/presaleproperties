@@ -183,7 +183,7 @@ export function PresaleProjectCard({
                 {startingPrice ? (
                   <div className="flex items-baseline gap-1.5">
                     <span className="text-white/70 text-xs font-medium">From</span>
-                    <span className="text-white font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
+                    <span className="text-white font-bold text-3xl lg:text-xl tracking-tight drop-shadow-md">
                       {formatPrice(startingPrice)}
                     </span>
                   </div>

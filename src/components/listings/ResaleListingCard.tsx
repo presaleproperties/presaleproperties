@@ -181,7 +181,7 @@ export function ResaleListingCard({
 
             {/* Price overlay */}
             <div className="absolute bottom-2.5 left-3">
-              <span className="text-white font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
+               <span className="text-white font-bold text-3xl lg:text-xl tracking-tight drop-shadow-md">
                 {formatPrice(price)}
               </span>
               {sqft && sqft > 0 && (
@@ -290,7 +290,7 @@ export function ResaleListingCard({
                 {/* Price — overlaid on image */}
                 <div className="absolute bottom-3 left-3">
                   <div className="flex items-baseline gap-1.5">
-                    <span className="text-white font-bold text-2xl lg:text-xl tracking-tight drop-shadow-md">
+                    <span className="text-white font-bold text-3xl lg:text-xl tracking-tight drop-shadow-md">
                       {formatPrice(price)}
                     </span>
                     {sqft && sqft > 0 && (
