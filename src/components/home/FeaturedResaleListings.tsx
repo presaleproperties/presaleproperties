@@ -160,7 +160,7 @@ export function FeaturedResaleListings() {
             <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
               Just Added
             </span>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl text-foreground tracking-tight">
               Featured Listings
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl">

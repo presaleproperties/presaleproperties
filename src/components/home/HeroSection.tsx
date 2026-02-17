@@ -64,11 +64,11 @@ export function HeroSection({
           
           {/* Main Heading - Premium typography */}
           <h1 
-            className="text-[36px] sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight text-white animate-fade-in leading-[1.1] drop-shadow-2xl" 
+            className="text-[36px] sm:text-5xl md:text-6xl lg:text-7xl tracking-tight text-white animate-fade-in leading-[1.1] drop-shadow-2xl" 
             style={{ animationDelay: "0.1s" }}
           >
             Find Your{" "}
-            <span className="text-primary drop-shadow-[0_0_40px_hsl(33_50%_53%/0.6)] relative">
+            <span className="text-primary drop-shadow-[0_0_40px_hsl(33_50%_53%/0.6)] relative italic">
               New
               <span className="absolute -inset-1 bg-primary/10 blur-2xl -z-10" />
             </span>{" "}
@@ -142,9 +142,9 @@ export function HeroSection({
               <ShieldCheck className="h-4 w-4 text-primary" />
               Expert guidance at no extra cost
             </p>
-            <Link
+             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/15 backdrop-blur-md border border-white/30 text-white font-medium text-sm sm:text-base hover:bg-white/25 hover:border-white/50 hover:scale-105 active:scale-100 transition-all duration-300 shadow-lg"
+              className="inline-flex items-center gap-2.5 px-8 py-3.5 rounded-full border border-white/40 text-white font-medium text-sm sm:text-base hover:bg-white hover:text-foreground hover:border-white transition-all duration-300 shadow-lg"
             >
               <MapPin className="h-4 w-4 sm:h-5 sm:w-5" />
               Explore Interactive Map
