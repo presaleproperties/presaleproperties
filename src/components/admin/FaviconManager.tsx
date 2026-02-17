@@ -16,6 +16,10 @@ interface FaviconUrls {
   og_image: string;
 }
 
+interface FaviconZooms {
+  [key: string]: number;
+}
+
 const DEFAULT_URLS: FaviconUrls = {
   favicon_32: "/favicon.png",
   favicon_192: "/favicon.png",
@@ -34,6 +38,7 @@ const SLOTS = [
 
 export function FaviconManager() {
   const [urls, setUrls] = useState<FaviconUrls>(DEFAULT_URLS);
+  const [zooms, setZooms] = useState<FaviconZooms>({});
   const [uploading, setUploading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [previewZoom, setPreviewZoom] = useState(80);
@@ -52,7 +57,10 @@ export function FaviconManager() {
         .maybeSingle();
 
       if (data?.value) {
-        setUrls({ ...DEFAULT_URLS, ...(data.value as object) });
+        const settings = data.value as Record<string, any>;
+        const { icon_zooms, ...urlData } = settings;
+        setUrls({ ...DEFAULT_URLS, ...urlData });
+        if (icon_zooms) setZooms(icon_zooms);
       }
     } catch (err) {
       console.error("Error loading favicon settings:", err);
@@ -61,8 +69,10 @@ export function FaviconManager() {
     }
   };
 
-  const saveSettings = async (newUrls: FaviconUrls) => {
+  const saveSettings = async (newUrls: FaviconUrls, newZooms?: FaviconZooms) => {
+    const zoomsToSave = newZooms ?? zooms;
     try {
+      const payload = { ...newUrls, icon_zooms: zoomsToSave } as any;
       const { data: existing } = await supabase
         .from("app_settings")
         .select("id")
@@ -72,12 +82,12 @@ export function FaviconManager() {
       if (existing) {
         await supabase
           .from("app_settings")
-          .update({ value: newUrls as any, updated_at: new Date().toISOString() })
+          .update({ value: payload, updated_at: new Date().toISOString() })
           .eq("key", "favicon_settings");
       } else {
         await supabase
           .from("app_settings")
-          .insert([{ key: "favicon_settings", value: newUrls as any }]);
+          .insert([{ key: "favicon_settings", value: payload }]);
       }
 
       // Apply favicon changes immediately
@@ -87,6 +97,15 @@ export function FaviconManager() {
       console.error("Error saving favicon settings:", err);
       toast.error("Failed to save favicon settings");
     }
+  };
+
+  const handleZoomChange = async (slot: keyof FaviconUrls, value: number) => {
+    const newZooms = { ...zooms, [slot]: value };
+    setZooms(newZooms);
+  };
+
+  const handleZoomSave = async (slot: keyof FaviconUrls) => {
+    await saveSettings(urls, zooms);
   };
 
   const handleUpload = async (slot: keyof FaviconUrls, file: File) => {
@@ -202,7 +221,8 @@ export function FaviconManager() {
                   <img
                     src={currentUrl}
                     alt={slot.label}
-                    className="w-full h-full object-contain"
+                    className="object-cover"
+                    style={{ transform: `scale(${(zooms[slot.key] ?? 100) / 100})`, width: '100%', height: '100%' }}
                     onError={(e) => {
                       (e.target as HTMLImageElement).style.display = "none";
                     }}
@@ -223,6 +243,25 @@ export function FaviconManager() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">{slot.desc} — Recommended: {slot.recommended}</p>
+
+                {/* Icon zoom control */}
+                {!isDefault && (
+                  <div className="flex items-center gap-2">
+                    <Label className="text-[10px] text-muted-foreground whitespace-nowrap">Icon Zoom</Label>
+                    <input
+                      type="range"
+                      min={50}
+                      max={200}
+                      step={5}
+                      value={zooms[slot.key] ?? 100}
+                      onChange={(e) => handleZoomChange(slot.key, Number(e.target.value))}
+                      onMouseUp={() => handleZoomSave(slot.key)}
+                      onTouchEnd={() => handleZoomSave(slot.key)}
+                      className="flex-1 accent-primary h-1"
+                    />
+                    <span className="text-[10px] text-muted-foreground w-8 text-right">{zooms[slot.key] ?? 100}%</span>
+                  </div>
+                )}
 
                 <div className="flex items-center gap-2">
                   <input
