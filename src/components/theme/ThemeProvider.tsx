@@ -32,9 +32,9 @@ export interface ThemeSettings {
 }
 
 const defaultTheme: ThemeSettings = {
-  primary: "33 50% 53%",
-  primaryGlow: "30 48% 48%",
-  primaryDeep: "28 52% 42%",
+  primary: "43 96% 56%",
+  primaryGlow: "40 90% 50%",
+  primaryDeep: "38 95% 42%",
   background: "30 20% 99%",
   foreground: "220 20% 10%",
   card: "0 0% 100%",
@@ -42,13 +42,13 @@ const defaultTheme: ThemeSettings = {
   muted: "30 10% 96%",
   mutedForeground: "220 8% 46%",
   border: "30 10% 90%",
-  accent: "33 50% 53%",
+  accent: "43 96% 56%",
   accentForeground: "0 0% 100%",
   destructive: "0 84% 60%",
   destructiveForeground: "0 0% 100%",
   success: "142 76% 36%",
   successForeground: "0 0% 100%",
-  warning: "33 50% 53%",
+  warning: "43 96% 56%",
   warningForeground: "0 0% 100%",
   info: "199 89% 48%",
   infoForeground: "0 0% 100%",
