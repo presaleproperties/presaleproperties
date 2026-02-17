@@ -272,115 +272,114 @@ export function ResaleListingCard({
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
       >
-        {imageCount > 0 ? (
-          <>
-            <img
-              src={photoUrls[currentImageIndex]}
-              alt={address}
-              className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform backface-visibility-hidden"
-              loading="lazy"
-              decoding="async"
-              fetchPriority="auto"
-              style={{ transform: 'translateZ(0)', contentVisibility: 'auto' }}
-            />
-            
-            <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1">
-              <Badge className="bg-emerald-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
-                MOVE-IN READY
-              </Badge>
-              {isPriceReduced && (
-                <Badge className="bg-red-600 text-white text-[9px] sm:text-[10px] font-bold shadow-lg px-1.5 py-0.5 animate-pulse">
-                  PRICE DROP -{priceReductionPercent}%
-                </Badge>
-              )}
-              {isNew && !isPriceReduced && (
-                <Badge className="bg-orange-500 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
-                  <Flame className="h-2.5 w-2.5" /> HOT
-                </Badge>
-              )}
-              {isLongOnMarket && !isPriceReduced && !isNew && (
-                <Badge className="bg-amber-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
-                  <Clock className="h-2.5 w-2.5" /> OPPORTUNITY
-                </Badge>
-              )}
-              {yearBuilt && yearBuilt >= 2024 && (
-                <Badge className="bg-background/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-medium shadow-sm px-1.5 py-0.5 border border-border/50">
-                  Built {yearBuilt}
-                </Badge>
-              )}
-              {virtualTourUrl && (
-                <Badge className="bg-foreground text-background text-[10px] sm:text-xs font-medium flex items-center gap-1 px-1.5 py-0.5">
-                  <Video className="h-3 w-3" /> 3D Tour
-                </Badge>
-              )}
-            </div>
-            
-            {imageCount > 1 && (
+            {imageCount > 0 ? (
               <>
-                <button onClick={goToPrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70" aria-label="Previous image">
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-                <button onClick={goToNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70" aria-label="Next image">
-                  <ChevronRight className="h-5 w-5" />
-                </button>
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                  {photoUrls.slice(0, 5).map((_, idx) => (
-                    <span key={idx} className={cn("h-1.5 w-1.5 rounded-full transition-all", idx === currentImageIndex ? "bg-white w-3" : "bg-white/50")} />
-                  ))}
-                  {imageCount > 5 && <span className="text-white text-xs ml-1">+{imageCount - 5}</span>}
-                </div>
-              </>
-            )}
-          </>
-        ) : (
-          <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-            <Home className="h-12 w-12 text-muted-foreground" />
-          </div>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-        {imageCount > 1 && (
-          <div className="absolute bottom-3 right-3 flex items-center gap-1.5 bg-black/70 text-white text-xs font-medium px-2 py-1 rounded-md backdrop-blur-sm">
-            <span>{currentImageIndex + 1}/{imageCount}</span>
-          </div>
-        )}
-      </div>
+                <img
+                  src={photoUrls[currentImageIndex]}
+                  alt={address}
+                  className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 will-change-transform backface-visibility-hidden"
+                  loading="lazy"
+                  decoding="async"
+                  fetchPriority="auto"
+                  style={{ transform: 'translateZ(0)', contentVisibility: 'auto' }}
+                />
 
-      <CardContent className="p-2.5 sm:p-3 md:p-4 flex-1 flex flex-col min-w-0">
-        <div className="flex items-start justify-between gap-1.5 sm:gap-2 min-w-0">
-          <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
-            <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate">
-              {address}
-            </h3>
-            <div className="flex items-center gap-1 text-muted-foreground min-w-0">
-              <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 shrink-0" />
-              <span className="text-[10px] sm:text-[11px] md:text-xs truncate">
-                {neighborhood ? `${neighborhood}, ${city}` : city}
-              </span>
-            </div>
-            <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
-              {displayType} {specsArray.length > 0 ? `• ${specsArray.join(" • ")}` : ""}
-            </p>
-          </div>
-          <div className="text-right shrink-0 ml-0.5 sm:ml-1">
-            <span className="font-bold text-primary whitespace-nowrap" style={{ fontSize: '1.5rem', lineHeight: 1.1 }}>
-              {formatPrice(price)}
-            </span>
-            {sqft && sqft > 0 && (
-              <span className="text-[9px] sm:text-[10px] md:text-xs text-muted-foreground block leading-tight whitespace-nowrap">
-                ${Math.round(price / sqft)}/sqft
-              </span>
+                {/* Bottom gradient for price overlay */}
+                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/30 to-transparent pointer-events-none" />
+
+                {/* Price — overlaid on image */}
+                <div className="absolute bottom-3 left-3">
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-white font-bold text-xl tracking-tight drop-shadow-md">
+                      {formatPrice(price)}
+                    </span>
+                    {sqft && sqft > 0 && (
+                      <span className="text-white/60 text-[10px] font-medium">
+                        ${Math.round(price / sqft)}/sf
+                      </span>
+                    )}
+                  </div>
+                </div>
+            
+                <div className="absolute top-2 left-2 sm:top-3 sm:left-3 flex flex-col gap-1">
+                  <Badge className="bg-emerald-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5">
+                    MOVE-IN READY
+                  </Badge>
+                  {isPriceReduced && (
+                    <Badge className="bg-red-600 text-white text-[9px] sm:text-[10px] font-bold shadow-lg px-1.5 py-0.5 animate-pulse">
+                      PRICE DROP -{priceReductionPercent}%
+                    </Badge>
+                  )}
+                  {isNew && !isPriceReduced && (
+                    <Badge className="bg-orange-500 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                      <Flame className="h-2.5 w-2.5" /> HOT
+                    </Badge>
+                  )}
+                  {isLongOnMarket && !isPriceReduced && !isNew && (
+                    <Badge className="bg-amber-600 text-white text-[9px] sm:text-[10px] font-semibold shadow-sm px-1.5 py-0.5 flex items-center gap-0.5">
+                      <Clock className="h-2.5 w-2.5" /> OPPORTUNITY
+                    </Badge>
+                  )}
+                  {yearBuilt && yearBuilt >= 2024 && (
+                    <Badge className="bg-background/90 backdrop-blur-sm text-foreground text-[9px] sm:text-[10px] font-medium shadow-sm px-1.5 py-0.5 border border-border/50">
+                      Built {yearBuilt}
+                    </Badge>
+                  )}
+                  {virtualTourUrl && (
+                    <Badge className="bg-foreground text-background text-[10px] sm:text-xs font-medium flex items-center gap-1 px-1.5 py-0.5">
+                      <Video className="h-3 w-3" /> 3D Tour
+                    </Badge>
+                  )}
+                </div>
+            
+                {imageCount > 1 && (
+                  <>
+                    <button onClick={goToPrevImage} className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70" aria-label="Previous image">
+                      <ChevronLeft className="h-5 w-5" />
+                    </button>
+                    <button onClick={goToNextImage} className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/70" aria-label="Next image">
+                      <ChevronRight className="h-5 w-5" />
+                    </button>
+                    <div className="absolute bottom-3 right-3 flex gap-1">
+                      {photoUrls.slice(0, 5).map((_, idx) => (
+                        <span key={idx} className={cn("h-1 rounded-full transition-all", idx === currentImageIndex ? "bg-white w-3" : "bg-white/40 w-1")} />
+                      ))}
+                      {imageCount > 5 && <span className="text-white text-xs ml-1">+{imageCount - 5}</span>}
+                    </div>
+                  </>
+                )}
+              </>
+            ) : (
+              <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+                <Home className="h-12 w-12 text-muted-foreground" />
+              </div>
             )}
           </div>
-        </div>
-        <div className="mt-auto pt-1 sm:pt-1.5">
-          <div className="pt-1 sm:pt-1.5 border-t border-border">
-            <div className="flex items-center gap-1 text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground min-w-0">
-              <Building className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 shrink-0" />
-              <span className="truncate">Listed by {listOfficeName || "MLS®"}</span>
+
+          <CardContent className="p-2.5 sm:p-3 md:p-4 flex-1 flex flex-col min-w-0">
+            <div className="flex-1 min-w-0 space-y-0.5 overflow-hidden">
+              <h3 className="font-semibold text-foreground line-clamp-1 group-hover:text-primary transition-colors duration-200 text-[13px] sm:text-sm md:text-base truncate">
+                {address}
+              </h3>
+              <div className="flex items-center gap-1 text-muted-foreground min-w-0">
+                <MapPin className="h-2.5 w-2.5 sm:h-3 sm:w-3 md:h-3.5 md:w-3.5 shrink-0" />
+                <span className="text-[10px] sm:text-[11px] md:text-xs truncate">
+                  {neighborhood ? `${neighborhood}, ${city}` : city}
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] md:text-xs text-muted-foreground truncate">
+                {displayType} {specsArray.length > 0 ? `• ${specsArray.join(" • ")}` : ""}
+              </p>
             </div>
-          </div>
-        </div>
-      </CardContent>
+            <div className="mt-auto pt-1 sm:pt-1.5">
+              <div className="pt-1 sm:pt-1.5 border-t border-border">
+                <div className="flex items-center gap-1 text-[8px] sm:text-[9px] md:text-[10px] text-muted-foreground min-w-0">
+                  <Building className="h-2 w-2 sm:h-2.5 sm:w-2.5 md:h-3 md:w-3 shrink-0" />
+                  <span className="truncate">Listed by {listOfficeName || "MLS®"}</span>
+                </div>
+              </div>
+            </div>
+          </CardContent>
     </Card>
   );
 
