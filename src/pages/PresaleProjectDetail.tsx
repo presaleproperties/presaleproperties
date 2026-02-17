@@ -702,7 +702,7 @@ export default function PresaleProjectDetail() {
 
                 {/* Title and City Badge */}
                 <div className="flex flex-wrap items-center gap-2 mb-1.5 md:mb-2">
-                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-foreground leading-tight">{project.name}</h1>
+                  <h1 className="text-xl md:text-2xl lg:text-3xl text-foreground leading-tight">{project.name}</h1>
                   <Badge variant="secondary" className="md:hidden text-[10px] px-1.5 py-0.5 font-medium">
                     {project.city}
                   </Badge>
@@ -710,7 +710,7 @@ export default function PresaleProjectDetail() {
                 
                 {project.starting_price ? <div className="mb-2 md:mb-3">
                     <span className="text-muted-foreground text-sm md:text-base font-medium mr-1">From</span>
-                    <span className="font-bold text-primary !text-[28px] sm:!text-[32px] md:!text-[36px] lg:!text-[40px] leading-tight">
+                    <span className="font-bold text-foreground !text-[28px] sm:!text-[32px] md:!text-[36px] lg:!text-[40px] leading-tight">
                       {formatPrice(project.starting_price)}
                     </span>
                   </div> : <div className="!text-xl md:!text-2xl text-muted-foreground mb-2 md:mb-3 font-semibold">Contact for pricing</div>}

@@ -157,7 +157,7 @@ export function ResaleListingCard({
 
   // --- MOBILE LAYOUT (matches presale card style) ---
   const mobileLayout = (
-    <div className="group overflow-hidden rounded-xl bg-card border border-border/60 shadow-sm active:scale-[0.98] transition-all duration-200 h-full flex flex-col">
+    <div className="group overflow-hidden rounded-xl bg-card border border-border/40 shadow-sm active:scale-[0.98] transition-all duration-200 h-full flex flex-col">
       {/* Hero Image */}
       <div 
         className="relative bg-muted overflow-hidden aspect-[3/2]"
@@ -262,7 +262,7 @@ export function ResaleListingCard({
 
   // --- DESKTOP LAYOUT (original style, unchanged) ---
   const desktopLayout = (
-    <Card className="group overflow-hidden border-border bg-card shadow-card hover:shadow-[0_8px_40px_rgb(0,0,0,0.12),0_0_0_1px_hsl(var(--primary)/0.2),0_0_20px_hsl(var(--primary)/0.15)] hover:border-primary/40 hover:-translate-y-2 transition-all duration-300 ease-out h-full flex flex-col">
+    <Card className="group overflow-hidden border-border/40 bg-card shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 ease-out h-full flex flex-col">
       <div 
         className={cn(
           "relative overflow-hidden bg-muted flex-shrink-0",

@@ -152,7 +152,7 @@ export function PresaleProjectCard({
 
   return (
     <Link to={projectUrl}>
-      <div className="group overflow-hidden rounded-xl bg-card border border-border/60 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200 h-full">
+      <div className="group overflow-hidden rounded-xl bg-card border border-border/40 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300 h-full">
         {/* Hero Image */}
         <div
           className={cn(

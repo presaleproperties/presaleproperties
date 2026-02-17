@@ -816,7 +816,7 @@ export default function ResaleListingDetail() {
               
               {/* Price with Est. Monthly */}
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="text-3xl md:text-4xl font-bold text-primary">
+                <span className="text-3xl md:text-4xl font-bold text-foreground">
                   {formatPrice(listing.listing_price)}
                 </span>
                 {listing.living_area && <span className="text-sm font-medium text-muted-foreground">
