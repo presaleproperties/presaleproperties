@@ -13,6 +13,20 @@ const ensureHttps = (url: string) => {
   return url.startsWith("http://") ? url.replace("http://", "https://") : url;
 };
 
+// Bot/crawler user agents that need OG meta tags
+const BOT_UA_PATTERNS = [
+  'facebookexternalhit', 'Facebot', 'Twitterbot', 'WhatsApp', 'LinkedInBot',
+  'Slackbot', 'TelegramBot', 'Discordbot', 'Googlebot', 'bingbot',
+  'iMessageBot', 'Applebot', 'Pinterest', 'Embedly', 'Quora Link Preview',
+  'Showyoubot', 'outbrain', 'vkShare', 'W3C_Validator', 'redditbot',
+  'Pinterestbot', 'MicroMessenger', 'SkypeUriPreview',
+];
+
+const isBot = (userAgent: string): boolean => {
+  const ua = userAgent.toLowerCase();
+  return BOT_UA_PATTERNS.some(bot => ua.includes(bot.toLowerCase()));
+};
+
 Deno.serve(async (req) => {
   // Handle CORS preflight
   if (req.method === "OPTIONS") {
@@ -22,15 +36,67 @@ Deno.serve(async (req) => {
   try {
     const url = new URL(req.url);
     const listingKey = url.searchParams.get("listingKey");
+    const projectSlug = url.searchParams.get("projectSlug");
 
-    if (!listingKey) {
-      return new Response("Missing listingKey parameter", { status: 400, headers: corsHeaders });
+    if (!listingKey && !projectSlug) {
+      return new Response("Missing listingKey or projectSlug parameter", { status: 400, headers: corsHeaders });
     }
+
+    // Check user agent - redirect humans to the canonical page, serve OG HTML to bots
+    const userAgent = req.headers.get("user-agent") || "";
 
     // Initialize Supabase client
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Handle presale project sharing
+    if (projectSlug) {
+      const { data: project, error } = await supabase
+        .from("presale_projects")
+        .select("*")
+        .eq("slug", projectSlug)
+        .maybeSingle();
+
+      if (error || !project) {
+        return new Response("Project not found", { status: 404, headers: corsHeaders });
+      }
+
+      const slugify = (text: string) => text.toLowerCase()
+        .replace(/['']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').replace(/-+/g, '-');
+
+      const neighborhood = project.neighborhood || project.city || "vancouver";
+      const typeMap: Record<string, string> = { condo: "condos", townhome: "townhomes", mixed: "homes", duplex: "duplexes", single_family: "homes" };
+      const typeSlug = typeMap[project.project_type] || "homes";
+      const canonicalUrl = `${SITE_URL}/${slugify(neighborhood)}-presale-${typeSlug}-${project.slug}`;
+      
+      const heroImage = ensureHttps(project.featured_image) || `${SITE_URL}/og-image.png`;
+      const title = `${project.name} — ${project.city} Presale`;
+      const description = `${project.project_type === "condo" ? "Condo" : project.project_type === "townhome" ? "Townhome" : "Home"} project in ${project.neighborhood || project.city}. Starting from ${project.starting_price ? new Intl.NumberFormat("en-CA", { style: "currency", currency: "CAD", maximumFractionDigits: 0 }).format(project.starting_price) : "TBD"}.`;
+
+      if (!isBot(userAgent)) {
+        return new Response(null, { status: 302, headers: { ...corsHeaders, "Location": canonicalUrl } });
+      }
+
+      const html = `<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>${title}</title><meta name="description" content="${description}">
+<meta property="og:type" content="website"><meta property="og:url" content="${canonicalUrl}">
+<meta property="og:title" content="${title}"><meta property="og:description" content="${description}">
+<meta property="og:image" content="${heroImage}"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:site_name" content="PresaleProperties.com">
+<meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${description}"><meta name="twitter:image" content="${heroImage}">
+<link rel="canonical" href="${canonicalUrl}">
+</head><body><h1>${title}</h1><p>${description}</p><a href="${canonicalUrl}">View Project</a></body></html>`;
+
+      const responseHeaders = new Headers();
+      responseHeaders.set("Content-Type", "text/html; charset=utf-8");
+      responseHeaders.set("Cache-Control", "public, max-age=3600, s-maxage=86400");
+      responseHeaders.set("Access-Control-Allow-Origin", "*");
+      return new Response(html, { status: 200, headers: responseHeaders });
+    }
 
     // Fetch the listing
     const { data: listing, error } = await supabase
@@ -113,7 +179,15 @@ Deno.serve(async (req) => {
     const addressSlug = slugify(`${address} ${listing.city} bc`);
     const canonicalUrl = `${SITE_URL}/properties/${addressSlug}-${listingKey}`;
 
-    // Generate HTML with OG meta tags
+    // If not a bot, redirect to the actual listing page
+    if (!isBot(userAgent)) {
+      return new Response(null, {
+        status: 302,
+        headers: { ...corsHeaders, "Location": canonicalUrl },
+      });
+    }
+
+    // Generate HTML with OG meta tags for bots/crawlers
     // NOTE: This is a complete HTML document that social crawlers can parse
     // The page includes a link to the actual listing for users who land here
     const html = `<!DOCTYPE html>

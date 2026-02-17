@@ -308,7 +308,8 @@ export default function PresaleProjectDetail() {
     });
   };
   const handleShare = async () => {
-    const shareUrl = window.location.href;
+    // Use OG meta proxy for sharing - serves property image to bots, redirects humans
+    const shareUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-property-meta?projectSlug=${project?.slug}`;
 
     // Try native share API first (works on mobile and some desktop browsers)
     if (navigator.share && navigator.canShare?.({
