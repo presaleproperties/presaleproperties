@@ -900,12 +900,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           transform: rotate(-45deg); 
           border: 2px solid hsl(33, 50%, 53%); 
           box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-          transition: transform 0.15s ease, box-shadow 0.15s ease;
           cursor: pointer;
         }
         .pin:hover, .pin.hl { 
-          width: 36px; 
-          height: 42px; 
           box-shadow: 0 3px 10px rgba(0,0,0,0.2); 
         }
         
