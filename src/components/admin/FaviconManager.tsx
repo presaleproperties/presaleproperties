@@ -36,7 +36,7 @@ export function FaviconManager() {
   const [urls, setUrls] = useState<FaviconUrls>(DEFAULT_URLS);
   const [uploading, setUploading] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [previewZoom, setPreviewZoom] = useState(64);
+  const [previewZoom, setPreviewZoom] = useState(80);
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
