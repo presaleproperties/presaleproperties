@@ -93,7 +93,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
         </div>
         <div className="flex gap-3 overflow-hidden px-4 sm:px-6 lg:px-0">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="shrink-0 w-[336px] md:w-[360px]">
+            <div key={i} className="shrink-0 w-[280px] md:w-[300px]">
               <Skeleton className="aspect-[4/3] rounded-xl" />
               <Skeleton className="h-5 w-3/4 mt-3" />
               <Skeleton className="h-4 w-1/2 mt-2" />
@@ -141,7 +141,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
             {neighborhoodListings.map((listing) => (
               <div 
                 key={listing.id} 
-                className="snap-start shrink-0 w-[336px] md:w-[360px] lg:w-[384px]"
+                className="snap-start shrink-0 w-[280px] md:w-[300px] lg:w-[320px]"
               >
                 <ResaleListingCard
                   id={listing.id}
@@ -199,7 +199,7 @@ export function RelatedCityListings({ city, neighborhood, excludeListingKey }: R
             {cityListings.map((listing) => (
               <div 
                 key={listing.id} 
-                className="snap-start shrink-0 w-[336px] md:w-[360px] lg:w-[384px]"
+                className="snap-start shrink-0 w-[280px] md:w-[300px] lg:w-[320px]"
               >
                 <ResaleListingCard
                   id={listing.id}

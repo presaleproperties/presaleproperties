@@ -147,7 +147,7 @@ export function CityProjectsCarousel({ city, title, subtitle, excludeSlug }: Cit
         className="flex gap-2.5 sm:gap-3 md:gap-4 overflow-x-auto scrollbar-hide pb-2 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 scroll-snap-x scroll-snap-mandatory"
       >
         {projects.map((project) => (
-          <div key={project.id} className="shrink-0 w-[calc(100vw-48px)] sm:w-[312px] md:w-[336px] lg:w-[360px] scroll-snap-start">
+          <div key={project.id} className="shrink-0 w-[calc(100vw-80px)] sm:w-[260px] md:w-[280px] lg:w-[300px] scroll-snap-start">
             <PresaleProjectCard
               id={project.id}
               slug={project.slug}
