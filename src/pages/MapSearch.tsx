@@ -2245,8 +2245,8 @@ export default function MapSearch() {
                             ? 'border-amber-500/50 hover:border-amber-500'
                             : 'border-border hover:border-primary/50'
                       )}>
-                        {/* Large Image - 3:2 aspect ratio matching REW */}
-                        <div className="relative w-full aspect-[3/2] bg-muted overflow-hidden">
+                        {/* Image with price overlay */}
+                        <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -2273,6 +2273,35 @@ export default function MapSearch() {
                               </div>
                             )
                           )}
+                          {/* Gradient overlay for price */}
+                          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
+                          {/* Price on image */}
+                          <div className={cn("absolute bottom-2 left-2 right-2 flex items-end justify-between", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                            <div>
+                              <span className="text-white/70 text-[10px] font-medium block leading-none mb-0.5">
+                                {isPresale ? 'From' : isAssignment ? 'Asking' : ''}
+                              </span>
+                              <span className="text-white font-bold text-lg leading-none drop-shadow-md">
+                                {isPresale
+                                  ? formatPrice((data as PresaleProject).starting_price)
+                                  : isAssignment
+                                  ? formatPrice((data as Assignment).assignment_price)
+                                  : formatPrice((data as MLSListing).listing_price)
+                                }
+                              </span>
+                            </div>
+                            {/* Specs inline with price for resale/assignments */}
+                            {!isPresale && !isAssignment && (
+                              <span className="text-white/80 text-[10px] font-medium mb-0.5">
+                                {(data as MLSListing).bedrooms_total || '-'}bd • {(data as MLSListing).bathrooms_total || '-'}ba{(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()}sf` : ''}
+                              </span>
+                            )}
+                            {isAssignment && (
+                              <span className={cn("text-white/80 text-[10px] font-medium mb-0.5", !isVerifiedAgent && "blur-sm")}>
+                                {(data as Assignment).beds}bd • {(data as Assignment).baths}ba{(data as Assignment).interior_sqft ? ` • ${(data as Assignment).interior_sqft?.toLocaleString()}sf` : ''}
+                              </span>
+                            )}
+                          </div>
                           {/* Badge overlay */}
                           <Badge className={`absolute top-2 left-2 text-[9px] px-1.5 py-0.5 font-semibold shadow-md ${
                             isPresale 
@@ -2302,56 +2331,28 @@ export default function MapSearch() {
                           )}
                         </div>
                         
-                        {/* Content - REW-style compact info */}
-                        <div className={cn("p-2.5 space-y-1 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
-                          {/* Blur overlay for assignment content when not verified */}
+                        {/* Compact info: Name + Location only */}
+                        <div className={cn("px-2.5 py-2 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
                           {isAssignment && !isVerifiedAgent && (
                             <div className="absolute inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-10">
                               <p className="text-xs text-muted-foreground text-center px-2">Verify to view</p>
                             </div>
                           )}
-                          {/* Price - Prominent */}
-                          <div className={cn("font-bold text-base leading-tight", isAssignment ? "text-amber-600" : "text-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
-                            {isPresale
-                              ? formatPrice((data as PresaleProject).starting_price)
-                              : isAssignment
-                              ? formatPrice((data as Assignment).assignment_price)
-                              : formatPrice((data as MLSListing).listing_price)
-                            }
-                          </div>
-                          
-                          {/* Address */}
-                          <h4 className={cn("font-medium text-foreground text-sm line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                          <h4 className={cn("font-semibold text-foreground text-sm leading-tight line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                             {isPresale 
                               ? (data as PresaleProject).name 
                               : isAssignment
                               ? (data as Assignment).project_name
                               : getResaleAddress(data as MLSListing)}
                           </h4>
-                          
-                          {/* Location */}
-                          <div className={cn("text-muted-foreground text-xs line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                          <div className={cn("text-muted-foreground text-xs mt-0.5 line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                             {isPresale 
-                              ? `${(data as PresaleProject).neighborhood} • ${(data as PresaleProject).city}`
+                              ? `${(data as PresaleProject).neighborhood || ''} · ${(data as PresaleProject).city}`
                               : isAssignment
                               ? `${(data as Assignment).neighborhood || (data as Assignment).city}`
                               : `${(data as MLSListing).neighborhood || (data as MLSListing).city}`
                             }
                           </div>
-                          
-                          {/* Specs for resale */}
-                          {!isPresale && !isAssignment && (
-                            <div className="text-muted-foreground text-xs">
-                              {(data as MLSListing).bedrooms_total || '-'} bd • {(data as MLSListing).bathrooms_total || '-'} ba{(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()} sf` : ''}
-                            </div>
-                          )}
-                          
-                          {/* Specs for assignments */}
-                          {isAssignment && (
-                            <div className={cn("text-muted-foreground text-xs", !isVerifiedAgent && "blur-sm")}>
-                              {(data as Assignment).beds} bd • {(data as Assignment).baths} ba{(data as Assignment).interior_sqft ? ` • ${(data as Assignment).interior_sqft?.toLocaleString()} sf` : ''}
-                            </div>
-                          )}
                         </div>
                       </div>
                     </Link>
