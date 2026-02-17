@@ -72,7 +72,7 @@ export function HeroSection({
           </h1>
 
           <p className="text-base sm:text-lg md:text-xl text-white/80 font-medium max-w-2xl leading-relaxed">
-            Project updates, info packages & expert advice — all in one place.
+            Real-time project updates, downloadable info packages, and expert guidance for new construction across Metro Vancouver.
           </p>
 
           {/* Tabs — pill-style, inline */}
