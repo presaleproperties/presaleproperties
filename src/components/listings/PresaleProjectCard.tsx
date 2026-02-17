@@ -243,7 +243,7 @@ export function PresaleProjectCard({
 
         {/* Info — compact and clean */}
         <div className="px-3 py-2.5 space-y-1">
-          <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
+          <h3 className="font-serif text-foreground text-base leading-tight line-clamp-1 group-hover:text-primary transition-colors">
             {name}
           </h3>
           <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
