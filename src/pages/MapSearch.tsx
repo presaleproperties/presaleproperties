@@ -2280,18 +2280,7 @@ export default function MapSearch() {
                                   : formatPrice((data as MLSListing).listing_price)
                                 }
                               </span>
-                            </div>
-                            {/* Specs inline with price for resale/assignments */}
-                            {!isPresale && !isAssignment && (
-                              <span className="text-white/80 text-[10px] font-medium mb-0.5">
-                                {(data as MLSListing).bedrooms_total || '-'}bd • {(data as MLSListing).bathrooms_total || '-'}ba{(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()}sf` : ''}
-                              </span>
-                            )}
-                            {isAssignment && (
-                              <span className={cn("text-white/80 text-[10px] font-medium mb-0.5", !isVerifiedAgent && "blur-sm")}>
-                                {(data as Assignment).beds}bd • {(data as Assignment).baths}ba{(data as Assignment).interior_sqft ? ` • ${(data as Assignment).interior_sqft?.toLocaleString()}sf` : ''}
-                              </span>
-                            )}
+                           </div>
                           </div>
                           {/* Badge overlay */}
                           <Badge className={`absolute top-2 left-2 text-[9px] px-1.5 py-0.5 font-semibold shadow-md ${
@@ -2322,7 +2311,7 @@ export default function MapSearch() {
                           )}
                         </div>
                         
-                        {/* Compact info: Name + Location only */}
+                        {/* Compact info: Name, Location + Specs */}
                         <div className={cn("px-2.5 py-2 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
                           {isAssignment && !isVerifiedAgent && (
                             <div className="absolute inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-10">
@@ -2344,6 +2333,18 @@ export default function MapSearch() {
                               : `${(data as MLSListing).neighborhood || (data as MLSListing).city}`
                             }
                           </div>
+                          {/* Specs for resale */}
+                          {!isPresale && !isAssignment && (
+                            <div className="text-muted-foreground text-xs mt-0.5">
+                              {(data as MLSListing).bedrooms_total || '-'} bd • {(data as MLSListing).bathrooms_total || '-'} ba{(data as MLSListing).living_area ? ` • ${(data as MLSListing).living_area?.toLocaleString()} sf` : ''}
+                            </div>
+                          )}
+                          {/* Specs for assignments */}
+                          {isAssignment && (
+                            <div className={cn("text-muted-foreground text-xs mt-0.5", !isVerifiedAgent && "blur-sm")}>
+                              {(data as Assignment).beds} bd • {(data as Assignment).baths} ba{(data as Assignment).interior_sqft ? ` • ${(data as Assignment).interior_sqft?.toLocaleString()} sf` : ''}
+                            </div>
+                          )}
                         </div>
                       </div>
                     </Link>
