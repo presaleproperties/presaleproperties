@@ -19,13 +19,13 @@ import { SearchTab } from "@/components/home/HeroSection";
 
 
 const TOP_CITIES = [
-  { name: "Vancouver", slug: "vancouver" },
-  { name: "Surrey", slug: "surrey" },
-  { name: "Burnaby", slug: "burnaby" },
-  { name: "Langley", slug: "langley" },
-  { name: "Coquitlam", slug: "coquitlam" },
-  { name: "Richmond", slug: "richmond" },
-];
+{ name: "Vancouver", slug: "vancouver" },
+{ name: "Surrey", slug: "surrey" },
+{ name: "Burnaby", slug: "burnaby" },
+{ name: "Langley", slug: "langley" },
+{ name: "Coquitlam", slug: "coquitlam" },
+{ name: "Richmond", slug: "richmond" }];
+
 
 interface MobileHomePageProps {
   activeTab?: SearchTab;
@@ -35,7 +35,7 @@ interface MobileHomePageProps {
 export function MobileHomePage({ activeTab: controlledTab, onTabChange }: MobileHomePageProps) {
   const [internalTab, setInternalTab] = useState<SearchTab>("projects");
   const activeTab = controlledTab ?? internalTab;
-  
+
   const handleTabChange = (tab: SearchTab) => {
     if (onTabChange) {
       onTabChange(tab);
@@ -43,7 +43,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       setInternalTab(tab);
     }
   };
-  
+
   const [selectedCity, setSelectedCity] = useState("all");
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -64,46 +64,46 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
   const { pullDistance, isRefreshing, containerRef } = usePullToRefresh({
     onRefresh: handleRefresh,
     threshold: 80,
-    maxPull: 120,
+    maxPull: 120
   });
 
   const handleCityChange = useCallback((city: string) => {
     setSelectedCity(city);
-    
+
     if (typeof window !== "undefined" && (window as any).gtag) {
       (window as any).gtag("event", "location_changed", {
-        city: city,
+        city: city
       });
     }
   }, []);
 
   return (
-    <div 
+    <div
       ref={containerRef}
-      className="min-h-screen bg-background lg:hidden"
-    >
+      className="min-h-screen bg-background lg:hidden">
+
       {/* Pull to Refresh Indicator */}
-      <PullToRefreshIndicator 
-        pullDistance={pullDistance} 
-        isRefreshing={isRefreshing} 
-      />
+      <PullToRefreshIndicator
+        pullDistance={pullDistance}
+        isRefreshing={isRefreshing} />
+
 
 
       {/* Full-Screen Hero Section - Brand Luxe Style */}
-      <div 
+      <div
         className="relative min-h-[75vh] flex flex-col"
-        style={{ 
+        style={{
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
-        }}
-      >
+        }}>
+
         {/* Background Image */}
         <div className="absolute inset-0">
-          <img 
-            src={heroImage} 
-            alt="Modern home interior" 
-            className="w-full h-full object-cover"
-          />
+          <img
+            src={heroImage}
+            alt="Modern home interior"
+            className="w-full h-full object-cover" />
+
           {/* Gradient overlay - warmer, more luxe feel */}
           <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/40 to-foreground/70" />
         </div>
@@ -111,22 +111,22 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content */}
         <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
           {/* Main Headline - Simple & Bold */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">
-            New Homes For Sale<br />
+          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-8 tracking-tight">Vancouver Presales
+Metro Vancouver<br />
             <span className="text-primary">Metro Vancouver</span>
           </h1>
           
           {/* Search Container */}
           <div className="w-full max-w-md">
             <PowerSearch
-              placeholder={activeTab === "projects" 
-                ? "Search projects, address, neighbourhood..." 
-                : "Address, MLS#, city, neighbourhood..."
+              placeholder={activeTab === "projects" ?
+              "Search projects, address, neighbourhood..." :
+              "Address, MLS#, city, neighbourhood..."
               }
               mode={activeTab === "projects" ? "presale" : "resale"}
               variant="hero"
-              inputClassName="h-14 text-base rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground"
-            />
+              inputClassName="h-14 text-base rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground" />
+
           </div>
 
           {/* Mode Toggle Pills - Brand Gold Accent */}
@@ -134,21 +134,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <button
               onClick={() => handleTabChange("projects")}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                activeTab === "projects" 
-                  ? "bg-primary text-primary-foreground shadow-lg" 
-                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
-              }`}
-            >
+              activeTab === "projects" ?
+              "bg-primary text-primary-foreground shadow-lg" :
+              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`
+              }>
+
               Presale
             </button>
             <button
               onClick={() => handleTabChange("resale")}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-                activeTab === "resale" 
-                  ? "bg-primary text-primary-foreground shadow-lg" 
-                  : "bg-white/15 text-white backdrop-blur-sm border border-white/20"
-              }`}
-            >
+              activeTab === "resale" ?
+              "bg-primary text-primary-foreground shadow-lg" :
+              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`
+              }>
+
               Move-In Ready
             </button>
           </div>
@@ -161,30 +161,30 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <span className="text-sm font-medium text-foreground whitespace-nowrap flex-shrink-0">
             Top Cities
           </span>
-          {TOP_CITIES.map((city) => (
-            <button
-              key={city.slug}
-              onClick={() => handleCityClick(city.slug)}
-              className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-card backdrop-blur-md border border-border shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0"
-            >
+          {TOP_CITIES.map((city) =>
+          <button
+            key={city.slug}
+            onClick={() => handleCityClick(city.slug)}
+            className="px-4 py-2.5 rounded-full text-sm font-medium whitespace-nowrap bg-card backdrop-blur-md border border-border shadow-sm hover:border-primary hover:bg-primary hover:text-primary-foreground transition-all active:scale-95 flex-shrink-0">
+
               {city.name}
             </button>
-          ))}
+          )}
         </div>
       </div>
 
       {/* Discovery Sections - Switch based on active tab */}
       <div className="pb-6">
-        {activeTab === "projects" ? (
-          <>
+        {activeTab === "projects" ?
+        <>
             {/* Hot Projects - Featured Section */}
             <CarouselSection delay={0}>
               <MobileDiscoveryCarousel
-                type="hot_projects"
-                title="Most Popular Projects"
-                subtitle="The most in-demand presale projects"
-                city={selectedCity}
-              />
+              type="hot_projects"
+              title="Most Popular Projects"
+              subtitle="The most in-demand presale projects"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <div className="my-6 border-t border-border/50" />
@@ -192,10 +192,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             {/* Condos */}
             <CarouselSection delay={50}>
               <MobileDiscoveryCarousel
-                type="condos"
-                title="Presale Condos"
-                city={selectedCity}
-              />
+              type="condos"
+              title="Presale Condos"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <div className="my-6 border-t border-border/50" />
@@ -203,10 +203,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             {/* Townhomes */}
             <CarouselSection delay={50}>
               <MobileDiscoveryCarousel
-                type="townhomes"
-                title="Presale Townhomes"
-                city={selectedCity}
-              />
+              type="townhomes"
+              title="Presale Townhomes"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <div className="my-6 border-t border-border/50" />
@@ -214,10 +214,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             {/* Single-Family / Detached */}
             <CarouselSection delay={100}>
               <MobileDiscoveryCarousel
-                type="single_family"
-                title="Detached Homes"
-                city={selectedCity}
-              />
+              type="single_family"
+              title="Detached Homes"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <div className="my-6 border-t border-border/50" />
@@ -226,15 +226,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <CarouselSection delay={125}>
               <MobileCityQuickLinks />
             </CarouselSection>
-          </>
-        ) : (
-          <>
+          </> :
+
+        <>
             {/* Resale Mode - Show MLS listings */}
             <CarouselSection delay={0}>
               <MobileResaleCarousel
-                title="Featured Listings"
-                subtitle="New construction resale homes"
-              />
+              title="Featured Listings"
+              subtitle="New construction resale homes" />
+
             </CarouselSection>
 
             <div className="my-6 border-t border-border/50" />
@@ -293,76 +293,76 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               <MobileResaleCityCarousel city="Abbotsford" />
             </CarouselSection>
           </>
-        )}
+        }
 
         {/* City-based Carousels - Only show for Presale tab */}
-        {activeTab === "projects" && (
-          <>
+        {activeTab === "projects" &&
+        <>
             <CarouselSection delay={150}>
               <MobileDiscoveryCarousel
-                type="city_vancouver"
-                title="Vancouver"
-                city={selectedCity}
-              />
+              type="city_vancouver"
+              title="Vancouver"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={200}>
               <MobileDiscoveryCarousel
-                type="city_surrey"
-                title="Surrey"
-                city={selectedCity}
-              />
+              type="city_surrey"
+              title="Surrey"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={250}>
               <MobileDiscoveryCarousel
-                type="city_burnaby"
-                title="Burnaby"
-                city={selectedCity}
-              />
+              type="city_burnaby"
+              title="Burnaby"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={300}>
               <MobileDiscoveryCarousel
-                type="city_coquitlam"
-                title="Coquitlam"
-                city={selectedCity}
-              />
+              type="city_coquitlam"
+              title="Coquitlam"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={350}>
               <MobileDiscoveryCarousel
-                type="city_langley"
-                title="Langley"
-                city={selectedCity}
-              />
+              type="city_langley"
+              title="Langley"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={400}>
               <MobileDiscoveryCarousel
-                type="city_richmond"
-                title="Richmond"
-                city={selectedCity}
-              />
+              type="city_richmond"
+              title="Richmond"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={450}>
               <MobileDiscoveryCarousel
-                type="city_delta"
-                title="Delta"
-                city={selectedCity}
-              />
+              type="city_delta"
+              title="Delta"
+              city={selectedCity} />
+
             </CarouselSection>
 
             <CarouselSection delay={500}>
               <MobileDiscoveryCarousel
-                type="city_abbotsford"
-                title="Abbotsford"
-                city={selectedCity}
-              />
+              type="city_abbotsford"
+              title="Abbotsford"
+              city={selectedCity} />
+
             </CarouselSection>
           </>
-        )}
+        }
       </div>
 
       {/* Benefits Section */}
@@ -395,20 +395,20 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
         className="fixed right-4 z-40 lg:hidden h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg shadow-primary/30 flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all"
         style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 80px)' }}
-        aria-label="Map Search"
-      >
+        aria-label="Map Search">
+
         <Map className="h-5 w-5" />
       </button>
 
-    </div>
-  );
+    </div>);
+
 }
 
 // Carousel section wrapper - no animation to prevent blinking on navigation
-function CarouselSection({ children }: { children: React.ReactNode; delay?: number }) {
+function CarouselSection({ children }: {children: React.ReactNode;delay?: number;}) {
   return (
     <div>
       {children}
-    </div>
-  );
+    </div>);
+
 }
