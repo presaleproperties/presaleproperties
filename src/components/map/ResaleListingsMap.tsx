@@ -56,7 +56,7 @@ function createPricePillIcon(listing: MLSListing): L.DivIcon {
     className: "custom-price-marker",
     html: `
       <div style="
-        background: hsl(43, 96%, 56%);
+        background: hsl(40, 65%, 55%);
         color: white;
         padding: 4px 8px;
         border-radius: 16px;
@@ -95,7 +95,7 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
       font-weight: 700;
       font-size: ${fontSize}px;
       box-shadow: 0 3px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.1);
-      border: 2.5px solid hsl(43, 96%, 56%);
+      border: 2.5px solid hsl(40, 65%, 55%);
       font-family: system-ui, -apple-system, sans-serif;
     ">${count}</div>`,
     className: "marker-cluster-custom",
@@ -129,10 +129,10 @@ function popupHtml(listing: MLSListing): string {
   const listingUrl = getListingUrl(listing.listing_key, getAddress(listing), listing.city);
   
   return `
-    <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px hsla(43,90%,30%,0.2);background:hsl(30,20%,99%);border:1px solid hsl(30,10%,88%);">
+    <div style="width:320px;font-family:system-ui,-apple-system,sans-serif;border-radius:12px;overflow:hidden;box-shadow:0 10px 40px -10px hsla(40,65%,30%,0.2);background:hsl(30,20%,99%);border:1px solid hsl(30,10%,88%);">
       ${photoHtml}
       <div style="padding:14px 16px;">
-        <div style="font-weight:800;font-size:20px;color:hsl(43,96%,56%);letter-spacing:-0.02em;">${formatPrice(listing.listing_price)}</div>
+        <div style="font-weight:800;font-size:20px;color:hsl(40,65%,55%);letter-spacing:-0.02em;">${formatPrice(listing.listing_price)}</div>
         <div style="font-size:14px;color:hsl(220,20%,15%);margin-top:4px;font-weight:500;">${getAddress(listing)}</div>
         <div style="font-size:13px;color:hsl(220,8%,46%);margin-top:2px;">${listing.city}</div>
         <div style="display:flex;gap:12px;margin-top:10px;font-size:13px;color:hsl(220,8%,46%);font-weight:500;">
@@ -141,7 +141,7 @@ function popupHtml(listing: MLSListing): string {
           ${listing.living_area ? `<span>${listing.living_area.toLocaleString()} sqft</span>` : ""}
         </div>
         ${attribution ? `<div style="font-size:11px;color:hsl(220,8%,60%);margin-top:10px;border-top:1px solid hsl(30,10%,90%);padding-top:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Listed by ${attribution}</div>` : ""}
-        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(43,96%,56%),hsl(38,95%,42%));color:white;text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px hsla(43,90%,30%,0.2);transition:transform 0.15s;">View Details</a>
+        <a href="${listingUrl}" style="display:block;margin-top:12px;background:linear-gradient(135deg,hsl(40,65%,55%),hsl(34,65%,40%));color:white;text-align:center;padding:10px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;box-shadow:0 2px 8px hsla(40,65%,30%,0.2);transition:transform 0.15s;">View Details</a>
       </div>
     </div>
   `;

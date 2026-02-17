@@ -336,11 +336,11 @@ export function HomeUnifiedMapSection({
         {hasData && mode === "all" && (
           <div className="flex items-center justify-center gap-6 mt-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full" style={{ background: "hsl(30, 15%, 18%)", border: "2px solid hsl(43, 96%, 56%)" }} />
+              <div className="w-4 h-4 rounded-full" style={{ background: "hsl(30, 15%, 18%)", border: "2px solid hsl(40, 65%, 55%)" }} />
               <span>Presale Projects</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded-full" style={{ background: "hsl(43, 96%, 56%)", border: "2px solid white" }} />
+              <div className="w-4 h-4 rounded-full" style={{ background: "hsl(40, 65%, 55%)", border: "2px solid white" }} />
               <span>Move-In Ready</span>
             </div>
           </div>

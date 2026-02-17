@@ -68,7 +68,7 @@ export function HeroSection({
             style={{ animationDelay: "0.1s" }}
           >
             Find Your{" "}
-            <span className="text-primary drop-shadow-[0_0_40px_hsl(43_96%_56%/0.6)] relative">
+            <span className="text-primary drop-shadow-[0_0_40px_hsl(40_65%_55%/0.6)] relative">
               New
               <span className="absolute -inset-1 bg-primary/10 blur-2xl -z-10" />
             </span>{" "}
