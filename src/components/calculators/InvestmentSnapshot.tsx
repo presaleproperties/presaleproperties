@@ -498,28 +498,27 @@ export function InvestmentSnapshot() {
                       <div className="pt-2 border-t border-green-200">
                         <div className="flex justify-between items-center">
                           <div>
-                            <div className="text-xs font-bold text-green-700 uppercase">GST New Housing Rebate</div>
+                            <div className="text-xs font-bold text-green-700 uppercase">GST Rebate (2025 Rules)</div>
                             <p className="text-[10px] text-green-600">
-                              {inputs.purchasePrice <= 350000
-                                ? '36% of GST (max $6,300)'
-                                : inputs.purchasePrice < 450000
-                                ? 'Partial rebate (phaseout $350K–$450K)'
-                                : 'Not eligible — home over $450,000'}
+                              {inputs.purchasePrice <= 1000000
+                                ? 'Up to 100% rebate (max $50,000)'
+                                : inputs.purchasePrice < 1500000
+                                ? 'Partial rebate (phaseout $1M–$1.5M)'
+                                : 'Not eligible — home over $1.5M'}
                             </p>
                           </div>
-                          <span className={`text-lg font-bold ${inputs.purchasePrice <= 450000 ? 'text-green-600' : 'text-muted-foreground'}`}>
+                          <span className={`text-lg font-bold ${inputs.purchasePrice <= 1500000 ? 'text-green-600' : 'text-muted-foreground'}`}>
                             {fmt(
-                              inputs.purchasePrice <= 350000
-                                ? Math.min(results.gst * 0.36, 6300)
-                                : inputs.purchasePrice < 450000
-                                ? Math.min(results.gst * 0.36, 6300) * ((450000 - inputs.purchasePrice) / 100000)
+                              inputs.purchasePrice <= 1000000
+                                ? Math.min(results.gst, 50000)
+                                : inputs.purchasePrice < 1500000
+                                ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000)
                                 : 0
                             )}
                           </span>
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-1">
-                          *Primary residence only. Must apply separately — not automatic at closing.
-                          {inputs.purchasePrice > 450000 && ' Most BC presale condos exceed the $450K threshold.'}
+                          *Primary residence only. Builder typically applies on your behalf. Agreements signed on or after May 27, 2025.
                         </p>
                       </div>
                     )}
