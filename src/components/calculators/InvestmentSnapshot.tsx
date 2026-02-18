@@ -489,9 +489,20 @@ export function InvestmentSnapshot() {
                 </div>
 
                 {isFirstTimeBuyer && (
-                  <div className="bg-green-50 rounded-xl p-3 border border-green-200 flex justify-between items-center">
-                    <div><div className="text-xs font-bold text-green-700 uppercase">PTT Savings</div><p className="text-[10px] text-green-600">First-time buyer benefit</p></div>
-                    <span className="text-lg font-bold text-green-600">{fmt(calculatePTT(inputs.purchasePrice, false))}</span>
+                  <div className="bg-green-50 rounded-xl p-3 border border-green-200 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div><div className="text-xs font-bold text-green-700 uppercase">PTT Savings</div><p className="text-[10px] text-green-600">First-time buyer exempt</p></div>
+                      <span className="text-lg font-bold text-green-600">{fmt(calculatePTT(inputs.purchasePrice, false))}</span>
+                    </div>
+                    {inputs.includeGST && (
+                      <div className="pt-2 border-t border-green-200">
+                        <div className="flex justify-between items-center">
+                          <div><div className="text-xs font-bold text-green-700 uppercase">GST Rebate</div><p className="text-[10px] text-green-600">Up to 36% of GST paid (max $6,300)</p></div>
+                          <span className="text-lg font-bold text-green-600">{fmt(Math.min(results.gst * 0.36, 6300))}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1">*Must apply separately — only for primary residence. Not automatic at closing.</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
