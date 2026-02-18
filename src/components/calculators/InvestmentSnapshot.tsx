@@ -568,152 +568,166 @@ export function InvestmentSnapshot() {
           </TabsContent>
 
           {/* Page 2: Equity */}
-          <TabsContent value="equity" className="p-4 sm:p-6 mt-0">
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Inputs */}
-              <div className="space-y-4">
-                <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/20">
-                  <label className="text-xs font-medium text-primary uppercase flex items-center gap-1.5 mb-3"><Calendar className="w-3.5 h-3.5" /> Holding Period</label>
-                  <div className="flex items-center justify-center gap-4">
-                    <Button variant="outline" size="icon" onClick={() => updateInput('holdingPeriodYears', Math.max(1, inputs.holdingPeriodYears - 1))} className="h-10 w-10">-</Button>
-                    <div className="text-center"><div className="text-4xl font-bold text-primary">{inputs.holdingPeriodYears}</div><div className="text-xs text-muted-foreground">years</div></div>
-                    <Button variant="outline" size="icon" onClick={() => updateInput('holdingPeriodYears', Math.min(30, inputs.holdingPeriodYears + 1))} className="h-10 w-10">+</Button>
-                  </div>
-                </div>
-
-                <div className="bg-secondary/20 rounded-xl p-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <label className="text-xs font-semibold text-muted-foreground uppercase">Annual Appreciation</label>
-                    <span className="text-lg font-bold text-primary">{inputs.appreciationRate}%</span>
-                  </div>
-                  <Slider value={[inputs.appreciationRate]} onValueChange={(v) => updateInput('appreciationRate', v[0])} min={0} max={10} step={0.5} />
-                </div>
-
-                <div className="bg-secondary/10 rounded-xl p-4 border border-border/30 space-y-2 text-sm">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Summary</h3>
-                  {[{ label: 'Purchase', value: inputs.purchasePrice }, { label: 'Price + GST', value: results.priceWithGST }, { label: 'Mortgage', value: results.mortgageAmount }, { label: 'Cash Invested', value: results.totalCashRequired, bold: true }].map(({ label, value, bold }) => (
-                    <div key={label} className={`flex justify-between ${bold ? 'pt-2 border-t border-border/50 font-bold' : ''}`}>
-                      <span className="text-muted-foreground">{label}</span><span className={bold ? 'font-bold' : 'font-medium'}>{fmt(value)}</span>
-                    </div>
-                  ))}
+          <TabsContent value="equity" className="p-4 sm:p-6 mt-0 space-y-5">
+            {/* Controls Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-3 border border-primary/20">
+                <label className="text-[10px] font-medium text-primary uppercase flex items-center gap-1 mb-2"><Calendar className="w-3 h-3" /> Hold Period</label>
+                <div className="flex items-center justify-center gap-3">
+                  <Button variant="outline" size="icon" onClick={() => updateInput('holdingPeriodYears', Math.max(1, inputs.holdingPeriodYears - 1))} className="h-8 w-8 text-xs">-</Button>
+                  <div className="text-center"><span className="text-3xl font-bold text-primary">{inputs.holdingPeriodYears}</span><span className="text-xs text-muted-foreground ml-1">yr</span></div>
+                  <Button variant="outline" size="icon" onClick={() => updateInput('holdingPeriodYears', Math.min(30, inputs.holdingPeriodYears + 1))} className="h-8 w-8 text-xs">+</Button>
                 </div>
               </div>
-
-              {/* Results */}
-              <div className="space-y-4">
-                <div className="bg-gradient-to-br from-green-50 to-green-100/50 rounded-xl p-4 border border-green-200">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-xs font-semibold text-green-700 uppercase">Future Value</span>
-                    <span className="text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded-full">{inputs.holdingPeriodYears}yr</span>
-                  </div>
-                  <div className="text-3xl font-bold text-green-700">{fmt(results.futureValue)}</div>
-                  <div className="flex items-center gap-1 mt-1 text-sm text-green-600"><ArrowUpRight className="w-4 h-4" />+{fmt(results.appreciation)}</div>
-                </div>
-
-                <div className="bg-white rounded-xl p-4 border shadow-sm">
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-3 flex items-center gap-1.5"><PiggyBank className="w-3.5 h-3.5" /> Total Equity Built</h3>
-                  <div className="text-3xl font-bold mb-4">{fmt(results.totalEquityBuilt)}</div>
-                  {[{ label: 'Down Payment', value: results.downPayment, color: 'bg-primary/70' }, { label: 'Paydown', value: results.principalPaid, color: 'bg-blue-500' }, { label: 'Appreciation', value: results.appreciation, color: 'bg-green-500' }].map(({ label, value, color }) => (
-                    <div key={label} className="mb-2">
-                      <div className="flex justify-between text-sm mb-1"><span className="text-muted-foreground">{label}</span><span className="font-medium">{fmt(value)}</span></div>
-                      <div className="h-2 bg-secondary rounded-full overflow-hidden"><div className={`h-full ${color} rounded-full`} style={{ width: `${(value / results.totalEquityBuilt) * 100}%` }} /></div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-foreground text-background rounded-xl p-3">
-                    <div className="text-[10px] opacity-70 uppercase mb-1">Total Return</div>
-                    <div className="text-lg font-bold">{fmt(results.totalReturn)}</div>
-                  </div>
-                  <div className={`rounded-xl p-3 border-2 ${results.roiPercent > 0 ? 'bg-green-50 border-green-400' : 'bg-red-50 border-red-400'}`}>
-                    <div className={`text-[10px] uppercase font-semibold mb-1 ${results.roiPercent > 0 ? 'text-green-700' : 'text-red-700'}`}>ROI</div>
-                    <div className={`text-lg font-bold ${results.roiPercent > 0 ? 'text-green-600' : 'text-red-600'}`}>{results.roiPercent.toFixed(1)}%</div>
-                  </div>
-                </div>
-
-                {/* Detailed Growth Breakdown for Investors */}
-                {!isFirstTimeBuyer && (
-                  <div className="bg-white rounded-xl p-4 border shadow-sm space-y-3">
-                    <h3 className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
-                      <TrendingUp className="w-3.5 h-3.5" /> Detailed Return Breakdown
-                    </h3>
-
-                    {/* Key Metrics */}
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { label: 'Cap Rate', value: `${((results.annualCashFlow + results.totalMonthlyExpenses * 12 - inputs.monthlyRent * 12 + inputs.monthlyRent * 12 - (results.monthlyMortgage * 12)) / results.priceWithGST * 100) > 0 ? ((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(1) : ((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(1)}%` },
-                        { label: 'Cash-on-Cash', value: `${results.totalCashRequired > 0 ? (results.annualCashFlow / results.totalCashRequired * 100).toFixed(1) : '0.0'}%` },
-                        { label: 'Annualized ROI', value: `${inputs.holdingPeriodYears > 0 ? (results.roiPercent / inputs.holdingPeriodYears).toFixed(1) : '0.0'}%` },
-                      ].map(({ label, value }) => (
-                        <div key={label} className="bg-secondary/30 rounded-lg p-2 text-center">
-                          <div className="text-[10px] text-muted-foreground uppercase">{label}</div>
-                          <div className="text-sm font-bold">{value}</div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Return Sources */}
-                    <div className="space-y-1.5 pt-2 border-t border-border/30">
-                      <div className="text-[10px] text-muted-foreground uppercase font-semibold">Return Sources ({inputs.holdingPeriodYears}yr)</div>
-                      {[
-                        { label: 'Price Appreciation', value: results.appreciation, pct: results.totalReturn > 0 ? (results.appreciation / results.totalReturn * 100) : 0 },
-                        { label: 'Mortgage Paydown', value: results.principalPaid, pct: results.totalReturn > 0 ? (results.principalPaid / results.totalReturn * 100) : 0 },
-                        { label: 'Net Cash Flow', value: results.totalCashFlowOverPeriod, pct: results.totalReturn > 0 ? (results.totalCashFlowOverPeriod / results.totalReturn * 100) : 0 },
-                      ].map(({ label, value, pct }) => (
-                        <div key={label} className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-2 flex-1">
-                            <span className="text-muted-foreground">{label}</span>
-                            <span className="text-[10px] text-muted-foreground/70">({pct.toFixed(0)}%)</span>
-                          </div>
-                          <span className={`font-semibold ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>{value >= 0 ? '+' : ''}{fmt(value)}</span>
-                        </div>
-                      ))}
-                      <div className="flex justify-between text-sm pt-1.5 border-t border-border/30 font-bold">
-                        <span>Total Return</span>
-                        <span className={results.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}>{fmt(results.totalReturn)}</span>
-                      </div>
-                    </div>
-
-                    {/* Year-by-Year Snapshot */}
-                    <div className="pt-2 border-t border-border/30">
-                      <div className="text-[10px] text-muted-foreground uppercase font-semibold mb-2">Year-by-Year Growth</div>
-                      <div className="space-y-1">
-                        {Array.from({ length: Math.min(inputs.holdingPeriodYears, 10) }, (_, i) => {
-                          const yr = i + 1;
-                          const val = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, yr);
-                          const eq = (results.downPayment) + (results.principalPaid / inputs.holdingPeriodYears * yr) + (val - inputs.purchasePrice);
-                          return (
-                            <div key={yr} className="flex items-center gap-2 text-xs">
-                              <span className="w-8 text-muted-foreground font-medium">Yr {yr}</span>
-                              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
-                                <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${Math.min((eq / (results.totalEquityBuilt || 1)) * 100, 100)}%` }} />
-                              </div>
-                              <span className="w-20 text-right font-semibold">{fmt(val)}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {isFirstTimeBuyer && (
-                  <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30">
-                    <div className="flex items-center gap-2 mb-3"><Home className="w-4 h-4 text-primary" /><span className="text-sm font-bold text-primary">Rent vs Own</span></div>
-                    <div className="grid grid-cols-2 gap-3 mb-3">
-                      <div className="bg-white rounded-lg p-3 border"><div className="text-xs text-muted-foreground">Rent Paid</div><div className="text-lg font-bold text-red-600">-{fmt(rentVsOwn.totalRentPaid)}</div></div>
-                      <div className="bg-white rounded-lg p-3 border"><div className="text-xs text-muted-foreground">Equity Built</div><div className="text-lg font-bold text-green-600">{fmt(rentVsOwn.equityBuilt)}</div></div>
-                    </div>
-                    <div className={`rounded-lg p-3 text-center ${rentVsOwn.owningIsBetter ? 'bg-green-100 border border-green-300' : 'bg-amber-100 border border-amber-300'}`}>
-                      <div className={`text-sm font-bold ${rentVsOwn.owningIsBetter ? 'text-green-700' : 'text-amber-700'}`}>
-                        {rentVsOwn.owningIsBetter ? `Buying = ${fmt(rentVsOwn.wealthDifference)} more wealth` : `Renting saves ${fmt(Math.abs(rentVsOwn.wealthDifference))}`}
-                      </div>
-                    </div>
-                  </div>
-                )}
+              <div className="bg-secondary/20 rounded-xl p-3">
+                <label className="text-[10px] font-semibold text-muted-foreground uppercase flex items-center gap-1 mb-2"><TrendingUp className="w-3 h-3" /> Appreciation</label>
+                <div className="text-center mb-2"><span className="text-3xl font-bold text-primary">{inputs.appreciationRate}%</span><span className="text-xs text-muted-foreground ml-1">/yr</span></div>
+                <Slider value={[inputs.appreciationRate]} onValueChange={(v) => updateInput('appreciationRate', v[0])} min={0} max={10} step={0.5} />
               </div>
             </div>
+
+            {/* Hero: Future Value */}
+            <div className="bg-gradient-to-r from-green-50 via-green-50/50 to-white rounded-xl p-4 border border-green-200 flex items-center justify-between">
+              <div>
+                <div className="text-[10px] text-green-600 uppercase font-semibold mb-0.5">Estimated Value in {inputs.holdingPeriodYears}yr</div>
+                <div className="text-3xl font-bold text-green-700">{fmt(results.futureValue)}</div>
+                <div className="flex items-center gap-1 text-sm text-green-600 mt-0.5"><ArrowUpRight className="w-3.5 h-3.5" />+{fmt(results.appreciation)} appreciation</div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] text-muted-foreground uppercase">Purchase</div>
+                <div className="text-sm font-medium text-muted-foreground">{fmt(inputs.purchasePrice)}</div>
+                <div className="text-[10px] text-muted-foreground mt-1">+GST: {fmt(results.priceWithGST)}</div>
+              </div>
+            </div>
+
+            {/* Equity Breakdown */}
+            <div className="bg-white rounded-xl p-4 border shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-1.5"><PiggyBank className="w-3.5 h-3.5" /> Total Equity Built</h3>
+                <span className="text-xl font-bold">{fmt(results.totalEquityBuilt)}</span>
+              </div>
+              {/* Stacked bar */}
+              <div className="h-4 rounded-full overflow-hidden flex mb-3">
+                {[
+                  { value: results.downPayment, color: 'bg-primary/70' },
+                  { value: results.principalPaid, color: 'bg-blue-500' },
+                  { value: results.appreciation, color: 'bg-green-500' },
+                ].map(({ value, color }, i) => (
+                  <div key={i} className={`${color} transition-all`} style={{ width: `${(value / (results.totalEquityBuilt || 1)) * 100}%` }} />
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-2 text-center">
+                {[
+                  { label: 'Down Payment', value: results.downPayment, dot: 'bg-primary/70' },
+                  { label: 'Paydown', value: results.principalPaid, dot: 'bg-blue-500' },
+                  { label: 'Appreciation', value: results.appreciation, dot: 'bg-green-500' },
+                ].map(({ label, value, dot }) => (
+                  <div key={label}>
+                    <div className="flex items-center justify-center gap-1 mb-0.5"><div className={`w-2 h-2 rounded-full ${dot}`} /><span className="text-[10px] text-muted-foreground">{label}</span></div>
+                    <div className="text-sm font-bold">{fmt(value)}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Key Metrics Row */}
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { label: 'Total Return', value: fmt(results.totalReturn), sub: null, accent: true },
+                { label: 'ROI', value: `${results.roiPercent.toFixed(1)}%`, sub: `${inputs.holdingPeriodYears}yr total`, accent: false },
+                { label: 'Annualized', value: `${inputs.holdingPeriodYears > 0 ? (results.roiPercent / inputs.holdingPeriodYears).toFixed(1) : '0.0'}%`, sub: 'per year', accent: false },
+                { label: 'Cash Invested', value: fmt(results.totalCashRequired), sub: null, accent: false },
+              ].map(({ label, value, sub, accent }) => (
+                <div key={label} className={`rounded-xl p-2.5 text-center ${accent ? 'bg-foreground text-background' : 'bg-secondary/30'}`}>
+                  <div className={`text-[9px] uppercase font-semibold mb-0.5 ${accent ? 'opacity-60' : 'text-muted-foreground'}`}>{label}</div>
+                  <div className={`text-sm font-bold ${!accent && parseFloat(value) < 0 ? 'text-red-600' : ''}`}>{value}</div>
+                  {sub && <div className={`text-[9px] mt-0.5 ${accent ? 'opacity-50' : 'text-muted-foreground/60'}`}>{sub}</div>}
+                </div>
+              ))}
+            </div>
+
+            {/* Investor: Detailed Breakdown */}
+            {!isFirstTimeBuyer && (
+              <div className="grid grid-cols-2 gap-3">
+                {/* Return Sources */}
+                <div className="bg-white rounded-xl p-4 border shadow-sm">
+                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase mb-3">Return Sources</h3>
+                  <div className="space-y-2.5">
+                    {[
+                      { label: 'Appreciation', value: results.appreciation, pct: results.totalReturn !== 0 ? (results.appreciation / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-green-500' },
+                      { label: 'Paydown', value: results.principalPaid, pct: results.totalReturn !== 0 ? (results.principalPaid / Math.abs(results.totalReturn) * 100) : 0, color: 'bg-blue-500' },
+                      { label: 'Cash Flow', value: results.totalCashFlowOverPeriod, pct: results.totalReturn !== 0 ? (results.totalCashFlowOverPeriod / Math.abs(results.totalReturn) * 100) : 0, color: results.totalCashFlowOverPeriod >= 0 ? 'bg-emerald-400' : 'bg-red-400' },
+                    ].map(({ label, value, pct, color }) => (
+                      <div key={label}>
+                        <div className="flex justify-between text-xs mb-1">
+                          <span className="text-muted-foreground">{label} <span className="text-muted-foreground/50">({pct.toFixed(0)}%)</span></span>
+                          <span className={`font-semibold ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>{value >= 0 ? '+' : ''}{fmt(value)}</span>
+                        </div>
+                        <div className="h-1.5 bg-secondary rounded-full overflow-hidden"><div className={`h-full ${color} rounded-full`} style={{ width: `${Math.abs(pct)}%` }} /></div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Investor Metrics */}
+                <div className="bg-white rounded-xl p-4 border shadow-sm">
+                  <h3 className="text-[10px] font-semibold text-muted-foreground uppercase mb-3">Investor Metrics</h3>
+                  <div className="space-y-2">
+                    {[
+                      { label: 'Cap Rate', value: `${((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(2)}%`, desc: 'NOI / Price' },
+                      { label: 'Cash-on-Cash', value: `${results.totalCashRequired > 0 ? (results.annualCashFlow / results.totalCashRequired * 100).toFixed(2) : '0.00'}%`, desc: 'Annual CF / Cash In' },
+                      { label: 'Mortgage', value: fmt(results.mortgageAmount), desc: `Balance yr${inputs.holdingPeriodYears}: ${fmt(results.remainingBalance)}` },
+                      { label: 'Monthly CF', value: fmt(results.monthlyCashFlow), desc: `${fmt(inputs.monthlyRent)} rent − ${fmt(results.totalMonthlyExpenses)} costs` },
+                    ].map(({ label, value, desc }) => (
+                      <div key={label} className="flex justify-between items-start py-1.5 border-b border-border/20 last:border-0">
+                        <div><div className="text-xs font-medium">{label}</div><div className="text-[10px] text-muted-foreground">{desc}</div></div>
+                        <span className="text-sm font-bold">{value}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Year-by-Year Growth */}
+            <div className="bg-white rounded-xl p-4 border shadow-sm">
+              <h3 className="text-[10px] font-semibold text-muted-foreground uppercase mb-3">Property Value Over Time</h3>
+              <div className="space-y-1.5">
+                {Array.from({ length: Math.min(inputs.holdingPeriodYears, 10) }, (_, i) => {
+                  const yr = i + 1;
+                  const val = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, yr);
+                  const gain = val - inputs.purchasePrice;
+                  const maxVal = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, Math.min(inputs.holdingPeriodYears, 10));
+                  const maxGain = maxVal - inputs.purchasePrice;
+                  return (
+                    <div key={yr} className="flex items-center gap-2 text-xs">
+                      <span className="w-8 text-muted-foreground font-medium shrink-0">Yr {yr}</span>
+                      <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
+                        <div className="h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full transition-all" style={{ width: `${maxGain > 0 ? (gain / maxGain) * 100 : 0}%` }} />
+                      </div>
+                      <span className="w-[72px] text-right font-bold shrink-0">{fmt(val)}</span>
+                      <span className="w-[60px] text-right text-green-600 shrink-0">+{fmt(gain)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* First-Time Buyer: Rent vs Own */}
+            {isFirstTimeBuyer && (
+              <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30">
+                <div className="flex items-center gap-2 mb-3"><Home className="w-4 h-4 text-primary" /><span className="text-sm font-bold text-primary">Rent vs Own ({inputs.holdingPeriodYears}yr)</span></div>
+                <div className="grid grid-cols-2 gap-3 mb-3">
+                  <div className="bg-white rounded-lg p-3 border"><div className="text-[10px] text-muted-foreground uppercase">Total Rent Paid</div><div className="text-lg font-bold text-red-600">-{fmt(rentVsOwn.totalRentPaid)}</div></div>
+                  <div className="bg-white rounded-lg p-3 border"><div className="text-[10px] text-muted-foreground uppercase">Equity Built</div><div className="text-lg font-bold text-green-600">{fmt(rentVsOwn.equityBuilt)}</div></div>
+                </div>
+                <div className={`rounded-lg p-3 text-center ${rentVsOwn.owningIsBetter ? 'bg-green-100 border border-green-300' : 'bg-amber-100 border border-amber-300'}`}>
+                  <div className={`text-sm font-bold ${rentVsOwn.owningIsBetter ? 'text-green-700' : 'text-amber-700'}`}>
+                    {rentVsOwn.owningIsBetter ? `Buying = ${fmt(rentVsOwn.wealthDifference)} more wealth` : `Renting saves ${fmt(Math.abs(rentVsOwn.wealthDifference))}`}
+                  </div>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>
