@@ -441,7 +441,15 @@ export function InvestmentSnapshot() {
                   </div>
                 </div>
 
-                {!isFirstTimeBuyer && (
+                {isFirstTimeBuyer ? (
+                  <div className="bg-blue-50 rounded-xl p-3 border border-blue-200 space-y-2">
+                    <label className="text-xs text-blue-700 font-medium block">What are you paying in rent now?</label>
+                    <Input type="text" inputMode="numeric" value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
+                      onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
+                      className="h-10 text-center font-semibold text-blue-700 border-blue-300" placeholder="$2,200" />
+                    <p className="text-[10px] text-blue-600/70">Used to compare renting vs. owning over time</p>
+                  </div>
+                ) : (
                   <div className="bg-green-50 rounded-xl p-3 border border-green-200">
                     <label className="text-xs text-green-700 block mb-1">Monthly Rent</label>
                     <Input type="number" value={inputs.monthlyRent} onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
