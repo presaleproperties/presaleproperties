@@ -632,6 +632,72 @@ export function InvestmentSnapshot() {
                   </div>
                 </div>
 
+                {/* Detailed Growth Breakdown for Investors */}
+                {!isFirstTimeBuyer && (
+                  <div className="bg-white rounded-xl p-4 border shadow-sm space-y-3">
+                    <h3 className="text-xs font-semibold text-muted-foreground uppercase flex items-center gap-1.5">
+                      <TrendingUp className="w-3.5 h-3.5" /> Detailed Return Breakdown
+                    </h3>
+
+                    {/* Key Metrics */}
+                    <div className="grid grid-cols-3 gap-2">
+                      {[
+                        { label: 'Cap Rate', value: `${((results.annualCashFlow + results.totalMonthlyExpenses * 12 - inputs.monthlyRent * 12 + inputs.monthlyRent * 12 - (results.monthlyMortgage * 12)) / results.priceWithGST * 100) > 0 ? ((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(1) : ((inputs.monthlyRent * 12 - (inputs.strataFees + inputs.propertyTax) * 12) / results.priceWithGST * 100).toFixed(1)}%` },
+                        { label: 'Cash-on-Cash', value: `${results.totalCashRequired > 0 ? (results.annualCashFlow / results.totalCashRequired * 100).toFixed(1) : '0.0'}%` },
+                        { label: 'Annualized ROI', value: `${inputs.holdingPeriodYears > 0 ? (results.roiPercent / inputs.holdingPeriodYears).toFixed(1) : '0.0'}%` },
+                      ].map(({ label, value }) => (
+                        <div key={label} className="bg-secondary/30 rounded-lg p-2 text-center">
+                          <div className="text-[10px] text-muted-foreground uppercase">{label}</div>
+                          <div className="text-sm font-bold">{value}</div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Return Sources */}
+                    <div className="space-y-1.5 pt-2 border-t border-border/30">
+                      <div className="text-[10px] text-muted-foreground uppercase font-semibold">Return Sources ({inputs.holdingPeriodYears}yr)</div>
+                      {[
+                        { label: 'Price Appreciation', value: results.appreciation, pct: results.totalReturn > 0 ? (results.appreciation / results.totalReturn * 100) : 0 },
+                        { label: 'Mortgage Paydown', value: results.principalPaid, pct: results.totalReturn > 0 ? (results.principalPaid / results.totalReturn * 100) : 0 },
+                        { label: 'Net Cash Flow', value: results.totalCashFlowOverPeriod, pct: results.totalReturn > 0 ? (results.totalCashFlowOverPeriod / results.totalReturn * 100) : 0 },
+                      ].map(({ label, value, pct }) => (
+                        <div key={label} className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2 flex-1">
+                            <span className="text-muted-foreground">{label}</span>
+                            <span className="text-[10px] text-muted-foreground/70">({pct.toFixed(0)}%)</span>
+                          </div>
+                          <span className={`font-semibold ${value >= 0 ? 'text-green-600' : 'text-red-600'}`}>{value >= 0 ? '+' : ''}{fmt(value)}</span>
+                        </div>
+                      ))}
+                      <div className="flex justify-between text-sm pt-1.5 border-t border-border/30 font-bold">
+                        <span>Total Return</span>
+                        <span className={results.totalReturn >= 0 ? 'text-green-600' : 'text-red-600'}>{fmt(results.totalReturn)}</span>
+                      </div>
+                    </div>
+
+                    {/* Year-by-Year Snapshot */}
+                    <div className="pt-2 border-t border-border/30">
+                      <div className="text-[10px] text-muted-foreground uppercase font-semibold mb-2">Year-by-Year Growth</div>
+                      <div className="space-y-1">
+                        {Array.from({ length: Math.min(inputs.holdingPeriodYears, 10) }, (_, i) => {
+                          const yr = i + 1;
+                          const val = inputs.purchasePrice * Math.pow(1 + inputs.appreciationRate / 100, yr);
+                          const eq = (results.downPayment) + (results.principalPaid / inputs.holdingPeriodYears * yr) + (val - inputs.purchasePrice);
+                          return (
+                            <div key={yr} className="flex items-center gap-2 text-xs">
+                              <span className="w-8 text-muted-foreground font-medium">Yr {yr}</span>
+                              <div className="flex-1 h-1.5 bg-secondary rounded-full overflow-hidden">
+                                <div className="h-full bg-green-500 rounded-full transition-all" style={{ width: `${Math.min((eq / (results.totalEquityBuilt || 1)) * 100, 100)}%` }} />
+                              </div>
+                              <span className="w-20 text-right font-semibold">{fmt(val)}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {isFirstTimeBuyer && (
                   <div className="bg-gradient-to-br from-primary/10 to-primary/5 rounded-xl p-4 border border-primary/30">
                     <div className="flex items-center gap-2 mb-3"><Home className="w-4 h-4 text-primary" /><span className="text-sm font-bold text-primary">Rent vs Own</span></div>
