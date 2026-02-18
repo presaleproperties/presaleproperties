@@ -340,12 +340,13 @@ export function REWPhotoGallery({
 
         {/* Thumbnail strip - Desktop/Tablet (hidden on mobile) */}
         {photos.length > 1 && (
-          <div className="hidden sm:flex gap-2 mt-2 px-0 lg:px-0">
+          <div className="hidden sm:flex gap-2 mt-2 px-0 lg:px-0" style={{ maxHeight: '100px' }}>
             {photos.slice(0, 5).map((photo, i) => (
               <div
                 key={i}
                 className={cn(
-                  "relative flex-1 aspect-[4/3] rounded-lg overflow-hidden bg-muted cursor-pointer border-2 transition-all",
+                  "relative aspect-[4/3] rounded-lg overflow-hidden bg-muted cursor-pointer border-2 transition-all",
+                  "w-[calc(20%-0.4rem)]",
                   selectedIndex === i ? "border-primary" : "border-transparent hover:border-primary/40"
                 )}
                 onClick={() => {
