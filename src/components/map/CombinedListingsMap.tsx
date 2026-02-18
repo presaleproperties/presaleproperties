@@ -548,6 +548,14 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     if (savedMapState) {
       hasInitializedViewRef.current = true;
       hasRestoredSavedStateRef.current = true;
+      // Force Leaflet to recalculate container size and refresh tiles/markers
+      // This fixes the bug where markers disappear after back-navigation
+      requestAnimationFrame(() => {
+        map.invalidateSize({ animate: false });
+        // Trigger a tiny pan to force markercluster to re-render visible markers
+        map.panBy([0, 1], { animate: false });
+        map.panBy([0, -1], { animate: false });
+      });
     }
 
     // Throttled event handlers
