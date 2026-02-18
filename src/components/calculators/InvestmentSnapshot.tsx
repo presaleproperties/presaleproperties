@@ -492,7 +492,7 @@ export function InvestmentSnapshot() {
                     {results.ptt > 0 && <div className="flex justify-between"><span className="opacity-70">Property Transfer Tax</span><span>{fmt(results.ptt)}</span></div>}
                     <div className="flex justify-between"><span className="opacity-70">Legal & Closing Costs</span><span>{fmt(inputs.closingCosts)}</span></div>
                     {results.creditTotal > 0 && <div className="flex justify-between"><span className="opacity-70">Developer Credit</span><span className="text-green-400">-{fmt(results.creditTotal)}</span></div>}
-                    {results.cmhcPremium > 0 && <div className="flex justify-between"><span className="opacity-70">CMHC Premium</span><span className="opacity-70">Added to mortgage</span></div>}
+                    {results.cmhcPremium > 0 && <div className="flex justify-between"><span className="opacity-70">CMHC Premium</span><span>{fmt(results.cmhcPremium)} <span className="opacity-50 text-[10px]">(in mortgage)</span></span></div>}
                   </div>
                 </div>
 
