@@ -716,7 +716,12 @@ export default function MapSearch() {
         .eq("mls_status", "Active")
         .not("latitude", "is", null)
         .not("longitude", "is", null)
-        .gte("year_built", 2024);
+        .gte("year_built", 2024)
+        // Bounding box: Metro Vancouver + Fraser Valley area only
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.35)
+        .lte("longitude", -121.7);
 
       // Filter by selected cities (multi-select)
       if (selectedCities.length > 0) {
