@@ -173,7 +173,7 @@ export function InvestmentSnapshot() {
     // Cash required at completion:
     // = (Down payment - Deposits already paid) + PTT + Closing costs - Developer credits
     const remainingDownPayment = Math.max(0, downPayment - totalDeposits);
-    const cashAtCompletion = Math.max(0, remainingDownPayment + gst + ptt + inputs.closingCosts - creditTotal);
+    const cashAtCompletion = Math.max(0, remainingDownPayment + ptt + inputs.closingCosts - creditTotal);
     
     // Total cash out of pocket
     const totalCashRequired = totalDeposits + cashAtCompletion;
