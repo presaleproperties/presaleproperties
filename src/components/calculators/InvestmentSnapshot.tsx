@@ -485,7 +485,15 @@ export function InvestmentSnapshot() {
                     <div className="bg-white/10 rounded-lg p-2 text-center"><div className="opacity-70">Deposits</div><div className="font-bold">{fmt(results.totalDeposits)}</div></div>
                     <div className="bg-white/10 rounded-lg p-2 text-center"><div className="opacity-70">At Closing</div><div className="font-bold">{fmt(results.cashAtCompletion)}</div></div>
                   </div>
-                  {results.cmhcPremium > 0 && <div className="mt-2 pt-2 border-t border-white/20 text-xs flex justify-between"><span className="opacity-70">CMHC</span><span>{fmt(results.cmhcPremium)}</span></div>}
+                  {/* At Closing Breakdown */}
+                  <div className="mt-2 pt-2 border-t border-white/20 text-xs space-y-1.5">
+                    <div className="opacity-60 font-semibold uppercase text-[10px] mb-1">Closing Breakdown</div>
+                    <div className="flex justify-between"><span className="opacity-70">Remaining Down Payment</span><span>{fmt(results.remainingDownPayment)}</span></div>
+                    {results.ptt > 0 && <div className="flex justify-between"><span className="opacity-70">Property Transfer Tax</span><span>{fmt(results.ptt)}</span></div>}
+                    <div className="flex justify-between"><span className="opacity-70">Legal & Closing Costs</span><span>{fmt(inputs.closingCosts)}</span></div>
+                    {results.creditTotal > 0 && <div className="flex justify-between"><span className="opacity-70">Developer Credit</span><span className="text-green-400">-{fmt(results.creditTotal)}</span></div>}
+                    {results.cmhcPremium > 0 && <div className="flex justify-between"><span className="opacity-70">CMHC Premium</span><span>{fmt(results.cmhcPremium)}</span></div>}
+                  </div>
                 </div>
 
                 {isFirstTimeBuyer && (
