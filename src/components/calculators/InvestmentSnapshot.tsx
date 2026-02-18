@@ -497,10 +497,30 @@ export function InvestmentSnapshot() {
                     {inputs.includeGST && (
                       <div className="pt-2 border-t border-green-200">
                         <div className="flex justify-between items-center">
-                          <div><div className="text-xs font-bold text-green-700 uppercase">GST Rebate</div><p className="text-[10px] text-green-600">Up to 36% of GST paid (max $6,300)</p></div>
-                          <span className="text-lg font-bold text-green-600">{fmt(Math.min(results.gst * 0.36, 6300))}</span>
+                          <div>
+                            <div className="text-xs font-bold text-green-700 uppercase">GST New Housing Rebate</div>
+                            <p className="text-[10px] text-green-600">
+                              {inputs.purchasePrice <= 350000
+                                ? '36% of GST (max $6,300)'
+                                : inputs.purchasePrice < 450000
+                                ? 'Partial rebate (phaseout $350K–$450K)'
+                                : 'Not eligible — home over $450,000'}
+                            </p>
+                          </div>
+                          <span className={`text-lg font-bold ${inputs.purchasePrice <= 450000 ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {fmt(
+                              inputs.purchasePrice <= 350000
+                                ? Math.min(results.gst * 0.36, 6300)
+                                : inputs.purchasePrice < 450000
+                                ? Math.min(results.gst * 0.36, 6300) * ((450000 - inputs.purchasePrice) / 100000)
+                                : 0
+                            )}
+                          </span>
                         </div>
-                        <p className="text-[10px] text-muted-foreground mt-1">*Must apply separately — only for primary residence. Not automatic at closing.</p>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          *Primary residence only. Must apply separately — not automatic at closing.
+                          {inputs.purchasePrice > 450000 && ' Most BC presale condos exceed the $450K threshold.'}
+                        </p>
                       </div>
                     )}
                   </div>
