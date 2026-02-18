@@ -295,8 +295,8 @@ export default function MapSearch() {
   const urlCities = searchParams.get("cities");
   
   // Determine if we have explicit navigation context from URL
-  // This includes both singular "city" and plural "cities" params
-  const hasUrlLocationContext = !!(urlLat && urlLng) || !!urlCity || !!urlCities;
+  // Note: "cities" (plural) is a filter param, not a navigation context — don't block saved state for it
+  const hasUrlLocationContext = !!(urlLat && urlLng) || !!urlCity;
   
   // Persisted map state - restored from sessionStorage ONLY if no URL context
   const [savedMapState, setSavedMapState] = useState<SavedMapState | null>(() => {
