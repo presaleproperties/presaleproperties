@@ -323,236 +323,248 @@ export function InvestmentSnapshot() {
           </TabsList>
 
           {/* Page 1: Cash Flow */}
-          <TabsContent value="cashflow" className="p-4 sm:p-6 mt-0 space-y-5">
-            {/* Hero: Key Result */}
-            <div className={`rounded-xl p-4 text-center border-2 ${isFirstTimeBuyer ? 'bg-gradient-to-r from-primary/10 to-primary/5 border-primary/30' : isPositive ? 'bg-gradient-to-r from-green-50 to-green-100/50 border-green-300' : 'bg-gradient-to-r from-red-50 to-red-100/50 border-red-300'}`}>
-              <div className="flex items-center justify-center gap-2 mb-1">
-                {isFirstTimeBuyer ? <Home className="w-5 h-5 text-primary" /> : isPositive ? <TrendingUp className="w-5 h-5 text-green-600" /> : <PiggyBank className="w-5 h-5 text-red-600" />}
-                <span className={`text-xs font-bold uppercase ${isFirstTimeBuyer ? 'text-primary' : isPositive ? 'text-green-700' : 'text-red-700'}`}>
-                  {isFirstTimeBuyer ? 'Your Monthly Payment' : 'Monthly Cash Flow'}
-                </span>
-              </div>
-              <div className={`text-3xl sm:text-4xl font-bold ${isFirstTimeBuyer ? 'text-foreground' : isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                {isFirstTimeBuyer ? fmt(results.totalMonthlyExpenses) : (isPositive ? '+' : '') + fmt(results.monthlyCashFlow)}
-                <span className="text-sm font-normal text-muted-foreground">/mo</span>
-              </div>
-              {!isFirstTimeBuyer && (
-                <div className="text-xs text-muted-foreground mt-1">{fmt(inputs.monthlyRent)} rent − {fmt(results.totalMonthlyExpenses)} expenses</div>
-              )}
-            </div>
-
-            {/* Purchase Price & Unit Info */}
-            <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
-              <label className="text-[10px] font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-2">
-                <DollarSign className="w-3.5 h-3.5" /> Purchase Price
-              </label>
-              <Input type="text" inputMode="numeric" value={`$${inputs.purchasePrice.toLocaleString()}`}
-                onChange={(e) => updateInput('purchasePrice', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                className="text-xl font-bold text-center h-12 border-2 border-primary/20 bg-white" />
-              <div className="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-border/30">
-                <div>
-                  <label className="text-[10px] text-muted-foreground block mb-1">Sqft</label>
-                  <Input type="number" value={inputs.sqft} onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
-                    className="h-9 text-center font-semibold text-sm" placeholder="550" />
-                </div>
-                <div className="flex flex-col justify-end">
-                  <div className="text-[10px] text-muted-foreground mb-1">$/sqft</div>
-                  <div className="h-9 flex items-center justify-center bg-primary/10 rounded-md text-sm font-bold text-primary">
-                    {inputs.sqft > 0 ? `$${Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString()}` : '—'}
+          <TabsContent value="cashflow" className="p-4 sm:p-6 mt-0">
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Inputs */}
+              <div className="space-y-4">
+                {/* Price & Size */}
+                <div className="bg-gradient-to-br from-secondary/40 to-secondary/20 rounded-xl p-4">
+                  <label className="text-xs font-medium text-muted-foreground uppercase flex items-center gap-1.5 mb-2">
+                    <DollarSign className="w-3.5 h-3.5" /> Purchase Price
+                  </label>
+                  <Input type="text" inputMode="numeric" value={`$${inputs.purchasePrice.toLocaleString()}`}
+                    onChange={(e) => updateInput('purchasePrice', Number(e.target.value.replace(/\D/g, '')) || 0)}
+                    className="text-xl font-bold text-center h-12 border-2 border-primary/20 bg-white" />
+                  
+                  <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border/30">
+                    <div>
+                      <label className="text-[10px] text-muted-foreground block mb-1">Unit Size (sqft)</label>
+                      <Input type="number" value={inputs.sqft} onChange={(e) => updateInput('sqft', parseInt(e.target.value) || 0)}
+                        className="h-9 text-center font-semibold text-sm" placeholder="550" />
+                    </div>
+                    <div className="flex flex-col justify-end">
+                      <div className="text-[10px] text-muted-foreground mb-1">Price per sqft</div>
+                      <div className="h-9 flex items-center justify-center bg-primary/10 rounded-md text-sm font-bold text-primary">
+                        {inputs.sqft > 0 ? `$${Math.round(inputs.purchasePrice / inputs.sqft).toLocaleString()}` : '—'}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                    <span>+ GST:</span><span className="font-semibold">{fmt(results.priceWithGST)}</span>
                   </div>
                 </div>
-                <div className="flex flex-col justify-end">
-                  <div className="text-[10px] text-muted-foreground mb-1">+ GST</div>
-                  <div className="h-9 flex items-center justify-center bg-secondary/50 rounded-md text-sm font-semibold">
-                    {fmt(results.priceWithGST)}
+
+                {/* Down Payment */}
+                <div className="bg-secondary/20 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-semibold text-muted-foreground uppercase">Down Payment</span>
+                    <span className="text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
+                  </div>
+                  <Slider value={[inputs.downPaymentPercent]} onValueChange={(v) => updateInput('downPaymentPercent', v[0])} min={5} max={60} step={5} className="my-2" />
+                  <div className="flex justify-between text-sm"><span className="text-muted-foreground">Required</span><span className="font-bold">{fmt(results.downPayment)}</span></div>
+                  <div className="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-border/30">
+                    {[{ label: 'Deposit 1', field: 'firstDepositPercent' as const, value: results.firstDeposit }, { label: 'Deposit 2', field: 'secondDepositPercent' as const, value: results.secondDeposit }].map(({ label, field, value }) => (
+                      <div key={field}>
+                        <div className="flex justify-between text-xs mb-1"><span className="text-muted-foreground">{label}</span><span className="font-bold text-primary">{inputs[field]}%</span></div>
+                        <Slider value={[inputs[field]]} onValueChange={(v) => updateInput(field, v[0])} min={field === 'firstDepositPercent' ? 1 : 0} max={15} step={1} />
+                        <div className="text-center text-xs font-semibold mt-1">{fmt(value)}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Down Payment & Deposits */}
-            <div className="bg-secondary/20 rounded-xl p-4">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-xs font-semibold text-muted-foreground uppercase">Down Payment</span>
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold">{fmt(results.downPayment)}</span>
-                  <span className="text-lg font-bold text-primary">{inputs.downPaymentPercent}%</span>
-                </div>
-              </div>
-              <Slider value={[inputs.downPaymentPercent]} onValueChange={(v) => updateInput('downPaymentPercent', v[0])} min={5} max={60} step={5} className="my-2" />
-              <div className="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-border/30">
-                {[{ label: 'Deposit 1', field: 'firstDepositPercent' as const, value: results.firstDeposit }, { label: 'Deposit 2', field: 'secondDepositPercent' as const, value: results.secondDeposit }].map(({ label, field, value }) => (
-                  <div key={field}>
-                    <div className="flex justify-between text-xs mb-1"><span className="text-muted-foreground">{label}</span><span className="font-bold text-primary">{inputs[field]}%</span></div>
-                    <Slider value={[inputs[field]]} onValueChange={(v) => updateInput(field, v[0])} min={field === 'firstDepositPercent' ? 1 : 0} max={15} step={1} />
-                    <div className="text-center text-xs font-semibold mt-1">{fmt(value)}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Monthly Costs & Rate */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white rounded-xl p-4 border shadow-sm">
-                <h3 className="text-[10px] font-semibold text-muted-foreground uppercase mb-3">Monthly Breakdown</h3>
-                <div className="space-y-2 text-sm">
+                {/* Monthly Inputs */}
+                <div className="grid grid-cols-3 gap-2">
                   {[
-                    { label: 'Mortgage', value: results.monthlyMortgage },
-                    { label: 'Strata', value: inputs.strataFees },
-                    { label: 'Tax', value: inputs.propertyTax },
-                  ].map(({ label, value }) => (
+                    { label: 'Rate %', field: 'interestRate' as const, step: 0.01 },
+                    { label: 'Strata', field: 'strataFees' as const },
+                    { label: 'Tax/mo', field: 'propertyTax' as const },
+                  ].map(({ label, field, step }) => (
+                    <div key={field} className="bg-secondary/20 rounded-xl p-2.5">
+                      <label className="text-[10px] text-muted-foreground block mb-1">{label}</label>
+                      <Input type="number" step={step} value={inputs[field]}
+                        onChange={(e) => updateInput(field, step ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0)}
+                        className="h-9 text-center font-semibold text-sm" />
+                    </div>
+                  ))}
+                </div>
+
+                {/* GST, PTT & Developer Credit Section */}
+                <div className="bg-secondary/20 rounded-xl p-4 space-y-3">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase">Closing Adjustments</h3>
+                  
+                  {/* GST Toggle */}
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <span className="text-sm font-medium">Include GST (5%)</span>
+                      <p className="text-[10px] text-muted-foreground">New construction tax</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-semibold">{fmt(results.gst)}</span>
+                      <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} />
+                    </div>
+                  </div>
+                  
+                  {/* PTT Display */}
+                  <div className="flex items-center justify-between py-2 border-t border-border/30">
+                    <div>
+                      <span className="text-sm font-medium">PTT (Property Transfer Tax)</span>
+                      {isFirstTimeBuyer && <p className="text-[10px] text-green-600">✓ First-time buyer exempt</p>}
+                    </div>
+                    <span className={`text-sm font-semibold ${isFirstTimeBuyer ? 'text-green-600 line-through' : ''}`}>
+                      {fmt(isFirstTimeBuyer ? calculatePTT(inputs.purchasePrice, false) : results.ptt)}
+                    </span>
+                  </div>
+                  
+                  {/* Developer Credit */}
+                  <div className="pt-2 border-t border-border/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm font-medium">Developer Credit</span>
+                      <span className="text-sm font-semibold text-green-600">-{fmt(results.creditTotal)}</span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] text-muted-foreground block mb-1">% of Price</label>
+                        <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
+                          onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
+                          className="h-8 text-center text-sm" placeholder="0%" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] text-muted-foreground block mb-1">Or Fixed $</label>
+                        <Input type="number" step="1000" min="0" value={inputs.creditAmount}
+                          onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
+                          className="h-8 text-center text-sm" placeholder="$0" />
+                      </div>
+                    </div>
+                    <p className="text-[10px] text-muted-foreground mt-1">Applied towards closing costs</p>
+                  </div>
+                </div>
+
+                {isFirstTimeBuyer ? (
+                  <div className="bg-blue-50 rounded-xl p-3 border border-blue-200 space-y-2">
+                    <label className="text-xs text-blue-700 font-medium block">What are you paying in rent now?</label>
+                    <Input type="text" inputMode="numeric" value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
+                      onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
+                      className="h-10 text-center font-semibold text-blue-700 border-blue-300" placeholder="$2,200" />
+                    <p className="text-[10px] text-blue-600/70">Used to compare renting vs. owning over time</p>
+                  </div>
+                ) : (
+                  <div className="bg-green-50 rounded-xl p-3 border border-green-200">
+                    <label className="text-xs text-green-700 block mb-1">Monthly Rent</label>
+                    <Input type="number" value={inputs.monthlyRent} onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
+                      className="h-10 text-center font-semibold text-green-700 border-green-300" />
+                  </div>
+                )}
+              </div>
+
+              {/* Results */}
+              <div className="space-y-4">
+                {/* Key Result */}
+                <div className={`rounded-xl p-4 text-center border-2 ${isFirstTimeBuyer ? 'bg-gradient-to-br from-primary/10 to-primary/5 border-primary/30' : isPositive ? 'bg-gradient-to-br from-green-50 to-green-100/50 border-green-300' : 'bg-gradient-to-br from-red-50 to-red-100/50 border-red-300'}`}>
+                  <div className="flex items-center justify-center gap-2 mb-1">
+                    {isFirstTimeBuyer ? <Home className="w-5 h-5 text-primary" /> : isPositive ? <TrendingUp className="w-5 h-5 text-green-600" /> : <PiggyBank className="w-5 h-5 text-red-600" />}
+                    <span className={`text-xs font-bold uppercase ${isFirstTimeBuyer ? 'text-primary' : isPositive ? 'text-green-700' : 'text-red-700'}`}>
+                      {isFirstTimeBuyer ? 'Your Monthly Payment' : 'Monthly Cash Flow'}
+                    </span>
+                  </div>
+                  <div className={`text-3xl sm:text-4xl font-bold ${isFirstTimeBuyer ? 'text-foreground' : isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                    {isFirstTimeBuyer ? fmt(results.totalMonthlyExpenses) : (isPositive ? '+' : '') + fmt(results.monthlyCashFlow)}
+                    <span className="text-sm font-normal text-muted-foreground">/mo</span>
+                  </div>
+                </div>
+
+                {/* Monthly Breakdown */}
+                <div className="bg-secondary/20 rounded-xl p-4 space-y-2 text-sm">
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase mb-2">Monthly Breakdown</h3>
+                  {[{ label: 'Mortgage', value: results.monthlyMortgage }, { label: 'Strata', value: inputs.strataFees }, { label: 'Tax', value: inputs.propertyTax }].map(({ label, value }) => (
                     <div key={label} className="flex justify-between"><span className="text-muted-foreground">{label}</span><span className="font-medium">{fmt(value)}</span></div>
                   ))}
                   <div className="flex justify-between pt-2 border-t border-border/50 font-bold"><span>Total</span><span>{fmt(results.totalMonthlyExpenses)}</span></div>
                 </div>
-              </div>
 
-              <div className="space-y-3">
-                {[
-                  { label: 'Rate %', field: 'interestRate' as const, step: 0.01 },
-                  { label: 'Strata/mo', field: 'strataFees' as const },
-                  { label: 'Tax/mo', field: 'propertyTax' as const },
-                ].map(({ label, field, step }) => (
-                  <div key={field} className="bg-secondary/20 rounded-xl p-2.5">
-                    <label className="text-[10px] text-muted-foreground block mb-1">{label}</label>
-                    <Input type="number" step={step} value={inputs[field]}
-                      onChange={(e) => updateInput(field, step ? parseFloat(e.target.value) || 0 : parseInt(e.target.value) || 0)}
-                      className="h-9 text-center font-semibold text-sm" />
+                {/* Cash Required */}
+                <div className="bg-foreground text-background rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-xs font-bold uppercase opacity-80">Cash Required</span>
+                    <span className="text-xl font-bold">{fmt(results.totalCashRequired)}</span>
                   </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Rent Input */}
-            {isFirstTimeBuyer ? (
-              <div className="bg-blue-50 rounded-xl p-3 border border-blue-200 space-y-2">
-                <label className="text-xs text-blue-700 font-medium block">What are you paying in rent now?</label>
-                <Input type="text" inputMode="numeric" value={inputs.currentRent ? `$${inputs.currentRent.toLocaleString()}` : ''}
-                  onChange={(e) => updateInput('currentRent', Number(e.target.value.replace(/\D/g, '')) || 0)}
-                  className="h-10 text-center font-semibold text-blue-700 border-blue-300" placeholder="$2,200" />
-                <p className="text-[10px] text-blue-600/70">Used to compare renting vs. owning over time</p>
-              </div>
-            ) : (
-              <div className="bg-green-50 rounded-xl p-3 border border-green-200">
-                <label className="text-xs text-green-700 block mb-1">Monthly Rental Income</label>
-                <Input type="number" value={inputs.monthlyRent} onChange={(e) => updateInput('monthlyRent', parseInt(e.target.value) || 0)}
-                  className="h-10 text-center font-semibold text-green-700 border-green-300" />
-              </div>
-            )}
-
-            {/* Closing Adjustments */}
-            <div className="bg-secondary/20 rounded-xl p-4 space-y-3">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase">Closing Adjustments</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {/* GST */}
-                <div className="bg-white rounded-lg p-2.5 border">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[10px] font-medium uppercase">GST (5%)</span>
-                    <Switch checked={inputs.includeGST} onCheckedChange={(v) => updateInput('includeGST', v)} className="scale-75" />
+                  <div className="grid grid-cols-2 gap-2 text-xs">
+                    <div className="bg-white/10 rounded-lg p-2 text-center"><div className="opacity-70">Deposits</div><div className="font-bold">{fmt(results.totalDeposits)}</div></div>
+                    <div className="bg-white/10 rounded-lg p-2 text-center"><div className="opacity-70">At Closing</div><div className="font-bold">{fmt(results.cashAtCompletion)}</div></div>
                   </div>
-                  <div className="text-sm font-bold">{fmt(results.gst)}</div>
-                  <div className="text-[9px] text-muted-foreground">New construction</div>
+                  {/* At Closing Breakdown */}
+                  <div className="mt-2 pt-2 border-t border-white/20 text-xs space-y-1.5">
+                    <div className="opacity-60 font-semibold uppercase text-[10px] mb-1">Closing Breakdown</div>
+                    <div className="flex justify-between"><span className="opacity-70">Remaining Down Payment</span><span>{fmt(results.remainingDownPayment)}</span></div>
+                    {results.ptt > 0 && <div className="flex justify-between"><span className="opacity-70">Property Transfer Tax</span><span>{fmt(results.ptt)}</span></div>}
+                    <div className="flex justify-between"><span className="opacity-70">Legal & Closing Costs</span><span>{fmt(inputs.closingCosts)}</span></div>
+                    {results.creditTotal > 0 && <div className="flex justify-between"><span className="opacity-70">Developer Credit</span><span className="text-green-400">-{fmt(results.creditTotal)}</span></div>}
+                    {results.cmhcPremium > 0 && <div className="flex justify-between"><span className="opacity-70">CMHC Premium</span><span>{fmt(results.cmhcPremium)} <span className="opacity-50 text-[10px]">(in mortgage)</span></span></div>}
+                  </div>
                 </div>
-                {/* PTT */}
-                <div className="bg-white rounded-lg p-2.5 border">
-                  <div className="text-[10px] font-medium uppercase mb-1">PTT</div>
-                  <div className={`text-sm font-bold ${isFirstTimeBuyer ? 'text-green-600 line-through' : ''}`}>
-                    {fmt(isFirstTimeBuyer ? calculatePTT(inputs.purchasePrice, false) : results.ptt)}
-                  </div>
-                  <div className="text-[9px] text-muted-foreground">{isFirstTimeBuyer ? '✓ Exempt' : 'Transfer tax'}</div>
-                </div>
-                {/* Closing */}
-                <div className="bg-white rounded-lg p-2.5 border">
-                  <div className="text-[10px] font-medium uppercase mb-1">Legal</div>
-                  <Input type="number" value={inputs.closingCosts} onChange={(e) => updateInput('closingCosts', parseInt(e.target.value) || 0)}
-                    className="h-7 text-center font-bold text-sm p-0 border-0" />
-                  <div className="text-[9px] text-muted-foreground">Closing costs</div>
-                </div>
-              </div>
-              {/* Developer Credit */}
-              <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-                <span className="text-xs font-medium shrink-0">Developer Credit</span>
-                <Input type="number" step="0.5" min="0" max="10" value={inputs.creditPercent}
-                  onChange={(e) => updateInput('creditPercent', parseFloat(e.target.value) || 0)}
-                  className="h-8 text-center text-sm flex-1" placeholder="0%" />
-                <span className="text-xs text-muted-foreground">or</span>
-                <Input type="number" step="1000" min="0" value={inputs.creditAmount}
-                  onChange={(e) => updateInput('creditAmount', parseInt(e.target.value) || 0)}
-                  className="h-8 text-center text-sm flex-1" placeholder="$0" />
-                {results.creditTotal > 0 && <span className="text-sm font-bold text-green-600 shrink-0">-{fmt(results.creditTotal)}</span>}
-              </div>
-            </div>
 
-            {/* Cash Required */}
-            <div className="bg-foreground text-background rounded-xl p-4">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold uppercase opacity-80">Total Cash Required</span>
-                <span className="text-2xl font-bold">{fmt(results.totalCashRequired)}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs mb-3">
-                <div className="bg-white/10 rounded-lg p-2.5 text-center"><div className="opacity-60 text-[10px] uppercase">Deposits</div><div className="font-bold text-base">{fmt(results.totalDeposits)}</div></div>
-                <div className="bg-white/10 rounded-lg p-2.5 text-center"><div className="opacity-60 text-[10px] uppercase">At Closing</div><div className="font-bold text-base">{fmt(results.cashAtCompletion)}</div></div>
-              </div>
-              <div className="border-t border-white/20 pt-2 text-xs space-y-1.5">
-                <div className="opacity-50 font-semibold uppercase text-[9px]">Closing Breakdown</div>
-                <div className="flex justify-between"><span className="opacity-70">Remaining Down Payment</span><span>{fmt(results.remainingDownPayment)}</span></div>
-                {results.ptt > 0 && <div className="flex justify-between"><span className="opacity-70">Property Transfer Tax</span><span>{fmt(results.ptt)}</span></div>}
-                <div className="flex justify-between"><span className="opacity-70">Legal & Closing Costs</span><span>{fmt(inputs.closingCosts)}</span></div>
-                {results.creditTotal > 0 && <div className="flex justify-between"><span className="opacity-70">Developer Credit</span><span className="text-green-400">-{fmt(results.creditTotal)}</span></div>}
-                {results.cmhcPremium > 0 && <div className="flex justify-between"><span className="opacity-70">CMHC Premium</span><span>{fmt(results.cmhcPremium)} <span className="opacity-50 text-[10px]">(in mortgage)</span></span></div>}
-              </div>
-            </div>
-
-            {/* First-Time Buyer Savings */}
-            {isFirstTimeBuyer && (
-              <div className="bg-green-50 rounded-xl p-4 border border-green-200 space-y-3">
-                <h3 className="text-xs font-bold text-green-800 uppercase flex items-center gap-1.5">🎉 First-Time Buyer Savings</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-white rounded-lg p-3 border border-green-200 text-center">
-                    <div className="text-[10px] text-green-600 uppercase font-medium">PTT Exempt</div>
-                    <div className="text-lg font-bold text-green-700">{fmt(calculatePTT(inputs.purchasePrice, false))}</div>
-                  </div>
-                  {inputs.includeGST && (
-                    <div className="bg-white rounded-lg p-3 border border-green-200 text-center">
-                      <div className="text-[10px] text-green-600 uppercase font-medium">GST Rebate</div>
-                      <div className="text-lg font-bold text-green-700">
-                        {fmt(
-                          inputs.purchasePrice <= 1000000
-                            ? Math.min(results.gst, 50000)
-                            : inputs.purchasePrice < 1500000
-                            ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000)
-                            : 0
-                        )}
-                      </div>
+                {isFirstTimeBuyer && (
+                  <div className="bg-green-50 rounded-xl p-3 border border-green-200 space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div><div className="text-xs font-bold text-green-700 uppercase">PTT Savings</div><p className="text-[10px] text-green-600">First-time buyer exempt</p></div>
+                      <span className="text-lg font-bold text-green-600">{fmt(calculatePTT(inputs.purchasePrice, false))}</span>
                     </div>
-                  )}
-                </div>
-                {inputs.includeGST && (
-                  <p className="text-[10px] text-green-600/80">
-                    {inputs.purchasePrice <= 1000000 ? '100% rebate (max $50K)' : inputs.purchasePrice < 1500000 ? 'Partial rebate (phaseout $1M–$1.5M)' : 'Not eligible — over $1.5M'} · Primary residence · Agreements after May 27, 2025
-                  </p>
-                )}
-                <div className="pt-2 border-t border-green-300 flex justify-between items-center">
-                  <span className="text-xs font-bold text-green-800 uppercase">Total Savings</span>
-                  <span className="text-xl font-bold text-green-700">
-                    {fmt(
-                      calculatePTT(inputs.purchasePrice, false) +
-                      (inputs.includeGST
-                        ? inputs.purchasePrice <= 1000000
-                          ? Math.min(results.gst, 50000)
-                          : inputs.purchasePrice < 1500000
-                          ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000)
-                          : 0
-                        : 0)
+                    {inputs.includeGST && (
+                      <div className="pt-2 border-t border-green-200">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <div className="text-xs font-bold text-green-700 uppercase">GST Rebate (2025 Rules)</div>
+                            <p className="text-[10px] text-green-600">
+                              {inputs.purchasePrice <= 1000000
+                                ? 'Up to 100% rebate (max $50,000)'
+                                : inputs.purchasePrice < 1500000
+                                ? 'Partial rebate (phaseout $1M–$1.5M)'
+                                : 'Not eligible — home over $1.5M'}
+                            </p>
+                          </div>
+                          <span className={`text-lg font-bold ${inputs.purchasePrice <= 1500000 ? 'text-green-600' : 'text-muted-foreground'}`}>
+                            {fmt(
+                              inputs.purchasePrice <= 1000000
+                                ? Math.min(results.gst, 50000)
+                                : inputs.purchasePrice < 1500000
+                                ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000)
+                                : 0
+                            )}
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          *Primary residence only. Builder typically applies on your behalf. Agreements signed on or after May 27, 2025.
+                        </p>
+                      </div>
                     )}
-                  </span>
-                </div>
-              </div>
-            )}
+                    {/* Total Savings */}
+                    <div className="pt-2 border-t border-green-300 flex justify-between items-center">
+                      <div>
+                        <div className="text-xs font-bold text-green-800 uppercase">Total First-Time Buyer Savings</div>
+                        <p className="text-[10px] text-green-600">Combined incentives for buying new</p>
+                      </div>
+                      <span className="text-xl font-bold text-green-700">
+                        {fmt(
+                          calculatePTT(inputs.purchasePrice, false) +
+                          (inputs.includeGST
+                            ? inputs.purchasePrice <= 1000000
+                              ? Math.min(results.gst, 50000)
+                              : inputs.purchasePrice < 1500000
+                              ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000)
+                              : 0
+                            : 0)
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                )}
 
-            <Button onClick={() => setCurrentPage('equity')} className="w-full h-11" variant="outline">
-              View Equity & Growth <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
+                <Button onClick={() => setCurrentPage('equity')} className="w-full h-11" variant="outline">
+                  View Equity & Growth <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </div>
           </TabsContent>
 
           {/* Page 2: Equity */}
