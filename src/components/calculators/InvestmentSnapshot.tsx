@@ -522,6 +522,25 @@ export function InvestmentSnapshot() {
                         </p>
                       </div>
                     )}
+                    {/* Total Savings */}
+                    <div className="pt-2 border-t border-green-300 flex justify-between items-center">
+                      <div>
+                        <div className="text-xs font-bold text-green-800 uppercase">Total First-Time Buyer Savings</div>
+                        <p className="text-[10px] text-green-600">Combined incentives for buying new</p>
+                      </div>
+                      <span className="text-xl font-bold text-green-700">
+                        {fmt(
+                          calculatePTT(inputs.purchasePrice, false) +
+                          (inputs.includeGST
+                            ? inputs.purchasePrice <= 1000000
+                              ? Math.min(results.gst, 50000)
+                              : inputs.purchasePrice < 1500000
+                              ? Math.min(results.gst, 50000) * ((1500000 - inputs.purchasePrice) / 500000)
+                              : 0
+                            : 0)
+                        )}
+                      </span>
+                    </div>
                   </div>
                 )}
 
