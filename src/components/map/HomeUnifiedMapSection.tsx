@@ -162,6 +162,10 @@ export function HomeUnifiedMapSection({
         .not("longitude", "is", null)
         .in("city", citiesToUse)
         .gte("year_built", 2024)
+        .gte("latitude", 48.9)
+        .lte("latitude", 49.6)
+        .gte("longitude", -123.35)
+        .lte("longitude", -121.7)
         .order("list_date", { ascending: false, nullsFirst: false })
         .limit(5000);
 
