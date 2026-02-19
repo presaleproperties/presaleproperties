@@ -176,8 +176,19 @@ function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   // Larger cluster icons for easier tapping
   const size = count >= 100 ? 52 : count >= 10 ? 46 : 40;
   
+  // Differentiate cluster color by majority type (check first 10 children)
+  const children = cluster.getAllChildMarkers().slice(0, 10);
+  let presaleCount = 0;
+  let resaleCount = 0;
+  children.forEach(m => {
+    const cls = (m.options.icon as L.DivIcon)?.options?.className || '';
+    if (cls.includes('presale-pin')) presaleCount++;
+    else resaleCount++;
+  });
+  const typeClass = presaleCount > resaleCount ? 'cl-presale' : resaleCount > presaleCount ? 'cl-resale' : 'cl-mixed';
+  
   return L.divIcon({
-    html: `<div class="cl ${sizeClass}">${count}</div>`,
+    html: `<div class="cl ${sizeClass} ${typeClass}">${count}</div>`,
     className: "mc",
     iconSize: L.point(size, size),
     iconAnchor: L.point(size / 2, size / 2),
@@ -210,21 +221,24 @@ function resalePopupHtml(listing: MLSListing): string {
   const listingUrl = getListingUrl(listing.listing_key, address, listing.city);
   
   return `
-    <a href="${listingUrl}" class="popup-card resale">
-      <div class="popup-img">
-        ${photo 
-          ? `<img src="${photo}" alt="${address}" />`
-          : `<div class="popup-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>`
-        }
-        <span class="popup-badge resale">Move-In Ready</span>
-      </div>
-      <div class="popup-content">
-        <div class="popup-price resale">${price}</div>
-        <div class="popup-address">${address}</div>
-        <div class="popup-specs">${specs}</div>
-        ${propType ? `<div class="popup-type">${propType}</div>` : ''}
-      </div>
-    </a>
+    <div class="popup-card-wrap">
+      <a href="${listingUrl}" class="popup-card resale">
+        <div class="popup-img">
+          ${photo 
+            ? `<img src="${photo}" alt="${address}" />`
+            : `<div class="popup-placeholder"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9,22 9,12 15,12 15,22"/></svg></div>`
+          }
+          <span class="popup-badge resale">Move-In Ready</span>
+        </div>
+        <div class="popup-content">
+          <div class="popup-price resale">${price}</div>
+          <div class="popup-address">${address}</div>
+          <div class="popup-specs">${specs}</div>
+          ${propType ? `<div class="popup-type">${propType}</div>` : ''}
+        </div>
+      </a>
+      <a href="${listingUrl}" class="popup-cta">View Details →</a>
+    </div>
   `;
 }
 
@@ -242,21 +256,24 @@ function presalePopupHtml(project: PresaleProject): string {
   });
 
   return `
-    <a href="${projectUrl}" class="popup-card presale">
-      <div class="popup-img">
-        ${photo 
-          ? `<img src="${photo}" alt="${project.name}" />`
-          : `<div class="popup-placeholder presale"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></div>`
-        }
-        <span class="popup-badge presale">Presale</span>
-      </div>
-      <div class="popup-content">
-        <div class="popup-price presale">${price}</div>
-        <div class="popup-address">${project.name}</div>
-        <div class="popup-specs">${project.neighborhood} • ${project.city}</div>
-        <div class="popup-status">${project.project_type || 'Condo'} • <span class="status-label">${statusLabel}</span></div>
-      </div>
-    </a>
+    <div class="popup-card-wrap">
+      <a href="${projectUrl}" class="popup-card presale">
+        <div class="popup-img">
+          ${photo 
+            ? `<img src="${photo}" alt="${project.name}" />`
+            : `<div class="popup-placeholder presale"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/></svg></div>`
+          }
+          <span class="popup-badge presale">Presale</span>
+        </div>
+        <div class="popup-content">
+          <div class="popup-price presale">${price}</div>
+          <div class="popup-address">${project.name}</div>
+          <div class="popup-specs">${project.neighborhood} • ${project.city}</div>
+          <div class="popup-status">${project.project_type || 'Condo'} • <span class="status-label">${statusLabel}</span></div>
+        </div>
+      </a>
+      <a href="${projectUrl}" class="popup-cta">View Details →</a>
+    </div>
   `;
 }
 
@@ -518,7 +535,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       chunkedLoading: true,
       chunkDelay: isMobileOrTabletDevice ? 10 : 5, // Slightly slower chunking on mobile
       chunkInterval: isMobileOrTabletDevice ? 50 : 25,
-      maxClusterRadius: 50,
+      maxClusterRadius: isMobileOrTabletDevice ? 65 : 50,
       spiderfyOnMaxZoom: true,
       showCoverageOnHover: false,
       disableClusteringAtZoom: 17,
@@ -528,12 +545,23 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
-      zoomToBoundsOnClick: !isMobileOrTabletDevice, // Don't auto-zoom on cluster click on mobile
+      zoomToBoundsOnClick: false, // We handle cluster click with smooth flyToBounds
       spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(40, 65%, 60%)', opacity: 0.5 },
     });
 
     const presaleLayer = L.layerGroup();
     const assignmentLayer = L.layerGroup();
+
+    // Smooth flyToBounds on cluster click (replaces default zoomToBoundsOnClick)
+    clusterGroup.on('clusterclick', (e: any) => {
+      const bounds = e.layer.getBounds();
+      map.flyToBounds(bounds, { 
+        padding: [40, 40], 
+        maxZoom: 16,
+        animate: true,
+        duration: isMobileOrTabletDevice ? 0.3 : 0.5 
+      });
+    });
 
     map.addLayer(clusterGroup);
     map.addLayer(presaleLayer);
@@ -833,7 +861,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   }, [initialUserLocation, savedMapState, isMobileOrTabletDevice]);
 
   return (
-    <div className="relative w-full h-full bg-muted" style={{ contain: 'layout style paint', willChange: 'transform' }}>
+    <div className="relative w-full h-full bg-muted" style={{ contain: 'layout style paint' }}>
       <style>{`
         /* GPU acceleration and prevent flash - CRITICAL for mobile stability */
         .leaflet-container { 
@@ -902,7 +930,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           background: hsl(34, 65%, 40%);
         }
         
-        /* Presale pins - gold branded */
+        /* Presale pins - gold branded with pulse animation */
         .pin { 
           width: 32px; 
           height: 38px; 
@@ -912,10 +940,16 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           border: 2.5px solid hsl(40, 65%, 65%); 
           box-shadow: 0 2px 6px hsla(40, 65%, 30%, 0.2);
           cursor: pointer;
+          animation: presale-pulse 3s ease-in-out infinite;
+        }
+        @keyframes presale-pulse {
+          0%, 100% { transform: rotate(-45deg) scale(1); }
+          50% { transform: rotate(-45deg) scale(1.05); }
         }
         .pin:hover, .pin.hl { 
           box-shadow: 0 3px 10px hsla(40, 65%, 30%, 0.3);
           background: hsl(40, 65%, 55%);
+          animation: none;
         }
         
         /* Assignment markers - container must be transparent */
@@ -937,7 +971,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           box-shadow: 0 2px 8px hsla(40, 65%, 55%, 0.4); 
         }
         
-        /* Cluster icons - branded gold */
+        /* Cluster icons - branded gold with type differentiation */
         .mc { background: transparent !important; border: none !important; }
         .cl { 
           background: hsl(34, 65%, 40%); 
@@ -952,6 +986,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           transition: transform 0.15s ease;
           cursor: pointer;
         }
+        .cl.cl-presale { background: hsl(34, 70%, 35%); border-color: hsl(40, 70%, 60%); }
+        .cl.cl-resale { background: hsl(40, 55%, 48%); border-color: hsl(40, 50%, 70%); }
+        .cl.cl-mixed { background: hsl(37, 65%, 42%); }
         .cl:hover { transform: scale(1.1); }
         .cl.sm { width: 40px; height: 40px; font-size: 13px; }
         .cl.md { width: 46px; height: 46px; font-size: 14px; }
@@ -992,14 +1029,15 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
         
         /* Popup card layout */
-        .popup-card { display: flex; width: 280px; text-decoration: none; color: inherit; font-family: inherit; border-radius: 12px; overflow: hidden; background: hsl(30, 20%, 99%); }
+        .popup-card-wrap { border-radius: 12px; overflow: hidden; background: hsl(30, 20%, 99%); }
+        .popup-card { display: flex; width: 300px; text-decoration: none; color: inherit; font-family: inherit; }
         .popup-card.resale { border: none; }
         .popup-card.presale { border: none; }
         .popup-card.assignment { border-left: 3px solid hsl(40, 65%, 55%); }
         .popup-card.locked { display: block; width: 240px; }
         
-        /* Image section */
-        .popup-img { position: relative; width: 100px; min-height: 100px; flex-shrink: 0; background: hsl(30, 10%, 96%); }
+        /* Image section - larger for better previews */
+        .popup-img { position: relative; width: 120px; min-height: 120px; flex-shrink: 0; background: hsl(30, 10%, 96%); }
         .popup-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .popup-placeholder { width: 100%; height: 100%; min-height: 100px; display: flex; align-items: center; justify-content: center; color: hsl(30, 10%, 70%); background: linear-gradient(135deg, hsl(30, 10%, 96%) 0%, hsl(30, 10%, 93%) 100%); }
         .popup-placeholder.presale { background: linear-gradient(135deg, hsl(40, 65%, 97%) 0%, hsl(40, 65%, 92%) 100%); color: hsl(40, 65%, 45%); }
@@ -1020,6 +1058,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .popup-type { font-size: 11px; color: hsl(220, 8%, 55%); }
         .popup-status { font-size: 11px; color: hsl(220, 8%, 46%); }
         .popup-status .status-label { font-weight: 600; color: hsl(40, 65%, 42%); }
+        /* View Details CTA */
+        .popup-cta { display: block; text-align: center; padding: 8px 12px; margin: 8px 12px 12px; background: hsl(40, 65%, 55%); color: white; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
+        .popup-cta:hover { background: hsl(34, 65%, 40%); }
         
         /* Locked assignment */
         .popup-lock { padding: 20px; text-align: center; }

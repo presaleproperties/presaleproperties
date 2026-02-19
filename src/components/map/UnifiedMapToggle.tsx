@@ -36,6 +36,16 @@ export function UnifiedMapToggle({
       >
         <Layers className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">All</span>
+        {(presaleCount !== undefined || resaleCount !== undefined) && (
+          <span className={cn(
+            "text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1",
+            mode === "all"
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "bg-muted text-muted-foreground"
+          )}>
+            {(presaleCount || 0) + (resaleCount || 0) + (assignmentsCount || 0)}
+          </span>
+        )}
       </button>
       <button
         onClick={() => onModeChange("presale")}
@@ -48,6 +58,16 @@ export function UnifiedMapToggle({
       >
         <Building2 className="h-3.5 w-3.5" />
         Presale
+        {presaleCount !== undefined && presaleCount > 0 && (
+          <span className={cn(
+            "text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1",
+            mode === "presale"
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "bg-muted text-muted-foreground"
+          )}>
+            {presaleCount}
+          </span>
+        )}
       </button>
       <button
         onClick={() => onModeChange("resale")}
@@ -61,6 +81,16 @@ export function UnifiedMapToggle({
         <Home className="h-3.5 w-3.5" />
         <span className="hidden sm:inline">Move-In</span>
         <span className="sm:hidden">MLS</span>
+        {resaleCount !== undefined && resaleCount > 0 && (
+          <span className={cn(
+            "text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1",
+            mode === "resale"
+              ? "bg-primary-foreground/20 text-primary-foreground"
+              : "bg-muted text-muted-foreground"
+          )}>
+            {resaleCount}
+          </span>
+        )}
       </button>
     </div>
   );

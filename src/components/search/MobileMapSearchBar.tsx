@@ -79,6 +79,21 @@ export function MobileMapSearchBar({
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Recent searches from localStorage
+  const RECENT_SEARCHES_KEY = "pp_recent_searches";
+  const [recentSearches, setRecentSearches] = useState<string[]>(() => {
+    try {
+      const stored = localStorage.getItem(RECENT_SEARCHES_KEY);
+      return stored ? JSON.parse(stored).slice(0, 5) : [];
+    } catch { return []; }
+  });
+
+  const saveRecentSearch = (query: string) => {
+    const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5);
+    setRecentSearches(updated);
+    try { localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated)); } catch {}
+  };
+
   // Format price for display
   const formatPrice = (price?: number) => {
     if (!price) return "";
@@ -230,6 +245,8 @@ export function MobileMapSearchBar({
     setIsFocused(true);
     if (searchQuery.length >= 2) {
       setShowSuggestions(true);
+    } else if (searchQuery.length === 0 && recentSearches.length > 0) {
+      setShowSuggestions(true);
     }
   };
 
@@ -243,10 +260,11 @@ export function MobileMapSearchBar({
 
   const handleChange = (value: string) => {
     onSearchChange(value);
-    setShowSuggestions(value.length >= 2);
+    setShowSuggestions(value.length >= 2 || (value.length === 0 && recentSearches.length > 0));
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    saveRecentSearch(suggestion.label);
     onSuggestionSelect(suggestion);
     setShowSuggestions(false);
     onSearchChange("");
@@ -361,6 +379,28 @@ export function MobileMapSearchBar({
               </button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Recent Searches - shown when focused with no query */}
+      {showSuggestions && searchQuery.length < 2 && suggestions.length === 0 && recentSearches.length > 0 && (
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white/98 dark:bg-background/98 backdrop-blur-2xl border border-white/50 dark:border-white/10 rounded-2xl shadow-xl shadow-black/10 overflow-hidden z-50">
+          <div className="px-4 py-2 border-b border-black/5 dark:border-white/5">
+            <span className="text-[11px] uppercase tracking-wider text-muted-foreground/60 font-semibold">Recent</span>
+          </div>
+          {recentSearches.map((search, i) => (
+            <button
+              key={`recent-${i}`}
+              onClick={() => {
+                onSearchChange(search);
+                setShowSuggestions(true);
+              }}
+              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-left border-b border-black/5 dark:border-white/5 last:border-0"
+            >
+              <Search className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+              <span className="text-sm text-foreground truncate">{search}</span>
+            </button>
+          ))}
         </div>
       )}
 
