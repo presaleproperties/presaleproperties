@@ -1047,53 +1047,67 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .cluster-grid-popup .leaflet-popup-close-button:hover { background: hsl(0, 0%, 90%) !important; }
         
         .cg-wrap {
-          width: 380px;
-          max-height: 420px;
+          width: 420px;
+          max-height: 480px;
           overflow-y: auto;
-          background: white;
+          background: hsl(30, 20%, 99%);
+          scrollbar-width: thin;
+          scrollbar-color: hsl(30, 10%, 82%) transparent;
         }
+        .cg-wrap::-webkit-scrollbar { width: 6px; }
+        .cg-wrap::-webkit-scrollbar-track { background: transparent; }
+        .cg-wrap::-webkit-scrollbar-thumb { background: hsl(30, 10%, 82%); border-radius: 3px; }
         .cg-header {
-          padding: 14px 18px;
-          font-size: 16px;
+          padding: 16px 20px;
+          font-size: 17px;
           font-weight: 800;
-          letter-spacing: -0.01em;
-          color: hsl(0, 0%, 8%);
-          border-bottom: 1px solid hsl(0, 0%, 92%);
-          background: white;
+          letter-spacing: -0.02em;
+          color: hsl(30, 15%, 10%);
+          border-bottom: 1px solid hsl(30, 10%, 90%);
+          background: hsl(30, 20%, 99%);
           position: sticky;
           top: 0;
           z-index: 5;
+          backdrop-filter: blur(8px);
         }
         .cg-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 0;
+          gap: 2px;
+          background: hsl(30, 10%, 92%);
         }
         .cg-card {
           display: flex;
           flex-direction: column;
           text-decoration: none;
           color: inherit;
-          padding: 12px;
-          border-bottom: 1px solid hsl(0, 0%, 93%);
-          border-right: 1px solid hsl(0, 0%, 93%);
-          transition: background 0.15s ease;
+          padding: 14px;
+          background: hsl(30, 20%, 99%);
+          transition: all 0.2s ease;
+          position: relative;
         }
-        .cg-card:hover { background: hsl(0, 0%, 97%); }
-        .cg-card:nth-child(2n) { border-right: none; }
+        .cg-card:hover {
+          background: hsl(40, 30%, 97%);
+          z-index: 2;
+        }
+        .cg-card:hover .cg-card-img img {
+          transform: scale(1.05);
+        }
         .cg-card-img {
           position: relative;
           width: 100%;
           aspect-ratio: 4/3;
           border-radius: 10px;
           overflow: hidden;
-          background: hsl(0, 0%, 93%);
-          margin-bottom: 8px;
+          background: hsl(30, 10%, 90%);
+          margin-bottom: 10px;
+          box-shadow: 0 2px 8px hsla(30, 20%, 20%, 0.08);
         }
         .cg-card-img img {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          transition: transform 0.3s ease;
         }
         .cg-card-placeholder {
           width: 100%;
@@ -1101,52 +1115,58 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           display: flex;
           align-items: center;
           justify-content: center;
-          color: hsl(0, 0%, 70%);
+          color: hsl(30, 10%, 72%);
+          background: linear-gradient(135deg, hsl(30, 10%, 92%), hsl(30, 10%, 88%));
         }
         .cg-card-badge {
           position: absolute;
-          top: 6px;
-          left: 6px;
+          top: 8px;
+          left: 8px;
           font-size: 9px;
           font-weight: 700;
           text-transform: uppercase;
-          letter-spacing: 0.04em;
-          padding: 2px 6px;
-          border-radius: 4px;
-          background: hsl(0, 0%, 10%);
+          letter-spacing: 0.05em;
+          padding: 3px 7px;
+          border-radius: 5px;
+          background: hsla(0, 0%, 8%, 0.85);
           color: white;
+          backdrop-filter: blur(4px);
         }
         .cg-card-badge.presale {
-          background: hsl(40, 65%, 55%);
-          color: hsl(40, 45%, 12%);
+          background: hsla(40, 65%, 55%, 0.92);
+          color: hsl(40, 45%, 10%);
         }
-        .cg-card-body { display: flex; flex-direction: column; gap: 1px; }
+        .cg-card-body { display: flex; flex-direction: column; gap: 2px; }
         .cg-card-price {
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 800;
-          color: hsl(0, 0%, 8%);
-          letter-spacing: -0.01em;
+          color: hsl(30, 15%, 10%);
+          letter-spacing: -0.02em;
         }
         .cg-card-addr {
-          font-size: 11px;
-          color: hsl(0, 0%, 40%);
+          font-size: 11.5px;
+          color: hsl(30, 8%, 38%);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-        }
-        .cg-card-specs {
-          font-size: 10px;
-          color: hsl(0, 0%, 55%);
           font-weight: 500;
         }
-        .cg-more {
-          padding: 10px;
-          font-size: 11px;
-          font-weight: 600;
-          color: hsl(0, 0%, 50%);
-          text-align: center;
-          border-top: 1px solid hsl(0, 0%, 93%);
+        .cg-card-specs {
+          font-size: 10.5px;
+          color: hsl(30, 8%, 55%);
+          font-weight: 500;
+          margin-top: 1px;
         }
+        .cg-more {
+          padding: 12px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: hsl(40, 55%, 45%);
+          text-align: center;
+          background: hsl(30, 20%, 99%);
+          letter-spacing: -0.01em;
+        }
+        .cg-more:hover { color: hsl(40, 65%, 38%); }
         
         /* Popup styling - branded warm cards */
         .premium-popup .leaflet-popup-content-wrapper { 
