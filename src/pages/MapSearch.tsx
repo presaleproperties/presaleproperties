@@ -994,6 +994,24 @@ export default function MapSearch() {
                      (assignments && assignments.length > 0);
   const isLoading = !hasAnyData && (resaleLoading || presaleLoading);
 
+  // Track when map tiles are actually rendered
+  const [mapTilesReady, setMapTilesReady] = useState(false);
+  const mapTilesReadyCalledRef = useRef(false);
+  const handleMapReady = useCallback(() => {
+    if (!mapTilesReadyCalledRef.current) {
+      mapTilesReadyCalledRef.current = true;
+      setMapTilesReady(true);
+    }
+  }, []);
+  // Reset when entering loading state
+  useEffect(() => {
+    if (isLoading) {
+      setMapTilesReady(false);
+      mapTilesReadyCalledRef.current = false;
+    }
+  }, [isLoading]);
+  const showOverlay = isLoading || !mapTilesReady;
+
   // Pre-populate visible IDs on back navigation so the grid isn't blank
   // This uses the saved map bounds + cached data to instantly show cards
   const hasPrePopulatedRef = useRef(false);
@@ -1715,9 +1733,7 @@ export default function MapSearch() {
             <div className="absolute inset-0">
               <SafeMapWrapper height="h-full">
                 <Suspense fallback={loadingMapElement}>
-                  {isLoading ? (
-                    loadingMapElement
-                  ) : totalCount === 0 ? (
+                  {totalCount === 0 && !isLoading ? (
                     <div className="h-full w-full bg-muted flex items-center justify-center">
                       <div className="text-center text-muted-foreground p-6">
                         <Home className="h-12 w-12 mx-auto mb-3" />
@@ -1747,10 +1763,17 @@ export default function MapSearch() {
                       isVerifiedAgent={isVerifiedAgent}
                       panelOpen={showList}
                       mobileCarouselOpen={showCarousel}
+                      onMapReady={handleMapReady}
                     />
                   )}
                 </Suspense>
               </SafeMapWrapper>
+              {/* Loading overlay - sits on top of map and fades out once tiles are ready */}
+              <div
+                className={`absolute inset-0 z-[500] pointer-events-none transition-opacity duration-500 ease-out ${showOverlay ? 'opacity-100' : 'opacity-0 invisible'}`}
+              >
+                {loadingMapElement}
+              </div>
             </div>
 
 

@@ -94,6 +94,7 @@ interface CombinedListingsMapProps {
   isVerifiedAgent?: boolean;
   panelOpen?: boolean;
   mobileCarouselOpen?: boolean;
+  onMapReady?: () => void;
 }
 
 function formatPrice(price: number): string {
@@ -298,7 +299,8 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   highlightedItemType = null,
   isVerifiedAgent = false,
   panelOpen = false,
-  mobileCarouselOpen = false
+  mobileCarouselOpen = false,
+  onMapReady,
 }, ref) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<L.Map | null>(null);
@@ -495,6 +497,14 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     
     // Preload tiles for the current view immediately
     tileLayer.addTo(map);
+
+    // Signal map ready after first tiles load
+    tileLayer.once('load', () => {
+      onMapReady?.();
+    });
+    // Fallback in case tiles load instantly or from cache
+    setTimeout(() => { onMapReady?.(); }, 2000);
+    
     
     // Skip animations for markers when restoring state or on mobile
     const skipMarkerAnimation = shouldSkipAnimations;
