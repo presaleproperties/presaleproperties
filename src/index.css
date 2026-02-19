@@ -594,48 +594,31 @@
     border: none;
   }
 
-  /* Custom cluster marker styling */
-  .custom-cluster-marker {
-    background: transparent;
-    border: none;
+  /* Cluster pill marker — dark pill with "X Units" */
+  .cluster-pill-marker {
+    background: transparent !important;
+    border: none !important;
   }
-  
-  .cluster-icon {
+
+  .cluster-pill {
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
-    font-weight: 700;
-    color: white;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
-    border: 3px solid white;
-  }
-  
-  .cluster-small {
-    background: linear-gradient(135deg, hsl(40 65% 55%), hsl(37 60% 48%));
-    width: 36px;
-    height: 36px;
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
     font-size: 12px;
-  }
-  
-  .cluster-medium {
-    background: linear-gradient(135deg, hsl(40 65% 50%), hsl(34 65% 40%));
-    width: 44px;
-    height: 44px;
-    font-size: 14px;
-  }
-  
-  .cluster-large {
-    background: linear-gradient(135deg, hsl(37 60% 42%), hsl(34 58% 38%));
-    width: 52px;
-    height: 52px;
-    font-size: 16px;
+    font-weight: 700;
+    padding: 6px 14px;
+    border-radius: 9999px;
+    white-space: nowrap;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    cursor: pointer;
   }
 
-  /* Cluster hover effect */
-  .custom-cluster-marker:hover .cluster-icon {
+  .cluster-pill-marker:hover .cluster-pill {
     transform: scale(1.1);
-    transition: transform 0.2s ease;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
   }
 }
 
@@ -715,8 +698,8 @@
 @media (prefers-reduced-motion: reduce) {
   .img-optimized,
   .gpu-accelerated,
-  .pill,
-  .cl {
+    .pill,
+    .cluster-pill {
     transition: none !important;
     animation: none !important;
   }
