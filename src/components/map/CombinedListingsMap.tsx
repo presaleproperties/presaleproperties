@@ -515,15 +515,71 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     const presaleLayer = L.layerGroup();
     const assignmentLayer = L.layerGroup();
 
-    // Smooth flyToBounds on cluster click (replaces default zoomToBoundsOnClick)
+    // Cluster click: show mini grid popup of properties
     clusterGroup.on('clusterclick', (e: any) => {
-      const bounds = e.layer.getBounds();
-      map.flyToBounds(bounds, { 
-        padding: [40, 40], 
-        maxZoom: 16,
-        animate: true,
-        duration: isMobileOrTabletDevice ? 0.3 : 0.5 
+      const cluster = e.layer;
+      const childMarkers = cluster.getAllChildMarkers();
+      const maxItems = 8;
+      const items = childMarkers.slice(0, maxItems);
+      
+      // Build grid items from marker data
+      let gridHtml = '';
+      items.forEach((m: any) => {
+        const ll = m.getLatLng();
+        // Try to find in resale
+        let found = false;
+        resaleMarkersMapRef.current.forEach((rm, id) => {
+          if (found) return;
+          if (rm === m) {
+            const listing = validResaleListings.find(l => l.id === id);
+            if (listing) {
+              const photo = getResalePhoto(listing);
+              const price = `$${listing.listing_price.toLocaleString()}`;
+              const address = getResaleAddress(listing);
+              const specs = [listing.bedrooms_total ? `${listing.bedrooms_total}bd` : null, listing.bathrooms_total ? `${listing.bathrooms_total}ba` : null, listing.living_area ? `${listing.living_area.toLocaleString()}sf` : null].filter(Boolean).join(' · ');
+              const url = getListingUrl(listing.listing_key, address, listing.city);
+              gridHtml += `<a href="${url}" class="cluster-grid-item">
+                ${photo ? `<img src="${photo}" class="cluster-grid-img" alt="" />` : `<div class="cluster-grid-img-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>`}
+                <div class="cluster-grid-info"><div class="cluster-grid-price">${price}</div><div class="cluster-grid-address">${address}</div><div class="cluster-grid-specs">${specs}</div></div>
+              </a>`;
+            }
+            found = true;
+          }
+        });
+        if (found) return;
+        presaleMarkersMapRef.current.forEach((pm, id) => {
+          if (found) return;
+          if (pm === m) {
+            const project = validPresaleProjects.find(p => p.id === id);
+            if (project) {
+              const price = project.starting_price ? `From $${project.starting_price.toLocaleString()}` : 'TBA';
+              const url = generateProjectUrl({ slug: project.slug, neighborhood: project.neighborhood || project.city, projectType: project.project_type as any });
+              gridHtml += `<a href="${url}" class="cluster-grid-item">
+                ${project.featured_image ? `<img src="${project.featured_image}" class="cluster-grid-img" alt="" />` : `<div class="cluster-grid-img-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/></svg></div>`}
+                <div class="cluster-grid-info"><div class="cluster-grid-price">${price}</div><div class="cluster-grid-address">${project.name}</div><div class="cluster-grid-specs">${project.neighborhood} · ${project.city}</div></div>
+              </a>`;
+            }
+            found = true;
+          }
+        });
       });
+      
+      const total = childMarkers.length;
+      const moreText = total > maxItems ? `<div style="padding:8px 14px;font-size:11px;color:hsl(40,15%,50%);text-align:center;">${total - maxItems} more — zoom in to see all</div>` : '';
+      
+      const popupContent = `<div class="cluster-grid-wrap"><div class="cluster-grid-header">${total} ${total === 1 ? 'Property' : 'Properties'}</div><div class="cluster-grid">${gridHtml}</div>${moreText}</div>`;
+      
+      L.popup({
+        maxWidth: 340,
+        className: "cluster-grid-popup",
+        closeButton: true,
+        autoPan: true,
+        autoPanPaddingTopLeft: L.point(50, 80),
+        autoPanPaddingBottomRight: L.point(50, 50),
+      })
+        .setLatLng(cluster.getLatLng())
+        .setContent(popupContent)
+        .openOn(map);
     });
 
     map.addLayer(clusterGroup);
@@ -929,58 +985,126 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         
         /* Presale: dark bg, white text */
         .pill.pill-presale {
-          background: hsl(222, 47%, 18%);
+          background: hsl(40, 45%, 16%);
           color: white;
-          box-shadow: 0 2px 6px hsla(222, 47%, 10%, 0.3);
+          box-shadow: 0 2px 6px hsla(40, 45%, 10%, 0.35);
         }
-        .pill.pill-presale .pill-tail { border-top: 6px solid hsl(222, 47%, 18%); }
+        .pill.pill-presale .pill-tail { border-top: 6px solid hsl(40, 45%, 16%); }
         
-        /* Assignment: yellow bg, black text */
+        /* Assignment: warm gold bg, dark text */
         .pill.pill-assignment {
-          background: #F5A623;
-          color: hsl(0, 0%, 10%);
-          box-shadow: 0 2px 6px hsla(37, 90%, 40%, 0.3);
+          background: hsl(40, 65%, 55%);
+          color: hsl(40, 40%, 12%);
+          box-shadow: 0 2px 6px hsla(40, 65%, 35%, 0.3);
         }
-        .pill.pill-assignment .pill-tail { border-top: 6px solid #F5A623; }
+        .pill.pill-assignment .pill-tail { border-top: 6px solid hsl(40, 65%, 55%); }
         
-        /* Move-in ready (resale): green bg, white text */
+        /* Move-in ready (resale): cream/light gold bg, dark text */
         .pill.pill-resale {
-          background: #059669;
-          color: white;
-          box-shadow: 0 2px 6px hsla(160, 90%, 20%, 0.3);
+          background: hsl(38, 50%, 94%);
+          color: hsl(40, 45%, 16%);
+          border: 1px solid hsl(40, 40%, 78%);
+          box-shadow: 0 2px 6px hsla(40, 30%, 40%, 0.2);
         }
-        .pill.pill-resale .pill-tail { border-top: 6px solid #059669; }
+        .pill.pill-resale .pill-tail { border-top: 6px solid hsl(38, 50%, 94%); }
         
-        /* Hover state: scale 1.15x, yellow glow, higher z-index */
+        /* Hover state: scale 1.15x, gold glow, higher z-index */
         .pill:hover, .pill.pill-hl {
           transform: scale(1.15);
-          box-shadow: 0 0 12px 3px hsla(45, 90%, 55%, 0.6), 0 4px 12px hsla(0, 0%, 0%, 0.15);
+          box-shadow: 0 0 12px 3px hsla(40, 65%, 55%, 0.6), 0 4px 12px hsla(0, 0%, 0%, 0.15);
           z-index: 9999 !important;
         }
         .pill-marker:hover, .pill-marker.pill-hl {
           z-index: 9999 !important;
         }
         
-        /* Cluster icons — yellow (#F5A623) circle, black number */
-        .mc { background: transparent !important; border: none !important; }
-        .cl { 
-          background: #F5A623; 
-          color: hsl(0, 0%, 10%); 
-          border-radius: 50%; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          font-weight: 700; 
-          box-shadow: 0 2px 8px hsla(37, 90%, 40%, 0.3); 
-          border: 2.5px solid hsl(45, 90%, 70%);
-          transition: transform 0.15s ease;
-          cursor: pointer;
-          font-family: system-ui, -apple-system, sans-serif;
+        /* Cluster grid popup */
+        .cluster-grid-popup .leaflet-popup-content-wrapper {
+          padding: 0;
+          border-radius: 12px;
+          overflow: hidden;
+          box-shadow: 0 8px 32px hsla(40, 30%, 20%, 0.18);
+          background: hsl(30, 20%, 99%);
+          border: 1px solid hsl(30, 10%, 88%);
         }
-        .cl:hover { transform: scale(1.1); }
-        .cl.sm { width: 40px; height: 40px; font-size: 13px; }
-        .cl.md { width: 46px; height: 46px; font-size: 14px; }
-        .cl.lg { width: 52px; height: 52px; font-size: 15px; }
+        .cluster-grid-popup .leaflet-popup-content { margin: 0; width: auto !important; }
+        .cluster-grid-popup .leaflet-popup-tip { background: hsl(30, 20%, 99%); border: 1px solid hsl(30, 10%, 88%); border-top: none; border-left: none; }
+        .cluster-grid-popup .leaflet-popup-close-button { top: 6px !important; right: 6px !important; z-index: 10; font-size: 18px !important; color: hsl(40, 20%, 45%) !important; }
+        
+        .cluster-grid-wrap {
+          width: 320px;
+          max-height: 360px;
+          overflow-y: auto;
+        }
+        .cluster-grid-header {
+          padding: 10px 14px;
+          font-size: 13px;
+          font-weight: 700;
+          color: hsl(40, 30%, 25%);
+          border-bottom: 1px solid hsl(30, 10%, 90%);
+          background: hsl(38, 30%, 97%);
+          position: sticky;
+          top: 0;
+          z-index: 5;
+        }
+        .cluster-grid {
+          display: grid;
+          gap: 0;
+        }
+        .cluster-grid-item {
+          display: flex;
+          gap: 10px;
+          padding: 10px 14px;
+          border-bottom: 1px solid hsl(30, 10%, 92%);
+          text-decoration: none;
+          color: inherit;
+          transition: background 0.12s ease;
+        }
+        .cluster-grid-item:hover {
+          background: hsl(38, 30%, 96%);
+        }
+        .cluster-grid-item:last-child { border-bottom: none; }
+        .cluster-grid-img {
+          width: 64px;
+          height: 48px;
+          border-radius: 6px;
+          object-fit: cover;
+          background: hsl(38, 20%, 92%);
+          flex-shrink: 0;
+        }
+        .cluster-grid-img-placeholder {
+          width: 64px;
+          height: 48px;
+          border-radius: 6px;
+          background: hsl(38, 20%, 92%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: hsl(40, 20%, 65%);
+          flex-shrink: 0;
+        }
+        .cluster-grid-info {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          min-width: 0;
+        }
+        .cluster-grid-price {
+          font-size: 14px;
+          font-weight: 700;
+          color: hsl(40, 65%, 45%);
+        }
+        .cluster-grid-address {
+          font-size: 11px;
+          color: hsl(40, 15%, 40%);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .cluster-grid-specs {
+          font-size: 10px;
+          color: hsl(40, 10%, 55%);
+        }
         
         /* Popup styling - branded warm cards */
         .premium-popup .leaflet-popup-content-wrapper { 
