@@ -1542,9 +1542,9 @@ export default function MapSearch() {
         </div>
 
         {/* Desktop Filter Bar + View Toggle */}
-        <div className="hidden lg:flex items-center gap-2 px-4 py-2 border-b border-border/30 bg-background shrink-0">
+        <div className="hidden lg:flex items-center gap-3 px-5 py-2.5 border-b border-border/30 bg-background shrink-0">
           {/* Filter Pills */}
-          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
             {[
               { key: "all", label: "All" },
               { key: "presale", label: "Presale" },
@@ -1555,19 +1555,19 @@ export default function MapSearch() {
                 key={filter.key}
                 onClick={() => handleModeChange(filter.key as MapMode)}
                 className={cn(
-                  "px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-150 border",
+                  "px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 border",
                   mapMode === filter.key
-                    ? "bg-[hsl(40,90%,55%)] text-[hsl(222,47%,11%)] border-transparent shadow-sm"
-                    : "bg-card text-foreground border-border/50 hover:border-foreground/30"
+                    ? "bg-primary text-primary-foreground border-transparent shadow-sm"
+                    : "bg-card text-foreground border-border hover:border-foreground/30"
                 )}
               >
                 {filter.label}
               </button>
             ))}
             
-            {/* Price dropdown pill */}
+            {/* Beds dropdown pill */}
             <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-              <SelectTrigger className="h-8 px-3 rounded-full text-sm font-medium border-border/50 bg-card hover:border-foreground/30 w-auto min-w-[80px] gap-1">
+              <SelectTrigger className="h-9 px-4 rounded-full text-sm font-semibold border-border bg-card hover:border-foreground/30 w-auto min-w-[90px] gap-1.5">
                 <span>{filters.beds === "any" ? "Beds" : `${filters.beds}+ Beds`}</span>
               </SelectTrigger>
               <SelectContent>
