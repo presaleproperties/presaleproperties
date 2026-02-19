@@ -81,6 +81,7 @@ interface CombinedListingsMapProps {
   assignments?: Assignment[];
   mode: "all" | "presale" | "resale" | "assignments";
   onListingSelect?: (id: string, type: "resale" | "presale" | "assignment") => void;
+  onItemHover?: (id: string | null, type: "resale" | "presale" | "assignment" | null) => void;
   onVisibleItemsChange?: (resaleIds: string[], presaleIds: string[], assignmentIds?: string[]) => void;
   onMapInteraction?: () => void;
   onMapStateChange?: (center: { lat: number; lng: number }, zoom: number) => void;
@@ -105,90 +106,51 @@ function formatPrice(price: number): string {
 
 const iconCache = new Map<string, L.DivIcon>();
 
-function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean = false): L.DivIcon {
-  const priceText = formatPrice(listing.listing_price);
-  const cacheKey = `resale-${priceText}-${isHighlighted}`;
-  
+// Price pill with downward triangle tail — used for all marker types
+function createPricePillMarker(
+  priceText: string,
+  markerType: "resale" | "presale" | "assignment",
+  isHighlighted: boolean = false
+): L.DivIcon {
+  const cacheKey = `pill-${markerType}-${priceText}-${isHighlighted}`;
   const cached = iconCache.get(cacheKey);
   if (cached && !isHighlighted) return cached;
-  
-  // Larger touch targets for mobile
-  const size = isHighlighted ? [88, 36] : [72, 30];
-  
+
+  const typeClass = markerType === "presale" ? "pill-presale" : markerType === "assignment" ? "pill-assignment" : "pill-resale";
+  const hlClass = isHighlighted ? " pill-hl" : "";
+
   const icon = L.divIcon({
-    className: `price-marker ${isHighlighted ? 'marker-hl' : ''}`,
-    html: `<div class="pp${isHighlighted ? ' hl' : ''}">${priceText}</div>`,
-    iconSize: [size[0], size[1]],
-    iconAnchor: [size[0] / 2, size[1]],
-    popupAnchor: [0, -size[1] - 4],
+    className: `pill-marker ${typeClass}${hlClass}`,
+    html: `<div class="pill ${typeClass}${hlClass}"><span class="pill-text">${priceText}</span><span class="pill-tail"></span></div>`,
+    iconSize: [80, 42],
+    iconAnchor: [40, 42],
+    popupAnchor: [0, -44],
   });
-  
+
   if (!isHighlighted) iconCache.set(cacheKey, icon);
   return icon;
+}
+
+function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean = false): L.DivIcon {
+  return createPricePillMarker(formatPrice(listing.listing_price), "resale", isHighlighted);
 }
 
 function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = false): L.DivIcon {
-  const cacheKey = `presale-${isHighlighted}`;
-  
-  const cached = iconCache.get(cacheKey);
-  if (cached && !isHighlighted) return cached;
-  
-  // Larger pins for easier tapping
-  const size = isHighlighted ? 48 : 36;
-  
-  const icon = L.divIcon({
-    className: `presale-pin${isHighlighted ? ' hl' : ''}`,
-    html: `<div class="pin${isHighlighted ? ' hl' : ''}"></div>`,
-    iconSize: [size, size + 8],
-    iconAnchor: [size / 2, size + 8],
-    popupAnchor: [0, -(size + 8)],
-  });
-  
-  if (!isHighlighted) iconCache.set(cacheKey, icon);
-  return icon;
+  const priceText = project.starting_price ? formatPrice(project.starting_price) : "TBA";
+  return createPricePillMarker(priceText, "presale", isHighlighted);
 }
 
-// Assignment marker - minimalistic amber dot
 function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean = false): L.DivIcon {
-  const cacheKey = `assignment-dot-${isHighlighted}`;
-  
-  const cached = iconCache.get(cacheKey);
-  if (cached && !isHighlighted) return cached;
-  
-  // Small circular pin
-  const size = isHighlighted ? 18 : 14;
-  
-  const icon = L.divIcon({
-    className: `assignment-marker ${isHighlighted ? 'marker-hl' : ''}`,
-    html: `<div class="ap-dot${isHighlighted ? ' hl' : ''}"></div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -size / 2 - 4],
-  });
-  
-  if (!isHighlighted) iconCache.set(cacheKey, icon);
-  return icon;
+  return createPricePillMarker(formatPrice(assignment.assignment_price), "assignment", isHighlighted);
 }
 
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
   const sizeClass = count >= 100 ? 'lg' : count >= 10 ? 'md' : 'sm';
-  // Larger cluster icons for easier tapping
   const size = count >= 100 ? 52 : count >= 10 ? 46 : 40;
   
-  // Differentiate cluster color by majority type (check first 10 children)
-  const children = cluster.getAllChildMarkers().slice(0, 10);
-  let presaleCount = 0;
-  let resaleCount = 0;
-  children.forEach(m => {
-    const cls = (m.options.icon as L.DivIcon)?.options?.className || '';
-    if (cls.includes('presale-pin')) presaleCount++;
-    else resaleCount++;
-  });
-  const typeClass = presaleCount > resaleCount ? 'cl-presale' : resaleCount > presaleCount ? 'cl-resale' : 'cl-mixed';
-  
   return L.divIcon({
-    html: `<div class="cl ${sizeClass} ${typeClass}">${count}</div>`,
+    html: `<div class="cl ${sizeClass}">${count}</div>`,
     className: "mc",
     iconSize: L.point(size, size),
     iconAnchor: L.point(size / 2, size / 2),
@@ -318,6 +280,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
   assignments = [],
   mode,
   onListingSelect, 
+  onItemHover,
   onVisibleItemsChange,
   onMapInteraction,
   onMapStateChange,
@@ -755,11 +718,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
               maxWidth: 300,
               className: "premium-popup resale-popup",
               closeButton: true,
+              autoPan: true,
+              autoPanPaddingTopLeft: L.point(50, 80),
+              autoPanPaddingBottomRight: L.point(50, 50),
             });
           }
 
           marker.on("click", () => {
             onListingSelect?.(listing.id, "resale");
+          });
+          marker.on("mouseover", () => {
+            onItemHover?.(listing.id, "resale");
+          });
+          marker.on("mouseout", () => {
+            onItemHover?.(null, null);
           });
 
           resaleMarkersMapRef.current.set(listing.id, marker);
@@ -782,11 +754,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             maxWidth: 300,
             className: "premium-popup presale-popup",
             closeButton: true,
+            autoPan: true,
+            autoPanPaddingTopLeft: L.point(50, 80),
+            autoPanPaddingBottomRight: L.point(50, 50),
           });
         }
 
         marker.on("click", () => {
           onListingSelect?.(project.id, "presale");
+        });
+        marker.on("mouseover", () => {
+          onItemHover?.(project.id, "presale");
+        });
+        marker.on("mouseout", () => {
+          onItemHover?.(null, null);
         });
 
         presaleMarkersMapRef.current.set(project.id, marker);
@@ -808,11 +789,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             maxWidth: 300,
             className: "premium-popup assignment-popup",
             closeButton: true,
+            autoPan: true,
+            autoPanPaddingTopLeft: L.point(50, 80),
+            autoPanPaddingBottomRight: L.point(50, 50),
           });
         }
 
         marker.on("click", () => {
           onListingSelect?.(assignment.id, "assignment");
+        });
+        marker.on("mouseover", () => {
+          onItemHover?.(assignment.id, "assignment");
+        });
+        marker.on("mouseout", () => {
+          onItemHover?.(null, null);
         });
 
         assignmentMarkersMapRef.current.set(assignment.id, marker);
@@ -905,90 +895,88 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
         
         /* Base marker reset */
-        .price-marker, .presale-pin, .assignment-marker { background: transparent !important; border: none !important; }
+        .pill-marker { background: transparent !important; border: none !important; }
         
-        /* Resale price pills - gold branding */
-        .pp { 
-          background: hsl(40, 65%, 55%); 
-          color: white; 
-          padding: 5px 10px; 
-          border-radius: 16px; 
-          font-size: 12px; 
-          font-weight: 700; 
-          white-space: nowrap; 
-          box-shadow: 0 2px 6px hsla(40, 65%, 30%, 0.25); 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          transition: transform 0.1s ease-out, box-shadow 0.1s ease-out;
-          min-height: 28px;
+        /* === PRICE PILL PINS (all types) === */
+        .pill {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 4px 10px;
+          border-radius: 14px;
+          font-size: 12px;
+          font-weight: 700;
+          white-space: nowrap;
           cursor: pointer;
-        }
-        .pp:hover, .pp.hl { 
-          transform: scale(1.08); 
-          box-shadow: 0 4px 12px hsla(40, 65%, 30%, 0.35); 
-          background: hsl(34, 65%, 40%);
-        }
-        
-        /* Presale pins - gold branded with pulse animation */
-        .pin { 
-          width: 32px; 
-          height: 38px; 
-          background: hsl(34, 65%, 40%); 
-          border-radius: 50% 50% 50% 0; 
-          transform: rotate(-45deg); 
-          border: 2.5px solid hsl(40, 65%, 65%); 
-          box-shadow: 0 2px 6px hsla(40, 65%, 30%, 0.2);
-          cursor: pointer;
-          animation: presale-pulse 3s ease-in-out infinite;
-        }
-        @keyframes presale-pulse {
-          0%, 100% { transform: rotate(-45deg) scale(1); }
-          50% { transform: rotate(-45deg) scale(1.05); }
-        }
-        .pin:hover, .pin.hl { 
-          box-shadow: 0 3px 10px hsla(40, 65%, 30%, 0.3);
-          background: hsl(40, 65%, 55%);
-          animation: none;
-        }
-        
-        /* Assignment markers - container must be transparent */
-        .assignment-marker { background: transparent !important; border: none !important; }
-        
-        /* Assignment dots - gold tone */
-        .ap-dot { 
-          width: 12px;
-          height: 12px;
-          background: hsl(40, 65%, 55%); 
-          border: 2px solid white;
-          border-radius: 50%; 
-          box-shadow: 0 1px 4px hsla(40, 65%, 30%, 0.2); 
           transition: transform 0.15s ease, box-shadow 0.15s ease;
-          cursor: pointer;
+          font-family: system-ui, -apple-system, sans-serif;
+          line-height: 1;
+          min-height: 26px;
         }
-        .ap-dot:hover, .ap-dot.hl { 
-          transform: scale(1.3); 
-          box-shadow: 0 2px 8px hsla(40, 65%, 55%, 0.4); 
+        .pill-text { position: relative; z-index: 1; }
+        /* Triangle tail */
+        .pill-tail {
+          position: absolute;
+          bottom: -6px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 5px solid transparent;
+          border-right: 5px solid transparent;
         }
         
-        /* Cluster icons - branded gold with type differentiation */
+        /* Presale: dark bg, white text */
+        .pill.pill-presale {
+          background: hsl(222, 47%, 18%);
+          color: white;
+          box-shadow: 0 2px 6px hsla(222, 47%, 10%, 0.3);
+        }
+        .pill.pill-presale .pill-tail { border-top: 6px solid hsl(222, 47%, 18%); }
+        
+        /* Assignment: yellow bg, black text */
+        .pill.pill-assignment {
+          background: #F5A623;
+          color: hsl(0, 0%, 10%);
+          box-shadow: 0 2px 6px hsla(37, 90%, 40%, 0.3);
+        }
+        .pill.pill-assignment .pill-tail { border-top: 6px solid #F5A623; }
+        
+        /* Move-in ready (resale): green bg, white text */
+        .pill.pill-resale {
+          background: #059669;
+          color: white;
+          box-shadow: 0 2px 6px hsla(160, 90%, 20%, 0.3);
+        }
+        .pill.pill-resale .pill-tail { border-top: 6px solid #059669; }
+        
+        /* Hover state: scale 1.15x, yellow glow, higher z-index */
+        .pill:hover, .pill.pill-hl {
+          transform: scale(1.15);
+          box-shadow: 0 0 12px 3px hsla(45, 90%, 55%, 0.6), 0 4px 12px hsla(0, 0%, 0%, 0.15);
+          z-index: 9999 !important;
+        }
+        .pill-marker:hover, .pill-marker.pill-hl {
+          z-index: 9999 !important;
+        }
+        
+        /* Cluster icons — yellow (#F5A623) circle, black number */
         .mc { background: transparent !important; border: none !important; }
         .cl { 
-          background: hsl(34, 65%, 40%); 
-          color: white; 
+          background: #F5A623; 
+          color: hsl(0, 0%, 10%); 
           border-radius: 50%; 
           display: flex; 
           align-items: center; 
           justify-content: center; 
           font-weight: 700; 
-          box-shadow: 0 2px 8px hsla(40, 65%, 30%, 0.2); 
-          border: 2.5px solid hsl(40, 65%, 65%);
+          box-shadow: 0 2px 8px hsla(37, 90%, 40%, 0.3); 
+          border: 2.5px solid hsl(45, 90%, 70%);
           transition: transform 0.15s ease;
           cursor: pointer;
+          font-family: system-ui, -apple-system, sans-serif;
         }
-        .cl.cl-presale { background: hsl(34, 70%, 35%); border-color: hsl(40, 70%, 60%); }
-        .cl.cl-resale { background: hsl(40, 55%, 48%); border-color: hsl(40, 50%, 70%); }
-        .cl.cl-mixed { background: hsl(37, 65%, 42%); }
         .cl:hover { transform: scale(1.1); }
         .cl.sm { width: 40px; height: 40px; font-size: 13px; }
         .cl.md { width: 46px; height: 46px; font-size: 14px; }
@@ -1070,6 +1058,15 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         .lock-btn { display: inline-block; background: hsl(40, 65%, 55%); color: white; padding: 10px 18px; border-radius: 8px; font-size: 12px; font-weight: 600; text-decoration: none; transition: background 0.15s; }
         .lock-btn:hover { background: hsl(34, 65%, 40%); }
         
+        /* Popup entrance animation */
+        .premium-popup {
+          animation: popup-enter 0.18s ease-out;
+        }
+        @keyframes popup-enter {
+          0% { opacity: 0; transform: scale(0.85); }
+          100% { opacity: 1; transform: scale(1); }
+        }
+        
         /* Smooth marker cluster animations - disabled on mobile for stability */
         @media (min-width: 1024px) {
           .marker-cluster-anim .leaflet-marker-icon,
@@ -1084,7 +1081,7 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             transition: none !important;
           }
           /* Also reduce marker hover effects on touch devices */
-          .pp, .pin, .ap-dot, .cl {
+          .pill, .cl {
             transition: none !important;
           }
         }
@@ -1105,14 +1102,20 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       >
         <div className="flex flex-col rounded-full overflow-hidden bg-background/95 backdrop-blur-sm shadow-md border border-border/40">
           <button
-            onClick={() => mapInstanceRef.current?.zoomIn()}
+            onClick={() => {
+              const map = mapInstanceRef.current;
+              if (map) map.setZoom(map.getZoom() + 1, { animate: true });
+            }}
             className="w-5 h-5 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <Plus className="h-2.5 w-2.5 lg:h-4 lg:w-4" />
           </button>
           <div className="w-full h-px bg-border/50" />
           <button
-            onClick={() => mapInstanceRef.current?.zoomOut()}
+            onClick={() => {
+              const map = mapInstanceRef.current;
+              if (map) map.setZoom(map.getZoom() - 1, { animate: true });
+            }}
             className="w-5 h-5 lg:w-9 lg:h-9 flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
           >
             <Minus className="h-2.5 w-2.5 lg:h-4 lg:w-4" />

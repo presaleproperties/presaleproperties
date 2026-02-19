@@ -227,6 +227,8 @@ export default function MapSearch() {
   const [selectedItemType, setSelectedItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   const [focusedCarouselItemId, setFocusedCarouselItemId] = useState<string | null>(null);
   const [focusedCarouselItemType, setFocusedCarouselItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [hoveredItemType, setHoveredItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   const [visibleResaleIds, setVisibleResaleIds] = useState<string[]>([]);
   const [visiblePresaleIds, setVisiblePresaleIds] = useState<string[]>([]);
   const [visibleAssignmentIds, setVisibleAssignmentIds] = useState<string[]>([]);
@@ -463,6 +465,29 @@ export default function MapSearch() {
         }
       }
     }, 100);
+  }, []);
+
+  // Handle pin hover → highlight card and scroll into view
+  const handlePinHover = useCallback((id: string | null, type: "resale" | "presale" | "assignment" | null) => {
+    setHoveredItemId(id);
+    setHoveredItemType(type);
+    if (id && desktopListRef.current) {
+      const cardElement = desktopListRef.current.querySelector(`[data-item-id="${id}"]`);
+      if (cardElement) {
+        cardElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, []);
+
+  // Handle card hover → highlight pin on map (desktop only)
+  const handleCardHover = useCallback((id: string | null, type: "resale" | "presale" | "assignment" | null) => {
+    setHoveredItemId(id);
+    setHoveredItemType(type);
+    if (id && type && mapNavigationRef.current) {
+      mapNavigationRef.current.highlightItem(id, type);
+    } else if (!id && mapNavigationRef.current) {
+      mapNavigationRef.current.clearHighlight();
+    }
   }, []);
 
   // Track if we're in initial load state to prevent auto-selection
@@ -1675,6 +1700,7 @@ export default function MapSearch() {
                       assignments={filteredAssignments}
                       mode={mapMode}
                       onListingSelect={handleItemSelect}
+                      onItemHover={handlePinHover}
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
                       onMapStateChange={handleMapStateChange}
@@ -1682,8 +1708,8 @@ export default function MapSearch() {
                       centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
-                      highlightedItemId={selectedItemId}
-                      highlightedItemType={selectedItemType}
+                      highlightedItemId={hoveredItemId || selectedItemId}
+                      highlightedItemType={hoveredItemType || selectedItemType}
                       isVerifiedAgent={isVerifiedAgent}
                       panelOpen={showList}
                       mobileCarouselOpen={showCarousel}
@@ -1692,6 +1718,24 @@ export default function MapSearch() {
                 </Suspense>
               </SafeMapWrapper>
             </div>
+
+            {/* "X projects in view" floating counter — top center of map */}
+            {propertiesInViewCount > 0 && !isLoading && (
+              <div 
+                className={`absolute z-[1001] left-1/2 -translate-x-1/2 pointer-events-none transition-all duration-300 ${
+                  showList ? 'lg:left-[calc(50%-210px)]' : 'lg:left-1/2'
+                }`}
+                style={{ 
+                  top: isMobileOrTablet 
+                    ? 'calc(env(safe-area-inset-top, 0px) + 12px + 72px + 44px)' 
+                    : '56px' 
+                }}
+              >
+                <div className="px-3 py-1.5 rounded-full bg-foreground/80 backdrop-blur-sm text-background text-xs font-semibold shadow-lg">
+                  {propertiesInViewCount} {propertiesInViewCount === 1 ? 'project' : 'projects'} in view
+                </div>
+              </div>
+            )}
 
             {/* Show Carousel Button - When hidden - Premium Apple Maps style */}
             {/* Positioned above safe area with enough clearance for tablets */}
@@ -2270,12 +2314,15 @@ export default function MapSearch() {
                     ? (data as Assignment).map_lng
                     : (data as MLSListing).longitude;
                   const isFocused = focusedCarouselItemId === id;
+                  const isHovered = hoveredItemId === id;
                   
                   return (
                     <Link 
                       key={`${item.type}-${id}`}
                       to={link}
                       data-item-id={id}
+                      onMouseEnter={() => handleCardHover(id, item.type)}
+                      onMouseLeave={() => handleCardHover(null, null)}
                       onClick={(e) => {
                         // For non-verified users viewing assignments, prevent navigation and show toast
                         if (isAssignment && !isVerifiedAgent) {
@@ -2294,7 +2341,7 @@ export default function MapSearch() {
                     >
                       <div className={cn(
                         "rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card",
-                        isFocused 
+                        (isFocused || isHovered)
                           ? 'border-primary ring-2 ring-primary/30 shadow-lg' 
                           : selectedItemId === id 
                             ? 'border-primary/50 ring-1 ring-primary/20' 
