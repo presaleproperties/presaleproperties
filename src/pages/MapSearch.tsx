@@ -209,6 +209,12 @@ export default function MapSearch() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [desktopFiltersOpen, setDesktopFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
+  // View mode: "split" (default), "map", or "list"
+  type ViewMode = "split" | "map" | "list";
+  const [viewMode, setViewMode] = useState<ViewMode>("split");
+  // Two-way hover sync: track which item is hovered (from either map pin or card)
+  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
+  const [hoveredItemType, setHoveredItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   
   // Get admin-controlled minimum year built
   const { data: adminMinYear = DEFAULT_MIN_YEAR_BUILT } = useMinYearBuilt();
@@ -591,6 +597,30 @@ export default function MapSearch() {
   const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale" | "assignment", link: string, lat: number | null, lng: number | null) => {
     // Just let the Link navigate naturally - no map interaction needed
     // Assignment verification is handled in the onClick before this is called
+  }, []);
+
+  // Two-way hover sync: when a map pin is hovered, highlight the card and scroll into view
+  const handleMapItemHover = useCallback((id: string | null, type: "resale" | "presale" | "assignment" | null) => {
+    setHoveredItemId(id);
+    setHoveredItemType(type);
+    // Scroll the hovered card into view in the desktop panel
+    if (id && desktopListRef.current) {
+      const cardEl = desktopListRef.current.querySelector(`[data-item-id="${id}"]`);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  }, []);
+
+  // Two-way hover sync: when a card is hovered, highlight the map pin
+  const handleCardHover = useCallback((id: string | null, type: "resale" | "presale" | "assignment" | null) => {
+    setHoveredItemId(id);
+    setHoveredItemType(type);
+    if (id && type && mapNavigationRef.current) {
+      mapNavigationRef.current.highlightItem(id, type);
+    } else if (!id && mapNavigationRef.current) {
+      mapNavigationRef.current.clearHighlight();
+    }
   }, []);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
@@ -1510,6 +1540,77 @@ export default function MapSearch() {
           <ConversionHeader alwaysVisible stickyOnMobile />
         </div>
 
+        {/* Desktop Filter Bar + View Toggle */}
+        <div className="hidden lg:flex items-center gap-2 px-4 py-2 border-b border-border/30 bg-background shrink-0">
+          {/* Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+            {[
+              { key: "all", label: "All" },
+              { key: "presale", label: "Presale" },
+              { key: "resale", label: "Move-In Ready" },
+              { key: "assignments", label: "Assignments" },
+            ].map((filter) => (
+              <button
+                key={filter.key}
+                onClick={() => handleModeChange(filter.key as MapMode)}
+                className={cn(
+                  "px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-150 border",
+                  mapMode === filter.key
+                    ? "bg-[hsl(40,90%,55%)] text-[hsl(222,47%,11%)] border-transparent shadow-sm"
+                    : "bg-card text-foreground border-border/50 hover:border-foreground/30"
+                )}
+              >
+                {filter.label}
+              </button>
+            ))}
+            
+            {/* Price dropdown pill */}
+            <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
+              <SelectTrigger className="h-8 px-3 rounded-full text-sm font-medium border-border/50 bg-card hover:border-foreground/30 w-auto min-w-[80px] gap-1">
+                <span>{filters.beds === "any" ? "Beds" : `${filters.beds}+ Beds`}</span>
+              </SelectTrigger>
+              <SelectContent>
+                {BED_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex-1" />
+
+          {/* View Toggle */}
+          <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
+            {[
+              { key: "split", label: "Split View", icon: PanelRightOpen },
+              { key: "map", label: "Map Only", icon: Map },
+              { key: "list", label: "List Only", icon: LayoutGrid },
+            ].map((v) => {
+              const Icon = v.icon;
+              return (
+                <button
+                  key={v.key}
+                  onClick={() => {
+                    setViewMode(v.key as "split" | "map" | "list");
+                    if (v.key === "split") setShowList(true);
+                    else if (v.key === "map") setShowList(false);
+                    else setShowList(true);
+                  }}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
+                    viewMode === v.key
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {v.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <div 
           className="lg:hidden absolute left-0 right-0 z-[1002] px-3 map-safe-left map-safe-right" 
@@ -1608,10 +1709,12 @@ export default function MapSearch() {
 
         {/* Main Content - Map + Floating Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
-          {/* Map Section - Always full width, panel floats on top */}
-          <div className="relative h-full w-full">
-            {/* Unified Mode Toggle - Floating on map */}
-            {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
+          {/* Map Section - hidden in list-only mode on desktop */}
+          <div className={cn(
+            "relative h-full w-full",
+            viewMode === "list" && "hidden lg:hidden"
+          )}>
+            {/* Unified Mode Toggle - Floating on map - MOBILE/TABLET ONLY */}
             <div 
               className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
               style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
@@ -1624,33 +1727,20 @@ export default function MapSearch() {
               />
             </div>
             
-            {/* Desktop: Centered at top of map - shifts left when panel is open */}
-            <div 
-              className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
-              style={{ 
-                left: showList ? 'calc(50% - 210px)' : '50%',
-                transform: 'translateX(-50%)'
-              }}
-            >
-              <UnifiedMapToggle
-                mode={mapMode}
-                onModeChange={handleModeChange}
-                presaleCount={filteredPresaleProjects?.length || 0}
-                resaleCount={filteredResaleListings?.length || 0}
-              />
-            </div>
+            {/* "X projects in view" floating badge - top center of map */}
+            {propertiesInViewCount > 0 && (
+              <div 
+                className="absolute top-3 z-[1000] left-1/2 -translate-x-1/2 hidden lg:block transition-all duration-300"
+                style={{ marginLeft: viewMode === "split" ? '-220px' : '0' }}
+              >
+                <div className="px-4 py-1.5 rounded-full bg-[hsl(222,47%,11%)]/80 backdrop-blur-md text-white text-sm font-medium shadow-lg">
+                  {propertiesInViewCount} {propertiesInViewCount === 1 ? 'property' : 'properties'} in view
+                </div>
+              </div>
+            )}
             
             {/* Desktop: Show Panel Button - appears when panel is hidden, shifts when panel opens */}
-            <button
-              onClick={() => setShowList(true)}
-              className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
-                showList ? "opacity-0 pointer-events-none" : "opacity-100"
-              }`}
-              style={{ right: showList ? 'calc(420px + 16px)' : '12px' }}
-              aria-label="Show property list"
-            >
-              <PanelRightOpen className="h-3.5 w-3.5 text-muted-foreground" />
-            </button>
+            {/* Removed: old show-panel button - using view toggle now */}
 
 
             <div className="absolute inset-0">
@@ -1678,14 +1768,15 @@ export default function MapSearch() {
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
                       onMapStateChange={handleMapStateChange}
+                      onItemHover={handleMapItemHover}
                       disablePopupsOnMobile={isMobileOrTablet}
                       centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
-                      highlightedItemId={selectedItemId}
-                      highlightedItemType={selectedItemType}
+                      highlightedItemId={hoveredItemId || selectedItemId}
+                      highlightedItemType={hoveredItemType || selectedItemType}
                       isVerifiedAgent={isVerifiedAgent}
-                      panelOpen={showList}
+                      panelOpen={viewMode === "split" && showList}
                       mobileCarouselOpen={showCarousel}
                     />
                   )}
