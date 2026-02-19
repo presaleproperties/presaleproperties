@@ -1167,7 +1167,9 @@ export default function MapSearch() {
       }
     }
     
-    return finalItems.slice(0, 40);
+    // Cap visible items: 25 on mobile for performance, 40 on desktop
+    const cap = isMobileOrTablet ? 25 : 40;
+    return finalItems.slice(0, cap);
   }, [visibleResaleListings, visiblePresaleProjects, visibleAssignments, focusedCarouselItemId, filteredPresaleProjects, filteredResaleListings, filteredAssignments, filters.sort, getDistanceFromCenter]);
 
   // Actual count of properties in view (not capped) for display
@@ -1777,8 +1779,8 @@ export default function MapSearch() {
                 {/* Compact Carousel Cards */}
                 <div 
                   ref={carouselRef}
-                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory"
-                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
+                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-smooth"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollPaddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', scrollPaddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
                 >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
@@ -1815,7 +1817,7 @@ export default function MapSearch() {
                           handleCarouselCardTap(id, item.type, link);
                         }}
                         className={cn(
-                          "snap-start shrink-0 w-[180px] sm:w-[200px]",
+                          "snap-start shrink-0 w-[200px] sm:w-[220px]",
                           isAssignment && !isVerifiedAgent ? "cursor-default" : "cursor-pointer"
                         )}
                       >
@@ -1917,7 +1919,17 @@ export default function MapSearch() {
                                   <span className="text-border">•</span>
                                   <span>{isAssignment ? (data as Assignment).beds : (data as MLSListing).bedrooms_total}bd</span>
                                   <span>{isAssignment ? (data as Assignment).baths : (data as MLSListing).bathrooms_total}ba</span>
+                                  {!isAssignment && (data as MLSListing).living_area && (
+                                    <span>{(data as MLSListing).living_area?.toLocaleString()}sf</span>
+                                  )}
                                 </>
+                              )}
+                              {isPresale && (data as PresaleProject).status && (
+                                <span className="text-[9px] font-medium text-primary">
+                                  {(data as PresaleProject).status === 'active' ? 'Selling' : 
+                                   (data as PresaleProject).status === 'registering' ? 'Registering' : 
+                                   (data as PresaleProject).status === 'coming_soon' ? 'Coming Soon' : ''}
+                                </span>
                               )}
                             </div>
                           </div>

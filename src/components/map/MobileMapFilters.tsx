@@ -417,6 +417,30 @@ export function MobileMapFilters({
         </div>
 
         <div className="flex-1 overflow-y-auto px-5 py-5 space-y-6">
+          {/* Popular Presets */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground">Popular</label>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { label: "First-time Buyer", desc: "Under $800K, 1-2 beds", action: () => { onPriceRangeChange([0, 800000]); onBedsChange("1"); } },
+                { label: "Family Home", desc: "3+ beds, House/Townhouse", action: () => { onBedsChange("3"); onPropertyTypeChange("Townhouse"); } },
+                { label: "Investment", desc: "Under $600K, Condo", action: () => { onPriceRangeChange([0, 600000]); onPropertyTypeChange("Apartment/Condo"); } },
+                { label: "Luxury", desc: "$2M+, Any type", action: () => { onPriceRangeChange([2000000, maxPrice]); } },
+              ].map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={preset.action}
+                  className="flex flex-col items-start p-3 rounded-xl border border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-left"
+                >
+                  <span className="text-sm font-medium text-foreground">{preset.label}</span>
+                  <span className="text-[11px] text-muted-foreground">{preset.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="h-px bg-border/50" />
+
           {/* City Multi-Select Dropdown */}
           <div className="space-y-3">
             <label className="flex items-center gap-2 text-sm font-medium text-foreground">
