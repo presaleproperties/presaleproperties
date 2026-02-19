@@ -146,14 +146,14 @@ function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean 
 
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
-  const sizeClass = count >= 100 ? 'lg' : count >= 10 ? 'md' : 'sm';
-  const size = count >= 100 ? 52 : count >= 10 ? 46 : 40;
+  const label = count === 1 ? '1 Unit' : `${count} Units`;
+  const width = count >= 100 ? 90 : count >= 10 ? 80 : 72;
   
   return L.divIcon({
-    html: `<div class="cl ${sizeClass}">${count}</div>`,
-    className: "mc",
-    iconSize: L.point(size, size),
-    iconAnchor: L.point(size / 2, size / 2),
+    html: `<div class="cluster-pill">${label}</div>`,
+    className: "cluster-pill-marker",
+    iconSize: L.point(width, 32),
+    iconAnchor: L.point(width / 2, 16),
   });
 }
 
