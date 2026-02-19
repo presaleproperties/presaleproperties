@@ -139,10 +139,10 @@ function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = 
   const hlClass = isHighlighted ? " presale-pin-hl" : "";
   return L.divIcon({
     className: `presale-pin-marker${hlClass}`,
-    html: `<div class="presale-pin${hlClass}"></div>`,
-    iconSize: [18, 18],
-    iconAnchor: [9, 9],
-    popupAnchor: [0, -12],
+    html: `<div class="presale-pin${hlClass}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/><line x1="9" y1="9" x2="9" y2="9.01"/><line x1="9" y1="13" x2="9" y2="13.01"/><line x1="9" y1="17" x2="9" y2="17.01"/></svg></div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -18],
   });
 }
 
