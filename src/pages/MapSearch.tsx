@@ -36,7 +36,6 @@ import { SafeMapWrapper } from "@/components/map/SafeMapWrapper";
 import { UnifiedMapToggle } from "@/components/map/UnifiedMapToggle";
 import { MobileMapFilters } from "@/components/map/MobileMapFilters";
 import { MobileMapNavDrawer } from "@/components/map/MobileMapNavDrawer";
-import { MobileBottomSheet } from "@/components/map/MobileBottomSheet";
 import { MapSearchBar } from "@/components/search/MapSearchBar";
 import { MobileMapSearchBar } from "@/components/search/MobileMapSearchBar";
 import { CityMultiSelectDropdown } from "@/components/search/CityMultiSelectDropdown";
@@ -210,12 +209,6 @@ export default function MapSearch() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [desktopFiltersOpen, setDesktopFiltersOpen] = useState(false);
   const [showList, setShowList] = useState(true);
-  // View mode: "split" (default), "map", or "list"
-  type ViewMode = "split" | "map" | "list";
-  const [viewMode, setViewMode] = useState<ViewMode>("split");
-  // Two-way hover sync: track which item is hovered (from either map pin or card)
-  const [hoveredItemId, setHoveredItemId] = useState<string | null>(null);
-  const [hoveredItemType, setHoveredItemType] = useState<"resale" | "presale" | "assignment" | null>(null);
   
   // Get admin-controlled minimum year built
   const { data: adminMinYear = DEFAULT_MIN_YEAR_BUILT } = useMinYearBuilt();
@@ -598,30 +591,6 @@ export default function MapSearch() {
   const handleDesktopCardClick = useCallback((e: React.MouseEvent, id: string, type: "resale" | "presale" | "assignment", link: string, lat: number | null, lng: number | null) => {
     // Just let the Link navigate naturally - no map interaction needed
     // Assignment verification is handled in the onClick before this is called
-  }, []);
-
-  // Two-way hover sync: when a map pin is hovered, highlight the card and scroll into view
-  const handleMapItemHover = useCallback((id: string | null, type: "resale" | "presale" | "assignment" | null) => {
-    setHoveredItemId(id);
-    setHoveredItemType(type);
-    // Scroll the hovered card into view in the desktop panel
-    if (id && desktopListRef.current) {
-      const cardEl = desktopListRef.current.querySelector(`[data-item-id="${id}"]`);
-      if (cardEl) {
-        cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      }
-    }
-  }, []);
-
-  // Two-way hover sync: when a card is hovered, highlight the map pin
-  const handleCardHover = useCallback((id: string | null, type: "resale" | "presale" | "assignment" | null) => {
-    setHoveredItemId(id);
-    setHoveredItemType(type);
-    if (id && type && mapNavigationRef.current) {
-      mapNavigationRef.current.highlightItem(id, type);
-    } else if (!id && mapNavigationRef.current) {
-      mapNavigationRef.current.clearHighlight();
-    }
   }, []);
 
   const handleModeChange = useCallback((newMode: MapMode) => {
@@ -1541,77 +1510,6 @@ export default function MapSearch() {
           <ConversionHeader alwaysVisible stickyOnMobile />
         </div>
 
-        {/* Desktop Filter Bar + View Toggle */}
-        <div className="hidden lg:flex items-center gap-3 px-5 py-2.5 border-b border-border/30 bg-background shrink-0">
-          {/* Filter Pills */}
-          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            {[
-              { key: "all", label: "All" },
-              { key: "presale", label: "Presale" },
-              { key: "resale", label: "Move-In Ready" },
-              { key: "assignments", label: "Assignments" },
-            ].map((filter) => (
-              <button
-                key={filter.key}
-                onClick={() => handleModeChange(filter.key as MapMode)}
-                className={cn(
-                  "px-5 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 border",
-                  mapMode === filter.key
-                    ? "bg-primary text-primary-foreground border-transparent shadow-sm"
-                    : "bg-card text-foreground border-border hover:border-foreground/30"
-                )}
-              >
-                {filter.label}
-              </button>
-            ))}
-            
-            {/* Beds dropdown pill */}
-            <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-              <SelectTrigger className="h-9 px-4 rounded-full text-sm font-semibold border-border bg-card hover:border-foreground/30 w-auto min-w-[90px] gap-1.5">
-                <span>{filters.beds === "any" ? "Beds" : `${filters.beds}+ Beds`}</span>
-              </SelectTrigger>
-              <SelectContent>
-                {BED_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex-1" />
-
-          {/* View Toggle */}
-          <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-            {[
-              { key: "split", label: "Split View", icon: PanelRightOpen },
-              { key: "map", label: "Map Only", icon: Map },
-              { key: "list", label: "List Only", icon: LayoutGrid },
-            ].map((v) => {
-              const Icon = v.icon;
-              return (
-                <button
-                  key={v.key}
-                  onClick={() => {
-                    setViewMode(v.key as "split" | "map" | "list");
-                    if (v.key === "split") setShowList(true);
-                    else if (v.key === "map") setShowList(false);
-                    else setShowList(true);
-                  }}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all",
-                    viewMode === v.key
-                      ? "bg-background text-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Icon className="h-3.5 w-3.5" />
-                  {v.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
         {/* Mobile/Tablet: Floating Search Bar with Autocomplete */}
         <div 
           className="lg:hidden absolute left-0 right-0 z-[1002] px-3 map-safe-left map-safe-right" 
@@ -1710,12 +1608,10 @@ export default function MapSearch() {
 
         {/* Main Content - Map + Floating Panel Layout */}
         <div className="flex-1 flex overflow-hidden relative isolate">
-          {/* Map Section - hidden in list-only mode on desktop */}
-          <div className={cn(
-            "relative h-full w-full",
-            viewMode === "list" && "hidden lg:hidden"
-          )}>
-            {/* Unified Mode Toggle - Floating on map - MOBILE/TABLET ONLY */}
+          {/* Map Section - Always full width, panel floats on top */}
+          <div className="relative h-full w-full">
+            {/* Unified Mode Toggle - Floating on map */}
+            {/* Mobile/Tablet: Always sit below the search bar (avoid overlap on tablet browser UI) */}
             <div 
               className="absolute z-[1000] lg:hidden left-1/2 -translate-x-1/2"
               style={{ top: 'calc(env(safe-area-inset-top, 0px) + 12px + 72px)' }}
@@ -1728,20 +1624,33 @@ export default function MapSearch() {
               />
             </div>
             
-            {/* "X projects in view" floating badge - top center of map */}
-            {propertiesInViewCount > 0 && (
-              <div 
-                className="absolute top-3 z-[1000] left-1/2 -translate-x-1/2 hidden lg:block transition-all duration-300"
-                style={{ marginLeft: viewMode === "split" ? '-220px' : '0' }}
-              >
-                <div className="px-4 py-1.5 rounded-full bg-[hsl(222,47%,11%)]/80 backdrop-blur-md text-white text-sm font-medium shadow-lg">
-                  {propertiesInViewCount} {propertiesInViewCount === 1 ? 'property' : 'properties'} in view
-                </div>
-              </div>
-            )}
+            {/* Desktop: Centered at top of map - shifts left when panel is open */}
+            <div 
+              className="hidden lg:block absolute top-4 z-[1000] transition-all duration-300"
+              style={{ 
+                left: showList ? 'calc(50% - 210px)' : '50%',
+                transform: 'translateX(-50%)'
+              }}
+            >
+              <UnifiedMapToggle
+                mode={mapMode}
+                onModeChange={handleModeChange}
+                presaleCount={filteredPresaleProjects?.length || 0}
+                resaleCount={filteredResaleListings?.length || 0}
+              />
+            </div>
             
             {/* Desktop: Show Panel Button - appears when panel is hidden, shifts when panel opens */}
-            {/* Removed: old show-panel button - using view toggle now */}
+            <button
+              onClick={() => setShowList(true)}
+              className={`hidden lg:flex absolute top-1/2 -translate-y-1/2 z-[1000] items-center justify-center w-6 h-12 bg-background/95 backdrop-blur-sm border border-border/50 rounded-lg shadow-md hover:bg-muted transition-all duration-300 ${
+                showList ? "opacity-0 pointer-events-none" : "opacity-100"
+              }`}
+              style={{ right: showList ? 'calc(420px + 16px)' : '12px' }}
+              aria-label="Show property list"
+            >
+              <PanelRightOpen className="h-3.5 w-3.5 text-muted-foreground" />
+            </button>
 
 
             <div className="absolute inset-0">
@@ -1769,15 +1678,14 @@ export default function MapSearch() {
                       onVisibleItemsChange={handleVisibleItemsChange}
                       onMapInteraction={handleMapInteraction}
                       onMapStateChange={handleMapStateChange}
-                      onItemHover={handleMapItemHover}
                       disablePopupsOnMobile={isMobileOrTablet}
                       centerOnUserLocation={!effectiveMapState}
                       initialUserLocation={userLocation}
                       savedMapState={effectiveMapState}
-                      highlightedItemId={hoveredItemId || selectedItemId}
-                      highlightedItemType={hoveredItemType || selectedItemType}
+                      highlightedItemId={selectedItemId}
+                      highlightedItemType={selectedItemType}
                       isVerifiedAgent={isVerifiedAgent}
-                      panelOpen={viewMode === "split" && showList}
+                      panelOpen={showList}
                       mobileCarouselOpen={showCarousel}
                     />
                   )}
@@ -1785,10 +1693,95 @@ export default function MapSearch() {
               </SafeMapWrapper>
             </div>
 
-            {/* Mobile Bottom Sheet - replaces old carousel */}
-            {visibleItems.length > 0 && (
-              <MobileBottomSheet count={propertiesInViewCount}>
-                <div className="grid grid-cols-2 gap-2">
+            {/* Show Carousel Button - When hidden - Premium Apple Maps style */}
+            {/* Positioned above safe area with enough clearance for tablets */}
+            {/* CRITICAL: Uses a full-width invisible barrier to prevent click-through to map */}
+            {!showCarousel && visibleItems.length > 0 && (
+              <div 
+                className="absolute left-0 right-0 z-[1001] lg:hidden flex justify-center"
+                style={{ 
+                  bottom: 'calc(env(safe-area-inset-bottom, 0px) + 8px)',
+                  paddingBottom: '8px',
+                  paddingTop: '8px'
+                }}
+                // Prevent ANY touch/click from reaching the map beneath
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowCarousel(true);
+                  }}
+                  onTouchStart={(e) => {
+                    e.stopPropagation();
+                  }}
+                  onTouchEnd={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setShowCarousel(true);
+                  }}
+                  className="px-5 py-3 rounded-2xl bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-xl border border-black/5 dark:border-white/10 flex items-center gap-2 active:scale-[0.98] transition-transform touch-manipulation select-none"
+                  aria-label="Show properties"
+                  style={{ WebkitTapHighlightColor: 'transparent' }}
+                >
+                  <span className="text-sm font-semibold text-foreground">{propertiesInViewCount} Properties</span>
+                  <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                </button>
+              </div>
+            )}
+
+            {/* Bottom Carousel - Mobile/Tablet - Compact floating cards */}
+            {/* CRITICAL: Entire carousel container captures touch events to prevent map interaction */}
+            {showCarousel && visibleItems.length > 0 && (
+              <div 
+                className="absolute bottom-0 left-0 right-0 z-[1000] lg:hidden"
+                onTouchStart={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
+                onTouchEnd={(e) => e.stopPropagation()}
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                {/* Compact Carousel Header */}
+                <div 
+                  className="flex items-center justify-between pb-1.5" 
+                  style={{ 
+                    paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', 
+                    paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' 
+                  }}
+                >
+                  <span className="text-xs font-semibold text-foreground bg-white/95 dark:bg-background/95 backdrop-blur-xl px-3 py-1.5 rounded-lg shadow-lg border border-black/5 dark:border-white/10">
+                    {propertiesInViewCount} Properties
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowCarousel(false);
+                    }}
+                    onTouchEnd={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setShowCarousel(false);
+                    }}
+                    className="w-8 h-8 rounded-lg bg-white/95 dark:bg-background/95 backdrop-blur-xl shadow-lg border border-black/5 dark:border-white/10 flex items-center justify-center active:bg-black/5 dark:active:bg-white/10 transition-colors select-none"
+                    aria-label="Hide properties"
+                    style={{ WebkitTapHighlightColor: 'transparent' }}
+                  >
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </div>
+                
+                {/* Compact Carousel Cards */}
+                <div 
+                  ref={carouselRef}
+                  className="flex gap-2 overflow-x-auto snap-x snap-mandatory scroll-smooth"
+                  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', scrollPaddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', scrollPaddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)', paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 10px)', paddingLeft: 'calc(env(safe-area-inset-left, 0px) + 12px)', paddingRight: 'calc(env(safe-area-inset-right, 0px) + 12px)' }}
+                >
                   {visibleItems.map((item) => {
                     const isPresale = item.type === "presale";
                     const isAssignment = item.type === "assignment";
@@ -1803,29 +1796,47 @@ export default function MapSearch() {
                       : item.type === "assignment"
                       ? (isVerifiedAgent ? `/assignments/${(data as Assignment).id}` : "#")
                       : `/resale/${(data as MLSListing).listing_key}`;
+                    const isFocused = focusedCarouselItemId === id;
                     
                     return (
-                      <Link
-                        key={`mobile-${item.type}-${id}`}
-                        to={link}
+                      <div 
+                        key={`${item.type}-${id}`}
                         data-item-id={id}
-                        onClick={(e) => {
+                        data-item-type={item.type}
+                        onClick={() => {
+                          // For non-verified users viewing assignments, show toast instead of navigating
                           if (isAssignment && !isVerifiedAgent) {
-                            e.preventDefault();
                             toast.info("Verify as an agent to view assignment details", {
-                              action: { label: "Become Agent", onClick: () => navigate("/for-agents") }
+                              action: {
+                                label: "Become Agent",
+                                onClick: () => navigate("/for-agents")
+                              }
                             });
+                            return;
                           }
+                          handleCarouselCardTap(id, item.type, link);
                         }}
-                        className={isAssignment && !isVerifiedAgent ? "cursor-default" : undefined}
+                        className={cn(
+                          "snap-start shrink-0 w-[200px] sm:w-[220px]",
+                          isAssignment && !isVerifiedAgent ? "cursor-default" : "cursor-pointer"
+                        )}
                       >
-                        <div className="rounded-xl border border-border/30 overflow-hidden bg-card transition-all duration-150">
-                          <div className="relative w-full aspect-[16/10] bg-muted overflow-hidden">
+                        <div className={`bg-background/95 backdrop-blur-xl rounded-xl shadow-lg border overflow-hidden transition-all duration-200 ${
+                          isFocused 
+                            ? 'border-primary ring-2 ring-primary/30 scale-[1.02]' 
+                            : selectedItemId === id 
+                              ? 'border-primary/50 ring-1 ring-primary/20' 
+                              : isAssignment
+                              ? 'border-amber-500/50'
+                              : 'border-border/30 active:border-primary/50'
+                        }`}>
+                          {/* Compact image with price overlay */}
+                          <div className="relative w-full aspect-[16/9] bg-muted overflow-hidden">
                             {isPresale ? (
                               (data as PresaleProject).featured_image ? (
-                                <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" loading="lazy" />
+                                <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover" loading="eager" />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-muted">
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
                                   <Building2 className="h-6 w-6 text-muted-foreground" />
                                 </div>
                               )
@@ -1835,15 +1846,24 @@ export default function MapSearch() {
                               </div>
                             ) : (
                               getResalePhoto(data as MLSListing) ? (
-                                <img src={getResalePhoto(data as MLSListing)!} alt={getResaleAddress(data as MLSListing)} className="w-full h-full object-cover" loading="lazy" />
+                                <img 
+                                  src={getResalePhoto(data as MLSListing)!} 
+                                  alt={getResaleAddress(data as MLSListing)} 
+                                  className="w-full h-full object-cover" 
+                                  loading="eager"
+                                />
                               ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-muted">
+                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-muted to-muted/50">
                                   <Home className="h-6 w-6 text-muted-foreground" />
                                 </div>
                               )
                             )}
-                            <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black/60 to-transparent pointer-events-none" />
+                            {/* Gradient + price overlay */}
+                            <div className="absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
                             <div className={cn("absolute bottom-1.5 left-2", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                              {isPresale && (
+                                <span className="text-white/70 text-[9px] font-medium block leading-none mb-0.5">From</span>
+                              )}
                               <span className="text-white font-bold text-sm leading-none drop-shadow-md">
                                 {isPresale 
                                   ? formatPrice((data as PresaleProject).starting_price)
@@ -1853,7 +1873,7 @@ export default function MapSearch() {
                                 }
                               </span>
                             </div>
-                            <Badge className={`absolute top-1.5 left-1.5 text-[8px] font-semibold px-1.5 py-0.5 rounded-md ${
+                            <Badge className={`absolute top-1.5 left-1.5 text-[9px] font-semibold px-1.5 py-0.5 rounded-md ${
                               isPresale 
                                 ? 'bg-foreground/90 text-background' 
                                 : isAssignment
@@ -1864,36 +1884,61 @@ export default function MapSearch() {
                             </Badge>
                             {isAssignment && !isVerifiedAgent && (
                               <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center">
-                                <Lock className="h-5 w-5 text-white mx-auto" />
+                                <div className="text-center">
+                                  <Lock className="h-5 w-5 text-white mx-auto mb-0.5" />
+                                  <p className="text-[9px] text-white font-medium">Agent Only</p>
+                                </div>
                               </div>
                             )}
                           </div>
-                          <div className={cn("p-2 space-y-0.5", isAssignment && !isVerifiedAgent && "blur-sm")}>
-                            <h4 className="font-medium text-foreground text-xs line-clamp-1">
+                          {/* Compact info: Name + Location */}
+                          <div className={cn("p-2 space-y-0.5 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                            {isAssignment && !isVerifiedAgent && (
+                              <div className="absolute inset-0 bg-background/70 backdrop-blur-md flex items-center justify-center z-10">
+                                <p className="text-[10px] text-muted-foreground text-center px-1">Agent access</p>
+                              </div>
+                            )}
+                            <h4 className={cn("font-medium text-foreground text-xs line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
                               {isPresale 
                                 ? (data as PresaleProject).name 
                                 : isAssignment
                                 ? (data as Assignment).project_name
                                 : getResaleAddress(data as MLSListing)}
                             </h4>
-                            <div className="text-[10px] text-muted-foreground line-clamp-1">
-                              {isPresale 
-                                ? (data as PresaleProject).city
-                                : isAssignment
-                                ? (data as Assignment).city
-                                : (data as MLSListing).city
-                              }
-                              {!isPresale && !isAssignment && (data as MLSListing).bedrooms_total && (
-                                <> · {(data as MLSListing).bedrooms_total}bd {(data as MLSListing).bathrooms_total}ba</>
+                            <div className={cn("flex items-center gap-1.5 text-[10px] text-muted-foreground", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                              <span className="truncate">
+                                {isPresale 
+                                  ? (data as PresaleProject).city
+                                  : isAssignment
+                                  ? (data as Assignment).city
+                                  : (data as MLSListing).city
+                                }
+                              </span>
+                              {!isPresale && (
+                                <>
+                                  <span className="text-border">•</span>
+                                  <span>{isAssignment ? (data as Assignment).beds : (data as MLSListing).bedrooms_total}bd</span>
+                                  <span>{isAssignment ? (data as Assignment).baths : (data as MLSListing).bathrooms_total}ba</span>
+                                  {!isAssignment && (data as MLSListing).living_area && (
+                                    <span>{(data as MLSListing).living_area?.toLocaleString()}sf</span>
+                                  )}
+                                </>
+                              )}
+                              {isPresale && (data as PresaleProject).status && (
+                                <span className="text-[9px] font-medium text-primary">
+                                  {(data as PresaleProject).status === 'active' ? 'Selling' : 
+                                   (data as PresaleProject).status === 'registering' ? 'Registering' : 
+                                   (data as PresaleProject).status === 'coming_soon' ? 'Coming Soon' : ''}
+                                </span>
                               )}
                             </div>
                           </div>
                         </div>
-                      </Link>
+                      </div>
                     );
                   })}
                 </div>
-              </MobileBottomSheet>
+              </div>
             )}
           </div>
 
@@ -2198,7 +2243,7 @@ export default function MapSearch() {
             </div>
 
             {/* Property Grid - Maximized Space */}
-            <div ref={desktopListRef} className="flex-1 overflow-y-auto scrollbar-thin p-2 relative z-0 rounded-b-2xl">
+            <div ref={desktopListRef} className="flex-1 overflow-y-auto p-2 relative z-0 rounded-b-2xl">
               <div className="grid grid-cols-2 gap-2">
                 {visibleItems.map((item) => {
                   const isPresale = item.type === "presale";
@@ -2231,8 +2276,6 @@ export default function MapSearch() {
                       key={`${item.type}-${id}`}
                       to={link}
                       data-item-id={id}
-                      onMouseEnter={() => handleCardHover(id, item.type)}
-                      onMouseLeave={() => handleCardHover(null, null)}
                       onClick={(e) => {
                         // For non-verified users viewing assignments, prevent navigation and show toast
                         if (isAssignment && !isVerifiedAgent) {
@@ -2250,16 +2293,14 @@ export default function MapSearch() {
                       className={isAssignment && !isVerifiedAgent ? "cursor-default" : undefined}
                     >
                       <div className={cn(
-                        "rounded-xl border-2 overflow-hidden transition-all duration-150 ease-out group bg-card",
-                        hoveredItemId === id
-                          ? 'border-[hsl(40,90%,55%)] shadow-lg shadow-[hsl(40,90%,55%)]/10 bg-[hsl(40,90%,95%)] dark:bg-[hsl(40,90%,10%)]'
-                          : isFocused 
+                        "rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card",
+                        isFocused 
                           ? 'border-primary ring-2 ring-primary/30 shadow-lg' 
                           : selectedItemId === id 
                             ? 'border-primary/50 ring-1 ring-primary/20' 
                             : isAssignment
-                            ? 'border-amber-500/50 hover:border-[hsl(40,90%,55%)]'
-                            : 'border-transparent hover:border-[hsl(40,90%,55%)]'
+                            ? 'border-amber-500/50 hover:border-amber-500'
+                            : 'border-border hover:border-primary/50'
                       )}>
                         {/* Image with price overlay */}
                         <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">

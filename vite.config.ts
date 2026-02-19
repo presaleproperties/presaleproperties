@@ -117,10 +117,7 @@ export default defineConfig(({ mode }) => ({
       react: path.resolve(__dirname, "./node_modules/react"),
       "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    dedupe: ["react", "react-dom", "react/jsx-runtime"],
-  },
-  optimizeDeps: {
-    include: ["react", "react-dom", "@tanstack/react-query"],
+    dedupe: ["react", "react-dom"],
   },
   // SSG/Prerender configuration for production builds
   // Note: Actual prerendering requires additional build configuration
