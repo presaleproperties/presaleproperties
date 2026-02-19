@@ -1488,13 +1488,47 @@ export default function MapSearch() {
     return buildGridUrlFromMapFilters(searchParams, basePath);
   }, [searchParams, mapMode]);
 
-  // Loading map element - using a constant JSX element instead of a function component
-  // to avoid the "Function components cannot be given refs" warning from Suspense
+  // Loading map element - premium branded overlay
   const loadingMapElement = (
-    <div className="h-full w-full bg-muted animate-pulse flex items-center justify-center">
-      <div className="text-center text-muted-foreground">
-        <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
-        <p>Loading map...</p>
+    <div className="h-full w-full bg-background relative flex items-center justify-center overflow-hidden">
+      {/* Subtle animated background shimmer */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-background to-primary/3" />
+      <div 
+        className="absolute inset-0 opacity-[0.04]"
+        style={{
+          backgroundImage: `radial-gradient(circle at 25% 25%, hsl(var(--primary)) 1px, transparent 1px), radial-gradient(circle at 75% 75%, hsl(var(--primary)) 1px, transparent 1px)`,
+          backgroundSize: '48px 48px',
+        }}
+      />
+      
+      {/* Center content */}
+      <div className="relative z-10 flex flex-col items-center gap-5 animate-fade-in">
+        {/* Animated map pin icon */}
+        <div className="relative">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+            <Map className="h-7 w-7 text-primary" />
+          </div>
+          {/* Pulsing ring */}
+          <div className="absolute inset-0 rounded-2xl border-2 border-primary/20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]" />
+        </div>
+        
+        <div className="flex flex-col items-center gap-1.5">
+          <p className="text-sm font-semibold text-foreground tracking-tight">Loading Properties</p>
+          <p className="text-xs text-muted-foreground">Mapping your area...</p>
+        </div>
+        
+        {/* Animated progress dots */}
+        <div className="flex items-center gap-1.5">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-primary"
+              style={{
+                animation: `pulse 1.4s ease-in-out ${i * 0.2}s infinite`,
+              }}
+            />
+          ))}
+        </div>
       </div>
     </div>
   );
