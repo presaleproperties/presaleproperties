@@ -136,8 +136,14 @@ function createResalePricePillIcon(listing: MLSListing, isHighlighted: boolean =
 }
 
 function createPresalePinIcon(project: PresaleProject, isHighlighted: boolean = false): L.DivIcon {
-  const priceText = project.starting_price ? formatPrice(project.starting_price) : "TBA";
-  return createPricePillMarker(priceText, "presale", isHighlighted);
+  const hlClass = isHighlighted ? " presale-pin-hl" : "";
+  return L.divIcon({
+    className: `presale-pin-marker${hlClass}`,
+    html: `<div class="presale-pin${hlClass}"></div>`,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    popupAnchor: [0, -12],
+  });
 }
 
 function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean = false): L.DivIcon {
@@ -146,14 +152,14 @@ function createAssignmentPinIcon(assignment: Assignment, isHighlighted: boolean 
 
 function createClusterIcon(cluster: L.MarkerCluster): L.DivIcon {
   const count = cluster.getChildCount();
-  const label = count === 1 ? '1 Unit' : `${count} Units`;
-  const width = count >= 100 ? 90 : count >= 10 ? 80 : 72;
+  const size = count >= 100 ? 52 : count >= 10 ? 44 : 36;
+  const sizeClass = count >= 100 ? 'cluster-large' : count >= 10 ? 'cluster-medium' : 'cluster-small';
   
   return L.divIcon({
-    html: `<div class="cluster-pill">${label}</div>`,
-    className: "cluster-pill-marker",
-    iconSize: L.point(width, 32),
-    iconAnchor: L.point(width / 2, 16),
+    html: `<div class="cluster-icon ${sizeClass}">${count}</div>`,
+    className: "custom-cluster-marker",
+    iconSize: L.point(size, size),
+    iconAnchor: L.point(size / 2, size / 2),
   });
 }
 
