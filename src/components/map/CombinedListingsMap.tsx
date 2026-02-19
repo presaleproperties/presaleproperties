@@ -1021,28 +1021,29 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         /* Cluster grid popup */
         .cluster-grid-popup .leaflet-popup-content-wrapper {
           padding: 0;
-          border-radius: 12px;
+          border-radius: 14px;
           overflow: hidden;
-          box-shadow: 0 8px 32px hsla(40, 30%, 20%, 0.18);
-          background: hsl(30, 20%, 99%);
-          border: 1px solid hsl(30, 10%, 88%);
+          box-shadow: 0 12px 40px hsla(0, 0%, 0%, 0.25), 0 0 0 1px hsla(0, 0%, 0%, 0.06);
+          background: white;
+          border: none;
         }
         .cluster-grid-popup .leaflet-popup-content { margin: 0; width: auto !important; }
-        .cluster-grid-popup .leaflet-popup-tip { background: hsl(30, 20%, 99%); border: 1px solid hsl(30, 10%, 88%); border-top: none; border-left: none; }
-        .cluster-grid-popup .leaflet-popup-close-button { top: 6px !important; right: 6px !important; z-index: 10; font-size: 18px !important; color: hsl(40, 20%, 45%) !important; }
+        .cluster-grid-popup .leaflet-popup-tip { background: white; }
+        .cluster-grid-popup .leaflet-popup-close-button { top: 8px !important; right: 8px !important; z-index: 10; font-size: 20px !important; color: hsl(0, 0%, 40%) !important; width: 28px !important; height: 28px !important; background: white !important; border-radius: 50% !important; box-shadow: 0 1px 4px hsla(0,0%,0%,0.12) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
         
         .cluster-grid-wrap {
-          width: 320px;
-          max-height: 360px;
+          width: 330px;
+          max-height: 380px;
           overflow-y: auto;
+          background: white;
         }
         .cluster-grid-header {
-          padding: 10px 14px;
-          font-size: 13px;
-          font-weight: 700;
-          color: hsl(40, 30%, 25%);
-          border-bottom: 1px solid hsl(30, 10%, 90%);
-          background: hsl(38, 30%, 97%);
+          padding: 12px 16px;
+          font-size: 15px;
+          font-weight: 800;
+          color: hsl(0, 0%, 12%);
+          border-bottom: 1px solid hsl(0, 0%, 90%);
+          background: white;
           position: sticky;
           top: 0;
           z-index: 5;
@@ -1053,34 +1054,35 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         }
         .cluster-grid-item {
           display: flex;
-          gap: 10px;
-          padding: 10px 14px;
-          border-bottom: 1px solid hsl(30, 10%, 92%);
+          gap: 12px;
+          padding: 12px 16px;
+          border-bottom: 1px solid hsl(0, 0%, 92%);
           text-decoration: none;
           color: inherit;
           transition: background 0.12s ease;
+          background: white;
         }
         .cluster-grid-item:hover {
-          background: hsl(38, 30%, 96%);
+          background: hsl(0, 0%, 97%);
         }
         .cluster-grid-item:last-child { border-bottom: none; }
         .cluster-grid-img {
-          width: 64px;
-          height: 48px;
-          border-radius: 6px;
+          width: 80px;
+          height: 60px;
+          border-radius: 8px;
           object-fit: cover;
-          background: hsl(38, 20%, 92%);
+          background: hsl(0, 0%, 92%);
           flex-shrink: 0;
         }
         .cluster-grid-img-placeholder {
-          width: 64px;
-          height: 48px;
-          border-radius: 6px;
-          background: hsl(38, 20%, 92%);
+          width: 80px;
+          height: 60px;
+          border-radius: 8px;
+          background: hsl(0, 0%, 92%);
           display: flex;
           align-items: center;
           justify-content: center;
-          color: hsl(40, 20%, 65%);
+          color: hsl(0, 0%, 65%);
           flex-shrink: 0;
         }
         .cluster-grid-info {
@@ -1088,22 +1090,24 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
           flex-direction: column;
           justify-content: center;
           min-width: 0;
+          gap: 2px;
         }
         .cluster-grid-price {
-          font-size: 14px;
-          font-weight: 700;
-          color: hsl(40, 65%, 45%);
+          font-size: 15px;
+          font-weight: 800;
+          color: hsl(0, 0%, 10%);
         }
         .cluster-grid-address {
-          font-size: 11px;
-          color: hsl(40, 15%, 40%);
+          font-size: 12px;
+          color: hsl(0, 0%, 35%);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
         .cluster-grid-specs {
-          font-size: 10px;
-          color: hsl(40, 10%, 55%);
+          font-size: 11px;
+          color: hsl(0, 0%, 50%);
+          font-weight: 500;
         }
         
         /* Popup styling - branded warm cards */
