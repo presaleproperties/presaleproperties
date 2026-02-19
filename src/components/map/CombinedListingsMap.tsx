@@ -525,14 +525,12 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
     clusterGroup.on('clusterclick', (e: any) => {
       const cluster = e.layer;
       const childMarkers = cluster.getAllChildMarkers();
-      const maxItems = 8;
+      const maxItems = 6;
       const items = childMarkers.slice(0, maxItems);
       
       // Build grid items from marker data
       let gridHtml = '';
       items.forEach((m: any) => {
-        const ll = m.getLatLng();
-        // Try to find in resale
         let found = false;
         resaleMarkersMapRef.current.forEach((rm, id) => {
           if (found) return;
@@ -544,9 +542,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
               const address = getResaleAddress(listing);
               const specs = [listing.bedrooms_total ? `${listing.bedrooms_total}bd` : null, listing.bathrooms_total ? `${listing.bathrooms_total}ba` : null, listing.living_area ? `${listing.living_area.toLocaleString()}sf` : null].filter(Boolean).join(' · ');
               const url = getListingUrl(listing.listing_key, address, listing.city);
-              gridHtml += `<a href="${url}" class="cluster-grid-item">
-                ${photo ? `<img src="${photo}" class="cluster-grid-img" alt="" />` : `<div class="cluster-grid-img-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>`}
-                <div class="cluster-grid-info"><div class="cluster-grid-price">${price}</div><div class="cluster-grid-address">${address}</div><div class="cluster-grid-specs">${specs}</div></div>
+              gridHtml += `<a href="${url}" class="cg-card">
+                <div class="cg-card-img">${photo ? `<img src="${photo}" alt="" />` : `<div class="cg-card-placeholder"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>`}<span class="cg-card-badge">MLS</span></div>
+                <div class="cg-card-body"><div class="cg-card-price">${price}</div><div class="cg-card-addr">${address}</div><div class="cg-card-specs">${specs}</div></div>
               </a>`;
             }
             found = true;
@@ -560,9 +558,9 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             if (project) {
               const price = project.starting_price ? `From $${project.starting_price.toLocaleString()}` : 'TBA';
               const url = generateProjectUrl({ slug: project.slug, neighborhood: project.neighborhood || project.city, projectType: project.project_type as any });
-              gridHtml += `<a href="${url}" class="cluster-grid-item">
-                ${project.featured_image ? `<img src="${project.featured_image}" class="cluster-grid-img" alt="" />` : `<div class="cluster-grid-img-placeholder"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/></svg></div>`}
-                <div class="cluster-grid-info"><div class="cluster-grid-price">${price}</div><div class="cluster-grid-address">${project.name}</div><div class="cluster-grid-specs">${project.neighborhood} · ${project.city}</div></div>
+              gridHtml += `<a href="${url}" class="cg-card">
+                <div class="cg-card-img">${project.featured_image ? `<img src="${project.featured_image}" alt="" />` : `<div class="cg-card-placeholder presale"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 21h18"/><path d="M5 21V7l8-4v18"/></svg></div>`}<span class="cg-card-badge presale">Presale</span></div>
+                <div class="cg-card-body"><div class="cg-card-price">${price}</div><div class="cg-card-addr">${project.name}</div><div class="cg-card-specs">${project.neighborhood} · ${project.city}</div></div>
               </a>`;
             }
             found = true;
@@ -571,12 +569,12 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       });
       
       const total = childMarkers.length;
-      const moreText = total > maxItems ? `<div style="padding:8px 14px;font-size:11px;color:hsl(40,15%,50%);text-align:center;">${total - maxItems} more — zoom in to see all</div>` : '';
+      const moreText = total > maxItems ? `<div class="cg-more">+${total - maxItems} more · zoom in</div>` : '';
       
-      const popupContent = `<div class="cluster-grid-wrap"><div class="cluster-grid-header">${total} ${total === 1 ? 'Property' : 'Properties'}</div><div class="cluster-grid">${gridHtml}</div>${moreText}</div>`;
+      const popupContent = `<div class="cg-wrap"><div class="cg-header"><span>${total} ${total === 1 ? 'Property' : 'Properties'}</span></div><div class="cg-grid">${gridHtml}</div>${moreText}</div>`;
       
       L.popup({
-        maxWidth: 340,
+        maxWidth: 420,
         className: "cluster-grid-popup",
         closeButton: true,
         autoPan: true,
@@ -1027,93 +1025,117 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
         /* Cluster grid popup */
         .cluster-grid-popup .leaflet-popup-content-wrapper {
           padding: 0;
-          border-radius: 14px;
+          border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 12px 40px hsla(0, 0%, 0%, 0.25), 0 0 0 1px hsla(0, 0%, 0%, 0.06);
+          box-shadow: 0 16px 48px hsla(0, 0%, 0%, 0.2), 0 0 0 1px hsla(0, 0%, 0%, 0.04);
           background: white;
           border: none;
         }
         .cluster-grid-popup .leaflet-popup-content { margin: 0; width: auto !important; }
         .cluster-grid-popup .leaflet-popup-tip { background: white; }
-        .cluster-grid-popup .leaflet-popup-close-button { top: 8px !important; right: 8px !important; z-index: 10; font-size: 20px !important; color: hsl(0, 0%, 40%) !important; width: 28px !important; height: 28px !important; background: white !important; border-radius: 50% !important; box-shadow: 0 1px 4px hsla(0,0%,0%,0.12) !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+        .cluster-grid-popup .leaflet-popup-close-button { top: 10px !important; right: 10px !important; z-index: 10; font-size: 18px !important; color: hsl(0, 0%, 45%) !important; width: 30px !important; height: 30px !important; background: hsl(0, 0%, 96%) !important; border-radius: 50% !important; display: flex !important; align-items: center !important; justify-content: center !important; transition: background 0.15s !important; }
+        .cluster-grid-popup .leaflet-popup-close-button:hover { background: hsl(0, 0%, 90%) !important; }
         
-        .cluster-grid-wrap {
-          width: 330px;
-          max-height: 380px;
+        .cg-wrap {
+          width: 380px;
+          max-height: 420px;
           overflow-y: auto;
           background: white;
         }
-        .cluster-grid-header {
-          padding: 12px 16px;
-          font-size: 15px;
+        .cg-header {
+          padding: 14px 18px;
+          font-size: 16px;
           font-weight: 800;
-          color: hsl(0, 0%, 12%);
-          border-bottom: 1px solid hsl(0, 0%, 90%);
+          letter-spacing: -0.01em;
+          color: hsl(0, 0%, 8%);
+          border-bottom: 1px solid hsl(0, 0%, 92%);
           background: white;
           position: sticky;
           top: 0;
           z-index: 5;
         }
-        .cluster-grid {
+        .cg-grid {
           display: grid;
+          grid-template-columns: 1fr 1fr;
           gap: 0;
         }
-        .cluster-grid-item {
+        .cg-card {
           display: flex;
-          gap: 12px;
-          padding: 12px 16px;
-          border-bottom: 1px solid hsl(0, 0%, 92%);
+          flex-direction: column;
           text-decoration: none;
           color: inherit;
-          transition: background 0.12s ease;
-          background: white;
+          padding: 12px;
+          border-bottom: 1px solid hsl(0, 0%, 93%);
+          border-right: 1px solid hsl(0, 0%, 93%);
+          transition: background 0.15s ease;
         }
-        .cluster-grid-item:hover {
-          background: hsl(0, 0%, 97%);
+        .cg-card:hover { background: hsl(0, 0%, 97%); }
+        .cg-card:nth-child(2n) { border-right: none; }
+        .cg-card-img {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4/3;
+          border-radius: 10px;
+          overflow: hidden;
+          background: hsl(0, 0%, 93%);
+          margin-bottom: 8px;
         }
-        .cluster-grid-item:last-child { border-bottom: none; }
-        .cluster-grid-img {
-          width: 80px;
-          height: 60px;
-          border-radius: 8px;
+        .cg-card-img img {
+          width: 100%;
+          height: 100%;
           object-fit: cover;
-          background: hsl(0, 0%, 92%);
-          flex-shrink: 0;
         }
-        .cluster-grid-img-placeholder {
-          width: 80px;
-          height: 60px;
-          border-radius: 8px;
-          background: hsl(0, 0%, 92%);
+        .cg-card-placeholder {
+          width: 100%;
+          height: 100%;
           display: flex;
           align-items: center;
           justify-content: center;
-          color: hsl(0, 0%, 65%);
-          flex-shrink: 0;
+          color: hsl(0, 0%, 70%);
         }
-        .cluster-grid-info {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          min-width: 0;
-          gap: 2px;
+        .cg-card-badge {
+          position: absolute;
+          top: 6px;
+          left: 6px;
+          font-size: 9px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: hsl(0, 0%, 10%);
+          color: white;
         }
-        .cluster-grid-price {
-          font-size: 15px;
+        .cg-card-badge.presale {
+          background: hsl(40, 65%, 55%);
+          color: hsl(40, 45%, 12%);
+        }
+        .cg-card-body { display: flex; flex-direction: column; gap: 1px; }
+        .cg-card-price {
+          font-size: 14px;
           font-weight: 800;
-          color: hsl(0, 0%, 10%);
+          color: hsl(0, 0%, 8%);
+          letter-spacing: -0.01em;
         }
-        .cluster-grid-address {
-          font-size: 12px;
-          color: hsl(0, 0%, 35%);
+        .cg-card-addr {
+          font-size: 11px;
+          color: hsl(0, 0%, 40%);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
-        .cluster-grid-specs {
-          font-size: 11px;
-          color: hsl(0, 0%, 50%);
+        .cg-card-specs {
+          font-size: 10px;
+          color: hsl(0, 0%, 55%);
           font-weight: 500;
+        }
+        .cg-more {
+          padding: 10px;
+          font-size: 11px;
+          font-weight: 600;
+          color: hsl(0, 0%, 50%);
+          text-align: center;
+          border-top: 1px solid hsl(0, 0%, 93%);
         }
         
         /* Popup styling - branded warm cards */
