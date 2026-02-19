@@ -1719,23 +1719,6 @@ export default function MapSearch() {
               </SafeMapWrapper>
             </div>
 
-            {/* "X projects in view" floating counter — top center of map */}
-            {propertiesInViewCount > 0 && !isLoading && (
-              <div 
-                className={`absolute z-[1001] left-1/2 -translate-x-1/2 pointer-events-none transition-all duration-300 ${
-                  showList ? 'lg:left-[calc(50%-210px)]' : 'lg:left-1/2'
-                }`}
-                style={{ 
-                  top: isMobileOrTablet 
-                    ? 'calc(env(safe-area-inset-top, 0px) + 12px + 72px + 44px)' 
-                    : '56px' 
-                }}
-              >
-                <div className="px-3 py-1.5 rounded-full bg-foreground/80 backdrop-blur-sm text-background text-xs font-semibold shadow-lg">
-                  {propertiesInViewCount} {propertiesInViewCount === 1 ? 'project' : 'projects'} in view
-                </div>
-              </div>
-            )}
 
             {/* Show Carousel Button - When hidden - Premium Apple Maps style */}
             {/* Positioned above safe area with enough clearance for tablets */}
