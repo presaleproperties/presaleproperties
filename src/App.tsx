@@ -199,7 +199,15 @@ const App = () => (
             <Route path="/properties/popular-searches" element={<PopularSearchesPage />} />
             {/* Combined type + price pages */}
             <Route path="/properties/condos-under-500k" element={<ResaleTypePricePage />} />
+            <Route path="/properties/condos-under-500k-surrey" element={<ResaleTypePricePage />} />
+            <Route path="/properties/condos-under-500k-langley" element={<ResaleTypePricePage />} />
+            <Route path="/properties/condos-under-500k-coquitlam" element={<ResaleTypePricePage />} />
+            <Route path="/properties/condos-under-500k-burnaby" element={<ResaleTypePricePage />} />
             <Route path="/properties/townhomes-under-800k" element={<ResaleTypePricePage />} />
+            <Route path="/properties/townhomes-under-800k-surrey" element={<ResaleTypePricePage />} />
+            <Route path="/properties/townhomes-under-800k-langley" element={<ResaleTypePricePage />} />
+            <Route path="/properties/townhomes-under-800k-coquitlam" element={<ResaleTypePricePage />} />
+            <Route path="/properties/townhomes-under-800k-burnaby" element={<ResaleTypePricePage />} />
             {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
             <Route path="/properties/:slug" element={<ResaleListingDetail />} />
             
