@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Building2, Home, Castle, MapPin } from "lucide-react";
+import { Building2, Home, Castle, MapPin, Calendar } from "lucide-react";
 import { getCityPropertiesUrl } from "@/lib/propertiesUrls";
 
 const PRESALE_CITIES = [
@@ -13,6 +13,13 @@ const RESALE_CITIES = [
 const PRESALE_TYPES = [
   { label: "Condos", slug: "presale-condos", icon: Building2 },
   { label: "Townhomes", slug: "presale-townhomes", icon: Home },
+];
+
+const PRESALE_YEARS = [
+  { label: "2025", slug: "presale-projects-completing-2025" },
+  { label: "2026", slug: "presale-projects-completing-2026" },
+  { label: "2027", slug: "presale-projects-completing-2027" },
+  { label: "2028", slug: "presale-projects-completing-2028" },
 ];
 
 const RESALE_TYPES = [
@@ -45,6 +52,18 @@ export function QuickSearchLinks() {
                 >
                   <Icon className="h-4 w-4" />
                   {label}
+                </Link>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2 mb-4">
+              {PRESALE_YEARS.map(({ label, slug }) => (
+                <Link
+                  key={slug}
+                  to={`/${slug}`}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-accent text-accent-foreground hover:bg-accent/80 transition-colors border border-border shadow-sm"
+                >
+                  <Calendar className="h-3.5 w-3.5" />
+                  Completing {label}
                 </Link>
               ))}
             </div>
