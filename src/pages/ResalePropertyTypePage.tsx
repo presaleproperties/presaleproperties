@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useParams, Link, useSearchParams } from "react-router-dom";
+import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ChevronRight, ChevronLeft, Home, Building2, MapPin, SlidersHorizontal, X, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -128,10 +128,15 @@ type MLSListing = {
 };
 
 export default function ResalePropertyTypePage() {
-  const { citySlug, propertyType } = useParams<{ citySlug: string; propertyType: string }>();
+  const { citySlug } = useParams<{ citySlug: string }>();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Extract property type from the last segment of the URL path
+  const pathSegments = location.pathname.split("/").filter(Boolean);
+  const propertyType = pathSegments[pathSegments.length - 1];
 
   const cityConfig = citySlug ? CITY_CONFIG[citySlug.toLowerCase()] : null;
   const propertyTypeConfig = propertyType ? PROPERTY_TYPE_CONFIG[propertyType.toLowerCase()] : null;
