@@ -76,7 +76,7 @@ export function HeroSection({
           </p>
 
           {/* Tabs — pill-style, inline */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button
               onClick={() => handleTabChange("projects")}
               className={`px-5 sm:px-6 py-2.5 rounded-sm text-sm font-semibold transition-all duration-300 border ${
@@ -99,9 +99,10 @@ export function HeroSection({
             </button>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className={`px-5 sm:px-6 py-2.5 rounded-sm text-sm font-semibold transition-all duration-300 border bg-transparent border-white/30 text-white/70 hover:border-white/50 hover:text-white`}
+              className="inline-flex items-center gap-1.5 px-5 sm:px-6 py-2.5 rounded-sm text-sm font-semibold transition-all duration-300 border bg-transparent border-white/30 text-white/70 hover:border-white/50 hover:text-white"
             >
-              Map
+              <MapPin className="h-4 w-4" />
+              Map Search
             </Link>
           </div>
 
