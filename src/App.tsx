@@ -101,6 +101,7 @@ import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
 import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
 import ResalePriceRangePage from "./pages/ResalePriceRangePage";
 import ResaleBedroomPage from "./pages/ResaleBedroomPage";
+import ResaleTypePricePage from "./pages/ResaleTypePricePage";
 import PopularSearchesPage from "./pages/PopularSearchesPage";
 import NeighborhoodPropertyTypePage from "./pages/NeighborhoodPropertyTypePage";
 import ContentHub from "./pages/ContentHub";
@@ -196,6 +197,9 @@ const App = () => (
             <Route path="/properties/:citySlug/:neighborhoodSlug/homes" element={<NeighborhoodPropertyTypePage />} />
             {/* Popular Searches SEO Hub */}
             <Route path="/properties/popular-searches" element={<PopularSearchesPage />} />
+            {/* Combined type + price pages */}
+            <Route path="/properties/condos-under-500k" element={<ResaleTypePricePage />} />
+            <Route path="/properties/townhomes-under-800k" element={<ResaleTypePricePage />} />
             {/* SEO-friendly listing URL: /properties/address-city-bc-listingKey (REW-style) */}
             <Route path="/properties/:slug" element={<ResaleListingDetail />} />
             

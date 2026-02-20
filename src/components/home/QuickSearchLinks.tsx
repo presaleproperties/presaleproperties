@@ -22,6 +22,11 @@ const RESALE_TYPES = [
   { label: "Houses", citySlug: "houses", icon: Castle },
 ];
 
+const RESALE_DEALS = [
+  { label: "Condos Under $500K", slug: "condos-under-500k", icon: Building2 },
+  { label: "Townhomes Under $800K", slug: "townhomes-under-800k", icon: Home },
+];
+
 export function QuickSearchLinks() {
   return (
     <section className="py-10 sm:py-14 bg-muted/40 border-b border-border/50">
@@ -66,12 +71,24 @@ export function QuickSearchLinks() {
             <h2 className="text-base font-bold text-foreground uppercase tracking-wider mb-4">
               Move-In Ready
             </h2>
-            <div className="flex flex-wrap gap-2.5 mb-5">
+            <div className="flex flex-wrap gap-2.5 mb-3">
               {RESALE_TYPES.map(({ label, citySlug, icon: Icon }) => (
                 <Link
                   key={citySlug}
                   to={`/properties/vancouver/${citySlug}`}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors border border-border shadow-sm"
+                >
+                  <Icon className="h-4 w-4" />
+                  {label}
+                </Link>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2.5 mb-5">
+              {RESALE_DEALS.map(({ label, slug, icon: Icon }) => (
+                <Link
+                  key={slug}
+                  to={`/properties/${slug}`}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-primary/15 text-primary hover:bg-primary/25 transition-colors border border-primary/30 shadow-sm"
                 >
                   <Icon className="h-4 w-4" />
                   {label}
