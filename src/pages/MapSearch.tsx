@@ -1519,8 +1519,10 @@ export default function MapSearch() {
         }}
       />
       
-      {/* Center content */}
-      <div className="relative z-10 flex flex-col items-center gap-5 animate-fade-in">
+      {/* Center content - offset when desktop panel is open */}
+      <div 
+        className={`relative z-10 flex flex-col items-center gap-5 animate-fade-in transition-transform duration-300 ease-out ${showList ? 'lg:-translate-x-[220px]' : ''}`}
+      >
         {/* Animated map pin icon */}
         <div className="relative">
           <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
