@@ -2379,10 +2379,14 @@ export default function MapSearch() {
                         }
                         handleDesktopCardClick(e, id, item.type, link, lat, lng);
                       }}
-                      className={isAssignment && !isVerifiedAgent ? "cursor-default" : undefined}
+                      className={cn(
+                        isAssignment && !isVerifiedAgent ? "cursor-default" : undefined,
+                        isPresale && mapMode === "all" ? "col-span-2" : ""
+                      )}
                     >
                       <div className={cn(
                         "rounded-xl border overflow-hidden transition-all hover:shadow-lg group bg-card",
+                        isPresale && mapMode === "all" ? "flex flex-row h-[140px]" : "",
                         (isFocused || isHovered)
                           ? 'border-primary ring-2 ring-primary/30 shadow-lg' 
                           : selectedItemId === id 
@@ -2392,7 +2396,12 @@ export default function MapSearch() {
                             : 'border-border hover:border-primary/50'
                       )}>
                         {/* Image with price overlay */}
-                        <div className="relative w-full aspect-[4/3] bg-muted overflow-hidden">
+                        <div className={cn(
+                          "relative bg-muted overflow-hidden",
+                          isPresale && mapMode === "all" 
+                            ? "w-[200px] shrink-0 h-full" 
+                            : "w-full aspect-[4/3]"
+                        )}>
                           {isPresale ? (
                             (data as PresaleProject).featured_image ? (
                               <img src={(data as PresaleProject).featured_image!} alt={(data as PresaleProject).name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
@@ -2419,24 +2428,28 @@ export default function MapSearch() {
                               </div>
                             )
                           )}
-                          {/* Gradient overlay for price */}
-                          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
-                          {/* Price on image */}
-                          <div className={cn("absolute bottom-2 left-2 right-2 flex items-end justify-between", isAssignment && !isVerifiedAgent && "blur-sm")}>
-                            <div>
-                              <span className="text-white/70 text-[10px] font-medium block leading-none mb-0.5">
-                                {isPresale ? 'From' : isAssignment ? 'Asking' : ''}
-                              </span>
-                              <span className="text-white font-bold text-xl lg:text-lg leading-none drop-shadow-md">
-                                {isPresale
-                                  ? formatPrice((data as PresaleProject).starting_price)
-                                  : isAssignment
-                                  ? formatPrice((data as Assignment).assignment_price)
-                                  : formatPrice((data as MLSListing).listing_price)
-                                }
-                              </span>
-                           </div>
-                          </div>
+                          {/* Gradient overlay for price - only on non-wide cards */}
+                          {!(isPresale && mapMode === "all") && (
+                            <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/70 to-transparent" />
+                          )}
+                          {/* Price on image - only on non-wide cards */}
+                          {!(isPresale && mapMode === "all") && (
+                            <div className={cn("absolute bottom-2 left-2 right-2 flex items-end justify-between", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                              <div>
+                                <span className="text-white/70 text-[10px] font-medium block leading-none mb-0.5">
+                                  {isPresale ? 'From' : isAssignment ? 'Asking' : ''}
+                                </span>
+                                <span className="text-white font-bold text-xl lg:text-lg leading-none drop-shadow-md">
+                                  {isPresale
+                                    ? formatPrice((data as PresaleProject).starting_price)
+                                    : isAssignment
+                                    ? formatPrice((data as Assignment).assignment_price)
+                                    : formatPrice((data as MLSListing).listing_price)
+                                  }
+                                </span>
+                             </div>
+                            </div>
+                          )}
                           {/* Badge overlay */}
                           <Badge className={`absolute top-2 left-2 text-[9px] px-1.5 py-0.5 font-semibold shadow-md ${
                             isPresale 
@@ -2467,13 +2480,23 @@ export default function MapSearch() {
                         </div>
                         
                         {/* Compact info: Name, Location + Specs */}
-                        <div className={cn("px-2.5 py-2 relative", isAssignment && !isVerifiedAgent && "overflow-hidden")}>
+                        <div className={cn(
+                          "relative",
+                          isPresale && mapMode === "all" 
+                            ? "flex-1 px-3 py-2.5 flex flex-col justify-center" 
+                            : "px-2.5 py-2",
+                          isAssignment && !isVerifiedAgent && "overflow-hidden"
+                        )}>
                           {isAssignment && !isVerifiedAgent && (
                             <div className="absolute inset-0 bg-background/80 backdrop-blur-md flex items-center justify-center z-10">
                               <p className="text-xs text-muted-foreground text-center px-2">Verify to view</p>
                             </div>
                           )}
-                          <h4 className={cn("font-semibold text-foreground text-sm leading-tight line-clamp-1", isAssignment && !isVerifiedAgent && "blur-sm")}>
+                          <h4 className={cn(
+                            "font-semibold text-foreground leading-tight line-clamp-1",
+                            isPresale && mapMode === "all" ? "text-base" : "text-sm",
+                            isAssignment && !isVerifiedAgent && "blur-sm"
+                          )}>
                             {isPresale 
                               ? (data as PresaleProject).name 
                               : isAssignment
@@ -2488,6 +2511,20 @@ export default function MapSearch() {
                               : `${(data as MLSListing).neighborhood || (data as MLSListing).city}`
                             }
                           </div>
+                          {/* Price + type for wide presale cards */}
+                          {isPresale && mapMode === "all" && (
+                            <div className="mt-1.5">
+                              <span className="text-muted-foreground text-[10px] font-medium">From </span>
+                              <span className="text-foreground font-bold text-lg leading-none">
+                                {formatPrice((data as PresaleProject).starting_price)}
+                              </span>
+                              {(data as PresaleProject).project_type && (
+                                <span className="text-muted-foreground text-[10px] ml-2 capitalize">
+                                  {(data as PresaleProject).project_type}
+                                </span>
+                              )}
+                            </div>
+                          )}
                           {/* Specs for resale */}
                           {!isPresale && !isAssignment && (
                             <div className="text-muted-foreground text-[10px] lg:text-xs mt-0.5">
