@@ -15,106 +15,104 @@ import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORed
 import { BlogsRedirect } from "@/components/redirects/BlogsRedirect";
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import { FaviconLoader } from "@/components/FaviconLoader";
-import Index from "./pages/Index";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-
-import ForAgents from "./pages/ForAgents";
-import BuyersGuide from "./pages/BuyersGuide";
-import PresaleGuide from "./pages/PresaleGuide";
-import MortgageCalculatorPage from "./pages/MortgageCalculatorPage";
-import Login from "./pages/Login";
-import DashboardOverview from "./pages/dashboard/DashboardOverview";
-import DashboardListings from "./pages/dashboard/DashboardListings";
-import DashboardLeads from "./pages/dashboard/DashboardLeads";
-import DashboardProfile from "./pages/dashboard/DashboardProfile";
-import DashboardBilling from "./pages/dashboard/DashboardBilling";
-
-import DashboardMessages from "./pages/dashboard/DashboardMessages";
-import DashboardProjectDocuments from "./pages/dashboard/DashboardProjectDocuments";
-import ListingForm from "./pages/dashboard/ListingForm";
-import DeveloperDashboard from "./pages/developer/DeveloperDashboard";
-import DeveloperProjects from "./pages/developer/DeveloperProjects";
-import DeveloperTourRequests from "./pages/developer/DeveloperTourRequests";
-import DeveloperSettings from "./pages/developer/DeveloperSettings";
-import AdminOverview from "./pages/admin/AdminOverview";
-import AdminProjects from "./pages/admin/AdminProjects";
-import AdminProjectForm from "./pages/admin/AdminProjectForm";
-import AdminProjectImport from "./pages/admin/AdminProjectImport";
-import AdminBlogs from "./pages/admin/AdminBlogs";
-import AdminBlogForm from "./pages/admin/AdminBlogForm";
-import AdminBlogImport from "./pages/admin/AdminBlogImport";
-import AdminAgents from "./pages/admin/AdminAgents";
-import AdminListings from "./pages/admin/AdminListings";
-import AdminPayments from "./pages/admin/AdminPayments";
-import AdminSettings from "./pages/admin/AdminSettings";
-import AdminLeads from "./pages/admin/AdminLeads";
-import AdminLeadAnalytics from "./pages/admin/AdminLeadAnalytics";
-// AdminAIAnalytics, AdminSchedulerSettings, AdminDeveloperProfiles, AdminEmailWorkflows,
-// AdminMarketData, AdminTeamMembers routes kept but removed from sidebar nav
-import AdminAIAnalytics from "./pages/admin/AdminAIAnalytics";
-import AdminBookings from "./pages/admin/AdminBookings";
-import AdminSchedulerSettings from "./pages/admin/AdminSchedulerSettings";
-import AdminLogin from "./pages/admin/AdminLogin";
-import AdminDeveloperProfiles from "./pages/admin/AdminDeveloperProfiles";
-import AdminMLSSync from "./pages/admin/AdminMLSSync";
-import AdminEmailTemplates from "./pages/admin/AdminEmailTemplates";
-import AdminEmailWorkflows from "./pages/admin/AdminEmailWorkflows";
-import AdminMarketData from "./pages/admin/AdminMarketData";
-import AdminMarketDashboard from "./pages/admin/AdminMarketDashboard";
-import AdminTeamMembers from "./pages/admin/AdminTeamMembers";
-import AdminGoogleReviews from "./pages/admin/AdminGoogleReviews";
-import AdminThemeManager from "./pages/admin/AdminThemeManager";
-import AdminTasks from "./pages/admin/AdminTasks";
-import AdminSystem from "./pages/admin/AdminSystem";
-import AdminTechStack from "./pages/admin/AdminTechStack";
-import NotFound from "./pages/NotFound";
-import AdminClients from "./pages/admin/AdminClients";
-import AdminClientSearches from "./pages/admin/AdminClientSearches";
-import AdminClientForm from "./pages/admin/AdminClientForm";
-import PresaleProjects from "./pages/PresaleProjects";
-import PresaleProjectDetail from "./pages/PresaleProjectDetail";
-import CityPresalePage from "./pages/CityPresalePage";
-import CityProductPage from "./pages/CityProductPage";
-import NeighbourhoodProductPage from "./pages/NeighbourhoodProductPage";
-import NeighborhoodLandingPage from "./pages/NeighborhoodLandingPage";
-import PriceBasedPage from "./pages/PriceBasedPage";
-import PresaleCityHubPage from "./pages/PresaleCityHubPage";
-import PresaleCityTypePricePage from "./pages/PresaleCityTypePricePage";
-import Blog from "./pages/Blog";
-import BlogPost from "./pages/BlogPost";
-
-import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
-import ROICalculator from "./pages/ROICalculator";
-import MapSearch from "./pages/MapSearch";
-import ResaleListings from "./pages/ResaleListings";
-import ResaleListingDetail from "./pages/ResaleListingDetail";
-import CityResalePage from "./pages/CityResalePage";
-import AssignmentDetail from "./pages/AssignmentDetail";
-import Developers from "./pages/Developers";
-import AdminDevelopers from "./pages/admin/AdminDevelopers";
-import InvestmentSnapshotPage from "./pages/InvestmentSnapshotPage";
-import ResalePropertyTypePage from "./pages/ResalePropertyTypePage";
-import ResalePriceRangePage from "./pages/ResalePriceRangePage";
-import ResaleBedroomPage from "./pages/ResaleBedroomPage";
-import ResaleTypePricePage from "./pages/ResaleTypePricePage";
-import PopularSearchesPage from "./pages/PopularSearchesPage";
-import NeighborhoodPropertyTypePage from "./pages/NeighborhoodPropertyTypePage";
-import ContentHub from "./pages/ContentHub";
-import BlogCategoryPage from "./pages/BlogCategoryPage";
-import AdLandingPage from "./pages/AdLandingPage";
-import AdminLandingPages from "./pages/admin/AdminLandingPages";
-import PresaleCompletionYearPage from "./pages/PresaleCompletionYearPage";
-import VIPMembership from "./pages/VIPMembership";
-import BuyerAuth from "./pages/BuyerAuth";
-import BuyerLogin from "./pages/BuyerLogin";
-import BuyerDashboard from "./pages/buyer/BuyerDashboard";
-
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
+import { Suspense, lazy } from "react";
+
+// Only the homepage is eagerly loaded for fastest initial paint
+import Index from "./pages/Index";
+
+// --- Lazy-loaded pages (code-split) ---
+const Contact = lazy(() => import("./pages/Contact"));
+const About = lazy(() => import("./pages/About"));
+const ForAgents = lazy(() => import("./pages/ForAgents"));
+const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
+const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
+const MortgageCalculatorPage = lazy(() => import("./pages/MortgageCalculatorPage"));
+const Login = lazy(() => import("./pages/Login"));
+const DashboardOverview = lazy(() => import("./pages/dashboard/DashboardOverview"));
+const DashboardListings = lazy(() => import("./pages/dashboard/DashboardListings"));
+const DashboardLeads = lazy(() => import("./pages/dashboard/DashboardLeads"));
+const DashboardProfile = lazy(() => import("./pages/dashboard/DashboardProfile"));
+const DashboardBilling = lazy(() => import("./pages/dashboard/DashboardBilling"));
+const DashboardMessages = lazy(() => import("./pages/dashboard/DashboardMessages"));
+const DashboardProjectDocuments = lazy(() => import("./pages/dashboard/DashboardProjectDocuments"));
+const ListingForm = lazy(() => import("./pages/dashboard/ListingForm"));
+const DeveloperDashboard = lazy(() => import("./pages/developer/DeveloperDashboard"));
+const DeveloperProjects = lazy(() => import("./pages/developer/DeveloperProjects"));
+const DeveloperTourRequests = lazy(() => import("./pages/developer/DeveloperTourRequests"));
+const DeveloperSettings = lazy(() => import("./pages/developer/DeveloperSettings"));
+const AdminOverview = lazy(() => import("./pages/admin/AdminOverview"));
+const AdminProjects = lazy(() => import("./pages/admin/AdminProjects"));
+const AdminProjectForm = lazy(() => import("./pages/admin/AdminProjectForm"));
+const AdminProjectImport = lazy(() => import("./pages/admin/AdminProjectImport"));
+const AdminBlogs = lazy(() => import("./pages/admin/AdminBlogs"));
+const AdminBlogForm = lazy(() => import("./pages/admin/AdminBlogForm"));
+const AdminBlogImport = lazy(() => import("./pages/admin/AdminBlogImport"));
+const AdminAgents = lazy(() => import("./pages/admin/AdminAgents"));
+const AdminListings = lazy(() => import("./pages/admin/AdminListings"));
+const AdminPayments = lazy(() => import("./pages/admin/AdminPayments"));
+const AdminSettings = lazy(() => import("./pages/admin/AdminSettings"));
+const AdminLeads = lazy(() => import("./pages/admin/AdminLeads"));
+const AdminLeadAnalytics = lazy(() => import("./pages/admin/AdminLeadAnalytics"));
+const AdminAIAnalytics = lazy(() => import("./pages/admin/AdminAIAnalytics"));
+const AdminBookings = lazy(() => import("./pages/admin/AdminBookings"));
+const AdminSchedulerSettings = lazy(() => import("./pages/admin/AdminSchedulerSettings"));
+const AdminLogin = lazy(() => import("./pages/admin/AdminLogin"));
+const AdminDeveloperProfiles = lazy(() => import("./pages/admin/AdminDeveloperProfiles"));
+const AdminMLSSync = lazy(() => import("./pages/admin/AdminMLSSync"));
+const AdminEmailTemplates = lazy(() => import("./pages/admin/AdminEmailTemplates"));
+const AdminEmailWorkflows = lazy(() => import("./pages/admin/AdminEmailWorkflows"));
+const AdminMarketData = lazy(() => import("./pages/admin/AdminMarketData"));
+const AdminMarketDashboard = lazy(() => import("./pages/admin/AdminMarketDashboard"));
+const AdminTeamMembers = lazy(() => import("./pages/admin/AdminTeamMembers"));
+const AdminGoogleReviews = lazy(() => import("./pages/admin/AdminGoogleReviews"));
+const AdminThemeManager = lazy(() => import("./pages/admin/AdminThemeManager"));
+const AdminTasks = lazy(() => import("./pages/admin/AdminTasks"));
+const AdminSystem = lazy(() => import("./pages/admin/AdminSystem"));
+const AdminTechStack = lazy(() => import("./pages/admin/AdminTechStack"));
+const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
+const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches"));
+const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
+const AdminLandingPages = lazy(() => import("./pages/admin/AdminLandingPages"));
+const AdminDevelopers = lazy(() => import("./pages/admin/AdminDevelopers"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const PresaleProjects = lazy(() => import("./pages/PresaleProjects"));
+const PresaleProjectDetail = lazy(() => import("./pages/PresaleProjectDetail"));
+const CityPresalePage = lazy(() => import("./pages/CityPresalePage"));
+const CityProductPage = lazy(() => import("./pages/CityProductPage"));
+const NeighbourhoodProductPage = lazy(() => import("./pages/NeighbourhoodProductPage"));
+const NeighborhoodLandingPage = lazy(() => import("./pages/NeighborhoodLandingPage"));
+const PriceBasedPage = lazy(() => import("./pages/PriceBasedPage"));
+const PresaleCityHubPage = lazy(() => import("./pages/PresaleCityHubPage"));
+const PresaleCityTypePricePage = lazy(() => import("./pages/PresaleCityTypePricePage"));
+const Blog = lazy(() => import("./pages/Blog"));
+const BlogPost = lazy(() => import("./pages/BlogPost"));
+const ROICalculator = lazy(() => import("./pages/ROICalculator"));
+const MapSearch = lazy(() => import("./pages/MapSearch"));
+const ResaleListings = lazy(() => import("./pages/ResaleListings"));
+const ResaleListingDetail = lazy(() => import("./pages/ResaleListingDetail"));
+const CityResalePage = lazy(() => import("./pages/CityResalePage"));
+const AssignmentDetail = lazy(() => import("./pages/AssignmentDetail"));
+const Developers = lazy(() => import("./pages/Developers"));
+const InvestmentSnapshotPage = lazy(() => import("./pages/InvestmentSnapshotPage"));
+const ResalePropertyTypePage = lazy(() => import("./pages/ResalePropertyTypePage"));
+const ResalePriceRangePage = lazy(() => import("./pages/ResalePriceRangePage"));
+const ResaleBedroomPage = lazy(() => import("./pages/ResaleBedroomPage"));
+const ResaleTypePricePage = lazy(() => import("./pages/ResaleTypePricePage"));
+const PopularSearchesPage = lazy(() => import("./pages/PopularSearchesPage"));
+const NeighborhoodPropertyTypePage = lazy(() => import("./pages/NeighborhoodPropertyTypePage"));
+const ContentHub = lazy(() => import("./pages/ContentHub"));
+const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
+const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
+const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
+const VIPMembership = lazy(() => import("./pages/VIPMembership"));
+const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
+const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
+const BuyerDashboard = lazy(() => import("./pages/buyer/BuyerDashboard"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -124,6 +122,9 @@ const queryClient = new QueryClient({
     },
   },
 });
+
+// Minimal loading fallback — splash screen covers initial load
+const PageFallback = () => null;
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -144,6 +145,7 @@ const App = () => (
             <MetaPixel />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}
+          <Suspense fallback={<PageFallback />}>
           <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Index />} />
@@ -371,6 +373,7 @@ const App = () => (
             {/* 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </Suspense>
           </SwipeNavigationProvider>
         </BrowserRouter>
       </TooltipProvider>
