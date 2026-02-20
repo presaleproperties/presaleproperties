@@ -11,9 +11,8 @@ const RESALE_CITIES = [
 ];
 
 const PRESALE_TYPES = [
-  { label: "Condos", slug: "condos", icon: Building2 },
-  { label: "Townhomes", slug: "townhomes", icon: Home },
-  { label: "Homes", slug: "homes", icon: Castle },
+  { label: "Condos", slug: "presale-condos", icon: Building2 },
+  { label: "Townhomes", slug: "presale-townhomes", icon: Home },
 ];
 
 const RESALE_TYPES = [
@@ -41,7 +40,7 @@ export function QuickSearchLinks() {
               {PRESALE_TYPES.map(({ label, slug, icon: Icon }) => (
                 <Link
                   key={slug}
-                  to={`/presale-projects/vancouver/${slug}`}
+                  to={`/vancouver-${slug}`}
                   className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-primary/15 text-primary hover:bg-primary/25 transition-colors border border-primary/30 shadow-sm"
                 >
                   <Icon className="h-4 w-4" />
