@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Map } from "lucide-react";
+import { Map, Building2, Home, Calendar, Castle } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -173,6 +173,54 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </button>
           )}
         </div>
+      </div>
+
+      {/* Quick Search Links — compact horizontal scroll */}
+      <div className="pb-4 bg-background border-b border-border/40">
+        {activeTab === "projects" ? (
+          <div className="space-y-2.5 px-4">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+              <Link to="/vancouver-presale-condos" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary/15 text-primary border border-primary/30 whitespace-nowrap shrink-0">
+                <Building2 className="h-3.5 w-3.5" /> Condos
+              </Link>
+              <Link to="/vancouver-presale-townhomes" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary/15 text-primary border border-primary/30 whitespace-nowrap shrink-0">
+                <Home className="h-3.5 w-3.5" /> Townhomes
+              </Link>
+              <Link to="/presale-projects-completing-2025" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-accent text-accent-foreground border border-border whitespace-nowrap shrink-0">
+                <Calendar className="h-3 w-3" /> 2025
+              </Link>
+              <Link to="/presale-projects-completing-2026" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-accent text-accent-foreground border border-border whitespace-nowrap shrink-0">
+                <Calendar className="h-3 w-3" /> 2026
+              </Link>
+              <Link to="/presale-projects-completing-2027" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-accent text-accent-foreground border border-border whitespace-nowrap shrink-0">
+                <Calendar className="h-3 w-3" /> 2027
+              </Link>
+              <Link to="/presale-projects-completing-2028" className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold bg-accent text-accent-foreground border border-border whitespace-nowrap shrink-0">
+                <Calendar className="h-3 w-3" /> 2028
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-2.5 px-4">
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+              <Link to="/properties/vancouver/condos" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-secondary text-secondary-foreground border border-border whitespace-nowrap shrink-0">
+                <Building2 className="h-3.5 w-3.5" /> Condos
+              </Link>
+              <Link to="/properties/vancouver/townhouses" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-secondary text-secondary-foreground border border-border whitespace-nowrap shrink-0">
+                <Home className="h-3.5 w-3.5" /> Townhomes
+              </Link>
+              <Link to="/properties/vancouver/houses" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-secondary text-secondary-foreground border border-border whitespace-nowrap shrink-0">
+                <Castle className="h-3.5 w-3.5" /> Houses
+              </Link>
+              <Link to="/properties/condos-under-500k" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary/15 text-primary border border-primary/30 whitespace-nowrap shrink-0">
+                <Building2 className="h-3.5 w-3.5" /> Under $500K
+              </Link>
+              <Link to="/properties/townhomes-under-800k" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold bg-primary/15 text-primary border border-primary/30 whitespace-nowrap shrink-0">
+                <Home className="h-3.5 w-3.5" /> Townhomes &lt;$800K
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Discovery Sections - Switch based on active tab */}
