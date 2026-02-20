@@ -157,9 +157,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-      {/* Quick Navigation — 3 clean carousel rows */}
-      <div className="py-4 pb-5 bg-background border-b border-border/40 space-y-3">
-        {/* Row 1: Cities */}
+      {/* Quick Navigation — Cities only */}
+      <div className="py-4 pb-5 bg-background border-b border-border/40">
         <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap shrink-0 min-w-[52px]">
             Cities
@@ -174,88 +173,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               {city.name}
             </button>
           ))}
-        </div>
-
-        {/* Row 2: Property Types */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap shrink-0 min-w-[52px]">
-            Types
-          </span>
-          {activeTab === "projects" ? (
-            <>
-              <Link to="/vancouver-presale-condos" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <Building2 className="h-3 w-3" /> Condos
-              </Link>
-              <Link to="/vancouver-presale-townhomes" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <Home className="h-3 w-3" /> Townhomes
-              </Link>
-              <Link to="/surrey-presale-condos" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-card border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Building2 className="h-3 w-3 text-muted-foreground" /> Surrey Condos
-              </Link>
-              <Link to="/burnaby-presale-condos" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-card border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Building2 className="h-3 w-3 text-muted-foreground" /> Burnaby Condos
-              </Link>
-              <Link to="/langley-presale-townhomes" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-card border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Home className="h-3 w-3 text-muted-foreground" /> Langley Townhomes
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/properties/vancouver/condos" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <Building2 className="h-3 w-3" /> Condos
-              </Link>
-              <Link to="/properties/vancouver/townhouses" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <Home className="h-3 w-3" /> Townhomes
-              </Link>
-              <Link to="/properties/vancouver/houses" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <Castle className="h-3 w-3" /> Houses
-              </Link>
-              <Link to="/properties/surrey/condos" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-card border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Building2 className="h-3 w-3 text-muted-foreground" /> Surrey Condos
-              </Link>
-              <Link to="/properties/burnaby/townhouses" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-card border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Home className="h-3 w-3 text-muted-foreground" /> Burnaby Townhomes
-              </Link>
-            </>
-          )}
-        </div>
-
-        {/* Row 3: Deals & Filters */}
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap shrink-0 min-w-[52px]">
-            Deals
-          </span>
-          {activeTab === "projects" ? (
-            <>
-              <Link to="/presale-projects-completing-2025" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-accent text-accent-foreground border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Calendar className="h-3 w-3" /> Ready 2025
-              </Link>
-              <Link to="/presale-projects-completing-2026" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-accent text-accent-foreground border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Calendar className="h-3 w-3" /> Ready 2026
-              </Link>
-              <Link to="/presale-projects-completing-2027" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-accent text-accent-foreground border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Calendar className="h-3 w-3" /> Ready 2027
-              </Link>
-              <Link to="/presale-projects-completing-2028" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-accent text-accent-foreground border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <Calendar className="h-3 w-3" /> Ready 2028
-              </Link>
-            </>
-          ) : (
-            <>
-              <Link to="/properties/condos-under-500k" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <DollarSign className="h-3 w-3" /> Condos Under $500K
-              </Link>
-              <Link to="/properties/townhomes-under-800k" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary border border-primary/20 whitespace-nowrap shrink-0 hover:bg-primary/15 active:scale-95 transition-all">
-                <DollarSign className="h-3 w-3" /> Townhomes Under $800K
-              </Link>
-              <Link to="/properties/vancouver/under-750k" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-accent text-accent-foreground border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <DollarSign className="h-3 w-3" /> Vancouver Under $750K
-              </Link>
-              <Link to="/properties/surrey/under-500k" className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-accent text-accent-foreground border border-border shadow-sm shrink-0 hover:border-primary/50 active:scale-95 transition-all">
-                <DollarSign className="h-3 w-3" /> Surrey Under $500K
-              </Link>
-            </>
-          )}
         </div>
       </div>
 
