@@ -1112,12 +1112,40 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
             if (navigator.geolocation) {
               navigator.geolocation.getCurrentPosition(
                 (pos) => {
-                  // Use instant setView on mobile, animated on desktop
-                  mapInstanceRef.current?.setView(
-                    [pos.coords.latitude, pos.coords.longitude], 
-                    14, 
-                    { animate: !isMobileOrTabletDevice }
-                  );
+                  const { latitude, longitude } = pos.coords;
+                  const map = mapInstanceRef.current;
+                  if (!map) return;
+                  
+                  // Pan to user location
+                  map.setView([latitude, longitude], 14, { animate: !isMobileOrTabletDevice });
+                  
+                  // Remove previous user marker if exists
+                  if (userMarkerRef.current) {
+                    userMarkerRef.current.remove();
+                  }
+                  
+                  // Create a pulsing blue dot marker
+                  const userIcon = L.divIcon({
+                    className: '',
+                    html: `<div style="position:relative;width:22px;height:22px;">
+                      <div style="position:absolute;inset:0;border-radius:50%;background:rgba(59,130,246,0.25);animation:userPulse 2s ease-out infinite;"></div>
+                      <div style="position:absolute;top:5px;left:5px;width:12px;height:12px;border-radius:50%;background:#3b82f6;border:2.5px solid white;box-shadow:0 1px 4px rgba(0,0,0,0.3);"></div>
+                    </div>`,
+                    iconSize: [22, 22],
+                    iconAnchor: [11, 11],
+                  });
+                  
+                  userMarkerRef.current = L.marker([latitude, longitude], { icon: userIcon, zIndexOffset: 9999 })
+                    .addTo(map)
+                    .bindPopup("You are here");
+                    
+                  // Inject pulse animation if not already present
+                  if (!document.getElementById('user-pulse-style')) {
+                    const style = document.createElement('style');
+                    style.id = 'user-pulse-style';
+                    style.textContent = `@keyframes userPulse{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.5);opacity:0}}`;
+                    document.head.appendChild(style);
+                  }
                 },
                 () => toast.error("Could not get your location")
               );
