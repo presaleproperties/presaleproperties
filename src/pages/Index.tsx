@@ -13,6 +13,7 @@ import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
+import { QuickSearchLinks } from "@/components/home/QuickSearchLinks";
 import { MobileHomePage } from "@/components/mobile/MobileHomePage";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { useIsMobileOrTablet } from "@/hooks/use-mobile";
@@ -269,6 +270,7 @@ const Index = () => {
       <ConversionHeader />
       <main className="flex-1">
         <HeroSection activeTab={activeTab} onTabChange={setActiveTab} />
+        <QuickSearchLinks />
         <ScrollReveal animation="fade-up">
           {activeTab === "projects" ? <FeaturedProjects /> : <FeaturedResaleListings />}
         </ScrollReveal>
