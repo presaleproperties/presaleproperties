@@ -30,9 +30,11 @@ const PAGE_CONFIG: Record<string, {
   dbFilters: string[];
   maxPrice: number;
   priceLabel: string;
+  cityFilter?: string;
   description: string;
   seoTitle: string;
 }> = {
+  // General pages
   "condos-under-500k": {
     propertyType: "Condo",
     propertyTypePlural: "Condos",
@@ -50,6 +52,64 @@ const PAGE_CONFIG: Record<string, {
     priceLabel: "Under $800K",
     description: "Spacious move-in ready townhomes with great value for growing families",
     seoTitle: "Move-In Ready Townhomes Under $800K",
+  },
+  // City-specific condo pages
+  "condos-under-500k-surrey": {
+    propertyType: "Condo", propertyTypePlural: "Condos",
+    dbFilters: ["Apartment", "Apartment/Condo", "Condo"],
+    maxPrice: 500000, priceLabel: "Under $500K", cityFilter: "Surrey",
+    description: "New construction condos under $500K in Surrey — ideal for first-time buyers near SkyTrain",
+    seoTitle: "Move-In Ready Condos Under $500K in Surrey",
+  },
+  "condos-under-500k-langley": {
+    propertyType: "Condo", propertyTypePlural: "Condos",
+    dbFilters: ["Apartment", "Apartment/Condo", "Condo"],
+    maxPrice: 500000, priceLabel: "Under $500K", cityFilter: "Langley",
+    description: "Affordable new condos under $500K in Langley — great value in the Fraser Valley",
+    seoTitle: "Move-In Ready Condos Under $500K in Langley",
+  },
+  "condos-under-500k-coquitlam": {
+    propertyType: "Condo", propertyTypePlural: "Condos",
+    dbFilters: ["Apartment", "Apartment/Condo", "Condo"],
+    maxPrice: 500000, priceLabel: "Under $500K", cityFilter: "Coquitlam",
+    description: "New condos under $500K in Coquitlam — mountain views and Evergreen Line access",
+    seoTitle: "Move-In Ready Condos Under $500K in Coquitlam",
+  },
+  "condos-under-500k-burnaby": {
+    propertyType: "Condo", propertyTypePlural: "Condos",
+    dbFilters: ["Apartment", "Apartment/Condo", "Condo"],
+    maxPrice: 500000, priceLabel: "Under $500K", cityFilter: "Burnaby",
+    description: "Brand new condos under $500K in Burnaby — close to Metrotown and rapid transit",
+    seoTitle: "Move-In Ready Condos Under $500K in Burnaby",
+  },
+  // City-specific townhome pages
+  "townhomes-under-800k-surrey": {
+    propertyType: "Townhome", propertyTypePlural: "Townhomes",
+    dbFilters: ["Townhouse", "Row/Townhouse", "Townhome"],
+    maxPrice: 800000, priceLabel: "Under $800K", cityFilter: "Surrey",
+    description: "New townhomes under $800K in Surrey — spacious family living with easy commuting",
+    seoTitle: "Move-In Ready Townhomes Under $800K in Surrey",
+  },
+  "townhomes-under-800k-langley": {
+    propertyType: "Townhome", propertyTypePlural: "Townhomes",
+    dbFilters: ["Townhouse", "Row/Townhouse", "Townhome"],
+    maxPrice: 800000, priceLabel: "Under $800K", cityFilter: "Langley",
+    description: "Affordable new townhomes under $800K in Langley — family-friendly Fraser Valley living",
+    seoTitle: "Move-In Ready Townhomes Under $800K in Langley",
+  },
+  "townhomes-under-800k-coquitlam": {
+    propertyType: "Townhome", propertyTypePlural: "Townhomes",
+    dbFilters: ["Townhouse", "Row/Townhouse", "Townhome"],
+    maxPrice: 800000, priceLabel: "Under $800K", cityFilter: "Coquitlam",
+    description: "New townhomes under $800K in Coquitlam — nestled between mountains and city amenities",
+    seoTitle: "Move-In Ready Townhomes Under $800K in Coquitlam",
+  },
+  "townhomes-under-800k-burnaby": {
+    propertyType: "Townhome", propertyTypePlural: "Townhomes",
+    dbFilters: ["Townhouse", "Row/Townhouse", "Townhome"],
+    maxPrice: 800000, priceLabel: "Under $800K", cityFilter: "Burnaby",
+    description: "Brand new townhomes under $800K in Burnaby — urban convenience with extra space",
+    seoTitle: "Move-In Ready Townhomes Under $800K in Burnaby",
   },
 };
 
@@ -98,10 +158,13 @@ export default function ResaleTypePricePage() {
   const slug = location.pathname.split("/properties/")[1]?.split("?")[0] || "";
   const config = PAGE_CONFIG[slug.toLowerCase()] || null;
 
+  // If config has a locked city, use that; otherwise allow user to pick
+  const lockedCity = config?.cityFilter || null;
+
   const filters = {
     beds: searchParams.get("beds") || "any",
     sort: searchParams.get("sort") || "price-asc",
-    city: searchParams.get("city") || "any",
+    city: lockedCity || searchParams.get("city") || "any",
   };
 
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
@@ -213,8 +276,9 @@ export default function ResaleTypePricePage() {
     return <NotFound />;
   }
 
-  const pageTitle = `${config.seoTitle} | New Construction ${config.propertyTypePlural} BC | PresaleProperties`;
-  const pageDescription = `Browse ${totalCount}+ ${config.seoTitle.toLowerCase()} across Metro Vancouver & Fraser Valley. ${config.description}. Brand new construction 2024-2026.`;
+  const cityLabel = lockedCity ? ` in ${lockedCity}` : "";
+  const pageTitle = `${config.seoTitle} | New Construction ${config.propertyTypePlural}${cityLabel ? cityLabel : " BC"} | PresaleProperties`;
+  const pageDescription = `Browse ${totalCount}+ ${config.seoTitle.toLowerCase()}${lockedCity ? ` in ${lockedCity}` : " across Metro Vancouver & Fraser Valley"}. ${config.description}. Brand new construction 2024-2026.`;
   const canonicalUrl = `https://presaleproperties.com/properties/${slug}`;
 
   const structuredData = {
@@ -226,14 +290,44 @@ export default function ResaleTypePricePage() {
     "numberOfItems": totalCount,
   };
 
+  const faqSchema = lockedCity ? {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": `How much do new ${config.propertyTypePlural.toLowerCase()} cost in ${lockedCity}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `New construction ${config.propertyTypePlural.toLowerCase()} in ${lockedCity} are available starting ${config.priceLabel.toLowerCase()}. Browse ${totalCount}+ listings on PresaleProperties.com.`
+        }
+      },
+      {
+        "@type": "Question",
+        "name": `Are there move-in ready ${config.propertyTypePlural.toLowerCase()} in ${lockedCity}?`,
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": `Yes — we list brand new 2024-2026 ${config.propertyTypePlural.toLowerCase()} in ${lockedCity} that are move-in ready or completing soon. ${config.description}.`
+        }
+      },
+    ]
+  } : null;
+
+  const breadcrumbItems = [
+    { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
+    { "@type": "ListItem", "position": 2, "name": "Move-In Ready", "item": "https://presaleproperties.com/properties" },
+  ];
+  if (lockedCity) {
+    const baseSlug = config.maxPrice === 500000 ? "condos-under-500k" : "townhomes-under-800k";
+    breadcrumbItems.push({ "@type": "ListItem", "position": 3, "name": `${config.propertyTypePlural} ${config.priceLabel}`, "item": `https://presaleproperties.com/properties/${baseSlug}` });
+    breadcrumbItems.push({ "@type": "ListItem", "position": 4, "name": lockedCity, "item": canonicalUrl });
+  } else {
+    breadcrumbItems.push({ "@type": "ListItem", "position": 3, "name": config.seoTitle, "item": canonicalUrl });
+  }
   const breadcrumbSchema = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
-    "itemListElement": [
-      { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://presaleproperties.com" },
-      { "@type": "ListItem", "position": 2, "name": "Move-In Ready", "item": "https://presaleproperties.com/properties" },
-      { "@type": "ListItem", "position": 3, "name": config.seoTitle },
-    ],
+    "itemListElement": breadcrumbItems,
   };
 
   const CITY_OPTIONS = [
@@ -261,6 +355,7 @@ export default function ResaleTypePricePage() {
         <meta property="og:type" content="website" />
         <script type="application/ld+json">{JSON.stringify(structuredData)}</script>
         <script type="application/ld+json">{JSON.stringify(breadcrumbSchema)}</script>
+        {faqSchema && <script type="application/ld+json">{JSON.stringify(faqSchema)}</script>}
       </Helmet>
 
       <ConversionHeader />
@@ -287,36 +382,71 @@ export default function ResaleTypePricePage() {
 
         {/* Unified sticky filter bar */}
         <div className="sticky top-[56px] z-30 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border/50 mb-6">
-          {/* Page switcher as compact tabs */}
-          <div className="flex items-center gap-1.5 mb-3">
-            {Object.entries(PAGE_CONFIG).map(([pageSlug, pageConfig]) => (
-              <Link key={pageSlug} to={`/properties/${pageSlug}`}>
-                <button
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                    slug === pageSlug
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
-                  }`}
-                >
-                  {pageConfig.propertyTypePlural} {pageConfig.priceLabel}
-                </button>
-              </Link>
-            ))}
+          {/* Type switcher */}
+          <div className="flex items-center gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
+            {(["condos-under-500k", "townhomes-under-800k"] as const).map((baseSlug) => {
+              const baseConfig = PAGE_CONFIG[baseSlug];
+              const isActive = slug === baseSlug || slug.startsWith(baseSlug.replace("under-", "under-").split("-").slice(0, -1).join("-") ? baseSlug : baseSlug);
+              const isTypeMatch = config.propertyType === baseConfig.propertyType && config.maxPrice === baseConfig.maxPrice;
+              return (
+                <Link key={baseSlug} to={`/properties/${baseSlug}`}>
+                  <button
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors whitespace-nowrap ${
+                      isTypeMatch
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                    }`}
+                  >
+                    {baseConfig.propertyTypePlural} {baseConfig.priceLabel}
+                  </button>
+                </Link>
+              );
+            })}
             <Badge variant="outline" className="text-xs px-2 py-1 ml-1 shrink-0">
               ✓ 2024+ Built
             </Badge>
           </div>
 
+          {/* City quick-links */}
+          <div className="flex items-center gap-1 mb-2.5 overflow-x-auto scrollbar-hide">
+            <span className="text-[10px] text-muted-foreground mr-1 shrink-0 uppercase tracking-wider">City:</span>
+            {(() => {
+              const baseSlug = config.maxPrice === 500000 ? "condos-under-500k" : "townhomes-under-800k";
+              const cities = [
+                { label: "All", slug: baseSlug },
+                { label: "Surrey", slug: `${baseSlug}-surrey` },
+                { label: "Langley", slug: `${baseSlug}-langley` },
+                { label: "Coquitlam", slug: `${baseSlug}-coquitlam` },
+                { label: "Burnaby", slug: `${baseSlug}-burnaby` },
+              ];
+              return cities.map((c) => (
+                <Link key={c.slug} to={`/properties/${c.slug}`}>
+                  <button
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-medium transition-colors whitespace-nowrap ${
+                      slug === c.slug
+                        ? "bg-primary/15 text-primary border border-primary/30"
+                        : "bg-muted/60 text-muted-foreground hover:bg-accent hover:text-foreground border border-transparent"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                </Link>
+              ));
+            })()}
+          </div>
+
           {/* Filter row */}
           <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
-            <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-              <SelectTrigger className="h-8 w-[130px] text-xs border-border/60"><SelectValue placeholder="All Cities" /></SelectTrigger>
-              <SelectContent>
-                {CITY_OPTIONS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            {!lockedCity && (
+              <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+                <SelectTrigger className="h-8 w-[130px] text-xs border-border/60"><SelectValue placeholder="All Cities" /></SelectTrigger>
+                <SelectContent>
+                  {CITY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
               <SelectTrigger className="h-8 w-[110px] text-xs border-border/60"><SelectValue placeholder="Any Beds" /></SelectTrigger>
@@ -327,7 +457,7 @@ export default function ResaleTypePricePage() {
               </SelectContent>
             </Select>
 
-            {(filters.city !== "any" || filters.beds !== "any") && (
+            {(!lockedCity && filters.city !== "any" || filters.beds !== "any") && (
               <button
                 onClick={() => {
                   const newParams = new URLSearchParams();
@@ -423,8 +553,26 @@ export default function ResaleTypePricePage() {
 
         {/* Related Presale Projects */}
         <div className="mt-12">
-          <RelatedPresaleProjects city="Vancouver" />
+          <RelatedPresaleProjects city={lockedCity || "Vancouver"} />
         </div>
+
+        {/* SEO content block for AI discovery */}
+        <section className="mt-12 prose prose-sm max-w-none text-muted-foreground">
+          <h2 className="text-lg font-semibold text-foreground">
+            {config.seoTitle}
+          </h2>
+          <p>
+            {config.description}. These are brand new constructions built between 2024 and 2026, 
+            offering modern layouts, energy-efficient features, and full builder warranties.
+            {lockedCity && ` ${lockedCity} continues to be one of the most sought-after cities in Metro Vancouver for new home buyers, 
+            with excellent transit connections, growing amenities, and strong long-term appreciation potential.`}
+          </p>
+          <p>
+            Whether you're a first-time buyer, investor, or growing family looking to upsize, 
+            {lockedCity ? ` ${lockedCity}'s` : " BC's"} new {config.propertyTypePlural.toLowerCase()} {config.priceLabel.toLowerCase()} represent 
+            some of the best value in the Lower Mainland real estate market.
+          </p>
+        </section>
       </main>
 
       <Footer />
