@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Building2, Home, Castle, MapPin } from "lucide-react";
-import { getCityPropertiesUrl, getCityPropertyTypeUrl } from "@/lib/propertiesUrls";
+import { getCityPropertiesUrl } from "@/lib/propertiesUrls";
 
 const PRESALE_CITIES = [
   "Vancouver", "Surrey", "Burnaby", "Langley", "Coquitlam", "Richmond", "Abbotsford",
@@ -17,9 +17,9 @@ const PRESALE_TYPES = [
 ];
 
 const RESALE_TYPES = [
-  { label: "Condos", slug: "condos", icon: Building2 },
-  { label: "Townhomes", slug: "townhomes", icon: Home },
-  { label: "Houses", slug: "homes", icon: Castle },
+  { label: "Condos", citySlug: "condos", icon: Building2 },
+  { label: "Townhomes", citySlug: "townhouses", icon: Home },
+  { label: "Houses", citySlug: "houses", icon: Castle },
 ];
 
 export function QuickSearchLinks() {
@@ -36,7 +36,7 @@ export function QuickSearchLinks() {
               {PRESALE_TYPES.map(({ label, slug, icon: Icon }) => (
                 <Link
                   key={slug}
-                  to={`/presale-projects?type=${slug}`}
+                  to={`/presale-projects/vancouver/${slug}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
                 >
                   <Icon className="h-3 w-3" />
@@ -67,10 +67,10 @@ export function QuickSearchLinks() {
               Move-In Ready
             </h2>
             <div className="flex flex-wrap gap-2 mb-3">
-              {RESALE_TYPES.map(({ label, slug, icon: Icon }) => (
+              {RESALE_TYPES.map(({ label, citySlug, icon: Icon }) => (
                 <Link
-                  key={slug}
-                  to={`/properties?type=${slug}`}
+                  key={citySlug}
+                  to={`/properties/vancouver/${citySlug}`}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors border border-border"
                 >
                   <Icon className="h-3 w-3" />
