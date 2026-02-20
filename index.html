@@ -203,6 +203,26 @@
 </head>
 
   <body>
+    <!-- Branded splash screen - visible while React loads -->
+    <div id="app-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;background:#faf9f7;transition:opacity 0.5s ease,visibility 0.5s ease;">
+      <style>
+        @media(prefers-color-scheme:dark){#app-splash{background:#0f1419!important}}
+        @keyframes splash-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.06)}}
+        @keyframes splash-dot{0%,80%,100%{transform:scale(0);opacity:.4}40%{transform:scale(1);opacity:1}}
+        #app-splash svg{animation:splash-pulse 2s ease-in-out infinite}
+        .splash-dots{display:flex;gap:6px;align-items:center}
+        .splash-dot{width:6px;height:6px;border-radius:50%;background:#c4993a}
+        .splash-dot:nth-child(1){animation:splash-dot 1.2s ease-in-out infinite}
+        .splash-dot:nth-child(2){animation:splash-dot 1.2s ease-in-out 0.15s infinite}
+        .splash-dot:nth-child(3){animation:splash-dot 1.2s ease-in-out 0.3s infinite}
+        @media(prefers-color-scheme:dark){.splash-dot{background:#d4a94a}}
+      </style>
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c4993a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <div class="splash-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
