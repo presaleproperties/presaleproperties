@@ -223,7 +223,26 @@ export default function NeighbourhoodProductPage() {
   }, [neighbourhoodSlug]);
 
   const cityName = parsed ? CITY_MAP[parsed.city] : null;
-  const neighbourhoodConfig = parsed ? NEIGHBOURHOOD_CONFIG[parsed.neighbourhood] : null;
+  const neighbourhoodConfig = useMemo(() => {
+    if (!parsed) return null;
+    const existing = NEIGHBOURHOOD_CONFIG[parsed.neighbourhood];
+    if (existing) return existing;
+    // Generate a fallback config for neighbourhoods not explicitly configured
+    if (!cityName) return null;
+    const displayName = parsed.neighbourhood
+      .split("-")
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+    return {
+      city: cityName,
+      displayName,
+      description: `Explore presale and move-in ready homes in ${displayName}, ${cityName}. Browse the latest developments, pricing, and floorplans.`,
+      highlights: [] as string[],
+      faqs: [
+        { question: `What presale projects are available in ${displayName}?`, answer: `Browse the latest presale condos and townhomes in ${displayName}, ${cityName} with VIP pricing and floorplans.` },
+      ],
+    };
+  }, [parsed, cityName]);
   const isPresale = parsed?.listingType === "presale";
 
   // Fetch presale projects for this neighbourhood
