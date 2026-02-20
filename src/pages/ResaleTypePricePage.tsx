@@ -276,79 +276,80 @@ export default function ResaleTypePricePage() {
         </nav>
 
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <DollarSign className="h-6 w-6 text-primary" />
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-              {config.seoTitle}
-            </h1>
-          </div>
-          <p className="text-muted-foreground">
-            {totalCount} brand new {config.propertyTypePlural.toLowerCase()} {config.priceLabel.toLowerCase()} • {config.description}
+        <div className="mb-4">
+          <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+            {config.seoTitle}
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            {totalCount} brand new {config.propertyTypePlural.toLowerCase()} • {config.description}
           </p>
         </div>
 
-        {/* Preset filter badges */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <Badge variant="secondary" className="text-sm px-3 py-1">
-            <Building2 className="h-3.5 w-3.5 mr-1.5" />
-            {config.propertyTypePlural}
-          </Badge>
-          <Badge variant="secondary" className="text-sm px-3 py-1">
-            <DollarSign className="h-3.5 w-3.5 mr-1.5" />
-            {config.priceLabel}
-          </Badge>
-          <Badge variant="outline" className="text-sm px-3 py-1">
-            ✓ 2024+ New Construction
-          </Badge>
-        </div>
+        {/* Unified sticky filter bar */}
+        <div className="sticky top-[56px] z-30 -mx-4 px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border/50 mb-6">
+          {/* Page switcher as compact tabs */}
+          <div className="flex items-center gap-1.5 mb-3">
+            {Object.entries(PAGE_CONFIG).map(([pageSlug, pageConfig]) => (
+              <Link key={pageSlug} to={`/properties/${pageSlug}`}>
+                <button
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
+                    slug === pageSlug
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
+                  }`}
+                >
+                  {pageConfig.propertyTypePlural} {pageConfig.priceLabel}
+                </button>
+              </Link>
+            ))}
+            <Badge variant="outline" className="text-xs px-2 py-1 ml-1 shrink-0">
+              ✓ 2024+ Built
+            </Badge>
+          </div>
 
-        {/* Quick switch between the two pages */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {Object.entries(PAGE_CONFIG).map(([pageSlug, pageConfig]) => (
-            <Link key={pageSlug} to={`/properties/${pageSlug}`}>
-              <Button
-                variant={slug === pageSlug ? "default" : "outline"}
-                size="sm"
-                className="rounded-full"
-              >
-                {pageConfig.seoTitle}
-              </Button>
-            </Link>
-          ))}
-        </div>
-
-        {/* Filters Row */}
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
-            <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Cities" /></SelectTrigger>
-            <SelectContent>
-              {CITY_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
-            <SelectTrigger className="w-[120px]"><SelectValue placeholder="Any Beds" /></SelectTrigger>
-            <SelectContent>
-              {BEDS_OPTIONS.map((opt) => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="ml-auto">
-            <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
-              <SelectTrigger className="w-[160px]"><SelectValue /></SelectTrigger>
+          {/* Filter row */}
+          <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide">
+            <Select value={filters.city} onValueChange={(v) => updateFilter("city", v)}>
+              <SelectTrigger className="h-8 w-[130px] text-xs border-border/60"><SelectValue placeholder="All Cities" /></SelectTrigger>
               <SelectContent>
-                {SORT_OPTIONS.map((opt) => (
+                {CITY_OPTIONS.map((opt) => (
                   <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
+
+            <Select value={filters.beds} onValueChange={(v) => updateFilter("beds", v)}>
+              <SelectTrigger className="h-8 w-[110px] text-xs border-border/60"><SelectValue placeholder="Any Beds" /></SelectTrigger>
+              <SelectContent>
+                {BEDS_OPTIONS.map((opt) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {(filters.city !== "any" || filters.beds !== "any") && (
+              <button
+                onClick={() => {
+                  const newParams = new URLSearchParams();
+                  if (filters.sort !== "price-asc") newParams.set("sort", filters.sort);
+                  setSearchParams(newParams);
+                }}
+                className="h-8 px-2.5 text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              >
+                Clear
+              </button>
+            )}
+
+            <div className="ml-auto shrink-0">
+              <Select value={filters.sort} onValueChange={(v) => updateFilter("sort", v)}>
+                <SelectTrigger className="h-8 w-[145px] text-xs border-border/60"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {SORT_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </div>
 
