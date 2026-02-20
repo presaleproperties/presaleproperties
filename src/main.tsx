@@ -4,15 +4,22 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
-// Dismiss splash after app is truly interactive
+// Ensure splash plays for a minimum duration before dismissing
+const SPLASH_MIN_MS = 2200; // minimum 2.2s so full animation plays
+const splashStart = Date.now();
+
 function dismissSplash() {
   const splash = document.getElementById("app-splash");
   if (!splash || splash.style.display === "none") return;
   
-  // Slight hold so animation feels intentional, then fade
-  splash.style.opacity = "0";
-  splash.style.visibility = "hidden";
-  setTimeout(() => splash.remove(), 900);
+  const elapsed = Date.now() - splashStart;
+  const remaining = Math.max(0, SPLASH_MIN_MS - elapsed);
+  
+  setTimeout(() => {
+    splash.style.opacity = "0";
+    splash.style.visibility = "hidden";
+    setTimeout(() => splash.remove(), 1100);
+  }, remaining);
 }
 
 const container = document.getElementById("root");
@@ -25,10 +32,8 @@ if (container) {
       </HelmetProvider>
     </React.StrictMode>
   );
-  // Wait for first meaningful paint — two rAF frames + small delay
+  // Wait for first meaningful paint, then respect minimum splash time
   requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      setTimeout(dismissSplash, 100);
-    });
+    requestAnimationFrame(dismissSplash);
   });
 }
