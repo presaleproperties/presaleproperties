@@ -203,25 +203,32 @@
 </head>
 
   <body>
-    <!-- Branded splash screen - visible while React loads -->
-    <div id="app-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;background:#faf9f7;transition:opacity 0.5s ease,visibility 0.5s ease;">
+    <!-- Premium branded splash screen -->
+    <div id="app-splash" style="position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;flex-direction:column;background:#faf9f7;transition:opacity 0.6s cubic-bezier(.4,0,.2,1),visibility 0.6s cubic-bezier(.4,0,.2,1);">
       <style>
         @media(prefers-color-scheme:dark){#app-splash{background:#0f1419!important}}
-        @keyframes splash-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.06)}}
-        @keyframes splash-dot{0%,80%,100%{transform:scale(0);opacity:.4}40%{transform:scale(1);opacity:1}}
-        #app-splash svg{animation:splash-pulse 2s ease-in-out infinite}
-        .splash-dots{display:flex;gap:6px;align-items:center}
-        .splash-dot{width:6px;height:6px;border-radius:50%;background:#c4993a}
-        .splash-dot:nth-child(1){animation:splash-dot 1.2s ease-in-out infinite}
-        .splash-dot:nth-child(2){animation:splash-dot 1.2s ease-in-out 0.15s infinite}
-        .splash-dot:nth-child(3){animation:splash-dot 1.2s ease-in-out 0.3s infinite}
-        @media(prefers-color-scheme:dark){.splash-dot{background:#d4a94a}}
+        @keyframes splash-fade-up{0%{opacity:0;transform:translateY(16px)}100%{opacity:1;transform:translateY(0)}}
+        @keyframes splash-glow{0%,100%{box-shadow:0 0 0 0 rgba(196,153,58,0)}50%{box-shadow:0 0 40px 8px rgba(196,153,58,0.15)}}
+        @keyframes splash-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        @keyframes splash-dot{0%,80%,100%{transform:scale(0);opacity:.3}40%{transform:scale(1);opacity:1}}
+        .splash-inner{display:flex;flex-direction:column;align-items:center;gap:28px;animation:splash-fade-up 0.6s ease-out both}
+        .splash-logo-wrap{position:relative;padding:20px;border-radius:24px;animation:splash-glow 2.4s ease-in-out infinite}
+        .splash-logo{height:56px;width:auto;filter:drop-shadow(0 2px 8px rgba(196,153,58,0.18))}
+        @media(min-width:768px){.splash-logo{height:72px}}
+        .splash-bar-track{width:120px;height:3px;border-radius:2px;background:rgba(196,153,58,0.12);overflow:hidden}
+        .splash-bar-fill{width:40%;height:100%;border-radius:2px;background:linear-gradient(90deg,rgba(196,153,58,0.1),#c4993a,rgba(196,153,58,0.1));background-size:200% 100%;animation:splash-shimmer 1.4s ease-in-out infinite}
+        @media(prefers-color-scheme:dark){
+          .splash-bar-track{background:rgba(212,169,74,0.12)}
+          .splash-bar-fill{background:linear-gradient(90deg,rgba(212,169,74,0.1),#d4a94a,rgba(212,169,74,0.1));background-size:200% 100%}
+          .splash-logo{filter:brightness(1.1) drop-shadow(0 2px 8px rgba(212,169,74,0.2))}
+        }
       </style>
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c4993a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-        <polyline points="9 22 9 12 15 12 15 22"/>
-      </svg>
-      <div class="splash-dots"><div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div></div>
+      <div class="splash-inner">
+        <div class="splash-logo-wrap">
+          <img src="/logo-splash.png" alt="" class="splash-logo" />
+        </div>
+        <div class="splash-bar-track"><div class="splash-bar-fill"></div></div>
+      </div>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
