@@ -24,36 +24,36 @@ const RESALE_TYPES = [
 
 export function QuickSearchLinks() {
   return (
-    <section className="py-8 sm:py-10 bg-muted/40 border-b border-border/50">
+    <section className="py-10 sm:py-14 bg-muted/40 border-b border-border/50">
       <div className="container px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16">
           {/* Presale */}
           <div>
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-base font-bold text-foreground uppercase tracking-wider mb-4">
               Presale Projects
             </h2>
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-2.5 mb-5">
               {PRESALE_TYPES.map(({ label, slug, icon: Icon }) => (
                 <Link
                   key={slug}
                   to={`/presale-projects/vancouver/${slug}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-primary/15 text-primary hover:bg-primary/25 transition-colors border border-primary/30 shadow-sm"
                 >
-                  <Icon className="h-3 w-3" />
+                  <Icon className="h-4 w-4" />
                   {label}
                 </Link>
               ))}
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {PRESALE_CITIES.map((city) => {
                 const citySlug = city.toLowerCase().replace(/\s+/g, "-");
                 return (
                   <Link
                     key={city}
                     to={`/${citySlug}-presale-condos`}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                    className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border border-transparent hover:border-border"
                   >
-                    <MapPin className="h-3 w-3 flex-shrink-0" />
+                    <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
                     {city}
                   </Link>
                 );
@@ -63,29 +63,29 @@ export function QuickSearchLinks() {
 
           {/* Resale / Move-In Ready */}
           <div>
-            <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">
+            <h2 className="text-base font-bold text-foreground uppercase tracking-wider mb-4">
               Move-In Ready
             </h2>
-            <div className="flex flex-wrap gap-2 mb-3">
+            <div className="flex flex-wrap gap-2.5 mb-5">
               {RESALE_TYPES.map(({ label, citySlug, icon: Icon }) => (
                 <Link
                   key={citySlug}
                   to={`/properties/vancouver/${citySlug}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors border border-border"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors border border-border shadow-sm"
                 >
-                  <Icon className="h-3 w-3" />
+                  <Icon className="h-4 w-4" />
                   {label}
                 </Link>
               ))}
             </div>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-2">
               {RESALE_CITIES.map((city) => (
                 <Link
                   key={city}
                   to={getCityPropertiesUrl(city)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors border border-transparent hover:border-border"
                 >
-                  <MapPin className="h-3 w-3 flex-shrink-0" />
+                  <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-primary/60" />
                   {city}
                 </Link>
               ))}
