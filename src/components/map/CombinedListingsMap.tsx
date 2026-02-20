@@ -524,14 +524,12 @@ export const CombinedListingsMap = forwardRef<CombinedListingsMapRef, CombinedLi
       singleMarkerMode: false,
       iconCreateFunction: createClusterIcon,
       spiderfyDistanceMultiplier: 1.5,
-      zoomToBoundsOnClick: false, // We handle cluster click with smooth flyToBounds
+      zoomToBoundsOnClick: true,
       spiderLegPolylineOptions: { weight: 1.5, color: 'hsl(40, 65%, 60%)', opacity: 0.5 },
     });
 
     const presaleLayer = L.layerGroup();
     const assignmentLayer = L.layerGroup();
-
-    // Default behavior: zoom into cluster on click (zoomToBoundsOnClick: true)
 
     map.addLayer(clusterGroup);
     map.addLayer(presaleLayer);
