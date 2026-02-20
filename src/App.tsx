@@ -108,6 +108,7 @@ import ContentHub from "./pages/ContentHub";
 import BlogCategoryPage from "./pages/BlogCategoryPage";
 import AdLandingPage from "./pages/AdLandingPage";
 import AdminLandingPages from "./pages/admin/AdminLandingPages";
+import PresaleCompletionYearPage from "./pages/PresaleCompletionYearPage";
 import VIPMembership from "./pages/VIPMembership";
 import BuyerAuth from "./pages/BuyerAuth";
 import BuyerLogin from "./pages/BuyerLogin";
@@ -153,6 +154,13 @@ const App = () => (
             {/* SEO Redirect: /presale-projects/:slug -> /{neighborhood}-presale-{type}-{slug} */}
             {/* Legacy route redirect - redirect /presale/:slug to SEO URL */}
             <Route path="/presale/:slug" element={<PresaleProjectSEORedirect />} />
+            
+            {/* Presale Completion Year Pages */}
+            <Route path="/presale-projects-completing-2025" element={<PresaleCompletionYearPage />} />
+            <Route path="/presale-projects-completing-2026" element={<PresaleCompletionYearPage />} />
+            <Route path="/presale-projects-completing-2027" element={<PresaleCompletionYearPage />} />
+            <Route path="/presale-projects-completing-2028" element={<PresaleCompletionYearPage />} />
+            
             <Route path="/map-search" element={<MapSearch />} />
             
             {/* Assignment Detail - Verified agents only */}
