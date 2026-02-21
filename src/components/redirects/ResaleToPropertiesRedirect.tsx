@@ -5,10 +5,23 @@ import NotFound from "@/pages/NotFound";
  * Redirect component for legacy /resale/* URLs to new /properties/* URLs
  * This ensures SEO value is preserved via 301 redirects
  * 
- * Handles malformed URLs:
+ * Handles:
  * - URLs with 'undefined' segments → render 404 inline
- * - URLs with empty segments → clean them up
+ * - URLs with spaces in city names → normalize to hyphens
+ * - Type normalization: townhomes→townhouses, homes→city page
+ * - Empty segments → clean them up
  */
+
+// Map legacy resale type slugs to current /properties/ route slugs
+const TYPE_MAP: Record<string, string> = {
+  "townhomes": "townhouses",   // /resale/{city}/townhomes → /properties/{city}/townhouses
+  "homes": "",                  // /resale/{city}/homes → /properties/{city} (no 'homes' route)
+};
+
+function slugify(str: string): string {
+  return str.trim().toLowerCase().replace(/\s+/g, '-');
+}
+
 export function ResaleToPropertiesRedirect() {
   const location = useLocation();
   
@@ -17,12 +30,30 @@ export function ResaleToPropertiesRedirect() {
     return <NotFound />;
   }
   
-  // Clean up any double slashes and replace /resale with /properties
-  const cleanPath = location.pathname
-    .replace(/\/+/g, '/') // Remove double slashes
-    .replace(/^\/resale/, '/properties');
+  // Split path into segments, normalize each
+  const segments = location.pathname
+    .replace(/^\/resale\/?/, '')  // Remove /resale prefix
+    .split('/')
+    .filter(Boolean)
+    .map(seg => slugify(decodeURIComponent(seg)));
   
-  const newUrl = `${cleanPath}${location.search}${location.hash}`;
+  // Normalize type segment if present (2nd or 3rd segment)
+  // Patterns: /resale/{city}/{type} or /resale/{city}/{neighborhood}/{type}
+  for (let i = 1; i < segments.length; i++) {
+    const mapped = TYPE_MAP[segments[i]];
+    if (mapped !== undefined) {
+      if (mapped === "") {
+        // Remove this segment (e.g., 'homes' → just go to city page)
+        segments.splice(i, 1);
+        i--;
+      } else {
+        segments[i] = mapped;
+      }
+    }
+  }
+  
+  const newPath = `/properties${segments.length > 0 ? '/' + segments.join('/') : ''}`;
+  const newUrl = `${newPath}${location.search}${location.hash}`;
   
   return <Navigate to={newUrl} replace />;
 }

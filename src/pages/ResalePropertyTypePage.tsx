@@ -51,6 +51,7 @@ const CITY_CONFIG: Record<string, {
   "white-rock": { name: "White Rock", dbName: "White Rock", region: "South of Fraser" },
   "north-vancouver": { name: "North Vancouver", dbName: "North Vancouver", region: "North Shore" },
   "maple-ridge": { name: "Maple Ridge", dbName: "Maple Ridge", region: "Fraser Valley" },
+  "west-vancouver": { name: "West Vancouver", dbName: "West Vancouver", region: "North Shore" },
 };
 
 // Property type configuration
@@ -69,9 +70,19 @@ const PROPERTY_TYPE_CONFIG: Record<string, {
     namePlural: "Townhouses",
     dbFilters: ["Townhouse", "Row/Townhouse", "Townhome"]
   },
+  "townhomes": { 
+    name: "Townhouse", 
+    namePlural: "Townhomes",
+    dbFilters: ["Townhouse", "Row/Townhouse", "Townhome"]
+  },
   "houses": { 
     name: "House", 
     namePlural: "Houses",
+    dbFilters: ["Single Family", "Detached", "House", "Single Family Residence"]
+  },
+  "homes": { 
+    name: "Home", 
+    namePlural: "Homes",
     dbFilters: ["Single Family", "Detached", "House", "Single Family Residence"]
   },
   "duplexes": { 

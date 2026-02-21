@@ -42,6 +42,7 @@ const CITY_CONFIG: Record<string, {
   "white-rock": { name: "White Rock", dbName: "White Rock" },
   "north-vancouver": { name: "North Vancouver", dbName: "North Vancouver" },
   "maple-ridge": { name: "Maple Ridge", dbName: "Maple Ridge" },
+  "west-vancouver": { name: "West Vancouver", dbName: "West Vancouver" },
 };
 
 // Price range configuration

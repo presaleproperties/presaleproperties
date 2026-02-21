@@ -32,6 +32,9 @@ const CITY_CONFIG: Record<string, { name: string; dbName: string }> = {
   "port-coquitlam": { name: "Port Coquitlam", dbName: "Port Coquitlam" },
   "port-moody": { name: "Port Moody", dbName: "Port Moody" },
   "white-rock": { name: "White Rock", dbName: "White Rock" },
+  "north-vancouver": { name: "North Vancouver", dbName: "North Vancouver" },
+  "maple-ridge": { name: "Maple Ridge", dbName: "Maple Ridge" },
+  "west-vancouver": { name: "West Vancouver", dbName: "West Vancouver" },
 };
 
 // Bedroom configuration
