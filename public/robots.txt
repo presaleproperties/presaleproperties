@@ -47,14 +47,6 @@ User-agent: *
 Allow: /
 
 # ============================================
-# NOINDEX URLs - Allow crawl but pages set noindex
-# (Do NOT disallow - we want link equity to flow)
-# ============================================
-# /map-search - Dynamic map UI (noindex via meta tag)
-# ?city=, ?type=, ?price= - Filter params (noindex via meta tag)
-# ?lat=, ?lng=, ?zoom= - Map params (noindex via meta tag)
-
-# ============================================
 # BLOCKED PATHS - No crawl value
 # ============================================
 Disallow: /admin
@@ -77,6 +69,32 @@ Disallow: /deposit/
 Disallow: /guide
 Disallow: /privacy
 Disallow: /langley/presales
+
+# ============================================
+# CRAWL BUDGET - Block parameterized dynamic pages
+# These are SPA views with no unique indexable content
+# ============================================
+
+# Map search with any query params (lat/lng, q=, city filter, etc.)
+Disallow: /map-search?*lat=
+Disallow: /map-search?*lng=
+Disallow: /map-search?*zoom=
+Disallow: /map-search?*q=
+Disallow: /map-search?*mode=
+Disallow: /map-search?*neighborhood=
+
+# Calculator with price params
+Disallow: /calculator?*price=
+
+# Properties list with query params (the path-based /properties/{city} pages ARE indexed)
+Disallow: /properties?*city=
+Disallow: /properties?*type=
+Disallow: /properties?*beds=
+
+# Presale project list filters (the main /presale-projects page IS indexed)
+Disallow: /presale-projects?*type=
+Disallow: /presale-projects?*developer=
+Disallow: /presale-projects?*city=
 
 # Sitemap
 Sitemap: https://presaleproperties.com/sitemap.xml
