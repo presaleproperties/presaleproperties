@@ -158,6 +158,33 @@ const CITY_CONFIG: Record<string, {
     h1: "Homes for Sale in White Rock, BC",
     description: "Find homes for sale in White Rock. Browse oceanfront listings near the beach and pier.",
     neighborhoods: ["West Beach", "East Beach", "Town Centre", "Uptown", "Ocean Park"]
+  },
+  "north-vancouver": {
+    name: "North Vancouver",
+    region: "North Shore",
+    metaTitle: "North Vancouver Move-In Ready Condos 2026 | Lonsdale",
+    metaDescription: "Brand new condos under 6 months old in North Vancouver. Lonsdale, Lower Lonsdale & Lynn Valley. Never lived in, full warranty.",
+    h1: "North Vancouver Move-In Ready New Condos",
+    description: "Explore move-in ready new homes in North Vancouver. Never lived in condos near Lonsdale, Lynn Valley & Deep Cove.",
+    neighborhoods: ["Lower Lonsdale", "Central Lonsdale", "Lynn Valley", "Upper Lonsdale", "Deep Cove", "Norgate"]
+  },
+  "maple-ridge": {
+    name: "Maple Ridge",
+    region: "Fraser Valley",
+    metaTitle: "Maple Ridge Move-In Ready Condos 2026 | Affordable",
+    metaDescription: "Brand new condos under 6 months old in Maple Ridge. Affordable new construction. Never lived in, full warranty.",
+    h1: "Maple Ridge Move-In Ready New Condos",
+    description: "Find move-in ready new homes in Maple Ridge. Never lived in condos in Town Centre, Hammond & Silver Valley.",
+    neighborhoods: ["Town Centre", "Hammond", "Silver Valley", "Albion", "Cottonwood", "Websters Corners"]
+  },
+  "west-vancouver": {
+    name: "West Vancouver",
+    region: "North Shore",
+    metaTitle: "West Vancouver Move-In Ready Condos 2026 | Luxury",
+    metaDescription: "Brand new luxury condos under 6 months old in West Vancouver. Ambleside, Dundarave & Park Royal. Full warranty.",
+    h1: "West Vancouver Move-In Ready Homes",
+    description: "Explore move-in ready luxury homes in West Vancouver. Never lived in condos in Ambleside, Dundarave & Park Royal.",
+    neighborhoods: ["Ambleside", "Dundarave", "Park Royal", "Caulfeild", "Sentinel Hill", "British Properties"]
   }
 };
 

@@ -13,6 +13,7 @@ import { ResaleToPropertiesRedirect } from "@/components/redirects/ResaleToPrope
 import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
 import { CityPresaleSEORedirect } from "@/components/redirects/CityPresaleSEORedirect";
 import { BlogsRedirect } from "@/components/redirects/BlogsRedirect";
+import { PropertiesCleanupRedirect } from "@/components/redirects/PropertiesSpaceRedirect";
 import { GlobalSEO } from "@/components/seo/GlobalSEO";
 import { FaviconLoader } from "@/components/FaviconLoader";
 import { UtmTracker } from "@/components/UtmTracker";
@@ -185,6 +186,7 @@ const App = () => (
             <Route path="/properties/white-rock" element={<CityResalePage />} />
             <Route path="/properties/north-vancouver" element={<CityResalePage />} />
             <Route path="/properties/maple-ridge" element={<CityResalePage />} />
+            <Route path="/properties/west-vancouver" element={<CityResalePage />} />
             {/* Property type and price range routes - MUST be before :listingKey */}
             <Route path="/properties/:citySlug/condos" element={<ResalePropertyTypePage />} />
             <Route path="/properties/:citySlug/townhouses" element={<ResalePropertyTypePage />} />
@@ -205,6 +207,9 @@ const App = () => (
             <Route path="/properties/:citySlug/:neighborhoodSlug/condos" element={<NeighborhoodPropertyTypePage />} />
             <Route path="/properties/:citySlug/:neighborhoodSlug/townhomes" element={<NeighborhoodPropertyTypePage />} />
             <Route path="/properties/:citySlug/:neighborhoodSlug/homes" element={<NeighborhoodPropertyTypePage />} />
+            {/* Normalize townhomes → townhouses, homes → city page */}
+            <Route path="/properties/:citySlug/townhomes" element={<ResalePropertyTypePage />} />
+            <Route path="/properties/:citySlug/homes" element={<ResalePropertyTypePage />} />
             {/* Popular Searches SEO Hub */}
             <Route path="/properties/popular-searches" element={<PopularSearchesPage />} />
             {/* Combined type + price pages */}
@@ -366,6 +371,24 @@ const App = () => (
             <Route path="/surrey-presale-properties" element={<Navigate to="/surrey-presale-condos" replace />} />
             <Route path="/burnaby-presale-properties" element={<Navigate to="/burnaby-presale-condos" replace />} />
             <Route path="/abbotsford-presale-properties" element={<Navigate to="/abbotsford-presale-condos" replace />} />
+            
+            {/* Legacy presale price pages */}
+            <Route path="/presale-condos-under-700k" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/presale-condos-under-500k" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/presale-condos-under-800k" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/presale-townhomes-under-700k" element={<Navigate to="/presale-projects" replace />} />
+            
+            {/* /for-developers → /for-agents */}
+            <Route path="/for-developers" element={<Navigate to="/for-agents" replace />} />
+            
+            {/* Properties with spaces in city names (Google crawled these) */}
+            <Route path="/properties/new westminster" element={<Navigate to="/properties/new-westminster" replace />} />
+            <Route path="/properties/white rock" element={<Navigate to="/properties/white-rock" replace />} />
+            <Route path="/properties/north vancouver" element={<Navigate to="/properties/north-vancouver" replace />} />
+            <Route path="/properties/maple ridge" element={<Navigate to="/properties/maple-ridge" replace />} />
+            <Route path="/properties/port moody" element={<Navigate to="/properties/port-moody" replace />} />
+            <Route path="/properties/port coquitlam" element={<Navigate to="/properties/port-coquitlam" replace />} />
+            <Route path="/properties/west vancouver" element={<Navigate to="/properties/west-vancouver" replace />} />
             
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
