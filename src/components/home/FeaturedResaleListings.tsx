@@ -1,11 +1,27 @@
 import { useRef, useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Building2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowRight, Sparkles, Building2, Home, Castle, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
 import { ResaleListingCard } from "@/components/listings/ResaleListingCard";
+import { getCityPropertiesUrl } from "@/lib/propertiesUrls";
+
+const RESALE_TYPES = [
+  { label: "Condos", citySlug: "condos", icon: Building2 },
+  { label: "Townhomes", citySlug: "townhouses", icon: Home },
+  { label: "Houses", citySlug: "houses", icon: Castle },
+];
+
+const RESALE_DEALS = [
+  { label: "Condos Under $500K", slug: "condos-under-500k", icon: Building2 },
+  { label: "Townhomes Under $800K", slug: "townhomes-under-800k", icon: Home },
+];
+
+const RESALE_CITIES = [
+  "Vancouver", "Surrey", "Burnaby", "Langley", "Coquitlam", "Richmond", "New Westminster",
+];
 
 type MLSListing = {
   id: string;
@@ -150,21 +166,54 @@ export function FeaturedResaleListings() {
   }
 
   return (
-    <section className="py-12 sm:py-16 md:py-20 bg-muted/20 relative">
+    <section className="pt-6 sm:pt-8 pb-10 sm:pb-14 md:pb-16 bg-muted/20 relative">
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
       
       <div className="container px-4">
+        {/* Quick Search Links — compact inline */}
+        <div className="flex flex-wrap items-center gap-2 mb-6">
+          {RESALE_TYPES.map(({ label, citySlug, icon: Icon }) => (
+            <Link
+              key={citySlug}
+              to={`/properties/vancouver/${citySlug}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors border border-border"
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </Link>
+          ))}
+          <span className="w-px h-5 bg-border mx-1 hidden sm:block" />
+          {RESALE_DEALS.map(({ label, slug, icon: Icon }) => (
+            <Link
+              key={slug}
+              to={`/properties/${slug}`}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-primary/15 text-primary hover:bg-primary/25 transition-colors border border-primary/30"
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </Link>
+          ))}
+          <span className="w-px h-5 bg-border mx-1 hidden sm:block" />
+          {RESALE_CITIES.map((city) => (
+            <Link
+              key={city}
+              to={getCityPropertiesUrl(city)}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+            >
+              <MapPin className="h-3 w-3 text-primary/60" />
+              {city}
+            </Link>
+          ))}
+        </div>
+
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
-          <div className="space-y-2">
-            <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-primary">
-              Just Added
-            </span>
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-6 mb-6 sm:mb-8">
+          <div className="space-y-1 sm:space-y-2">
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              Featured Listings
+              Move-In Ready Homes
             </h2>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl">
-              Latest condos & townhomes in Metro Vancouver
+              Brand new condos & townhomes in Metro Vancouver
             </p>
           </div>
           <div className="flex items-center gap-2">
