@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { getListingUrl } from "@/lib/propertiesUrls";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 export type SearchResultType = "listing" | "presale" | "assignment" | "city" | "neighborhood";
 
@@ -178,6 +179,11 @@ export function PowerSearch({
             .limit(10);
 
           projects?.forEach((p) => {
+            const projectUrl = generateProjectUrl({
+              slug: p.slug,
+              neighborhood: p.neighborhood || p.city,
+              projectType: p.project_type as any,
+            });
             searchResults.push({
               id: p.id,
               type: "presale",
@@ -185,7 +191,7 @@ export function PowerSearch({
               subtitle: `${p.neighborhood || ""} ${p.neighborhood ? "•" : ""} ${p.city}`.trim(),
               price: p.starting_price || undefined,
               image: p.featured_image || undefined,
-              url: `/presale-projects/${p.slug}`,
+              url: projectUrl,
               lat: p.map_lat ?? undefined,
               lng: p.map_lng ?? undefined,
               meta: {
