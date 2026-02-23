@@ -4,6 +4,8 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { SearchSuggestions, SuggestionType } from "@/components/home/SearchSuggestions";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+import { generateProjectUrl } from "@/lib/seoUrls";
 
 type SearchTab = "projects" | "resale";
 
@@ -41,11 +43,33 @@ export function SearchPopup({ open, onOpenChange }: SearchPopupProps) {
     onOpenChange(false);
   };
 
-  const handleSuggestionSelect = (value: string, type: SuggestionType, slug?: string) => {
+  const handleSuggestionSelect = async (value: string, type: SuggestionType, slug?: string) => {
     setSearchQuery(value);
     setShowSuggestions(false);
 
     if (type === "presale" && slug) {
+      // Look up the project to generate the correct SEO URL
+      try {
+        const { data: project } = await supabase
+          .from("presale_projects")
+          .select("slug, neighborhood, city, project_type")
+          .eq("slug", slug)
+          .maybeSingle();
+        
+        if (project) {
+          const url = generateProjectUrl({
+            slug: project.slug,
+            neighborhood: project.neighborhood || project.city,
+            projectType: project.project_type as any,
+          });
+          navigate(url);
+          onOpenChange(false);
+          return;
+        }
+      } catch (err) {
+        console.error("Error fetching project for URL:", err);
+      }
+      // Fallback to legacy URL (will be caught by redirect)
       navigate(`/presale-projects/${encodeURIComponent(slug)}`);
       onOpenChange(false);
       return;

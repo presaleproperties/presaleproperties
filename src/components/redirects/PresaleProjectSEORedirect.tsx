@@ -17,7 +17,8 @@ import NotFound from "@/pages/NotFound";
  * 3. Prevents duplicate content issues
  */
 export function PresaleProjectSEORedirect() {
-  const { slug } = useParams<{ slug: string }>();
+  const params = useParams();
+  const slug = params.slug || params.citySlug;
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const [redirectUrl, setRedirectUrl] = useState<string | null>(null);

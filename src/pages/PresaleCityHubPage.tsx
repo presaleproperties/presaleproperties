@@ -1,6 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams, Link, useSearchParams } from "react-router-dom";
+import { PresaleProjectSEORedirect } from "@/components/redirects/PresaleProjectSEORedirect";
 import { Helmet } from "react-helmet-async";
 import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Building2, MapPin, Home, ArrowRight, Map } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -436,18 +437,8 @@ export default function PresaleCityHubPage() {
   }, [queryClient, citySlug]);
 
   if (!cityConfig) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <ConversionHeader />
-        <main className="flex-grow container px-4 py-16 text-center">
-          <h1 className="text-2xl font-bold mb-4">City Not Found</h1>
-          <Link to="/presale-projects">
-            <Button>View All Presale Projects</Button>
-          </Link>
-        </main>
-        <Footer />
-      </div>
-    );
+    // Not a valid city — this might be a project slug, redirect via PresaleProjectSEORedirect
+    return <PresaleProjectSEORedirect />;
   }
 
   // Generate internal links for other cities
