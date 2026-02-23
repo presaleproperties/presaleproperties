@@ -41,12 +41,12 @@ export function HeroSection({
   };
 
   return (
-    <section className="relative h-[calc(100vh-72px)] min-h-[520px] max-h-[900px] flex items-end overflow-hidden">
+    <section className="relative h-[calc(100vh-72px)] min-h-[520px] max-h-[900px] flex items-end">
       {/* Background Image */}
       <img
         src={heroImage}
         alt="Luxury presale homes"
-        className="absolute inset-0 w-full h-full object-cover scale-105"
+        className="absolute inset-0 w-full h-full object-cover"
         loading="eager"
         decoding="sync"
         fetchPriority="high"
