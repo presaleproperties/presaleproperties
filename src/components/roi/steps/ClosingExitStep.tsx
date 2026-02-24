@@ -5,17 +5,19 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { FileText, TrendingUp, Calculator } from "lucide-react";
-import { ExitAssumptions } from "@/types/roi";
+import { FileText, TrendingUp, Wallet, Info } from "lucide-react";
+import { ExitAssumptions, FinancingDetails } from "@/types/roi";
 import { calculatePTT, calculateGST } from "@/hooks/useROICalculator";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface ClosingExitStepProps {
   exit: ExitAssumptions;
   purchasePrice: number;
+  financing?: FinancingDetails;
   updateInputs: (field: string, value: number | string | boolean) => void;
 }
 
-export function ClosingExitStep({ exit, purchasePrice, updateInputs }: ClosingExitStepProps) {
+export function ClosingExitStep({ exit, purchasePrice, financing, updateInputs }: ClosingExitStepProps) {
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("en-CA", {
       style: "currency",
@@ -40,58 +42,149 @@ export function ClosingExitStep({ exit, purchasePrice, updateInputs }: ClosingEx
     }
   }, [purchasePrice, exit.includeGST, exit.includePTT]);
 
-  // Calculate totals
-  const totalClosingCosts = 
+  // Financing-derived values
+  const deposit1Amount = financing 
+    ? purchasePrice * (financing.deposit1Percent / 100) 
+    : 0;
+  const deposit2Amount = financing 
+    ? purchasePrice * (financing.deposit2Percent / 100) 
+    : 0;
+  const totalDepositPaid = deposit1Amount + deposit2Amount;
+  
+  const totalDownPayment = financing 
+    ? purchasePrice * (financing.downPaymentPercent / 100) 
+    : 0;
+  const additionalDownPayment = Math.max(0, totalDownPayment - totalDepositPaid);
+
+  const gstAmount = exit.includeGST ? exit.gstAmount : 0;
+  const pttAmount = exit.includePTT ? exit.pttAmount : 0;
+  const developerCredit = exit.developerCredit || 0;
+
+  // Total cash needed at closing
+  const totalCashAtClosing = 
+    additionalDownPayment + 
+    gstAmount + 
+    pttAmount - 
+    developerCredit + 
     exit.legalFees + 
-    (exit.includeGST ? exit.gstAmount : 0) + 
-    (exit.includePTT ? exit.pttAmount : 0) + 
     exit.mortgageFees;
+
+  // Grand total including deposits already paid
+  const grandTotalCashInvested = totalDepositPaid + totalCashAtClosing;
 
   const estimatedYear5Value = purchasePrice * Math.pow(1 + exit.annualPriceGrowthPercent / 100, 5);
   const sellingCosts = estimatedYear5Value * (exit.sellingCostPercent / 100);
 
   return (
     <div className="space-y-4">
-      {/* Closing Costs */}
-      <Card>
+      {/* Cash Needed at Closing - Primary Card */}
+      <Card className="border-primary/30">
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center gap-2 text-base">
-            <FileText className="h-4 w-4 text-primary" />
-            Closing Costs
+            <Wallet className="h-4 w-4 text-primary" />
+            Cash Needed at Closing
           </CardTitle>
+          <p className="text-xs text-muted-foreground">
+            Complete breakdown of what you'll need on completion day
+          </p>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {/* GST Toggle */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label className="text-sm">Include GST (5%)</Label>
-              <p className="text-xs text-muted-foreground">New construction tax</p>
+        <CardContent className="space-y-3">
+          {/* Deposits Already Paid */}
+          <div className="bg-muted/50 rounded-lg p-3 space-y-1.5">
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Deposits Already Paid
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">
-                {exit.includeGST ? formatCurrency(exit.gstAmount) : '$0'}
-              </span>
-              <Switch
-                checked={exit.includeGST}
-                onCheckedChange={(checked) => updateInputs("includeGST", checked)}
-              />
-            </div>
+            {financing && (
+              <>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">1st Deposit ({financing.deposit1Percent}%)</span>
+                  <span className="font-medium">{formatCurrency(deposit1Amount)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">2nd Deposit ({financing.deposit2Percent}%)</span>
+                  <span className="font-medium">{formatCurrency(deposit2Amount)}</span>
+                </div>
+                <div className="flex justify-between text-sm font-medium border-t border-border/50 pt-1.5">
+                  <span>Total Deposits Paid</span>
+                  <span className="text-green-600 dark:text-green-400">✓ {formatCurrency(totalDepositPaid)}</span>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* PTT Toggle */}
+          <Separator />
+
+          {/* Additional Down Payment */}
+          <div className="flex justify-between text-sm">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="text-muted-foreground flex items-center gap-1 cursor-help">
+                    Additional Down Payment
+                    <Info className="h-3 w-3" />
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="left" className="max-w-[200px]">
+                  <p className="text-xs">Total down payment minus deposits already paid during construction</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <span className="font-medium">{formatCurrency(additionalDownPayment)}</span>
+          </div>
+
+          {/* GST */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label className="text-sm">Include PTT</Label>
-              <p className="text-xs text-muted-foreground">Property Transfer Tax</p>
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">GST (5%)</Label>
+                <Switch
+                  checked={exit.includeGST}
+                  onCheckedChange={(checked) => updateInputs("includeGST", checked)}
+                  className="scale-75"
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">New construction — investors pay 5% GST</p>
             </div>
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-medium">
-                {exit.includePTT ? formatCurrency(exit.pttAmount) : '$0'}
-              </span>
-              <Switch
-                checked={exit.includePTT}
-                onCheckedChange={(checked) => updateInputs("includePTT", checked)}
-              />
+            <span className="text-sm font-medium">
+              {exit.includeGST ? formatCurrency(gstAmount) : '$0'}
+            </span>
+          </div>
+
+          {/* PTT */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm">Property Transfer Tax</Label>
+                <Switch
+                  checked={exit.includePTT}
+                  onCheckedChange={(checked) => updateInputs("includePTT", checked)}
+                  className="scale-75"
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground">BC PTT — tiered rate on purchase price</p>
+            </div>
+            <span className="text-sm font-medium">
+              {exit.includePTT ? formatCurrency(pttAmount) : '$0'}
+            </span>
+          </div>
+
+          {/* Developer Credit */}
+          <div className="flex items-center justify-between">
+            <div className="space-y-0.5">
+              <Label className="text-sm text-green-600 dark:text-green-400">Developer Credit / Incentive</Label>
+              <p className="text-[10px] text-muted-foreground">Any closing credit from developer</p>
+            </div>
+            <div className="w-28">
+              <div className="relative">
+                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">-$</span>
+                <Input
+                  type="number"
+                  value={exit.developerCredit || ''}
+                  onChange={(e) => updateInputs("developerCredit", parseInt(e.target.value) || 0)}
+                  className="pl-7 h-8 text-sm text-right"
+                  placeholder="0"
+                />
+              </div>
             </div>
           </div>
 
@@ -99,39 +192,48 @@ export function ClosingExitStep({ exit, purchasePrice, updateInputs }: ClosingEx
 
           {/* Legal & Mortgage Fees */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="legalFees" className="text-sm">Legal Fees</Label>
+            <div className="space-y-1">
+              <Label htmlFor="legalFees" className="text-xs">Legal Fees</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
                 <Input
                   id="legalFees"
                   type="number"
                   value={exit.legalFees}
                   onChange={(e) => updateInputs("legalFees", parseInt(e.target.value) || 0)}
-                  className="pl-7"
+                  className="pl-6 h-8 text-sm"
                 />
               </div>
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="mortgageFees" className="text-sm">Mortgage Fees</Label>
+            <div className="space-y-1">
+              <Label htmlFor="mortgageFees" className="text-xs">Mortgage Setup</Label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">$</span>
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">$</span>
                 <Input
                   id="mortgageFees"
                   type="number"
                   value={exit.mortgageFees}
                   onChange={(e) => updateInputs("mortgageFees", parseInt(e.target.value) || 0)}
-                  className="pl-7"
+                  className="pl-6 h-8 text-sm"
                 />
               </div>
             </div>
           </div>
 
-          {/* Closing Costs Total */}
-          <div className="bg-muted rounded-lg p-3">
-            <div className="flex justify-between font-medium">
-              <span>Total Closing Costs:</span>
-              <span className="text-primary">{formatCurrency(totalClosingCosts)}</span>
+          {/* Cash at Closing Total */}
+          <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 space-y-2">
+            <div className="flex justify-between text-sm font-semibold">
+              <span>Cash Needed at Closing</span>
+              <span className="text-primary text-lg">{formatCurrency(totalCashAtClosing)}</span>
+            </div>
+            <Separator className="bg-primary/10" />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>+ Deposits Already Paid</span>
+              <span>{formatCurrency(totalDepositPaid)}</span>
+            </div>
+            <div className="flex justify-between text-sm font-bold pt-1 border-t border-primary/10">
+              <span>Total Cash Invested</span>
+              <span className="text-primary">{formatCurrency(grandTotalCashInvested)}</span>
             </div>
           </div>
         </CardContent>

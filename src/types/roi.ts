@@ -53,6 +53,7 @@ export interface ExitAssumptions {
   sellingCostPercent: number;
   showTaxEstimate: boolean;
   marginalTaxRate: number;
+  developerCredit: number;
 }
 
 export interface ROIInputs {
@@ -184,7 +185,7 @@ export const DEFAULT_INPUTS: ROIInputs = {
     otherExpensesAnnual: 0,
   },
   exit: {
-    legalFees: 1500,
+    legalFees: 2000,
     includeGST: true,
     gstAmount: 32500,
     includePTT: true,
@@ -194,6 +195,7 @@ export const DEFAULT_INPUTS: ROIInputs = {
     sellingCostPercent: 3.5,
     showTaxEstimate: false,
     marginalTaxRate: 40,
+    developerCredit: 0,
   },
 };
 
