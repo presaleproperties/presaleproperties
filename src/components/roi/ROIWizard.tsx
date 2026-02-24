@@ -100,6 +100,7 @@ export function ROIWizard({
           <ClosingExitStep
             exit={inputs.exit}
             purchasePrice={inputs.purchase.purchasePrice}
+            financing={inputs.financing}
             updateInputs={(field, value) => updateInputs("exit", field, value)}
           />
         );

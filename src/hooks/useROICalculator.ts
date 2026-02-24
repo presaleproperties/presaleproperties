@@ -135,10 +135,12 @@ export function useROICalculator(initialInputs: ROIInputs = DEFAULT_INPUTS) {
     );
     
     // Calculate closing costs
+    const developerCredit = exit.developerCredit || 0;
     const closingCosts = exit.legalFees + 
       (exit.includeGST ? exit.gstAmount : 0) + 
       (exit.includePTT ? exit.pttAmount : 0) + 
-      exit.mortgageFees;
+      exit.mortgageFees - 
+      developerCredit;
     
     const totalCashInvested = totalDownPayment + closingCosts;
     
