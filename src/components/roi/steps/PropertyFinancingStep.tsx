@@ -4,8 +4,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Separator } from "@/components/ui/separator";
-import { Building2, MapPin, Calendar, DollarSign, Percent } from "lucide-react";
+import { Building2, MapPin, Calendar, DollarSign, Percent, User, TrendingUp } from "lucide-react";
 import { PurchaseDetails, FinancingDetails, BC_CITIES, CompletionSeason } from "@/types/roi";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface PropertyFinancingStepProps {
   purchase: PurchaseDetails;
@@ -68,6 +69,31 @@ export function PropertyFinancingStep({
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* Buyer Type */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">I am a...</Label>
+            <RadioGroup
+              value={purchase.buyerType || 'investor'}
+              onValueChange={(value) => updatePurchase("buyerType", value)}
+              className="grid grid-cols-2 gap-2"
+            >
+              <div className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors has-[button[data-state=checked]]:border-primary has-[button[data-state=checked]]:bg-primary/5">
+                <RadioGroupItem value="investor" id="investor" />
+                <Label htmlFor="investor" className="cursor-pointer flex items-center gap-1.5 text-sm">
+                  <TrendingUp className="h-3.5 w-3.5 text-muted-foreground" />
+                  Investor
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors has-[button[data-state=checked]]:border-primary has-[button[data-state=checked]]:bg-primary/5">
+                <RadioGroupItem value="firstTimeBuyer" id="firstTimeBuyer" />
+                <Label htmlFor="firstTimeBuyer" className="cursor-pointer flex items-center gap-1.5 text-sm">
+                  <User className="h-3.5 w-3.5 text-muted-foreground" />
+                  First-Time Buyer
+                </Label>
+              </div>
+            </RadioGroup>
+          </div>
+
           {/* Purchase Price */}
           <div className="space-y-2">
             <Label htmlFor="purchasePrice">Purchase Price *</Label>
