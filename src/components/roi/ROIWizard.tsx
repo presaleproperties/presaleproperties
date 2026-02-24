@@ -101,6 +101,7 @@ export function ROIWizard({
             exit={inputs.exit}
             purchasePrice={inputs.purchase.purchasePrice}
             financing={inputs.financing}
+            purchase={inputs.purchase}
             updateInputs={(field, value) => updateInputs("exit", field, value)}
           />
         );

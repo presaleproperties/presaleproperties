@@ -72,6 +72,24 @@ export function calculateGST(price: number): number {
   return Math.round(price * 0.05);
 }
 
+// Calculate CMHC mortgage insurance premium
+export function calculateCMHCInsurance(principal: number, downPaymentPercent: number): number {
+  if (downPaymentPercent >= 20) return 0;
+  if (downPaymentPercent >= 15) return Math.round(principal * 0.028);
+  if (downPaymentPercent >= 10) return Math.round(principal * 0.031);
+  return Math.round(principal * 0.04);
+}
+
+// Calculate GST New Housing Rebate (for primary residence / first-time buyers)
+export function calculateGSTRebate(price: number, gstAmount: number): number {
+  if (price <= 350000) {
+    return Math.round(gstAmount * 0.36);
+  } else if (price < 450000) {
+    return Math.round(gstAmount * 0.36 * (1 - (price - 350000) / 100000));
+  }
+  return 0;
+}
+
 export function useROICalculator(initialInputs: ROIInputs = DEFAULT_INPUTS) {
   const [inputs, setInputs] = useState<ROIInputs>(initialInputs);
   const [activeScenario, setActiveScenario] = useState<'conservative' | 'base' | 'aggressive'>('base');
@@ -126,13 +144,25 @@ export function useROICalculator(initialInputs: ROIInputs = DEFAULT_INPUTS) {
     const totalDownPayment = purchase.purchasePrice * (financing.downPaymentPercent / 100);
     const additionalDownPayment = Math.max(0, totalDownPayment - totalDeposit);
     
-    // Calculate mortgage
-    const mortgageAmount = purchase.purchasePrice - totalDownPayment;
+    // Calculate CMHC insurance (for < 20% down)
+    const cmhcInsurance = calculateCMHCInsurance(
+      purchase.purchasePrice - totalDownPayment,
+      financing.downPaymentPercent
+    );
+    
+    // Calculate mortgage (including CMHC if applicable)
+    const mortgageAmount = purchase.purchasePrice - totalDownPayment + cmhcInsurance;
     const monthlyMortgagePayment = calculateMonthlyMortgagePayment(
       mortgageAmount,
       financing.mortgageInterestRate,
       financing.amortizationYears
     );
+    
+    // Calculate GST rebate for first-time buyers
+    const isFirstTimeBuyer = purchase.buyerType === 'firstTimeBuyer';
+    const gstRebate = isFirstTimeBuyer && exit.includeGST
+      ? calculateGSTRebate(purchase.purchasePrice, exit.gstAmount)
+      : 0;
     
     // Calculate closing costs
     const developerCredit = exit.developerCredit || 0;
@@ -140,7 +170,8 @@ export function useROICalculator(initialInputs: ROIInputs = DEFAULT_INPUTS) {
       (exit.includeGST ? exit.gstAmount : 0) + 
       (exit.includePTT ? exit.pttAmount : 0) + 
       exit.mortgageFees - 
-      developerCredit;
+      developerCredit -
+      gstRebate;
     
     const totalCashInvested = totalDownPayment + closingCosts;
     
@@ -249,6 +280,8 @@ export function useROICalculator(initialInputs: ROIInputs = DEFAULT_INPUTS) {
       totalClosingCosts: closingCosts,
       mortgageAmount,
       monthlyMortgagePayment,
+      cmhcInsurance,
+      gstRebate,
       totalCashInvested,
       year1NetCashflow: yearlyProjections[0].netCashflow,
       year5NetCashflow: year5.netCashflow,

@@ -9,6 +9,7 @@ export interface PurchaseDetails {
   city: string;
   propertyType: 'condo' | 'townhome';
   unitSizeSqft: number | null;
+  buyerType: 'investor' | 'firstTimeBuyer';
 }
 
 export interface FinancingDetails {
@@ -95,6 +96,8 @@ export interface ROIResults {
   totalClosingCosts: number;
   mortgageAmount: number;
   monthlyMortgagePayment: number;
+  cmhcInsurance: number;
+  gstRebate: number;
   
   // Summary metrics
   totalCashInvested: number;
@@ -155,6 +158,7 @@ export const DEFAULT_INPUTS: ROIInputs = {
     city: 'Vancouver',
     propertyType: 'condo',
     unitSizeSqft: 550,
+    buyerType: 'investor',
   },
   financing: {
     depositStructure: 'standard',
