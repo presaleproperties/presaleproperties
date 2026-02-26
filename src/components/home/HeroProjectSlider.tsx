@@ -29,6 +29,7 @@ export function HeroProjectSlider() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const transitioningRef = useRef(false);
 
   const { data: projects } = useQuery({
     queryKey: ["hero-slider-projects"],
@@ -48,11 +49,15 @@ export function HeroProjectSlider() {
   const total = projects?.length ?? 0;
 
   const goTo = useCallback((index: number) => {
-    if (isTransitioning || total === 0) return;
+    if (transitioningRef.current || total === 0) return;
+    transitioningRef.current = true;
     setIsTransitioning(true);
     setCurrent(((index % total) + total) % total);
-    setTimeout(() => setIsTransitioning(false), 500);
-  }, [isTransitioning, total]);
+    setTimeout(() => {
+      transitioningRef.current = false;
+      setIsTransitioning(false);
+    }, 500);
+  }, [total]);
 
   const next = useCallback(() => goTo(current + 1), [goTo, current]);
   const prev = useCallback(() => goTo(current - 1), [goTo, current]);
