@@ -144,10 +144,12 @@ export function HeroProjectSlider() {
                   href={hasFloorplan ? project.floorplan_files![0] : hasPricing ? project.pricing_sheets![0] : project.brochure_files![0]}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
+                  className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/20 hover:bg-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
                 >
-                  <Download className="h-3 w-3 text-primary" />
-                  {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
+                  <Download className="h-3 w-3 text-primary shrink-0" />
+                  <span className="hidden sm:inline">
+                    {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
+                  </span>
                 </a>
               )}
               <Button asChild size="sm" className="rounded-lg font-bold text-xs px-3 sm:px-4 h-8 bg-primary hover:bg-primary/90 shadow-lg">
