@@ -166,7 +166,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </p>
 
           {/* Headline — large, clean */}
-          <h1 className="text-[2.1rem] font-bold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}>
+          <h1 className="text-[2.1rem] sm:text-[2.8rem] font-bold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}>
             New Homes.
             <br />
             <span className="text-primary font-extrabold">Exclusive Access.</span>
@@ -176,7 +176,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="w-8 h-px bg-primary/50 my-5" />
 
           {/* Search bar — clean, white */}
-          <div className="w-full max-w-[320px]">
+          <div className="w-full max-w-[320px] sm:max-w-[400px]">
             {/* Mode toggle — minimal underline style */}
             <div className="flex justify-center gap-6 mb-4">
               {(["projects", "resale"] as SearchTab[]).map((tab) => (
