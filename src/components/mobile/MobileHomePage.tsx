@@ -155,7 +155,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-8 sm:pt-10">
+        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-14 sm:pt-16">
 
           {/* Eyebrow */}
           <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-primary text-center drop-shadow mb-3">
@@ -212,14 +212,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Map link */}
-          <Link
-            to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-white/90 text-[12px] font-semibold active:scale-95 transition-all"
-          >
-            <Map className="w-3.5 h-3.5 text-primary" />
-            Explore the Map
-          </Link>
         </div>
       </div>
 
