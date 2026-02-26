@@ -14,6 +14,17 @@ function getClientIP(req: Request): string | null {
     || null;
 }
 
+// Blocked datacenter/bot IP prefixes
+const BLOCKED_IP_PREFIXES = [
+  "43.173.", "42.106.", "45.83.", "185.220.",
+  "194.165.", "167.94.", "216.244."
+];
+
+function isBlockedIP(ip: string | null): boolean {
+  if (!ip) return false;
+  return BLOCKED_IP_PREFIXES.some(prefix => ip.startsWith(prefix));
+}
+
 type BehaviorEventPayload = Record<string, unknown> & {
   event_id?: string;
   event_name?: string;
@@ -40,6 +51,16 @@ serve(async (req: Request): Promise<Response> => {
 
   try {
     const clientIP = getClientIP(req);
+
+    // Bot/crawler IP filtering — silent 200 to avoid retry escalation
+    if (isBlockedIP(clientIP)) {
+      console.log(`[BOT_BLOCK] Blocked IP: ${clientIP}`);
+      return new Response(JSON.stringify({ success: true, blocked: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json", ...corsHeaders },
+      });
+    }
+
     const payload: BehaviorEventPayload = await req.json();
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
