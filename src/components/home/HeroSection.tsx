@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { X } from "lucide-react";
+import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import heroImage from "@/assets/hero-lifestyle.jpg";
@@ -154,49 +154,54 @@ export function HeroSection({
             Presale condos, move-in ready homes &amp; off-market developer inventory — all in one place.
           </p>
 
-          {/* Search Card */}
-          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-visible">
-            {/* Tab switcher inside card */}
-            <div className="flex border-b border-border">
-              <button
-                onClick={() => handleTabChange("projects")}
-                className={`flex-1 py-3.5 text-sm font-bold transition-all rounded-tl-2xl ${
-                  activeTab === "projects"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Presale
-              </button>
-              <button
-                onClick={() => handleTabChange("resale")}
-                className={`flex-1 py-3.5 text-sm font-bold transition-all rounded-tr-2xl ${
-                  activeTab === "resale"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Move-In Ready
-              </button>
-            </div>
+          {/* Search Bar — REW-style single pill */}
+          <div className="w-full max-w-2xl">
+            <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[60px] sm:h-[68px]">
+              {/* Tab switcher — left side of pill */}
+              <div className="flex items-center shrink-0 pl-2 gap-1">
+                <button
+                  onClick={() => handleTabChange("projects")}
+                  className={`px-4 sm:px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                    activeTab === "projects"
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Presale
+                </button>
+                <button
+                  onClick={() => handleTabChange("resale")}
+                  className={`px-4 sm:px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                    activeTab === "resale"
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  Move-In Ready
+                </button>
+              </div>
 
-            {/* Search row */}
-            <div className="flex items-stretch p-2 gap-2">
-              <div className="flex-1 overflow-visible">
+              {/* Vertical divider */}
+              <div className="w-px h-7 bg-border mx-2 shrink-0" />
+
+              {/* Search input — middle */}
+              <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
-                  placeholder={activeTab === "projects" ? "City, project, neighbourhood…" : "Address, MLS#, city…"}
+                  placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
-                  inputClassName="h-12 text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                  inputClassName="h-[56px] sm:h-[64px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-1"
                 />
               </div>
-              <Button
-                size="lg"
-                className="h-12 px-6 rounded-xl text-sm font-bold flex-shrink-0 shadow-none"
+
+              {/* Circular search button — right */}
+              <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
+                className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 mr-2 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/85 transition-colors"
+                aria-label="Search"
               >
-                Search
-              </Button>
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
             </div>
           </div>
 
