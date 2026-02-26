@@ -147,37 +147,30 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         className="relative overflow-hidden"
         style={{
           height: 'calc(100dvh - 60px)',
-          minHeight: '560px',
+          minHeight: '580px',
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}>
 
         <HeroProjectSlider />
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 z-[2] pointer-events-none bg-black/25" />
-
-        {/* Hero Content */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28">
+        {/* Hero Content — sits in the upper portion, project card owns the bottom */}
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 pt-12 sm:pt-16">
 
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-5 px-2">
-            <div className="h-px w-5 bg-primary/60 shrink-0" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-primary text-center drop-shadow leading-tight">
-              Metro Vancouver's #1 Presale Platform
-            </span>
-            <div className="h-px w-5 bg-primary/60 shrink-0" />
-          </div>
+          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-primary text-center drop-shadow mb-4">
+            Metro Vancouver's #1 Presale Platform
+          </p>
 
           {/* Headline */}
-          <h1 className="text-[2rem] font-extrabold text-white leading-[1.08] text-center mb-3 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
+          <h1 className="text-[2rem] sm:text-[2.4rem] font-extrabold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
             New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[12px] text-white/60 text-center mb-7 leading-relaxed font-light">
-            Presale &amp; developer inventory<br />across Metro Vancouver.
+          <p className="text-[12px] text-white/60 text-center mb-6 leading-relaxed font-light">
+            Presale &amp; developer inventory across Metro Vancouver.
           </p>
 
           {/* Tab pills */}
@@ -198,7 +191,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search bar */}
-          <div className="w-full max-w-xs">
+          <div className="w-full max-w-[320px] sm:max-w-sm">
             <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
