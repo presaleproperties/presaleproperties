@@ -29,7 +29,6 @@ export function HeroProjectSlider() {
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const transitioningRef = useRef(false);
 
   const { data: projects } = useQuery({
     queryKey: ["hero-slider-projects"],
@@ -49,15 +48,11 @@ export function HeroProjectSlider() {
   const total = projects?.length ?? 0;
 
   const goTo = useCallback((index: number) => {
-    if (transitioningRef.current || total === 0) return;
-    transitioningRef.current = true;
+    if (isTransitioning || total === 0) return;
     setIsTransitioning(true);
     setCurrent(((index % total) + total) % total);
-    setTimeout(() => {
-      transitioningRef.current = false;
-      setIsTransitioning(false);
-    }, 500);
-  }, [total]);
+    setTimeout(() => setIsTransitioning(false), 500);
+  }, [isTransitioning, total]);
 
   const next = useCallback(() => goTo(current + 1), [goTo, current]);
   const prev = useCallback(() => goTo(current - 1), [goTo, current]);
@@ -143,18 +138,7 @@ export function HeroProjectSlider() {
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col items-end gap-1.5 shrink-0">
-              {/* Dots above Details — mobile + tablet */}
-              {total > 1 && (
-                <div className="flex lg:hidden items-center gap-[3px] mb-0.5">
-                  {projects.map((_, i) => (
-                    <button key={i} onClick={() => goTo(i)} className="p-0 border-0 bg-transparent flex items-center justify-center w-3 h-3" aria-label={`Go to project ${i + 1}`}>
-                      <span className={`block rounded-full transition-all duration-300 ${i === current ? "w-[3px] h-[3px] bg-primary" : "w-[2px] h-[2px] bg-white/30"}`} />
-                    </button>
-                  ))}
-                </div>
-              )}
-              <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 shrink-0">
               {hasAnyDoc && (
                 <a
                   href={hasFloorplan ? project.floorplan_files![0] : hasPricing ? project.pricing_sheets![0] : project.brochure_files![0]}
@@ -173,9 +157,8 @@ export function HeroProjectSlider() {
                 </Link>
               </Button>
             </div>
-              </div>
-            </div>
           </div>
+        </div>
       </div>
 
       {/* Navigation arrows — only on sm+ */}
@@ -196,12 +179,20 @@ export function HeroProjectSlider() {
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          {/* Tiny dots — bottom-right, desktop only */}
-          <div className="hidden lg:flex absolute bottom-4 right-4 z-[4] items-center gap-[3px]">
+          {/* Pill indicators — bottom right, small and clean */}
+          <div className="absolute bottom-[90px] sm:bottom-[110px] md:bottom-[120px] right-4 sm:right-8 z-[4] flex items-center gap-1">
             {projects.map((_, i) => (
-              <button key={i} onClick={() => goTo(i)} className="p-0 border-0 bg-transparent flex items-center justify-center w-3 h-3" aria-label={`Go to project ${i + 1}`}>
-                <span className={`block rounded-full transition-all duration-300 ${i === current ? "w-[3px] h-[3px] bg-primary" : "w-[2px] h-[2px] bg-white/30"}`} />
-              </button>
+              <button
+                key={i}
+                onClick={() => goTo(i)}
+                style={i === current ? { width: 16, height: 4, minWidth: 16 } : { width: 4, height: 4, minWidth: 4 }}
+                className={`transition-all duration-300 rounded-full shrink-0 ${
+                  i === current
+                    ? "bg-primary shadow-[0_0_6px_hsl(40_65%_55%/0.5)]"
+                    : "bg-white/35"
+                }`}
+                aria-label={`Go to project ${i + 1}`}
+              />
             ))}
           </div>
         </>
