@@ -150,9 +150,26 @@ export function HeroSection({
           </h1>
 
           {/* Subheadline — hidden on mobile */}
-          <p className="hidden sm:block text-base sm:text-lg text-white/65 text-center max-w-xl mb-10 leading-relaxed">
+          <p className="hidden sm:block text-base sm:text-lg text-white/65 text-center max-w-xl mb-6 leading-relaxed">
             Presale condos, move-in ready homes &amp; off-market developer inventory — all in one place.
           </p>
+
+          {/* Key feature pills — instant downloads */}
+          <div className="hidden sm:flex items-center gap-2.5 flex-wrap justify-center mb-8">
+            {[
+              { icon: "📄", label: "Instant Floor Plan Download" },
+              { icon: "💰", label: "Instant Pricing Sheet Download" },
+              { icon: "🏗️", label: "Off-Market Developer Inventory" },
+            ].map((f) => (
+              <span
+                key={f.label}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-semibold"
+              >
+                <span>{f.icon}</span>
+                {f.label}
+              </span>
+            ))}
+          </div>
 
           {/* Search Bar — REW-style single pill */}
           <div className="w-full max-w-2xl">

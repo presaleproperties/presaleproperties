@@ -173,10 +173,20 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </p>
 
           {/* Headline */}
-          <h1 className="text-3xl font-extrabold text-white leading-tight text-center mb-8 tracking-tight">
+          <h1 className="text-3xl font-extrabold text-white leading-tight text-center mb-4 tracking-tight">
             New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
+
+          {/* Feature pills — key differentiators */}
+          <div className="flex items-center gap-2 flex-wrap justify-center mb-6">
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold">
+              📄 Instant Floor Plans
+            </span>
+            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold">
+              💰 Instant Pricing Sheets
+            </span>
+          </div>
 
           {/* Search Bar — REW-style single pill */}
           <div className="w-full max-w-md">
