@@ -155,93 +155,98 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
 
-        {/* Hero Content — vertically centered, sits above slider */}
-        <div className="absolute inset-0 z-[5] flex flex-col justify-center items-center px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 130px)' }}>
-
-          {/* Gold eyebrow */}
-          <div className="flex items-center gap-2.5 mb-5">
-            <div className="h-px w-6 bg-gradient-to-r from-transparent to-primary/70" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-primary/90">
-              Metro Vancouver's #1 Presale Platform
+        {/* Hero Content — vertically centered, above slider project card */}
+        <div
+          className="absolute inset-0 z-[5] flex flex-col justify-center items-center px-5"
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 100px)' }}
+        >
+          {/* Gold eyebrow — single line, no wrap */}
+          <div className="flex items-center gap-2 mb-4">
+            <div className="h-px w-5 bg-primary/60" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.2em] text-primary whitespace-nowrap">
+              Vancouver's #1 Presale Platform
             </span>
-            <div className="h-px w-6 bg-gradient-to-l from-transparent to-primary/70" />
+            <div className="h-px w-5 bg-primary/60" />
           </div>
 
-          {/* Headline */}
-          <h1 className="text-[2.1rem] sm:text-[2.5rem] font-extrabold text-white leading-[1.08] text-center mb-3 tracking-tight" style={{ textShadow: "0 2px 30px rgba(0,0,0,0.7)" }}>
-            New Homes.{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 30px hsl(40 65% 55% / 0.45)" }}>Exclusive Access.</span>
+          {/* Headline — stacked for clarity */}
+          <h1 className="text-[1.9rem] sm:text-[2.6rem] font-extrabold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 2px 24px rgba(0,0,0,0.8)" }}>
+            New Homes.
+            <br />
+            <span className="text-primary">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[12px] text-white/70 text-center mb-7 leading-relaxed max-w-[270px] font-light tracking-wide">
-            Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
+          <p className="text-[11px] sm:text-[13px] text-white/60 text-center mb-6 leading-snug max-w-[230px] sm:max-w-xs font-light">
+            Presale &amp; developer inventory across Metro Vancouver.
           </p>
 
-          {/* Search Bar — glassmorphism */}
-          <div className="w-full max-w-sm sm:max-w-md">
-            {/* Tab row */}
-            <div className="flex items-center gap-1.5 mb-2.5 justify-center">
+          {/* Search — compact glassmorphism */}
+          <div className="w-full max-w-[310px] sm:max-w-md">
+            {/* Tab pills */}
+            <div className="flex items-center gap-1.5 mb-2 justify-center">
               <button
                 onClick={() => handleTabChange("projects")}
-                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
                   activeTab === "projects"
-                    ? "bg-white text-foreground shadow-md"
-                    : "bg-white/15 backdrop-blur-sm text-white/85 border border-white/20"
+                    ? "bg-white text-foreground shadow-sm"
+                    : "bg-white/15 backdrop-blur-sm text-white/80 border border-white/15"
                 }`}
               >
                 Presale
               </button>
               <button
                 onClick={() => handleTabChange("resale")}
-                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-4 py-1.5 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
                   activeTab === "resale"
-                    ? "bg-white text-foreground shadow-md"
-                    : "bg-white/15 backdrop-blur-sm text-white/85 border border-white/20"
+                    ? "bg-white text-foreground shadow-sm"
+                    : "bg-white/15 backdrop-blur-sm text-white/80 border border-white/15"
                 }`}
               >
                 Move-In Ready
               </button>
             </div>
 
-            {/* Input row */}
-            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-visible h-[58px] border border-white/30">
+            {/* Input */}
+            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-xl shadow-[0_6px_24px_rgba(0,0,0,0.45)] overflow-visible h-[50px] border border-white/20">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
-                  placeholder={activeTab === "projects" ? "City or project name…" : "Address, MLS#, city…"}
+                  placeholder={activeTab === "projects" ? "City or project…" : "Address, MLS#…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[58px] text-[15px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 rounded-none shadow-none" />
+                  inputClassName="h-[50px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
+                />
               </div>
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-10 h-10 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-md"
+                className="shrink-0 w-9 h-9 mr-1.5 rounded-lg bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
                 aria-label="Search"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>
 
           {/* Links row */}
-          <div className="flex items-center gap-4 mt-5">
+          <div className="flex items-center gap-3 mt-4">
             <a
               href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/60 hover:text-white transition-colors tracking-wide"
+              className="text-[10px] text-white/50 tracking-wide"
             >
-              Explore the map →
+              Map Search →
             </a>
-            <span className="w-px h-3 bg-white/20" />
+            <span className="w-px h-2.5 bg-white/20" />
             <button
               onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary font-bold tracking-wide"
+              className="text-[10px] text-primary font-bold tracking-wide"
             >
-              ✦ VIP Access — Free
+              ✦ VIP Access
             </button>
           </div>
         </div>
       </div>
+
 
       {/* Trust Bar — premium dark */}
       <div className="bg-[#080808] border-b border-white/[0.06]">
