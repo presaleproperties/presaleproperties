@@ -143,7 +143,18 @@ export function HeroProjectSlider() {
             </div>
 
             {/* Actions */}
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex flex-col items-end gap-1.5 shrink-0">
+              {/* Dots above Details — tablet only */}
+              {total > 1 && (
+                <div className="hidden sm:flex lg:hidden items-center gap-[3px] mb-0.5">
+                  {projects.map((_, i) => (
+                    <button key={i} onClick={() => goTo(i)} className="p-0 border-0 bg-transparent flex items-center justify-center w-3 h-3" aria-label={`Go to project ${i + 1}`}>
+                      <span className={`block rounded-full transition-all duration-300 ${i === current ? "w-[3px] h-[3px] bg-primary" : "w-[2px] h-[2px] bg-white/30"}`} />
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="flex items-center gap-1.5">
               {hasAnyDoc && (
                 <a
                   href={hasFloorplan ? project.floorplan_files![0] : hasPricing ? project.pricing_sheets![0] : project.brochure_files![0]}
@@ -162,8 +173,9 @@ export function HeroProjectSlider() {
                 </Link>
               </Button>
             </div>
+              </div>
+            </div>
           </div>
-        </div>
       </div>
 
       {/* Navigation arrows — only on sm+ */}
@@ -184,18 +196,11 @@ export function HeroProjectSlider() {
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          {/* Tiny dots — bottom-right corner */}
-          <div className="absolute bottom-4 right-4 z-[4] flex items-center gap-[3px]">
+          {/* Tiny dots — bottom-right, mobile + desktop only (tablet uses inline dots above Details) */}
+          <div className="flex sm:hidden lg:flex absolute bottom-4 right-4 z-[4] items-center gap-[3px]">
             {projects.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => goTo(i)}
-                className="p-0 border-0 bg-transparent flex items-center justify-center w-3 h-3"
-                aria-label={`Go to project ${i + 1}`}
-              >
-                <span className={`block rounded-full transition-all duration-300 ${
-                  i === current ? "w-[3px] h-[3px] bg-primary" : "w-[2px] h-[2px] bg-white/30"
-                }`} />
+              <button key={i} onClick={() => goTo(i)} className="p-0 border-0 bg-transparent flex items-center justify-center w-3 h-3" aria-label={`Go to project ${i + 1}`}>
+                <span className={`block rounded-full transition-all duration-300 ${i === current ? "w-[3px] h-[3px] bg-primary" : "w-[2px] h-[2px] bg-white/30"}`} />
               </button>
             ))}
           </div>
