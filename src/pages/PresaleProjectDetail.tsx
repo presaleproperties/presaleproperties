@@ -975,7 +975,7 @@ export default function PresaleProjectDetail() {
       </main>
 
       {/* Mobile Sticky CTA */}
-      <ProjectMobileCTA projectName={project.name} projectId={project.id} status={project.status} startingPrice={project.starting_price} onRegisterClick={handleGetPlansClick} />
+      <ProjectMobileCTA projectName={project.name} projectId={project.id} status={project.status} startingPrice={project.starting_price} brochureUrl={project.brochure_files?.[0] || null} floorplanUrl={project.floorplan_files?.[0] || null} pricingUrl={project.pricing_sheets?.[0] || null} onRegisterClick={handleGetPlansClick} />
 
       {/* Booking Modal */}
       <BookingModal open={bookingOpen} onOpenChange={setBookingOpen} projectId={project.id} projectName={project.name} projectCity={project.city} projectNeighborhood={project.neighborhood} projectUrl={canonicalUrl} initialDate={bookingDate} initialTimePeriod={bookingTimePeriod} />
