@@ -180,7 +180,7 @@ export function HeroProjectSlider() {
           </button>
 
           {/* Pill indicators — bottom right, small and clean */}
-          <div className="absolute bottom-[90px] sm:bottom-[110px] md:bottom-[120px] right-4 sm:right-8 z-[4] flex items-center gap-1">
+          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:bottom-[110px] sm:right-8 md:bottom-[120px] z-[4] flex items-center gap-1.5">
             {projects.map((_, i) => (
               <button
                 key={i}
