@@ -257,7 +257,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="grid grid-cols-2 divide-x divide-white/10">
           {[
             { value: "111", label: "Active Projects" },
-            { value: "450+", label: "Agent Network" },
+            { value: "400+", label: "Presale Properties Sold" },
             { value: "$200M+", label: "In Presale Sales" },
             { value: "5.0 ★", label: "Google Rating" },
           ].map((stat, i) => (

@@ -16,7 +16,7 @@ interface HeroSectionProps {
 
 const TRUST_STATS = [
   { value: "111", label: "Active Projects" },
-  { value: "450+", label: "Agent Network" },
+  { value: "450+", label: "Presale Properties Sold" },
   { value: "$200M+", label: "In Presale Sales" },
   { value: "5.0 ★", label: "Google Rating" },
 ];
