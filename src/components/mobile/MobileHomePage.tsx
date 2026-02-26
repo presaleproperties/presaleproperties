@@ -158,26 +158,23 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[2] pointer-events-none bg-black/25" />
 
         {/* Hero Content */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28 pointer-events-none">
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-end px-5 pb-10 pointer-events-none">
 
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-5">
-            <div className="h-px w-6 bg-primary/60" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-primary whitespace-nowrap drop-shadow">
-              Metro Vancouver's #1 Presale Platform
-            </span>
-            <div className="h-px w-6 bg-primary/60" />
-          </div>
+          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-primary/80 text-center mb-3">
+            Metro Vancouver's #1 Presale Platform
+          </p>
 
           {/* Headline */}
-          <h1 className="text-[2rem] font-extrabold text-white leading-[1.08] text-center mb-3 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
-            New Homes.{" "}
+          <h1 className="text-[2rem] font-extrabold text-white leading-[1.1] text-center mb-1.5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
+            New Homes.
+            <br />
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[12px] text-white/60 text-center mb-7 leading-relaxed font-light">
-            Presale &amp; developer inventory<br />across Metro Vancouver.
+          <p className="text-[11px] text-white/50 text-center mb-6 leading-relaxed font-light">
+            Presale &amp; developer inventory across Metro Vancouver.
           </p>
 
           {/* Tab pills */}
@@ -198,15 +195,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search bar */}
-          <div className="w-full max-w-xs pointer-events-auto">
-            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
+          <div className="w-full pointer-events-auto">
+            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/20">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[52px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
+                  inputClassName="h-[52px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
                 />
               </div>
               <button
@@ -220,17 +217,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Links row */}
-          <div className="flex items-center gap-3 mt-4 pointer-events-auto">
+          <div className="flex items-center gap-3 mt-3 pointer-events-auto">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/55 hover:text-white/80 transition-colors"
+              className="text-[11px] text-white/50 hover:text-white/80 transition-colors"
             >
               Explore the map →
             </Link>
             <span className="w-px h-3 bg-white/20" />
             <button
               onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary font-bold"
+              className="text-[11px] text-primary font-semibold"
             >
               ✦ Get VIP Access
             </button>
