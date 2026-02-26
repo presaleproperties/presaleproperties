@@ -8,7 +8,7 @@ import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { FeaturedResaleListings } from "@/components/home/FeaturedResaleListings";
 import { CityProjectsSection } from "@/components/home/CityProjectsSection";
 import { ResaleCitySection } from "@/components/home/ResaleCitySection";
-import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
+import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { FAQSchema } from "@/components/seo/FAQSchema";
@@ -275,7 +275,7 @@ const Index = () => {
           {activeTab === "projects" ? <CityProjectsSection /> : <ResaleCitySection />}
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
-          <NewConstructionBenefits />
+          <PresaleExpertsSection />
         </ScrollReveal>
         <ScrollReveal animation="fade-up" delay={100}>
           <ROICalculatorTeaser />
