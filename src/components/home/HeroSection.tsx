@@ -129,39 +129,49 @@ export function HeroSection({
         <div className="absolute inset-0 bg-black/20 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
-        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pb-32 sm:pb-36">
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pb-36 sm:pb-44">
+
+          {/* Gold eyebrow line */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/70" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary/90 drop-shadow">
+              Metro Vancouver's #1 Presale Platform
+            </span>
+            <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/70" />
+          </div>
+
           {/* Headline */}
-          <h1 className="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold text-white text-center leading-[1.08] tracking-tight mb-5 max-w-3xl drop-shadow-lg">
+          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-5 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
             New Homes.{" "}
-            <span className="text-primary drop-shadow-[0_0_20px_hsl(40_65%_55%/0.4)]">Exclusive Access.</span>
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-sm sm:text-base text-white/80 text-center max-w-lg mb-10 leading-relaxed font-normal drop-shadow">
+          <p className="text-sm sm:text-base text-white/75 text-center max-w-md mb-10 leading-relaxed font-light tracking-wide drop-shadow">
             Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
           </p>
 
-          {/* Search Bar */}
+          {/* Search Bar — glassmorphism premium */}
           <div className="w-full max-w-2xl">
-            <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[60px] sm:h-[68px]">
+            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
               {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-2 gap-1">
                 <button
                   onClick={() => handleTabChange("projects")}
-                  className={`px-4 sm:px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                     activeTab === "projects"
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   Presale
                 </button>
                 <button
                   onClick={() => handleTabChange("resale")}
-                  className={`px-4 sm:px-5 py-2 rounded-full text-sm font-bold transition-all whitespace-nowrap ${
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                     activeTab === "resale"
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:text-foreground"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   }`}
                 >
                   Move-In Ready
@@ -169,7 +179,7 @@ export function HeroSection({
               </div>
 
               {/* Vertical divider */}
-              <div className="w-px h-7 bg-border mx-2 shrink-0" />
+              <div className="w-px h-7 bg-border/60 mx-2 shrink-0" />
 
               {/* Search input */}
               <div className="flex-1 overflow-visible min-w-0">
@@ -178,14 +188,14 @@ export function HeroSection({
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[60px] sm:h-[68px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
+                  inputClassName="h-[64px] sm:h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
                 />
               </div>
 
-              {/* Search button */}
+              {/* Search button — gold accent */}
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 mr-2 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/85 transition-colors"
+                className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-md"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -193,35 +203,35 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Minimal links row */}
-          <div className="flex items-center gap-5 mt-5">
+          {/* Links row */}
+          <div className="flex items-center gap-5 mt-6">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-xs text-white/70 hover:text-white transition-colors drop-shadow"
+              className="text-xs text-white/60 hover:text-white/90 transition-colors tracking-wide"
             >
               Explore the map →
             </Link>
-            <span className="text-white/30 text-xs">|</span>
+            <span className="w-px h-3.5 bg-white/20" />
             <button
               onClick={() => setModalOpen(true)}
-              className="text-xs text-primary font-semibold hover:text-primary/80 transition-colors drop-shadow"
+              className="text-xs text-primary font-bold hover:text-primary/80 transition-colors tracking-wide"
             >
-              Get VIP Access — Free →
+              ✦ Get VIP Access — Free
             </button>
           </div>
         </div>
       </section>
 
-      {/* Trust Bar */}
-      <div className="bg-[#0d0d0d] border-b border-white/5">
+      {/* Trust Bar — premium dark */}
+      <div className="bg-[#080808] border-b border-white/[0.06]">
         <div className="container px-4 sm:px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10">
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/[0.07]">
             {TRUST_STATS.map((stat, i) => (
-              <div key={i} className="flex flex-col items-center justify-center py-5 sm:py-6 gap-1 px-3">
-                <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-none tracking-tight">
+              <div key={i} className="flex flex-col items-center justify-center py-5 sm:py-7 gap-1.5 px-3">
+                <span className="text-xl sm:text-2xl md:text-[1.75rem] font-extrabold text-white leading-none tracking-tight">
                   {stat.value}
                 </span>
-                <span className="text-[10px] sm:text-xs text-primary font-semibold uppercase tracking-wider text-center leading-tight">
+                <span className="text-[9px] sm:text-[10px] text-primary/80 font-bold uppercase tracking-[0.18em] text-center leading-tight">
                   {stat.label}
                 </span>
               </div>
