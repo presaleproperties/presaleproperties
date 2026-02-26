@@ -154,64 +154,60 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
         <HeroProjectSlider />
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 z-[2] pointer-events-none bg-black/25" />
+        {/* Deep gradient for legibility */}
+        <div className="absolute inset-0 z-[2] pointer-events-none bg-gradient-to-t from-black/80 via-black/30 to-black/50" />
 
-        {/* Hero Content */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28">
+        {/* Hero Content — minimal, centered */}
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-6 pb-24">
 
-          {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-5 px-2">
-            <div className="h-px w-5 bg-primary/60 shrink-0" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-primary text-center drop-shadow leading-tight">
-              Metro Vancouver's #1 Presale Platform
-            </span>
-            <div className="h-px w-5 bg-primary/60 shrink-0" />
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-[2rem] font-extrabold text-white leading-[1.08] text-center mb-3 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
-            New Homes.{" "}
-            <span className="text-primary">Exclusive Access.</span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="text-[12px] text-white/60 text-center mb-7 leading-relaxed font-light">
-            Presale &amp; developer inventory<br />across Metro Vancouver.
+          {/* Eyebrow — tiny, restrained */}
+          <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-primary/80 mb-4">
+            Metro Vancouver
           </p>
 
-          {/* Tab pills */}
-          <div className="flex items-center gap-2 mb-3">
-            {(["projects", "resale"] as SearchTab[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => handleTabChange(tab)}
-                className={`px-5 py-2 rounded-full text-[12px] font-bold transition-all ${
-                  activeTab === tab
-                    ? "bg-white text-foreground shadow"
-                    : "bg-white/15 backdrop-blur-sm text-white/80 border border-white/20"
-                }`}
-              >
-                {tab === "projects" ? "Presale" : "Move-In Ready"}
-              </button>
-            ))}
-          </div>
+          {/* Headline — large, clean */}
+          <h1 className="text-[2.1rem] font-bold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.6)" }}>
+            New Homes.
+            <br />
+            <span className="text-primary font-extrabold">Exclusive Access.</span>
+          </h1>
 
-          {/* Search bar */}
-          <div className="w-full max-w-xs">
-            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
+          {/* Divider */}
+          <div className="w-8 h-px bg-primary/50 my-5" />
+
+          {/* Search bar — clean, white */}
+          <div className="w-full max-w-[320px]">
+            {/* Mode toggle — minimal underline style */}
+            <div className="flex justify-center gap-6 mb-4">
+              {(["projects", "resale"] as SearchTab[]).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => handleTabChange(tab)}
+                  className={`text-[12px] font-semibold pb-1 transition-all ${
+                    activeTab === tab
+                      ? "text-white border-b border-primary"
+                      : "text-white/40"
+                  }`}
+                >
+                  {tab === "projects" ? "Presale" : "Move-In Ready"}
+                </button>
+              ))}
+            </div>
+
+            {/* Input */}
+            <div className="flex items-center bg-white rounded-xl overflow-visible h-[50px] shadow-lg">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[52px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
+                  inputClassName="h-[50px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
                 />
               </div>
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-9 h-9 mr-1.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-md"
+                className="shrink-0 w-10 h-10 mr-1 rounded-lg bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
@@ -219,51 +215,47 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Links row */}
-          <div className="flex items-center gap-3 mt-4">
+          {/* Links — subtle */}
+          <div className="flex items-center gap-4 mt-5">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/55 hover:text-white/80 transition-colors"
+              className="text-[11px] text-white/40 hover:text-white/70 transition-colors"
             >
-              Explore the map →
+              Map →
             </Link>
-            <span className="w-px h-3 bg-white/20" />
-            <button
-              onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary font-bold"
-            >
-              ✦ Get VIP Access
+            <span className="w-px h-3 bg-white/15" />
+            <button onClick={() => setMobileModalOpen(true)} className="text-[11px] text-primary/80 font-medium">
+              VIP Access
             </button>
           </div>
         </div>
       </div>
 
-      {/* Trust Bar */}
-      <div className="bg-[#080808] border-b border-white/[0.06]">
-        <div className="grid grid-cols-4 divide-x divide-white/[0.07]">
+      {/* Trust Bar — ultra minimal */}
+      <div className="bg-background border-b border-border/50">
+        <div className="grid grid-cols-4 divide-x divide-border/50">
           {[
             { value: "111", label: "Projects" },
             { value: "450+", label: "Sold" },
-            { value: "$200M+", label: "In Sales" },
+            { value: "$200M+", label: "Sales" },
             { value: "5.0 ★", label: "Rating" },
           ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center py-4 gap-1">
-              <span className="text-sm font-extrabold text-white leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[8px] text-primary/80 font-bold uppercase tracking-[0.15em] text-center leading-tight">{stat.label}</span>
+            <div key={i} className="flex flex-col items-center py-3.5 gap-0.5">
+              <span className="text-[13px] font-bold text-foreground leading-none">{stat.value}</span>
+              <span className="text-[8px] text-muted-foreground uppercase tracking-[0.12em] mt-0.5">{stat.label}</span>
             </div>
           ))}
         </div>
       </div>
 
-      {/* City Quick Links */}
-      <div className="py-3 bg-background border-b border-border/40">
-        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide px-4">
-          <MapPin className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+      {/* City strip — ultra clean */}
+      <div className="py-2.5 bg-background border-b border-border/40">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide px-4">
           {TOP_CITIES.map((city) => (
             <button
               key={city.slug}
               onClick={() => handleCityClick(city.slug)}
-              className="inline-flex px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap bg-muted/60 border border-border active:scale-95 transition-all shrink-0"
+              className="inline-flex px-3 py-1.5 rounded-lg text-[11px] font-medium whitespace-nowrap text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-95 transition-all shrink-0"
             >
               {city.name}
             </button>
