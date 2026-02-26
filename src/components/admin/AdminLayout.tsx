@@ -25,6 +25,7 @@ import {
   ExternalLink,
   ClipboardList,
   Cpu,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -56,6 +57,7 @@ const iconColors: Record<string, string> = {
   "Action Items": "text-orange-600",
   System: "text-slate-600",
   "Tech Stack": "text-purple-600",
+  "Live Monitor": "text-red-500",
 };
 
 const navSections = [
@@ -94,6 +96,7 @@ const navSections = [
     items: [
       { href: "/admin/leads/analytics", label: "Lead Insights", icon: TrendingUp },
       { href: "/admin/market-dashboard", label: "Market Data", icon: TrendingUp },
+      { href: "/admin/live-activity", label: "Live Monitor", icon: Activity },
     ]
   },
   {
