@@ -139,18 +139,17 @@ export function HeroProjectSlider() {
 
             {/* Actions */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* Mobile: floor plan/brochure button links to detail page */}
-              {hasAnyDoc && (
+              {hasAnyDoc ? (
                 <>
-                  {/* Mobile only — links to detail page */}
+                  {/* Mobile: secondary style pill → detail page */}
                   <Link
                     to={`/presale/${project.slug}`}
-                    className="flex sm:hidden items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-all text-xs font-bold whitespace-nowrap shadow-lg"
+                    className="flex sm:hidden items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/15 backdrop-blur-md text-white border border-white/25 active:scale-95 transition-all text-xs font-bold whitespace-nowrap"
                   >
-                    <Download className="h-3 w-3 shrink-0" />
+                    <Download className="h-3 w-3 text-primary shrink-0" />
                     {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
                   </Link>
-                  {/* Tablet+ — downloads the file */}
+                  {/* Tablet+: downloads the file */}
                   <a
                     href={hasFloorplan ? project.floorplan_files![0] : hasPricing ? project.pricing_sheets![0] : project.brochure_files![0]}
                     target="_blank"
@@ -161,8 +160,16 @@ export function HeroProjectSlider() {
                     {hasFloorplan ? "Floor Plans" : hasPricing ? "Pricing" : "Brochure"}
                   </a>
                 </>
+              ) : (
+                /* Mobile: no docs — show Details button */
+                <Button asChild size="sm" className="flex sm:hidden rounded-lg font-bold text-xs px-3 h-8 bg-primary hover:bg-primary/90 shadow-lg">
+                  <Link to={`/presale/${project.slug}`} className="flex items-center gap-1">
+                    Details
+                    <ExternalLink className="h-3 w-3" />
+                  </Link>
+                </Button>
               )}
-              {/* Details button — tablet+ only */}
+              {/* Details button — tablet+ always */}
               <Button asChild size="sm" className="hidden sm:flex rounded-lg font-bold text-xs px-4 h-8 bg-primary hover:bg-primary/90 shadow-lg">
                 <Link to={`/presale/${project.slug}`} className="flex items-center gap-1">
                   Details
