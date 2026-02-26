@@ -783,8 +783,17 @@ export default function PresaleProjectDetail() {
                   />
                 )}
 
-                {/* Tablet-only Lead Form - REMOVED: Now using footer CTA form */}
-                {/* Form is integrated into ProjectMobileCTA for mobile/tablet */}
+                {/* Tablet-only inline lead form — shown between md and lg */}
+                <div className="hidden md:block lg:hidden mt-6">
+                  <ProjectLeadForm
+                    projectId={project.id}
+                    projectName={project.name}
+                    status={project.status}
+                    brochureUrl={project.brochure_files?.[0] || null}
+                    floorplanUrl={project.floorplan_files?.[0] || null}
+                    pricingUrl={project.pricing_sheets?.[0] || null}
+                  />
+                </div>
               </div>
             </div>
           </div>
