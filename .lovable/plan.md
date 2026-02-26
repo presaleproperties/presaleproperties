@@ -1,81 +1,89 @@
 
+## Add Zapier Webhook Guards — Require Name + Email Before Firing
 
-# Improve Map Experience Across All Devices
+### Problem
 
-This plan covers a holistic upgrade to the map search experience targeting mobile performance, property cards, search/filters, and visual design.
+Three backend functions send data to Zapier webhooks without validating that the lead contains both a real name and email. This allows empty/partial/bot records (e.g., step-1-only email captures with `name = "(pending)"`, or test pings) to trigger Zaps with no useful data.
 
----
+### Functions to Harden
 
-## 1. Mobile Performance Improvements
-
-**Problem**: On mobile/tablet, map panning can feel sluggish with thousands of markers, and tile transitions sometimes cause flicker.
-
-**Changes**:
-- **CombinedListingsMap.tsx**: Increase `maxClusterRadius` from 50 to 65 on mobile to reduce rendered marker count at any given zoom level. This means fewer individual markers are drawn, improving frame rates.
-- **CombinedListingsMap.tsx**: Add `renderer: L.canvas()` for mobile to leverage canvas rendering instead of SVG DOM elements, reducing repaints.
-- **CombinedListingsMap.tsx**: Limit visible resale marker rendering to 2000 items max on mobile (skip rendering markers outside a tighter bounding box).
-- **MapSearch.tsx**: Reduce the visible items cap from 40 to 25 on mobile carousel to reduce DOM node count.
-- **CombinedListingsMap.tsx**: Add `will-change: auto` cleanup after initial render to release GPU memory on mobile.
+**1. `send-project-lead`** — fires `ZAPIER_PROJECT_LEADS_WEBHOOK` for presale project leads  
+**2. `send-booking-notification`** — fires `ZAPIER_PROJECT_LEADS_WEBHOOK` (bookings key) for scheduling bookings  
+**3. `send-behavior-event`** — fires `zapier_behavior_webhook` for high-value behavior events (form_submit)  
 
 ---
 
-## 2. Property Cards & Carousel Redesign
+### Guard Logic Per Function
 
-**Problem**: Mobile carousel cards are small (180px) and lack key details. Desktop grid cards could show more at-a-glance info.
+#### `send-project-lead`
 
-**Changes (Mobile Carousel)**:
-- **MapSearch.tsx**: Increase card width from `180px / 200px` to `200px / 220px` on tablets for better readability.
-- **MapSearch.tsx**: Add sqft display to resale carousel cards (e.g., "2bd 1ba 850sf") for more info density.
-- **MapSearch.tsx**: Add a subtle status badge for presale cards showing "Selling Now" / "Registering" / "Coming Soon".
-- **MapSearch.tsx**: Improve the carousel scroll snap behavior with `scroll-padding` so cards don't clip at edges.
+Before firing the webhook, check:
+```
+lead.name is not null
+AND lead.name != "(pending)"
+AND lead.name.trim().length >= 2
+AND lead.email is not null
+AND lead.email.trim().length > 0
+AND lead.email matches basic email regex
+```
 
-**Changes (Desktop Panel)**:
-- **MapSearch.tsx**: Add a hover preview that shows a larger image tooltip when hovering over a card in the desktop list.
-- **MapSearch.tsx**: Display listing age (e.g., "2d ago", "1w ago") on resale cards for time sensitivity.
+If the guard fails: log a clear message (`[GUARD] Skipping Zapier — incomplete lead data: name=(pending), email=...`) and return `success: true` without firing. The lead is still saved in the database; Zapier just doesn't get pinged.
 
----
+#### `send-booking-notification`
 
-## 3. Search & Filters Enhancement
+Before firing the webhook, check:
+```
+data.name is not null and has length >= 2
+AND data.email is not null and is a valid email
+AND data.phone is not null (bookings always require phone)
+```
 
-**Problem**: The mobile filter sheet is functional but could be more intuitive. The search bar could offer quick-access filter chips.
+Bookings are always complete by design (the form requires all fields), but this adds a safety net against direct API calls or test submissions.
 
-**Changes**:
-- **MobileMapSearchBar.tsx**: Add horizontal quick-filter chips below the search bar for the most common actions: "Under $1M", "2+ Beds", "Condo", "Townhouse". Tapping toggles the filter and updates the URL params instantly.
-- **MobileMapFilters.tsx**: Add a "Popular" section at the top of the filter sheet with preset combinations (e.g., "First-time Buyer: Under $800K, 1-2 beds", "Family: 3+ beds, Townhouse/House").
-- **MapSearch.tsx / MobileMapSearchBar.tsx**: Add a "Recent Searches" feature that saves the last 3-5 search queries in localStorage and shows them when the search bar is focused with no input.
-- **UnifiedMapToggle.tsx**: Show property counts as small badges next to each mode label (e.g., "Presale (24)") so users know what's available before toggling.
+#### `send-behavior-event`
 
----
+The `form_submit` event forwards to Zapier enriched with lead details. Guard:
+```
+If isKnownLead is true: leadDetails.email must be present
+If isKnownLead is false: skip forwarding (anonymous form_submit with no known lead context = bot/test)
+```
 
-## 4. Visual Design & Markers
-
-**Problem**: Markers work well but could be more visually distinct. Popups could be more modern.
-
-**Changes**:
-- **CombinedListingsMap.tsx**: Add a subtle pulsing animation to presale pins to make them stand out from resale price pills. Use CSS keyframes for a gentle scale pulse (1.0 to 1.05).
-- **CombinedListingsMap.tsx**: Differentiate cluster icons by type: gold clusters for mixed, darker gold for presale-only clusters, lighter gold for resale-only. Determined by majority type in cluster.
-- **CombinedListingsMap.tsx**: Upgrade popup cards to show a larger image (120px instead of 100px) and add a "View Details" call-to-action button at the bottom.
-- **CombinedListingsMap.tsx**: Add a smooth zoom-in animation when clicking a cluster on mobile (currently disabled with `zoomToBoundsOnClick: false`). Replace with a controlled `flyToBounds` with a short duration.
-- **index.css / CombinedListingsMap.tsx**: Add a dark mode aware color scheme for map markers - currently markers use hardcoded HSL values that look good on light but may not contrast well on dark backgrounds.
+Additionally, if `event_payload` contains `email` (some form submits include it directly), validate it's a real email before forwarding.
 
 ---
 
-## Technical Details
+### Changes (3 files, server-side only)
 
-### Files Modified
+| File | Change |
+|---|---|
+| `supabase/functions/send-project-lead/index.ts` | Add guard block after lead is fetched, before webhook call |
+| `supabase/functions/send-booking-notification/index.ts` | Add guard block before webhook call |
+| `supabase/functions/send-behavior-event/index.ts` | Add guard: only forward to Zapier if `isKnownLead && leadDetails.email` |
 
-| File | Changes |
-|------|---------|
-| `src/components/map/CombinedListingsMap.tsx` | Canvas renderer on mobile, cluster radius tuning, marker rendering cap, pulse animation for presale pins, popup redesign, cluster click behavior, dark-mode marker colors |
-| `src/pages/MapSearch.tsx` | Carousel card sizing, sqft display, status badges, visible items cap adjustment, listing age display, scroll-padding, hover preview |
-| `src/components/search/MobileMapSearchBar.tsx` | Quick-filter chips, recent searches |
-| `src/components/map/MobileMapFilters.tsx` | Popular presets section |
-| `src/components/map/UnifiedMapToggle.tsx` | Property count badges |
-| `src/index.css` | Pulse keyframes for presale markers |
+---
 
-### Risks & Mitigations
+### What This Does NOT Change
 
-- **Canvas renderer**: May affect popup positioning on some older mobile browsers. Will add a fallback to SVG if canvas is not supported.
-- **Cluster type differentiation**: Requires inspecting child markers in `iconCreateFunction`, which adds minimal compute. Capped to first 10 children for performance.
-- **Quick filter chips**: Must sync with existing URL parameter system to avoid conflicts. Will reuse the existing `updateFilter`/`updateMultiFilter` callbacks.
+- Lead records are still saved to the database regardless
+- The 15-minute anonymous UPDATE window for step-2 completion is unchanged
+- No frontend changes required
+- No database schema changes
 
+### Technical Detail — Guard Implementation
+
+A shared validation helper will be inlined in each function (no shared module, to avoid cross-function import complexity):
+
+```typescript
+function isValidLeadForZapier(name: string | null, email: string | null): boolean {
+  if (!name || !email) return false;
+  const cleanName = name.trim();
+  const cleanEmail = email.trim().toLowerCase();
+  if (cleanName.length < 2) return false;
+  if (cleanName === "(pending)") return false;
+  const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+  if (!emailRegex.test(cleanEmail)) return false;
+  return true;
+}
+```
+
+This is the same regex already used in `validate_project_lead_insert` DB trigger, keeping validation consistent across layers.
