@@ -6,6 +6,7 @@ import {
   CheckCircle, Download, MessageCircle, X, ExternalLink,
   FileText, LayoutGrid, DollarSign, Lock, Clock
 } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -330,41 +331,30 @@ export function ProjectLeadForm({
       <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
 
       {/* Header */}
-      <div className="bg-foreground px-5 py-5 pr-12 relative overflow-hidden">
+      <div className="bg-foreground px-5 py-4 pr-12 relative overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_hsl(var(--primary)/0.06),_transparent_60%)]" />
-        <div className="relative">
-          {/* Document availability badges */}
-          {hasAnyDocuments && (
-            <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
-              {hasFloorplan && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/15 px-2 py-0.5 rounded-md">
-                  <LayoutGrid className="h-2.5 w-2.5" /> Floor Plans
-                </span>
-              )}
-              {hasPricing && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/15 px-2 py-0.5 rounded-md">
-                  <DollarSign className="h-2.5 w-2.5" /> Pricing Sheet
-                </span>
-              )}
-              {hasBrochure && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/15 px-2 py-0.5 rounded-md">
-                  <FileText className="h-2.5 w-2.5" /> Brochure
-                </span>
-              )}
-            </div>
-          )}
-
-          <h3 className="text-lg font-bold text-background leading-snug">
-            {hasAnyDocuments
-              ? "Get Instant Access to Floor Plans & Brochures"
-              : "Request Project Information"}
-          </h3>
-          <p className="text-xs text-background/45 mt-1 font-medium flex items-center gap-1.5">
-            <Lock className="h-3 w-3" />
-            {hasAnyDocuments
-              ? "Unlock documents instantly · No obligation"
-              : "An agent will contact you within 24 hours"}
-          </p>
+        <div className="relative flex items-start gap-3">
+          <div className="inline-flex items-center justify-center w-9 h-9 bg-primary/15 rounded-lg shrink-0 mt-0.5">
+            <Download className="h-4 w-4 text-primary" />
+          </div>
+          <div>
+            <h3 className="text-base font-bold text-background leading-snug">
+              {hasAnyDocuments ? "Instant Access to Floor Plans & Pricing" : "Request Project Information"}
+            </h3>
+            <p className="text-[11px] text-background/45 mt-0.5 flex items-center gap-1">
+              <Lock className="h-2.5 w-2.5" />
+              {hasAnyDocuments
+                ? (
+                  <span className="flex items-center gap-1.5">
+                    {hasFloorplan && <span>Floor Plans</span>}
+                    {hasPricing && <><span className="opacity-40">·</span><span>Pricing</span></>}
+                    {hasBrochure && <><span className="opacity-40">·</span><span>Brochure</span></>}
+                    <span className="opacity-40">·</span><span>No obligation</span>
+                  </span>
+                )
+                : "An agent will contact you within 24 hours"}
+            </p>
+          </div>
         </div>
       </div>
 
