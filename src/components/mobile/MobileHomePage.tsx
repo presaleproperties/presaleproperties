@@ -155,7 +155,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-14 sm:pt-16">
+        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-20 sm:pt-24">
 
           {/* Eyebrow */}
           <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-primary text-center drop-shadow mb-3">
