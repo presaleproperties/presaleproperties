@@ -122,7 +122,7 @@ export function HeroSection({
   return (
     <>
       {/* Hero Section — minimal premium */}
-      <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100vh - 72px)" }}>
+      <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100dvh - 72px)" }}>
         {/* Background Image */}
         <img
           src={heroImage}
