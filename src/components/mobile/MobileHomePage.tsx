@@ -212,22 +212,14 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Links row */}
-          <div className="flex items-center gap-3 mt-4">
-            <Link
-              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/55 hover:text-white/80 transition-colors"
-            >
-              Explore the map →
-            </Link>
-            <span className="w-px h-3 bg-white/20" />
-            <button
-              onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary font-bold"
-            >
-              ✦ Get VIP Access
-            </button>
-          </div>
+          {/* Map link — more prominent */}
+          <Link
+            to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-white/90 text-[12px] font-semibold active:scale-95 transition-all"
+          >
+            <Map className="w-3.5 h-3.5 text-primary" />
+            Explore the Map
+          </Link>
         </div>
       </div>
 
