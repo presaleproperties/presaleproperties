@@ -184,19 +184,17 @@ export function HeroProjectSlider() {
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          {/* Dots — right side, vertical stack */}
-          <div className="absolute bottom-[158px] sm:bottom-[128px] md:bottom-[138px] right-5 sm:right-8 z-[4] flex flex-col items-center gap-1.5">
+          {/* Dots — horizontal, centered, just above project card */}
+          <div className="absolute bottom-[148px] sm:bottom-[130px] inset-x-0 z-[4] flex justify-center items-center gap-1.5">
             {projects.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                className="p-0 border-0 bg-transparent flex items-center justify-center w-4 h-4"
+                className="p-0 border-0 bg-transparent flex items-center justify-center w-5 h-5"
                 aria-label={`Go to project ${i + 1}`}
               >
                 <span className={`block rounded-full transition-all duration-300 ${
-                  i === current
-                    ? "w-2 h-2 bg-primary"
-                    : "w-1.5 h-1.5 bg-white/30"
+                  i === current ? "w-2 h-2 bg-primary" : "w-1.5 h-1.5 bg-white/30"
                 }`} />
               </button>
             ))}
