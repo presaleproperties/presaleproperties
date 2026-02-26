@@ -144,7 +144,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
       {/* Full-Screen Hero Section */}
       <div
-        className="relative"
+        className="relative overflow-hidden"
         style={{
           height: 'calc(100dvh - 60px)',
           minHeight: '560px',
@@ -161,12 +161,12 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28">
 
           {/* Eyebrow */}
-          <div className="flex items-center gap-2 mb-5">
-            <div className="h-px w-6 bg-primary/60" />
-            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-primary whitespace-nowrap drop-shadow">
+          <div className="flex items-center gap-2 mb-5 px-2">
+            <div className="h-px w-5 bg-primary/60 shrink-0" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-primary text-center drop-shadow leading-tight">
               Metro Vancouver's #1 Presale Platform
             </span>
-            <div className="h-px w-6 bg-primary/60" />
+            <div className="h-px w-5 bg-primary/60 shrink-0" />
           </div>
 
           {/* Headline */}
@@ -488,14 +488,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <Footer />
       </div>
 
-      {/* Floating Map Button - bottom right, above nav */}
-      <button
-        onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
-        className="fixed right-4 z-40 lg:hidden h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center hover:bg-primary/90 active:scale-90 transition-all animate-[pulse_3s_ease-in-out_infinite] ring-4 ring-primary/20"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
-        aria-label="Map Search">
-        <Map className="h-6 w-6" />
-      </button>
 
       {/* VIP Modal */}
       {mobileModalOpen && <MobileVIPModal onClose={() => setMobileModalOpen(false)} />}
