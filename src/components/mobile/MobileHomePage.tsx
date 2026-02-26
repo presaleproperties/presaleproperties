@@ -155,21 +155,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider />
 
         {/* Hero Content — sits in the upper portion, project card owns the bottom */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 pt-20 sm:pt-24">
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 pt-[72px] sm:pt-20">
 
           {/* Eyebrow */}
-          <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-primary text-center drop-shadow mb-4">
+          <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-primary text-center drop-shadow mb-3">
             Metro Vancouver's #1 Presale Platform
           </p>
 
           {/* Headline */}
-          <h1 className="text-[2rem] sm:text-[2.4rem] font-extrabold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
+          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-1.5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
             New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[12px] text-white/60 text-center mb-6 leading-relaxed font-light">
+          <p className="text-[11px] text-white/55 text-center mb-5 leading-relaxed font-light">
             Presale &amp; developer inventory across Metro Vancouver.
           </p>
 
