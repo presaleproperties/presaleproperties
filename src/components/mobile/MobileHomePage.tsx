@@ -488,14 +488,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <Footer />
       </div>
 
-      {/* Floating Map Button - bottom right, above nav */}
-      <button
-        onClick={() => navigate(`/map-search?mode=${activeTab === "projects" ? "presale" : "resale"}`)}
-        className="fixed right-4 z-40 lg:hidden h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-xl shadow-primary/40 flex items-center justify-center hover:bg-primary/90 active:scale-90 transition-all animate-[pulse_3s_ease-in-out_infinite] ring-4 ring-primary/20"
-        style={{ bottom: 'calc(env(safe-area-inset-bottom, 0px) + 76px)' }}
-        aria-label="Map Search">
-        <Map className="h-6 w-6" />
-      </button>
 
       {/* VIP Modal */}
       {mobileModalOpen && <MobileVIPModal onClose={() => setMobileModalOpen(false)} />}
