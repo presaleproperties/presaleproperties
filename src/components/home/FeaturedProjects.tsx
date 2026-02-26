@@ -40,65 +40,67 @@ export function FeaturedProjects() {
   });
 
   return (
-    <section className="pt-6 sm:pt-8 pb-10 sm:pb-14 md:pb-16 bg-muted/20 relative">
-      {/* Top divider */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-      
+    <section className="pt-8 sm:pt-10 pb-10 sm:pb-14 md:pb-16 bg-background relative">
+      {/* Subtle top divider */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border/60 to-transparent" />
+
       <div className="container px-4">
-        {/* Quick Search Links — compact inline */}
-        <div className="flex flex-wrap items-center gap-2 mb-6">
+        {/* Section header */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-6 mb-5 sm:mb-7">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-primary mb-1.5">Featured Developments</p>
+            <h2 className="text-2xl sm:text-3xl md:text-[2rem] font-extrabold text-foreground tracking-tight leading-tight">
+              Hottest Presale Projects
+            </h2>
+            <p className="text-muted-foreground text-sm mt-1 max-w-md">
+              The most in-demand new developments across Metro Vancouver
+            </p>
+          </div>
+          <Button variant="outline" size="sm" asChild className="hidden sm:flex w-fit group rounded-full">
+            <Link to="/presale-projects">
+              View All Projects
+              <ArrowRight className="ml-1.5 h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+            </Link>
+          </Button>
+        </div>
+
+        {/* Quick filters — single clean scrollable row */}
+        <div className="flex items-center gap-2 overflow-x-auto scrollbar-hide pb-4 mb-2 -mx-4 px-4">
           {PRESALE_TYPES.map(({ label, slug, icon: Icon }) => (
             <Link
               key={slug}
               to={`/vancouver-${slug}`}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold bg-primary/15 text-primary hover:bg-primary/25 transition-colors border border-primary/30"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold bg-primary/10 text-primary hover:bg-primary/20 transition-colors border border-primary/20 whitespace-nowrap shrink-0"
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-3 w-3" />
               {label}
             </Link>
           ))}
-          <span className="w-px h-5 bg-border mx-1 hidden sm:block" />
+          <div className="w-px h-4 bg-border shrink-0 mx-0.5" />
           {PRESALE_YEARS.map(({ label, slug }) => (
             <Link
               key={slug}
               to={`/${slug}`}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold bg-accent text-accent-foreground hover:bg-accent/80 transition-colors border border-border"
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors border border-border/50 whitespace-nowrap shrink-0"
             >
               <Calendar className="h-3 w-3" />
               {label}
             </Link>
           ))}
-          <span className="w-px h-5 bg-border mx-1 hidden sm:block" />
+          <div className="w-px h-4 bg-border shrink-0 mx-0.5" />
           {PRESALE_CITIES.map((city) => {
             const citySlug = city.toLowerCase().replace(/\s+/g, "-");
             return (
               <Link
                 key={city}
                 to={`/${citySlug}-presale-condos`}
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors whitespace-nowrap shrink-0"
               >
-                <MapPin className="h-3 w-3 text-primary/60" />
+                <MapPin className="h-3 w-3 text-primary/50" />
                 {city}
               </Link>
             );
           })}
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-6 mb-6 sm:mb-8">
-          <div className="space-y-1 sm:space-y-2">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-              Hottest Presale Projects
-            </h2>
-            <p className="text-muted-foreground text-sm sm:text-base max-w-xl">
-              The most in-demand new developments across Metro Vancouver
-            </p>
-          </div>
-          <Button variant="outline" size="lg" asChild className="hidden sm:flex w-fit group">
-            <Link to="/presale-projects">
-              View All Projects
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Button>
         </div>
 
         {isLoading ? (
