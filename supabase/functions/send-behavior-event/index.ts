@@ -176,6 +176,17 @@ serve(async (req: Request): Promise<Response> => {
 
       const webhookUrl = typeof webhookSetting?.value === "string" ? webhookSetting.value : null;
 
+      // Guard: only forward if this is a known lead with a valid email
+      const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+      const knownEmail = leadDetails?.email?.toString() || null;
+      if (!isKnownLead || !knownEmail || !emailRegex.test(knownEmail.trim().toLowerCase())) {
+        console.log(`[GUARD] Skipping Zapier behavior event — not a known lead or no valid email: isKnownLead=${isKnownLead}, email=${knownEmail}`);
+        return new Response(JSON.stringify({ success: true }), {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       if (webhookUrl && webhookUrl.trim()) {
         // Enrich payload with lead details if this is a known lead
         const fullName = leadDetails?.full_name?.toString() || "";
