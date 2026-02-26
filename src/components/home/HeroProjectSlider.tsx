@@ -180,12 +180,12 @@ export function HeroProjectSlider() {
           </button>
 
           {/* Pill indicators — bottom right, small and clean */}
-          <div className="absolute bottom-[90px] sm:bottom-[110px] md:bottom-[120px] right-4 sm:right-8 z-[4] flex items-center gap-1">
+          <div className="absolute bottom-[90px] sm:bottom-[110px] md:bottom-[120px] right-4 sm:right-8 z-[4] flex items-center gap-[3px]">
             {projects.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                style={i === current ? { width: 16, height: 4, minWidth: 16 } : { width: 4, height: 4, minWidth: 4 }}
+                style={i === current ? { width: 10, height: 3, minWidth: 10 } : { width: 3, height: 3, minWidth: 3 }}
                 className={`transition-all duration-300 rounded-full shrink-0 ${
                   i === current
                     ? "bg-primary shadow-[0_0_6px_hsl(40_65%_55%/0.5)]"
