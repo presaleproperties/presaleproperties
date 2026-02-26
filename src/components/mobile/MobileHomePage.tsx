@@ -166,7 +166,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
           {/* Subheadline */}
           <p className="text-[13px] text-white/80 text-center mb-7 leading-relaxed max-w-[280px] drop-shadow">
-            Presale condos &amp; move-in ready homes across Metro Vancouver.
+            Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
           </p>
 
           {/* Search Bar — stacked layout prevents cramping on narrow screens */}
