@@ -91,7 +91,26 @@ serve(async (req: Request): Promise<Response> => {
       console.log("Using webhook URL from app_settings");
     }
     
+    // Guard: only fire Zapier if lead has valid name + email
+    function isValidLeadForZapier(name: string | null, email: string | null): boolean {
+      if (!name || !email) return false;
+      const cleanName = name.trim();
+      const cleanEmail = email.trim().toLowerCase();
+      if (cleanName.length < 2) return false;
+      if (cleanName === "(pending)") return false;
+      const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(cleanEmail)) return false;
+      return true;
+    }
+
     if (zapierWebhookUrl) {
+      if (!isValidLeadForZapier(lead.name, lead.email)) {
+        console.log(`[GUARD] Skipping Zapier — incomplete lead data: name=${lead.name}, email=${lead.email}`);
+        return new Response(JSON.stringify({ success: true, leadId: lead.id, skipped: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
       console.log("Sending lead to Zapier webhook");
       
       const project = lead.presale_projects as any;

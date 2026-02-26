@@ -78,7 +78,27 @@ const handler = async (req: Request): Promise<Response> => {
       console.log("Using webhook URL from app_settings");
     }
     
+    // Guard: only fire Zapier if booking has valid name, email, and phone
+    function isValidLeadForZapier(name: string | null, email: string | null, phone?: string | null): boolean {
+      if (!name || !email) return false;
+      const cleanName = name.trim();
+      const cleanEmail = email.trim().toLowerCase();
+      if (cleanName.length < 2) return false;
+      if (cleanName === "(pending)") return false;
+      const emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+      if (!emailRegex.test(cleanEmail)) return false;
+      if (phone !== undefined && (!phone || phone.trim().length < 7)) return false;
+      return true;
+    }
+
     if (zapierWebhookUrl) {
+      if (!isValidLeadForZapier(data.name, data.email, data.phone)) {
+        console.log(`[GUARD] Skipping Zapier — incomplete booking data: name=${data.name}, email=${data.email}, phone=${data.phone}`);
+        return new Response(JSON.stringify({ success: true, skipped: true }), {
+          status: 200,
+          headers: { "Content-Type": "application/json", ...corsHeaders },
+        });
+      }
       console.log("Sending booking to Zapier webhook for Lofty CRM");
       
       // Parse first and last name from notes field if available, otherwise split the name
