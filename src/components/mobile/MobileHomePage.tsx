@@ -252,27 +252,18 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-      {/* Feature Bar — 2×3 grid on mobile */}
-      <div className="bg-[#111] border-b border-white/8">
-        <div className="grid grid-cols-2">
+      {/* Trust Bar — 2×2 grid on mobile */}
+      <div className="bg-[#0d0d0d] border-b border-white/5">
+        <div className="grid grid-cols-2 divide-x divide-white/10">
           {[
-            { icon: "🔍", value: "Presale Projects", label: "111 active listings" },
-            { icon: "📄", value: "Brochures & Floor Plans", label: "Instant access" },
-            { icon: "🏗️", value: "Developer Inventory", label: "Exclusive off-market" },
-            { icon: "🏠", value: "Move-In Ready", label: "Brand new homes" },
-            { icon: "👤", value: "Presale Expert", label: "Free guidance" },
-          ].map((f, i) => (
-            <div
-              key={i}
-              className={`flex flex-col items-center justify-center py-4 px-3 gap-1 text-center
-                ${i < 4 ? "border-b border-white/8" : ""}
-                ${i % 2 === 0 ? "border-r border-white/8" : ""}
-                ${i === 4 ? "col-span-2 border-b-0" : ""}
-              `}
-            >
-              <span className="text-base">{f.icon}</span>
-              <span className="text-xs font-extrabold text-white leading-tight">{f.value}</span>
-              <span className="text-[9px] text-primary font-semibold uppercase tracking-wider text-center">{f.label}</span>
+            { value: "111", label: "Active Projects" },
+            { value: "450+", label: "Agent Network" },
+            { value: "$200M+", label: "In Presale Sales" },
+            { value: "5.0 ★", label: "Google Rating" },
+          ].map((stat, i) => (
+            <div key={i} className={`flex flex-col items-center py-4 gap-0.5 ${i >= 2 ? "border-t border-white/10" : ""}`}>
+              <span className="text-base font-extrabold text-white leading-none">{stat.value}</span>
+              <span className="text-[9px] text-primary font-semibold uppercase tracking-wider text-center">{stat.label}</span>
             </div>
           ))}
         </div>

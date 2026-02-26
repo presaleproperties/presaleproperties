@@ -14,12 +14,11 @@ interface HeroSectionProps {
   onTabChange?: (tab: SearchTab) => void;
 }
 
-const FEATURE_BAR = [
-  { icon: "🔍", value: "Search Presale Projects", label: "111 active listings across Metro Vancouver" },
-  { icon: "📄", value: "Brochures & Floor Plans", label: "Instant access — no waiting" },
-  { icon: "🏗️", value: "Exclusive Developer Inventory", label: "Off-market releases before public launch" },
-  { icon: "🏠", value: "Move-In Ready Homes", label: "Brand new — never lived in" },
-  { icon: "👤", value: "Hire a Presale Expert", label: "Expert guidance at no cost to you" },
+const TRUST_STATS = [
+  { value: "111", label: "Active Projects" },
+  { value: "450+", label: "Agent Network" },
+  { value: "$200M+", label: "In Presale Sales" },
+  { value: "5.0 ★", label: "Google Rating" },
 ];
 
 function VIPModal({ onClose }: { onClose: () => void }) {
@@ -256,25 +255,17 @@ export function HeroSection({
         </div>
       </section>
 
-      {/* Feature Bar */}
-      <div className="bg-[#111] border-b border-white/8">
+      {/* Trust Bar */}
+      <div className="bg-[#0d0d0d] border-b border-white/5">
         <div className="container px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-5 divide-white/10 md:divide-x">
-            {FEATURE_BAR.map((f, i) => (
-              <div
-                key={i}
-                className={`flex flex-col items-center justify-center py-5 sm:py-6 px-3 gap-1.5 text-center
-                  ${i < 4 ? "border-b md:border-b-0 border-white/8" : ""}
-                  ${i % 2 === 0 && i < 4 ? "border-r md:border-r-0 border-white/8" : ""}
-                  ${i === 4 ? "col-span-2 md:col-span-1" : ""}
-                `}
-              >
-                <span className="text-lg">{f.icon}</span>
-                <span className="text-sm sm:text-base font-extrabold text-white leading-tight tracking-tight">
-                  {f.value}
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10">
+            {TRUST_STATS.map((stat, i) => (
+              <div key={i} className="flex flex-col items-center justify-center py-5 sm:py-6 gap-1 px-3">
+                <span className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-none tracking-tight">
+                  {stat.value}
                 </span>
-                <span className="text-[10px] sm:text-[11px] text-primary font-semibold uppercase tracking-wider leading-tight">
-                  {f.label}
+                <span className="text-[10px] sm:text-xs text-primary font-semibold uppercase tracking-wider text-center leading-tight">
+                  {stat.label}
                 </span>
               </div>
             ))}
