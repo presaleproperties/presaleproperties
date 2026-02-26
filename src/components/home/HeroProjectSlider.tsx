@@ -98,7 +98,7 @@ export function HeroProjectSlider() {
       <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none" />
 
       {/* Bottom project info — compact, clean */}
-      <div className="absolute bottom-0 left-0 right-0 z-[3] px-4 sm:px-8 md:px-14 pb-5 sm:pb-8">
+      <div className="absolute bottom-0 left-0 right-0 z-[3] px-4 sm:px-8 md:px-14 pb-4 sm:pb-8">
         <div className={`transition-all duration-500 ${isTransitioning ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>
 
           {/* Badges */}
@@ -161,35 +161,35 @@ export function HeroProjectSlider() {
         </div>
       </div>
 
-      {/* Navigation arrows — only on sm+ */}
+      {/* Navigation arrows — tablet+ only */}
       {total > 1 && (
         <>
           <button
             onClick={prev}
-            className="hidden sm:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[4] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
+            className="hidden md:flex absolute left-4 md:left-6 top-1/2 -translate-y-1/2 z-[4] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
             aria-label="Previous project"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={next}
-            className="hidden sm:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[4] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
+            className="hidden md:flex absolute right-4 md:right-6 top-1/2 -translate-y-1/2 z-[4] w-9 h-9 md:w-10 md:h-10 rounded-lg bg-black/30 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/50 active:scale-95 transition-all"
             aria-label="Next project"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          {/* Pill indicators — bottom right, small and clean */}
-          <div className="absolute bottom-[90px] sm:bottom-[110px] md:bottom-[120px] right-4 sm:right-8 z-[4] flex items-center gap-1">
+          {/* Dot indicators — centered bottom, above project card */}
+          <div className="absolute bottom-[88px] sm:bottom-[100px] left-0 right-0 z-[4] flex items-center justify-center gap-1.5">
             {projects.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                style={i === current ? { width: 16, height: 4, minWidth: 16 } : { width: 4, height: 4, minWidth: 4 }}
+                style={i === current ? { width: 18, height: 4, minWidth: 18 } : { width: 5, height: 5, minWidth: 5 }}
                 className={`transition-all duration-300 rounded-full shrink-0 ${
                   i === current
                     ? "bg-primary shadow-[0_0_6px_hsl(40_65%_55%/0.5)]"
-                    : "bg-white/35"
+                    : "bg-white/30"
                 }`}
                 aria-label={`Go to project ${i + 1}`}
               />
