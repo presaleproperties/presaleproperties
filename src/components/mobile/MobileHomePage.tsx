@@ -144,8 +144,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
       {/* Full-Screen Hero Section */}
       <div
-        className="relative min-h-[85vh] flex flex-col"
+        className="relative flex flex-col"
         style={{
+          height: 'calc(100dvh - 60px)',
+          minHeight: '580px',
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}>
@@ -155,67 +157,63 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <img
             src={heroImage}
             alt="Modern home interior"
-            className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70" />
+            className="w-full h-full object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/72" />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-5 pt-16 pb-10">
+        {/* Hero Content — vertically centered using absolute positioning */}
+        <div className="absolute inset-0 flex flex-col justify-center items-center px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
+
           {/* Headline */}
-          <h1 className="text-[2.1rem] font-extrabold text-white leading-tight text-center mb-3 tracking-tight">
+          <h1 className="text-[2rem] sm:text-[2.4rem] font-extrabold text-white leading-[1.1] text-center mb-3 tracking-tight">
             New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-sm text-white/50 text-center mb-8 leading-relaxed max-w-xs">
+          <p className="text-[13px] text-white/50 text-center mb-7 leading-relaxed max-w-[280px]">
             Presale condos &amp; move-in ready homes across Metro Vancouver.
           </p>
 
-          {/* Search Bar */}
-          <div className="w-full max-w-md">
-            <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[58px]">
-              {/* Tab switcher */}
-              <div className="flex items-center shrink-0 pl-1.5 gap-0.5">
-                <button
-                  onClick={() => handleTabChange("projects")}
-                  className={`px-3.5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
-                    activeTab === "projects"
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  Presale
-                </button>
-                <button
-                  onClick={() => handleTabChange("resale")}
-                  className={`px-3 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
-                    activeTab === "resale"
-                      ? "bg-foreground text-background"
-                      : "text-muted-foreground"
-                  }`}
-                >
-                  Move-In Ready
-                </button>
-              </div>
+          {/* Search Bar — stacked layout prevents cramping on narrow screens */}
+          <div className="w-full max-w-sm sm:max-w-md">
+            {/* Tab row */}
+            <div className="flex items-center gap-1.5 mb-2 justify-center">
+              <button
+                onClick={() => handleTabChange("projects")}
+                className={`px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === "projects"
+                    ? "bg-white text-foreground shadow-md"
+                    : "bg-white/15 text-white/80 hover:bg-white/25"
+                }`}
+              >
+                Presale
+              </button>
+              <button
+                onClick={() => handleTabChange("resale")}
+                className={`px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                  activeTab === "resale"
+                    ? "bg-white text-foreground shadow-md"
+                    : "bg-white/15 text-white/80 hover:bg-white/25"
+                }`}
+              >
+                Move-In Ready
+              </button>
+            </div>
 
-              {/* Divider */}
-              <div className="w-px h-6 bg-border mx-1.5 shrink-0" />
-
-              {/* Search input */}
+            {/* Input row */}
+            <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[54px]">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
-                  placeholder={activeTab === "projects" ? "City, project…" : "Address, MLS#…"}
+                  placeholder={activeTab === "projects" ? "City or project name…" : "Address, MLS#, city…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[58px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none" />
+                  inputClassName="h-[54px] text-[15px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 rounded-none shadow-none" />
               </div>
-
-              {/* Circular search button */}
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-10 h-10 mr-1.5 rounded-full bg-foreground text-background flex items-center justify-center"
+                className="shrink-0 w-10 h-10 mr-2 rounded-full bg-foreground text-background flex items-center justify-center active:scale-90 transition-transform"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
@@ -242,18 +240,18 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-      {/* Trust Bar — 2×2 grid on mobile */}
+      {/* Trust Bar — 4-col on sm, 2×2 on xs */}
       <div className="bg-[#0d0d0d] border-b border-white/5">
-        <div className="grid grid-cols-2 divide-x divide-white/10">
+        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10">
           {[
             { value: "111", label: "Active Projects" },
             { value: "400+", label: "Presale Properties Sold" },
             { value: "$200M+", label: "In Presale Sales" },
             { value: "5.0 ★", label: "Google Rating" },
           ].map((stat, i) => (
-            <div key={i} className={`flex flex-col items-center py-4 gap-0.5 ${i >= 2 ? "border-t border-white/10" : ""}`}>
+            <div key={i} className={`flex flex-col items-center py-4 gap-0.5 ${i >= 2 ? "border-t border-white/10 sm:border-t-0" : ""}`}>
               <span className="text-base font-extrabold text-white leading-none">{stat.value}</span>
-              <span className="text-[9px] text-primary font-semibold uppercase tracking-wider text-center">{stat.label}</span>
+              <span className="text-[9px] sm:text-[10px] text-primary font-semibold uppercase tracking-wider text-center leading-tight px-1">{stat.label}</span>
             </div>
           ))}
         </div>
