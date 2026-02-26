@@ -159,13 +159,13 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
           {/* Headline */}
           <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-1.5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
-            New Homes.{" "}
-            <span className="text-primary">Exclusive Access.</span>
+            Buy Direct.{" "}
+            <span className="text-primary">Save Thousands.</span>
           </h1>
 
           {/* Subheadline */}
           <p className="text-[11px] text-white/55 text-center mb-5 leading-relaxed font-light">
-            Presale &amp; developer inventory across Metro Vancouver.
+            Presale & resale homes — exclusive deals before they hit the market.
           </p>
 
           {/* Tab pills */}
