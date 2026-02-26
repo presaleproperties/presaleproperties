@@ -154,8 +154,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
         <HeroProjectSlider />
 
-        {/* Hero Content — sits in the upper portion, project card owns the bottom */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 pt-[72px] sm:pt-20 pointer-events-none">
+        {/* Hero Content — anchored to top only, never covers bottom project card */}
+        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-8 sm:pt-10">
 
           {/* Eyebrow */}
           <p className="text-[9px] font-bold uppercase tracking-[0.15em] text-primary text-center drop-shadow mb-3">
@@ -174,7 +174,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </p>
 
           {/* Tab pills */}
-          <div className="flex items-center gap-2 mb-3 pointer-events-auto">
+          <div className="flex items-center gap-2 mb-3">
             {(["projects", "resale"] as SearchTab[]).map((tab) => (
               <button
                 key={tab}
@@ -191,7 +191,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search bar */}
-          <div className="w-full max-w-[320px] sm:max-w-sm pointer-events-auto">
+          <div className="w-full max-w-[320px] sm:max-w-sm">
             <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
@@ -212,10 +212,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Map link — more prominent */}
+          {/* Map link */}
           <Link
             to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-white/90 text-[12px] font-semibold active:scale-95 transition-all pointer-events-auto"
+            className="mt-4 flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm border border-white/25 text-white/90 text-[12px] font-semibold active:scale-95 transition-all"
           >
             <Map className="w-3.5 h-3.5 text-primary" />
             Explore the Map
