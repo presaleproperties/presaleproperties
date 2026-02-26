@@ -149,7 +149,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
       {/* Full-Screen Hero Section */}
       <div
-        className="relative min-h-[75vh] flex flex-col"
+        className="relative min-h-[80vh] flex flex-col"
         style={{
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -161,75 +161,83 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             src={heroImage}
             alt="Modern home interior"
             className="w-full h-full object-cover" />
-          {/* Darker overlay for text contrast */}
           <div className="absolute inset-0 bg-black/55" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/55" />
         </div>
 
-        {/* Hero Content */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-5 pt-20 pb-8">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 border border-primary/50 backdrop-blur-sm mb-4">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-white">
-              Vancouver's Only Presale-Exclusive Platform
-            </span>
-          </div>
+        {/* Hero Content — centered */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-5 pt-20 pb-10">
+          {/* Eyebrow */}
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55 mb-3 text-center">
+            Metro Vancouver's Presale Platform
+          </p>
 
-          {/* Headline — max 2 lines on mobile */}
-          <h1 className="text-[28px] font-extrabold text-white leading-tight text-center mb-3 tracking-tight max-w-[320px]">
-            Access Presale Projects{" "}
-            <span className="text-primary">Before They Go Public</span>
+          {/* Headline */}
+          <h1 className="text-3xl font-extrabold text-white leading-tight text-center mb-8 tracking-tight">
+            New Homes.{" "}
+            <span className="text-primary">Exclusive Access.</span>
           </h1>
 
-          {/* Mode Toggle Pills */}
-          <div className="flex items-center gap-2 mb-5">
-            <button
-              onClick={() => handleTabChange("projects")}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-              activeTab === "projects" ?
-              "bg-primary text-primary-foreground shadow-lg" :
-              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`}>
-              Presale
-            </button>
-            <button
-              onClick={() => handleTabChange("resale")}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
-              activeTab === "resale" ?
-              "bg-primary text-primary-foreground shadow-lg" :
-              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`}>
-              Move-In Ready
-            </button>
-          </div>
-
-          {/* Primary CTA */}
-          <button
-            onClick={() => setMobileModalOpen(true)}
-            className="w-full max-w-md h-12 rounded-full bg-primary text-primary-foreground font-bold text-sm mb-3 shadow-lg shadow-primary/30"
-          >
-            Get VIP Access — It's Free
-          </button>
-
-          {/* Search Container */}
-          <div className="w-full max-w-md">
-            <PowerSearch
-              placeholder={activeTab === "projects" ?
-              "Search projects, address, neighbourhood..." :
-              "Address, MLS#, city, neighbourhood..."}
-              mode={activeTab === "projects" ? "presale" : "resale"}
-              variant="hero"
-              inputClassName="h-12 text-sm rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground" />
+          {/* Search Card */}
+          <div className="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-visible">
+            {/* Tab switcher */}
+            <div className="flex border-b border-border">
+              <button
+                onClick={() => handleTabChange("projects")}
+                className={`flex-1 py-3 text-sm font-bold transition-all rounded-tl-2xl ${
+                  activeTab === "projects"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground"
+                }`}
+              >
+                Presale
+              </button>
+              <button
+                onClick={() => handleTabChange("resale")}
+                className={`flex-1 py-3 text-sm font-bold transition-all rounded-tr-2xl ${
+                  activeTab === "resale"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground"
+                }`}
+              >
+                Move-In Ready
+              </button>
+            </div>
+            {/* Search row */}
+            <div className="flex items-stretch p-2 gap-2">
+              <div className="flex-1 overflow-visible">
+                <PowerSearch
+                  placeholder={activeTab === "projects" ?
+                  "City, project, neighbourhood..." :
+                  "Address, MLS#, city..."}
+                  mode={activeTab === "projects" ? "presale" : "resale"}
+                  variant="hero"
+              inputClassName="h-11 text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0" />
+              </div>
+              <button
+                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
+                className="h-11 px-5 rounded-xl bg-primary text-primary-foreground font-bold text-sm flex-shrink-0"
+              >
+                Search
+              </button>
+            </div>
           </div>
 
           {/* Map text link */}
-          <div className="mt-2">
-            <a
-              href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/50 hover:text-white/75 transition-colors"
-            >
-              or explore the map →
-            </a>
-          </div>
+          <a
+            href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+            className="mt-3 text-[11px] text-white/50 hover:text-white/75 transition-colors"
+          >
+            or explore the map →
+          </a>
+
+          {/* VIP CTA */}
+          <button
+            onClick={() => setMobileModalOpen(true)}
+            className="mt-4 text-xs text-primary font-semibold underline underline-offset-4"
+          >
+            Get VIP Access — It's Free →
+          </button>
         </div>
       </div>
 

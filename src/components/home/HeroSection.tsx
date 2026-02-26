@@ -109,26 +109,20 @@ export function HeroSection({
   const navigate = useNavigate();
 
   const handleTabChange = (tab: SearchTab) => {
-    if (onTabChange) {
-      onTabChange(tab);
-    } else {
-      setInternalTab(tab);
-    }
+    if (onTabChange) onTabChange(tab);
+    else setInternalTab(tab);
   };
 
   const handleCityClick = (city: string) => {
     const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-    if (activeTab === "projects") {
-      navigate(`/${citySlug}-presale-condos`);
-    } else {
-      navigate(`/properties/${citySlug}`);
-    }
+    if (activeTab === "projects") navigate(`/${citySlug}-presale-condos`);
+    else navigate(`/properties/${citySlug}`);
   };
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="relative flex flex-col" style={{ minHeight: "calc(100vh - 72px)" }}>
+      {/* Hero Section — centered REW-style layout */}
+      <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100vh - 72px)" }}>
         {/* Background Image */}
         <img
           src={heroImage}
@@ -138,121 +132,107 @@ export function HeroSection({
           decoding="sync"
           fetchPriority="high"
         />
-
-        {/* Overlay — darkened for contrast */}
+        {/* Overlay */}
         <div className="absolute inset-0 bg-black/55" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/40" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
 
-        {/* Main Hero Content */}
-        <div className="relative z-10 flex-1 flex items-center">
-          <div className="container px-4 sm:px-6 py-12 sm:py-16 md:py-20">
-            <div className="max-w-2xl xl:max-w-3xl space-y-5 sm:space-y-6">
+        {/* Centered Content */}
+        <div className="relative z-10 w-full flex flex-col items-center px-4 sm:px-6 py-16">
+          {/* Eyebrow */}
+          <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-white/60 mb-4 text-center">
+            Metro Vancouver's Presale-Exclusive Platform
+          </p>
 
-              {/* Top Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/20 border border-primary/50 backdrop-blur-sm">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
-                <span className="text-xs font-semibold uppercase tracking-widest text-white">
-                  Vancouver's Only Presale-Exclusive Platform
-                </span>
+          {/* Headline */}
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white text-center leading-[1.05] tracking-tight mb-4 max-w-4xl drop-shadow-2xl">
+            New Homes.{" "}
+            <span className="text-primary">Exclusive Access.</span>
+          </h1>
+
+          {/* Subheadline — hidden on mobile */}
+          <p className="hidden sm:block text-base sm:text-lg text-white/65 text-center max-w-xl mb-10 leading-relaxed">
+            Presale condos, move-in ready homes &amp; off-market developer inventory — all in one place.
+          </p>
+
+          {/* Search Card */}
+          <div className="w-full max-w-2xl bg-white rounded-2xl shadow-2xl overflow-visible">
+            {/* Tab switcher inside card */}
+            <div className="flex border-b border-border">
+              <button
+                onClick={() => handleTabChange("projects")}
+                className={`flex-1 py-3.5 text-sm font-bold transition-all rounded-tl-2xl ${
+                  activeTab === "projects"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Presale
+              </button>
+              <button
+                onClick={() => handleTabChange("resale")}
+                className={`flex-1 py-3.5 text-sm font-bold transition-all rounded-tr-2xl ${
+                  activeTab === "resale"
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Move-In Ready
+              </button>
+            </div>
+
+            {/* Search row */}
+            <div className="flex items-stretch p-2 gap-2">
+              <div className="flex-1 overflow-visible">
+                <PowerSearch
+                  placeholder={activeTab === "projects" ? "City, project, neighbourhood…" : "Address, MLS#, city…"}
+                  mode={activeTab === "projects" ? "presale" : "resale"}
+                  variant="hero"
+                  inputClassName="h-12 text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
               </div>
-
-              {/* Headline */}
-              <h1 className="text-[36px] sm:text-5xl md:text-6xl lg:text-[64px] font-extrabold tracking-tight text-white leading-[1.06] drop-shadow-2xl max-w-[90vw] sm:max-w-none">
-                Access Presale Projects{" "}
-                <span className="text-primary drop-shadow-[0_0_30px_hsl(40_65%_55%/0.5)]">
-                  Before They Go Public
-                </span>
-              </h1>
-
-              {/* Subheadline — hidden on mobile */}
-              <p className="hidden sm:block text-base sm:text-lg text-white/70 font-medium max-w-xl leading-relaxed">
-                111 active projects. Exclusive VIP pricing. Off-market assignments. One team that only does presale.
-              </p>
-
-              {/* Tab Switcher */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <button
-                  onClick={() => handleTabChange("projects")}
-                  className={`px-5 sm:px-6 py-2.5 rounded-sm text-sm font-semibold transition-all duration-300 border ${
-                    activeTab === "projects"
-                      ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30"
-                      : "bg-transparent border-white/30 text-white/70 hover:border-white/50 hover:text-white"
-                  }`}
-                >
-                  Presale
-                </button>
-                <button
-                  onClick={() => handleTabChange("resale")}
-                  className={`px-5 sm:px-6 py-2.5 rounded-sm text-sm font-semibold transition-all duration-300 border ${
-                    activeTab === "resale"
-                      ? "bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/30"
-                      : "bg-transparent border-white/30 text-white/70 hover:border-white/50 hover:text-white"
-                  }`}
-                >
-                  Move-In Ready
-                </button>
-              </div>
-
-              {/* Primary CTA — above search bar */}
-              <div className="space-y-3">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto h-12 sm:h-13 px-8 rounded-full text-base font-bold shadow-xl shadow-primary/30"
-                  onClick={() => setModalOpen(true)}
-                >
-                  Get VIP Access — It's Free
-                </Button>
-
-                {/* Search Bar */}
-                <div className="flex items-stretch gap-0 max-w-2xl w-full shadow-2xl">
-                  <div className="flex-1 bg-white rounded-l-lg overflow-visible">
-                    <PowerSearch
-                      placeholder={activeTab === "projects" ? "Area, project or community…" : "Address, MLS#, city, neighbourhood…"}
-                      mode={activeTab === "projects" ? "presale" : "resale"}
-                      variant="hero"
-                      inputClassName="h-12 sm:h-14 text-sm sm:text-base border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 rounded-l-lg rounded-r-none"
-                    />
-                  </div>
-                  <Button
-                    size="lg"
-                    className="h-12 sm:h-14 px-5 sm:px-8 rounded-l-none rounded-r-lg text-sm sm:text-base font-semibold shadow-none flex-shrink-0"
-                    onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                  >
-                    Search
-                  </Button>
-                </div>
-
-                {/* Map text link — below search bar */}
-                <div>
-                  <Link
-                    to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-                    className="text-xs text-white/55 hover:text-white/80 transition-colors"
-                  >
-                    or explore the map →
-                  </Link>
-                </div>
-              </div>
-
-              {/* City pills */}
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-white/40 text-xs uppercase tracking-wider font-medium">Quick:</span>
-                {projectCities.map((city) => (
-                  <button
-                    key={city}
-                    onClick={() => handleCityClick(city)}
-                    className="text-xs px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white/70 hover:bg-white/20 hover:text-white transition-all backdrop-blur-sm"
-                  >
-                    {city}
-                  </button>
-                ))}
-              </div>
+              <Button
+                size="lg"
+                className="h-12 px-6 rounded-xl text-sm font-bold flex-shrink-0 shadow-none"
+                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
+              >
+                Search
+              </Button>
             </div>
           </div>
+
+          {/* Map link */}
+          <Link
+            to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+            className="mt-3 text-xs text-white/50 hover:text-white/80 transition-colors"
+          >
+            or explore the map →
+          </Link>
+
+          {/* City pills */}
+          <div className="flex items-center gap-2 flex-wrap justify-center mt-6">
+            <span className="text-white/40 text-xs uppercase tracking-wider font-medium">Top Cities:</span>
+            {projectCities.map((city) => (
+              <button
+                key={city}
+                onClick={() => handleCityClick(city)}
+                className="text-xs px-3.5 py-1.5 rounded-full bg-white/10 border border-white/25 text-white/75 hover:bg-white/20 hover:text-white transition-all backdrop-blur-sm font-medium"
+              >
+                {city}
+              </button>
+            ))}
+          </div>
+
+          {/* VIP CTA — subtle below cities */}
+          <button
+            onClick={() => setModalOpen(true)}
+            className="mt-5 text-xs text-primary font-semibold underline underline-offset-4 hover:text-primary/80 transition-colors"
+          >
+            Get VIP Access — It's Free →
+          </button>
         </div>
       </section>
 
-      {/* Trust Bar — full-width dark bar below hero */}
+      {/* Trust Bar */}
       <div className="bg-[#0d0d0d] border-b border-white/5">
         <div className="container px-4 sm:px-6">
           <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10">
@@ -275,3 +255,4 @@ export function HeroSection({
     </>
   );
 }
+
