@@ -236,17 +236,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       </div>
 
       {/* Trust Bar */}
-      <div className="bg-[#080808] border-b border-white/[0.06]">
-        <div className="grid grid-cols-4 divide-x divide-white/[0.07]">
+      <div className="bg-background border-b border-border/40">
+        <div className="grid grid-cols-4 divide-x divide-border/50">
           {[
             { value: "111", label: "Projects" },
-            { value: "450+", label: "Sold" },
+            { value: "450+", label: "Homes Sold" },
             { value: "$200M+", label: "In Sales" },
             { value: "5.0 ★", label: "Rating" },
           ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center py-4 gap-1">
-              <span className="text-sm font-extrabold text-white leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[8px] text-primary/80 font-bold uppercase tracking-[0.15em] text-center leading-tight">{stat.label}</span>
+            <div key={i} className="flex flex-col items-center py-3 gap-0.5">
+              <span className="text-sm font-extrabold text-foreground leading-none tracking-tight">{stat.value}</span>
+              <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-[0.1em] text-center">{stat.label}</span>
             </div>
           ))}
         </div>
