@@ -1,4 +1,4 @@
-import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, ArrowRight, Mail } from "lucide-react";
+import { Phone, MessageCircle, Download, X, ChevronDown, CheckCircle, Lock, FileText, LayoutGrid, DollarSign, ExternalLink, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,97 +8,83 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
-import { usePresaleLeadCapture } from "@/hooks/usePresaleLeadCapture";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { getUtmDataForSubmission } from "@/hooks/useUtmTracking";
+import { trackCTAClick } from "@/hooks/useLoftyTracking";
+import { trackFormStart, trackFormSubmit, getVisitorId, getSessionId } from "@/lib/tracking";
+import { getIntentScore, getCityInterests, getTopViewedProjects } from "@/lib/tracking/intentScoring";
 
 const phoneRegex = /^[\+]?[1]?[-.\s]?[(]?[0-9]{3}[)]?[-.\s]?[0-9]{3}[-.\s]?[0-9]{4}$/;
 
-const emailSchema = z.object({
-  email: z.string().trim().email("Please enter a valid email").max(255),
-});
-
-const detailsSchema = z.object({
+const formSchema = z.object({
   fullName: z.string().trim().min(1, "Full name is required").max(100),
+  email: z.string().trim().email("Please enter a valid email").max(255),
   phone: z.string().trim().min(1, "Phone is required").regex(phoneRegex, "Enter a valid phone number"),
+  workingWithAgent: z.boolean().default(false),
   isRealtor: z.boolean().default(false),
 });
 
-type EmailFormData = z.infer<typeof emailSchema>;
-type DetailsFormData = z.infer<typeof detailsSchema>;
+type FormData = z.infer<typeof formSchema>;
+
+const isGoogleDriveLink = (url: string) =>
+  url.includes("drive.google.com") || url.includes("docs.google.com");
+
+const hasValidUrl = (url: string | null | undefined): url is string =>
+  Boolean(url && url.trim().length > 0);
 
 interface ProjectMobileCTAProps {
   projectName: string;
   projectId?: string;
   status: "coming_soon" | "registering" | "active" | "sold_out";
   startingPrice?: number | null;
+  brochureUrl?: string | null;
+  floorplanUrl?: string | null;
+  pricingUrl?: string | null;
   onRegisterClick: () => void;
 }
 
-export function ProjectMobileCTA({ 
+export function ProjectMobileCTA({
   projectName,
   projectId,
-  status, 
+  status,
   startingPrice,
-  onRegisterClick 
+  brochureUrl,
+  floorplanUrl,
+  pricingUrl,
+  onRegisterClick,
 }: ProjectMobileCTAProps) {
   const [whatsappNumber, setWhatsappNumber] = useState<string | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const {
-    step,
-    isSubmitting,
-    capturedEmail,
-    handleFormInteraction,
-    submitEmail,
-    submitDetails,
-    reset,
-  } = usePresaleLeadCapture({
-    projectId,
-    projectName,
-    leadSource: "floor_plan_request",
-    formLocation: "mobile_cta_footer",
-  });
+  const hasBrochure = hasValidUrl(brochureUrl);
+  const hasFloorplan = hasValidUrl(floorplanUrl);
+  const hasPricing = hasValidUrl(pricingUrl);
+  const hasAnyDocuments = hasBrochure || hasFloorplan || hasPricing;
 
-  const emailForm = useForm<EmailFormData>({
-    resolver: zodResolver(emailSchema),
-    defaultValues: { email: "" },
-  });
-
-  const detailsForm = useForm<DetailsFormData>({
-    resolver: zodResolver(detailsSchema),
-    defaultValues: { fullName: "", phone: "", isRealtor: false },
+  const form = useForm<FormData>({
+    resolver: zodResolver(formSchema),
+    defaultValues: { fullName: "", email: "", phone: "", workingWithAgent: false, isRealtor: false },
   });
 
   useEffect(() => {
-    const fetchWhatsappNumber = async () => {
-      const { data } = await supabase
-        .from("app_settings")
-        .select("value")
-        .eq("key", "whatsapp_number")
-        .maybeSingle();
-      if (data?.value) {
-        setWhatsappNumber(String(data.value).replace(/"/g, ""));
-      }
-    };
-    fetchWhatsappNumber();
+    supabase.from("app_settings").select("value").eq("key", "whatsapp_number").maybeSingle()
+      .then(({ data }) => { if (data?.value) setWhatsappNumber(String(data.value).replace(/"/g, "")); });
   }, []);
 
   useEffect(() => {
     if (isExpanded) {
-      MetaEvents.formStart({
-        content_name: projectName || "Access Pack",
-        content_category: "floorplans",
-      });
+      MetaEvents.formStart({ content_name: projectName, content_category: "floorplans" });
+      trackFormStart({ form_name: "floor_plan_request", form_location: "mobile_cta_footer" });
     }
-    if (!isExpanded) {
-      reset();
-      emailForm.reset();
-      detailsForm.reset();
+    if (!isExpanded && !submitted) {
+      form.reset();
     }
   }, [isExpanded]);
 
-  // Listen for gallery CTA event to expand the form
+  // Listen for gallery events
   useEffect(() => {
     const handleGalleryCTA = () => setIsExpanded(true);
     const handleGalleryOpen = () => setIsHidden(true);
@@ -113,195 +99,240 @@ export function ProjectMobileCTA({
     };
   }, []);
 
-  const onEmailSubmit = async (data: EmailFormData) => {
-    await submitEmail(data.email);
+  const onSubmit = async (data: FormData) => {
+    setIsSubmitting(true);
+    try {
+      const leadId = crypto.randomUUID();
+      const utmData = getUtmDataForSubmission();
+      const visitorId = getVisitorId();
+      const sessionId = getSessionId();
+      const intentScore = getIntentScore();
+      const cityInterest = getCityInterests();
+      const projectInterest = getTopViewedProjects().map((p) => p.project_id);
+      const actualPersona = data.isRealtor ? "realtor" : "buyer";
+
+      const { error } = await supabase.from("project_leads").insert({
+        id: leadId,
+        project_id: projectId || null,
+        name: data.fullName,
+        email: data.email,
+        phone: data.phone,
+        persona: actualPersona,
+        agent_status: data.workingWithAgent ? "working_with_agent" : data.isRealtor ? "i_am_realtor" : "no",
+        message: [
+          data.workingWithAgent ? "Working with agent" : null,
+          data.isRealtor ? "Is a Realtor" : null,
+        ].filter(Boolean).join(", ") || null,
+        drip_sequence: "buyer",
+        last_drip_sent: 0,
+        next_drip_at: new Date().toISOString(),
+        lead_source: "floor_plan_request",
+        utm_source: utmData.utm_source,
+        utm_medium: utmData.utm_medium,
+        utm_campaign: utmData.utm_campaign,
+        utm_content: utmData.utm_content,
+        utm_term: utmData.utm_term,
+        referrer: utmData.referrer,
+        landing_page: utmData.landing_page,
+        visitor_id: visitorId,
+        session_id: sessionId,
+        intent_score: intentScore,
+        city_interest: cityInterest,
+        project_interest: projectInterest,
+      });
+
+      if (error) throw error;
+
+      trackCTAClick({ cta_type: "lead_form_submit", cta_label: "Get Instant Access", cta_location: "mobile_cta_footer", project_id: projectId, project_name: projectName });
+      trackFormSubmit({ form_name: "floor_plan_request", form_location: "mobile_cta_footer", first_name: data.fullName, last_name: "", email: data.email, phone: data.phone, user_type: actualPersona, project_id: projectId, project_name: projectName });
+
+      supabase.functions.invoke("trigger-workflow", { body: { event: "project_inquiry", data: { email: data.email, first_name: data.fullName, last_name: "", project_name: projectName, project_id: projectId }, meta: { lead_id: leadId, source: "floor_plan_request" } } }).catch(console.error);
+      supabase.functions.invoke("send-project-lead", { body: { leadId } }).catch(console.error);
+      supabase.functions.invoke("meta-conversions-api", { body: { event_name: "Lead", email: data.email, phone: data.phone, first_name: data.fullName, last_name: "", event_source_url: window.location.href, content_name: projectName, content_category: actualPersona, client_user_agent: navigator.userAgent, fbc: document.cookie.match(/_fbc=([^;]+)/)?.[1], fbp: document.cookie.match(/_fbp=([^;]+)/)?.[1] } }).catch(console.error);
+
+      MetaEvents.lead({ content_name: projectName, content_category: actualPersona });
+
+      localStorage.setItem("presale_persona", actualPersona);
+      localStorage.setItem("pp_form_submitted", "true");
+      localStorage.setItem("presale_lead_converted", "true");
+
+      if (typeof window !== "undefined") {
+        (window as any).gtag?.("event", "submit_access_pack", { page_path: window.location.pathname, project_name: projectName, persona: actualPersona, source: "mobile_cta_footer" });
+        (window as any).fbq?.("track", "Lead", { content_name: projectName, content_category: actualPersona });
+      }
+
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error("Lead form error:", err);
+      form.setError("root", { message: "Something went wrong. Please try again." });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  const onDetailsSubmit = async (data: DetailsFormData) => {
-    await submitDetails(data);
-
-    MetaEvents.lead({
-      content_name: projectName || "Access Pack",
-      content_category: data.isRealtor ? "realtor" : "buyer",
-    });
-  };
-
-  const whatsappMessage = encodeURIComponent(`Hi! I'm interested in ${projectName}. Can you send me more information?`);
-  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMessage}` : null;
-  const successWhatsappMessage = encodeURIComponent(`Hi! I just requested the ${projectName} package. Can you help me shortlist the best options in my budget?`);
-  const successWhatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${successWhatsappMessage}` : null;
+  const whatsappMsg = encodeURIComponent(`Hi! I'm interested in ${projectName}. Can you send me more information?`);
+  const whatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${whatsappMsg}` : null;
+  const successWhatsappMsg = encodeURIComponent(`Hi! I just requested info for ${projectName} and would love to learn more.`);
+  const successWhatsappLink = whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${successWhatsappMsg}` : null;
 
   return (
     <>
       {/* Spacer */}
       <div className="h-24 lg:hidden" aria-hidden="true" />
-      
+
       {/* Fixed CTA bar */}
-      <div 
-        className={`lg:hidden fixed inset-x-0 bottom-0 transition-transform duration-200 ${isHidden ? 'translate-y-full' : 'translate-y-0'}`}
-        style={{
-          zIndex: 99999,
-          isolation: 'isolate',
-          willChange: 'transform',
-          pointerEvents: 'auto',
-          width: '100%',
-        }}
+      <div
+        className={`lg:hidden fixed inset-x-0 bottom-0 transition-transform duration-200 ${isHidden ? "translate-y-full" : "translate-y-0"}`}
+        style={{ zIndex: 99999, isolation: "isolate", willChange: "transform", pointerEvents: "auto", width: "100%" }}
       >
-        <div 
-          className={`bg-background border-t border-border transition-all duration-300 ease-out ${
-            isExpanded 
-              ? 'rounded-t-3xl shadow-[0_-16px_50px_rgba(0,0,0,0.3)]' 
-              : 'shadow-[0_-8px_30px_rgba(0,0,0,0.2)]'
-          }`}
-        >
-          {/* Expanded Form View */}
+        <div className={`bg-background border-t border-border transition-all duration-300 ease-out ${isExpanded ? "rounded-t-3xl shadow-[0_-16px_50px_rgba(0,0,0,0.3)]" : "shadow-[0_-8px_30px_rgba(0,0,0,0.2)]"}`}>
+
+          {/* Expanded Form / Success */}
           {isExpanded && (
-            <div 
-              className="overflow-y-auto overscroll-contain bg-background rounded-t-3xl"
-              style={{ maxHeight: 'calc(85vh - 70px)' }}
-            >
+            <div className="overflow-y-auto overscroll-contain bg-background rounded-t-3xl" style={{ maxHeight: "calc(85vh - 70px)" }}>
+
               {/* Header */}
               <div className="sticky top-0 bg-background z-10 rounded-t-3xl overflow-hidden">
                 <div className="h-0.5 bg-gradient-to-r from-primary via-primary/70 to-transparent" />
-                <div className="px-5 pt-5 pb-4 border-b border-border/40">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-bold text-lg tracking-tight">
-                          {step === "email" ? "Get Pricing & Floor Plans" : step === "details" ? "Complete Your Request" : "Request Sent!"}
-                        </h3>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-muted-foreground">{projectName}</p>
-                        {step === "details" && (
-                          <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-md">
-                            Step 2 of 2
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-9 w-9 rounded-full hover:bg-muted -mr-1"
-                      onClick={() => setIsExpanded(false)}
-                    >
-                      <X className="h-5 w-5" />
-                    </Button>
+                <div className="px-5 pt-4 pb-3 border-b border-border/40 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-bold text-base tracking-tight">
+                      {submitted ? (hasAnyDocuments ? "Access Unlocked" : "Thank You!") : "Get Instant Access"}
+                    </h3>
+                    <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                      {!submitted && <Lock className="h-3 w-3" />}
+                      {submitted
+                        ? hasAnyDocuments ? "Your documents are ready below." : "We'll send details within 24 hours."
+                        : hasAnyDocuments ? "Floor plans & brochures · No obligation" : "An agent will contact you within 24 hrs"}
+                    </p>
                   </div>
+                  <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full hover:bg-muted -mr-1" onClick={() => setIsExpanded(false)}>
+                    <X className="h-5 w-5" />
+                  </Button>
                 </div>
               </div>
 
-              {step === "email" ? (
-                /* STEP 1: Email only */
-                <div className="p-5 pb-8">
-                  <form onSubmit={emailForm.handleSubmit(onEmailSubmit)} onFocus={handleFormInteraction} className="space-y-4">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="mobile-email" className="text-xs font-semibold text-foreground/80">
-                        Email Address
-                      </Label>
-                      <Input
-                        id="mobile-email"
-                        type="email"
-                        inputMode="email"
-                        placeholder="john@email.com"
-                        autoComplete="email"
-                        autoCapitalize="none"
-                        enterKeyHint="go"
-                        {...emailForm.register("email")}
-                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
-                      />
-                      {emailForm.formState.errors.email && (
-                        <p className="text-xs text-destructive">{emailForm.formState.errors.email.message}</p>
-                      )}
-                    </div>
-
-                    <Button 
-                      type="submit" 
-                      className="w-full h-13 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all mt-2 gap-2" 
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? (
-                        <span className="flex items-center gap-2">
-                          <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                          Saving...
-                        </span>
-                      ) : (
-                        <>
-                          Get Access
-                          <ArrowRight className="h-4 w-4" />
-                        </>
-                      )}
-                    </Button>
-
-                    <p className="text-center text-[10px] text-muted-foreground/60 pt-1">
-                      <span className="text-primary/70">✓</span> Instant access · No spam
+              {submitted ? (
+                /* ── SUCCESS ── */
+                hasAnyDocuments ? (
+                  <div className="p-5 space-y-2.5">
+                    <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+                      {projectName} — Available Documents
                     </p>
-                  </form>
-                </div>
-              ) : step === "details" ? (
-                /* STEP 2: Name, Phone, Realtor */
+                    {hasFloorplan && (
+                      <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
+                        <a href={floorplanUrl!} target="_blank" rel="noopener noreferrer">
+                          <LayoutGrid className="h-4 w-4 mr-2" />
+                          {isGoogleDriveLink(floorplanUrl!) ? "View Floor Plans" : "Download Floor Plans"}
+                          {isGoogleDriveLink(floorplanUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
+                        </a>
+                      </Button>
+                    )}
+                    {hasPricing && (
+                      <Button asChild size="lg" variant={hasFloorplan ? "outline" : "default"} className="w-full h-12 text-sm font-semibold rounded-xl">
+                        <a href={pricingUrl!} target="_blank" rel="noopener noreferrer">
+                          <DollarSign className="h-4 w-4 mr-2" />
+                          {isGoogleDriveLink(pricingUrl!) ? "View Pricing Sheet" : "Download Pricing"}
+                          {isGoogleDriveLink(pricingUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
+                        </a>
+                      </Button>
+                    )}
+                    {hasBrochure && (
+                      <Button asChild size="lg" variant="outline" className="w-full h-12 text-sm font-semibold rounded-xl">
+                        <a href={brochureUrl!} target="_blank" rel="noopener noreferrer">
+                          <FileText className="h-4 w-4 mr-2" />
+                          {isGoogleDriveLink(brochureUrl!) ? "View Brochure" : "Download Brochure"}
+                          {isGoogleDriveLink(brochureUrl!) && <ExternalLink className="h-3.5 w-3.5 ml-1.5 opacity-70" />}
+                        </a>
+                      </Button>
+                    )}
+                    {successWhatsappLink && (
+                      <Button asChild size="lg" variant="secondary" className="w-full h-11 text-sm font-semibold rounded-xl">
+                        <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle className="h-4 w-4 mr-2" />Chat with an Agent
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="p-5 space-y-4 pb-8">
+                    <div className="flex items-start gap-3 p-4 bg-primary/5 border border-primary/15 rounded-xl">
+                      <Clock className="h-5 w-5 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">We're updating this project</p>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
+                          We're gathering the latest floor plans and pricing for <strong>{projectName}</strong>. One of our agents will send everything to you within <strong>24 hours</strong>.
+                        </p>
+                      </div>
+                    </div>
+                    {successWhatsappLink && (
+                      <Button asChild size="lg" className="w-full h-12 text-sm font-semibold rounded-xl">
+                        <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
+                          <MessageCircle className="h-4 w-4 mr-2" />Chat with an Agent Now
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                )
+              ) : (
+                /* ── FORM ── */
                 <div className="p-5 pb-8">
-                  <form onSubmit={detailsForm.handleSubmit(onDetailsSubmit)} className="space-y-4">
-                    {/* Email confirmation */}
-                    <div className="flex items-center gap-2 px-3 py-2.5 bg-primary/5 border border-primary/15 rounded-lg">
-                      <CheckCircle className="h-4 w-4 text-primary flex-shrink-0" />
-                      <span className="text-xs text-foreground/70 truncate">{capturedEmail}</span>
+                  {/* Document badges */}
+                  {hasAnyDocuments && (
+                    <div className="flex items-center gap-1.5 flex-wrap mb-4">
+                      {hasFloorplan && <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-md"><LayoutGrid className="h-2.5 w-2.5" /> Floor Plans</span>}
+                      {hasPricing && <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-md"><DollarSign className="h-2.5 w-2.5" /> Pricing</span>}
+                      {hasBrochure && <span className="inline-flex items-center gap-1 text-[10px] font-semibold tracking-wide text-primary bg-primary/10 px-2 py-0.5 rounded-md"><FileText className="h-2.5 w-2.5" /> Brochure</span>}
+                    </div>
+                  )}
+
+                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3.5">
+                    {/* Full Name */}
+                    <div className="space-y-1">
+                      <Label htmlFor="mcta-name" className="text-xs font-semibold text-foreground/80">Full Name</Label>
+                      <Input id="mcta-name" placeholder="John Smith" autoComplete="name" autoCapitalize="words"
+                        {...form.register("fullName")}
+                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                      {form.formState.errors.fullName && <p className="text-xs text-destructive">{form.formState.errors.fullName.message}</p>}
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label htmlFor="mobile-fullName" className="text-xs font-semibold text-foreground/80">
-                        Full Name
-                      </Label>
-                      <Input
-                        id="mobile-fullName"
-                        placeholder="John Smith"
-                        autoComplete="name"
-                        autoCapitalize="words"
-                        autoFocus
-                        {...detailsForm.register("fullName")}
-                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
-                      />
-                      {detailsForm.formState.errors.fullName && (
-                        <p className="text-xs text-destructive">{detailsForm.formState.errors.fullName.message}</p>
-                      )}
+                    {/* Email */}
+                    <div className="space-y-1">
+                      <Label htmlFor="mcta-email" className="text-xs font-semibold text-foreground/80">Email Address</Label>
+                      <Input id="mcta-email" type="email" inputMode="email" placeholder="john@email.com" autoComplete="email" autoCapitalize="none"
+                        {...form.register("email")}
+                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                      {form.formState.errors.email && <p className="text-xs text-destructive">{form.formState.errors.email.message}</p>}
                     </div>
 
-                    <div className="space-y-1.5">
-                      <Label htmlFor="mobile-phone" className="text-xs font-semibold text-foreground/80">
-                        Phone
-                      </Label>
-                      <Input
-                        id="mobile-phone"
-                        type="tel"
-                        inputMode="tel"
-                        placeholder="(604) 555-0123"
-                        autoComplete="tel"
-                        {...detailsForm.register("phone")}
-                        className="h-12 text-[16px] rounded-lg border border-border bg-background shadow-[inset_0_1px_2px_hsl(var(--foreground)/0.04)] placeholder:text-muted-foreground/40 focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all"
-                      />
-                      {detailsForm.formState.errors.phone && (
-                        <p className="text-xs text-destructive">{detailsForm.formState.errors.phone.message}</p>
-                      )}
+                    {/* Phone */}
+                    <div className="space-y-1">
+                      <Label htmlFor="mcta-phone" className="text-xs font-semibold text-foreground/80">Phone Number</Label>
+                      <Input id="mcta-phone" type="tel" inputMode="tel" placeholder="(604) 555-0123" autoComplete="tel"
+                        {...form.register("phone")}
+                        className="h-12 text-[16px] rounded-lg border border-border focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all" />
+                      {form.formState.errors.phone && <p className="text-xs text-destructive">{form.formState.errors.phone.message}</p>}
                     </div>
 
-                    <div className="flex items-center gap-3 pt-0.5">
-                      <Checkbox
-                        id="mobile-isRealtor"
-                        checked={detailsForm.watch("isRealtor")}
-                        onCheckedChange={(checked) => detailsForm.setValue("isRealtor", checked === true)}
-                        className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary transition-colors"
-                      />
-                      <Label htmlFor="mobile-isRealtor" className="text-sm text-foreground/70 cursor-pointer select-none">
-                        I'm a Realtor
-                      </Label>
+                    {/* Checkboxes */}
+                    <div className="space-y-2.5 pt-1">
+                      <div className="flex items-center gap-3">
+                        <Checkbox id="mcta-agent" checked={form.watch("workingWithAgent")} onCheckedChange={(v) => form.setValue("workingWithAgent", v === true)}
+                          className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                        <Label htmlFor="mcta-agent" className="text-sm text-foreground/70 cursor-pointer select-none">I'm working with a real estate agent</Label>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Checkbox id="mcta-realtor" checked={form.watch("isRealtor")} onCheckedChange={(v) => form.setValue("isRealtor", v === true)}
+                          className="h-[18px] w-[18px] rounded border-border/80 data-[state=checked]:bg-primary data-[state=checked]:border-primary" />
+                        <Label htmlFor="mcta-realtor" className="text-sm text-foreground/70 cursor-pointer select-none">I am a Realtor</Label>
+                      </div>
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      className="w-full h-13 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all mt-2 gap-2" 
-                      disabled={isSubmitting}
-                    >
+                    {form.formState.errors.root && (
+                      <p className="text-xs text-destructive text-center">{form.formState.errors.root.message}</p>
+                    )}
+
+                    <Button type="submit" className="w-full h-12 font-semibold text-[15px] rounded-lg shadow-gold hover:shadow-gold-glow transition-all gap-2" disabled={isSubmitting}>
                       {isSubmitting ? (
                         <span className="flex items-center gap-2">
                           <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
@@ -310,81 +341,38 @@ export function ProjectMobileCTA({
                       ) : (
                         <>
                           <Download className="h-4 w-4" />
-                          Download Info
+                          {hasAnyDocuments ? "Get Instant Access" : "Request Information"}
                         </>
                       )}
                     </Button>
 
-                    <p className="text-center text-[10px] text-muted-foreground/60 pt-1">
-                      <span className="text-primary/70">✓</span> Instant access · No spam
+                    <p className="text-center text-[10px] text-muted-foreground/60">
+                      <span className="text-primary/70">✓</span> No spam · <a href="/privacy" className="underline hover:text-foreground/60">Privacy Policy</a>
                     </p>
                   </form>
-                </div>
-              ) : (
-                /* SUCCESS STATE */
-                <div className="p-6 text-center">
-                  <div className="inline-flex items-center justify-center w-14 h-14 bg-primary/10 rounded-2xl mb-4">
-                    <CheckCircle className="h-7 w-7 text-primary" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-1.5">Request Sent!</h3>
-                  <p className="text-sm text-muted-foreground mb-5">
-                    Check your email for floor plans and pricing details.
-                  </p>
-                  {successWhatsappLink && (
-                    <Button asChild variant="outline" className="w-full h-12 rounded-lg mb-3 font-semibold">
-                      <a href={successWhatsappLink} target="_blank" rel="noopener noreferrer">
-                        <MessageCircle className="h-4 w-4 mr-2" />
-                        Chat on WhatsApp
-                      </a>
-                    </Button>
-                  )}
-                  <Button variant="ghost" className="w-full h-11 rounded-lg text-muted-foreground" onClick={() => setIsExpanded(false)}>
-                    Close
-                  </Button>
                 </div>
               )}
             </div>
           )}
 
           {/* Collapsed CTA Bar */}
-          <div 
-            className="py-3 bg-background"
-            style={{
-              paddingLeft: 'max(16px, env(safe-area-inset-left, 16px))',
-              paddingRight: 'max(16px, env(safe-area-inset-right, 16px))',
-              paddingBottom: 'max(16px, env(safe-area-inset-bottom, 16px))',
-            }}
-          >
+          <div className="py-3 bg-background"
+            style={{ paddingLeft: "max(16px, env(safe-area-inset-left, 16px))", paddingRight: "max(16px, env(safe-area-inset-right, 16px))", paddingBottom: "max(16px, env(safe-area-inset-bottom, 16px))" }}>
             <div className="flex items-center gap-3">
-              <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl touch-active" asChild>
-                <a href="tel:+16722581100" aria-label="Call agent">
-                  <Phone className="h-5 w-5" />
-                </a>
+              <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl" asChild>
+                <a href="tel:+16722581100" aria-label="Call agent"><Phone className="h-5 w-5" /></a>
               </Button>
-
               {whatsappLink && (
-                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-primary border-border hover:bg-accent touch-active" asChild>
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp">
-                    <MessageCircle className="h-5 w-5" />
-                  </a>
+                <Button variant="outline" size="icon" className="shrink-0 h-12 w-12 min-w-[48px] min-h-[48px] rounded-xl text-primary border-border hover:bg-accent" asChild>
+                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" aria-label="Chat on WhatsApp"><MessageCircle className="h-5 w-5" /></a>
                 </Button>
               )}
-
-              <Button 
-                size="lg"
-                className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background touch-active"
-                onClick={isExpanded ? () => setIsExpanded(false) : () => setIsExpanded(true)}
-              >
+              <Button size="lg" className="flex-1 h-14 min-h-[56px] rounded-xl font-semibold text-base gap-2 bg-foreground hover:bg-foreground/90 text-background"
+                onClick={isExpanded ? () => setIsExpanded(false) : () => setIsExpanded(true)}>
                 {isExpanded ? (
-                  <>
-                    <ChevronDown className="h-4 w-4" />
-                    <span>Close</span>
-                  </>
+                  <><ChevronDown className="h-4 w-4" /><span>Close</span></>
                 ) : (
-                  <>
-                    <Download className="h-4 w-4" />
-                    <span>Download Info</span>
-                  </>
+                  <><Download className="h-4 w-4" /><span>Download Info</span></>
                 )}
               </Button>
             </div>
