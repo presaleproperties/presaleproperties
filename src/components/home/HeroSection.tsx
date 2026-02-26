@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
-import heroImage from "@/assets/hero-lifestyle.jpg";
+import { HeroProjectSlider } from "./HeroProjectSlider";
 
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford", "Burnaby"];
 
@@ -122,29 +122,22 @@ export function HeroSection({
   return (
     <>
       {/* Hero Section — minimal premium */}
-      <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100dvh - 72px)" }}>
-        {/* Background Image */}
-        <img
-          src={heroImage}
-          alt="Luxury presale homes Metro Vancouver"
-          className="absolute inset-0 w-full h-full object-cover"
-          loading="eager"
-          decoding="sync"
-          fetchPriority="high"
-        />
-        {/* Overlay — deep but clean */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70" />
+      <section className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
+        {/* Auto-scrolling project slider as background */}
+        <HeroProjectSlider />
+        {/* Fallback overlay for when slider loads */}
+        <div className="absolute inset-0 bg-black/20 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
-        <div className="relative z-10 w-full flex flex-col items-center px-5 sm:px-8">
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pb-32 sm:pb-36">
           {/* Headline */}
-          <h1 className="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold text-white text-center leading-[1.08] tracking-tight mb-5 max-w-3xl">
+          <h1 className="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold text-white text-center leading-[1.08] tracking-tight mb-5 max-w-3xl drop-shadow-lg">
             New Homes.{" "}
-            <span className="text-primary">Exclusive Access.</span>
+            <span className="text-primary drop-shadow-[0_0_20px_hsl(40_65%_55%/0.4)]">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-sm sm:text-base text-white/55 text-center max-w-lg mb-10 leading-relaxed font-normal">
+          <p className="text-sm sm:text-base text-white/80 text-center max-w-lg mb-10 leading-relaxed font-normal drop-shadow">
             Presale condos &amp; move-in ready homes across Metro Vancouver.
           </p>
 
@@ -204,14 +197,14 @@ export function HeroSection({
           <div className="flex items-center gap-5 mt-5">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-xs text-white/45 hover:text-white/70 transition-colors"
+              className="text-xs text-white/70 hover:text-white transition-colors drop-shadow"
             >
               Explore the map →
             </Link>
-            <span className="text-white/20 text-xs">|</span>
+            <span className="text-white/30 text-xs">|</span>
             <button
               onClick={() => setModalOpen(true)}
-              className="text-xs text-primary/90 font-semibold hover:text-primary transition-colors"
+              className="text-xs text-primary font-semibold hover:text-primary/80 transition-colors drop-shadow"
             >
               Get VIP Access — Free →
             </button>
