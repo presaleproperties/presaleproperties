@@ -39,6 +39,7 @@ interface PowerSearchProps {
   maxResults?: number;
   mode?: "all" | "presale" | "resale" | "assignments";
   variant?: "default" | "hero" | "compact";
+  hideIcon?: boolean;
 }
 
 const formatPrice = (price?: number | null): string => {
@@ -60,6 +61,7 @@ export function PowerSearch({
   maxResults = 10,
   mode = "all",
   variant = "default",
+  hideIcon = false,
 }: PowerSearchProps) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -414,10 +416,12 @@ export function PowerSearch({
     <div ref={containerRef} className={cn("relative w-full", className)}>
       {/* Search Input */}
       <div className="relative">
-        <Search className={cn(
-          "absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10",
-          isHero ? "h-5 w-5 text-muted-foreground" : "h-4 w-4 text-muted-foreground"
-        )} />
+        {!hideIcon && (
+          <Search className={cn(
+            "absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none z-10",
+            isHero ? "h-5 w-5 text-muted-foreground" : "h-4 w-4 text-muted-foreground"
+          )} />
+        )}
         <Input
           ref={inputRef}
           type="text"
@@ -430,8 +434,12 @@ export function PowerSearch({
           onFocus={() => setIsOpen(true)}
           autoFocus={autoFocus}
           className={cn(
-            "pl-10 pr-10 transition-all",
-            isHero && "h-14 text-base rounded-xl",
+            "transition-all",
+            !hideIcon && "pl-10",
+            hideIcon && "pl-3",
+            "pr-10",
+            isHero && !hideIcon && "h-14 text-base rounded-xl",
+            isHero && hideIcon && "h-full text-sm rounded-none border-0 shadow-none bg-transparent",
             isCompact && "h-9 text-sm",
             isOpen && displayResults.length > 0 && "rounded-b-none",
             inputClassName

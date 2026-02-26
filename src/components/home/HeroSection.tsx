@@ -207,7 +207,8 @@ export function HeroSection({
                   placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
-                  inputClassName="h-[56px] sm:h-[64px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-1"
+                  hideIcon
+                  inputClassName="h-[60px] sm:h-[68px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
                 />
               </div>
 

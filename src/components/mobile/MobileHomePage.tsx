@@ -224,7 +224,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                   placeholder={activeTab === "projects" ? "City, project…" : "Address, MLS#…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
-                  inputClassName="h-[54px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-1" />
+                  hideIcon
+                  inputClassName="h-[58px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none" />
               </div>
 
               {/* Circular search button */}
