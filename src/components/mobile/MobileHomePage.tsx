@@ -14,7 +14,7 @@ import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
 import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
-import heroImage from "@/assets/hero-lifestyle.jpg";
+import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
 import { SearchTab } from "@/components/home/HeroSection";
 
 
@@ -152,26 +152,20 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}>
 
-        {/* Background Image */}
-        <div className="absolute inset-0">
-          <img
-            src={heroImage}
-            alt="Modern home interior"
-            className="w-full h-full object-cover object-center" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/72" />
-        </div>
+        {/* Auto-scrolling project slider as background */}
+        <HeroProjectSlider />
 
-        {/* Hero Content — vertically centered using absolute positioning */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 16px)' }}>
+        {/* Hero Content — vertically centered, sits above slider */}
+        <div className="absolute inset-0 z-[5] flex flex-col justify-center items-center px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 120px)' }}>
 
           {/* Headline */}
-          <h1 className="text-[2rem] sm:text-[2.4rem] font-extrabold text-white leading-[1.1] text-center mb-3 tracking-tight">
+          <h1 className="text-[2rem] sm:text-[2.4rem] font-extrabold text-white leading-[1.1] text-center mb-3 tracking-tight drop-shadow-lg">
             New Homes.{" "}
-            <span className="text-primary">Exclusive Access.</span>
+            <span className="text-primary drop-shadow-[0_0_20px_hsl(40_65%_55%/0.4)]">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[13px] text-white/50 text-center mb-7 leading-relaxed max-w-[280px]">
+          <p className="text-[13px] text-white/80 text-center mb-7 leading-relaxed max-w-[280px] drop-shadow">
             Presale condos &amp; move-in ready homes across Metro Vancouver.
           </p>
 
@@ -225,14 +219,14 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="flex items-center gap-4 mt-5">
             <a
               href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/45 hover:text-white/70 transition-colors"
+              className="text-[11px] text-white/70 hover:text-white transition-colors drop-shadow"
             >
               Explore the map →
             </a>
-            <span className="text-white/20 text-[11px]">|</span>
+            <span className="text-white/30 text-[11px]">|</span>
             <button
               onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary/90 font-semibold hover:text-primary transition-colors"
+              className="text-[11px] text-primary font-semibold hover:text-primary/80 transition-colors drop-shadow"
             >
               Get VIP Access — Free →
             </button>
