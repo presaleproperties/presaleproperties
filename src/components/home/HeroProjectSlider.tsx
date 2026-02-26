@@ -179,8 +179,8 @@ export function HeroProjectSlider() {
             <ChevronRight className="h-4 w-4" />
           </button>
 
-          {/* Dot indicators — centered bottom, above project card */}
-          <div className="absolute bottom-[88px] sm:bottom-[100px] left-0 right-0 z-[4] flex items-center justify-center gap-1.5">
+          {/* Dot indicators — tablet+ only */}
+          <div className="hidden sm:flex absolute bottom-[88px] sm:bottom-[100px] left-0 right-0 z-[4] items-center justify-center gap-1.5">
             {projects.map((_, i) => (
               <button
                 key={i}
