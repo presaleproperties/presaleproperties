@@ -1,7 +1,7 @@
 import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Map, Building2, Home, Calendar, Castle, MapPin, DollarSign, BedDouble } from "lucide-react";
+import { Map, Building2, Home, Calendar, Castle, MapPin, DollarSign, BedDouble, X } from "lucide-react";
 import { MobileDiscoveryCarousel } from "./MobileDiscoveryCarousel";
 import { MobileResaleCarousel } from "./MobileResaleCarousel";
 import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
@@ -32,8 +32,66 @@ interface MobileHomePageProps {
   onTabChange?: (tab: SearchTab) => void;
 }
 
+const MOBILE_TRUST_STATS = [
+  { value: "111", label: "Active Projects" },
+  { value: "450+", label: "Agent Network" },
+  { value: "$200M+", label: "In Sales" },
+  { value: "5.0 ★", label: "Google Rating" },
+];
+
+function MobileVIPModal({ onClose }: { onClose: () => void }) {
+  const [form, setForm] = useState({ firstName: "", email: "", phone: "" });
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSubmitted(true);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-card rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-md p-6">
+        <button onClick={onClose} className="absolute top-4 right-4 text-muted-foreground hover:text-foreground">
+          <X className="h-5 w-5" />
+        </button>
+        {submitted ? (
+          <div className="text-center py-4">
+            <div className="text-3xl mb-3">🎉</div>
+            <h2 className="text-xl font-bold text-foreground mb-1">You're In!</h2>
+            <p className="text-sm text-muted-foreground">VIP access details are on the way.</p>
+          </div>
+        ) : (
+          <>
+            <h2 className="text-xl font-bold text-foreground mb-1">Get VIP Presale Access</h2>
+            <p className="text-sm text-muted-foreground mb-5 leading-relaxed">
+              Be first to see pricing, floor plans and off-market assignments before they go public.
+            </p>
+            <form onSubmit={handleSubmit} className="space-y-3">
+              <input type="text" required placeholder="First Name" value={form.firstName}
+                onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+              <input type="email" required placeholder="Email Address" value={form.email}
+                onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+              <input type="tel" placeholder="Phone Number (optional)" value={form.phone}
+                onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
+                className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
+              <button type="submit" className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm">
+                Get Instant Access
+              </button>
+              <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
+            </form>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function MobileHomePage({ activeTab: controlledTab, onTabChange }: MobileHomePageProps) {
   const [internalTab, setInternalTab] = useState<SearchTab>("projects");
+  const [mobileModalOpen, setMobileModalOpen] = useState(false);
   const activeTab = controlledTab ?? internalTab;
 
   const handleTabChange = (tab: SearchTab) => {
@@ -89,7 +147,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
 
 
-      {/* Full-Screen Hero Section - Brand Luxe Style */}
+      {/* Full-Screen Hero Section */}
       <div
         className="relative min-h-[75vh] flex flex-col"
         style={{
@@ -103,44 +161,35 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             src={heroImage}
             alt="Modern home interior"
             className="w-full h-full object-cover" />
-
-          {/* Gradient overlay - warmer, more luxe feel */}
-          <div className="absolute inset-0 bg-gradient-to-b from-foreground/50 via-foreground/40 to-foreground/70" />
+          {/* Darker overlay for text contrast */}
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/50" />
         </div>
 
         {/* Hero Content */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-6 pt-20 pb-8">
-          {/* Main Headline - Simple & Bold */}
-          <h1 className="text-3xl sm:text-4xl font-black text-white leading-tight text-center mb-2 tracking-tight">
-            Vancouver Presales
-          </h1>
-          <p className="text-lg sm:text-xl font-semibold text-primary text-center mb-8">
-            Made Simple
-          </p>
-          
-          {/* Search Container */}
-          <div className="w-full max-w-md">
-            <PowerSearch
-              placeholder={activeTab === "projects" ?
-              "Search projects, address, neighbourhood..." :
-              "Address, MLS#, city, neighbourhood..."
-              }
-              mode={activeTab === "projects" ? "presale" : "resale"}
-              variant="hero"
-              inputClassName="h-14 text-base rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground" />
-
+        <div className="relative flex-1 flex flex-col justify-center items-center px-5 pt-20 pb-8">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 border border-primary/50 backdrop-blur-sm mb-4">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-white">
+              Vancouver's Only Presale-Exclusive Platform
+            </span>
           </div>
 
-          {/* Mode Toggle Pills - Brand Gold Accent */}
-          <div className="flex items-center gap-2 mt-6">
+          {/* Headline — max 2 lines on mobile */}
+          <h1 className="text-[28px] font-extrabold text-white leading-tight text-center mb-3 tracking-tight max-w-[320px]">
+            Access Presale Projects{" "}
+            <span className="text-primary">Before They Go Public</span>
+          </h1>
+
+          {/* Mode Toggle Pills */}
+          <div className="flex items-center gap-2 mb-5">
             <button
               onClick={() => handleTabChange("projects")}
               className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
               activeTab === "projects" ?
               "bg-primary text-primary-foreground shadow-lg" :
-              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`
-              }>
-
+              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`}>
               Presale
             </button>
             <button
@@ -148,28 +197,52 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
               className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all ${
               activeTab === "resale" ?
               "bg-primary text-primary-foreground shadow-lg" :
-              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`
-              }>
-
+              "bg-white/15 text-white backdrop-blur-sm border border-white/20"}`}>
               Move-In Ready
             </button>
+          </div>
+
+          {/* Primary CTA */}
+          <button
+            onClick={() => setMobileModalOpen(true)}
+            className="w-full max-w-md h-12 rounded-full bg-primary text-primary-foreground font-bold text-sm mb-3 shadow-lg shadow-primary/30"
+          >
+            Get VIP Access — It's Free
+          </button>
+
+          {/* Search Container */}
+          <div className="w-full max-w-md">
+            <PowerSearch
+              placeholder={activeTab === "projects" ?
+              "Search projects, address, neighbourhood..." :
+              "Address, MLS#, city, neighbourhood..."}
+              mode={activeTab === "projects" ? "presale" : "resale"}
+              variant="hero"
+              inputClassName="h-12 text-sm rounded-xl bg-card border border-border/20 shadow-xl focus:ring-2 focus:ring-primary/50 placeholder:text-muted-foreground" />
+          </div>
+
+          {/* Map text link */}
+          <div className="mt-2">
+            <a
+              href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="text-[11px] text-white/50 hover:text-white/75 transition-colors"
+            >
+              or explore the map →
+            </a>
           </div>
         </div>
       </div>
 
-      {/* Stats bar */}
-      <div className="grid grid-cols-4 bg-foreground divide-x divide-white/10">
-        {[
-          { value: "$200M+", label: "Sold" },
-          { value: "400+", label: "Homes" },
-          { value: "15+", label: "Yrs Exp" },
-          { value: "5.0★", label: "Rating" },
-        ].map((s, i) => (
-          <div key={i} className="flex flex-col items-center py-3 px-1 gap-0.5">
-            <span className="text-sm font-extrabold text-primary leading-none">{s.value}</span>
-            <span className="text-[9px] text-white/45 uppercase tracking-wider">{s.label}</span>
-          </div>
-        ))}
+      {/* Trust Bar — 2×2 grid on mobile */}
+      <div className="bg-[#0d0d0d] border-b border-white/5">
+        <div className="grid grid-cols-2 divide-x divide-white/10">
+          {MOBILE_TRUST_STATS.map((stat, i) => (
+            <div key={i} className={`flex flex-col items-center py-4 gap-0.5 ${i >= 2 ? "border-t border-white/10" : ""}`}>
+              <span className="text-base font-extrabold text-white leading-none">{stat.value}</span>
+              <span className="text-[9px] text-primary font-semibold uppercase tracking-wider text-center">{stat.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Quick Navigation — Cities only */}
@@ -416,6 +489,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         aria-label="Map Search">
         <Map className="h-6 w-6" />
       </button>
+
+      {/* VIP Modal */}
+      {mobileModalOpen && <MobileVIPModal onClose={() => setMobileModalOpen(false)} />}
 
     </div>);
 
