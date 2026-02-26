@@ -156,39 +156,48 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider />
 
         {/* Hero Content — vertically centered, sits above slider */}
-        <div className="absolute inset-0 z-[5] flex flex-col justify-center items-center px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 120px)' }}>
+        <div className="absolute inset-0 z-[5] flex flex-col justify-center items-center px-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom, 0px) + 130px)' }}>
+
+          {/* Gold eyebrow */}
+          <div className="flex items-center gap-2.5 mb-5">
+            <div className="h-px w-6 bg-gradient-to-r from-transparent to-primary/70" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.22em] text-primary/90">
+              Metro Vancouver's #1 Presale Platform
+            </span>
+            <div className="h-px w-6 bg-gradient-to-l from-transparent to-primary/70" />
+          </div>
 
           {/* Headline */}
-          <h1 className="text-[2rem] sm:text-[2.4rem] font-extrabold text-white leading-[1.1] text-center mb-3 tracking-tight drop-shadow-lg">
+          <h1 className="text-[2.1rem] sm:text-[2.5rem] font-extrabold text-white leading-[1.08] text-center mb-3 tracking-tight" style={{ textShadow: "0 2px 30px rgba(0,0,0,0.7)" }}>
             New Homes.{" "}
-            <span className="text-primary drop-shadow-[0_0_20px_hsl(40_65%_55%/0.4)]">Exclusive Access.</span>
+            <span className="text-primary" style={{ textShadow: "0 0 30px hsl(40 65% 55% / 0.45)" }}>Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[13px] text-white/80 text-center mb-7 leading-relaxed max-w-[280px] drop-shadow">
+          <p className="text-[12px] text-white/70 text-center mb-7 leading-relaxed max-w-[270px] font-light tracking-wide">
             Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
           </p>
 
-          {/* Search Bar — stacked layout prevents cramping on narrow screens */}
+          {/* Search Bar — glassmorphism */}
           <div className="w-full max-w-sm sm:max-w-md">
             {/* Tab row */}
-            <div className="flex items-center gap-1.5 mb-2 justify-center">
+            <div className="flex items-center gap-1.5 mb-2.5 justify-center">
               <button
                 onClick={() => handleTabChange("projects")}
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   activeTab === "projects"
                     ? "bg-white text-foreground shadow-md"
-                    : "bg-white/15 text-white/80 hover:bg-white/25"
+                    : "bg-white/15 backdrop-blur-sm text-white/85 border border-white/20"
                 }`}
               >
                 Presale
               </button>
               <button
                 onClick={() => handleTabChange("resale")}
-                className={`px-5 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                className={`px-5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                   activeTab === "resale"
                     ? "bg-white text-foreground shadow-md"
-                    : "bg-white/15 text-white/80 hover:bg-white/25"
+                    : "bg-white/15 backdrop-blur-sm text-white/85 border border-white/20"
                 }`}
               >
                 Move-In Ready
@@ -196,18 +205,18 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
 
             {/* Input row */}
-            <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[54px]">
+            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-visible h-[58px] border border-white/30">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City or project name…" : "Address, MLS#, city…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[54px] text-[15px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 rounded-none shadow-none" />
+                  inputClassName="h-[58px] text-[15px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-0 focus-visible:ring-offset-0 pl-5 rounded-none shadow-none" />
               </div>
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-10 h-10 mr-2 rounded-full bg-foreground text-background flex items-center justify-center active:scale-90 transition-transform"
+                className="shrink-0 w-10 h-10 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-md"
                 aria-label="Search"
               >
                 <Search className="w-4 h-4" />
@@ -215,37 +224,37 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Minimal links row */}
+          {/* Links row */}
           <div className="flex items-center gap-4 mt-5">
             <a
               href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/70 hover:text-white transition-colors drop-shadow"
+              className="text-[11px] text-white/60 hover:text-white transition-colors tracking-wide"
             >
               Explore the map →
             </a>
-            <span className="text-white/30 text-[11px]">|</span>
+            <span className="w-px h-3 bg-white/20" />
             <button
               onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary font-semibold hover:text-primary/80 transition-colors drop-shadow"
+              className="text-[11px] text-primary font-bold tracking-wide"
             >
-              Get VIP Access — Free →
+              ✦ VIP Access — Free
             </button>
           </div>
         </div>
       </div>
 
-      {/* Trust Bar — 4-col on sm, 2×2 on xs */}
-      <div className="bg-[#0d0d0d] border-b border-white/5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/10">
+      {/* Trust Bar — premium dark */}
+      <div className="bg-[#080808] border-b border-white/[0.06]">
+        <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/[0.07]">
           {[
             { value: "111", label: "Active Projects" },
             { value: "400+", label: "Presale Properties Sold" },
             { value: "$200M+", label: "In Presale Sales" },
             { value: "5.0 ★", label: "Google Rating" },
           ].map((stat, i) => (
-            <div key={i} className={`flex flex-col items-center py-4 gap-0.5 ${i >= 2 ? "border-t border-white/10 sm:border-t-0" : ""}`}>
-              <span className="text-base font-extrabold text-white leading-none">{stat.value}</span>
-              <span className="text-[9px] sm:text-[10px] text-primary font-semibold uppercase tracking-wider text-center leading-tight px-1">{stat.label}</span>
+            <div key={i} className={`flex flex-col items-center py-4 gap-1 ${i >= 2 ? "border-t border-white/[0.07] sm:border-t-0" : ""}`}>
+              <span className="text-[1.05rem] font-extrabold text-white leading-none tracking-tight">{stat.value}</span>
+              <span className="text-[8px] sm:text-[9px] text-primary/80 font-bold uppercase tracking-[0.18em] text-center leading-tight px-1">{stat.label}</span>
             </div>
           ))}
         </div>
