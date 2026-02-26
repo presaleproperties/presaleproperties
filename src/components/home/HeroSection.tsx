@@ -138,7 +138,7 @@ export function HeroSection({
 
           {/* Subheadline */}
           <p className="text-sm sm:text-base text-white/80 text-center max-w-lg mb-10 leading-relaxed font-normal drop-shadow">
-            Presale condos &amp; move-in ready homes across Metro Vancouver.
+            Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
           </p>
 
           {/* Search Bar */}
