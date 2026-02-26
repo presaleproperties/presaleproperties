@@ -144,7 +144,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
       {/* Full-Screen Hero Section */}
       <div
-        className="relative"
+        className="relative overflow-hidden"
         style={{
           height: 'calc(100dvh - 60px)',
           minHeight: '560px',
@@ -158,27 +158,30 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[2] pointer-events-none bg-black/25" />
 
         {/* Hero Content */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-end px-5 pb-10 pointer-events-none">
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28">
 
           {/* Eyebrow */}
-          <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-primary/80 text-center mb-3">
-            Metro Vancouver's #1 Presale Platform
-          </p>
+          <div className="flex items-center gap-2 mb-5 px-2">
+            <div className="h-px w-5 bg-primary/60 shrink-0" />
+            <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-primary text-center drop-shadow leading-tight">
+              Metro Vancouver's #1 Presale Platform
+            </span>
+            <div className="h-px w-5 bg-primary/60 shrink-0" />
+          </div>
 
           {/* Headline */}
-          <h1 className="text-[2rem] font-extrabold text-white leading-[1.1] text-center mb-1.5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
-            New Homes.
-            <br />
+          <h1 className="text-[2rem] font-extrabold text-white leading-[1.08] text-center mb-3 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
+            New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-[11px] text-white/50 text-center mb-6 leading-relaxed font-light">
-            Presale &amp; developer inventory across Metro Vancouver.
+          <p className="text-[12px] text-white/60 text-center mb-7 leading-relaxed font-light">
+            Presale &amp; developer inventory<br />across Metro Vancouver.
           </p>
 
           {/* Tab pills */}
-          <div className="flex items-center gap-2 mb-3 pointer-events-auto">
+          <div className="flex items-center gap-2 mb-3">
             {(["projects", "resale"] as SearchTab[]).map((tab) => (
               <button
                 key={tab}
@@ -195,15 +198,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search bar */}
-          <div className="w-full pointer-events-auto">
-            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/20">
+          <div className="w-full max-w-xs">
+            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
-                  inputClassName="h-[52px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
+                  inputClassName="h-[52px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
                 />
               </div>
               <button
@@ -217,17 +220,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Links row */}
-          <div className="flex items-center gap-3 mt-3 pointer-events-auto">
+          <div className="flex items-center gap-3 mt-4">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-[11px] text-white/50 hover:text-white/80 transition-colors"
+              className="text-[11px] text-white/55 hover:text-white/80 transition-colors"
             >
               Explore the map →
             </Link>
             <span className="w-px h-3 bg-white/20" />
             <button
               onClick={() => setMobileModalOpen(true)}
-              className="text-[11px] text-primary font-semibold"
+              className="text-[11px] text-primary font-bold"
             >
               ✦ Get VIP Access
             </button>
@@ -236,17 +239,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
       </div>
 
       {/* Trust Bar */}
-      <div className="bg-background border-b border-border/40">
-        <div className="grid grid-cols-4 divide-x divide-border/50">
+      <div className="bg-[#080808] border-b border-white/[0.06]">
+        <div className="grid grid-cols-4 divide-x divide-white/[0.07]">
           {[
             { value: "111", label: "Projects" },
-            { value: "450+", label: "Homes Sold" },
+            { value: "450+", label: "Sold" },
             { value: "$200M+", label: "In Sales" },
             { value: "5.0 ★", label: "Rating" },
           ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center py-3 gap-0.5">
-              <span className="text-sm font-extrabold text-foreground leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[9px] text-muted-foreground font-medium uppercase tracking-[0.1em] text-center">{stat.label}</span>
+            <div key={i} className="flex flex-col items-center py-4 gap-1">
+              <span className="text-sm font-extrabold text-white leading-none tracking-tight">{stat.value}</span>
+              <span className="text-[8px] text-primary/80 font-bold uppercase tracking-[0.15em] text-center leading-tight">{stat.label}</span>
             </div>
           ))}
         </div>
