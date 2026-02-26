@@ -144,7 +144,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
       {/* Full-Screen Hero Section */}
       <div
-        className="relative min-h-[80vh] flex flex-col"
+        className="relative min-h-[85vh] flex flex-col"
         style={{
           transform: pullDistance > 0 ? `translateY(${pullDistance}px)` : undefined,
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
@@ -156,37 +156,26 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             src={heroImage}
             alt="Modern home interior"
             className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-black/55" />
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/55" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70" />
         </div>
 
-        {/* Hero Content — centered */}
-        <div className="relative flex-1 flex flex-col justify-center items-center px-5 pt-20 pb-10">
-          {/* Eyebrow */}
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/55 mb-3 text-center">
-            Metro Vancouver's Presale Platform
-          </p>
-
+        {/* Hero Content */}
+        <div className="relative flex-1 flex flex-col justify-center items-center px-5 pt-16 pb-10">
           {/* Headline */}
-          <h1 className="text-3xl font-extrabold text-white leading-tight text-center mb-4 tracking-tight">
+          <h1 className="text-[2.1rem] font-extrabold text-white leading-tight text-center mb-3 tracking-tight">
             New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
-          {/* Feature pills — key differentiators */}
-          <div className="flex items-center gap-2 flex-wrap justify-center mb-6">
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold">
-              📄 Instant Floor Plans
-            </span>
-            <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-[11px] font-semibold">
-              💰 Instant Pricing Sheets
-            </span>
-          </div>
+          {/* Subheadline */}
+          <p className="text-sm text-white/50 text-center mb-8 leading-relaxed max-w-xs">
+            Presale condos &amp; move-in ready homes across Metro Vancouver.
+          </p>
 
-          {/* Search Bar — REW-style single pill */}
+          {/* Search Bar */}
           <div className="w-full max-w-md">
             <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[58px]">
-              {/* Tab switcher — left side */}
+              {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-1.5 gap-0.5">
                 <button
                   onClick={() => handleTabChange("projects")}
@@ -234,21 +223,22 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Map text link */}
-          <a
-            href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-            className="mt-3 text-[11px] text-white/50 hover:text-white/75 transition-colors"
-          >
-            or explore the map →
-          </a>
-
-          {/* VIP CTA */}
-          <button
-            onClick={() => setMobileModalOpen(true)}
-            className="mt-4 text-xs text-primary font-semibold underline underline-offset-4"
-          >
-            Get VIP Access — It's Free →
-          </button>
+          {/* Minimal links row */}
+          <div className="flex items-center gap-4 mt-5">
+            <a
+              href={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="text-[11px] text-white/45 hover:text-white/70 transition-colors"
+            >
+              Explore the map →
+            </a>
+            <span className="text-white/20 text-[11px]">|</span>
+            <button
+              onClick={() => setMobileModalOpen(true)}
+              className="text-[11px] text-primary/90 font-semibold hover:text-primary transition-colors"
+            >
+              Get VIP Access — Free →
+            </button>
+          </div>
         </div>
       </div>
 

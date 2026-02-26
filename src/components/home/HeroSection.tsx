@@ -121,7 +121,7 @@ export function HeroSection({
 
   return (
     <>
-      {/* Hero Section — centered REW-style layout */}
+      {/* Hero Section — minimal premium */}
       <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100vh - 72px)" }}>
         {/* Background Image */}
         <img
@@ -132,49 +132,26 @@ export function HeroSection({
           decoding="sync"
           fetchPriority="high"
         />
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
+        {/* Overlay — deep but clean */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/45 to-black/70" />
 
         {/* Centered Content */}
-        <div className="relative z-10 w-full flex flex-col items-center px-4 sm:px-6 py-16">
-          {/* Eyebrow */}
-          <p className="text-xs sm:text-sm font-semibold uppercase tracking-[0.2em] text-white/60 mb-4 text-center">
-            Metro Vancouver's Presale-Exclusive Platform
-          </p>
-
+        <div className="relative z-10 w-full flex flex-col items-center px-5 sm:px-8">
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white text-center leading-[1.05] tracking-tight mb-4 max-w-4xl drop-shadow-2xl">
+          <h1 className="text-[2.6rem] sm:text-5xl md:text-6xl lg:text-[4.5rem] font-extrabold text-white text-center leading-[1.08] tracking-tight mb-5 max-w-3xl">
             New Homes.{" "}
             <span className="text-primary">Exclusive Access.</span>
           </h1>
 
-          {/* Subheadline — hidden on mobile */}
-          <p className="hidden sm:block text-base sm:text-lg text-white/65 text-center max-w-xl mb-6 leading-relaxed">
-            Presale condos, move-in ready homes &amp; off-market developer inventory — all in one place.
+          {/* Subheadline */}
+          <p className="text-sm sm:text-base text-white/55 text-center max-w-lg mb-10 leading-relaxed font-normal">
+            Presale condos &amp; move-in ready homes across Metro Vancouver.
           </p>
 
-          {/* Key feature pills — instant downloads */}
-          <div className="hidden sm:flex items-center gap-2.5 flex-wrap justify-center mb-8">
-            {[
-              { icon: "📄", label: "Instant Floor Plan Download" },
-              { icon: "💰", label: "Instant Pricing Sheet Download" },
-              { icon: "🏗️", label: "Off-Market Developer Inventory" },
-            ].map((f) => (
-              <span
-                key={f.label}
-                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/12 backdrop-blur-sm border border-white/20 text-white/90 text-xs font-semibold"
-              >
-                <span>{f.icon}</span>
-                {f.label}
-              </span>
-            ))}
-          </div>
-
-          {/* Search Bar — REW-style single pill */}
+          {/* Search Bar */}
           <div className="w-full max-w-2xl">
             <div className="flex items-center bg-white rounded-full shadow-2xl overflow-visible h-[60px] sm:h-[68px]">
-              {/* Tab switcher — left side of pill */}
+              {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-2 gap-1">
                 <button
                   onClick={() => handleTabChange("projects")}
@@ -201,7 +178,7 @@ export function HeroSection({
               {/* Vertical divider */}
               <div className="w-px h-7 bg-border mx-2 shrink-0" />
 
-              {/* Search input — middle */}
+              {/* Search input */}
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
@@ -212,7 +189,7 @@ export function HeroSection({
                 />
               </div>
 
-              {/* Circular search button — right */}
+              {/* Search button */}
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
                 className="shrink-0 w-10 h-10 sm:w-12 sm:h-12 mr-2 rounded-full bg-foreground text-background flex items-center justify-center hover:bg-foreground/85 transition-colors"
@@ -223,35 +200,22 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Map link */}
-          <Link
-            to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-            className="mt-3 text-xs text-white/50 hover:text-white/80 transition-colors"
-          >
-            or explore the map →
-          </Link>
-
-          {/* City pills */}
-          <div className="flex items-center gap-2 flex-wrap justify-center mt-6">
-            <span className="text-white/40 text-xs uppercase tracking-wider font-medium">Top Cities:</span>
-            {projectCities.map((city) => (
-              <button
-                key={city}
-                onClick={() => handleCityClick(city)}
-                className="text-xs px-3.5 py-1.5 rounded-full bg-white/10 border border-white/25 text-white/75 hover:bg-white/20 hover:text-white transition-all backdrop-blur-sm font-medium"
-              >
-                {city}
-              </button>
-            ))}
+          {/* Minimal links row */}
+          <div className="flex items-center gap-5 mt-5">
+            <Link
+              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="text-xs text-white/45 hover:text-white/70 transition-colors"
+            >
+              Explore the map →
+            </Link>
+            <span className="text-white/20 text-xs">|</span>
+            <button
+              onClick={() => setModalOpen(true)}
+              className="text-xs text-primary/90 font-semibold hover:text-primary transition-colors"
+            >
+              Get VIP Access — Free →
+            </button>
           </div>
-
-          {/* VIP CTA — subtle below cities */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="mt-5 text-xs text-primary font-semibold underline underline-offset-4 hover:text-primary/80 transition-colors"
-          >
-            Get VIP Access — It's Free →
-          </button>
         </div>
       </section>
 
