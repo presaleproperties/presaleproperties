@@ -75,6 +75,7 @@ const AdminThemeManager = lazy(() => import("./pages/admin/AdminThemeManager"));
 const AdminTasks = lazy(() => import("./pages/admin/AdminTasks"));
 const AdminSystem = lazy(() => import("./pages/admin/AdminSystem"));
 const AdminTechStack = lazy(() => import("./pages/admin/AdminTechStack"));
+const AdminLiveActivity = lazy(() => import("./pages/admin/AdminLiveActivity"));
 const AdminClients = lazy(() => import("./pages/admin/AdminClients"));
 const AdminClientSearches = lazy(() => import("./pages/admin/AdminClientSearches"));
 const AdminClientForm = lazy(() => import("./pages/admin/AdminClientForm"));
@@ -338,6 +339,7 @@ const App = () => (
             <Route path="/admin/tasks" element={<AdminProtectedRoute><AdminTasks /></AdminProtectedRoute>} />
             <Route path="/admin/system" element={<AdminProtectedRoute><AdminSystem /></AdminProtectedRoute>} />
             <Route path="/admin/tech-stack" element={<AdminProtectedRoute><AdminTechStack /></AdminProtectedRoute>} />
+            <Route path="/admin/live-activity" element={<AdminProtectedRoute><AdminLiveActivity /></AdminProtectedRoute>} />
             
             {/* Agent URL Redirects - common typos/variants */}
             <Route path="/agent" element={<Navigate to="/for-agents" replace />} />
