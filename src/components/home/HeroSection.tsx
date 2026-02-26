@@ -129,7 +129,7 @@ export function HeroSection({
         <div className="absolute inset-0 bg-black/20 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
-        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pb-36 sm:pb-44">
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
 
           {/* Gold eyebrow line */}
           <div className="flex items-center gap-3 mb-6">
