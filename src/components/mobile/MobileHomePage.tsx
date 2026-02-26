@@ -158,7 +158,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[2] pointer-events-none bg-black/25" />
 
         {/* Hero Content */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28">
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 pb-28 pointer-events-none">
 
           {/* Eyebrow */}
           <div className="flex items-center gap-2 mb-5">
@@ -181,7 +181,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </p>
 
           {/* Tab pills */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 pointer-events-auto">
             {(["projects", "resale"] as SearchTab[]).map((tab) => (
               <button
                 key={tab}
@@ -198,7 +198,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search bar */}
-          <div className="w-full max-w-xs">
+          <div className="w-full max-w-xs pointer-events-auto">
             <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
@@ -220,7 +220,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Links row */}
-          <div className="flex items-center gap-3 mt-4">
+          <div className="flex items-center gap-3 mt-4 pointer-events-auto">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="text-[11px] text-white/55 hover:text-white/80 transition-colors"
