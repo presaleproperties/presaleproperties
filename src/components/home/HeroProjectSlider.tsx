@@ -185,16 +185,18 @@ export function HeroProjectSlider() {
           </button>
 
           {/* Pill indicators — bottom right, small and clean */}
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:bottom-[110px] sm:right-8 md:bottom-[120px] z-[4] flex items-center gap-1.5">
+          <div className="absolute bottom-[100px] sm:bottom-[115px] md:bottom-[125px] left-1/2 -translate-x-1/2 z-[4] flex items-center gap-[5px]">
             {projects.map((_, i) => (
               <button
                 key={i}
                 onClick={() => goTo(i)}
-                style={{ width: 5, height: 5, minWidth: 5 }}
+                style={i === current
+                  ? { width: 7, height: 7, minWidth: 7 }
+                  : { width: 5, height: 5, minWidth: 5 }}
                 className={`transition-all duration-300 rounded-full shrink-0 ${
                   i === current
-                    ? "bg-primary shadow-[0_0_6px_hsl(40_65%_55%/0.5)]"
-                    : "bg-white/35"
+                    ? "bg-primary"
+                    : "bg-white/30"
                 }`}
                 aria-label={`Go to project ${i + 1}`}
               />
