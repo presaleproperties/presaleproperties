@@ -1,76 +1,122 @@
 
-## Bot/Crawler IP Filtering — Block Datacenter Ranges from Tracking & Webhooks
+## Live Activity Monitor — Admin Dashboard
 
-### Problem
-Bot traffic from known datacenter IP ranges (China, India, Singapore, etc.) is hitting edge functions and triggering unnecessary tracking records and Zapier webhook calls. Currently there is no IP-based filtering at the edge function layer.
-
-### Strategy
-Add a lightweight IP guard at the top of the two primary inbound edge functions — **`track-client-activity`** and **`send-behavior-event`** — that checks the client IP against a blocklist of known bad ranges before doing any database writes or webhook calls.
+### Overview
+A new admin page at `/admin/live-activity` that shows real-time visitor sessions, IP flags, bot detection status, and suspicious traffic alerts. It polls the `client_activity` table every 10 seconds and uses Supabase Realtime for live inserts.
 
 ---
 
-### Blocked Ranges (Initial Set)
+### What Gets Built
 
-| Range | Region | Reason |
-|---|---|---|
-| `43.173.x.x` | China (Tencent Cloud) | Confirmed scrapers in activity logs |
-| `42.106.x.x` | India (Jio DC) | Confirmed scrapers in activity logs |
-| `45.83.x.x` | Eastern Europe DC | Generic datacenter crawlers |
-| `185.220.x.x` | Tor exit nodes | Anonymised abuse traffic |
-| `194.165.x.x` | Russia DC | Known bot range |
-| `167.94.x.x` | Censys/ZMap scanners | Mass internet scanners |
-| `216.244.x.x` | DotSematext crawlers | SEO/content bots |
+**1. New Page: `src/pages/admin/AdminLiveActivity.tsx`**
 
-The list is maintained as a simple array inside a shared helper — easy to extend.
+A full-page dashboard with 4 sections:
+
+**Header Stats Bar** (auto-refreshing every 10s)
+- Active sessions in last 30 min
+- Blocked/flagged IPs count (last 24h — from console logs proxy via DB)
+- Unique visitors today
+- Bot attempts blocked (sourced from activity with suspicious IP patterns)
+
+**Live Activity Feed** (real-time via Supabase channel subscription)
+- Scrollable table, newest-first
+- Columns: Time, Activity Type, Visitor ID (truncated), IP Address, City (from activity), Page, Device, Flags
+- Color-coded rows: green = clean, yellow = watch, red = flagged/suspicious
+- IP flag logic runs client-side against `BLOCKED_IP_PREFIXES`:
+  - `43.173.`, `42.106.`, `45.83.`, `185.220.`, `194.165.`, `167.94.`, `216.244.`
+- Bot badge shown if IP prefix matches
+- "Known Lead" badge if `client_id` is linked
+
+**Suspicious Traffic Alerts Panel** (right sidebar)
+- Groups flagged IPs from last 24h by prefix/country
+- Shows: IP, hit count, last seen, inferred region label
+- Quick-action "Add to Blocklist" note (informational — shows the prefix to add)
+
+**Session Summary Cards** (below feed)
+- Top 5 most active visitor IDs in the last hour with activity counts
+- Top 5 pages viewed in the last hour
+- Device type breakdown (desktop/mobile/tablet)
 
 ---
 
-### Implementation
+### Data Source
 
-#### Shared Helper (inlined in each function)
-```typescript
-const BLOCKED_IP_PREFIXES = [
-  "43.173.", "42.106.", "45.83.", "185.220.",
-  "194.165.", "167.94.", "216.244."
-];
+All data comes from the existing `client_activity` table — no schema changes needed.
 
-function isBlockedIP(ip: string | null): boolean {
-  if (!ip) return false;
-  return BLOCKED_IP_PREFIXES.some(prefix => ip.startsWith(prefix));
-}
+```
+Query for feed:
+SELECT id, created_at, activity_type, visitor_id, ip_address, city,
+       page_url, page_title, device_type, client_id, session_id
+FROM client_activity
+ORDER BY created_at DESC
+LIMIT 200
 ```
 
-If the IP matches, the function returns `{ success: true, blocked: true }` immediately with HTTP 200 — **no database writes, no Zapier calls**. Returning 200 (not 403) prevents bots from retrying with different strategies.
+Realtime subscription on `client_activity` INSERT events updates the feed live.
 
-#### Guard placement
-
-**`track-client-activity/index.ts`** — after extracting `clientIP`, before any DB logic:
-```typescript
-if (isBlockedIP(clientIP)) {
-  console.log(`[BOT_BLOCK] Blocked IP: ${clientIP}`);
-  return new Response(JSON.stringify({ success: true, blocked: true }), { ... });
-}
-```
-
-**`send-behavior-event/index.ts`** — same placement, same pattern.
+IP flagging runs in the browser — no backend changes needed for the detection logic.
 
 ---
 
-### Changes (2 files, server-side only)
+### Navigation Integration
 
-| File | Change |
+Added to `AdminLayout.tsx` under the **Analytics** section:
+```
+{ href: "/admin/live-activity", label: "Live Monitor", icon: Activity }
+```
+
+And to `iconColors`:
+```
+"Live Monitor": "text-red-500"
+```
+
+Route added to `App.tsx`:
+```tsx
+<Route path="/admin/live-activity" element={<AdminProtectedRoute><AdminLiveActivity /></AdminProtectedRoute>} />
+```
+
+---
+
+### Technical Detail
+
+**Realtime setup:**
+```typescript
+const channel = supabase
+  .channel('live-activity-feed')
+  .on('postgres_changes', {
+    event: 'INSERT',
+    schema: 'public',
+    table: 'client_activity',
+  }, (payload) => {
+    setActivities(prev => [payload.new as ActivityRow, ...prev].slice(0, 200));
+  })
+  .subscribe();
+```
+
+**IP flagging (client-side, consistent with edge functions):**
+```typescript
+const BLOCKED_IP_PREFIXES = ["43.173.", "42.106.", "45.83.", "185.220.", "194.165.", "167.94.", "216.244."];
+const IP_REGION_MAP: Record<string, string> = {
+  "43.173.": "China (Tencent Cloud)",
+  "42.106.": "India (Jio DC)",
+  "45.83.":  "Eastern Europe DC",
+  "185.220.": "Tor Exit Node",
+  "194.165.": "Russia DC",
+  "167.94.": "Censys Scanner",
+  "216.244.": "DotSematext Bot",
+};
+```
+
+**Auto-refresh:** Stats bar polls every 10 seconds using `setInterval` in `useEffect`.
+
+---
+
+### Files Changed
+
+| File | Action |
 |---|---|
-| `supabase/functions/track-client-activity/index.ts` | Add `isBlockedIP` helper + guard after IP extraction |
-| `supabase/functions/send-behavior-event/index.ts` | Add `isBlockedIP` helper + guard after IP extraction |
+| `src/pages/admin/AdminLiveActivity.tsx` | Create — main page |
+| `src/components/admin/AdminLayout.tsx` | Add nav item + icon color |
+| `src/App.tsx` | Add route |
 
----
-
-### What This Does NOT Change
-- Legitimate users are completely unaffected
-- Lead forms, booking forms, and Zapier webhooks for real leads continue to work normally
-- Database schema unchanged
-- No frontend changes required
-- The IP blocklist can be extended at any time by adding entries to the `BLOCKED_IP_PREFIXES` array
-
-### Silent Blocking (200 vs 403)
-Returning HTTP 200 with `blocked: true` is intentional — bots seeing 403 will often retry or escalate. A silent 200 response discourages retry behavior and reduces server load.
+No database migrations. No edge function changes. No secrets required.
