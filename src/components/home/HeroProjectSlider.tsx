@@ -166,14 +166,14 @@ export function HeroProjectSlider() {
         <>
           <button
             onClick={prev}
-            className="flex absolute left-3 sm:left-4 md:left-6 top-1/2 -translate-y-1/2 z-[10] w-10 h-10 md:w-10 md:h-10 rounded-2xl bg-black/45 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/60 active:scale-95 transition-all"
+            className="flex absolute left-3 sm:left-4 md:left-6 top-[30%] -translate-y-1/2 z-[10] w-10 h-10 rounded-2xl bg-black/45 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/60 active:scale-95 transition-all"
             aria-label="Previous project"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
           <button
             onClick={next}
-            className="flex absolute right-3 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 z-[10] w-10 h-10 rounded-2xl bg-black/45 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/60 active:scale-95 transition-all"
+            className="flex absolute right-3 sm:right-4 md:right-6 top-[30%] -translate-y-1/2 z-[10] w-10 h-10 rounded-2xl bg-black/45 backdrop-blur-md border border-white/15 text-white items-center justify-center hover:bg-black/60 active:scale-95 transition-all"
             aria-label="Next project"
           >
             <ChevronRight className="h-4 w-4" />
