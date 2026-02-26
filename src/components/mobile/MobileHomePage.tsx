@@ -8,7 +8,7 @@ import { MobileResaleCityCarousel } from "./MobileResaleCityCarousel";
 import { MobileCityQuickLinks } from "./MobileCityQuickLinks";
 import { usePullToRefresh } from "@/hooks/usePullToRefresh";
 import { PullToRefreshIndicator } from "@/components/ui/pull-to-refresh";
-import { NewConstructionBenefits } from "@/components/home/NewConstructionBenefits";
+import { PresaleExpertsSection } from "@/components/home/PresaleExpertsSection";
 import { RelatedContent } from "@/components/home/RelatedContent";
 import { ROICalculatorTeaser } from "@/components/home/ROICalculatorTeaser";
 import { HomeUnifiedMapSection } from "@/components/map/HomeUnifiedMapSection";
@@ -155,6 +155,21 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Stats bar */}
+      <div className="grid grid-cols-4 bg-foreground divide-x divide-white/10">
+        {[
+          { value: "$200M+", label: "Sold" },
+          { value: "400+", label: "Homes" },
+          { value: "15+", label: "Yrs Exp" },
+          { value: "5.0★", label: "Rating" },
+        ].map((s, i) => (
+          <div key={i} className="flex flex-col items-center py-3 px-1 gap-0.5">
+            <span className="text-sm font-extrabold text-primary leading-none">{s.value}</span>
+            <span className="text-[9px] text-white/45 uppercase tracking-wider">{s.label}</span>
+          </div>
+        ))}
       </div>
 
       {/* Quick Navigation — Cities only */}
@@ -370,7 +385,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
       {/* Benefits Section */}
       <div className="mt-6">
-        <NewConstructionBenefits />
+        <PresaleExpertsSection />
       </div>
 
       {/* ROI Calculator Teaser */}
