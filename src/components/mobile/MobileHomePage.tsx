@@ -184,8 +184,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
           {/* Headline */}
           <h1 className="text-[2rem] sm:text-4xl font-extrabold text-white leading-[1.08] text-center mb-2 tracking-tight max-w-[320px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            New &amp; Presale Homes{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>in Metro Vancouver.</span>
+            Find New{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Homes.</span>
           </h1>
 
           {/* Subheadline */}
