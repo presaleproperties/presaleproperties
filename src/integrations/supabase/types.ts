@@ -2090,6 +2090,7 @@ export type Database = {
       project_leads: {
         Row: {
           agent_status: string | null
+          assigned_to: string | null
           budget: string | null
           city_interest: Json | null
           created_at: string
@@ -2110,6 +2111,9 @@ export type Database = {
           project_interest: Json | null
           referrer: string | null
           session_id: string | null
+          status: string
+          status_notes: string | null
+          status_updated_at: string | null
           timeline: string | null
           utm_campaign: string | null
           utm_content: string | null
@@ -2120,6 +2124,7 @@ export type Database = {
         }
         Insert: {
           agent_status?: string | null
+          assigned_to?: string | null
           budget?: string | null
           city_interest?: Json | null
           created_at?: string
@@ -2140,6 +2145,9 @@ export type Database = {
           project_interest?: Json | null
           referrer?: string | null
           session_id?: string | null
+          status?: string
+          status_notes?: string | null
+          status_updated_at?: string | null
           timeline?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -2150,6 +2158,7 @@ export type Database = {
         }
         Update: {
           agent_status?: string | null
+          assigned_to?: string | null
           budget?: string | null
           city_interest?: Json | null
           created_at?: string
@@ -2170,6 +2179,9 @@ export type Database = {
           project_interest?: Json | null
           referrer?: string | null
           session_id?: string | null
+          status?: string
+          status_notes?: string | null
+          status_updated_at?: string | null
           timeline?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
