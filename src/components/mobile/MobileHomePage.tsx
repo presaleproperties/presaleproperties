@@ -176,13 +176,13 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           transition: pullDistance === 0 ? 'transform 0.3s ease-out' : undefined
         }}>
 
-        <HeroProjectSlider />
+        <HeroProjectSlider lightOverlay />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
         <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-36 sm:pt-44" style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 9rem)` }}>
 
           {/* Headline */}
-          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
+          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-5 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.45)" }}>
             Find Your{" "}
             <span className="text-primary">New Home.</span>
           </h1>
