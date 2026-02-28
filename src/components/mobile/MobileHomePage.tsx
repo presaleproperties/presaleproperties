@@ -206,8 +206,8 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </div>
 
           {/* Search bar */}
-          <div className="w-full max-w-[320px] sm:max-w-sm">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] border border-white/30">
+          <div className="w-full max-w-[340px] sm:max-w-[420px]">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] sm:h-[60px] border border-white/30">
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
@@ -215,7 +215,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                   variant="hero"
                   hideIcon
                   dropdownContainer={searchBarRef}
-                  inputClassName="h-[52px] text-[13px] border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
+                  inputClassName="h-[52px] sm:h-[60px] text-[13px] sm:text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
                 />
               </div>
               <button

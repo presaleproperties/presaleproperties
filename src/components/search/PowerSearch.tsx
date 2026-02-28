@@ -493,22 +493,22 @@ export function PowerSearch({
                     <button
                       onClick={() => handleSelect(result)}
                       onMouseEnter={() => setActiveIndex(index)}
-                      className={cn(
-                        "w-full flex items-center gap-3.5 px-4 py-3 text-left transition-colors duration-100",
-                        "border-b border-border/30 last:border-0",
-                        index === activeIndex
-                          ? "bg-muted/60"
-                          : "hover:bg-muted/35 active:bg-muted/60"
-                      )}
+                    className={cn(
+                      "w-full flex items-center gap-3.5 px-4 py-3 text-left transition-colors duration-100",
+                      "border-b border-border/30 last:border-0",
+                      index === activeIndex
+                        ? "bg-muted/60"
+                        : "hover:bg-muted/35 active:bg-muted/60"
+                    )}
                     >
                       {/* Thumbnail */}
                       {result.image ? (
-                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 shadow-sm">
+                        <div className="w-11 h-11 rounded-xl overflow-hidden bg-muted shrink-0 shadow-sm">
                           <img src={result.image} alt={result.title} className="w-full h-full object-cover" loading="lazy" />
                         </div>
                       ) : (
                         <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                          "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
                           result.type === "city" || result.type === "neighborhood" ? "bg-muted/70" : "bg-primary/10"
                         )}>
                           {getIcon(result.type)}
@@ -517,13 +517,13 @@ export function PowerSearch({
 
                       {/* Text */}
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
-                          <span className="font-semibold text-[13.5px] text-foreground truncate leading-snug">{result.title}</span>
+                        <div className="flex items-center gap-1.5 mb-0.5 flex-wrap">
+                          <span className="font-semibold text-[13px] text-foreground leading-snug">{result.title}</span>
                           <span className={cn("text-[9px] font-bold uppercase tracking-wider px-1.5 py-[3px] rounded-md shrink-0 leading-none", getTypeBadgeClass(result.type))}>
                             {getTypeLabel(result.type)}
                           </span>
                         </div>
-                        <p className="text-[11.5px] text-muted-foreground truncate leading-snug">
+                        <p className="text-[11px] text-muted-foreground leading-snug truncate">
                           {result.subtitle}
                           {result.meta && (result.meta.beds || result.meta.sqft) && (
                             <span className="text-muted-foreground/55">
@@ -535,7 +535,7 @@ export function PowerSearch({
 
                       {/* Price */}
                       {result.price && (
-                        <span className="font-bold text-[14px] text-primary shrink-0 tabular-nums">{formatPrice(result.price)}</span>
+                        <span className="font-bold text-[13px] text-primary shrink-0 tabular-nums ml-1">{formatPrice(result.price)}</span>
                       )}
                     </button>
                   </li>
