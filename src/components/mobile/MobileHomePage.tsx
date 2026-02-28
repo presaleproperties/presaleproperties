@@ -190,7 +190,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
 
           {/* Subheadline */}
           <p className="text-white/70 text-sm text-center max-w-[300px] sm:max-w-sm mb-4 leading-relaxed" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
-            Browse condos, townhomes &amp; houses — floor plans, pricing &amp; incentives before public launch.
+            Metro Vancouver 📍
           </p>
 
           {/* Search bar */}
