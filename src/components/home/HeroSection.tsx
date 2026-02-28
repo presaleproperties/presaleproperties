@@ -148,7 +148,7 @@ export function HeroSection({
   return (
     <>
       {/* Hero Section — minimal premium */}
-      <section className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
+      <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100dvh - 72px)" }}>
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
         {/* Fallback overlay for when slider loads */}
@@ -217,7 +217,7 @@ export function HeroSection({
           </div>
 
           {/* Map link */}
-          <div className="relative z-[1] flex items-center gap-5 mt-5">
+          <div className="flex items-center gap-5 mt-5" style={{ position: "relative", zIndex: 1 }}>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
