@@ -180,80 +180,65 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider lightOverlay />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-36 sm:pt-44 overflow-visible" style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 9rem)` }}>
-
-          {/* Urgency badge */}
-          <div className="mb-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-[11px] font-medium">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
-            111 Active Projects — VIP Pricing Available
-          </div>
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 overflow-visible">
 
           {/* Headline */}
-          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.45)" }}>
-            First Access to{" "}
-            <span className="text-primary">BC's Best Presales.</span>
+          <h1 className="text-5xl font-extrabold text-white leading-[1.05] text-center mb-8 tracking-tight max-w-xs" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            Get First Access to{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
           </h1>
-          <p className="text-white/70 text-xs text-center mb-5 max-w-[280px] leading-relaxed" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
-            VIP pricing & off-market assignments before they go public.
-          </p>
 
-          {/* Search bar with inline toggles */}
-          <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[420px]">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible border border-white/30">
-              {/* Inline tab toggles */}
-              <div className="flex items-center gap-0.5 ml-2 shrink-0 bg-muted/30 rounded-xl p-0.5">
+          {/* Search bar */}
+          <div className="relative z-[10] w-full max-w-sm">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[72px] border border-white/40">
+              {/* Tab switcher */}
+              <div className="flex items-center shrink-0 pl-2 gap-1">
                 {(["projects", "resale"] as SearchTab[]).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => handleTabChange(tab)}
-                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all leading-none whitespace-nowrap ${
+                    className={`px-3 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                       activeTab === tab
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground"
+                        ? "bg-foreground text-background shadow-sm"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
                   >
-                    {tab === "projects" ? "Presale" : "Ready"}
+                    {tab === "projects" ? "Presale" : "Move-In Ready"}
                   </button>
                 ))}
               </div>
 
               {/* Divider */}
-              <div className="w-px h-6 bg-border/50 mx-1.5 shrink-0" />
+              <div className="w-px h-7 bg-border/60 mx-2 shrink-0" />
 
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
-                  placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
+                  placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
                   dropdownContainer={searchBarRef}
-                  inputClassName="h-[52px] sm:h-[60px] text-[13px] sm:text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-0 rounded-none shadow-none"
+                  inputClassName="h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
                 />
               </div>
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-9 h-9 mr-1.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-90 transition-transform shadow-md"
+                className="shrink-0 w-12 h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all shadow-md"
                 aria-label="Search"
               >
-                <Search className="w-4 h-4" />
+                <Search className="w-5 h-5" />
               </button>
             </div>
           </div>
 
-          {/* CTAs */}
-          <div className="flex items-center gap-2 mt-4">
-            <button
-              onClick={() => setMobileModalOpen(true)}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-all shadow-lg"
-            >
-              🔑 Get VIP Access
-            </button>
+          {/* Search by Map CTA */}
+          <div className="flex items-center justify-center mt-5">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-[13px] font-semibold active:scale-95 transition-all shadow-lg"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold active:scale-95 transition-all shadow-lg"
             >
-              <MapPin className="w-3.5 h-3.5 text-white/80" />
-              Map
+              <MapPin className="w-4 h-4 text-white/80" />
+              Search by Map
             </Link>
           </div>
 
