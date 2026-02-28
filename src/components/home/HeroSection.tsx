@@ -160,19 +160,19 @@ export function HeroSection({
 
 
           {/* Headline */}
-          <h1 className="text-[2.4rem] sm:text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+          <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
             Get First Access to{" "}
             <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
           </h1>
 
           {/* Search Bar — glassmorphism premium */}
           <div className="relative z-[10] w-full max-w-2xl">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[72px] border border-white/40">
               {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-2 gap-1">
                 <button
                   onClick={() => handleTabChange("projects")}
-                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                  className={`px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                     activeTab === "projects"
                       ? "bg-foreground text-background shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -182,7 +182,7 @@ export function HeroSection({
                 </button>
                 <button
                   onClick={() => handleTabChange("resale")}
-                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                  className={`px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
                     activeTab === "resale"
                       ? "bg-foreground text-background shadow-sm"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
@@ -203,17 +203,17 @@ export function HeroSection({
                   variant="hero"
                   hideIcon
                   dropdownContainer={searchBarRef}
-                  inputClassName="h-[64px] sm:h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
+                  inputClassName="h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
                 />
               </div>
 
               {/* Search button — gold accent */}
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-md"
+                className="shrink-0 w-12 h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-md"
                 aria-label="Search"
               >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="w-5 h-5" />
               </button>
             </div>
           </div>
