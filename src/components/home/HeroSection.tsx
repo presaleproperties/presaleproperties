@@ -247,23 +247,6 @@ export function HeroSection({
         </div>
       </section>
 
-      {/* Trust Bar — premium dark */}
-      <div className="bg-[#080808] border-b border-white/[0.06]">
-        <div className="container px-4 sm:px-6">
-          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/[0.07]">
-            {TRUST_STATS.map((stat, i) => (
-              <div key={i} className="flex flex-col items-center justify-center py-5 sm:py-7 gap-1.5 px-3">
-                <span className="text-xl sm:text-2xl md:text-[1.75rem] font-extrabold text-white leading-none tracking-tight">
-                  {stat.value}
-                </span>
-                <span className="text-[9px] sm:text-[10px] text-primary/80 font-bold uppercase tracking-[0.18em] text-center leading-tight">
-                  {stat.label}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
       {/* VIP Modal */}
       {modalOpen && <VIPModal onClose={() => setModalOpen(false)} />}
