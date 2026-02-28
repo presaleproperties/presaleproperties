@@ -182,11 +182,20 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         {/* Hero Content — anchored to top only, never covers bottom project card */}
         <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-36 sm:pt-44 overflow-visible" style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 9rem)` }}>
 
+          {/* Urgency badge */}
+          <div className="mb-4 flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-[11px] font-medium">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse shrink-0" />
+            111 Active Projects — VIP Pricing Available
+          </div>
+
           {/* Headline */}
-          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-5 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.45)" }}>
-            Find Your{" "}
-            <span className="text-primary">New Home.</span>
+          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-2 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.45)" }}>
+            First Access to{" "}
+            <span className="text-primary">BC's Best Presales.</span>
           </h1>
+          <p className="text-white/70 text-xs text-center mb-5 max-w-[280px] leading-relaxed" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
+            VIP pricing & off-market assignments before they go public.
+          </p>
 
           {/* Search bar with inline toggles */}
           <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[420px]">
@@ -231,14 +240,20 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
-          {/* Search by Map link */}
-          <div className="mt-4">
+          {/* CTAs */}
+          <div className="flex items-center gap-2 mt-4">
+            <button
+              onClick={() => setMobileModalOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-bold active:scale-95 transition-all shadow-lg"
+            >
+              🔑 Get VIP Access
+            </button>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-[13px] font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-[13px] font-semibold active:scale-95 transition-all shadow-lg"
             >
-              <MapPin className="w-4 h-4 text-white/80" />
-              Search by Map
+              <MapPin className="w-3.5 h-3.5 text-white/80" />
+              Map
             </Link>
           </div>
 

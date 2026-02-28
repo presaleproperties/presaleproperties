@@ -42,7 +42,7 @@ interface Booking {
   id: string;
   appointment_type: "preview" | "showing";
   appointment_date: string;
-  appointment_time: string;
+  appointment_time: string | null;
   status: BookingStatus;
   project_name: string;
   project_city: string | null;
@@ -113,7 +113,9 @@ function BookingCard({
                 {format(parseISO(booking.appointment_date), "d")}
               </span>
               <span className="text-xs text-muted-foreground">
-                {format(parseISO(`2000-01-01T${booking.appointment_time}`), "h:mm a")}
+                {booking.appointment_time 
+                  ? format(parseISO(`2000-01-01T${booking.appointment_time}`), "h:mm a")
+                  : "—"}
               </span>
             </div>
 
@@ -255,7 +257,9 @@ export default function AdminBookings() {
             name: booking.name,
             project_name: booking.project_name,
             appointment_date: format(parseISO(booking.appointment_date), "EEEE, MMMM d, yyyy"),
-            appointment_time: format(parseISO(`2000-01-01T${booking.appointment_time}`), "h:mm a"),
+            appointment_time: booking.appointment_time 
+              ? format(parseISO(`2000-01-01T${booking.appointment_time}`), "h:mm a")
+              : "",
             status: newStatus,
           },
         });

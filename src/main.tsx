@@ -2,6 +2,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
+import { GlobalErrorBoundary } from "./components/GlobalErrorBoundary.tsx";
 import "./index.css";
 
 // Ensure splash plays for a minimum duration before dismissing
@@ -27,9 +28,11 @@ if (container) {
   const root = createRoot(container);
   root.render(
     <React.StrictMode>
-      <HelmetProvider>
-        <App />
-      </HelmetProvider>
+      <GlobalErrorBoundary>
+        <HelmetProvider>
+          <App />
+        </HelmetProvider>
+      </GlobalErrorBoundary>
     </React.StrictMode>
   );
   // Wait for first meaningful paint, then respect minimum splash time

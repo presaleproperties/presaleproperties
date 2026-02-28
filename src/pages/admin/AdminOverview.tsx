@@ -22,8 +22,19 @@ import {
   FileStack,
   RefreshCw,
   Sparkles,
+  TrendingUp,
+  CheckCircle2,
+  Phone,
+  Star,
 } from "lucide-react";
-import { format, subDays, startOfMonth } from "date-fns";
+import { format, startOfMonth } from "date-fns";
+
+interface LeadPipeline {
+  new: number;
+  contacted: number;
+  qualified: number;
+  converted: number;
+}
 
 interface DashboardStats {
   totalProjects: number;
@@ -36,6 +47,7 @@ interface DashboardStats {
   totalAssignments: number;
   publishedAssignments: number;
   pendingAssignments: number;
+  leadPipeline: LeadPipeline;
   recentLeads: Array<{
     id: string;
     name: string;
@@ -43,6 +55,8 @@ interface DashboardStats {
     created_at: string;
     project_id: string | null;
     landing_page: string | null;
+    lead_status: string;
+    intent_score: number | null;
     presale_projects?: { name: string } | null;
   }>;
   recentBookings: Array<{
@@ -115,7 +129,7 @@ export default function AdminOverview() {
   const fetchStats = async () => {
     try {
       const startOfCurrentMonth = startOfMonth(new Date()).toISOString();
-      const startOfLastMonth = startOfMonth(subDays(new Date(), 30)).toISOString();
+      const startOfLastMonth = startOfMonth(new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1)).toISOString();
       
       const [
         totalProjectsRes, publishedProjectsRes,
@@ -127,7 +141,8 @@ export default function AdminOverview() {
         funnelRes,
         topListingsRes,
         topMlsListingsRes,
-      ] = await Promise.all([
+        pipelineNewRes, pipelineContactedRes, pipelineQualifiedRes, pipelineConvertedRes,
+      ] = await Promise.allSettled([
         supabase.from("presale_projects").select("*", { count: "exact", head: true }),
         supabase.from("presale_projects").select("*", { count: "exact", head: true }).eq("is_published", true),
         supabase.from("project_leads").select("*", { count: "exact", head: true }),
@@ -135,7 +150,7 @@ export default function AdminOverview() {
         supabase.from("project_leads").select("*", { count: "exact", head: true }).gte("created_at", startOfLastMonth).lt("created_at", startOfCurrentMonth),
         supabase.from("bookings").select("*", { count: "exact", head: true }),
         supabase.from("bookings").select("*", { count: "exact", head: true }).eq("status", "pending"),
-        supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, presale_projects(name)").order("created_at", { ascending: false }).limit(5),
+        supabase.from("project_leads").select("id, name, email, created_at, project_id, landing_page, lead_status, intent_score, presale_projects(name)").neq("name", "Newsletter Signup").order("created_at", { ascending: false }).limit(5),
         supabase.from("bookings").select("id, name, project_name, appointment_date, status").order("created_at", { ascending: false }).limit(5),
         supabase.rpc("get_top_projects_with_engagement", { days_back: 90, result_limit: 10 }),
         (supabase as any).from("listings").select("*", { count: "exact", head: true }),
@@ -144,37 +159,46 @@ export default function AdminOverview() {
         supabase.rpc("get_engagement_funnel", { days_back: 90 }),
         (supabase as any).from("listings").select("id, title, project_name, city, assignment_price, status").eq("status", "published").order("created_at", { ascending: false }).limit(5),
         supabase.rpc("get_top_mls_listings_with_engagement", { days_back: 90, result_limit: 5 }),
+        // Pipeline counts
+        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "new"),
+        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "contacted"),
+        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "qualified"),
+        supabase.from("project_leads").select("*", { count: "exact", head: true }).eq("lead_status", "converted"),
       ]);
 
-      // Build top listings with lead counts
-      const listingsData = (topListingsRes.data || []).map((l: any) => ({
-        ...l,
-        view_count: 0,
-        lead_count: 0,
-      }));
+      const get = <T,>(res: PromiseSettledResult<T>) => res.status === "fulfilled" ? res.value : null;
+      const getCount = (res: PromiseSettledResult<any>) => res.status === "fulfilled" ? (res.value as any)?.count ?? 0 : 0;
+      const getData = (res: PromiseSettledResult<any>) => res.status === "fulfilled" ? (res.value as any)?.data ?? [] : [];
 
-      const funnelData = funnelRes.data;
+      const listingsData = getData(topListingsRes).map((l: any) => ({ ...l, view_count: 0, lead_count: 0 }));
+      const funnelData = getData(funnelRes);
 
       setStats({
-        totalProjects: totalProjectsRes.count || 0,
-        publishedProjects: publishedProjectsRes.count || 0,
-        totalLeads: leadsRes.count || 0,
-        leadsThisMonth: leadsThisMonthRes.count || 0,
-        leadsLastMonth: leadsLastMonthRes.count || 0,
-        totalBookings: bookingsRes.count || 0,
-        pendingBookings: pendingBookingsRes.count || 0,
-        totalAssignments: totalAssignmentsRes.count || 0,
-        publishedAssignments: publishedAssignmentsRes.count || 0,
-        pendingAssignments: pendingAssignmentsRes.count || 0,
-        recentLeads: recentLeadsRes.data || [],
-        recentBookings: recentBookingsRes.data || [],
-        topProjects: topProjectsRes.data || [],
+        totalProjects: getCount(totalProjectsRes),
+        publishedProjects: getCount(publishedProjectsRes),
+        totalLeads: getCount(leadsRes),
+        leadsThisMonth: getCount(leadsThisMonthRes),
+        leadsLastMonth: getCount(leadsLastMonthRes),
+        totalBookings: getCount(bookingsRes),
+        pendingBookings: getCount(pendingBookingsRes),
+        totalAssignments: getCount(totalAssignmentsRes),
+        publishedAssignments: getCount(publishedAssignmentsRes),
+        pendingAssignments: getCount(pendingAssignmentsRes),
+        leadPipeline: {
+          new: getCount(pipelineNewRes),
+          contacted: getCount(pipelineContactedRes),
+          qualified: getCount(pipelineQualifiedRes),
+          converted: getCount(pipelineConvertedRes),
+        },
+        recentLeads: getData(recentLeadsRes),
+        recentBookings: getData(recentBookingsRes),
+        topProjects: getData(topProjectsRes),
         topListings: listingsData,
-        topMlsListings: topMlsListingsRes.data || [],
+        topMlsListings: getData(topMlsListingsRes),
         funnel: Array.isArray(funnelData) ? funnelData[0] || null : funnelData,
       });
     } catch (error) {
-      console.error("Error fetching stats:", error);
+      console.error("Error fetching dashboard stats:", error);
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -256,6 +280,43 @@ export default function AdminOverview() {
           </div>
         )}
 
+        {/* Lead Pipeline Summary */}
+        {stats && (
+          <Card className="border-0 bg-gradient-to-r from-slate-900 to-slate-800 text-white overflow-hidden">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-emerald-400" />
+                  <span className="text-sm font-semibold">Lead Pipeline</span>
+                </div>
+                <Link to="/admin/leads">
+                  <Button variant="ghost" size="sm" className="h-7 text-xs text-slate-400 hover:text-white hover:bg-white/10">
+                    Manage <ArrowRight className="ml-1 h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-4 gap-3">
+                {[
+                  { label: "New", value: stats.leadPipeline.new, color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", icon: Users },
+                  { label: "Contacted", value: stats.leadPipeline.contacted, color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Phone },
+                  { label: "Qualified", value: stats.leadPipeline.qualified, color: "text-purple-400", bg: "bg-purple-500/10", border: "border-purple-500/20", icon: Star },
+                  { label: "Converted", value: stats.leadPipeline.converted, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: CheckCircle2 },
+                ].map(({ label, value, color, bg, border, icon: Icon }) => (
+                  <div key={label} className={`rounded-xl ${bg} border ${border} p-3 text-center`}>
+                    <p className={`text-xl font-bold ${color}`}>{value}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{label}</p>
+                  </div>
+                ))}
+              </div>
+              {stats.totalLeads > 0 && stats.leadPipeline.converted > 0 && (
+                <p className="text-[10px] text-slate-500 mt-3 text-center">
+                  Conversion rate: {Math.round((stats.leadPipeline.converted / stats.totalLeads) * 100)}% of all leads
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Stats */}
         <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
           {statCardConfigs.map((config, i) => {
@@ -307,20 +368,36 @@ export default function AdminOverview() {
                 <div className="space-y-0.5">
                   {stats?.recentLeads.map(lead => {
                     const projectName = lead.presale_projects?.name || lead.landing_page || null;
+                    const intentColor = (lead.intent_score ?? 0) >= 8 ? 'bg-emerald-500' : (lead.intent_score ?? 0) >= 5 ? 'bg-amber-400' : 'bg-slate-300';
+                    const statusColors: Record<string, string> = {
+                      new: 'bg-blue-50 text-blue-600',
+                      contacted: 'bg-amber-50 text-amber-700',
+                      qualified: 'bg-purple-50 text-purple-700',
+                      converted: 'bg-emerald-50 text-emerald-700',
+                      dead: 'bg-slate-100 text-slate-500',
+                    };
                     return (
                       <div key={lead.id} className="flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg hover:bg-muted/50 transition-colors">
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center text-xs font-bold text-emerald-700 shrink-0">
+                          <div className="h-9 w-9 rounded-full bg-gradient-to-br from-emerald-100 to-emerald-50 flex items-center justify-center text-xs font-bold text-emerald-700 shrink-0 relative">
                             {lead.name.charAt(0).toUpperCase()}
+                            {lead.intent_score != null && (
+                              <span className={`absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-white ${intentColor}`} title={`Intent: ${lead.intent_score}/10`} />
+                            )}
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-medium truncate">{lead.name}</p>
                             {projectName && <p className="text-xs text-muted-foreground truncate">{projectName}</p>}
                           </div>
                         </div>
-                        <p className="text-[11px] text-muted-foreground whitespace-nowrap ml-3">
-                          {format(new Date(lead.created_at), "MMM d")}
-                        </p>
+                        <div className="flex items-center gap-2 ml-3 shrink-0">
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${statusColors[lead.lead_status] ?? 'bg-slate-100 text-slate-500'}`}>
+                            {lead.lead_status}
+                          </span>
+                          <p className="text-[11px] text-muted-foreground whitespace-nowrap">
+                            {format(new Date(lead.created_at), "MMM d")}
+                          </p>
+                        </div>
                       </div>
                     );
                   })}

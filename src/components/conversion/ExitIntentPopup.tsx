@@ -57,36 +57,70 @@ export function ExitIntentPopup() {
     if (!isConsumerPage) return;
 
     let timeout: NodeJS.Timeout;
-    
-    const handleMouseLeave = (e: MouseEvent) => {
-      // Only trigger when mouse leaves toward the top (closing tab/navigating away)
-      if (e.clientY <= 5 && e.relatedTarget === null) {
-        // Add a small delay to prevent false triggers
-        timeout = setTimeout(() => {
-          setOpen(true);
-          sessionStorage.setItem("exit_intent_shown", "true");
-          // Track popup shown
-          MetaEvents.formStart({
-            content_name: "Exit Intent Guide",
-            content_category: "lead_magnet",
-          });
-          trackFormStart({
-            form_name: "exit_intent_guide",
-            form_location: "exit_popup",
-          });
-        }, 100);
-      }
+    let mobileTimeout: NodeJS.Timeout;
+
+    const triggerPopup = () => {
+      if (sessionStorage.getItem("exit_intent_shown")) return;
+      setOpen(true);
+      sessionStorage.setItem("exit_intent_shown", "true");
+      MetaEvents.formStart({
+        content_name: "Exit Intent Guide",
+        content_category: "lead_magnet",
+      });
+      trackFormStart({
+        form_name: "exit_intent_guide",
+        form_location: "exit_popup",
+      });
     };
 
-    // Delay adding listener - 30 seconds to be less intrusive
-    const addListener = setTimeout(() => {
-      document.addEventListener("mouseleave", handleMouseLeave);
-    }, 30000);
+    const isMobile = window.innerWidth < 768 || 'ontouchstart' in window;
+
+    if (isMobile) {
+      // Mobile: show after 12s if user has scrolled down at least 40% then comes back up
+      let maxScrollY = 0;
+      let scrolledDown = false;
+
+      const handleMobileScroll = () => {
+        const scrollPct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight);
+        if (scrollPct > 0.4) {
+          scrolledDown = true;
+          maxScrollY = Math.max(maxScrollY, window.scrollY);
+        }
+        // User scrolled back up significantly after going down — exit intent
+        if (scrolledDown && maxScrollY > 200 && window.scrollY < maxScrollY * 0.3) {
+          window.removeEventListener("scroll", handleMobileScroll);
+          triggerPopup();
+        }
+      };
+
+      // Add scroll listener after 12 seconds (give user time to engage)
+      mobileTimeout = setTimeout(() => {
+        window.addEventListener("scroll", handleMobileScroll, { passive: true });
+      }, 12000);
+
+    } else {
+      // Desktop: mouseleave toward top of viewport
+      const handleMouseLeave = (e: MouseEvent) => {
+        if (e.clientY <= 5 && e.relatedTarget === null) {
+          timeout = setTimeout(triggerPopup, 100);
+        }
+      };
+
+      // Reduced from 30s → 12s — most users bounce faster than 30s
+      const addListener = setTimeout(() => {
+        document.addEventListener("mouseleave", handleMouseLeave);
+      }, 12000);
+
+      return () => {
+        clearTimeout(addListener);
+        clearTimeout(timeout);
+        document.removeEventListener("mouseleave", handleMouseLeave);
+      };
+    }
 
     return () => {
-      clearTimeout(addListener);
+      clearTimeout(mobileTimeout);
       clearTimeout(timeout);
-      document.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
 

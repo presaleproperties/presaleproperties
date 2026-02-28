@@ -84,18 +84,21 @@ export default function AdminListings() {
 
       if (error) throw error;
 
-      // Fetch agent profiles for each listing
-      const listingsWithAgents = await Promise.all(
-        (data || []).map(async (listing) => {
-          const { data: profile } = await (supabase as any)
-            .from("profiles")
-            .select("full_name, email, phone")
-            .eq("user_id", listing.agent_id)
-            .single();
-          
-          return { ...listing, agent_profile: profile || undefined };
-        })
-      );
+      // Batch-fetch all agent profiles in one query (fixes N+1)
+      const agentIds = [...new Set((data || []).map((l: any) => l.agent_id).filter(Boolean))];
+      let profileMap: Record<string, any> = {};
+      if (agentIds.length > 0) {
+        const { data: profiles } = await (supabase as any)
+          .from("profiles")
+          .select("user_id, full_name, email, phone")
+          .in("user_id", agentIds);
+        profileMap = Object.fromEntries((profiles || []).map((p: any) => [p.user_id, p]));
+      }
+
+      const listingsWithAgents = (data || []).map((listing: any) => ({
+        ...listing,
+        agent_profile: profileMap[listing.agent_id] || undefined,
+      }));
 
       setListings(listingsWithAgents);
     } catch (error) {

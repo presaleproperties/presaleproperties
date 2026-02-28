@@ -208,9 +208,11 @@ export function Footer() {
           <p className="text-xs sm:text-sm text-muted-foreground text-center sm:text-left">
             © {new Date().getFullYear()} PresaleProperties.com. All rights reserved.
           </p>
-          <p className="text-xs text-muted-foreground">
-            info@presaleproperties.com | 672-258-1100
-          </p>
+          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+            <Link to="/privacy" className="hover:text-foreground transition-colors">Privacy Policy</Link>
+            <span>·</span>
+            <span>info@presaleproperties.com | 672-258-1100</span>
+          </div>
         </div>
       </div>
     </footer>

@@ -37,6 +37,7 @@ interface AppSettings {
   zapier_behavior_webhook: string;
   zapier_daily_digest_webhook: string;
   meta_pixel_id: string;
+  ga4_measurement_id: string;
   email_sender: string;
   email_domain_verified: boolean;
   admin_notification_email: string;
@@ -59,6 +60,7 @@ export default function AdminSettings() {
     zapier_behavior_webhook: "",
     zapier_daily_digest_webhook: "",
     meta_pixel_id: "",
+    ga4_measurement_id: "",
     email_sender: DEFAULT_SENDER,
     email_domain_verified: false,
     admin_notification_email: "",
@@ -142,6 +144,7 @@ export default function AdminSettings() {
         if (item.key === "zapier_behavior_webhook") settingsMap.zapier_behavior_webhook = item.value as string;
         if (item.key === "zapier_daily_digest_webhook") settingsMap.zapier_daily_digest_webhook = item.value as string;
         if (item.key === "meta_pixel_id") settingsMap.meta_pixel_id = item.value as string;
+        if (item.key === "ga4_measurement_id") settingsMap.ga4_measurement_id = item.value as string;
         if (item.key === "email_sender") settingsMap.email_sender = item.value as string;
         if (item.key === "email_domain_verified") settingsMap.email_domain_verified = item.value as boolean;
         if (item.key === "admin_notification_email") settingsMap.admin_notification_email = item.value as string;
@@ -172,6 +175,7 @@ export default function AdminSettings() {
         { key: "zapier_behavior_webhook", value: settings.zapier_behavior_webhook },
         { key: "zapier_daily_digest_webhook", value: settings.zapier_daily_digest_webhook },
         { key: "meta_pixel_id", value: settings.meta_pixel_id },
+        { key: "ga4_measurement_id", value: settings.ga4_measurement_id },
         { key: "email_sender", value: settings.email_sender },
         { key: "email_domain_verified", value: settings.email_domain_verified },
         { key: "admin_notification_email", value: settings.admin_notification_email },
@@ -393,6 +397,22 @@ export default function AdminSettings() {
                       />
                       <p className="text-xs text-muted-foreground">
                         Facebook/Meta Pixel ID for retargeting. Find it in your Meta Events Manager.
+                      </p>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="ga4_measurement_id">Google Analytics 4 ID</Label>
+                      <Input
+                        id="ga4_measurement_id"
+                        type="text"
+                        placeholder="G-XXXXXXXXXX"
+                        value={settings.ga4_measurement_id}
+                        onChange={(e) => setSettings(prev => ({ 
+                          ...prev, 
+                          ga4_measurement_id: e.target.value 
+                        }))}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        GA4 Measurement ID. Find it in Analytics → Admin → Data Streams.
                       </p>
                     </div>
                   </div>

@@ -148,7 +148,7 @@ export function HeroSection({
   return (
     <>
       {/* Hero Section — minimal premium */}
-      <section className="relative flex flex-col items-center justify-center" style={{ minHeight: "calc(100dvh - 72px)" }}>
+      <section className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
         {/* Fallback overlay for when slider loads */}
@@ -157,29 +157,21 @@ export function HeroSection({
         {/* Centered Content */}
         <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
 
-          {/* Urgency Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-xs sm:text-sm font-medium mb-6">
-            🔑 Presale Projects — VIP Pricing Available Now
+          {/* Urgency badge */}
+          <div className="mb-6 flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-xs sm:text-sm font-medium">
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
+            111 Active Presale Projects — VIP Pricing Available Now
           </div>
 
           {/* Headline */}
-          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-4 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            Discover{" "}
+          <h1 className="text-[2.4rem] sm:text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-4 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            Get First Access to{" "}
             <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
           </h1>
 
-          {/* Subheading */}
-          <p className="text-white/80 text-sm sm:text-base text-center mb-6 max-w-lg" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
-            Floor plans, pricing &amp; assignments — before they hit the public.
+          <p className="text-white/80 text-base sm:text-lg text-center max-w-xl mb-8 leading-relaxed" style={{ textShadow: "0 1px 10px rgba(0,0,0,0.5)" }}>
+            Floor plans, VIP pricing & off-market assignments — before they hit the public.
           </p>
-
-          {/* VIP CTA */}
-          <button
-            onClick={() => setModalOpen(true)}
-            className="mb-6 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-gold hover:bg-primary/90 active:scale-95 transition-all"
-          >
-            Get VIP Access
-          </button>
 
           {/* Search Bar — glassmorphism premium */}
           <div className="relative z-[10] w-full max-w-2xl">
@@ -234,8 +226,14 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Map link */}
-          <div className="flex items-center gap-5 mt-5" style={{ position: "relative", zIndex: 1 }}>
+          {/* CTAs */}
+          <div className="relative z-[1] flex flex-wrap items-center justify-center gap-3 mt-5">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-95 transition-all shadow-lg"
+            >
+              🔑 Get VIP Access
+            </button>
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
@@ -243,6 +241,16 @@ export function HeroSection({
               <MapPin className="w-4 h-4 text-white/80" />
               Search by Map
             </Link>
+          </div>
+
+          {/* Social proof strip */}
+          <div className="relative z-[1] flex items-center gap-6 mt-8 flex-wrap justify-center">
+            {TRUST_STATS.map(stat => (
+              <div key={stat.label} className="text-center">
+                <p className="text-white font-bold text-lg sm:text-xl" style={{ textShadow: "0 1px 10px rgba(0,0,0,0.5)" }}>{stat.value}</p>
+                <p className="text-white/60 text-[11px]">{stat.label}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>

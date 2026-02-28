@@ -20,6 +20,7 @@ import { UtmTracker } from "@/components/UtmTracker";
 import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
+import { GA4Tracker } from "@/components/tracking/GA4Tracker";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
 import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { Suspense, lazy } from "react";
@@ -30,6 +31,7 @@ import Index from "./pages/Index";
 // --- Lazy-loaded pages (code-split) ---
 const Contact = lazy(() => import("./pages/Contact"));
 const About = lazy(() => import("./pages/About"));
+const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
 const ForAgents = lazy(() => import("./pages/ForAgents"));
 const BuyersGuide = lazy(() => import("./pages/BuyersGuide"));
 const PresaleGuide = lazy(() => import("./pages/PresaleGuide"));
@@ -146,6 +148,7 @@ const App = () => (
             <LoftyPageTracker />
             <BehaviorTracker />
             <MetaPixel />
+            <GA4Tracker />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}
             <ExitIntentPopup />
@@ -357,7 +360,7 @@ const App = () => (
             
             {/* Legacy route redirects for soft 404 fixes */}
             <Route path="/guide" element={<Navigate to="/buyers-guide" replace />} />
-            <Route path="/privacy" element={<Navigate to="/about" replace />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
             <Route path="/market-report/:city" element={<NotFound />} />
             <Route path="/market-report" element={<NotFound />} />
             <Route path="/deposit/:slug" element={<NotFound />} />
