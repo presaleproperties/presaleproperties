@@ -101,53 +101,76 @@ const Index = () => {
     }
   };
 
-  // SiteNavigationElement schema - helps Google create sitelinks
-  // Structured for 4 main sitelinks: Presale, Move-In Ready, Assignments, For Agents
+  // WebSite schema with SearchAction — used by Google SGE, ChatGPT, Perplexity for AI search
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "@id": "https://presaleproperties.com/#website",
+    "name": "PresaleProperties.com",
+    "url": "https://presaleproperties.com",
+    "description": "Metro Vancouver's #1 platform for presale condos, townhomes, and new construction homes. VIP pricing, floor plans & early access.",
+    "publisher": {
+      "@id": "https://presaleproperties.com/#organization"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://presaleproperties.com/presale-projects?search={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    },
+    "inLanguage": "en-CA"
+  };
+
+  // SiteNavigationElement schema — tells Google exactly which pages to show as sitelinks
+  // Order = priority. These 6 are chosen for highest search volume + conversion intent.
   const siteNavigationSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
+    "name": "PresaleProperties.com Site Navigation",
     "itemListElement": [
       {
         "@type": "SiteNavigationElement",
         "position": 1,
-        "name": "Presale Condos & Townhomes",
-        "description": "Browse 50+ presale condos and townhomes in Metro Vancouver. VIP pricing, floor plans & deposit structures.",
-        "url": "https://presaleproperties.com/presale-projects"
+        "name": "Surrey Presale Condos & Townhomes",
+        "description": "Browse presale condos and townhomes in Surrey BC. VIP pricing, floor plans, deposit structures for 2025-2028 projects.",
+        "url": "https://presaleproperties.com/presale-projects/surrey"
       },
       {
         "@type": "SiteNavigationElement",
         "position": 2,
-        "name": "Move-In Ready Homes",
-        "description": "Brand new condos, townhomes & houses never lived in. Move in within 6 months.",
-        "url": "https://presaleproperties.com/properties"
+        "name": "All Presale Projects — Metro Vancouver",
+        "description": "Browse 100+ active presale condos and townhomes across Metro Vancouver. Filter by city, price, and completion year.",
+        "url": "https://presaleproperties.com/presale-projects"
       },
       {
         "@type": "SiteNavigationElement",
         "position": 3,
-        "name": "Assignment Sales",
-        "description": "Buy presale contracts from original buyers. Skip the wait and get today's pricing.",
-        "url": "https://presaleproperties.com/for-agents"
+        "name": "Vancouver Presale Condos",
+        "description": "New presale condos in Vancouver BC with VIP pricing, incentives, and early access floor plans.",
+        "url": "https://presaleproperties.com/presale-projects/vancouver"
       },
       {
         "@type": "SiteNavigationElement",
         "position": 4,
-        "name": "Surrey Presale Condos",
-        "description": "Browse presale condos in Surrey BC with VIP pricing and floorplans",
-        "url": "https://presaleproperties.com/surrey-presale-condos"
+        "name": "Langley Presale Condos & Townhomes",
+        "description": "Presale condos and townhomes in Langley including Willoughby, Murrayville and Walnut Grove.",
+        "url": "https://presaleproperties.com/presale-projects/langley"
       },
       {
         "@type": "SiteNavigationElement",
         "position": 5,
-        "name": "Vancouver Presale Condos",
-        "description": "Explore new presale condos in Vancouver with pricing and incentives",
-        "url": "https://presaleproperties.com/vancouver-presale-condos"
+        "name": "Presale Buying Guide BC",
+        "description": "Everything you need to know before buying a presale condo in BC. Deposits, contracts, risks and insider tips.",
+        "url": "https://presaleproperties.com/presale-guide"
       },
       {
         "@type": "SiteNavigationElement",
         "position": 6,
-        "name": "Langley Presale Condos",
-        "description": "Discover presale condos in Langley with VIP access and floorplans",
-        "url": "https://presaleproperties.com/langley-presale-condos"
+        "name": "BC Mortgage Calculator",
+        "description": "Calculate mortgage payments for presale condos in BC. Includes PTT, GST, and CMHC insurance estimates.",
+        "url": "https://presaleproperties.com/mortgage-calculator"
       }
     ]
   };
@@ -207,6 +230,9 @@ const Index = () => {
           <link rel="canonical" href="https://presaleproperties.com/" />
           <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
           <script type="application/ld+json">
+            {JSON.stringify(websiteSchema)}
+          </script>
+          <script type="application/ld+json">
             {JSON.stringify(organizationSchema)}
           </script>
           <script type="application/ld+json">
@@ -254,6 +280,9 @@ const Index = () => {
         <meta name="geo.placename" content="Vancouver" />
         <meta name="author" content="PresaleProperties.com" />
         
+        <script type="application/ld+json">
+          {JSON.stringify(websiteSchema)}
+        </script>
         <script type="application/ld+json">
           {JSON.stringify(organizationSchema)}
         </script>
