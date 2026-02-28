@@ -200,7 +200,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                     : "text-white/70"
                 }`}
               >
-                {tab === "projects" ? "Presale" : "Move-In Ready"}
+                {tab === "projects" ? "Presale" : "Ready"}
               </button>
             ))}
           </div>
