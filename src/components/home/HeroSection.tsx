@@ -156,21 +156,11 @@ export function HeroSection({
         {/* Centered Content */}
         <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
 
-          {/* Gold eyebrow line */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/70" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary/90 drop-shadow">
-              Metro Vancouver's #1 Presale Platform
-            </span>
-            <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/70" />
-          </div>
-
           {/* Headline */}
-          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-5 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            New Homes.{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Exclusive Access.</span>
+          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            Find Your{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>New Home.</span>
           </h1>
-
 
           {/* Search Bar — glassmorphism premium */}
           <div className="w-full max-w-2xl">
@@ -224,7 +214,7 @@ export function HeroSection({
             </div>
           </div>
 
-          {/* Links row */}
+          {/* Map link */}
           <div className="flex items-center gap-5 mt-6">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
@@ -232,13 +222,6 @@ export function HeroSection({
             >
               Explore the map →
             </Link>
-            <span className="w-px h-3.5 bg-white/20" />
-            <button
-              onClick={() => setModalOpen(true)}
-              className="text-xs text-primary font-bold hover:text-primary/80 transition-colors tracking-wide"
-            >
-              ✦ Get VIP Access — Free
-            </button>
           </div>
         </div>
       </section>
