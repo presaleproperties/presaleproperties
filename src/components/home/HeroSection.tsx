@@ -160,10 +160,15 @@ export function HeroSection({
 
 
           {/* Headline */}
-          <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            Get First Access to{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
+          <h1 className="text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-3 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            New &amp; Presale Homes{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>in Metro Vancouver.</span>
           </h1>
+
+          {/* Subheadline */}
+          <p className="text-white/75 text-base md:text-lg text-center max-w-xl mb-6 leading-relaxed" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
+            Browse condos, townhomes &amp; detached homes — view floor plans, pricing and developer incentives before public launch.
+          </p>
 
           {/* Search Bar — glassmorphism premium */}
           <div className="relative z-[10] w-full max-w-2xl">
