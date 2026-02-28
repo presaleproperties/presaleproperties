@@ -57,10 +57,10 @@ export function HeroProjectSlider() {
   const next = useCallback(() => goTo(current + 1), [goTo, current]);
   const prev = useCallback(() => goTo(current - 1), [goTo, current]);
 
-  // Auto-scroll every 5 seconds
+  // Auto-scroll every 9 seconds
   useEffect(() => {
     if (total <= 1 || isPaused) return;
-    intervalRef.current = setInterval(next, 5000);
+    intervalRef.current = setInterval(next, 9000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
   }, [next, total, isPaused]);
 
