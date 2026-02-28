@@ -75,7 +75,7 @@ export function PresaleExpertsSection() {
                 <p className="text-xs text-muted-foreground">We serve clients in 6 languages.</p>
                 <div className="flex gap-3 pt-2">
                   <Button asChild size="sm">
-                    <Link to="/vip">Get VIP Access</Link>
+                    <Link to="/contact">Get VIP Access</Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
                     <Link to="/presale-projects" className="flex items-center gap-1.5">
@@ -189,7 +189,7 @@ export function PresaleExpertsSection() {
               </ul>
 
               <Button asChild size="lg" className="w-full shadow-lg shadow-primary/30 font-semibold text-base">
-                <Link to="/vip">Join VIP — It's Free</Link>
+                <Link to="/contact">Join VIP — It's Free</Link>
               </Button>
               <p className="text-center text-xs text-background/40">No obligation. Unsubscribe anytime.</p>
             </div>

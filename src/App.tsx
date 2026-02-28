@@ -114,7 +114,7 @@ const ContentHub = lazy(() => import("./pages/ContentHub"));
 const BlogCategoryPage = lazy(() => import("./pages/BlogCategoryPage"));
 const AdLandingPage = lazy(() => import("./pages/AdLandingPage"));
 const PresaleCompletionYearPage = lazy(() => import("./pages/PresaleCompletionYearPage"));
-const VIPMembership = lazy(() => import("./pages/VIPMembership"));
+
 const BuyerAuth = lazy(() => import("./pages/BuyerAuth"));
 const BuyerLogin = lazy(() => import("./pages/BuyerLogin"));
 const BuyerDashboard = lazy(() => import("./pages/buyer/BuyerDashboard"));
@@ -263,7 +263,7 @@ const App = () => (
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
-            <Route path="/vip" element={<VIPMembership />} />
+            
             
             {/* Buyer Portal Routes */}
             <Route path="/buyer/signup" element={<BuyerAuth />} />
