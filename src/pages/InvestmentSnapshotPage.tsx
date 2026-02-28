@@ -40,7 +40,7 @@ export default function InvestmentSnapshotPage() {
         <div className="max-w-lg mx-auto mt-8">
           <CalculatorLeadCapture
             calculatorData={{
-              calculatorType: "investment_snapshot",
+              calculatorType: "roi",
               summary: "Investment Snapshot Calculator - Condo Cash Flow",
             }}
           />
