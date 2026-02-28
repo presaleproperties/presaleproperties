@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -130,6 +130,7 @@ export function HeroSection({
 }: HeroSectionProps) {
   const [internalTab, setInternalTab] = useState<SearchTab>("projects");
   const [modalOpen, setModalOpen] = useState(false);
+  const searchBarRef = useRef<HTMLDivElement>(null);
   const activeTab = controlledTab ?? internalTab;
   const navigate = useNavigate();
 
@@ -164,7 +165,7 @@ export function HeroSection({
 
           {/* Search Bar — glassmorphism premium */}
           <div className="w-full max-w-2xl">
-            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
               {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-2 gap-1">
                 <button
@@ -199,6 +200,7 @@ export function HeroSection({
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
+                  dropdownContainer={searchBarRef}
                   inputClassName="h-[64px] sm:h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
                 />
               </div>
