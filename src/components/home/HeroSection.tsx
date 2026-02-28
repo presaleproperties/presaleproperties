@@ -167,7 +167,7 @@ export function HeroSection({
 
           {/* Subheadline */}
           <p className="text-white/75 text-base md:text-lg text-center max-w-xl mb-6 leading-relaxed" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
-            Browse condos, townhomes &amp; detached homes — view floor plans, pricing and developer incentives before public launch.
+            Metro Vancouver 📍
           </p>
 
           {/* Search Bar — glassmorphism premium */}
