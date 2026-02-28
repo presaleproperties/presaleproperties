@@ -64,7 +64,7 @@ const prerenderRoutes = [
   "/new-westminster-downtown-presale",
   "/maple-ridge-town-centre-presale",
   
-  // Legacy city presale pages (redirects to new structure)
+  // Legacy city presale pages
   "/vancouver-presale-condos",
   "/vancouver-presale-townhomes",
   "/surrey-presale-condos",
@@ -97,7 +97,7 @@ const prerenderRoutes = [
   "/properties/maple-ridge",
   "/properties/popular-searches",
   
-  // NEW: Programmatic SEO pages (City × Type × Price)
+  // Programmatic SEO pages (City x Type x Price)
   ...programmaticRoutes,
 ];
 
@@ -106,20 +106,6 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
-    headers: {
-      "X-Content-Type-Options": "nosniff",
-      "X-XSS-Protection": "1; mode=block",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-      "Permissions-Policy": "camera=(), microphone=(), geolocation=(self), payment=()",
-    },
-  },
-  preview: {
-    headers: {
-      "X-Content-Type-Options": "nosniff",
-      "X-XSS-Protection": "1; mode=block",
-      "Referrer-Policy": "strict-origin-when-cross-origin",
-      "Permissions-Policy": "camera=(), microphone=(), geolocation=(self), payment=()",
-    },
   },
   plugins: [
     react(), 
@@ -128,14 +114,8 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      react: path.resolve(__dirname, "./node_modules/react"),
-      "react-dom": path.resolve(__dirname, "./node_modules/react-dom"),
     },
-    dedupe: ["react", "react-dom"],
   },
-  // SSG/Prerender configuration for production builds
-  // Note: Actual prerendering requires additional build configuration
-  // The routes above define what should be prerendered
   define: {
     __PRERENDER_ROUTES__: JSON.stringify(prerenderRoutes),
   },
