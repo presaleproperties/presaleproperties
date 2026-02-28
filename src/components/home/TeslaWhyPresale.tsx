@@ -18,18 +18,6 @@ const STATS = [
 export function TeslaWhyPresale() {
   return (
     <section className="bg-background border-t border-border/40">
-      {/* Stats bar — Tesla-style: full width, no container padding, clean dividers */}
-      <div className="border-b border-border/40">
-        <div className="grid grid-cols-4 divide-x divide-border/40">
-          {STATS.map((s) => (
-            <div key={s.label} className="flex flex-col items-center justify-center py-8 gap-1 px-2">
-              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{s.value}</span>
-              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/80 text-center">{s.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Two-column editorial */}
       <div className="container px-6 sm:px-8 py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
