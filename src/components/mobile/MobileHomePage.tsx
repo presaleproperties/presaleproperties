@@ -228,6 +228,17 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             </div>
           </div>
 
+          {/* Search by Map link */}
+          <div className="mt-4">
+            <Link
+              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-[13px] font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
+            >
+              <MapPin className="w-4 h-4 text-white/80" />
+              Search by Map
+            </Link>
+          </div>
+
         </div>
       </div>
 

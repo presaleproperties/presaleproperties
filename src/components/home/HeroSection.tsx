@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { X, Search } from "lucide-react";
+import { X, Search, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "./HeroProjectSlider";
@@ -217,12 +217,13 @@ export function HeroSection({
           </div>
 
           {/* Map link */}
-          <div className="flex items-center gap-5 mt-6">
+          <div className="flex items-center gap-5 mt-5">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-xs text-white/60 hover:text-white/90 transition-colors tracking-wide"
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
             >
-              Explore the map →
+              <MapPin className="w-4 h-4 text-white/80" />
+              Search by Map
             </Link>
           </div>
         </div>
