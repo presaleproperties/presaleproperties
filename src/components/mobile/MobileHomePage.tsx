@@ -188,26 +188,29 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
             <span className="text-primary">New Home.</span>
           </h1>
 
-          {/* Tab pills */}
-          <div className="flex items-center gap-0.5 mb-3 bg-white/10 backdrop-blur-md rounded-full p-px border border-white/15">
-            {(["projects", "resale"] as SearchTab[]).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => handleTabChange(tab)}
-                className={`px-3.5 py-1 rounded-full text-[10px] font-semibold transition-all leading-none ${
-                  activeTab === tab
-                    ? "bg-white text-foreground shadow-sm"
-                    : "text-white/70"
-                }`}
-              >
-                {tab === "projects" ? "Presale" : "Ready"}
-              </button>
-            ))}
-          </div>
-
-          {/* Search bar */}
+          {/* Search bar with inline toggles */}
           <div className="w-full max-w-[340px] sm:max-w-[420px]">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible h-[52px] sm:h-[60px] border border-white/30">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible border border-white/30">
+              {/* Inline tab toggles */}
+              <div className="flex items-center gap-0.5 ml-2 shrink-0 bg-muted/30 rounded-xl p-0.5">
+                {(["projects", "resale"] as SearchTab[]).map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => handleTabChange(tab)}
+                    className={`px-2.5 py-1.5 rounded-lg text-[10px] font-bold transition-all leading-none whitespace-nowrap ${
+                      activeTab === tab
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {tab === "projects" ? "Presale" : "Ready"}
+                  </button>
+                ))}
+              </div>
+
+              {/* Divider */}
+              <div className="w-px h-6 bg-border/50 mx-1.5 shrink-0" />
+
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
                   placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
@@ -215,7 +218,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                   variant="hero"
                   hideIcon
                   dropdownContainer={searchBarRef}
-                  inputClassName="h-[52px] sm:h-[60px] text-[13px] sm:text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-4 rounded-none shadow-none"
+                  inputClassName="h-[52px] sm:h-[60px] text-[13px] sm:text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/55 focus-visible:ring-0 focus-visible:ring-offset-0 pl-0 rounded-none shadow-none"
                 />
               </div>
               <button
