@@ -171,10 +171,6 @@ export function HeroSection({
             <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Exclusive Access.</span>
           </h1>
 
-          {/* Subheadline */}
-          <p className="text-sm sm:text-base text-white/75 text-center max-w-md mb-10 leading-relaxed font-light tracking-wide drop-shadow">
-            Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
-          </p>
 
           {/* Search Bar — glassmorphism premium */}
           <div className="w-full max-w-2xl">
