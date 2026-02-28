@@ -2257,6 +2257,24 @@ export type Database = {
           },
         ]
       }
+      rate_limit_log: {
+        Row: {
+          created_at: string
+          id: number
+          rate_key: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          rate_key: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          rate_key?: string
+        }
+        Relationships: []
+      }
       saved_listings: {
         Row: {
           created_at: string
@@ -2800,6 +2818,7 @@ export type Database = {
       }
     }
     Functions: {
+      cleanup_rate_limit_log: { Args: never; Returns: undefined }
       get_engagement_funnel: {
         Args: { days_back?: number }
         Returns: {
