@@ -2089,11 +2089,12 @@ export type Database = {
       }
       project_leads: {
         Row: {
+          admin_notes: string | null
           agent_status: string | null
-          assigned_to: string | null
           budget: string | null
           city_interest: Json | null
           contacted_at: string | null
+          converted_at: string | null
           created_at: string
           drip_sequence: string | null
           email: string
@@ -2113,9 +2114,6 @@ export type Database = {
           project_interest: Json | null
           referrer: string | null
           session_id: string | null
-          status: string
-          status_notes: string | null
-          status_updated_at: string | null
           timeline: string | null
           utm_campaign: string | null
           utm_content: string | null
@@ -2125,11 +2123,12 @@ export type Database = {
           visitor_id: string | null
         }
         Insert: {
+          admin_notes?: string | null
           agent_status?: string | null
-          assigned_to?: string | null
           budget?: string | null
           city_interest?: Json | null
           contacted_at?: string | null
+          converted_at?: string | null
           created_at?: string
           drip_sequence?: string | null
           email: string
@@ -2149,9 +2148,6 @@ export type Database = {
           project_interest?: Json | null
           referrer?: string | null
           session_id?: string | null
-          status?: string
-          status_notes?: string | null
-          status_updated_at?: string | null
           timeline?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -2161,11 +2157,12 @@ export type Database = {
           visitor_id?: string | null
         }
         Update: {
+          admin_notes?: string | null
           agent_status?: string | null
-          assigned_to?: string | null
           budget?: string | null
           city_interest?: Json | null
           contacted_at?: string | null
+          converted_at?: string | null
           created_at?: string
           drip_sequence?: string | null
           email?: string
@@ -2185,9 +2182,6 @@ export type Database = {
           project_interest?: Json | null
           referrer?: string | null
           session_id?: string | null
-          status?: string
-          status_notes?: string | null
-          status_updated_at?: string | null
           timeline?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
