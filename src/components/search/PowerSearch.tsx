@@ -373,7 +373,7 @@ export function PowerSearch({
       case "presale":
         return <Building2 className="h-4 w-4 text-primary" />;
       case "assignment":
-        return <FileText className="h-4 w-4 text-amber-500" />;
+        return <FileText className="h-4 w-4 text-primary/70" />;
       case "city":
         return <MapPin className="h-4 w-4 text-muted-foreground" />;
       case "neighborhood":
@@ -403,7 +403,7 @@ export function PowerSearch({
       case "presale":
         return "bg-primary/10 text-primary";
       case "assignment":
-        return "bg-amber-500/10 text-amber-600";
+        return "bg-primary/8 text-primary/80";
       default:
         return "bg-muted text-muted-foreground";
     }
@@ -465,30 +465,36 @@ export function PowerSearch({
       {/* Results Dropdown */}
       {isOpen && (displayResults.length > 0 || (query.length >= 2 && !isLoading)) && (
         <div className={cn(
-          "absolute left-0 right-0 top-full z-[9999] bg-background border border-t-0 border-border shadow-xl overflow-hidden",
-          isHero ? "rounded-b-xl" : "rounded-b-lg"
+          "absolute left-0 right-0 top-full z-[9999] overflow-hidden",
+          "bg-background/98 backdrop-blur-xl",
+          "border border-border/60 border-t-0",
+          "shadow-[0_16px_48px_-8px_rgba(0,0,0,0.18)]",
+          isHero ? "rounded-b-2xl" : "rounded-b-xl"
         )}>
+
+          {/* Section header for recent */}
+          {query.length < 2 && recentSearches.length > 0 && (
+            <div className="px-4 pt-3 pb-1.5">
+              <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Recent</p>
+            </div>
+          )}
+
           {/* Results List */}
           {displayResults.length > 0 ? (
-            <div className="max-h-[400px] overflow-y-auto">
-              {query.length < 2 && recentSearches.length > 0 && (
-                <div className="px-4 py-2 border-b border-border">
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Recent Searches</p>
-                </div>
-              )}
+            <div className="max-h-[min(420px,60vh)] overflow-y-auto overscroll-contain divide-y divide-border/40">
               {displayResults.map((result, index) => (
                 <button
                   key={result.id}
                   onClick={() => handleSelect(result)}
                   onMouseEnter={() => setActiveIndex(index)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors border-b border-border/50 last:border-0",
-                    index === activeIndex ? "bg-muted" : "hover:bg-muted/50"
+                    "w-full flex items-center gap-3 px-4 py-3 text-left transition-colors",
+                    index === activeIndex ? "bg-muted/70" : "hover:bg-muted/40 active:bg-muted/70"
                   )}
                 >
-                  {/* Image or Icon */}
+                  {/* Thumbnail or Icon */}
                   {result.image ? (
-                    <div className="w-12 h-12 rounded-lg overflow-hidden bg-muted shrink-0">
+                    <div className="w-11 h-11 rounded-lg overflow-hidden bg-muted shrink-0 ring-1 ring-border/30">
                       <img
                         src={result.image}
                         alt={result.title}
@@ -497,61 +503,69 @@ export function PowerSearch({
                       />
                     </div>
                   ) : (
-                    <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                    <div className={cn(
+                      "w-9 h-9 rounded-lg flex items-center justify-center shrink-0",
+                      result.type === "city" || result.type === "neighborhood"
+                        ? "bg-muted"
+                        : "bg-primary/8"
+                    )}>
                       {getIcon(result.type)}
                     </div>
                   )}
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium text-sm truncate">{result.title}</p>
+                    <div className="flex items-baseline gap-2 mb-0.5">
+                      <p className="font-semibold text-[13px] text-foreground truncate leading-tight">{result.title}</p>
                       <span className={cn(
-                        "text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded shrink-0",
+                        "text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md shrink-0 leading-none",
                         getTypeBadgeClass(result.type)
                       )}>
                         {getTypeLabel(result.type)}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground truncate">{result.subtitle}</p>
-                    {result.meta && (result.meta.beds || result.meta.baths || result.meta.sqft) && (
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {[
-                          result.meta.beds && `${result.meta.beds} bed`,
-                          result.meta.baths && `${result.meta.baths} bath`,
-                          result.meta.sqft && `${result.meta.sqft.toLocaleString()} sqft`,
-                        ].filter(Boolean).join(" • ")}
-                      </p>
-                    )}
+                    <p className="text-[11px] text-muted-foreground truncate leading-tight">
+                      {result.subtitle}
+                      {result.meta && (result.meta.beds || result.meta.sqft) && (
+                        <span className="text-muted-foreground/60">
+                          {" · "}
+                          {[
+                            result.meta.beds && `${result.meta.beds}bd`,
+                            result.meta.baths && `${result.meta.baths}ba`,
+                            result.meta.sqft && `${result.meta.sqft.toLocaleString()} ft²`,
+                          ].filter(Boolean).join(" ")}
+                        </span>
+                      )}
+                    </p>
                   </div>
 
                   {/* Price */}
                   {result.price && (
-                    <div className="text-right shrink-0">
-                      <p className="font-semibold text-sm">{formatPrice(result.price)}</p>
-                    </div>
+                    <p className="font-bold text-[13px] text-primary shrink-0 tabular-nums">
+                      {formatPrice(result.price)}
+                    </p>
                   )}
                 </button>
               ))}
             </div>
           ) : (
-            <div className="p-6 text-center">
-              <p className="text-sm text-muted-foreground">No results found for "{query}"</p>
-              <p className="text-xs text-muted-foreground mt-1">Try searching by address, MLS#, city, or project name</p>
+            <div className="px-4 py-8 text-center">
+              <p className="text-sm font-medium text-foreground/70">No results for "{query}"</p>
+              <p className="text-xs text-muted-foreground mt-1">Try a city, address, MLS#, or project name</p>
             </div>
           )}
 
-          {/* View All on Map */}
+          {/* View All on Map footer */}
           {query.length >= 2 && results.length > 0 && (
             <button
               onClick={() => {
                 navigate(`/map-search?q=${encodeURIComponent(query)}`);
                 setIsOpen(false);
               }}
-              className="w-full px-4 py-3 text-sm text-primary font-medium hover:bg-muted/50 transition-colors border-t border-border flex items-center justify-center gap-2"
+              className="w-full px-4 py-3 flex items-center justify-center gap-2 text-[12px] font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors border-t border-border/50"
             >
-              <MapPin className="h-4 w-4" />
-              View all results on map
+              <MapPin className="h-3.5 w-3.5" />
+              See all on map
             </button>
           )}
         </div>
