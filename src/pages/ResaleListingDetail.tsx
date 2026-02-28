@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Helmet } from "react-helmet-async";
 import { useRef, useState, useEffect } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { Bed, Bath, Maximize, Building2, Calendar, MapPin, Car, Home, DollarSign, Clock, Layers, ChevronRight, Map, Navigation, Sparkles, Phone, User, Flame, Snowflake, Eye, FileText, Users, Waves, TreePine, MessageSquare, Share2, Heart } from "lucide-react";
+import { Bed, Bath, Maximize, Building2, Calendar, MapPin, Car, Home, DollarSign, Clock, Layers, ChevronRight, Map, Navigation, Sparkles, Phone, User, Flame, Snowflake, Eye, FileText, Users, Waves, TreePine, MessageSquare, Share2, Heart, Lock as LockIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +29,7 @@ import { useIsMobile, useIsMobileOrTablet } from "@/hooks/use-mobile";
 import { PropertyStickyHeader } from "@/components/mobile/PropertyStickyHeader";
 import { usePropertyViewTracking } from "@/hooks/useBehaviorTracking";
 import { MetaEvents } from "@/components/tracking/MetaPixel";
+import { useVerifiedAgent } from "@/hooks/useVerifiedAgent";
 const formatPrice = (price: number) => {
   return new Intl.NumberFormat("en-CA", {
     style: "currency",
@@ -130,6 +131,7 @@ export default function ResaleListingDetail() {
   const [showMobileScheduler, setShowMobileScheduler] = useState(false);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const { isFavorite, toggleFavorite } = useGuestFavorites();
+  const { isVerified: isVerifiedAgent } = useVerifiedAgent();
 
   // Track gallery open/close to hide CTA bar
   useEffect(() => {
@@ -1120,12 +1122,31 @@ export default function ResaleListingDetail() {
                         <span className="text-sm text-muted-foreground">Brokerage</span>
                         <span className="font-semibold text-foreground">{listing.list_office_name}</span>
                       </div>}
-                    {listing.list_agent_phone && <div className="flex justify-between items-center py-2 border-b border-border/50">
-                        <span className="text-sm text-muted-foreground">Agent Phone</span>
-                        <a href={`tel:${listing.list_agent_phone}`} className="font-semibold text-primary hover:underline">
-                          {listing.list_agent_phone}
+                    {/* Agent phone — verified agents only */}
+                    {listing.list_agent_phone && (
+                      isVerifiedAgent
+                        ? <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-sm text-muted-foreground">Agent Phone</span>
+                            <a href={`tel:${listing.list_agent_phone}`} className="font-semibold text-primary hover:underline">
+                              {listing.list_agent_phone}
+                            </a>
+                          </div>
+                        : <div className="flex justify-between items-center py-2 border-b border-border/50">
+                            <span className="text-sm text-muted-foreground">Agent Phone</span>
+                            <span className="text-xs text-muted-foreground flex items-center gap-1 italic">
+                              <LockIcon className="h-3 w-3" /> Verified agents only
+                            </span>
+                          </div>
+                    )}
+                    {/* Agent email — verified agents only */}
+                    {listing.list_agent_email && isVerifiedAgent && (
+                      <div className="flex justify-between items-center py-2 border-b border-border/50">
+                        <span className="text-sm text-muted-foreground">Agent Email</span>
+                        <a href={`mailto:${listing.list_agent_email}`} className="font-semibold text-primary hover:underline text-sm truncate max-w-[60%]">
+                          {listing.list_agent_email}
                         </a>
-                      </div>}
+                      </div>
+                    )}
                     {listing.buyer_agent_name && <div className="flex justify-between items-center py-2 border-b border-border/50">
                         <span className="text-sm text-muted-foreground">Buyer's Agent</span>
                         <span className="font-semibold text-foreground">{listing.buyer_agent_name}</span>
