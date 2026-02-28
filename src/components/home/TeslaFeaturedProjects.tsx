@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const formatPrice = (price: number | null) => {
@@ -34,106 +34,91 @@ export function TeslaFeaturedProjects() {
 
   if (isLoading || !projects || projects.length === 0) return null;
 
-  const [hero, second, ...rest] = projects;
-
   return (
-    <section className="bg-background">
-      {/* Section header — Tesla style: label left, link right, full container width */}
-      <div className="container px-6 sm:px-8 pt-14 pb-6 flex items-end justify-between">
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-1.5">Presale Projects</p>
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">Hottest New Developments</h2>
-        </div>
-        <Link
-          to="/presale-projects"
-          className="hidden sm:flex items-center gap-1.5 text-sm font-semibold text-foreground hover:text-primary transition-colors"
-        >
-          View All <ArrowRight className="h-4 w-4" />
-        </Link>
-      </div>
+    <section className="bg-background py-8 sm:py-12">
+      {/* Tesla-style: side-by-side panels with padding and rounded corners */}
+      <div className="container px-4 sm:px-6 lg:px-8">
 
-      {/* Top row — full-bleed side-by-side, NO gap between edge and cards */}
-      {hero && second && (
-        <div className="grid grid-cols-2 gap-px bg-border/30">
-          {[hero, second].map((project) => (
-            <Link
-              key={project.id}
-              to={`/presale/${project.slug}`}
-              className="group relative overflow-hidden bg-muted"
-              style={{ aspectRatio: "16/10" }}
-            >
+        {/* Top row: 2 large side-by-side panels */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-3 sm:mb-4">
+          {projects.slice(0, 2).map((project) => (
+            <div key={project.id} className="relative overflow-hidden rounded-2xl bg-muted group" style={{ aspectRatio: "16/10" }}>
               <img
                 src={project.featured_image!}
                 alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10">
-                {project.status && (
-                  <span className="inline-block mb-2 text-[10px] font-black uppercase tracking-widest text-primary">
-                    {statusLabel(project.status)}
-                  </span>
-                )}
-                <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-white leading-tight mb-1">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+              {/* Top-left label */}
+              {project.status && (
+                <div className="absolute top-5 left-6">
+                  <span className="text-xs font-bold text-white/80">{statusLabel(project.status)}</span>
+                </div>
+              )}
+              {/* Bottom content */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+                <h3 className="text-2xl sm:text-3xl font-extrabold text-white leading-tight mb-1">
                   {project.name}
                 </h3>
-                <p className="text-sm text-white/55 flex items-center gap-1 mb-4">
-                  <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                  {project.neighborhood ? `${project.neighborhood}, ` : ""}{project.city}
-                </p>
-                <div className="flex items-center gap-5">
-                  {project.starting_price && (
-                    <span className="text-sm font-bold text-primary">{formatPrice(project.starting_price)}</span>
-                  )}
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-white/70 group-hover:text-white group-hover:gap-2 transition-all">
-                    View Details <ArrowRight className="h-3.5 w-3.5" />
-                  </span>
+                {project.starting_price && (
+                  <p className="text-sm text-white/80 underline mb-5">{formatPrice(project.starting_price)}</p>
+                )}
+                <div className="flex items-center gap-3">
+                  <Link
+                    to={`/presale/${project.slug}`}
+                    className="h-11 px-7 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center hover:bg-primary/90 transition-colors"
+                  >
+                    View Project
+                  </Link>
+                  <Link
+                    to="/vip"
+                    className="h-11 px-7 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20 text-sm font-bold text-white flex items-center justify-center hover:bg-white/20 transition-colors"
+                  >
+                    Get VIP Access
+                  </Link>
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
-      )}
 
-      {/* Bottom row — 4 smaller cards, same full-bleed treatment */}
-      {rest.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px mt-px bg-border/30">
-          {rest.map((project) => (
-            <Link
-              key={project.id}
-              to={`/presale/${project.slug}`}
-              className="group relative overflow-hidden bg-muted"
-              style={{ aspectRatio: "4/3" }}
-            >
-              <img
-                src={project.featured_image!}
-                alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
-                <h3 className="text-sm sm:text-base font-extrabold text-white leading-tight mb-0.5">{project.name}</h3>
-                <p className="text-[11px] text-white/50 flex items-center gap-1">
-                  <MapPin className="h-3 w-3 text-primary shrink-0" />
-                  {project.city}
-                </p>
-                {project.starting_price && (
-                  <p className="text-xs font-bold text-primary mt-1">{formatPrice(project.starting_price)}</p>
-                )}
-              </div>
-            </Link>
-          ))}
+        {/* Bottom row: up to 4 smaller panels */}
+        {projects.length > 2 && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+            {projects.slice(2, 6).map((project) => (
+              <Link
+                key={project.id}
+                to={`/presale/${project.slug}`}
+                className="relative overflow-hidden rounded-xl bg-muted group"
+                style={{ aspectRatio: "4/3" }}
+              >
+                <img
+                  src={project.featured_image!}
+                  alt={project.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 p-4">
+                  <h3 className="text-sm sm:text-base font-extrabold text-white leading-tight">{project.name}</h3>
+                  <p className="text-[11px] text-white/55 mt-0.5">{project.city}</p>
+                  {project.starting_price && (
+                    <p className="text-xs font-bold text-primary mt-1">{formatPrice(project.starting_price)}</p>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+
+        {/* Mobile CTA */}
+        <div className="mt-5 sm:hidden">
+          <Link
+            to="/presale-projects"
+            className="flex items-center justify-center gap-2 w-full h-11 rounded-xl border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
+          >
+            View All Projects <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
-      )}
-
-      {/* Mobile CTA */}
-      <div className="container px-6 pt-5 pb-2 sm:hidden">
-        <Link
-          to="/presale-projects"
-          className="flex items-center justify-center gap-2 w-full h-11 border border-border text-sm font-semibold text-foreground hover:bg-muted transition-colors"
-        >
-          View All Projects <ArrowRight className="h-4 w-4" />
-        </Link>
       </div>
     </section>
   );
