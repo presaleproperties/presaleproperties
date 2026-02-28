@@ -192,18 +192,18 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[500px]">
             <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] sm:h-[68px] border border-white/40">
               {/* Tab switcher — compact on mobile */}
-              <div className="flex items-center shrink-0 pl-1.5 gap-0.5">
+              <div className="flex items-center shrink-0 pl-1 gap-0.5">
                 {(["projects", "resale"] as SearchTab[]).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => handleTabChange(tab)}
-                    className={`px-2.5 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
+                    className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all whitespace-nowrap ${
                       activeTab === tab
                         ? "bg-foreground text-background shadow-sm"
                         : "text-muted-foreground"
                     }`}
                   >
-                    {tab === "projects" ? "Presale" : <><span className="sm:hidden">Move-In</span><span className="hidden sm:inline">Move-In Ready</span></>}
+                    {tab === "projects" ? "Presale" : "Move-In Ready"}
                   </button>
                 ))}
               </div>
