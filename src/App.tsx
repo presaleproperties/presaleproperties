@@ -255,6 +255,8 @@ const App = () => (
             <Route path="/roi-calculator" element={<ROICalculator />} />
             <Route path="/calculator" element={<InvestmentSnapshotPage />} />
             <Route path="/developers" element={<Developers />} />
+            {/* Developer detail pages don't exist yet — redirect to directory to stop soft 404 */}
+            <Route path="/developers/:slug" element={<Navigate to="/developers" replace />} />
             
             {/* Ad Landing Page - noindex for paid campaigns */}
             <Route path="/exclusive-offer" element={<AdLandingPage />} />
@@ -394,6 +396,28 @@ const App = () => (
             <Route path="/properties/port coquitlam" element={<Navigate to="/properties/port-coquitlam" replace />} />
             <Route path="/properties/west vancouver" element={<Navigate to="/properties/west-vancouver" replace />} />
             
+            {/* Legacy /property-type/ routes → redirect to presale projects */}
+            <Route path="/property-type/condos/:slug" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/property-type/townhomes/:slug" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/property-type/:type/:slug" element={<Navigate to="/presale-projects" replace />} />
+
+            {/* Old ad-hoc project campaign pages → redirect to presale projects hub */}
+            <Route path="/properties/georgetown-ii" element={<Navigate to="/presale-projects/surrey" replace />} />
+            <Route path="/properties/brentwood-block" element={<Navigate to="/presale-projects/burnaby" replace />} />
+            <Route path="/properties/komo" element={<Navigate to="/presale-projects/surrey" replace />} />
+            <Route path="/properties/havenwood" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/properties/westview" element={<Navigate to="/presale-projects" replace />} />
+            <Route path="/properties/harriswood" element={<Navigate to="/presale-projects/langley" replace />} />
+            <Route path="/properties/the-wright-rail-district-flats" element={<Navigate to="/presale-projects/langley" replace />} />
+            <Route path="/properties/soto-on-w28" element={<Navigate to="/presale-projects/vancouver" replace />} />
+            <Route path="/properties/tricity-central" element={<Navigate to="/presale-projects/coquitlam" replace />} />
+            <Route path="/properties/nature-s-edge" element={<Navigate to="/presale-projects/langley" replace />} />
+            <Route path="/presale-projects/ironwood" element={<Navigate to="/presale-projects/richmond" replace />} />
+            <Route path="/coquitlam-town-centre-presale-condos-town-centre" element={<Navigate to="/presale-projects/coquitlam" replace />} />
+            <Route path="/prime-abbotsford-location-presale-homes-cooper-meadows-west-field" element={<Navigate to="/presale-projects/abbotsford" replace />} />
+            <Route path="/whalley-presale-condos-georgetown-ii" element={<Navigate to="/presale-projects/surrey" replace />} />
+            <Route path="/dawson-delta-presale-condos-brentwood-block" element={<Navigate to="/presale-projects/burnaby" replace />} />
+
             {/* SEO City Product Pages - must be before 404 */}
             <Route path="/:cityProductSlug" element={<CityProductPage />} />
             

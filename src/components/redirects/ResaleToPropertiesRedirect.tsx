@@ -10,6 +10,7 @@ import NotFound from "@/pages/NotFound";
  * - URLs with spaces in city names → normalize to hyphens
  * - Type normalization: townhomes→townhouses, homes→city page
  * - Empty segments → clean them up
+ * - /resale/{numericId} → /properties/{numericId} (single hop, not double redirect)
  */
 
 // Map legacy resale type slugs to current /properties/ route slugs
@@ -28,6 +29,15 @@ export function ResaleToPropertiesRedirect() {
   // Check for malformed URLs with 'undefined' segments
   if (location.pathname.includes('/undefined')) {
     return <NotFound />;
+  }
+  
+  // Extract the raw segment after /resale/
+  const rawSegment = location.pathname.replace(/^\/resale\/?/, '').split('/')[0] || '';
+
+  // Numeric-only ID (e.g. /resale/29225634) → /properties/29225634 directly
+  // ResaleListingDetail already handles the second hop to the canonical address URL
+  if (/^\d+$/.test(rawSegment)) {
+    return <Navigate to={`/properties/${rawSegment}`} replace />;
   }
   
   // Split path into segments, normalize each
