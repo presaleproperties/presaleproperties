@@ -223,7 +223,7 @@ export function HomeUnifiedMapSection({
   };
 
   const LoadingPlaceholder = () => (
-    <div className="h-[450px] md:h-[550px] lg:h-[600px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
+    <div className="h-[500px] md:h-[650px] lg:h-[700px] rounded-xl bg-muted animate-pulse flex items-center justify-center">
       <div className="text-center text-muted-foreground">
         <Map className="h-12 w-12 mx-auto mb-2 animate-pulse" />
         <p>Loading map...</p>
@@ -308,7 +308,7 @@ export function HomeUnifiedMapSection({
         ) : !shouldLoad || isLoading ? (
           <LoadingPlaceholder />
         ) : !hasData ? (
-          <div className="h-[450px] md:h-[550px] lg:h-[600px] rounded-xl bg-muted flex items-center justify-center border border-border">
+          <div className="h-[500px] md:h-[650px] lg:h-[700px] rounded-xl bg-muted flex items-center justify-center border border-border">
             <div className="text-center text-muted-foreground p-6">
               <Map className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <h3 className="font-semibold text-foreground mb-2">Properties Loading</h3>
@@ -323,9 +323,9 @@ export function HomeUnifiedMapSection({
             </div>
           </div>
         ) : (
-          <SafeMapWrapper height="h-[450px] md:h-[550px] lg:h-[600px]">
+          <SafeMapWrapper height="h-[500px] md:h-[650px] lg:h-[700px]">
             <Suspense fallback={<LoadingPlaceholder />}>
-              <div className="h-[450px] md:h-[550px] lg:h-[600px] rounded-xl overflow-hidden border border-border">
+              <div className="h-[500px] md:h-[650px] lg:h-[700px] rounded-xl overflow-hidden border border-border shadow-lg">
                 <CombinedListingsMap 
                   resaleListings={finalResaleListings as any}
                   presaleProjects={finalPresaleProjects as any}
