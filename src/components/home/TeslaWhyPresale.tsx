@@ -18,27 +18,25 @@ const STATS = [
 export function TeslaWhyPresale() {
   return (
     <section className="bg-background border-t border-border/40">
-      {/* Stats bar */}
+      {/* Stats bar — Tesla-style: full width, no container padding, clean dividers */}
       <div className="border-b border-border/40">
-        <div className="container px-4 sm:px-6">
-          <div className="grid grid-cols-4 divide-x divide-border/40">
-            {STATS.map((s) => (
-              <div key={s.label} className="flex flex-col items-center justify-center py-8 gap-1 px-2">
-                <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{s.value}</span>
-                <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/80 text-center">{s.label}</span>
-              </div>
-            ))}
-          </div>
+        <div className="grid grid-cols-4 divide-x divide-border/40">
+          {STATS.map((s) => (
+            <div key={s.label} className="flex flex-col items-center justify-center py-8 gap-1 px-2">
+              <span className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">{s.value}</span>
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-primary/80 text-center">{s.label}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Why presale — editorial two-column */}
-      <div className="container px-4 sm:px-6 py-16 md:py-24">
+      {/* Two-column editorial */}
+      <div className="container px-6 sm:px-8 py-16 md:py-24">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-6xl mx-auto">
-          {/* Left */}
+          {/* Left copy */}
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-primary mb-4">Why Presale?</p>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-tight mb-6">
+            <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-primary mb-4">Why Presale?</p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-foreground tracking-tight leading-[1.08] mb-6">
               Buy Before It's Built.<br />
               <span className="text-primary">Own More for Less.</span>
             </h2>
@@ -48,13 +46,13 @@ export function TeslaWhyPresale() {
             <div className="flex items-center gap-3">
               <Link
                 to="/presale-projects"
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full bg-foreground text-background text-sm font-bold hover:bg-foreground/85 transition-colors"
+                className="inline-flex items-center gap-2 h-12 px-7 bg-foreground text-background text-sm font-bold hover:bg-foreground/85 transition-colors"
               >
                 Browse Projects <ArrowRight className="h-4 w-4" />
               </Link>
               <Link
                 to="/vip"
-                className="inline-flex items-center gap-2 h-12 px-7 rounded-full border border-border text-sm font-bold text-foreground hover:bg-muted transition-colors"
+                className="inline-flex items-center gap-2 h-12 px-7 border border-border text-sm font-bold text-foreground hover:bg-muted transition-colors"
               >
                 Get VIP Access
               </Link>
@@ -62,10 +60,10 @@ export function TeslaWhyPresale() {
           </div>
 
           {/* Right — benefits grid */}
-          <div className="grid grid-cols-2 gap-5">
+          <div className="grid grid-cols-2 gap-4">
             {BENEFITS.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-5 rounded-2xl bg-muted/40 border border-border/50 hover:border-primary/30 transition-colors">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+              <div key={title} className="p-5 bg-muted/40 border border-border/50 hover:border-primary/30 transition-colors">
+                <div className="h-10 w-10 bg-primary/10 flex items-center justify-center mb-4">
                   <Icon className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="text-sm font-bold text-foreground mb-1.5">{title}</h3>
