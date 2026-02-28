@@ -8,12 +8,6 @@ const BENEFITS = [
   { icon: Shield, title: "New Home Warranty", desc: "Full BC warranty coverage — 2-5-10 years on materials, envelope & structure." },
 ];
 
-const STATS = [
-  { value: "111", label: "Active Projects" },
-  { value: "450+", label: "Units Sold" },
-  { value: "$200M+", label: "In Sales" },
-  { value: "5.0 ★", label: "Google Rating" },
-];
 
 export function TeslaWhyPresale() {
   return (
