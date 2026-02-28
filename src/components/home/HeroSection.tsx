@@ -162,8 +162,82 @@ export function HeroSection({
             <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
             VIP Pricing Available Now
           </div>
-...
+
+          {/* Headline */}
+          <h1 className="text-[2.4rem] sm:text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            Get First Access to{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
+          </h1>
+
+          {/* Search Bar — glassmorphism premium */}
+          <div className="relative z-[10] w-full max-w-2xl">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
+              {/* Tab switcher */}
+              <div className="flex items-center shrink-0 pl-2 gap-1">
+                <button
+                  onClick={() => handleTabChange("projects")}
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    activeTab === "projects"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  Presale
+                </button>
+                <button
+                  onClick={() => handleTabChange("resale")}
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    activeTab === "resale"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  Move-In Ready
+                </button>
+              </div>
+
+              {/* Vertical divider */}
+              <div className="w-px h-7 bg-border/60 mx-2 shrink-0" />
+
+              {/* Search input */}
+              <div className="flex-1 overflow-visible min-w-0">
+                <PowerSearch
+                  placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
+                  mode={activeTab === "projects" ? "presale" : "resale"}
+                  variant="hero"
+                  hideIcon
+                  dropdownContainer={searchBarRef}
+                  inputClassName="h-[64px] sm:h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
+                />
+              </div>
+
+              {/* Search button — gold accent */}
+              <button
+                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
+                className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-md"
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          </div>
+
           {/* CTAs */}
+          <div className="relative z-[1] flex flex-wrap items-center justify-center gap-3 mt-5">
+            <button
+              onClick={() => setModalOpen(true)}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-95 transition-all shadow-lg"
+            >
+              🔑 Get VIP Access
+            </button>
+            <Link
+              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
+            >
+              <MapPin className="w-4 h-4 text-white/80" />
+              Search by Map
+            </Link>
+          </div>
         </div>
       </section>
 
