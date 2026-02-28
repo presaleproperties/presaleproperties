@@ -151,7 +151,7 @@ export function HeroSection({
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
         {/* Fallback overlay for when slider loads */}
-        <div className="absolute inset-0 bg-black/20 z-[2] pointer-events-none" />
+        <div className="absolute inset-0 bg-black/10 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
         <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">

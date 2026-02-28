@@ -24,7 +24,7 @@ const getTypeLabel = (type: string | null) => {
   return "Condo";
 };
 
-export function HeroProjectSlider() {
+export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } = {}) {
   const [current, setCurrent] = useState(0);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -93,9 +93,9 @@ export function HeroProjectSlider() {
         </div>
       ))}
 
-      {/* Gradient overlays — deep cinematic feel */}
-      <div className="absolute inset-0 z-[2] bg-gradient-to-t from-black/85 via-black/20 to-black/55 pointer-events-none" />
-      <div className="absolute inset-0 z-[2] bg-gradient-to-r from-black/50 via-transparent to-transparent pointer-events-none" />
+      {/* Gradient overlays */}
+      <div className={`absolute inset-0 z-[2] pointer-events-none ${lightOverlay ? "bg-gradient-to-t from-black/65 via-black/10 to-black/30" : "bg-gradient-to-t from-black/85 via-black/20 to-black/55"}`} />
+      <div className={`absolute inset-0 z-[2] pointer-events-none ${lightOverlay ? "bg-gradient-to-r from-black/25 via-transparent to-transparent" : "bg-gradient-to-r from-black/50 via-transparent to-transparent"}`} />
 
       {/* Bottom project info — compact, clean */}
       <div className="absolute bottom-0 left-0 right-0 z-[3] px-4 sm:px-8 md:px-14 pb-4 sm:pb-8">
