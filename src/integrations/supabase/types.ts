@@ -2093,6 +2093,7 @@ export type Database = {
           assigned_to: string | null
           budget: string | null
           city_interest: Json | null
+          contacted_at: string | null
           created_at: string
           drip_sequence: string | null
           email: string
@@ -2102,6 +2103,7 @@ export type Database = {
           landing_page: string | null
           last_drip_sent: number | null
           lead_source: string | null
+          lead_status: string
           message: string | null
           name: string
           next_drip_at: string | null
@@ -2127,6 +2129,7 @@ export type Database = {
           assigned_to?: string | null
           budget?: string | null
           city_interest?: Json | null
+          contacted_at?: string | null
           created_at?: string
           drip_sequence?: string | null
           email: string
@@ -2136,6 +2139,7 @@ export type Database = {
           landing_page?: string | null
           last_drip_sent?: number | null
           lead_source?: string | null
+          lead_status?: string
           message?: string | null
           name: string
           next_drip_at?: string | null
@@ -2161,6 +2165,7 @@ export type Database = {
           assigned_to?: string | null
           budget?: string | null
           city_interest?: Json | null
+          contacted_at?: string | null
           created_at?: string
           drip_sequence?: string | null
           email?: string
@@ -2170,6 +2175,7 @@ export type Database = {
           landing_page?: string | null
           last_drip_sent?: number | null
           lead_source?: string | null
+          lead_status?: string
           message?: string | null
           name?: string
           next_drip_at?: string | null
