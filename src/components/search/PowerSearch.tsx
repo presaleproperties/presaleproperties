@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Search, X, MapPin, Building2, Home, Hash, FileText, Loader2 } from "lucide-react";
@@ -40,6 +41,7 @@ interface PowerSearchProps {
   mode?: "all" | "presale" | "resale" | "assignments";
   variant?: "default" | "hero" | "compact";
   hideIcon?: boolean;
+  dropdownContainer?: React.RefObject<HTMLElement | null>;
 }
 
 const formatPrice = (price?: number | null): string => {
@@ -62,6 +64,7 @@ export function PowerSearch({
   mode = "all",
   variant = "default",
   hideIcon = false,
+  dropdownContainer,
 }: PowerSearchProps) {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
@@ -463,122 +466,106 @@ export function PowerSearch({
       </div>
 
       {/* Results Dropdown */}
-      {isOpen && (displayResults.length > 0 || (query.length >= 2 && !isLoading)) && (
-        <div
-          className={cn(
-            "absolute left-0 right-0 top-full z-[9999] overflow-hidden",
-            "bg-white dark:bg-card",
-            "border border-border/40 border-t-0",
-            "shadow-[0_24px_64px_-12px_rgba(0,0,0,0.25)]",
-            "animate-in fade-in-0 slide-in-from-top-2 duration-200 ease-out",
-            isHero ? "rounded-b-2xl" : "rounded-b-xl"
-          )}
-        >
-          {/* Section label for recent */}
-          {query.length < 2 && recentSearches.length > 0 && (
-            <div className="px-5 pt-3.5 pb-1">
-              <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.14em]">Recent</p>
-            </div>
-          )}
+      {isOpen && (displayResults.length > 0 || (query.length >= 2 && !isLoading)) && (() => {
+        const dropdown = (
+          <div
+            className={cn(
+              "absolute left-0 right-0 top-full z-[9999] overflow-hidden",
+              "bg-white dark:bg-card",
+              "border border-border/40 border-t-0",
+              "shadow-[0_24px_64px_-12px_rgba(0,0,0,0.25)]",
+              "animate-in fade-in-0 slide-in-from-top-2 duration-200 ease-out",
+              isHero ? "rounded-b-2xl" : "rounded-b-xl"
+            )}
+          >
+            {/* Section label for recent */}
+            {query.length < 2 && recentSearches.length > 0 && (
+              <div className="px-5 pt-3.5 pb-1">
+                <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-[0.14em]">Recent</p>
+              </div>
+            )}
 
-          {/* Results list */}
-          {displayResults.length > 0 ? (
-            <ul className="max-h-[min(440px,65vh)] overflow-y-auto overscroll-contain">
-              {displayResults.map((result, index) => (
-                <li key={result.id}>
-                  <button
-                    onClick={() => handleSelect(result)}
-                    onMouseEnter={() => setActiveIndex(index)}
-                    className={cn(
-                      "w-full flex items-center gap-3.5 px-4 py-3 text-left transition-colors duration-100",
-                      "border-b border-border/30 last:border-0",
-                      index === activeIndex
-                        ? "bg-muted/60"
-                        : "hover:bg-muted/35 active:bg-muted/60"
-                    )}
-                  >
-                    {/* Thumbnail */}
-                    {result.image ? (
-                      <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 shadow-sm">
-                        <img
-                          src={result.image}
-                          alt={result.title}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      </div>
-                    ) : (
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
-                        result.type === "city" || result.type === "neighborhood"
-                          ? "bg-muted/70"
-                          : "bg-primary/10"
-                      )}>
-                        {getIcon(result.type)}
-                      </div>
-                    )}
-
-                    {/* Text */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="font-semibold text-[13.5px] text-foreground truncate leading-snug">
-                          {result.title}
-                        </span>
-                        <span className={cn(
-                          "text-[9px] font-bold uppercase tracking-wider px-1.5 py-[3px] rounded-md shrink-0 leading-none",
-                          getTypeBadgeClass(result.type)
+            {/* Results list */}
+            {displayResults.length > 0 ? (
+              <ul className="max-h-[min(440px,65vh)] overflow-y-auto overscroll-contain">
+                {displayResults.map((result, index) => (
+                  <li key={result.id}>
+                    <button
+                      onClick={() => handleSelect(result)}
+                      onMouseEnter={() => setActiveIndex(index)}
+                      className={cn(
+                        "w-full flex items-center gap-3.5 px-4 py-3 text-left transition-colors duration-100",
+                        "border-b border-border/30 last:border-0",
+                        index === activeIndex
+                          ? "bg-muted/60"
+                          : "hover:bg-muted/35 active:bg-muted/60"
+                      )}
+                    >
+                      {/* Thumbnail */}
+                      {result.image ? (
+                        <div className="w-12 h-12 rounded-xl overflow-hidden bg-muted shrink-0 shadow-sm">
+                          <img src={result.image} alt={result.title} className="w-full h-full object-cover" loading="lazy" />
+                        </div>
+                      ) : (
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center shrink-0",
+                          result.type === "city" || result.type === "neighborhood" ? "bg-muted/70" : "bg-primary/10"
                         )}>
-                          {getTypeLabel(result.type)}
-                        </span>
-                      </div>
-                      <p className="text-[11.5px] text-muted-foreground truncate leading-snug">
-                        {result.subtitle}
-                        {result.meta && (result.meta.beds || result.meta.sqft) && (
-                          <span className="text-muted-foreground/55">
-                            {" · "}
-                            {[
-                              result.meta.beds && `${result.meta.beds} bd`,
-                              result.meta.baths && `${result.meta.baths} ba`,
-                              result.meta.sqft && `${result.meta.sqft.toLocaleString()} ft²`,
-                            ].filter(Boolean).join(" ")}
+                          {getIcon(result.type)}
+                        </div>
+                      )}
+
+                      {/* Text */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <span className="font-semibold text-[13.5px] text-foreground truncate leading-snug">{result.title}</span>
+                          <span className={cn("text-[9px] font-bold uppercase tracking-wider px-1.5 py-[3px] rounded-md shrink-0 leading-none", getTypeBadgeClass(result.type))}>
+                            {getTypeLabel(result.type)}
                           </span>
-                        )}
-                      </p>
-                    </div>
+                        </div>
+                        <p className="text-[11.5px] text-muted-foreground truncate leading-snug">
+                          {result.subtitle}
+                          {result.meta && (result.meta.beds || result.meta.sqft) && (
+                            <span className="text-muted-foreground/55">
+                              {" · "}{[result.meta.beds && `${result.meta.beds} bd`, result.meta.baths && `${result.meta.baths} ba`, result.meta.sqft && `${result.meta.sqft.toLocaleString()} ft²`].filter(Boolean).join(" ")}
+                            </span>
+                          )}
+                        </p>
+                      </div>
 
-                    {/* Price */}
-                    {result.price && (
-                      <span className="font-bold text-[14px] text-primary shrink-0 tabular-nums">
-                        {formatPrice(result.price)}
-                      </span>
-                    )}
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div className="px-5 py-8 text-center">
-              <Search className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2.5" />
-              <p className="text-sm font-medium text-foreground/60">No results for "{query}"</p>
-              <p className="text-xs text-muted-foreground/50 mt-1">Try a city, address, MLS#, or project name</p>
-            </div>
-          )}
+                      {/* Price */}
+                      {result.price && (
+                        <span className="font-bold text-[14px] text-primary shrink-0 tabular-nums">{formatPrice(result.price)}</span>
+                      )}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="px-5 py-8 text-center">
+                <Search className="h-8 w-8 text-muted-foreground/30 mx-auto mb-2.5" />
+                <p className="text-sm font-medium text-foreground/60">No results for "{query}"</p>
+                <p className="text-xs text-muted-foreground/50 mt-1">Try a city, address, MLS#, or project name</p>
+              </div>
+            )}
 
-          {/* Footer CTA */}
-          {query.length >= 2 && results.length > 0 && (
-            <button
-              onClick={() => {
-                navigate(`/map-search?q=${encodeURIComponent(query)}`);
-                setIsOpen(false);
-              }}
-              className="w-full px-5 py-3.5 flex items-center justify-center gap-2 text-[12px] font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors border-t border-border/40"
-            >
-              <MapPin className="h-3.5 w-3.5" />
-              See all results on map
-            </button>
-          )}
-        </div>
-      )}
+            {/* Footer CTA */}
+            {query.length >= 2 && results.length > 0 && (
+              <button
+                onClick={() => { navigate(`/map-search?q=${encodeURIComponent(query)}`); setIsOpen(false); }}
+                className="w-full px-5 py-3.5 flex items-center justify-center gap-2 text-[12px] font-semibold text-primary hover:bg-primary/5 active:bg-primary/10 transition-colors border-t border-border/40"
+              >
+                <MapPin className="h-3.5 w-3.5" />
+                See all results on map
+              </button>
+            )}
+          </div>
+        );
+
+        return dropdownContainer?.current
+          ? createPortal(dropdown, dropdownContainer.current)
+          : dropdown;
+      })()}
     </div>
   );
 }
