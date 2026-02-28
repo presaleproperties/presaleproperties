@@ -182,15 +182,10 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-28 sm:pt-32">
 
           {/* Headline */}
-          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-1.5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
-            New Homes.{" "}
-            <span className="text-primary">Exclusive Access.</span>
+          <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-5 tracking-tight" style={{ textShadow: "0 2px 20px rgba(0,0,0,0.75)" }}>
+            Find Your{" "}
+            <span className="text-primary">New Home.</span>
           </h1>
-
-          {/* Subheadline */}
-          <p className="text-[11px] text-white/55 text-center mb-5 leading-relaxed font-light">
-            Presale &amp; developer inventory across Metro Vancouver.
-          </p>
 
           {/* Tab pills */}
           <div className="flex items-center gap-2 mb-3">
@@ -234,22 +229,6 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         </div>
       </div>
 
-      {/* Trust Bar */}
-      <div className="bg-[#080808] border-b border-white/[0.06]">
-        <div className="grid grid-cols-4 divide-x divide-white/[0.07]">
-          {[
-            { value: "111", label: "Projects" },
-            { value: "450+", label: "Sold" },
-            { value: "$200M+", label: "In Sales" },
-            { value: "5.0 ★", label: "Rating" },
-          ].map((stat, i) => (
-            <div key={i} className="flex flex-col items-center py-4 gap-1">
-              <span className="text-sm font-extrabold text-white leading-none tracking-tight">{stat.value}</span>
-              <span className="text-[8px] text-primary/80 font-bold uppercase tracking-[0.15em] text-center leading-tight">{stat.label}</span>
-            </div>
-          ))}
-        </div>
-      </div>
 
       {/* City Quick Links */}
       <div className="py-3 bg-background border-b border-border/40">
