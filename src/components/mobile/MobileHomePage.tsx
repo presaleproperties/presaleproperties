@@ -203,7 +203,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
                         : "text-muted-foreground"
                     }`}
                   >
-                    {tab === "projects" ? "Presale" : "Move-In Ready"}
+                    {tab === "projects" ? "Presale" : "Ready"}
                   </button>
                 ))}
               </div>
