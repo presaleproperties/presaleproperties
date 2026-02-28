@@ -15,10 +15,13 @@ export function TeslaFeaturedResale() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("mls_listings")
-        .select("id, listing_key, unparsed_address, city, listing_price, bedrooms_total, bathrooms_total, photos, property_type, mls_status")
+        .select("id, listing_key, unparsed_address, street_number, street_name, city, neighborhood, listing_price, bedrooms_total, bathrooms_total, living_area, photos, property_type, property_sub_type, mls_status, year_built")
         .eq("mls_status", "Active")
-        .not("photos", "is", null)
-        .order("listing_price", { ascending: true })
+        .not("photos", "eq", "[]")
+        .not("latitude", "is", null)
+        .gte("listing_price", 300000)
+        .gte("year_built", 2020)
+        .order("list_date", { ascending: false, nullsFirst: false })
         .limit(5);
       if (error) throw error;
       return data ?? [];
@@ -29,8 +32,16 @@ export function TeslaFeaturedResale() {
 
   const getPhoto = (photos: unknown): string | null => {
     if (!photos) return null;
-    const arr = photos as Array<{ Uri?: string; url?: string }>;
-    return arr[0]?.Uri || arr[0]?.url || null;
+    if (Array.isArray(photos) && photos.length > 0) {
+      return photos[0]?.MediaURL || photos[0]?.Uri || photos[0]?.url || null;
+    }
+    return null;
+  };
+
+  const getAddress = (listing: (typeof listings)[0]) => {
+    if (listing.unparsed_address) return listing.unparsed_address;
+    const parts = [listing.street_number, listing.street_name].filter(Boolean);
+    return parts.length > 0 ? parts.join(" ") : listing.neighborhood || listing.city;
   };
 
   const [big, ...small] = listings;
@@ -71,7 +82,7 @@ export function TeslaFeaturedResale() {
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10">
               <h3 className="text-xl sm:text-2xl font-extrabold text-white leading-tight mb-1">
-                {big.unparsed_address}
+                {getAddress(big)}
               </h3>
               <p className="text-sm text-white/60 flex items-center gap-1 mb-3">
                 <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />{big.city}
@@ -112,7 +123,7 @@ export function TeslaFeaturedResale() {
               )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-                <p className="text-xs sm:text-sm font-bold text-white leading-tight truncate">{listing.unparsed_address}</p>
+                <p className="text-xs sm:text-sm font-bold text-white leading-tight truncate">{getAddress(listing)}</p>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-xs font-bold text-primary">{formatPrice(listing.listing_price)}</span>
                   <span className="text-[10px] text-white/50">{listing.city}</span>
