@@ -183,59 +183,59 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <div className="absolute inset-0 z-[5] flex flex-col items-center justify-center px-5 overflow-visible">
 
           {/* Headline */}
-          <h1 className="text-5xl font-extrabold text-white leading-[1.05] text-center mb-8 tracking-tight max-w-xs" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+          <h1 className="text-[2rem] sm:text-4xl font-extrabold text-white leading-[1.08] text-center mb-5 tracking-tight max-w-[300px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
             Get First Access to{" "}
             <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
           </h1>
 
           {/* Search bar */}
-          <div className="relative z-[10] w-full max-w-sm">
-            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[72px] border border-white/40">
-              {/* Tab switcher */}
-              <div className="flex items-center shrink-0 pl-2 gap-1">
+          <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[500px]">
+            <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[60px] sm:h-[68px] border border-white/40">
+              {/* Tab switcher — compact on mobile */}
+              <div className="flex items-center shrink-0 pl-1.5 gap-0.5">
                 {(["projects", "resale"] as SearchTab[]).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => handleTabChange(tab)}
-                    className={`px-3 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    className={`px-2.5 sm:px-4 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap ${
                       activeTab === tab
                         ? "bg-foreground text-background shadow-sm"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        : "text-muted-foreground"
                     }`}
                   >
-                    {tab === "projects" ? "Presale" : "Move-In Ready"}
+                    {tab === "projects" ? "Presale" : <><span className="sm:hidden">Move-In</span><span className="hidden sm:inline">Move-In Ready</span></>}
                   </button>
                 ))}
               </div>
 
               {/* Divider */}
-              <div className="w-px h-7 bg-border/60 mx-2 shrink-0" />
+              <div className="w-px h-6 bg-border/60 mx-1.5 shrink-0" />
 
               <div className="flex-1 overflow-visible min-w-0">
                 <PowerSearch
-                  placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
+                  placeholder={activeTab === "projects" ? "City or project…" : "Address or MLS#…"}
                   mode={activeTab === "projects" ? "presale" : "resale"}
                   variant="hero"
                   hideIcon
                   dropdownContainer={searchBarRef}
-                  inputClassName="h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
+                  inputClassName="h-[60px] sm:h-[68px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-2 rounded-none shadow-none"
                 />
               </div>
               <button
                 onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-12 h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all shadow-md"
+                className="shrink-0 w-10 h-10 sm:w-11 sm:h-11 mr-1.5 rounded-xl bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all shadow-md"
                 aria-label="Search"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
 
           {/* Search by Map CTA */}
-          <div className="flex items-center justify-center mt-5">
+          <div className="flex items-center justify-center mt-4">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold active:scale-95 transition-all shadow-lg"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold active:scale-95 transition-all shadow-lg"
             >
               <MapPin className="w-4 h-4 text-white/80" />
               Search by Map
