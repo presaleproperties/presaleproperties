@@ -2705,39 +2705,24 @@ export type Database = {
       mls_agents_public: {
         Row: {
           agent_key: string | null
-          agent_mls_id: string | null
-          created_at: string | null
           first_name: string | null
           full_name: string | null
-          id: string | null
           last_name: string | null
           office_key: string | null
-          phone: string | null
-          updated_at: string | null
         }
         Insert: {
           agent_key?: string | null
-          agent_mls_id?: string | null
-          created_at?: string | null
           first_name?: string | null
           full_name?: string | null
-          id?: string | null
           last_name?: string | null
           office_key?: string | null
-          phone?: string | null
-          updated_at?: string | null
         }
         Update: {
           agent_key?: string | null
-          agent_mls_id?: string | null
-          created_at?: string | null
           first_name?: string | null
           full_name?: string | null
-          id?: string | null
           last_name?: string | null
           office_key?: string | null
-          phone?: string | null
-          updated_at?: string | null
         }
         Relationships: []
       }
