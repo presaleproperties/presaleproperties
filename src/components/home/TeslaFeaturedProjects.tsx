@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -55,15 +55,6 @@ export function TeslaFeaturedProjects() {
     el.scrollTo({ left: i * cardWidth, behavior: "smooth" });
   };
 
-  // Auto-advance every 5s
-  useEffect(() => {
-    if (total < 2) return;
-    const t = setInterval(() => {
-      const next = (current + 1) % total;
-      scrollTo(next);
-    }, 5000);
-    return () => clearInterval(t);
-  }, [current, total]);
 
   if (isLoading || !projects || projects.length === 0) return null;
 

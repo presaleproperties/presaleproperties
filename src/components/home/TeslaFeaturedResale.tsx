@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { BedDouble, Bath } from "lucide-react";
@@ -61,12 +61,6 @@ export function TeslaFeaturedResale() {
     el.scrollTo({ left: i * cardWidth, behavior: "smooth" });
   };
 
-  // Auto-advance every 5s
-  useEffect(() => {
-    if (total < 2) return;
-    const t = setInterval(() => setCurrent((c) => { const next = (c + 1) % total; scrollTo(next); return next; }), 5000);
-    return () => clearInterval(t);
-  }, [total]);
 
   if (isLoading || !listings || listings.length === 0) return null;
 
