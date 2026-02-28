@@ -180,7 +180,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider lightOverlay />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-36 sm:pt-44" style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 9rem)` }}>
+        <div className="absolute top-0 left-0 right-0 z-[5] flex flex-col items-center px-5 pt-36 sm:pt-44 overflow-visible" style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 9rem)` }}>
 
           {/* Headline */}
           <h1 className="text-[1.75rem] sm:text-[2.2rem] font-extrabold text-white leading-[1.1] text-center mb-5 tracking-tight" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.45)" }}>
@@ -189,7 +189,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </h1>
 
           {/* Search bar with inline toggles */}
-          <div className="w-full max-w-[340px] sm:max-w-[420px]">
+          <div className="relative z-[10] w-full max-w-[340px] sm:max-w-[420px]">
             <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-visible border border-white/30">
               {/* Inline tab toggles */}
               <div className="flex items-center gap-0.5 ml-2 shrink-0 bg-muted/30 rounded-xl p-0.5">
