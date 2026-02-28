@@ -466,7 +466,7 @@ export function PowerSearch({
       {isOpen && (displayResults.length > 0 || (query.length >= 2 && !isLoading)) && (
         <div className={cn(
           "absolute left-0 right-0 top-full z-[9999] overflow-hidden",
-          "bg-background/98 backdrop-blur-xl",
+          "bg-background backdrop-blur-xl",
           "border border-border/60 border-t-0",
           "shadow-[0_16px_48px_-8px_rgba(0,0,0,0.18)]",
           isHero ? "rounded-b-2xl" : "rounded-b-xl"
