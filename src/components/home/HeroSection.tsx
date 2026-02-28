@@ -164,7 +164,7 @@ export function HeroSection({
           </h1>
 
           {/* Search Bar — glassmorphism premium */}
-          <div className="w-full max-w-2xl">
+          <div className="relative z-[10] w-full max-w-2xl">
             <div ref={searchBarRef} className="relative flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
               {/* Tab switcher */}
               <div className="flex items-center shrink-0 pl-2 gap-1">
@@ -217,7 +217,7 @@ export function HeroSection({
           </div>
 
           {/* Map link */}
-          <div className="flex items-center gap-5 mt-5">
+          <div className="relative z-[1] flex items-center gap-5 mt-5">
             <Link
               to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
               className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 text-white text-sm font-semibold hover:bg-black/65 active:scale-95 transition-all shadow-lg"
