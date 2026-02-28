@@ -157,11 +157,29 @@ export function HeroSection({
         {/* Centered Content */}
         <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
 
+          {/* Urgency Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-xs sm:text-sm font-medium mb-6">
+            🔑 Presale Projects — VIP Pricing Available Now
+          </div>
+
           {/* Headline */}
-          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            Find Your{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>New Home.</span>
+          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-4 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            Discover{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>BC's Best Presales.</span>
           </h1>
+
+          {/* Subheading */}
+          <p className="text-white/80 text-sm sm:text-base text-center mb-6 max-w-lg" style={{ textShadow: "0 1px 8px rgba(0,0,0,0.5)" }}>
+            Floor plans, pricing &amp; assignments — before they hit the public.
+          </p>
+
+          {/* VIP CTA */}
+          <button
+            onClick={() => setModalOpen(true)}
+            className="mb-6 inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-primary text-primary-foreground text-sm font-bold shadow-gold hover:bg-primary/90 active:scale-95 transition-all"
+          >
+            Get VIP Access
+          </button>
 
           {/* Search Bar — glassmorphism premium */}
           <div className="relative z-[10] w-full max-w-2xl">
