@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { X, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "./HeroProjectSlider";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -132,35 +131,22 @@ export function HeroSection({
   activeTab: controlledTab,
   onTabChange
 }: HeroSectionProps) {
-  const [internalTab, setInternalTab] = useState<SearchTab>("projects");
   const [modalOpen, setModalOpen] = useState(false);
-  const activeTab = controlledTab ?? internalTab;
   const navigate = useNavigate();
-
-  const handleTabChange = (tab: SearchTab) => {
-    if (onTabChange) onTabChange(tab);
-    else setInternalTab(tab);
-  };
-
-  const handleCityClick = (city: string) => {
-    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
-    if (activeTab === "projects") navigate(`/${citySlug}-presale-condos`);
-    else navigate(`/properties/${citySlug}`);
-  };
 
   return (
     <>
-      {/* Hero Section — minimal premium */}
+      {/* Hero — Tesla style: full-bleed background image with centered minimal content */}
       <section className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
-        {/* Fallback overlay for when slider loads */}
-        <div className="absolute inset-0 bg-black/20 z-[2] pointer-events-none" />
+        {/* Cinematic dark overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/60 z-[2] pointer-events-none" />
 
-        {/* Centered Content */}
-        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
+        {/* Centered Content — absolute minimal, Tesla-style */}
+        <div className="relative z-[5] w-full flex flex-col items-center text-center px-5 sm:px-8">
 
-          {/* Gold eyebrow line */}
+          {/* Gold eyebrow */}
           <div className="flex items-center gap-3 mb-6">
             <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/70" />
             <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary/90 drop-shadow">
@@ -169,83 +155,27 @@ export function HeroSection({
             <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/70" />
           </div>
 
-          {/* Headline */}
-          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-5 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
-            New Homes.{" "}
-            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Exclusive Access.</span>
+          {/* 3-word headline — Tesla-scale */}
+          <h1
+            className="text-[3.2rem] sm:text-6xl md:text-7xl lg:text-[6rem] font-extrabold text-white leading-[1.0] tracking-tight mb-10"
+            style={{ textShadow: "0 2px 40px rgba(0,0,0,0.5)" }}
+          >
+            Own. Before. Everyone.
           </h1>
 
-          {/* Subheadline */}
-          <p className="text-sm sm:text-base text-white/75 text-center max-w-md mb-10 leading-relaxed font-light tracking-wide drop-shadow">
-            Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
-          </p>
-
-          {/* Search Bar — glassmorphism premium */}
-          <div className="w-full max-w-2xl">
-            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
-              {/* Tab switcher */}
-              <div className="flex items-center shrink-0 pl-2 gap-1">
-                <button
-                  onClick={() => handleTabChange("projects")}
-                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "projects"
-                      ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  Presale
-                </button>
-                <button
-                  onClick={() => handleTabChange("resale")}
-                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
-                    activeTab === "resale"
-                      ? "bg-foreground text-background shadow-sm"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
-                  Move-In Ready
-                </button>
-              </div>
-
-              {/* Vertical divider */}
-              <div className="w-px h-7 bg-border/60 mx-2 shrink-0" />
-
-              {/* Search input */}
-              <div className="flex-1 overflow-visible min-w-0">
-                <PowerSearch
-                  placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
-                  mode={activeTab === "projects" ? "presale" : "resale"}
-                  variant="hero"
-                  hideIcon
-                  inputClassName="h-[64px] sm:h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
-                />
-              </div>
-
-              {/* Search button — gold accent */}
-              <button
-                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
-                className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-md"
-                aria-label="Search"
-              >
-                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
-              </button>
-            </div>
-          </div>
-
-          {/* Links row */}
-          <div className="flex items-center gap-5 mt-6">
-            <Link
-              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
-              className="text-xs text-white/60 hover:text-white/90 transition-colors tracking-wide"
+          {/* Two Tesla-style CTA buttons */}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => navigate("/presale-projects")}
+              className="h-14 px-10 bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-[0.98] transition-all"
             >
-              Explore the map →
-            </Link>
-            <span className="w-px h-3.5 bg-white/20" />
+              Browse Presales
+            </button>
             <button
               onClick={() => setModalOpen(true)}
-              className="text-xs text-primary font-bold hover:text-primary/80 transition-colors tracking-wide"
+              className="h-14 px-10 bg-white/[0.12] backdrop-blur-sm border border-white/25 text-sm font-bold text-white hover:bg-white/20 active:scale-[0.98] transition-all"
             >
-              ✦ Get VIP Access — Free
+              Get VIP Access
             </button>
           </div>
         </div>
