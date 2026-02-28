@@ -189,8 +189,9 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </h1>
 
           {/* Subheadline */}
-          <p className="text-white/70 text-sm text-center max-w-[300px] sm:max-w-sm mb-4 leading-relaxed" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
-            Metro Vancouver 📍
+          <p className="text-white/70 text-sm text-center max-w-[300px] sm:max-w-sm mb-4 leading-relaxed flex items-center justify-center gap-1.5" style={{ textShadow: "0 1px 12px rgba(0,0,0,0.5)" }}>
+            <MapPin className="w-3.5 h-3.5 text-primary shrink-0" strokeWidth={2.5} />
+            Metro Vancouver
           </p>
 
           {/* Search bar */}
