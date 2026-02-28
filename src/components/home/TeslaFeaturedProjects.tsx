@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,7 +18,8 @@ const statusLabel = (s: string) => {
 
 export function TeslaFeaturedProjects() {
   const [current, setCurrent] = useState(0);
-  const trackRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const isScrolling = useRef(false);
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["tesla-featured-projects"],
@@ -36,24 +37,33 @@ export function TeslaFeaturedProjects() {
   });
 
   const total = projects?.length ?? 0;
-  const next = useCallback(() => setCurrent((c) => Math.min(c + 1, total - 1)), [total]);
-  const prev = useCallback(() => setCurrent((c) => Math.max(c - 1, 0)), []);
+
+  // Sync dot indicator with scroll position
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / total;
+    const idx = Math.round(el.scrollLeft / cardWidth);
+    setCurrent(Math.max(0, Math.min(idx, total - 1)));
+  }, [total]);
+
+  // Scroll to card when dot is clicked
+  const scrollTo = (i: number) => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const cardWidth = el.scrollWidth / total;
+    el.scrollTo({ left: i * cardWidth, behavior: "smooth" });
+  };
 
   // Auto-advance every 5s
   useEffect(() => {
     if (total < 2) return;
-    const t = setInterval(() => setCurrent((c) => (c + 1) % total), 5000);
+    const t = setInterval(() => {
+      const next = (current + 1) % total;
+      scrollTo(next);
+    }, 5000);
     return () => clearInterval(t);
-  }, [total]);
-
-  // Touch / swipe
-  const touchStartX = useRef(0);
-  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dx = touchStartX.current - e.changedTouches[0].clientX;
-    if (dx > 50) next();
-    else if (dx < -50) prev();
-  };
+  }, [current, total]);
 
   if (isLoading || !projects || projects.length === 0) return null;
 
@@ -65,79 +75,75 @@ export function TeslaFeaturedProjects() {
         <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">Hottest New Developments</h2>
       </div>
 
-      {/* Carousel — peek next card on the right */}
+      {/* Scrollable carousel — snaps per card, peeks next */}
       <div
-        className="overflow-hidden pl-4 sm:pl-6 lg:pl-8"
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex gap-3 sm:gap-4 overflow-x-auto pl-4 sm:pl-6 lg:pl-8 pr-[15vw] sm:pr-[12vw]"
+        style={{
+          scrollSnapType: "x mandatory",
+          scrollbarWidth: "none",
+          WebkitOverflowScrolling: "touch",
+        }}
       >
-        <div
-          ref={trackRef}
-          className="flex gap-3 sm:gap-4 transition-transform duration-500 ease-in-out"
-          style={{ transform: `translateX(calc(-${current} * (85vw + 12px)))` }}
-        >
-          {projects.map((p, i) => (
-            <div
-              key={p.id}
-              className="relative shrink-0 overflow-hidden rounded-2xl bg-muted cursor-pointer"
-              style={{ width: "85vw", maxWidth: "900px", aspectRatio: "16/9" }}
-              onClick={() => i !== current && setCurrent(i)}
-            >
-              <img
-                src={p.featured_image!}
-                alt={p.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
-                style={{ transform: i === current ? "scale(1)" : "scale(1.03)" }}
-              />
-              {/* Dim non-active cards */}
-              {i !== current && (
-                <div className="absolute inset-0 bg-black/30 z-10" />
-              )}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+        {projects.map((p, i) => (
+          <div
+            key={p.id}
+            className="relative shrink-0 overflow-hidden rounded-2xl bg-muted"
+            style={{
+              width: "85vw",
+              maxWidth: "900px",
+              aspectRatio: "16/9",
+              scrollSnapAlign: "start",
+            }}
+          >
+            <img
+              src={p.featured_image!}
+              alt={p.name}
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
-              {/* Top-left status */}
-              {p.status && (
-                <div className="absolute top-5 left-6 z-20">
-                  <span className="text-xs font-bold text-white/70 tracking-wide">{statusLabel(p.status)}</span>
-                </div>
-              )}
+            {/* Top-left status */}
+            {p.status && (
+              <div className="absolute top-5 left-6">
+                <span className="text-xs font-bold text-white/70 tracking-wide">{statusLabel(p.status)}</span>
+              </div>
+            )}
 
-              {/* Bottom content — only fully visible on active */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
-                <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-1">
-                  {p.name}
-                </h3>
-                {p.starting_price && (
-                  <p className="text-sm text-white/80 underline mb-5">{formatPrice(p.starting_price)}</p>
-                )}
-                {i === current && (
-                  <div className="flex items-center gap-3">
-                    <Link
-                      to={`/presale/${p.slug}`}
-                      className="h-11 px-7 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center hover:bg-primary/90 transition-colors"
-                    >
-                      View Project
-                    </Link>
-                    <Link
-                      to="/vip"
-                      className="h-11 px-7 rounded-lg bg-white/[0.12] backdrop-blur-sm border border-white/20 text-sm font-bold text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-                    >
-                      Get VIP Access
-                    </Link>
-                  </div>
-                )}
+            {/* Bottom content */}
+            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8">
+              <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-1">
+                {p.name}
+              </h3>
+              {p.starting_price && (
+                <p className="text-sm text-white/80 underline mb-5">{formatPrice(p.starting_price)}</p>
+              )}
+              <div className="flex items-center gap-3">
+                <Link
+                  to={`/presale/${p.slug}`}
+                  className="h-11 px-7 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center hover:bg-primary/90 transition-colors"
+                >
+                  View Project
+                </Link>
+                <Link
+                  to="/vip"
+                  className="h-11 px-7 rounded-lg bg-white/[0.12] backdrop-blur-sm border border-white/20 text-sm font-bold text-white flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  Get VIP Access
+                </Link>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
-      {/* Dot indicator bar */}
+      {/* Dot indicator */}
       <div className="flex items-center justify-center gap-2 mt-5 pb-6">
         {projects.map((_, i) => (
           <button
             key={i}
-            onClick={() => setCurrent(i)}
+            onClick={() => scrollTo(i)}
             className="transition-all duration-300 rounded-full"
             style={{
               width: i === current ? "28px" : "8px",
