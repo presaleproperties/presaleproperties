@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,6 +18,7 @@ const statusLabel = (s: string) => {
 
 export function TeslaFeaturedProjects() {
   const [current, setCurrent] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
 
   const { data: projects, isLoading } = useQuery({
     queryKey: ["tesla-featured-projects"],
@@ -35,19 +36,26 @@ export function TeslaFeaturedProjects() {
   });
 
   const total = projects?.length ?? 0;
-
-  const next = useCallback(() => setCurrent((c) => (c + 1) % total), [total]);
+  const next = useCallback(() => setCurrent((c) => Math.min(c + 1, total - 1)), [total]);
+  const prev = useCallback(() => setCurrent((c) => Math.max(c - 1, 0)), []);
 
   // Auto-advance every 5s
   useEffect(() => {
     if (total < 2) return;
-    const t = setInterval(next, 5000);
+    const t = setInterval(() => setCurrent((c) => (c + 1) % total), 5000);
     return () => clearInterval(t);
-  }, [next, total]);
+  }, [total]);
+
+  // Touch / swipe
+  const touchStartX = useRef(0);
+  const handleTouchStart = (e: React.TouchEvent) => { touchStartX.current = e.touches[0].clientX; };
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = touchStartX.current - e.changedTouches[0].clientX;
+    if (dx > 50) next();
+    else if (dx < -50) prev();
+  };
 
   if (isLoading || !projects || projects.length === 0) return null;
-
-  const project = projects[current];
 
   return (
     <section className="bg-background">
@@ -57,73 +65,90 @@ export function TeslaFeaturedProjects() {
         <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground tracking-tight">Hottest New Developments</h2>
       </div>
 
-      {/* Full-width carousel card */}
-      <div className="container px-4 sm:px-6 lg:px-8 pb-6">
-        <div className="relative overflow-hidden rounded-2xl bg-muted" style={{ aspectRatio: "16/7" }}>
-          {/* Slides — crossfade */}
+      {/* Carousel — peek next card on the right */}
+      <div
+        className="overflow-hidden pl-4 sm:pl-6 lg:pl-8"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
+        <div
+          ref={trackRef}
+          className="flex gap-3 sm:gap-4 transition-transform duration-500 ease-in-out"
+          style={{ transform: `translateX(calc(-${current} * (85vw + 12px)))` }}
+        >
           {projects.map((p, i) => (
             <div
               key={p.id}
-              className="absolute inset-0 transition-opacity duration-700"
-              style={{ opacity: i === current ? 1 : 0, pointerEvents: i === current ? "auto" : "none" }}
+              className="relative shrink-0 overflow-hidden rounded-2xl bg-muted cursor-pointer"
+              style={{ width: "85vw", maxWidth: "900px", aspectRatio: "16/9" }}
+              onClick={() => i !== current && setCurrent(i)}
             >
               <img
                 src={p.featured_image!}
                 alt={p.name}
-                className="absolute inset-0 w-full h-full object-cover"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700"
+                style={{ transform: i === current ? "scale(1)" : "scale(1.03)" }}
               />
+              {/* Dim non-active cards */}
+              {i !== current && (
+                <div className="absolute inset-0 bg-black/30 z-10" />
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
 
               {/* Top-left status */}
               {p.status && (
-                <div className="absolute top-6 left-8">
+                <div className="absolute top-5 left-6 z-20">
                   <span className="text-xs font-bold text-white/70 tracking-wide">{statusLabel(p.status)}</span>
                 </div>
               )}
 
-              {/* Bottom content */}
-              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10">
-                <h3 className="text-3xl sm:text-5xl font-extrabold text-white leading-tight mb-1">
+              {/* Bottom content — only fully visible on active */}
+              <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 z-20">
+                <h3 className="text-2xl sm:text-4xl font-extrabold text-white leading-tight mb-1">
                   {p.name}
                 </h3>
                 {p.starting_price && (
-                  <p className="text-sm sm:text-base text-white/80 underline mb-6">{formatPrice(p.starting_price)}</p>
+                  <p className="text-sm text-white/80 underline mb-5">{formatPrice(p.starting_price)}</p>
                 )}
-                <div className="flex items-center gap-3">
-                  <Link
-                    to={`/presale/${p.slug}`}
-                    className="h-12 px-8 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center hover:bg-primary/90 transition-colors"
-                  >
-                    View Project
-                  </Link>
-                  <Link
-                    to="/vip"
-                    className="h-12 px-8 rounded-lg bg-white/[0.12] backdrop-blur-sm border border-white/20 text-sm font-bold text-white flex items-center justify-center hover:bg-white/20 transition-colors"
-                  >
-                    Get VIP Access
-                  </Link>
-                </div>
+                {i === current && (
+                  <div className="flex items-center gap-3">
+                    <Link
+                      to={`/presale/${p.slug}`}
+                      className="h-11 px-7 rounded-lg bg-primary text-primary-foreground text-sm font-bold flex items-center justify-center hover:bg-primary/90 transition-colors"
+                    >
+                      View Project
+                    </Link>
+                    <Link
+                      to="/vip"
+                      className="h-11 px-7 rounded-lg bg-white/[0.12] backdrop-blur-sm border border-white/20 text-sm font-bold text-white flex items-center justify-center hover:bg-white/20 transition-colors"
+                    >
+                      Get VIP Access
+                    </Link>
+                  </div>
+                )}
               </div>
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Dot indicator bar */}
-        <div className="flex items-center justify-center gap-2 mt-5">
-          {projects.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className="transition-all duration-300 rounded-full"
-              style={{
-                width: i === current ? "28px" : "8px",
-                height: "8px",
-                background: i === current ? "hsl(var(--primary))" : "hsl(var(--muted-foreground) / 0.3)",
-              }}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
+      {/* Dot indicator bar */}
+      <div className="flex items-center justify-center gap-2 mt-5 pb-6">
+        {projects.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className="transition-all duration-300 rounded-full"
+            style={{
+              width: i === current ? "28px" : "8px",
+              height: "8px",
+              background: i === current
+                ? "hsl(var(--primary))"
+                : "hsl(var(--muted-foreground) / 0.3)",
+            }}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
