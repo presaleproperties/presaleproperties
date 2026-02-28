@@ -143,37 +143,33 @@ export function HeroSection({
         {/* Cinematic dark overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/60 z-[2] pointer-events-none" />
 
-        {/* Centered Content — absolute minimal, Tesla-style */}
-        <div className="relative z-[5] w-full flex flex-col items-center text-center px-5 sm:px-8">
+        {/* Bottom-left content — exact Tesla layout */}
+        <div className="absolute bottom-0 left-0 right-0 z-[5] px-8 sm:px-12 lg:px-16 pb-14 sm:pb-20">
 
-          {/* Gold eyebrow */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/70" />
-            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary/90 drop-shadow">
-              Metro Vancouver's #1 Presale Platform
-            </span>
-            <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/70" />
-          </div>
-
-          {/* 3-word headline — Tesla-scale */}
+          {/* Headline — Tesla scale, bottom-left */}
           <h1
-            className="text-[3.2rem] sm:text-6xl md:text-7xl lg:text-[6rem] font-extrabold text-white leading-[1.0] tracking-tight mb-10"
-            style={{ textShadow: "0 2px 40px rgba(0,0,0,0.5)" }}
+            className="text-[2.8rem] sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white leading-[1.0] tracking-tight mb-2"
+            style={{ textShadow: "0 2px 40px rgba(0,0,0,0.4)" }}
           >
             Own. Before. Everyone.
           </h1>
+
+          {/* Subtitle */}
+          <p className="text-sm sm:text-base text-white/70 mb-6 font-medium">
+            Metro Vancouver's #1 Presale Platform
+          </p>
 
           {/* Two Tesla-style CTA buttons */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => navigate("/presale-projects")}
-              className="h-14 px-10 bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-[0.98] transition-all"
+              className="h-14 px-10 sm:px-14 rounded-lg bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-[0.98] transition-all min-w-[180px]"
             >
               Browse Presales
             </button>
             <button
               onClick={() => setModalOpen(true)}
-              className="h-14 px-10 bg-white/[0.12] backdrop-blur-sm border border-white/25 text-sm font-bold text-white hover:bg-white/20 active:scale-[0.98] transition-all"
+              className="h-14 px-10 sm:px-14 rounded-lg bg-white/[0.12] backdrop-blur-sm border border-white/25 text-sm font-bold text-white hover:bg-white/20 active:scale-[0.98] transition-all min-w-[180px]"
             >
               Get VIP Access
             </button>
