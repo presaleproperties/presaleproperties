@@ -33,17 +33,21 @@ function VIPModal({ onClose }: { onClose: () => void }) {
     setIsSubmitting(true);
     setError(null);
     try {
-      const { error: dbError } = await supabase.from("vip_registrations").insert({
-        first_name: form.firstName,
+      const { error: dbError } = await supabase.from("newsletter_subscribers").insert({
+        email: form.email,
+        source: "hero_vip_modal",
+        wants_projects: true,
+        wants_assignments: true,
+      });
+      // Ignore duplicate email error - user already subscribed is still a win
+      if (dbError && !dbError.message.includes("unique")) throw dbError;
+      // Also save to project_leads so it shows up in admin leads view
+      await supabase.from("project_leads").insert({
+        name: form.firstName,
         email: form.email,
         phone: form.phone || null,
-        source: "hero_vip_modal",
-        utm_source: new URLSearchParams(window.location.search).get("utm_source"),
-        utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
-        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
-        landing_page: window.location.pathname,
+        message: `VIP signup via hero modal. UTM: ${new URLSearchParams(window.location.search).get("utm_source") || "direct"}`,
       });
-      if (dbError) throw dbError;
       setSubmitted(true);
     } catch (err) {
       console.error("VIP form error:", err);

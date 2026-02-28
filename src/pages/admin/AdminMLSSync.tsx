@@ -347,7 +347,7 @@ export default function AdminMLSSync() {
   // Geocode missing listings mutation
   const geocodeMutation = useMutation({
     mutationFn: async (options?: { city?: string; batchSize?: number }) => {
-      const { data, error } = await supabase.functions.invoke("geocode-listings", {
+      const { data, error } = await supabase.functions.invoke("geocode-mls-listings", {
         body: { 
           city: options?.city,
           batchSize: options?.batchSize || 50,
