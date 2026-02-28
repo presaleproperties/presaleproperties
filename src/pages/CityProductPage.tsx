@@ -488,7 +488,8 @@ export default function CityProductPage() {
       <Helmet>
         <title>{config.metaTitle}</title>
         <meta name="description" content={config.metaDescription} />
-        <link rel="canonical" href={`https://presaleproperties.com/${citySlug}-presale-${productType}`} />
+        {/* Canonical points to the authoritative /presale-projects URL, not this legacy URL */}
+        <link rel="canonical" href={`https://presaleproperties.com/presale-projects/${citySlug}/${productType}`} />
         <meta property="og:title" content={config.metaTitle} />
         <meta property="og:description" content={config.metaDescription} />
         <meta property="og:type" content="website" />
@@ -506,7 +507,7 @@ export default function CityProductPage() {
             <li><ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" /></li>
             <li><Link to="/presale-projects" className="text-foreground hover:text-primary transition-colors font-medium">Presale Projects</Link></li>
             <li><ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" /></li>
-            <li><Link to={`/presale-condos/${citySlug}`} className="text-foreground hover:text-primary transition-colors font-medium">{config.cityName}</Link></li>
+            <li><Link to={`/presale-projects/${citySlug}`} className="text-foreground hover:text-primary transition-colors font-medium">{config.cityName}</Link></li>
             <li><ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0" /></li>
             <li><span className="text-muted-foreground">{productType === "condos" ? "Condos" : "Townhomes"}</span></li>
           </ol>
@@ -700,7 +701,7 @@ export default function CityProductPage() {
         <nav aria-label="Explore more projects" className="px-4 sm:px-6 py-12 border-t">
           <h2 className="text-xl font-semibold mb-6">Explore More Presale Projects</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link to={`/presale-condos/${citySlug}`} className="text-sm text-primary hover:underline">
+            <Link to={`/presale-projects/${citySlug}`} className="text-sm text-primary hover:underline">
               All {config.cityName} Presales
             </Link>
             <Link to="/presale-projects" className="text-sm text-primary hover:underline">

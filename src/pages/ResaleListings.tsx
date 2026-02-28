@@ -477,8 +477,19 @@ export default function ResaleListings() {
     </div>
   );
 
-  // SEO
-  const canonicalUrl = `https://presaleproperties.com${location.pathname}`;
+  // SEO — canonical and robots
+  // If filters are active via query params, noindex to avoid duplicate content
+  // Canonical points to clean city page if city filter active, otherwise base /properties
+  const hasActiveFilters = searchParams.toString().length > 0;
+  const citySlugForCanonical = filters.city !== "any"
+    ? filters.city.toLowerCase().replace(/\s+/g, "-")
+    : null;
+  const canonicalUrl = citySlugForCanonical
+    ? `https://presaleproperties.com/properties/${citySlugForCanonical}`
+    : `https://presaleproperties.com/properties`;
+  const robotsContent = hasActiveFilters
+    ? "noindex, follow"
+    : "index, follow, max-image-preview:large, max-snippet:-1";
   
   const getSeoTitle = () => {
     if (filters.city === "any" && filters.propertyType === "any") {
@@ -529,6 +540,7 @@ export default function ResaleListings() {
       <Helmet>
         <title>{getSeoTitle()}</title>
         <meta name="description" content={getSeoDescription()} />
+        <meta name="robots" content={robotsContent} />
         <link rel="canonical" href={canonicalUrl} />
         <meta property="og:title" content={getSeoTitle()} />
         <meta property="og:description" content={getSeoDescription()} />

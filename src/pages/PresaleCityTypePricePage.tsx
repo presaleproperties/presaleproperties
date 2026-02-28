@@ -168,11 +168,19 @@ export default function PresaleCityTypePricePage() {
     .filter(([slug]) => slug !== citySlug)
     .slice(0, 6);
 
+  // Noindex when zero results — prevents soft 404 signals to Google
+  // Secondary cities (delta, chilliwack, etc.) often have no projects at certain price points
+  const hasResults = sortedProjects.length > 0;
+  const robotsContent = hasResults
+    ? "index, follow, max-image-preview:large, max-snippet:-1"
+    : "noindex, follow";
+
   return (
     <div className="min-h-screen flex flex-col">
       <Helmet>
         <title>{metaTitle}</title>
         <meta name="description" content={metaDescription} />
+        <meta name="robots" content={robotsContent} />
         <link rel="canonical" href={`https://presaleproperties.com/presale-projects/${citySlug}/${typePriceSlug}`} />
         <meta property="og:title" content={metaTitle} />
         <meta property="og:description" content={metaDescription} />

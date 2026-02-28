@@ -470,12 +470,16 @@ export default function PresaleCityHubPage() {
     }))
   };
 
+  // Noindex if city has zero projects — prevents soft 404 signals
+  const hasProjects = (filteredProjects?.length || 0) > 0;
+
   return (
     <PullToRefresh onRefresh={handleRefresh}>
       <div className="min-h-screen flex flex-col">
         <Helmet>
           <title>{cityConfig.metaTitle}</title>
           <meta name="description" content={cityConfig.metaDescription} />
+          <meta name="robots" content={hasProjects ? "index, follow, max-image-preview:large, max-snippet:-1" : "noindex, follow"} />
           <link rel="canonical" href={`https://presaleproperties.com/presale-projects/${citySlug}`} />
           <meta property="og:title" content={cityConfig.metaTitle} />
           <meta property="og:description" content={cityConfig.metaDescription} />
