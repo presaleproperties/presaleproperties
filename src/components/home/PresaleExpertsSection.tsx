@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { TrendingUp, Clock, Shield, Palette, Home, Building2, ArrowRight, Star, Award } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 const benefits = [
   {
@@ -37,6 +39,71 @@ const benefits = [
 ];
 
 const languages = ["English", "Hindi", "Punjabi", "Urdu", "Arabic", "Korean"];
+
+function VIPInlineForm() {
+  const [form, setForm] = useState({ firstName: "", email: "" });
+  const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const { error: dbError } = await supabase.from("vip_registrations").insert({
+        first_name: form.firstName,
+        email: form.email,
+        source: "presale_experts_section",
+        landing_page: window.location.pathname,
+      });
+      if (dbError) throw dbError;
+      setSubmitted(true);
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  if (submitted) {
+    return (
+      <div className="text-center py-3 space-y-1">
+        <div className="text-2xl">🎉</div>
+        <p className="text-sm font-bold text-background">You're on the VIP list!</p>
+        <p className="text-xs text-background/50">We'll send you early access details.</p>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          required
+          placeholder="First name"
+          value={form.firstName}
+          onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+          className="flex-1 h-11 px-3 rounded-lg border border-background/20 bg-background/10 text-sm text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-primary/60"
+        />
+        <input
+          type="email"
+          required
+          placeholder="Email address"
+          value={form.email}
+          onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+          className="flex-1 h-11 px-3 rounded-lg border border-background/20 bg-background/10 text-sm text-background placeholder:text-background/40 focus:outline-none focus:ring-2 focus:ring-primary/60"
+        />
+      </div>
+      <Button type="submit" disabled={isSubmitting} size="lg" className="w-full shadow-lg shadow-primary/30 font-semibold text-base">
+        {isSubmitting ? "Joining..." : "Join VIP — It's Free"}
+      </Button>
+      {error && <p className="text-center text-xs text-red-400">{error}</p>}
+      <p className="text-center text-xs text-background/40">No obligation. Unsubscribe anytime.</p>
+    </form>
+  );
+}
 
 export function PresaleExpertsSection() {
   return (
@@ -130,7 +197,7 @@ export function PresaleExpertsSection() {
                 {[
                   { value: "$200M+", label: "Transactions" },
                   { value: "400+", label: "Homes Sold" },
-                  { value: "15+", label: "Yrs Experience" },
+                  { value: "5★", label: "Reviews" },
                 ].map((s) => (
                   <div key={s.label} className="space-y-0.5">
                     <div className="text-xl sm:text-2xl font-extrabold text-primary">{s.value}</div>
@@ -188,10 +255,7 @@ export function PresaleExpertsSection() {
                 ))}
               </ul>
 
-              <Button asChild size="lg" className="w-full shadow-lg shadow-primary/30 font-semibold text-base">
-                <Link to="/contact">Join VIP — It's Free</Link>
-              </Button>
-              <p className="text-center text-xs text-background/40">No obligation. Unsubscribe anytime.</p>
+              <VIPInlineForm />
             </div>
           </div>
         </div>
