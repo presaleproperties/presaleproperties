@@ -157,11 +157,7 @@ export function HeroSection({
         {/* Centered Content */}
         <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 py-12">
 
-          {/* Urgency badge */}
-          <div className="mb-6 flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-xs sm:text-sm font-medium">
-            <span className="h-2 w-2 rounded-full bg-primary animate-pulse shrink-0" />
-            VIP Pricing Available Now
-          </div>
+
 
           {/* Headline */}
           <h1 className="text-[2.4rem] sm:text-5xl md:text-6xl lg:text-[4.8rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-8 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
