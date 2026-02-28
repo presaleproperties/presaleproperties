@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "./HeroProjectSlider";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -32,21 +33,17 @@ function VIPModal({ onClose }: { onClose: () => void }) {
     setIsSubmitting(true);
     setError(null);
     try {
-      const { error: dbError } = await supabase.from("newsletter_subscribers").insert({
-        email: form.email,
-        source: "hero_vip_modal",
-        wants_projects: true,
-        wants_assignments: true,
-      });
-      // Ignore duplicate email error - user already subscribed is still a win
-      if (dbError && !dbError.message.includes("unique")) throw dbError;
-      // Also save to project_leads so it shows up in admin leads view
-      await supabase.from("project_leads").insert({
-        name: form.firstName,
+      const { error: dbError } = await supabase.from("vip_registrations").insert({
+        first_name: form.firstName,
         email: form.email,
         phone: form.phone || null,
-        message: `VIP signup via hero modal. UTM: ${new URLSearchParams(window.location.search).get("utm_source") || "direct"}`,
+        source: "hero_vip_modal",
+        utm_source: new URLSearchParams(window.location.search).get("utm_source"),
+        utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
+        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
+        landing_page: window.location.pathname,
       });
+      if (dbError) throw dbError;
       setSubmitted(true);
     } catch (err) {
       console.error("VIP form error:", err);
@@ -131,52 +128,142 @@ export function HeroSection({
   activeTab: controlledTab,
   onTabChange
 }: HeroSectionProps) {
+  const [internalTab, setInternalTab] = useState<SearchTab>("projects");
   const [modalOpen, setModalOpen] = useState(false);
+  const activeTab = controlledTab ?? internalTab;
   const navigate = useNavigate();
+
+  const handleTabChange = (tab: SearchTab) => {
+    if (onTabChange) onTabChange(tab);
+    else setInternalTab(tab);
+  };
+
+  const handleCityClick = (city: string) => {
+    const citySlug = city.toLowerCase().replace(/\s+/g, '-');
+    if (activeTab === "projects") navigate(`/${citySlug}-presale-condos`);
+    else navigate(`/properties/${citySlug}`);
+  };
 
   return (
     <>
-      {/* Hero — Tesla style: full-bleed background image with centered minimal content */}
+      {/* Hero Section — minimal premium */}
       <section className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
-        {/* Cinematic dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/60 z-[2] pointer-events-none" />
+        {/* Fallback overlay for when slider loads */}
+        <div className="absolute inset-0 bg-black/20 z-[2] pointer-events-none" />
 
-        {/* Bottom-left content — exact Tesla layout */}
-        <div className="absolute bottom-0 left-0 right-0 z-[5] px-8 sm:px-12 lg:px-16 pb-14 sm:pb-20">
+        {/* Centered Content */}
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
 
-          {/* Headline — Tesla scale, bottom-left */}
-          <h1
-            className="text-[2.8rem] sm:text-6xl md:text-7xl lg:text-8xl font-extrabold text-white leading-[1.0] tracking-tight mb-2"
-            style={{ textShadow: "0 2px 40px rgba(0,0,0,0.4)" }}
-          >
-            Own. Before. Everyone.
+          {/* Gold eyebrow line */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="h-px w-8 bg-gradient-to-r from-transparent to-primary/70" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-primary/90 drop-shadow">
+              Metro Vancouver's #1 Presale Platform
+            </span>
+            <div className="h-px w-8 bg-gradient-to-l from-transparent to-primary/70" />
+          </div>
+
+          {/* Headline */}
+          <h1 className="text-[2.8rem] sm:text-5xl md:text-6xl lg:text-[5rem] font-extrabold text-white text-center leading-[1.05] tracking-tight mb-5 max-w-3xl" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
+            New Homes.{" "}
+            <span className="text-primary" style={{ textShadow: "0 0 40px hsl(40 65% 55% / 0.5)" }}>Exclusive Access.</span>
           </h1>
 
-          {/* Subtitle */}
-          <p className="text-sm sm:text-base text-white/70 mb-6 font-medium">
-            Metro Vancouver's #1 Presale Platform
+          {/* Subheadline */}
+          <p className="text-sm sm:text-base text-white/75 text-center max-w-md mb-10 leading-relaxed font-light tracking-wide drop-shadow">
+            Presale Projects, Exclusive Developer Inventory across Metro Vancouver.
           </p>
 
-          {/* Two Tesla-style CTA buttons */}
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/presale-projects")}
-              className="h-14 px-10 sm:px-14 rounded-lg bg-primary text-primary-foreground text-sm font-bold hover:bg-primary/90 active:scale-[0.98] transition-all min-w-[180px]"
+          {/* Search Bar — glassmorphism premium */}
+          <div className="w-full max-w-2xl">
+            <div className="flex items-center bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.35)] overflow-visible h-[64px] sm:h-[72px] border border-white/40">
+              {/* Tab switcher */}
+              <div className="flex items-center shrink-0 pl-2 gap-1">
+                <button
+                  onClick={() => handleTabChange("projects")}
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    activeTab === "projects"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  Presale
+                </button>
+                <button
+                  onClick={() => handleTabChange("resale")}
+                  className={`px-4 sm:px-5 py-2 rounded-xl text-sm font-bold transition-all whitespace-nowrap ${
+                    activeTab === "resale"
+                      ? "bg-foreground text-background shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  }`}
+                >
+                  Move-In Ready
+                </button>
+              </div>
+
+              {/* Vertical divider */}
+              <div className="w-px h-7 bg-border/60 mx-2 shrink-0" />
+
+              {/* Search input */}
+              <div className="flex-1 overflow-visible min-w-0">
+                <PowerSearch
+                  placeholder={activeTab === "projects" ? "City, project or neighbourhood…" : "Address, MLS#, city…"}
+                  mode={activeTab === "projects" ? "presale" : "resale"}
+                  variant="hero"
+                  hideIcon
+                  inputClassName="h-[64px] sm:h-[72px] text-sm border-0 bg-transparent text-foreground placeholder:text-muted-foreground/70 focus-visible:ring-0 focus-visible:ring-offset-0 pl-3 rounded-none shadow-none"
+                />
+              </div>
+
+              {/* Search button — gold accent */}
+              <button
+                onClick={() => navigate(activeTab === "projects" ? "/presale-projects" : "/properties")}
+                className="shrink-0 w-11 h-11 sm:w-12 sm:h-12 mr-2 rounded-xl bg-primary text-primary-foreground flex items-center justify-center hover:bg-primary/90 active:scale-95 transition-all shadow-md"
+                aria-label="Search"
+              >
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Links row */}
+          <div className="flex items-center gap-5 mt-6">
+            <Link
+              to={activeTab === "projects" ? "/map-search?mode=presale" : "/map-search?mode=resale"}
+              className="text-xs text-white/60 hover:text-white/90 transition-colors tracking-wide"
             >
-              Browse Presales
-            </button>
+              Explore the map →
+            </Link>
+            <span className="w-px h-3.5 bg-white/20" />
             <button
               onClick={() => setModalOpen(true)}
-              className="h-14 px-10 sm:px-14 rounded-lg bg-white/[0.12] backdrop-blur-sm border border-white/25 text-sm font-bold text-white hover:bg-white/20 active:scale-[0.98] transition-all min-w-[180px]"
+              className="text-xs text-primary font-bold hover:text-primary/80 transition-colors tracking-wide"
             >
-              Get VIP Access
+              ✦ Get VIP Access — Free
             </button>
           </div>
         </div>
       </section>
 
+      {/* Trust Bar — premium dark */}
+      <div className="bg-[#080808] border-b border-white/[0.06]">
+        <div className="container px-4 sm:px-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 divide-x divide-white/[0.07]">
+            {TRUST_STATS.map((stat, i) => (
+              <div key={i} className="flex flex-col items-center justify-center py-5 sm:py-7 gap-1.5 px-3">
+                <span className="text-xl sm:text-2xl md:text-[1.75rem] font-extrabold text-white leading-none tracking-tight">
+                  {stat.value}
+                </span>
+                <span className="text-[9px] sm:text-[10px] text-primary/80 font-bold uppercase tracking-[0.18em] text-center leading-tight">
+                  {stat.label}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* VIP Modal */}
       {modalOpen && <VIPModal onClose={() => setModalOpen(false)} />}
