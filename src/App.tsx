@@ -21,6 +21,7 @@ import { LoftyPageTracker } from "@/components/LoftyPageTracker";
 import { BehaviorTracker } from "@/components/tracking/BehaviorTracker";
 import { MetaPixel } from "@/components/tracking/MetaPixel";
 import { BuyerAuthProvider } from "@/hooks/useBuyerAuth";
+import { ExitIntentPopup } from "@/components/conversion/ExitIntentPopup";
 import { Suspense, lazy } from "react";
 
 // Only the homepage is eagerly loaded for fastest initial paint
@@ -147,6 +148,7 @@ const App = () => (
             <MetaPixel />
             
             {/* <ExitIntentPopup /> - Temporarily hidden */}
+            <ExitIntentPopup />
           <Suspense fallback={<PageFallback />}>
           <Routes>
             {/* Public Routes */}

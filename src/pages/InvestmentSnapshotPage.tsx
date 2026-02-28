@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { ConversionHeader } from '@/components/conversion/ConversionHeader';
 import { Footer } from '@/components/layout/Footer';
 import { InvestmentSnapshot } from '@/components/calculators/InvestmentSnapshot';
+import { CalculatorLeadCapture } from '@/components/conversion/CalculatorLeadCapture';
 
 const CANONICAL_URL = "https://presaleproperties.com/calculator";
 
@@ -34,8 +35,18 @@ export default function InvestmentSnapshotPage() {
         </div>
         
         <InvestmentSnapshot />
+
+        {/* Lead capture below calculator - high-intent visitors */}
+        <div className="max-w-lg mx-auto mt-8">
+          <CalculatorLeadCapture
+            calculatorData={{
+              calculatorType: "investment_snapshot",
+              summary: "Investment Snapshot Calculator - Condo Cash Flow",
+            }}
+          />
+        </div>
         
-        <div className="max-w-lg mx-auto mt-8 text-center">
+        <div className="max-w-lg mx-auto mt-6 text-center">
           <p className="text-xs text-muted-foreground">
             *This calculator provides estimates only. Actual costs may vary. 
             Consult with a financial advisor for personalized advice.
