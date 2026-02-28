@@ -1,4 +1,5 @@
-import { useEffect, useState, useRef, lazy, Suspense } from "react";
+import { useEffect, useState, useRef, lazy, Suspense, useMemo } from "react";
+import DOMPurify from "dompurify";
 import { useParams, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import { ConversionHeader } from "@/components/conversion/ConversionHeader";
@@ -776,9 +777,12 @@ export default function PresaleProjectDetail() {
                   <p 
                     className="text-sm text-muted-foreground mt-4 mb-2 md:mt-2 md:mb-0 leading-relaxed lg:line-clamp-4"
                     dangerouslySetInnerHTML={{
-                      __html: project.short_description
-                        .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
-                        .replace(/•\s*/g, '<span class="text-primary">•</span> ')
+                      __html: DOMPurify.sanitize(
+                        project.short_description
+                          .replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>')
+                          .replace(/•\s*/g, '<span class="text-primary">•</span> '),
+                        { ALLOWED_TAGS: ['strong', 'em', 'span', 'br'], ALLOWED_ATTR: ['class'] }
+                      )
                     }}
                   />
                 )}
@@ -859,11 +863,18 @@ export default function PresaleProjectDetail() {
                       {project.full_description.split("\n").map((line, i) => {
                       // Handle bullet points
                       const isBullet = line.trim().startsWith("•") || line.trim().startsWith("-");
-                      // Parse bold markdown **text**
-                      const parsedLine = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
+                      // Parse bold markdown **text** then sanitize
+                      const sanitizeOpts = { ALLOWED_TAGS: ['strong', 'em', 'span'], ALLOWED_ATTR: ['class'] };
+                      const parsedLine = DOMPurify.sanitize(
+                        line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>'),
+                        sanitizeOpts
+                      );
                       if (isBullet) {
                         const bulletContent = line.trim().replace(/^[•\-]\s*/, "");
-                        const parsedBullet = bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>');
+                        const parsedBullet = DOMPurify.sanitize(
+                          bulletContent.replace(/\*\*(.*?)\*\*/g, '<strong class="text-foreground font-semibold">$1</strong>'),
+                          sanitizeOpts
+                        );
                         return <div key={i} className="flex items-start gap-2 sm:gap-2 text-sm sm:text-sm lg:text-base">
                               <span className="text-primary mt-0.5">•</span>
                               <span dangerouslySetInnerHTML={{

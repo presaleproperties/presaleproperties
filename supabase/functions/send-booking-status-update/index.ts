@@ -2,7 +2,7 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { sendEmail } from "../_shared/gmail-smtp.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://presaleproperties.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 

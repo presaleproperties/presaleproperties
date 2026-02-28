@@ -2,9 +2,36 @@ import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://presaleproperties.com",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
+
+
+
+
+// ── Rate Limiting ─────────────────────────────────────────────────────────────
+const RL_WINDOW = 3600; // seconds
+const RL_MAX = 5;
+
+async function rateLimited(req: Request, funcKey: string): Promise<boolean> {
+  try {
+    const ip = (req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "anon").split(",")[0].trim();
+    const key = `${funcKey}:${ip}`;
+    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
+    const since = new Date(Date.now() - RL_WINDOW * 1000).toISOString();
+    const { count, error } = await sb.from("rate_limit_log")
+      .select("id", { count: "exact", head: true })
+      .eq("rate_key", key).gte("created_at", since);
+    if (error) return false;
+    if ((count ?? 0) >= RL_MAX) return true;
+    await sb.from("rate_limit_log").insert({ rate_key: key });
+    return false;
+  } catch { return false; }
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+const RATE_LIMIT_MAX = 5; // max 5 requests per IP per hour
+
 
 interface BookingNotificationRequest {
   booking_id?: string;
@@ -42,6 +69,13 @@ interface BookingNotificationRequest {
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
+  // Rate limit check
+  if (await rateLimited(req, "send-booking-notification")) {
+    return new Response(JSON.stringify({ error: "Too many requests" }), {
+      status: 429, headers: { ...corsHeaders, "Content-Type": "application/json", "Retry-After": "3600" }
+    });
+  }
+
   }
 
   try {

@@ -104,3 +104,6 @@ Sitemap: https://presaleproperties.com/image-sitemap.xml
 
 # LLMs.txt - AI-readable site description
 # Available at: /llms.txt and /.well-known/llms.txt
+
+# Security policy
+# Available at: /.well-known/security.txt

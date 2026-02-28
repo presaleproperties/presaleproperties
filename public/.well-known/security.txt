@@ -1,0 +1,9 @@
+Contact: mailto:security@presaleproperties.com
+Expires: 2027-01-01T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://presaleproperties.com/.well-known/security.txt
+Policy: https://presaleproperties.com/security-policy
+
+# If you've found a security vulnerability in presaleproperties.com,
+# please disclose it responsibly by contacting us at the email above.
+# We aim to respond within 72 hours and will work with you to address the issue.
