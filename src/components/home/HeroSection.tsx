@@ -155,7 +155,7 @@ export function HeroSection({
         <div className="absolute inset-0 bg-black/10 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
-        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 pt-20 sm:pt-0 pb-36 sm:pb-44">
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8 py-12">
 
           {/* Urgency badge */}
           <div className="mb-6 flex items-center gap-2 px-4 py-2 rounded-full bg-black/50 backdrop-blur-md border border-primary/30 text-white text-xs sm:text-sm font-medium">
