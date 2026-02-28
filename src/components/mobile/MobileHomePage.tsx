@@ -188,15 +188,15 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
           </h1>
 
           {/* Tab pills */}
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-1 mb-3 bg-white/10 backdrop-blur-md rounded-full p-0.5 border border-white/15">
             {(["projects", "resale"] as SearchTab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => handleTabChange(tab)}
-                className={`px-5 py-2 rounded-full text-[12px] font-bold transition-all ${
+                className={`px-4 py-1.5 rounded-full text-[11px] font-semibold transition-all ${
                   activeTab === tab
-                    ? "bg-white text-foreground shadow"
-                    : "bg-white/15 backdrop-blur-sm text-white/80 border border-white/20"
+                    ? "bg-white text-foreground shadow-sm"
+                    : "text-white/70"
                 }`}
               >
                 {tab === "projects" ? "Presale" : "Move-In Ready"}
