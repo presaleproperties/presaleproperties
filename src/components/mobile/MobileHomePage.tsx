@@ -16,6 +16,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "@/components/home/HeroProjectSlider";
 import { SearchTab } from "@/components/home/HeroSection";
+import { supabase } from "@/integrations/supabase/client";
 
 
 const TOP_CITIES = [
@@ -37,10 +38,32 @@ interface MobileHomePageProps {
 function MobileVIPModal({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState({ firstName: "", email: "", phone: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const { error: dbError } = await supabase.from("vip_registrations").insert({
+        first_name: form.firstName,
+        email: form.email,
+        phone: form.phone || null,
+        source: "mobile_hero_vip_modal",
+        utm_source: new URLSearchParams(window.location.search).get("utm_source"),
+        utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
+        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
+        landing_page: window.location.pathname,
+      });
+      if (dbError) throw dbError;
+      setSubmitted(true);
+    } catch (err) {
+      console.error("VIP form error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -72,9 +95,10 @@ function MobileVIPModal({ onClose }: { onClose: () => void }) {
               <input type="tel" placeholder="Phone Number (optional)" value={form.phone}
                 onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
                 className="w-full h-11 px-4 rounded-lg border border-border bg-background text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" />
-              <button type="submit" className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm">
-                Get Instant Access
+              <button type="submit" disabled={isSubmitting} className="w-full h-11 bg-primary text-primary-foreground rounded-full font-bold text-sm disabled:opacity-60">
+                {isSubmitting ? "Submitting..." : "Get Instant Access"}
               </button>
+              {error && <p className="text-center text-xs text-red-500">{error}</p>}
               <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
             </form>
           </>

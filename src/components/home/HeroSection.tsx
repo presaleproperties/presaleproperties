@@ -4,6 +4,7 @@ import { X, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PowerSearch } from "@/components/search/PowerSearch";
 import { HeroProjectSlider } from "./HeroProjectSlider";
+import { supabase } from "@/integrations/supabase/client";
 
 const projectCities = ["Vancouver", "Surrey", "Langley", "Coquitlam", "Abbotsford", "Burnaby"];
 
@@ -24,10 +25,32 @@ const TRUST_STATS = [
 function VIPModal({ onClose }: { onClose: () => void }) {
   const [form, setForm] = useState({ firstName: "", email: "", phone: "" });
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitted(true);
+    setIsSubmitting(true);
+    setError(null);
+    try {
+      const { error: dbError } = await supabase.from("vip_registrations").insert({
+        first_name: form.firstName,
+        email: form.email,
+        phone: form.phone || null,
+        source: "hero_vip_modal",
+        utm_source: new URLSearchParams(window.location.search).get("utm_source"),
+        utm_medium: new URLSearchParams(window.location.search).get("utm_medium"),
+        utm_campaign: new URLSearchParams(window.location.search).get("utm_campaign"),
+        landing_page: window.location.pathname,
+      });
+      if (dbError) throw dbError;
+      setSubmitted(true);
+    } catch (err) {
+      console.error("VIP form error:", err);
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -86,10 +109,12 @@ function VIPModal({ onClose }: { onClose: () => void }) {
               />
               <Button
                 type="submit"
+                disabled={isSubmitting}
                 className="w-full h-11 rounded-full font-bold text-sm"
               >
-                Get Instant Access
+                {isSubmitting ? "Submitting..." : "Get Instant Access"}
               </Button>
+              {error && <p className="text-center text-xs text-red-500">{error}</p>}
               <p className="text-center text-[11px] text-muted-foreground">No spam. Unsubscribe anytime.</p>
             </form>
           </>
