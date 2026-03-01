@@ -78,7 +78,7 @@ function VIPInlineForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row gap-2">
         <input
           type="text"
           required
@@ -109,10 +109,10 @@ export function PresaleExpertsSection() {
   return (
     <section className="bg-background">
       {/* Top: Why Buy Presale — benefits grid */}
-      <div className="py-16 md:py-24 border-b border-border/40">
+      <div className="py-10 md:py-24 border-b border-border/40">
         <div className="container px-4 sm:px-6">
           <div className="max-w-5xl mx-auto">
-            <div className="grid lg:grid-cols-[1fr_1.2fr] gap-10 lg:gap-16 items-center">
+            <div className="grid lg:grid-cols-[1fr_1.2fr] gap-8 lg:gap-16 items-center">
 
               {/* Left — editorial text block */}
               <div className="space-y-5">
@@ -175,9 +175,9 @@ export function PresaleExpertsSection() {
       </div>
 
       {/* Bottom: Expert Trust + VIP CTA — two-column dark/gold split */}
-      <div className="bg-foreground text-background py-16 md:py-20">
+      <div className="bg-foreground text-background py-10 md:py-20">
         <div className="container px-4 sm:px-6">
-          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+          <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8 md:gap-16 items-center">
 
             {/* Left — Expert credibility */}
             <div className="space-y-5">
@@ -224,7 +224,7 @@ export function PresaleExpertsSection() {
             </div>
 
             {/* Right — VIP Membership card */}
-            <div className="relative rounded-2xl border-2 border-primary/60 bg-primary/5 p-7 sm:p-9 space-y-5 shadow-[0_0_60px_hsl(40_65%_55%/0.15)]">
+            <div className="relative rounded-2xl border-2 border-primary/60 bg-primary/5 p-5 sm:p-9 space-y-4 sm:space-y-5 shadow-[0_0_60px_hsl(40_65%_55%/0.15)]">
               {/* Gold badge */}
               <div className="absolute -top-4 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 px-4 py-1.5 bg-primary rounded-full shadow-lg">
                 <Award className="h-3.5 w-3.5 text-primary-foreground" />
