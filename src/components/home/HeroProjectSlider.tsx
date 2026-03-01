@@ -102,11 +102,11 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
         <div className={`transition-all duration-500 ${isTransitioning ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0"}`}>
 
           {/* Badges */}
-          <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-black uppercase tracking-[0.15em] bg-primary text-primary-foreground px-2.5 py-0.5 rounded-md">
+          <div className="flex items-center gap-1.5 mb-1.5 sm:mb-2">
+            <span className="inline-flex items-center gap-1 text-[8px] sm:text-[10px] font-black uppercase tracking-[0.15em] bg-primary text-primary-foreground px-2 py-[2px] sm:px-2.5 sm:py-0.5 rounded-md">
               {project.status === "active" ? "Now Selling" : project.status === "coming_soon" ? "Coming Soon" : project.status === "registering" ? "Register Now" : "Sold Out"}
             </span>
-            <span className="inline-flex items-center gap-1 text-[9px] sm:text-[10px] font-semibold text-white/60 bg-white/10 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/15 uppercase tracking-wider">
+            <span className="inline-flex items-center gap-1 text-[8px] sm:text-[10px] font-semibold text-white/60 bg-white/10 backdrop-blur-sm px-1.5 py-[2px] sm:px-2 sm:py-0.5 rounded-md border border-white/15 uppercase tracking-wider">
               {getTypeIcon(project.project_type)}
               {getTypeLabel(project.project_type)}
             </span>
