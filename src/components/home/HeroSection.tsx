@@ -155,7 +155,7 @@ export function HeroSection({
         <div className="absolute inset-0 bg-black/10 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
-        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8" style={{ paddingTop: "clamp(32px, 6vh, 72px)" }}>
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8" style={{ paddingTop: "clamp(8px, 2vh, 32px)" }}>
 
 
 
