@@ -16,56 +16,71 @@ const investorPoints = [
   "Plan future purchases around cash flow and completion timelines",
 ];
 
+interface BuyerCardProps {
+  icon: React.ElementType;
+  title: string;
+  subtitle: string;
+  points: string[];
+  accent?: boolean;
+}
+
+function BuyerCard({ icon: Icon, title, subtitle, points, accent }: BuyerCardProps) {
+  return (
+    <div className={`rounded-2xl p-8 md:p-10 border transition-all duration-300 hover:shadow-lg ${
+      accent
+        ? "bg-foreground border-foreground text-background"
+        : "bg-card border-border"
+    }`}>
+      <div className={`p-3 rounded-xl w-fit mb-6 ${accent ? "bg-primary/20" : "bg-primary/10"}`}>
+        <Icon className="h-6 w-6 text-primary" />
+      </div>
+      <h3 className={`text-2xl font-extrabold mb-2 ${accent ? "text-background" : "text-foreground"}`}>{title}</h3>
+      <p className={`text-sm mb-7 ${accent ? "text-background/60" : "text-muted-foreground"}`}>{subtitle}</p>
+      <ul className="space-y-3.5">
+        {points.map((point, i) => (
+          <li key={i} className="flex items-start gap-3">
+            <div className={`mt-0.5 h-5 w-5 rounded-full flex items-center justify-center flex-shrink-0 ${
+              accent ? "bg-primary/20 border border-primary/40" : "bg-primary/10"
+            }`}>
+              <Check className="h-3 w-3 text-primary" />
+            </div>
+            <span className={`text-sm leading-relaxed ${accent ? "text-background/70" : "text-muted-foreground"}`}>{point}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function ForBuyersSection() {
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
-      <div className="container px-4">
-        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 md:gap-12">
-          {/* First-Time Buyers */}
-          <div className="bg-card rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border shadow-sm">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
-              <Home className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 text-left">
-              For First-Time Buyers
-            </h3>
-            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 text-left">
-              We turn a confusing presale process into a clear, guided plan.
-            </p>
-            <ul className="space-y-2 sm:space-y-3">
-              {firstTimeBuyerPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-2 sm:gap-3 text-left">
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
-                  </div>
-                  <span className="text-xs sm:text-sm text-muted-foreground">{point}</span>
-                </li>
-              ))}
-            </ul>
+    <section className="py-20 md:py-28 bg-background">
+      <div className="container px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
+
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary block mb-4">Who We Help</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground leading-tight">
+              Guidance for Every <span className="text-primary">Buyer</span>
+            </h2>
           </div>
-          
-          {/* Investors */}
-          <div className="bg-card rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-8 border shadow-sm">
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center mb-3 sm:mb-4">
-              <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
-            </div>
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-2 text-left">
-              For Investors
-            </h3>
-            <p className="text-sm sm:text-base text-muted-foreground mb-4 sm:mb-6 text-left">
-              We help you use presales to grow a stronger, safer portfolio.
-            </p>
-            <ul className="space-y-2 sm:space-y-3">
-              {investorPoints.map((point, index) => (
-                <li key={index} className="flex items-start gap-2 sm:gap-3 text-left">
-                  <div className="w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Check className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-primary" />
-                  </div>
-                  <span className="text-xs sm:text-sm text-muted-foreground">{point}</span>
-                </li>
-              ))}
-            </ul>
+
+          <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+            <BuyerCard
+              icon={Home}
+              title="First-Time Buyers"
+              subtitle="We turn a confusing presale process into a clear, guided plan."
+              points={firstTimeBuyerPoints}
+            />
+            <BuyerCard
+              icon={TrendingUp}
+              title="Investors"
+              subtitle="We help you use presales to grow a stronger, safer portfolio."
+              points={investorPoints}
+              accent
+            />
           </div>
+
         </div>
       </div>
     </section>

@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Linkedin, Instagram, Calendar } from "lucide-react";
@@ -37,22 +36,22 @@ export function MeetTheTeam() {
 
   if (isLoading) {
     return (
-      <section className="py-16 md:py-24 bg-muted/30">
-        <div className="container px-4">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">Meet the Team</h2>
-            <div className="w-20 h-1 bg-primary mx-auto mb-6 rounded-full" />
+      <section className="py-20 md:py-28 bg-muted/30">
+        <div className="container px-4 sm:px-6">
+          <div className="text-center mb-14">
+            <Skeleton className="h-4 w-32 mx-auto mb-4" />
+            <Skeleton className="h-10 w-64 mx-auto" />
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[1, 2, 3].map((i) => (
-              <Card key={i} className="overflow-hidden">
+              <div key={i} className="rounded-2xl overflow-hidden border bg-card">
                 <Skeleton className="aspect-[3/4] w-full" />
-                <CardContent className="p-6">
-                  <Skeleton className="h-6 w-32 mb-2" />
-                  <Skeleton className="h-4 w-24 mb-4" />
+                <div className="p-6 space-y-3">
+                  <Skeleton className="h-5 w-32" />
+                  <Skeleton className="h-4 w-24" />
                   <Skeleton className="h-16 w-full" />
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -60,9 +59,7 @@ export function MeetTheTeam() {
     );
   }
 
-  if (teamMembers.length === 0) {
-    return null;
-  }
+  if (teamMembers.length === 0) return null;
 
   const handleWorkWithAgent = (agentId: string, agentName: string, agentPhoto: string | null) => {
     setSelectedAgent({ id: agentId, name: agentName, photo: agentPhoto });
@@ -70,99 +67,108 @@ export function MeetTheTeam() {
   };
 
   return (
-    <section className="py-12 sm:py-16 md:py-24 bg-muted/30">
-      <div className="container px-4">
-        <div className="text-center mb-8 sm:mb-12">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-3 sm:mb-4">
-            Meet the Team
-          </h2>
-          <div className="w-16 sm:w-20 h-1 bg-primary mx-auto mb-4 sm:mb-6 rounded-full" />
-          <p className="text-sm sm:text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
-            Our dedicated specialists bring together decades of combined experience in presale real estate, 
-            each focusing on what they do best.
-          </p>
-        </div>
+    <section className="py-20 md:py-28 bg-muted/30">
+      <div className="container px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto">
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
-          {teamMembers.map((member) => (
-            <Card key={member.id} className="overflow-hidden hover:shadow-lg transition-shadow group">
-              <div className="aspect-[3/4] relative">
-                {member.photo_url ? (
-                  <img
-                    src={member.photo_url}
-                    alt={member.full_name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                    <span className="text-5xl sm:text-6xl md:text-7xl font-bold text-primary/30">
-                      {member.full_name.charAt(0)}
-                    </span>
+          <div className="text-center mb-14">
+            <span className="text-xs font-bold uppercase tracking-[0.25em] text-primary block mb-4">Our People</span>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground leading-tight mb-4">
+              Meet the <span className="text-primary">Team</span>
+            </h2>
+            <p className="text-muted-foreground max-w-xl mx-auto">
+              Dedicated specialists bringing together decades of combined experience in presale real estate.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {teamMembers.map((member) => (
+              <div
+                key={member.id}
+                className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-primary/30 hover:shadow-xl transition-all duration-500"
+              >
+                {/* Photo */}
+                <div className="aspect-[4/5] relative overflow-hidden">
+                  {member.photo_url ? (
+                    <img
+                      src={member.photo_url}
+                      alt={member.full_name}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                      <span className="text-7xl font-black text-primary/25">
+                        {member.full_name.charAt(0)}
+                      </span>
+                    </div>
+                  )}
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/10 to-transparent" />
+
+                  {/* Name on image */}
+                  <div className="absolute bottom-5 left-5 right-5">
+                    <h3 className="text-xl font-extrabold text-white leading-tight">{member.full_name}</h3>
+                    <p className="text-primary text-sm font-semibold mt-0.5">{member.title}</p>
                   </div>
-                )}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                <div className="absolute bottom-3 sm:bottom-4 left-3 sm:left-4 right-3 sm:right-4">
-                  <h3 className="text-lg sm:text-xl font-bold text-white">{member.full_name}</h3>
-                  <p className="text-primary font-medium text-sm sm:text-base">{member.title}</p>
+
+                  {/* Social links */}
+                  {(member.linkedin_url || member.instagram_url) && (
+                    <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      {member.linkedin_url && (
+                        <a
+                          href={member.linkedin_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
+                          aria-label={`${member.full_name}'s LinkedIn`}
+                        >
+                          <Linkedin className="h-3.5 w-3.5 text-[#0077B5]" />
+                        </a>
+                      )}
+                      {member.instagram_url && (
+                        <a
+                          href={member.instagram_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="p-2 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
+                          aria-label={`${member.full_name}'s Instagram`}
+                        >
+                          <Instagram className="h-3.5 w-3.5 text-[#E4405F]" />
+                        </a>
+                      )}
+                    </div>
+                  )}
                 </div>
-                {/* Social Links Overlay */}
-                {(member.linkedin_url || member.instagram_url) && (
-                  <div className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 flex gap-1.5 sm:gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    {member.linkedin_url && (
-                      <a
-                        href={member.linkedin_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
-                        aria-label={`${member.full_name}'s LinkedIn`}
-                      >
-                        <Linkedin className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-[#0077B5]" />
-                      </a>
-                    )}
-                    {member.instagram_url && (
-                      <a
-                        href={member.instagram_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="p-1.5 bg-white/90 backdrop-blur-sm rounded-full hover:bg-white transition-colors shadow-sm"
-                        aria-label={`${member.full_name}'s Instagram`}
-                      >
-                        <Instagram className="h-3 w-3 sm:h-3.5 sm:w-3.5 md:h-4 md:w-4 text-[#E4405F]" />
-                      </a>
-                    )}
-                  </div>
-                )}
+
+                {/* Card body */}
+                <div className="p-6">
+                  {member.bio && (
+                    <p className="text-muted-foreground text-sm mb-4 leading-relaxed line-clamp-3">
+                      {member.bio}
+                    </p>
+                  )}
+                  {member.specializations && member.specializations.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-5">
+                      {member.specializations.map((spec) => (
+                        <Badge key={spec} variant="secondary" className="bg-primary/10 text-primary text-[11px]">
+                          {spec}
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                  <Button
+                    size="sm"
+                    className="w-full gap-2 h-10"
+                    onClick={() => handleWorkWithAgent(member.id, member.full_name, member.photo_url)}
+                  >
+                    <Calendar className="h-4 w-4" />
+                    Work with {member.full_name.split(" ")[0]}
+                  </Button>
+                </div>
               </div>
-              <CardContent className="p-4 sm:p-5 md:p-6">
-                {member.bio && (
-                  <p className="text-muted-foreground text-xs sm:text-sm mb-3 sm:mb-4 leading-relaxed line-clamp-3">
-                    {member.bio}
-                  </p>
-                )}
-                {member.specializations && member.specializations.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-3 sm:mb-4">
-                    {member.specializations.map((spec) => (
-                      <Badge
-                        key={spec}
-                        variant="secondary"
-                        className="bg-primary/10 text-primary text-[10px] sm:text-xs"
-                      >
-                        {spec}
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-                <Button
-                  size="sm"
-                  className="w-full gap-2 text-xs sm:text-sm"
-                  onClick={() => handleWorkWithAgent(member.id, member.full_name, member.photo_url)}
-                >
-                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                  <span>Work with {member.full_name.split(" ")[0]}</span>
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+            ))}
+          </div>
+
         </div>
       </div>
 
