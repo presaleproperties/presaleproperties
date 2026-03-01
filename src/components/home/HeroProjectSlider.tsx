@@ -103,10 +103,10 @@ export function HeroProjectSlider({ lightOverlay }: { lightOverlay?: boolean } =
 
           {/* Badges */}
           <div className="flex items-center gap-1 mb-1 sm:mb-2">
-            <span className="inline-flex items-center gap-0.5 text-[7px] sm:text-[10px] font-black uppercase tracking-[0.12em] bg-primary text-primary-foreground px-1.5 py-[1px] sm:px-2.5 sm:py-0.5 rounded">
+            <span className="inline-flex items-center gap-0.5 text-[5px] sm:text-[10px] font-black uppercase tracking-[0.10em] bg-primary text-primary-foreground px-1 py-[1px] sm:px-2.5 sm:py-0.5 rounded">
               {project.status === "active" ? "Now Selling" : project.status === "coming_soon" ? "Coming Soon" : project.status === "registering" ? "Register Now" : "Sold Out"}
             </span>
-            <span className="inline-flex items-center gap-0.5 text-[7px] sm:text-[10px] font-semibold text-white/60 bg-white/10 backdrop-blur-sm px-1.5 py-[1px] sm:px-2 sm:py-0.5 rounded border border-white/15 uppercase tracking-wider">
+            <span className="inline-flex items-center gap-0.5 text-[5px] sm:text-[10px] font-semibold text-white/60 bg-white/10 backdrop-blur-sm px-1 py-[1px] sm:px-2 sm:py-0.5 rounded border border-white/15 uppercase tracking-wider">
               {getTypeIcon(project.project_type)}
               {getTypeLabel(project.project_type)}
             </span>
