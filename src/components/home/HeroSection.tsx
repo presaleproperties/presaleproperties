@@ -148,14 +148,14 @@ export function HeroSection({
   return (
     <>
       {/* Hero Section — minimal premium */}
-      <section className="relative flex flex-col items-center justify-center overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
+      <section className="relative flex flex-col items-center justify-start overflow-hidden" style={{ minHeight: "calc(100dvh - 72px)" }}>
         {/* Auto-scrolling project slider as background */}
         <HeroProjectSlider />
         {/* Fallback overlay for when slider loads */}
         <div className="absolute inset-0 bg-black/10 z-[2] pointer-events-none" />
 
         {/* Centered Content */}
-        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8" style={{ paddingTop: "clamp(8px, 2vh, 32px)" }}>
+        <div className="relative z-[5] w-full flex flex-col items-center px-5 sm:px-8" style={{ paddingTop: "0" }}>
 
 
 
