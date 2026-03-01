@@ -180,7 +180,7 @@ export function MobileHomePage({ activeTab: controlledTab, onTabChange }: Mobile
         <HeroProjectSlider lightOverlay />
 
         {/* Hero Content — anchored to top only, never covers bottom project card */}
-        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible" style={{ paddingTop: "28%" }}>
+        <div className="absolute inset-0 z-[5] flex flex-col items-center justify-start px-5 overflow-visible" style={{ paddingTop: "38%" }}>
 
           {/* Headline */}
           <h1 className="text-[2rem] sm:text-4xl font-extrabold text-white leading-[1.08] text-center mb-2 tracking-tight max-w-[320px] sm:max-w-md" style={{ textShadow: "0 2px 40px rgba(0,0,0,0.6)" }}>
