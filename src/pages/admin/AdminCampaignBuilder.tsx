@@ -502,7 +502,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
         }}
       >
         {/* Header bar */}
-        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "6px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0 }}>
+        <div style={{ background: C.ink, borderBottom: `3px solid ${C.gold}`, padding: "0px 16px", height: 52, display: "flex", alignItems: "center", justifyContent: "space-between", flexShrink: 0, overflow: "hidden" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             <LogoWhite height={90} />
             <div style={{ width: 1, height: 32, background: "#333", flexShrink: 0 }} />
