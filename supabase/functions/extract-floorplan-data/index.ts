@@ -23,11 +23,16 @@ Deno.serve(async (req) => {
 
 Return ONLY the JSON object, nothing else. Example: {"planName":"Plan A","unitType":"1 Bed 1 Bath","interiorSqft":612,"balconySqft":80}`;
 
-    const response = await fetch("https://api.lovable.ai/v1/chat/completions", {
+    // Try OpenRouter as the AI gateway (supports vision models)
+    const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
+        "HTTP-Referer": "https://presaleproperties.lovable.app",
+      },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.0-flash-exp:free",
         messages: [
           {
             role: "user",
@@ -43,7 +48,7 @@ Return ONLY the JSON object, nothing else. Example: {"planName":"Plan A","unitTy
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`AI API error: ${err}`);
+      throw new Error(`AI API error (${response.status}): ${err}`);
     }
 
     const aiResult = await response.json();
@@ -51,7 +56,14 @@ Return ONLY the JSON object, nothing else. Example: {"planName":"Plan A","unitTy
     
     // Strip markdown code fences if present
     const cleaned = raw.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const extracted = JSON.parse(cleaned);
+    
+    let extracted: Record<string, unknown>;
+    try {
+      extracted = JSON.parse(cleaned);
+    } catch {
+      const match = cleaned.match(/\{[\s\S]*\}/);
+      extracted = match ? JSON.parse(match[0]) : {};
+    }
 
     return new Response(JSON.stringify(extracted), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
