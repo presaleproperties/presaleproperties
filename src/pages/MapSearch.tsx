@@ -734,7 +734,7 @@ export default function MapSearch() {
     queryKey: ["unified-map-resale-2024-multi", selectedCities, selectedPropertyTypes, selectedPriceRanges, filters.priceMin, filters.priceMax, filters.beds, filters.baths, filters.daysOnSite, filters.sqftMin, filters.sqftMax, enabledCities],
     queryFn: async () => {
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select(
           "id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name"
         )
@@ -798,7 +798,7 @@ export default function MapSearch() {
         const fetchPage = async (offset: number): Promise<MLSListing[]> => {
           const citiesToQuery = selectedCities.length > 0 ? selectedCities : (enabledCities || []);
           const { data, error } = await supabase
-            .from("mls_listings")
+            .from("mls_listings_safe")
             .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, street_suffix, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
             .eq("mls_status", "Active")
             .not("latitude", "is", null)

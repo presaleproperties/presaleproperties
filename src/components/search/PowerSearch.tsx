@@ -117,8 +117,8 @@ export function PowerSearch({
       // 1. Search MLS Listings (resale properties) - DATABASE LEVEL
       if (mode === "all" || mode === "resale") {
         const mlsPromise = (async () => {
-          let query = supabase
-            .from("mls_listings")
+      let query = supabase
+            .from("mls_listings_safe")
             .select(`
               id, listing_key, listing_price, city, neighborhood,
               street_number, street_name, street_suffix, unit_number,

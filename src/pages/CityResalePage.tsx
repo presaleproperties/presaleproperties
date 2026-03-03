@@ -278,7 +278,7 @@ export default function CityResalePage() {
 
       // First, get total count
       let countQuery = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("*", { count: "exact", head: true })
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
@@ -307,7 +307,7 @@ export default function CityResalePage() {
 
       // Then get paginated data
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, mls_status, property_type, property_sub_type, city, neighborhood, unparsed_address, street_number, street_name, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, list_date, year_built")
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)
@@ -364,7 +364,7 @@ export default function CityResalePage() {
       if (!cityConfig) return [];
 
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, list_date, city, neighborhood, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, latitude, longitude, photos, mls_status, year_built, list_agent_name, list_office_name")
         .eq("mls_status", "Active")
         .ilike("city", cityConfig.name)

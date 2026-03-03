@@ -131,7 +131,7 @@ export default function ResaleBedroomPage() {
       if (!cityConfig || !bedroomConfig) return { listings: [], totalCount: 0 };
 
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("*", { count: "exact" })
         .eq("mls_status", "Active")
         .ilike("city", `%${cityConfig.dbName}%`)

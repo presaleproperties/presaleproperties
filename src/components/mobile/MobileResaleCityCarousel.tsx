@@ -47,7 +47,7 @@ export function MobileResaleCityCarousel({ city, title }: MobileResaleCityCarous
     queryKey: ["mobile-resale-city-2024", city],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("id, listing_key, listing_price, city, neighborhood, unparsed_address, street_number, street_name, property_type, property_sub_type, bedrooms_total, bathrooms_total, living_area, photos, days_on_market, mls_status, year_built, list_agent_name, list_office_name, virtual_tour_url")
         .eq("mls_status", "Active")
         .ilike("city", `%${city}%`)

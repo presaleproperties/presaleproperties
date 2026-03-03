@@ -32,7 +32,7 @@ export function CityDiscoverySection() {
       
       for (const city of CITIES) {
         const { data, error } = await supabase
-          .from("mls_listings")
+          .from("mls_listings_safe")
           .select("listing_price, property_type")
           .eq("mls_status", "Active")
           .ilike("city", `%${city.name}%`)

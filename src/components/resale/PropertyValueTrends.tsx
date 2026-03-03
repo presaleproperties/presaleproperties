@@ -55,7 +55,7 @@ export function PropertyValueTrends({
       twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 12);
       
       let query = supabase
-        .from("mls_listings")
+        .from("mls_listings_safe")
         .select("listing_price, list_date, property_type")
         .eq("city", city)
         .gte("list_date", twelveMonthsAgo.toISOString().split('T')[0])

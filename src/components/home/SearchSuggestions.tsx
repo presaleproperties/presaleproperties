@@ -80,7 +80,7 @@ export function SearchSuggestions({
       } else {
         // Get MLS listings data for resale
         const { data: listings } = await supabase
-          .from("mls_listings")
+          .from("mls_listings_safe")
           .select("city, neighborhood")
           .eq("mls_status", "Active")
           .limit(100);
@@ -166,7 +166,7 @@ export function SearchSuggestions({
         
         // Fetch more data to support MLS# and address search
         const { data: listings } = await supabase
-          .from("mls_listings")
+          .from("mls_listings_safe")
           .select("listing_key, city, neighborhood, street_number, street_name, street_suffix, listing_price")
           .eq("mls_status", "Active")
           .gte("year_built", 2024)
