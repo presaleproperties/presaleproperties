@@ -194,9 +194,6 @@ function OnePagerPreview({ data }: { data: FormState }) {
           <div style={{ display: "inline-block", background: C.gold, borderRadius: 22, padding: "5px 14px", fontSize: 7.5, fontWeight: 800, color: "#111", letterSpacing: "0.14em" }}>
             {data.vipBadge || "VIP EXCLUSIVE PRICING"}
           </div>
-          <div style={{ fontSize: 5.5, color: "rgba(255,255,255,0.5)", fontStyle: "italic", marginTop: 3 }}>
-            Exclusive to Presale Properties Group clients only.
-          </div>
         </div>
 
         {/* bottom-left project info */}
