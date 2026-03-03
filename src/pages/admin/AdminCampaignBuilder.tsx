@@ -137,11 +137,12 @@ function OnePagerPreview({ data }: { data: FormState }) {
       className="pdf-page"
       style={{
         width: 612,
+        height: 792,
+        overflow: "hidden",
         background: C.offWhite,
         fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif",
         position: "relative",
         boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
-        overflow: "visible",
       }}
     >
       {/* ── 1. HERO ── */}
@@ -637,7 +638,8 @@ export default function AdminCampaignBuilder() {
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
-      const SCALE = 10; // 10x = 6120px wide — exceeds 4K
+      // Scale 3 = 1836px wide — high quality without hitting JS string limits
+      const SCALE = 3;
 
       let pdf: jsPDF | null = null;
 
@@ -645,24 +647,21 @@ export default function AdminCampaignBuilder() {
         const el = pageEls[i];
         const isOnePager = i === 0;
 
-        let captureEl = el;
+        let captureEl: HTMLElement = el;
         let host: HTMLDivElement | null = null;
 
         if (isOnePager) {
-          // ── Isolated off-screen clone: decouples from scroll, transforms, overflow ──
+          // Isolated off-screen clone — decoupled from scroll, transforms & overflow
           const clone = el.cloneNode(true) as HTMLElement;
-          clone.style.transform = "none";
+          clone.style.cssText += ";transform:none;width:612px;height:792px;overflow:hidden;";
           clone.style.background = "#0d0d0d";
           host = document.createElement("div");
-          host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;overflow:visible;z-index:-1;pointer-events:none;";
+          host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;height:792px;overflow:hidden;z-index:-1;pointer-events:none;";
           host.appendChild(clone);
           document.body.appendChild(host);
-          // Wait 2 frames for full layout paint
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
           captureEl = host;
         }
-
-        const captureH = isOnePager ? captureEl.offsetHeight : PDF_H_PT;
 
         const canvas = await html2canvas(captureEl, {
           scale: SCALE,
@@ -671,32 +670,26 @@ export default function AdminCampaignBuilder() {
           backgroundColor: isOnePager ? "#0d0d0d" : null,
           logging: false,
           width: DESIGN_W_PX,
-          height: captureH,
+          height: PDF_H_PT,
           windowWidth: DESIGN_W_PX,
-          windowHeight: captureH,
+          windowHeight: PDF_H_PT,
           x: 0,
           y: 0,
         });
 
-        // Remove clone host after capture
         if (host) {
           document.body.removeChild(host);
           host = null;
         }
 
-        // Compute natural PDF height (1px at 612px design width = 1pt)
-        const naturalH_pt = (canvas.height / SCALE);
+        const imgData = canvas.toDataURL("image/jpeg", 0.92);
 
         if (isOnePager) {
-          // Custom page exactly matching rendered height — zero scaling, pixel-perfect
-          pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, naturalH_pt], orientation: "portrait" });
-          const imgData = canvas.toDataURL("image/png");
-          pdf.addImage(imgData, "PNG", 0, 0, PDF_W_PT, naturalH_pt, undefined, "NONE");
+          pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, PDF_H_PT], orientation: "portrait" });
+          pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
         } else {
-          // Floor plan pages: standard Letter
           pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
-          const imgData = canvas.toDataURL("image/png");
-          pdf!.addImage(imgData, "PNG", 0, 0, PDF_W_PT, PDF_H_PT, undefined, "NONE");
+          pdf!.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
         }
       }
 
