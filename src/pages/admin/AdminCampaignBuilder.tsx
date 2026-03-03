@@ -1546,12 +1546,8 @@ export default function AdminCampaignBuilder() {
               ref={previewRef}
               className="flex-1 overflow-auto flex items-start justify-center p-3"
             >
-              <div style={{ width: 1224, flexShrink: 0 }}>
-                <div style={{ transform: "scale(2)", transformOrigin: "top left", width: 612 }}>
-                  <div id="print-root" style={{ width: 612, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
-                    <OnePagerPreview data={form} />
-                  </div>
-                </div>
+              <div id="print-root" style={{ width: 612, display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+                <OnePagerPreview data={form} />
               </div>
             </div>
           </div>
