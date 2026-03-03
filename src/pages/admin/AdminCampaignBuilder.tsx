@@ -640,14 +640,15 @@ export default function AdminCampaignBuilder() {
       const cW = Math.round(el.offsetWidth)  || 612;
       const cH = Math.round(el.scrollHeight) || 900;
 
-      // windowWidth must match the actual rendered viewport so that font sizes
-      // and layout match 1:1 with the live preview.
+      // Lock windowWidth to the page width so html2canvas computes flex/layout
+      // identically to what the 612px-wide preview renders — prevents badge
+      // stretching and image compression from wide-viewport context.
       const canvas = await html2canvas(el, {
         scale: 4, useCORS: true, allowTaint: false, logging: false,
         backgroundColor: "#ffffff",
         width: cW, height: cH,
-        windowWidth: document.documentElement.clientWidth,
-        windowHeight: document.documentElement.clientHeight,
+        windowWidth: cW,
+        windowHeight: cH,
         x: 0, y: 0, scrollX: 0, scrollY: 0,
       });
 
