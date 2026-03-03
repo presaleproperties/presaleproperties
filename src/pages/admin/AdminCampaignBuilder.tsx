@@ -190,7 +190,7 @@ function OnePagerPreview({ data }: { data: FormState }) {
         </div>
 
         {/* top-right VIP badge */}
-        <div style={{ position: "absolute", top: 16, right: 18, textAlign: "right" }}>
+        <div style={{ position: "absolute", top: 14, right: 18, height: 72, display: "flex", alignItems: "center" }}>
           <div style={{ display: "inline-block", background: C.gold, borderRadius: 22, padding: "5px 14px", fontSize: 7.5, fontWeight: 800, color: "#111", letterSpacing: "0.14em" }}>
             {data.vipBadge || "VIP EXCLUSIVE PRICING"}
           </div>
