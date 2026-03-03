@@ -4,12 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Building2, User, DollarSign, FileText, Sparkles, Download, Save, Upload,
-  Plus, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, AlertCircle
+  Plus, Trash2, Image as ImageIcon, BookOpen, Layers, FileSpreadsheet, Check,
+  ChevronsUpDown, Wand2, Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -74,8 +76,9 @@ interface FormState {
   pricingSheetUrl: string; // downloadable pricing sheet URL
 }
 
+let _planId = 0;
 const emptyPlan = (): Plan => ({
-  id: Date.now(), name: "", type: "", sqft: "", bal: "",
+  id: ++_planId, name: "", type: "", sqft: "", bal: "",
   wasPrice: "", nowPrice: "", saved: "", psf: "", floorPlanUrl: "",
 });
 
@@ -374,6 +377,8 @@ export default function AdminCampaignBuilder() {
   const [projects, setProjects] = useState<ProjectOption[]>([]);
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [loading, setLoading] = useState(true);
+  const [projectSearchOpen, setProjectSearchOpen] = useState(false);
+  const [extractingPlan, setExtractingPlan] = useState<number | null>(null);
   const previewRef = useRef<HTMLDivElement>(null);
 
   // Fetch projects
@@ -520,11 +525,74 @@ export default function AdminCampaignBuilder() {
   const handlePlanFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, idx: number) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    toast.loading("Uploading floor plan…");
+    const toastId = toast.loading("Uploading floor plan…");
     const url = await uploadFile(file, "campaign-floorplans");
-    toast.dismiss();
-    if (url) { setPlan(idx, "floorPlanUrl", url); toast.success("Floor plan uploaded ✓"); }
+    toast.dismiss(toastId);
+    if (!url) return;
+
+    setPlan(idx, "floorPlanUrl", url);
+
+    // Only attempt AI extraction on image files (not PDFs)
+    if (file.type.startsWith("image/")) {
+      setExtractingPlan(idx);
+      toast.loading("Extracting plan info with AI…", { id: `extract-${idx}` });
+      try {
+        const { data, error } = await supabase.functions.invoke("extract-floorplan-data", {
+          body: { imageUrl: url },
+        });
+        if (!error && data) {
+          setForm(f => {
+            const plans = f.plans.map((p, i) => {
+              if (i !== idx) return p;
+              return {
+                ...p,
+                name: data.planName || p.name,
+                type: data.unitType || p.type,
+                sqft: data.interiorSqft ? String(data.interiorSqft) : p.sqft,
+                bal: data.balconySqft ? String(data.balconySqft) : p.bal,
+              };
+            });
+            return { ...f, plans };
+          });
+          toast.success("AI extracted plan details ✓", { id: `extract-${idx}` });
+        } else {
+          toast.dismiss(`extract-${idx}`);
+          toast.success("Floor plan uploaded ✓");
+        }
+      } catch {
+        toast.dismiss(`extract-${idx}`);
+        toast.success("Floor plan uploaded ✓");
+      } finally {
+        setExtractingPlan(null);
+      }
+    } else {
+      toast.success("Floor plan uploaded ✓");
+    }
   };
+
+  // Auto-calculate saved and psf when nowPrice or sqft changes
+  const setPlanWithCalc = (idx: number, key: keyof Plan, val: string) => {
+    setForm(f => {
+      const plans = f.plans.map((p, i) => {
+        if (i !== idx) return p;
+        const updated = { ...p, [key]: val };
+        // Auto-calculate saved (wasPrice - nowPrice)
+        const wasNum = parseFloat(String(updated.wasPrice).replace(/[^0-9.]/g, ""));
+        const nowNum = parseFloat(String(updated.nowPrice).replace(/[^0-9.]/g, ""));
+        const sqftNum = parseFloat(String(updated.sqft).replace(/[^0-9.]/g, ""));
+        if (!isNaN(wasNum) && !isNaN(nowNum) && wasNum > nowNum) {
+          updated.saved = `$${(wasNum - nowNum).toLocaleString()}`;
+        }
+        if (!isNaN(nowNum) && !isNaN(sqftNum) && sqftNum > 0) {
+          updated.psf = `$${Math.round(nowNum / sqftNum).toLocaleString()}`;
+        }
+        return updated;
+      });
+      return { ...f, plans };
+    });
+  };
+
+
 
   return (
     <AdminLayout>
@@ -570,20 +638,52 @@ export default function AdminCampaignBuilder() {
                 </div>
               </div>
 
-              {/* Project selector */}
-              <Select value={selectedProjectId} onValueChange={handleProjectSelect}>
-                <SelectTrigger className="w-full h-9 text-xs">
-                  <SelectValue placeholder={loading ? "Loading projects…" : "Select a project to auto-fill"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {projects.map(p => (
-                    <SelectItem key={p.id} value={p.id} className="text-xs">
-                      <span className="font-semibold">{p.name}</span>
-                      <span className="text-muted-foreground ml-1.5">· {p.city}</span>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Project searchable combobox */}
+              <Popover open={projectSearchOpen} onOpenChange={setProjectSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={projectSearchOpen}
+                    className="w-full h-9 text-xs justify-between font-normal"
+                  >
+                    <span className="truncate">
+                      {selectedProjectId
+                        ? projects.find(p => p.id === selectedProjectId)?.name ?? "Select project…"
+                        : loading ? "Loading projects…" : "Search & select a project…"}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[340px] p-0" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search by name, city, developer…" className="h-9 text-xs" />
+                    <CommandList>
+                      <CommandEmpty className="text-xs py-4">No projects found.</CommandEmpty>
+                      <CommandGroup>
+                        {projects.map(p => (
+                          <CommandItem
+                            key={p.id}
+                            value={`${p.name} ${p.city} ${p.developer_name ?? ""}`}
+                            onSelect={() => {
+                              handleProjectSelect(p.id);
+                              setProjectSearchOpen(false);
+                            }}
+                            className="text-xs"
+                          >
+                            <Check className={cn("mr-2 h-3.5 w-3.5", selectedProjectId === p.id ? "opacity-100" : "opacity-0")} />
+                            <div className="min-w-0">
+                              <span className="font-semibold">{p.name}</span>
+                              <span className="text-muted-foreground ml-1.5">· {p.city}</span>
+                              {p.developer_name && <span className="text-muted-foreground/60 ml-1">· {p.developer_name}</span>}
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
             </div>
 
           {/* Tabs */}
@@ -661,65 +761,106 @@ export default function AdminCampaignBuilder() {
 
                   {form.plans.slice(0, form.planCount).map((plan, idx) => (
                     <div key={plan.id} className="rounded-xl border border-border bg-muted/30 p-3 space-y-2">
-                      <div className="flex items-center justify-between">
+                      {/* ── Floor Plan Upload (TOP of card) ── */}
+                      <div className="space-y-1">
+                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                          <Layers className="h-3 w-3" /> Floor Plan Image
+                          {extractingPlan === idx && <Loader2 className="h-3 w-3 animate-spin text-primary ml-1" />}
+                          {extractingPlan === idx && <span className="text-primary">Extracting with AI…</span>}
+                        </Label>
+                        {plan.floorPlanUrl ? (
+                          <div className="relative rounded-lg border border-primary/30 bg-background overflow-hidden">
+                            {plan.floorPlanUrl.match(/\.(jpg|jpeg|png|webp|gif)$/i) ? (
+                              <img src={plan.floorPlanUrl} alt={`Plan ${idx + 1}`} className="w-full max-h-40 object-contain" />
+                            ) : (
+                              <div className="flex items-center gap-2 px-3 py-2">
+                                <FileText className="h-4 w-4 text-primary" />
+                                <span className="text-[10px] text-primary font-medium flex-1 truncate">Floor plan PDF ready</span>
+                              </div>
+                            )}
+                            <div className="absolute top-1 right-1 flex gap-1">
+                              <label className="flex items-center justify-center h-6 w-6 rounded bg-background/90 border border-border cursor-pointer hover:bg-muted transition-colors" title="Re-upload">
+                                <input type="file" accept=".pdf,image/*" onChange={e => handlePlanFileUpload(e, idx)} className="hidden" />
+                                <Upload className="h-3 w-3 text-muted-foreground" />
+                              </label>
+                              <Button variant="ghost" size="icon" className="h-6 w-6 rounded bg-background/90 border border-border hover:bg-destructive/10" onClick={() => setPlan(idx, "floorPlanUrl", "")}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <label className={cn(
+                            "flex flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed cursor-pointer transition-colors py-5",
+                            extractingPlan === idx
+                              ? "border-primary/50 bg-primary/5"
+                              : "border-border hover:border-primary/50 hover:bg-muted/30"
+                          )}>
+                            <input type="file" accept=".pdf,image/*" onChange={e => handlePlanFileUpload(e, idx)} className="hidden" />
+                            {extractingPlan === idx ? (
+                              <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                            ) : (
+                              <>
+                                <div className="flex items-center gap-1.5">
+                                  <Upload className="h-4 w-4 text-muted-foreground" />
+                                  <Wand2 className="h-3.5 w-3.5 text-primary" />
+                                </div>
+                                <span className="text-[10px] text-muted-foreground font-medium">Upload floor plan · AI auto-fills info</span>
+                                <span className="text-[9px] text-muted-foreground/60">PDF or image accepted</span>
+                              </>
+                            )}
+                          </label>
+                        )}
+                      </div>
+
+                      <div className="flex items-center justify-between pt-1">
                         <Badge variant="outline" className="text-[10px] font-bold border-primary/30 text-primary">
                           Plan {idx + 1}
                         </Badge>
-                        {!plan.floorPlanUrl && (
-                          <span className="flex items-center gap-1 text-[9px] text-amber-600">
-                            <AlertCircle className="h-3 w-3" /> Floor plan required
-                          </span>
-                        )}
                       </div>
+
+                      {/* Plan detail fields */}
                       <div className="grid grid-cols-2 gap-2">
-                        {[
-                          ["name", "Plan Name"], ["type", "Unit Type"],
-                          ["sqft", "Interior sqft"], ["bal", "Balcony sqft"],
-                          ["wasPrice", "Was Price"], ["nowPrice", "Now Price"],
-                          ["saved", "Amount Saved"], ["psf", "Price/sqft"],
-                        ].map(([key, label]) => (
-                          <div key={key} className="space-y-1">
-                            <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">{label}</Label>
-                            <Input
-                              value={String((plan as any)[key] || "")}
-                              onChange={e => setPlan(idx, key as keyof Plan, e.target.value)}
-                              className="h-7 text-xs"
-                            />
-                          </div>
-                        ))}
+                        {(["name", "type", "sqft", "bal"] as const).map((key) => {
+                          const labels: Record<string, string> = { name: "Plan Name", type: "Unit Type", sqft: "Interior sqft", bal: "Balcony sqft" };
+                          return (
+                            <div key={key} className="space-y-1">
+                              <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">{labels[key]}</Label>
+                              <Input
+                                value={String(plan[key] || "")}
+                                onChange={e => setPlanWithCalc(idx, key, e.target.value)}
+                                className="h-7 text-xs"
+                              />
+                            </div>
+                          );
+                        })}
                       </div>
-                      {/* Floor Plan Upload */}
-                      <div className="space-y-1 pt-1 border-t border-border">
-                        <Label className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
-                          <Layers className="h-3 w-3" /> Floor Plan File (PDF/Image)
-                        </Label>
-                        {plan.floorPlanUrl ? (
-                          <div className="flex items-center gap-2 rounded-lg border border-primary/30 bg-primary/5 px-2 py-1.5">
-                            <Download className="h-3 w-3 text-primary shrink-0" />
-                            <span className="text-[10px] text-primary font-medium flex-1 truncate">Floor plan ready</span>
-                            <Button variant="ghost" size="sm" className="h-5 w-5 p-0 text-muted-foreground hover:text-destructive" onClick={() => setPlan(idx, "floorPlanUrl", "")}>
-                              <Trash2 className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ) : (
-                          <label className="flex items-center gap-2 rounded-lg border border-dashed border-amber-400/50 bg-amber-50/30 px-2 py-1.5 cursor-pointer hover:border-primary/50 transition-colors">
-                            <input type="file" accept=".pdf,image/*" onChange={e => handlePlanFileUpload(e, idx)} className="hidden" />
-                            <Upload className="h-3 w-3 text-amber-600 shrink-0" />
-                            <span className="text-[10px] text-muted-foreground">Upload floor plan PDF or image</span>
-                          </label>
-                        )}
+
+                      {/* Pricing fields — auto-calc saved & psf */}
+                      <div className="grid grid-cols-2 gap-2 border-t border-border pt-2">
                         <div className="space-y-1">
-                          <Label className="text-[9px] text-muted-foreground/70">Or paste URL:</Label>
-                          <Input
-                            value={plan.floorPlanUrl}
-                            onChange={e => setPlan(idx, "floorPlanUrl", e.target.value)}
-                            placeholder="https://..."
-                            className="h-7 text-xs"
-                          />
+                          <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Was Price</Label>
+                          <Input value={plan.wasPrice} onChange={e => setPlanWithCalc(idx, "wasPrice", e.target.value)} className="h-7 text-xs" placeholder="$599,000" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[9px] uppercase tracking-wider text-muted-foreground">Now Price</Label>
+                          <Input value={plan.nowPrice} onChange={e => setPlanWithCalc(idx, "nowPrice", e.target.value)} className="h-7 text-xs" placeholder="$549,000" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                            Amount Saved <span className="text-primary/60 normal-case font-normal">(auto)</span>
+                          </Label>
+                          <Input value={plan.saved} onChange={e => setPlan(idx, "saved", e.target.value)} className="h-7 text-xs bg-primary/5 border-primary/20" placeholder="auto-calculated" />
+                        </div>
+                        <div className="space-y-1">
+                          <Label className="text-[9px] uppercase tracking-wider text-muted-foreground flex items-center gap-1">
+                            Price/sqft <span className="text-primary/60 normal-case font-normal">(auto)</span>
+                          </Label>
+                          <Input value={plan.psf} onChange={e => setPlan(idx, "psf", e.target.value)} className="h-7 text-xs bg-primary/5 border-primary/20" placeholder="auto-calculated" />
                         </div>
                       </div>
                     </div>
                   ))}
+
 
                   {/* Offer details */}
                   <div className="pt-2 border-t border-border space-y-3">
