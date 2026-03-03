@@ -137,12 +137,11 @@ function OnePagerPreview({ data }: { data: FormState }) {
       className="pdf-page"
       style={{
         width: 612,
-        height: 792,
-        overflow: "hidden",
         background: C.offWhite,
         fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif",
         position: "relative",
         boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
+        overflow: "hidden",
       }}
     >
       {/* ── 1. HERO ── */}
@@ -214,18 +213,17 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 3. INCENTIVE BANNER ── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "9px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
-            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.9 }}>{data.incentiveBanner.headline}</span>
-            <div style={{ width: 16, height: 1, background: "rgba(255,255,255,0.4)" }} />
+        <div style={{ background: `linear-gradient(135deg, #145c2e 0%, #1e8c46 50%, #145c2e 100%)`, padding: "9px 20px", textAlign: "center", borderTop: "1px solid rgba(255,255,255,0.1)", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ display: "inline-block", width: 16, height: 1, background: "rgba(255,255,255,0.4)", verticalAlign: "middle", marginRight: 6 }} />
+            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.2em", textTransform: "uppercase", opacity: 0.9, verticalAlign: "middle" }}>{data.incentiveBanner.headline}</span>
+            <span style={{ display: "inline-block", width: 16, height: 1, background: "rgba(255,255,255,0.4)", verticalAlign: "middle", marginLeft: 6 }} />
           </div>
-          <div style={{ display: "flex", gap: 7, justifyContent: "center", flexWrap: "wrap" }}>
+          <div style={{ textAlign: "center" }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
-              <div key={i} style={{ background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "4px 11px", display: "inline-block", whiteSpace: "nowrap" }}>
-                <span style={{ color: "#a8ffbc", fontSize: 7, fontWeight: 800, verticalAlign: "middle" }}>✓ </span>
-                <span style={{ color: "#fff", fontSize: 7, fontWeight: 600, letterSpacing: "0.04em", verticalAlign: "middle" }}>{item}</span>
-              </div>
+              <span key={i} style={{ display: "inline-block", background: "rgba(255,255,255,0.14)", border: "1px solid rgba(255,255,255,0.28)", borderRadius: 20, padding: "4px 11px", margin: "2px 3px", whiteSpace: "nowrap", fontSize: 7, fontWeight: 600, color: "#fff", letterSpacing: "0.04em" }}>
+                <span style={{ color: "#a8ffbc", fontWeight: 800 }}>✓ </span>{item}
+              </span>
             ))}
           </div>
         </div>
@@ -278,38 +276,30 @@ function OnePagerPreview({ data }: { data: FormState }) {
               <span style={{ color: C.gold, fontSize: 6.5, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase" }}>Deposit Structure</span>
               {basePrice > 0 && <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 5.5 }}>Based on {plans[0]?.nowPrice || data.fromPrice}</span>}
             </div>
-            <div style={{ display: "flex", alignItems: "center" }}>
+            <div style={{ display: "table", width: "100%", tableLayout: "fixed" }}>
               {regularDeposits.map((d, i) => {
                 const autoAmt = calcAmount(d.percent);
                 const displayAmt = autoAmt || d.amount;
                 return (
-                  <div key={i} style={{ display: "flex", alignItems: "center", flex: 1 }}>
-                    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 56 }}>
-                      <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.gold, fontSize: 8, fontWeight: 800, color: "#111", marginBottom: 5, flexShrink: 0, textAlign: "center", lineHeight: "22px", display: "block" }}>
-                        {i + 1}
-                      </div>
-                      <div style={{ color: C.gold, fontSize: 7, fontWeight: 700 }}>{d.percent || "—"}</div>
-                      {displayAmt && <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 600, marginTop: 1 }}>{displayAmt}</div>}
-                      <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 5.5, marginTop: 2, textAlign: "center", maxWidth: 60 }}>{d.label}</div>
+                  <div key={i} style={{ display: "table-cell", textAlign: "center", verticalAlign: "top" }}>
+                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: C.gold, fontSize: 8, fontWeight: 800, color: "#111", marginBottom: 5, textAlign: "center", lineHeight: "22px", display: "inline-block" }}>
+                      {i + 1}
                     </div>
-                    {i < regularDeposits.length - 1 && (
-                      <div style={{ flex: 1, height: 1, background: `linear-gradient(90deg, ${C.gold}88, rgba(255,255,255,0.15))`, margin: "0 4px", marginBottom: 28 }} />
-                    )}
+                    <div style={{ color: C.gold, fontSize: 7, fontWeight: 700 }}>{d.percent || "—"}</div>
+                    {displayAmt && <div style={{ color: "#fff", fontSize: 6.5, fontWeight: 600, marginTop: 1 }}>{displayAmt}</div>}
+                    <div style={{ color: "rgba(255,255,255,0.45)", fontSize: 5.5, marginTop: 2, maxWidth: 60, margin: "2px auto 0" }}>{d.label}</div>
                   </div>
                 );
               })}
               {mortgageStep && (
-                <>
-                  <div style={{ flex: 1, height: 1, borderTop: "1.5px dashed rgba(255,255,255,0.2)", margin: "0 4px", marginBottom: 28 }} />
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 60 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#2a2a2a", border: `1.5px solid ${C.gold}`, marginBottom: 5, flexShrink: 0, textAlign: "center", lineHeight: "20px", fontSize: 11, display: "block" }}>
-                      🏠
-                    </div>
-                    <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700 }}>Completion</div>
-                    <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 5.5, marginTop: 2, textAlign: "center", maxWidth: 60 }}>Mortgage begins</div>
-                    <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 5, marginTop: 1, textAlign: "center" }}>{mortgageStep.label}</div>
+                <div style={{ display: "table-cell", textAlign: "center", verticalAlign: "top" }}>
+                  <div style={{ width: 22, height: 22, borderRadius: "50%", background: "#2a2a2a", border: `1.5px solid ${C.gold}`, marginBottom: 5, textAlign: "center", lineHeight: "19px", fontSize: 11, display: "inline-block" }}>
+                    🏠
                   </div>
-                </>
+                  <div style={{ color: C.gold, fontSize: 6.5, fontWeight: 700 }}>Completion</div>
+                  <div style={{ color: "rgba(255,255,255,0.55)", fontSize: 5.5, marginTop: 2 }}>Mortgage begins</div>
+                  <div style={{ color: "rgba(255,255,255,0.3)", fontSize: 5, marginTop: 1 }}>{mortgageStep.label}</div>
+                </div>
               )}
             </div>
           </div>
@@ -653,26 +643,27 @@ export default function AdminCampaignBuilder() {
         if (isOnePager) {
           // Isolated off-screen clone — decoupled from scroll, transforms & overflow
           const clone = el.cloneNode(true) as HTMLElement;
-          clone.style.cssText += ";transform:none;width:612px;height:792px;overflow:hidden;";
-          clone.style.background = "#0d0d0d";
+          clone.style.cssText += ";transform:none;width:612px;overflow:visible;";
           host = document.createElement("div");
-          host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;height:792px;overflow:hidden;z-index:-1;pointer-events:none;";
+          host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;overflow:visible;z-index:-1;pointer-events:none;";
           host.appendChild(clone);
           document.body.appendChild(host);
           await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
           captureEl = host;
         }
 
+        const captureH = isOnePager ? captureEl.offsetHeight : PDF_H_PT;
+
         const canvas = await html2canvas(captureEl, {
           scale: SCALE,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: isOnePager ? "#0d0d0d" : null,
+          backgroundColor: isOnePager ? "#f8f6f2" : null,
           logging: false,
           width: DESIGN_W_PX,
-          height: PDF_H_PT,
+          height: captureH,
           windowWidth: DESIGN_W_PX,
-          windowHeight: PDF_H_PT,
+          windowHeight: captureH,
           x: 0,
           y: 0,
         });
@@ -682,11 +673,13 @@ export default function AdminCampaignBuilder() {
           host = null;
         }
 
-        const imgData = canvas.toDataURL("image/jpeg", 0.92);
+        // For one-pager: custom page size = content height (no clipping, no scaling)
+        const pageH = isOnePager ? (canvas.height / SCALE) : PDF_H_PT;
+        const imgData = canvas.toDataURL("image/jpeg", 0.93);
 
         if (isOnePager) {
-          pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, PDF_H_PT], orientation: "portrait" });
-          pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
+          pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, pageH], orientation: "portrait" });
+          pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, pageH);
         } else {
           pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
           pdf!.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
