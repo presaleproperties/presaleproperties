@@ -229,7 +229,7 @@ function OnePagerPage({ p }: { p: CampaignPDFProps }) {
           <View style={s.heroBadge}>
             <Text style={s.heroBadgeText}>{p.vipBadge || "VIP EXCLUSIVE PRICING"}</Text>
           </View>
-          <Text style={s.heroBadgeSub}>Exclusive to Presale Properties Group clients only.</Text>
+          
         </View>
         <View style={s.heroBottomLeft}>
           <View style={s.heroAccent} />
