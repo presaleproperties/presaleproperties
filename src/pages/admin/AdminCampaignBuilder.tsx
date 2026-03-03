@@ -253,17 +253,17 @@ function OnePagerPreview({ data }: { data: FormState }) {
 
       {/* ── 3. INCENTIVE BANNER ─────────────────────────────────────────────── */}
       {data.incentiveBanner.items.some(x => x) && (
-        <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "10px 20px 12px", borderTop: "1px solid rgba(255,255,255,0.08)", borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div style={{ background: "linear-gradient(135deg,#145c2e 0%,#1e8c46 50%,#145c2e 100%)", padding: "10px 16px 12px", borderTop: "1px solid rgba(255,255,255,0.08)", borderBottom: "1px solid rgba(255,255,255,0.08)", boxSizing: "border-box" as const, width: "100%", overflow: "visible" }}>
           {/* headline row */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 8, marginBottom: 8 }}>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
-            <span style={{ fontSize: 7.5, fontWeight: 800, color: "#fff", letterSpacing: "0.22em", textTransform: "uppercase" }}>
+            <span style={{ fontSize: 7, fontWeight: 800, color: "#fff", letterSpacing: "0.20em", textTransform: "uppercase" as const }}>
               {data.incentiveBanner.headline}
             </span>
             <div style={{ flex: 1, height: 1, background: "rgba(255,255,255,0.3)" }} />
           </div>
-          {/* badges row — flex-wrap so they never overflow */}
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 5 }}>
+          {/* badges row — single row, never wraps, equal flex distribution */}
+          <div style={{ display: "flex", flexWrap: "nowrap" as const, justifyContent: "center", alignItems: "center", gap: 5, width: "100%", overflow: "visible" }}>
             {data.incentiveBanner.items.filter(Boolean).map((item, i) => (
               <div
                 key={i}
@@ -271,12 +271,14 @@ function OnePagerPreview({ data }: { data: FormState }) {
                   background: "rgba(255,255,255,0.13)",
                   border: "1px solid rgba(255,255,255,0.3)",
                   borderRadius: 22,
-                  padding: "5px 13px",
-                  fontSize: 7.5,
+                  padding: "4px 10px",
+                  fontSize: 7,
                   fontWeight: 600,
                   color: "#fff",
-                  letterSpacing: "0.04em",
-                  whiteSpace: "nowrap",
+                  letterSpacing: "0.03em",
+                  whiteSpace: "nowrap" as const,
+                  flexShrink: 1,
+                  minWidth: 0,
                 }}
               >
                 <span style={{ color: "#a8ffbc", fontWeight: 800 }}>✓ </span>{item}
