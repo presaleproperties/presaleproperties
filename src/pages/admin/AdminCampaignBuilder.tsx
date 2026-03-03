@@ -135,12 +135,12 @@ function OnePagerPreview({ data }: { data: FormState }) {
       id="one-pager-preview"
       className="pdf-page"
       style={{
-        width: "100%",
+        width: 612,
         background: C.offWhite,
         fontFamily: "'Plus Jakarta Sans', 'DM Sans', sans-serif",
         position: "relative",
         boxShadow: "0 8px 80px rgba(0,0,0,0.5)",
-        overflow: "hidden",
+        overflow: "visible",
       }}
     >
       {/* ── 1. HERO ── */}
@@ -602,79 +602,48 @@ export default function AdminCampaignBuilder() {
       const PDF_W_PT = 612;
       const PDF_H_PT = 792;
       const DESIGN_W_PX = 612;
-      const SCALE = 4; // 4× retina = 2448px wide canvas, max quality
-
-      // Off-screen render container — full 612px, no clipping
-      const offscreen = document.createElement("div");
-      offscreen.style.cssText = `
-        position: fixed; left: -9999px; top: 0;
-        width: ${DESIGN_W_PX}px; background: transparent;
-        overflow: visible; z-index: -9999;
-      `;
-      document.body.appendChild(offscreen);
+      const SCALE = 4;
 
       let pdf: jsPDF | null = null;
 
-      try {
-        for (let i = 0; i < pageEls.length; i++) {
-          const isOnePager = i === 0;
-          const clone = pageEls[i].cloneNode(true) as HTMLElement;
+      for (let i = 0; i < pageEls.length; i++) {
+        const el = pageEls[i];
+        const isOnePager = i === 0;
 
-          clone.style.cssText += `
-            width: ${DESIGN_W_PX}px !important;
-            min-width: ${DESIGN_W_PX}px !important;
-            max-width: ${DESIGN_W_PX}px !important;
-            transform: none !important;
-            box-shadow: none !important;
-            margin: 0 !important;
-          `;
+        // Wait for layout to settle
+        await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-          // Floor plan pages: enforce strict Letter height so nothing overflows
-          if (!isOnePager) {
-            clone.style.cssText += `
-              height: ${PDF_H_PT}px !important;
-              max-height: ${PDF_H_PT}px !important;
-              overflow: hidden !important;
-            `;
-          }
+        // Capture height: for one-pager use full scrollHeight; for floor plans use fixed 792
+        const captureH = isOnePager ? el.scrollHeight : PDF_H_PT;
 
-          offscreen.innerHTML = "";
-          offscreen.appendChild(clone);
+        const canvas = await html2canvas(el, {
+          scale: SCALE,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: null,
+          logging: false,
+          width: DESIGN_W_PX,
+          height: captureH,
+          windowWidth: DESIGN_W_PX,
+          windowHeight: captureH,
+          x: 0,
+          y: 0,
+        });
 
-          // Two rAF passes — ensures full layout (images, fonts, flex) is settled
-          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+        // Compute natural PDF height (1px at 612px design width = 1pt)
+        const naturalH_pt = (canvas.height / SCALE);
 
-          const captureH = isOnePager ? clone.scrollHeight : PDF_H_PT;
-
-          const canvas = await html2canvas(clone, {
-            scale: SCALE,
-            useCORS: true,
-            allowTaint: true,
-            backgroundColor: null,
-            logging: false,
-            width: DESIGN_W_PX,
-            height: captureH,
-            windowWidth: DESIGN_W_PX,
-            windowHeight: captureH,
-          });
-
-          // Natural height in PDF points at full width
-          const naturalH_pt = (canvas.height / (DESIGN_W_PX * SCALE)) * PDF_W_PT;
-
-          if (isOnePager) {
-            // Page 0: custom tall page = pixel-perfect preview, PNG for lossless quality
-            pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, naturalH_pt], orientation: "portrait" });
-            const imgData = canvas.toDataURL("image/png");
-            pdf.addImage(imgData, "PNG", 0, 0, PDF_W_PT, naturalH_pt);
-          } else {
-            // Floor plan pages: standard Letter, JPEG (photos are fine with JPEG)
-            pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
-            const imgData = canvas.toDataURL("image/jpeg", 1.0);
-            pdf!.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
-          }
+        if (isOnePager) {
+          // Custom page exactly matching rendered height — zero scaling, pixel-perfect
+          pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, naturalH_pt], orientation: "portrait" });
+          const imgData = canvas.toDataURL("image/png");
+          pdf.addImage(imgData, "PNG", 0, 0, PDF_W_PT, naturalH_pt);
+        } else {
+          // Floor plan pages: standard Letter
+          pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
+          const imgData = canvas.toDataURL("image/png");
+          pdf!.addImage(imgData, "PNG", 0, 0, PDF_W_PT, PDF_H_PT);
         }
-      } finally {
-        document.body.removeChild(offscreen);
       }
 
       const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
@@ -1283,7 +1252,7 @@ export default function AdminCampaignBuilder() {
               ref={previewRef}
               className="flex-1 overflow-auto flex items-start justify-center p-3"
             >
-              <div id="print-root" style={{ width: "100%", maxWidth: 612, transformOrigin: "top center", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
+              <div id="print-root" style={{ width: 612, transformOrigin: "top left", display: "flex", flexDirection: "column", alignItems: "center", gap: 0 }}>
                 <OnePagerPreview data={form} />
               </div>
             </div>
