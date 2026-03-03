@@ -1,7 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import { CampaignPDFDocument } from "@/components/admin/CampaignPDF";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -620,80 +620,7 @@ export default function AdminCampaignBuilder() {
     }
   };
 
-  const generatePDF = async () => {
-    const pageEls = document.querySelectorAll<HTMLElement>(".pdf-page");
-    if (!pageEls.length) { toast.error("Preview not found"); return; }
-    toast.info("Generating PDF…");
-    try {
-      const PDF_W_PT = 612;
-      const PDF_H_PT = 792;
-      const DESIGN_W_PX = 612;
-      // Scale 3 = 1836px wide — high quality without hitting JS string limits
-      const SCALE = 3;
-
-      let pdf: jsPDF | null = null;
-
-      for (let i = 0; i < pageEls.length; i++) {
-        const el = pageEls[i];
-        const isOnePager = i === 0;
-
-        let captureEl: HTMLElement = el;
-        let host: HTMLDivElement | null = null;
-
-        if (isOnePager) {
-          // Isolated off-screen clone — decoupled from scroll, transforms & overflow
-          const clone = el.cloneNode(true) as HTMLElement;
-          clone.style.cssText += ";transform:none;width:612px;overflow:visible;";
-          host = document.createElement("div");
-          host.style.cssText = "position:fixed;left:-10000px;top:0;width:612px;overflow:visible;z-index:-1;pointer-events:none;";
-          host.appendChild(clone);
-          document.body.appendChild(host);
-          await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-          captureEl = host;
-        }
-
-        const captureH = isOnePager ? captureEl.offsetHeight : PDF_H_PT;
-
-        const canvas = await html2canvas(captureEl, {
-          scale: SCALE,
-          useCORS: true,
-          allowTaint: true,
-          backgroundColor: isOnePager ? "#f8f6f2" : null,
-          logging: false,
-          width: DESIGN_W_PX,
-          height: captureH,
-          windowWidth: DESIGN_W_PX,
-          windowHeight: captureH,
-          x: 0,
-          y: 0,
-        });
-
-        if (host) {
-          document.body.removeChild(host);
-          host = null;
-        }
-
-        // For one-pager: custom page size = content height (no clipping, no scaling)
-        const pageH = isOnePager ? (canvas.height / SCALE) : PDF_H_PT;
-        const imgData = canvas.toDataURL("image/jpeg", 0.93);
-
-        if (isOnePager) {
-          pdf = new jsPDF({ unit: "pt", format: [PDF_W_PT, pageH], orientation: "portrait" });
-          pdf.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, pageH);
-        } else {
-          pdf!.addPage([PDF_W_PT, PDF_H_PT], "portrait");
-          pdf!.addImage(imgData, "JPEG", 0, 0, PDF_W_PT, PDF_H_PT);
-        }
-      }
-
-      const projectSlug = form.projectName?.replace(/\s+/g, "-").toLowerCase() || "brochure";
-      pdf!.save(`${projectSlug}-exclusive.pdf`);
-      toast.success("PDF downloaded!");
-    } catch (err) {
-      console.error(err);
-      toast.error("PDF generation failed");
-    }
-  };
+  // PDF generation is now handled by PDFDownloadLink (react-pdf/renderer)
 
   // ── Upload a file to storage and return public URL ──────────────────────
   const uploadFile = async (file: File, folder: string): Promise<string | null> => {
@@ -909,10 +836,23 @@ export default function AdminCampaignBuilder() {
                       className="h-8 text-xs"
                     />
                   </div>
-                  <Button onClick={generatePDF} className="h-8 text-xs gap-1.5 px-3 flex-shrink-0">
-                    <Download className="h-3.5 w-3.5" />
-                    PDF
-                  </Button>
+                  <PDFDownloadLink
+                    document={
+                      <CampaignPDFDocument
+                        data={{ ...form, agent: PRESET_AGENTS[form.agentIdx] || PRESET_AGENTS[0] }}
+                        agent={PRESET_AGENTS[form.agentIdx] || PRESET_AGENTS[0]}
+                      />
+                    }
+                    fileName={`${(form.projectName || "campaign").replace(/\s+/g, "-").toLowerCase()}-exclusive.pdf`}
+                    className="flex-shrink-0"
+                  >
+                    {({ loading }) => (
+                      <Button disabled={loading} className="h-8 text-xs gap-1.5 px-3">
+                        {loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Download className="h-3.5 w-3.5" />}
+                        {loading ? "Building…" : "PDF"}
+                      </Button>
+                    )}
+                  </PDFDownloadLink>
                   <Button
                     variant="outline"
                     size="sm"
