@@ -149,12 +149,12 @@ function OnePagerPreview({ data }: { data: FormState }) {
         <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to bottom, rgba(0,0,0,0.25) 0%, rgba(0,0,0,0.1) 30%, rgba(0,0,0,0.75) 100%)" }} />
 
         {/* Top-left logo */}
-        <div style={{ position: "absolute", top: 14, left: 16 }}>
-          <LogoWhite height={64} />
+        <div style={{ position: "absolute", top: 12, left: 16 }}>
+          <LogoWhite height={90} />
         </div>
 
         {/* Top-right VIP badge */}
-        <div style={{ position: "absolute", top: 18, right: 18, background: C.gold, borderRadius: 20, padding: "4px 12px", fontSize: 7, fontWeight: 700, color: "#111", letterSpacing: "0.12em" }}>
+        <div style={{ position: "absolute", top: 36, right: 18, background: C.gold, borderRadius: 20, padding: "4px 12px", fontSize: 7, fontWeight: 700, color: "#111", letterSpacing: "0.12em" }}>
           {data.vipBadge}
         </div>
 
